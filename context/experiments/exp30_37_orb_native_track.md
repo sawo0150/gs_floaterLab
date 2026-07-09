@@ -126,6 +126,18 @@ enlarged tau는 **loss 없이도 이미 97~98%**가 "안"이다 — tau_t 반경
 2. enlarged tau plateau는 PSNR도 낮고(앞 섹션) 진짜 floater도 더 많다(이 섹션) — **이번 트랙에서는 기각**. 기본 tau + 일반 anchor(exp32)가 plateau 계열 중 최선.
 3. exp37(dense init, plateau 없음)이 여전히 가장 깨끗하다 — init을 촘촘하고 outlier 없이 만드는 것이 plateau loss보다 근본적으로 낫다는 이 트랙의 핵심 결론이 다시 한번 확인됨.
 
+### 왜 anchor plateau 안인데도 floater가 생기는가 (메커니즘)
+
+1. **Densification이 무작위로 뿌린다**: clone/split은 부모 Gaussian 주변에 scale 범위 안에서 jitter를 줘서 자식을 심는다. 부모가 관측 경계(virtual anchor가 있는, ray 희박한 scene 가장자리) 근처에 있으면 자식 일부가 우연히 unseen voxel로 넘어간다.
+2. **일단 들어가면 되돌릴 힘이 없다**: photometric loss는 그 위치를 지나는 ray가 없으니 gradient가 정확히 0. plateau loss는 `hinge=max(D-1,0)` 형태라 D≤1(plateau 안)이면 loss·gradient가 정확히 0 — enlarged tau 때문에 그 unseen voxel이 plateau 안에 들어가 있다면 plateau조차 "여기 있어도 된다"고 승인해버린다.
+3. 결과: densification이 우연히 심어놓은 위치·opacity 그대로 **영원히 얼어붙는다.** enlarged tau가 floater를 늘리는 이유는 "당겨서 넣어주기" 때문이 아니라 **"이미 잘못 심어진 애를 안 건드리는 면적을 넓혔기" 때문**이다.
+
+### 명시적 pruning + Z-layer 시각화 (2026-07-10)
+
+`scripts/diagnostic/prune_unseen_gaussians.py` — 8개 run 전부에서 unseen-voxel Gaussian을 실제로 잘라내 `pruned.ply`(남은 것)/`removed.ply`(잘린 것)로 저장 (62필드 원본 포맷 그대로, 표준 3DGS 뷰어에서 바로 열림). 결과: `results/diagnostic/rayprune_<ts>/<run>/{pruned,removed}.ply` — 전체 293MB라 git에는 안 올림.
+
+point cloud를 직접 봐서는 차이가 잘 안 보여서(잘린 비율이 0.1~0.5%로 작음), 제거된 점들의 Z-layer별 위치를 PDF로 그렸다 (`scripts/diagnostic/render_rayprune_zlayers.py`, 배경=그 Z-슬랩에서 ray-미관측 비율, 점=제거된 Gaussian을 opacity로 색칠). PDF(1.2MB)만 git에 포함: `results/diagnostic/rayprune_20260710_010352/rayprune_zlayers.pdf`.
+
 ## 사고 기록 (2026-07-09)
 
 exp30~33 자동 체인 launcher(`wait_and_chain.sh`)가 `pgrep -f`로 exp29 종료를 감지하려다 **자기 자신의 부모 프로세스 커맨드라인과 오매칭**돼 무한 대기에 빠짐. 수동으로 부모만 kill했는데 자식이 살아남아 있다가 부모 사망 후 정상 감지 로직이 풀리며 **똑같은 exp30~33을 또 한 번 실행** — 결과적으로 동일 실험이 두 세트 동시에 GPU를 나눠쓰며 돌아감. 발견 즉시 중복 체인 kill + 중복 결과 폴더 삭제, 하나만 남김. 위 "run-to-run 노이즈" 항목은 이 사고의 부산물로 얻은 관찰.
