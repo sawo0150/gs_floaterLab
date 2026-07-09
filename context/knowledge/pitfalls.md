@@ -17,6 +17,7 @@
 - large_scale_ratio가 낮아도 train/test PSNR이 낮으면 "compact하지만 잘못된 geometry"일 수 있다 (VGGT64 사례).
 - beta1 낮춤 실험의 의도는 momentum 강화가 아니라 **early 잘못된 gradient 누적 억제**. 재해석 주의.
 - `openmavis64_*` EVO 결과는 invalid (MPS subset에서 생성돼 APE≈0). 올바른 파일은 `openmavis_orb_64.*`. rotation APE는 frame convention 이슈 가능성 → translation 위주로 판단.
+- **\|Z\|>4m 개수나 "anchor plateau 안/밖 비율"은 floater 지표로 부정확하다** — 둘 다 위치만 보고 opacity(렌더링 기여)와 실제 ray 관측 여부를 무시한다. enlarged tau plateau는 이 지표들로는 좋아 보였지만, ray-density 기반 검증(`scripts/diagnostic/check_gaussian_ray_coverage.py`)으로는 오히려 opacity>0.5인 진짜 floater가 6배 더 많았다 — plateau 반경이 커질수록 관측된 적 없는 공간까지 침범하기 때문(`check_plateau_vs_raydensity.py`). **floater 판정은 "카메라 ray가 한 번이라도 지나간 3D voxel인가" + opacity로 하라.** (`experiments/exp30_37_orb_native_track.md`의 "floater 지표 재검토" 참조)
 
 ## 실험 설계
 
