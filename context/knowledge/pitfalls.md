@@ -1,0 +1,36 @@
+# Pitfalls — 피해야 할 함정
+
+> 실수/혼동이 실제 있었던 것만 기록. 마지막 갱신 2026-07-07.
+
+## 데이터/좌표
+
+- **anchor/포인트 npy를 학습에 쓰기 전, 반드시 학습 데이터셋 world와의 정렬을 검증하라** (표면 NN 거리 또는 reprojection). exp19~26의 plateau anchor는 raw Atlas world 좌표 그대로였는데 MPS world 학습에 무변환 사용됨 — 표면 대비 median 0.48m + scale x0.95 오차 (2026-07-09 exp27에서 발견). `eval/plateau_loss.py`는 anchor_path를 무변환 로드한다. 정렬본/변환: `results/diagnostic/plateau_ellipsoid_v4_20260705_041132/{anchors_all_depth_pro_mpsaligned.npy, T_atlas_to_mps.npz, ALIGNMENT_NOTE.md}`
+- **OpenMAVIS `f_*.txt`(전체 프레임 trajectory)는 첫 keyframe body 기준으로 재원점화된 world**이고, `orb_export/*.jsonl`(keyframes/map_points)은 raw Atlas world다. 둘을 합칠 땐 keyframe timestamp 매칭으로 정렬 변환을 계산해야 한다 — `scripts/pipeline/full_traj_to_rgb_3dgs.py`가 처리하고 잔차를 검증함.
+- **init 626,811 pts의 출처는 ORB-SLAM이 아니라 Aria MPS semi-dense**다. `aria_to_3dgs.py`가 confidence(`inv_dist_std`/`dist_std`)를 버리고 xyz만 덤프한다. 필터링하려면 이 스크립트를 수정해야 함. (`reference/workspace_map.md`)
+- `exp13`은 번호가 중복된다: 메인 트랙 `exp13_pcd_filter_full30k`와 VGGT 트랙 `exp13_vggt64`. result dir 이름으로 구분.
+- `data/rgb_3dgs_openmavis_batch_301_1253`(57장)은 초기에 "camera가 57개만 잡힌다"고 혼동했던 ORB keyframe 데이터. full 1311장 MPS 데이터와 별개.
+- ORB 좌표계의 Z≥2.0m clip은 Pop2를 거의 못 잡는다 (exp15에서 12개만 제거). Z 기준 pruning은 좌표계별로 재설계 필요.
+
+## 해석
+
+- **low_opacity_ratio가 낮다고 좋은 게 아니다.** low-opacity Gaussian 대부분은 표면 위에 있다 (floater 아님). PSNR/visual과 같이 봐야 함.
+- large_scale_ratio가 낮아도 train/test PSNR이 낮으면 "compact하지만 잘못된 geometry"일 수 있다 (VGGT64 사례).
+- beta1 낮춤 실험의 의도는 momentum 강화가 아니라 **early 잘못된 gradient 누적 억제**. 재해석 주의.
+- `openmavis64_*` EVO 결과는 invalid (MPS subset에서 생성돼 APE≈0). 올바른 파일은 `openmavis_orb_64.*`. rotation APE는 frame convention 이슈 가능성 → translation 위주로 판단.
+
+## 실험 설계
+
+- sparse depth prior를 강하게 걸면 outlier sparse geometry를 고정한다 (exp12). 필터링 후 + 약한 weight + delayed start가 전제조건.
+- plateau loss: λ ≤ 0.10, densification(7k) 이후 시작. opacity_weight/exp_loss/반복 hard pruning은 전부 역효과였다 (`rounds/round7_plateau_mps.md`).
+- VGGT frame 수 증가는 RAM이 아니라 **VRAM/attention memory** 병목. 96+ frames OOM.
+
+## 코드 (3dgs-custom)
+
+- **dirty worktree를 revert하지 말 것** — floater metric, sparse prior, renderer compatibility 수정이 커밋 안 된 상태로 들어있음.
+- `gaussian_renderer/__init__.py`에 installed `diff_gaussian_rasterization`이 `beta`/`alpha_depth`/`modes`를 지원 안 할 때의 fallback이 있음.
+- plateau `post_backward`는 반드시 densification 블록 **이후**에 호출 (아니면 CUDA device-side assert). `tmp_radii=None` 체크도 필요. (`rounds/round6_plateau_orb.md` 버그 기록)
+
+## 운영
+
+- 실험은 W&B run name과 result dir 이름을 반드시 맞춘다.
+- 실험 완료 시 갱신은 3개만: exp 카드 + INDEX 한 줄 + STATUS. (`context/README.md`)

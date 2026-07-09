@@ -1,0 +1,32 @@
+# Python/cache artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Local/editor artifacts
+.DS_Store
+Thumbs.db
+
+# Nested repository metadata should not be vendored into this workspace repo.
+**/.git/
+
+# Large local datasets and generated experiment outputs. Keep lightweight
+# documentation/log summaries in Git; store full artifacts externally.
+data/**
+!data/
+!data/README.md
+
+data_trash_20260707/
+
+results/**
+!results/
+!results/README.md
+!results/logs/
+!results/logs/**
+
+# Large generated experiment assets. These exceed GitHub's normal Git limits
+# and should be stored externally or with Git LFS if needed later.
+context/reference/papers/merged_original.pdf
+**/point_cloud/iteration_*/point_cloud*.ply
+**/point_cloud_*.ply
