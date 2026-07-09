@@ -138,6 +138,33 @@ enlarged tau는 **loss 없이도 이미 97~98%**가 "안"이다 — tau_t 반경
 
 point cloud를 직접 봐서는 차이가 잘 안 보여서(잘린 비율이 0.1~0.5%로 작음), 제거된 점들의 Z-layer별 위치를 PDF로 그렸다 (`scripts/diagnostic/render_rayprune_zlayers.py`, 배경=그 Z-슬랩에서 ray-미관측 비율, 점=제거된 Gaussian을 opacity로 색칠). PDF(1.2MB)만 git에 포함: `results/diagnostic/rayprune_20260710_010352/rayprune_zlayers.pdf`.
 
+### Z∈[0.95,1.74)에 pruning이 몰린 이유 — "관측 공백"이 아니라 "원래 밀도가 높은 구역" (2026-07-10)
+
+PDF를 육안으로 본 결과 이 구간(약 0.79m 폭)에 제거된 점이 많이 몰려 있었는데, 딱 봐서 눈에 띄는 표면-근접 floater처럼 안 보인다는 지적이 나옴 — 원래 잡으려던 floater가 아닐 수 있다는 우려. 세밀하게 확인:
+
+| 지표 | Z[0.95,1.74) | scene 전체/평균 |
+|---|---:|---:|
+| ray 미관측 비율 | 8.0% | 8.3% (거의 같음 — 특별히 안 본 구간 아님) |
+| 일반anchor 개수 | 1,448/7,108 (20%) | — (anchor가 없는 구간도 아님) |
+| 고conf anchor 개수 | 322/1,438 (22%) | — |
+| **전체 Gaussian 밀도** (exp30/32/37) | **17.5~20.7%** | 균등분포면 12.5%여야 함 |
+| 제거된 Gaussian 비중 (8개 run 합산) | 38.9% | 균등분포면 12.5%여야 함 |
+
+처음 세운 가설("이 구간은 anchor도 ray도 없는 특수 구간")은 **틀렸다** — anchor도 있고 ray 미관측 비율도 평균 수준이다. 대신 **이 구간 자체가 원래 Gaussian이 많이 모이는 구역**(상부 벽/천장 인근으로 추정)이라, 절대 개수로는 floater도 많아 보인다.
+
+다만 **개수를 그 구간의 전체 Gaussian 수로 나눈 prune 비율(정규화)** 로 보면 이야기가 다시 바뀐다 — 이 구간이 확실히 위험하다:
+
+| Run | 구간 안 prune 비율 | 구간 밖 prune 비율 | 배율 |
+|---|---:|---:|---:|
+| exp30 (baseline, plateau 없음) | 0.539% | 0.481% | 1.12x |
+| exp32 (plateau 기본tau) | 0.450% | 0.068% | **6.62x** |
+| exp33 (plateau enlarged tau) | 0.686% | 0.221% | 3.10x |
+| exp37 (dense init, plateau 없음) | 0.306% | 0.006% | **49.42x** |
+
+baseline(exp30)은 안/밖 비율이 거의 같다(1.12x) — 그냥 밀도가 높아서 절대 개수가 많을 뿐, 이 구간 자체가 특별히 위험하진 않다. 그런데 **plateau나 dense init을 적용한 run들은 "구간 밖"의 floater 비율을 크게 낮추는데(exp32는 7배, exp37은 80배 감소), 이 Z 구간만은 그만큼 못 낮춘다** — 즉 이 구간은 다른 개선 방법들이 유독 안 통하는 진짜 트러블존이다. anchor가 raw 개수로는 있어도 이 구간의 실제 Gaussian 밀도 대비로는 상대적으로 성길 가능성, 혹은 이 높이(상부 벽~천장 전이부)가 관측 각도상 본질적으로 애매한 구간일 가능성이 남아있다 — 추가 조사 필요.
+
+**세밀 anchor 위치 PDF**: `scripts/diagnostic/render_anchor_zlayers_fine.py` — 위 표를 만든 근거. 1페이지는 Z축 0.05m 단위로 ray 미관측 비율·anchor 밀도(일반/고conf)·제거 개수·**제거 비율(정규화)** 4단 그래프, 2페이지부터는 voxel 해상도(0.15m, 총 42레이어)로 anchor 위치를 XY로 직접 표시. PDF(640KB): `results/diagnostic/rayprune_20260710_010352/anchor_zlayers_fine.pdf`.
+
 ## 사고 기록 (2026-07-09)
 
 exp30~33 자동 체인 launcher(`wait_and_chain.sh`)가 `pgrep -f`로 exp29 종료를 감지하려다 **자기 자신의 부모 프로세스 커맨드라인과 오매칭**돼 무한 대기에 빠짐. 수동으로 부모만 kill했는데 자식이 살아남아 있다가 부모 사망 후 정상 감지 로직이 풀리며 **똑같은 exp30~33을 또 한 번 실행** — 결과적으로 동일 실험이 두 세트 동시에 GPU를 나눠쓰며 돌아감. 발견 즉시 중복 체인 kill + 중복 결과 폴더 삭제, 하나만 남김. 위 "run-to-run 노이즈" 항목은 이 사고의 부산물로 얻은 관찰.
