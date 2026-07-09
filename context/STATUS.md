@@ -12,13 +12,15 @@
 
 ## 지금 열려 있는 질문
 
-1. **⚠ Round 7 (exp19~26) 재검증** — plateau anchor가 MPS world가 아닌 raw Atlas world였음이 exp27에서 판명 (표면 대비 median 0.48m, scale x0.95). 정렬본 `anchors_all_depth_pro_mpsaligned.npy`로 plateau 재실행 필요. "tau > λ" 결론도 misalignment 산물일 수 있음. **1순위.**
-2. anchor 자체 품질은 합격 (exp27c: 같은 개수 랜덤 표면점 대비 +1.03dB, |Z|>4m 8개). 정렬 anchor init + plateau 조합, 또는 anchor init 개수 확장(virtual 시딩 밀도↑)이 유망.
-3. Pop2 (densification floater) 여전히 미해결 — 단, exp27c의 깨끗한 Z 분포는 "init에 outlier가 없으면 densification 오염도 적다"를 시사.
-4. exp25 floater 지표 검증·exp24 재실행은 Round 7 재검증에 흡수/후순위.
+1. **OpenMAVIS 재현 트랙(exp30~37) 완료 대기** — anchor init/plateau/dense init이 실제 목표 데이터에서도 통하는지 확인 중. **1순위.**
+2. ~~Round 7 재검증~~ → exp28/29로 해소: plateau loss는 정렬 여부에 거의 영향 안 받음 (기본 tau, enlarged tau 둘 다 미정렬과 동급). "tau > λ" 결론은 그대로 유효.
+3. anchor 자체 품질은 합격 (exp27c: 같은 개수 랜덤 표면점 대비 +1.03dB). 정렬은 anchor init에서만 중요, plateau loss에서는 안 중요 — 이유는 λ가 작아 위치 오차의 영향력 자체가 작기 때문으로 추정.
+4. Pop2 (densification floater) 여전히 미해결 — exp27c의 깨끗한 Z 분포는 "init에 outlier가 없으면 densification 오염도 적다"를 시사.
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-09 (진행 중)**: exp30~37 — **OpenMAVIS(ORB) 데이터셋 재현 트랙 시작**. MPS 트랙(exp08~29)에서 검증한 방법(anchor init, plateau, 이번에 추가한 dense confidence+monodepth init)을 실제 목표 데이터(`data/03_rgb_3dgs_full`)로 재현 중. exp30 baseline **32.671** 완료, exp31(진행 중)~37은 대기. anchor는 세션 간 변환 없이 native 재생성(`build_native_anchors_neworb*.py`). → `experiments/exp30_37_orb_native_track.md`
+- **2026-07-09**: exp28/29 — 정렬 anchor로 plateau 재실행. **예상외 결과**: 기본 tau(exp29=32.752)도 enlarged tau(exp28=32.864)도 미정렬 버전(exp19=32.753, exp25=32.969)과 거의 동일 — plateau loss 자체에는 정렬 효과가 미미함 (λ가 작아 위치 오차의 영향이 작았던 것으로 추정). 정렬이 크게 효과 본 곳은 **anchor를 init으로 쓸 때**뿐 (exp27→27c +2.07dB).
 - **2026-07-09**: exp27/27b/27c — anchor를 init으로 사용해 품질 검증. **좌표계 버그 발견**: exp19~26의 anchor는 Atlas world 그대로였음. Umeyama 정렬(rmse 2cm) 후 anchor init 31.611 (대조군 30.583, 미정렬 29.540). → `experiments/exp27_anchor_init.md`
 - **2026-07-07**: scripts/·results/ 재구조화. scripts는 pipeline/experiments/diagnostic/analysis/anchors 5분류, results는 experiments/rounds/diagnostic/datasets/logs/archive 6분류 (각 README 참조). 실패 run은 `results/archive/failed_runs/`. 문서 내 경로 참조 일괄 갱신됨.
 - **2026-07-07**: data/ 전면 재구축. 순수 OpenMAVIS 체인(VRS→EuRoC→SLAM→전체 프레임 RGB 3DGS)으로 `data/03_rgb_3dgs_full` 생성 (1303장, ORB 7,205pts, reprojection 검증 통과). 재현: `scripts/pipeline/run_full_pipeline.sh`. 기존 심링크 무더기 제거 (`data/README.md` 참조).

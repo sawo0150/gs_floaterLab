@@ -51,3 +51,18 @@
 | exp14 | OpenMAVIS64/MPS 3DGS 7k | Test PSNR 18.65 | 〃 |
 
 > **번호 중복 주의**: `exp13`은 pcd_filter (메인 트랙)와 vggt64 (VGGT 트랙) 두 개가 존재. result dir 이름으로 구분.
+
+## OpenMAVIS(ORB) 데이터셋 재현 트랙 — exp30~37 (진행 중, baseline 32.671)
+
+MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(OpenMAVIS pose + ORB init, `data/03_rgb_3dgs_full`)으로 재현하는 트랙. exp08과 직접 비교 금지 — exp30이 이 트랙의 기준선.
+
+| Exp | 한 줄 설정 | PSNR@30k | 상태 | 카드 |
+|---|---|---:|---|---|
+| **exp30** | baseline (ORB 원본 7,205 init) | **32.906** | 완료 — 기준선 (run-to-run 노이즈 ±0.24dB 확인됨) | [exp30-37](exp30_37_orb_native_track.md) |
+| exp31 | 일반 anchor(obs≥3, 7,108) init | 32.671 | 완료 | 〃 |
+| exp32 | + plateau 기본 tau, 일반 anchor | 32.903 | 완료 (baseline과 동급) | 〃 |
+| exp33 | + plateau enlarged tau, 일반 anchor | 32.536 | 완료 (MPS와 반대로 열세, floater는 최소) | 〃 |
+| exp34 | 고confidence anchor(obs≥10&fr≥0.5, 1,438) init | 31.970 | 완료 (exp31보다 -0.7dB) | 〃 |
+| exp35 | + plateau 기본 tau, 고confidence anchor | - | 진행 중 | 〃 |
+| exp36 | + plateau enlarged tau, 고confidence anchor | - | 대기 | 〃 |
+| exp37 | dense confidence+monodepth init (148,564) | - | 대기 | 〃 |
