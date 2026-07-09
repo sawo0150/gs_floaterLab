@@ -12,14 +12,15 @@
 
 ## 지금 열려 있는 질문
 
-1. **OpenMAVIS 재현 트랙(exp30~37) 완료 대기** — anchor init/plateau/dense init이 실제 목표 데이터에서도 통하는지 확인 중. **1순위.**
-2. ~~Round 7 재검증~~ → exp28/29로 해소: plateau loss는 정렬 여부에 거의 영향 안 받음 (기본 tau, enlarged tau 둘 다 미정렬과 동급). "tau > λ" 결론은 그대로 유효.
-3. anchor 자체 품질은 합격 (exp27c: 같은 개수 랜덤 표면점 대비 +1.03dB). 정렬은 anchor init에서만 중요, plateau loss에서는 안 중요 — 이유는 λ가 작아 위치 오차의 영향력 자체가 작기 때문으로 추정.
-4. Pop2 (densification floater) 여전히 미해결 — exp27c의 깨끗한 Z 분포는 "init에 outlier가 없으면 densification 오염도 적다"를 시사.
+1. **exp37(dense init, plateau 없음)이 \|Z\|>4m=0을 달성** — Pop2 densification floater 억제의 가장 강력한 지금까지의 결과. 이걸 왜 되는지(순수 init 밀도/커버리지 효과?) 더 분석하고, MPS 트랙에도 같은 방식 적용해볼 가치. **1순위.**
+2. dense confidence init(고confidence anchor seed) + enlarged tau plateau (exp38/39 후보) — 커버리지 검증 결과 이 조합만 앞뒤가 맞음. 아직 학습 안 함.
+3. ~~Round 7 재검증~~ → exp28/29로 해소: plateau loss는 정렬 여부에 거의 영향 안 받음. "tau > λ" 결론은 그대로 유효 (단, ORB 트랙에서는 tau 크기 방향이 MPS와 반대 — exp32/33 참조).
+4. Pop2 여전히 부분 미해결이지만 exp37이 강력한 실마리 제공.
 
 ## 최근 흐름 (최신순)
 
-- **2026-07-09 (진행 중)**: exp30~37 — **OpenMAVIS(ORB) 데이터셋 재현 트랙 시작**. MPS 트랙(exp08~29)에서 검증한 방법(anchor init, plateau, 이번에 추가한 dense confidence+monodepth init)을 실제 목표 데이터(`data/03_rgb_3dgs_full`)로 재현 중. exp30 baseline **32.671** 완료, exp31(진행 중)~37은 대기. anchor는 세션 간 변환 없이 native 재생성(`build_native_anchors_neworb*.py`). → `experiments/exp30_37_orb_native_track.md`
+- **2026-07-09**: exp30~37 — **OpenMAVIS(ORB) 데이터셋 재현 트랙 완료**. MPS 트랙(exp08~29)에서 검증한 방법(anchor init, plateau)을 실제 목표 데이터(`data/03_rgb_3dgs_full`)로 재현. **핵심 결과**: exp37(SLAM core seed dense init 148,564pts, plateau 없음) PSNR 32.621, **|Z|>4m=0** — 이 트랙 최고의 floater 억제. plateau의 tau 크기 효과는 MPS와 정반대(ORB는 기본 tau가 더 나음). 고confidence anchor seed로 추가 dense init 2종(144,830 / 65,095pts)도 생성, 3D 균질성 확인(NN spacing이 voxel 크기와 일치, 근/원거리 편향 없음), plateau 커버리지 확인(enlarged tau만 covers ~99%, 기본 tau는 87%). → `experiments/exp30_37_orb_native_track.md`
+- **2026-07-09**: exp28/29 — 정렬 anchor로 plateau 재실행. **예상외 결과**: 기본 tau(exp29=32.752)도 enlarged tau(exp28=32.864)도 미정렬 버전(exp19=32.753, exp25=32.969)과 거의 동일 — plateau loss 자체에는 정렬 효과가 미미함 (λ가 작아 위치 오차의 영향이 작았던 것으로 추정). 정렬이 크게 효과 본 곳은 **anchor를 init으로 쓸 때**뿐 (exp27→27c +2.07dB).
 - **2026-07-09**: exp28/29 — 정렬 anchor로 plateau 재실행. **예상외 결과**: 기본 tau(exp29=32.752)도 enlarged tau(exp28=32.864)도 미정렬 버전(exp19=32.753, exp25=32.969)과 거의 동일 — plateau loss 자체에는 정렬 효과가 미미함 (λ가 작아 위치 오차의 영향이 작았던 것으로 추정). 정렬이 크게 효과 본 곳은 **anchor를 init으로 쓸 때**뿐 (exp27→27c +2.07dB).
 - **2026-07-09**: exp27/27b/27c — anchor를 init으로 사용해 품질 검증. **좌표계 버그 발견**: exp19~26의 anchor는 Atlas world 그대로였음. Umeyama 정렬(rmse 2cm) 후 anchor init 31.611 (대조군 30.583, 미정렬 29.540). → `experiments/exp27_anchor_init.md`
 - **2026-07-07**: scripts/·results/ 재구조화. scripts는 pipeline/experiments/diagnostic/analysis/anchors 5분류, results는 experiments/rounds/diagnostic/datasets/logs/archive 6분류 (각 README 참조). 실패 run은 `results/archive/failed_runs/`. 문서 내 경로 참조 일괄 갱신됨.
@@ -30,9 +31,9 @@
 
 ## 다음 실험 후보 (우선순위순)
 
-1. **exp25 재실행 (정렬 anchor)** — config의 anchor_path만 `anchors_all_depth_pro_mpsaligned.npy`로 교체. 정렬된 plateau가 진짜 floater를 줄이는지 확인.
-2. 정렬 plateau에서 tau/λ 재탐색 — 미정렬 때의 "tau 확대 필수"가 여전히 성립하는지 (정렬되면 작은 tau가 오히려 정석일 수 있음).
-3. anchor init 확장: virtual 시딩 밀도를 높인 정렬 anchor (수만 pts)로 init — exp27c(-1.40dB)의 격차가 개수 문제인지 확정.
+1. exp37 방식(dense confidence+monodepth init, plateau 없음)을 MPS 트랙에도 적용 — |Z|>4m=0이 ORB 트랙만의 우연인지 재현 가능한 효과인지 확인.
+2. exp38/39: dense confidence init(고confidence anchor seed, 5cm 또는 60k판) + enlarged tau plateau — 커버리지 검증상 유일하게 앞뒤가 맞는 조합.
+3. exp37(SLAM core seed) vs 고confidence-seed dense init 직접 비교 — 어느 seed가 더 나은 dense init을 만드는지.
 
 ## 확정된 사실 (자세한 근거는 knowledge/)
 

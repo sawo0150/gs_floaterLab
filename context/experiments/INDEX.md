@@ -63,6 +63,8 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 | exp32 | + plateau 기본 tau, 일반 anchor | 32.903 | 완료 (baseline과 동급) | 〃 |
 | exp33 | + plateau enlarged tau, 일반 anchor | 32.536 | 완료 (MPS와 반대로 열세, floater는 최소) | 〃 |
 | exp34 | 고confidence anchor(obs≥10&fr≥0.5, 1,438) init | 31.970 | 완료 (exp31보다 -0.7dB) | 〃 |
-| exp35 | + plateau 기본 tau, 고confidence anchor | - | 진행 중 | 〃 |
-| exp36 | + plateau enlarged tau, 고confidence anchor | - | 대기 | 〃 |
-| exp37 | dense confidence+monodepth init (148,564) | - | 대기 | 〃 |
+| exp35 | + plateau 기본 tau, 고confidence anchor | 32.799 | 완료 (exp32와 비슷한 패턴) | 〃 |
+| exp36 | + plateau enlarged tau, 고confidence anchor | 32.591 | 완료 | 〃 |
+| **exp37** | dense confidence+monodepth init (148,564), plateau 없음 | **32.621** | **완료 — \|Z\|>4m=0, 이 트랙 최고 floater 억제** | 〃 |
+
+> exp30~37 전체 완료 (2026-07-09). 큐 진행 중 발견된 자동 체인 중복 실행 버그와 run-to-run 노이즈(±0.24dB)는 카드 참조.
