@@ -5,12 +5,15 @@ Gaussians -- to diagnose whether a Z band that gets pruned a lot is simply
 an unobserved/no-anchor region (e.g. "above the ceiling", not a visually
 obvious floater) versus a genuine surface-adjacent floater band.
 
-Page 1: 1D Z-profile (fine bins) overlaying ray-visited fraction, anchor
-        point density (general + high-confidence sets), and pruned-Gaussian
-        count (summed across all 8 runs) on a shared Z axis.
-Pages 2+: per-Z-layer (voxel-aligned, 0.15m) XY scatter of both anchor sets
-        over the ray-unvisited-fraction background, same style as the
-        rayprune Z-layer PDF.
+Page 1: 1D Z-profile (fine bins) overlaying ray-visited fraction, sparse
+        anchor point density (general + high-confidence sets), depth-mono
+        DENSE init density (3 variants), and pruned-Gaussian raw
+        count + normalized rate on a shared Z axis.
+Pages 2+: per-Z-layer (voxel-aligned, 0.15m) XY maps: ray-unvisited
+        background (grayscale) + dense-init occupancy (green shading) +
+        sparse anchor scatter (blue=general, red=high-confidence) on top,
+        so gaps in sparse anchors vs. gaps in dense monodepth fill are
+        both visible in one panel.
 """
 import argparse
 from pathlib import Path
@@ -34,6 +37,13 @@ IMG_TXT = DATASET / "sparse/0/images.txt"
 
 GENERAL_ANCHOR = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/native_anchors_neworb_v4_20260709_204706/anchors_all_depth_pro.npy"
 HIGHCONF_ANCHOR = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/native_anchors_neworb_highconf_20260709_205327/anchors_all_depth_pro.npy"
+
+# depth-mono-completed DENSE point sets (not sparse anchors -- these fill
+# gaps via monodepth backprojection + voxel dedup). exp37 trained on the
+# first one; the other two are untrained highconf-seeded variants.
+DENSE_SLAM_SEED = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/dense_init_neworb_20260709_205913/init_all.npy"
+DENSE_HIGHCONF_5CM = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/dense_confmono_init_highconf_seed_20260709_231415/init_all.npy"
+DENSE_HIGHCONF_60K = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/dense_confmono_init_highconf_seed_60k_20260709_232434/init_all.npy"
 
 RUNS = [
     "exp30_orbfull_baseline_20260709_210151",
@@ -90,6 +100,11 @@ def main():
     cams = load_camera_centers()
     general = np.load(GENERAL_ANCHOR).astype(np.float32)
     highconf = np.load(HIGHCONF_ANCHOR).astype(np.float32)
+    dense_slam = np.load(DENSE_SLAM_SEED).astype(np.float32)
+    dense_hc5 = np.load(DENSE_HIGHCONF_5CM).astype(np.float32)
+    dense_hc60k = np.load(DENSE_HIGHCONF_60K).astype(np.float32)
+    print(f"dense sets: SLAM-seed={len(dense_slam):,} (exp37에서 학습됨)  "
+          f"highconf-seed-5cm={len(dense_hc5):,}  highconf-seed-60k={len(dense_hc60k):,}")
 
     # ray-visited fraction per Z-voxel-layer (fraction of XY cells visited)
     vis_frac_by_zvoxel = visited.mean(axis=(0, 1))  # (nz,)
@@ -119,8 +134,8 @@ def main():
     pdf_path = prune_dir / "anchor_zlayers_fine.pdf"
     with PdfPages(pdf_path) as pdf:
         # ---- Page 1: 1D correlated Z-profile ----
-        fig, axes = plt.subplots(4, 1, figsize=(13, 14), sharex=True, facecolor="white")
-        fig.suptitle("Z-profile 상관관계: ray 관측 · anchor 밀도 · 잘려나간(pruned) Gaussian",
+        fig, axes = plt.subplots(5, 1, figsize=(13, 17), sharex=True, facecolor="white")
+        fig.suptitle("Z-profile 상관관계: ray 관측 · anchor/dense-init 밀도 · 잘려나간(pruned) Gaussian",
                      fontsize=15, fontweight="bold", y=0.995)
 
         ax = axes[0]
@@ -136,18 +151,30 @@ def main():
         ax.plot(fine_centers, gc, color="#2563EB", lw=1.3, label=f"일반 anchor (obs≥3, {len(general):,})")
         ax.plot(fine_centers, hc, color="#DC2626", lw=1.3, label=f"고confidence anchor (obs≥10&fr≥0.5, {len(highconf):,})")
         ax.set_ylabel(f"anchor 개수\n(bin={FINE_BIN}m)", fontsize=9)
-        ax.set_title("② Z 레이어별 anchor 밀도 — 0이면 그 높이에 당기는 힘이 아예 없음", fontsize=10, color="#444")
+        ax.set_title("② Z 레이어별 sparse anchor 밀도 — 0이면 그 높이에 당기는 힘이 아예 없음", fontsize=10, color="#444")
         ax.legend(fontsize=8, loc="upper right")
         ax.grid(alpha=0.2)
 
         ax = axes[2]
-        rc, _ = np.histogram(removed_all_z, bins=fine_edges)
-        ax.bar(fine_centers, rc, width=FINE_BIN * 0.9, color="#EA580C", alpha=0.85)
-        ax.set_ylabel(f"제거된 Gaussian 수\n(8개 run 합산, bin={FINE_BIN}m)", fontsize=9)
-        ax.set_title("③ Z 레이어별 ray-density pruning으로 잘려나간 Gaussian 수 (원시 개수, 8개 run 합산)", fontsize=10, color="#444")
+        dsc, _ = np.histogram(dense_slam[:, 2], bins=fine_edges)
+        dh5c, _ = np.histogram(dense_hc5[:, 2], bins=fine_edges)
+        dh60c, _ = np.histogram(dense_hc60k[:, 2], bins=fine_edges)
+        ax.plot(fine_centers, dsc, color="#059669", lw=1.5, label=f"dense(SLAM-seed, exp37 학습됨, {len(dense_slam):,})")
+        ax.plot(fine_centers, dh5c, color="#0EA5E9", lw=1.0, ls="--", label=f"dense(고conf-seed, 5cm, {len(dense_hc5):,})")
+        ax.plot(fine_centers, dh60c, color="#7C3AED", lw=1.0, ls=":", label=f"dense(고conf-seed, 60k, {len(dense_hc60k):,})")
+        ax.set_ylabel(f"dense init 개수\n(bin={FINE_BIN}m)", fontsize=9)
+        ax.set_title("③ Z 레이어별 depth-mono로 채운 DENSE init 밀도 — sparse anchor의 빈틈을 얼마나 메우는가", fontsize=10, color="#444")
+        ax.legend(fontsize=7.5, loc="upper right")
         ax.grid(alpha=0.2)
 
         ax = axes[3]
+        rc, _ = np.histogram(removed_all_z, bins=fine_edges)
+        ax.bar(fine_centers, rc, width=FINE_BIN * 0.9, color="#EA580C", alpha=0.85)
+        ax.set_ylabel(f"제거된 Gaussian 수\n(8개 run 합산, bin={FINE_BIN}m)", fontsize=9)
+        ax.set_title("④ Z 레이어별 ray-density pruning으로 잘려나간 Gaussian 수 (원시 개수, 8개 run 합산)", fontsize=10, color="#444")
+        ax.grid(alpha=0.2)
+
+        ax = axes[4]
         tc, _ = np.histogram(total_all_z, bins=fine_edges)
         rate = np.divide(rc, tc, out=np.zeros_like(rc, dtype=float), where=tc > 0) * 100
         ax.bar(fine_centers, rate, width=FINE_BIN * 0.9, color="#B91C1C", alpha=0.9)
@@ -157,7 +184,7 @@ def main():
                 color="#374151", va="bottom", ha="right")
         ax.set_ylabel(f"prune 비율(%)\n(제거/전체, bin={FINE_BIN}m)", fontsize=9)
         ax.set_xlabel("Z (m)", fontsize=10)
-        ax.set_title("④ Z 레이어별 prune 비율 (③을 그 구간의 전체 Gaussian 수로 정규화 — 진짜 '이 높이가 위험한가' 지표)",
+        ax.set_title("⑤ Z 레이어별 prune 비율 (④를 그 구간의 전체 Gaussian 수로 정규화 — 진짜 '이 높이가 위험한가' 지표)",
                      fontsize=10, color="#444")
         ax.grid(alpha=0.2)
 
@@ -167,15 +194,17 @@ def main():
         plt.close(fig)
         print("[page 1] 1D correlated profile done")
 
-        # ---- Pages 2+: per-Z-voxel-layer (0.15m, voxel-aligned) anchor XY maps ----
+        # ---- Pages 2+: per-Z-voxel-layer (0.15m, voxel-aligned) anchor + dense-init XY maps ----
         unvisited = ~visited
         n_layers = int(dims[2])
         per_page = 8
         n_pages = (n_layers + per_page - 1) // per_page
+        xy_bins_x = np.linspace(xmin, xmax, dims[0] + 1)
+        xy_bins_y = np.linspace(ymin, ymax, dims[1] + 1)
 
         for pg in range(n_pages):
             fig = plt.figure(figsize=(15, 8.5), facecolor="white")
-            fig.suptitle(f"Anchor 위치 — 세밀 Z-layer ({voxel_size}m/layer)  [{pg+1}/{n_pages}]",
+            fig.suptitle(f"Anchor(점) + dense init(초록 음영) 위치 — 세밀 Z-layer ({voxel_size}m/layer)  [{pg+1}/{n_pages}]",
                         fontsize=13, fontweight="bold", y=0.98)
             for k in range(per_page):
                 li = pg * per_page + k
@@ -188,7 +217,16 @@ def main():
                 ax = fig.add_subplot(2, 4, k + 1)
                 ax.set_facecolor("#0d0d0d")
                 ax.imshow(bg, origin="lower", extent=[xmin, xmax, ymin, ymax],
-                           cmap="Greys", vmin=0, vmax=1, aspect="equal", alpha=0.85)
+                           cmap="Greys", vmin=0, vmax=1, aspect="equal", alpha=0.85, zorder=1)
+
+                md = (dense_slam[:, 2] >= z_lo) & (dense_slam[:, 2] < z_hi)
+                if md.any():
+                    dh, _, _ = np.histogram2d(dense_slam[md, 0], dense_slam[md, 1],
+                                              bins=[xy_bins_x, xy_bins_y])
+                    dh = np.where(dh > 0, dh, np.nan).T
+                    ax.imshow(dh, origin="lower", extent=[xmin, xmax, ymin, ymax],
+                               cmap="Greens", alpha=0.75, aspect="equal", zorder=2)
+
                 ax.plot(cams[:, 0], cams[:, 1], color="#D97706", lw=0.7, alpha=0.5, zorder=3)
 
                 mg = (general[:, 2] >= z_lo) & (general[:, 2] < z_hi)
@@ -201,7 +239,7 @@ def main():
                                linewidths=0.3, edgecolors="white", zorder=5, label="고conf anchor")
 
                 ax.set_xlim(xmin, xmax); ax.set_ylim(ymin, ymax)
-                ax.set_title(f"Z[{z_lo:.2f},{z_hi:.2f})  일반={int(mg.sum())} 고conf={int(mh.sum())}",
+                ax.set_title(f"Z[{z_lo:.2f},{z_hi:.2f})  일반={int(mg.sum())} 고conf={int(mh.sum())} dense={int(md.sum())}",
                             fontsize=8.5, color="#333")
                 ax.tick_params(labelsize=6)
                 if k == 0:

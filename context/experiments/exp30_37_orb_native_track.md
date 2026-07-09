@@ -163,7 +163,9 @@ PDF를 육안으로 본 결과 이 구간(약 0.79m 폭)에 제거된 점이 많
 
 baseline(exp30)은 안/밖 비율이 거의 같다(1.12x) — 그냥 밀도가 높아서 절대 개수가 많을 뿐, 이 구간 자체가 특별히 위험하진 않다. 그런데 **plateau나 dense init을 적용한 run들은 "구간 밖"의 floater 비율을 크게 낮추는데(exp32는 7배, exp37은 80배 감소), 이 Z 구간만은 그만큼 못 낮춘다** — 즉 이 구간은 다른 개선 방법들이 유독 안 통하는 진짜 트러블존이다. anchor가 raw 개수로는 있어도 이 구간의 실제 Gaussian 밀도 대비로는 상대적으로 성길 가능성, 혹은 이 높이(상부 벽~천장 전이부)가 관측 각도상 본질적으로 애매한 구간일 가능성이 남아있다 — 추가 조사 필요.
 
-**세밀 anchor 위치 PDF**: `scripts/diagnostic/render_anchor_zlayers_fine.py` — 위 표를 만든 근거. 1페이지는 Z축 0.05m 단위로 ray 미관측 비율·anchor 밀도(일반/고conf)·제거 개수·**제거 비율(정규화)** 4단 그래프, 2페이지부터는 voxel 해상도(0.15m, 총 42레이어)로 anchor 위치를 XY로 직접 표시. PDF(640KB): `results/diagnostic/rayprune_20260710_010352/anchor_zlayers_fine.pdf`.
+**세밀 anchor 위치 PDF**: `scripts/diagnostic/render_anchor_zlayers_fine.py` — 위 표를 만든 근거. 1페이지는 Z축 0.05m 단위로 ray 미관측 비율·**sparse anchor 밀도(일반/고conf)**·**depth-mono DENSE init 밀도(SLAM-seed/고conf-seed 5cm/고conf-seed 60k, 3종)**·제거 개수·제거 비율(정규화) 5단 그래프, 2페이지부터는 voxel 해상도(0.15m, 총 42레이어)로 XY 맵에 배경=ray 미관측, 초록 음영=dense init 점유, 점=sparse anchor(파랑=일반, 빨강=고conf)를 겹쳐서 표시 — sparse anchor의 빈틈과 dense init의 빈틈을 한 화면에서 구분 가능. PDF(778KB): `results/diagnostic/rayprune_20260710_010352/anchor_zlayers_fine.pdf`.
+
+dense init(SLAM-seed, exp37에서 학습된 그 점)도 Z[0.95,1.74) 구간 밀도를 확인하니 **25.5%**(균등분포면 12.5%) — sparse anchor·전체 Gaussian과 마찬가지로 이 구간에 실제 표면이 많다는 monodepth 기반 증거가 하나 더 늘었다. dense init도 이 구간에서 특별히 비어있지 않으므로, "이 구간이 왜 유독 안 고쳐지는가"는 여전히 미해결 — 다음 조사는 이 구간의 카메라 관측 **각도**(수직으로 올려다보는 grazing angle이라 삼각화가 약할 수 있음)를 봐야 할 듯.
 
 ## 사고 기록 (2026-07-09)
 
