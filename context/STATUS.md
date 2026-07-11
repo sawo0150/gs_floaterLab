@@ -42,10 +42,10 @@
 
 ## 다음 실험 후보 (우선순위순)
 
-1. **exp38: Carve Loss 학습 검증 — 구현·config·스크립트 준비 완료, GPU만 뜨면 실행** (`scripts/experiments/run_exp38_carve.sh`: exp38a=soft+prune+gate, exp38b=prune+gate만). 챔피언 score `w·(1−maxop_5cm)` AUC 0.98, 예산 prune 0.5%로 recall ~60% + soft loss 보완 예측 → [carve_loss_design](rounds/round8_carve_loss_design.md). **주의: 챔피언 score 기준 exp37 dense init이 오히려 최다 먼지 부하(4.5배) — |Z|·unseen 지표의 사각지대. exp37 결론 재평가 필요.**
-2. exp37 방식(dense confidence+monodepth init, plateau 없음)을 MPS 트랙에도 적용 — |Z|>4m=0·ray-density 우수함이 ORB 트랙만의 우연인지 재현 가능한 효과인지 확인.
-3. exp37(SLAM core seed) vs 고confidence-seed dense init(5cm/60k판) 직접 비교 — plateau 없이 seed 종류만 바꿔 dense init 자체의 최적 seed 탐색.
-4. ray-density 지표를 앞으로의 모든 신규 실험 평가에 표준 적용.
+1. **held-out 뷰 평가 도입** (eval split 재구성) — train PSNR 부적합 판명 후 유일하게 남은 정량 품질 축. carve 유/무의 novel-view 일반화 차이가 진짜 승부처.
+2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색.
+3. dense init(구 exp37) + carve 결합 — dense init의 PSNR 이점을 carve로 정화해서 취할 수 있는지.
+4. carve field의 타 장면 일반화 (새 시퀀스에서 전체 파이프라인 재현).
 
 ## 확정된 사실 (자세한 근거는 knowledge/)
 
