@@ -159,6 +159,48 @@ score>0.3에서 못 잡는 가시 floater 36개 원인 분해:
 
 학습 중에는 라벨을 모르므로 예산이 **지워지는 floater의 기여까지 포함해** 소모됨 (시뮬레이션은 표면 harm만 계산). 보정 측정: 런타임 예산의 ~30%가 floater 기여로 소모 → **budget_total 0.75%(런타임) = 실제 표면 harm ~0.52%, recall 54.5%**. exp38/38b/39 config 모두 0.005→0.0075로 갱신 완료.
 
+## Round 11 (07-12): 룰베이스 floater 자동 추출기 배포
+
+`scripts/analysis/extract_floaters_rulebase.py` — 수동 라벨 없이 아무 run의 30k ply에서 floater를 자동 추출 (ORB/MPS 트랙, 챔피언 score + 예산 top-K). 출력: 마스크 npy + cleaned ply + **floaters_only.ply(SuperSplat 검수용)** + report.json.
+
+exp32 라벨 캘리브레이션 (추출 가시 표면 = 전 프리셋 0개):
+
+| preset | budget | recall | 표면측 기여손실* |
+|---|---:|---:|---:|
+| safe | 0.75% | 61.2% | 0.53% |
+| balanced (기본) | 1.5% | 75.1% | 1.08% |
+| aggressive | 3.0% | 86.3% | 2.34% |
+
+*라벨이 저op 먼지에 불완전하므로 과대평가 (patch_evidence 참조). 적용 예: exp30에서 4,986개, exp37에서 25,373개 추출(동일 1.5% 예산 — dense init 먼지는 다수·저기여).
+
+## Round 12 (07-12): 라벨 기반 3D 삭제 영역(polygon) — 반쪽 성공
+
+사용자 제안: 라벨 floater xyz+cov로 3D 볼륨을 조각(marching cubes 메시로 검수 가능)해 스탬프처럼 재사용. `scripts/analysis/build_floater_region.py` (2σ dilate → closing → 가시 생존점 voxel 깎기, 7.5cm 해상도, 27.5m³).
+
+- **원 run(exp32)**: recall **98.0%**, 가시 생존점 침범 **0**, 기여 1.14% — 자기 run 정리엔 최강.
+- **전이(다른 run)**: exp30에서 룰베이스 추출물과 교집합 **30.4%**, exp37 **13.7%**. **⚠ 주의(07-12 정정)**: 이 수치는 "두 방법의 불일치"이지 새 run의 recall이 아님 — 새 run엔 라벨이 없어 어느 쪽이 맞는지 확정 불가. 패치 투영 스팟체크(exp30 RB-only 10개): ~6개는 뷰 불일치(진짜 먼지 — 영역이 놓친 것 실재), ~4개는 애매(feature-poor 표면 가능). 즉 영역은 새 run 먼지 일부를 실제로 놓치지만, 룰베이스 추출도 새 run에선 완전히 신뢰할 수 없음. **신뢰 서열: 영역 내부(사람 검증 공간 상속) > RB∩영역 > RB-only(후보, 검수 필요).**
+- 결론: **영역 = 검수 가능한 정밀 스탬프(자기 run용/재발 지역용), 룰베이스(carve) = 물리 기반 커버리지.** 오프라인 정리는 둘의 합집합 권장. 새 run 단독 처리엔 영역만으론 부족.
+
+**Round 12b — Delaunay 사면체 채움 확장 (`--method tetra`, 사용자 아이디어)**: floater 점들의 사면체 중 가시 표면 점이 없는 것만 부피로 채우고, 편입된 저op 생존점을 꼭짓점으로 추가하며 3회 반복 확장. 결과: 부피 27.5→**83.5 m³**, 원 run recall 95.9%(가시 침범 0, dilate보다 소폭 낮음 — 가시 표면 근처 tet 기각 때문 → dilate와 합집합 권장), **전이 개선: exp30 교집합 30.4→46.3%, exp37 13.7→31.2%**. 단 전이 run에서 영역 안 가시 점(215/465개)의 정체는 라벨 없어 미확정 — 스탬프 전 SuperSplat 검수 권장.
+
+## Round 13 (07-12): 영역을 표준 floater 지표(GT)로 승격
+
+`results/diagnostic/floater_region_gt.npz` (dilate∪tetra, 85.4m³) + `scripts/analysis/floater_metric_region.py`.
+사람 검증 공간을 상속한 현존 최고 신뢰 지표. 한계: ORB 트랙 전용(좌표계), 영역 밖 먼지는 못 셈(하한값) — ray-density 지표와 상호보완.
+
+**전 run 리더보드 (region_n / 가시 / 기여%):**
+
+| run | region_n | 가시(op>0.3) | 기여% |
+|---|---:|---:|---:|
+| exp30 baseline | 3,477 | 238 | 2.27% |
+| exp32 plateau 기본 | 3,822 | 220 | 2.55% |
+| exp33 plateau 확장 | 3,671 | 205 | 2.43% |
+| **exp37 dense init** | **16,454** | **514** | **4.41%** |
+| user_cleaned (바닥선) | 1,147 | 0 | 0.63% |
+| rulebase_balanced 적용본 | 1,109 | 128 | 1.07% |
+
+해석: ① plateau 계열은 baseline과 동급 — "plateau 무효" 진단과 일치. ② **exp37이 최고 신뢰 지표로 최악 확정** (baseline 4.7배) — 기존 |Z|·unseen 지표의 사각지대 재확인, STATUS의 exp37 1순위 결론 뒤집힘. ③ 룰베이스 오프라인 청소만으로 user 수동 수준(기여 1.07% vs 0.63%)에 근접.
+
 ## 사전 등록: 검증 성공 기준 (결과 보기 전에 고정, 07-11)
 
 **렌더 A/B (carve_psnr_check.py, 변형 4종):**
@@ -168,6 +210,7 @@ score>0.3에서 못 잡는 가시 floater 36개 원인 분해:
 **exp38a/b (30k 학습):**
 - PASS 1 (품질): PSNR@30k ≥ 32.7 (exp30=32.906, run 노이즈 ±0.24dB 하한).
 - PASS 2 (먼지): `eval_carve_load.py` 기준 score>0.5 개수 < 5,800 (exp30의 절반), 가시(op>0.3) < 450 (exp30=884의 절반).
+- PASS 2' (표준 GT 지표, 07-12 추가): `floater_metric_region.py` 기준 region_n < 1,750 (exp30 3,477의 절반), region_visible < 120 (exp30 238의 절반), region_contrib < 1.15%.
 - PASS 3 (예산 준수): 로그의 `carve/harm_spent` ≤ 0.0075, gate가 표면 밀집화를 과도 차단하지 않았는지 gate_pruned 총량 < 신생아의 ~15%.
 - exp38a(soft 포함) vs exp38b(prune+gate만) 비교로 soft loss의 순기여 분리.
 - FAIL 시 1순위 의심: budget prune의 재밀집화 상호작용(7k 이후엔 densify 없음 → 재발 불가, 그러면 gate 부작용), soft λ 과대.

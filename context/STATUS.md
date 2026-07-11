@@ -15,7 +15,7 @@
 1. **exp37(dense init, plateau 없음)이 \|Z\|>4m=0을 달성** — Pop2 densification floater 억제의 가장 강력한 지금까지의 결과. ray-density 지표로 재검증해도 여전히 가장 깨끗함. MPS 트랙에도 같은 방식 적용해볼 가치. **1순위.**
 2. ~~dense confidence init + enlarged tau plateau (exp38/39)~~ → **기각**: floater 재검토 결과 enlarged tau plateau는 ray-미관측 공간까지 침범해 진짜 floater(opacity>0.5)를 더 만든다 (exp32 대비 6.6배). plateau 계열 자체가 이 트랙에서는 exp37보다 열세로 확정.
 3. ~~Round 7 재검증~~ → exp28/29로 해소: plateau loss는 정렬 여부에 거의 영향 안 받음. "tau > λ"는 MPS 한정 결론으로 재확정 (ORB는 반대).
-4. floater 지표를 ray-density 기반(`check_gaussian_ray_coverage.py`)으로 표준 교체 완료 — \|Z\|>4m·plateau-inside-ratio는 더 이상 신뢰 안 함.
+4. floater 지표 (07-12 갱신): **표준 GT = 수동 라벨 기반 3D 영역** (`floater_metric_region.py`, ORB 트랙 전용, 사람 검증 상속) + ray-density(`check_gaussian_ray_coverage.py`)로 상호보완. \|Z\|>4m·plateau-inside-ratio는 신뢰 안 함. **⚠ 새 GT 지표로 exp37이 baseline의 4.7배 최악 판정** (region_n 16,454 vs 3,477) — exp37 1순위 결론 재고 필요.
 
 ## 최근 흐름 (최신순)
 
