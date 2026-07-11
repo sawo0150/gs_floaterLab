@@ -66,7 +66,7 @@ every-8th hold-out(163뷰): test PSNR baseline 31.539 vs 챔피언 31.081 (**-0.
 | softlite+force = 챔피언 (41d) | 31.106 (-0.44) | ~460 | ~25 |
 | softlite만 (42b) | 31.071 (-0.48) | 309 | 39 |
 
-**트레이드 눈금**: -0.1dB→먼지 -50%, -0.2dB→-70%, -0.45dB→-90%+. 운영점은 soft λ와 force 유무로 연속 조절 가능. 42b vs 41d는 노이즈 내 동급(softlite가 주역, force는 soft 없는 저비용 구간에서 가치 최대). 중간점(λ0.01+force, exp42d) 추가 측정.
+**트레이드 눈금**: -0.1dB→먼지 -50%, -0.2dB→-70%, -0.45dB→-90%+. 운영점은 soft λ와 force 유무로 연속 조절 가능. 42b vs 41d는 노이즈 내 동급(softlite가 주역, force는 soft 없는 저비용 구간에서 가치 최대). 중간점 exp42d(λ0.01+force): test 31.104 / region 309·가시 39 — 챔피언과 PSNR 동률에 먼지 최저 동률. **λ<0.02는 PSNR 회복 없음 → -0.44dB는 softlite 계열의 바닥 = 비용의 원천은 먼지 제거 자체.**
 
 ## Verdict
 
