@@ -69,4 +69,18 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 | exp32_lineage_diag | exp32 + lineage & decoupled grad tracking | 32.903 | 완료 — 진단 및 계보 추적 성공 | [exp32_lineage_diag](exp32_lineage_diag.md) |
 | carve_loss_design | (분석만) free-space carve 기반 신규 loss 설계, 수동 라벨 리그전 Round 1~10 | 학습 없음 | 완료 — AUC 0.98, 예산 0.75%로 recall 55%, exp38/39 구현 완료 | [round8_carve_loss_design](../rounds/round8_carve_loss_design.md) · [요약](../rounds/round8_carve_loss_summary.md) |
 
+## Carve Loss 학습 검증 트랙 — exp38~40 (07-12, baseline exp30/30r)
+
+| Exp | 한 줄 설정 | PSNR@30k | region_n/가시 | Verdict | 카드 |
+|---|---|---:|---:|---|---|
+| exp30r | baseline 재현 (노이즈 측정) | 32.579 | 3,749 / 180 | PSNR 노이즈 ±0.33dB 실측 | [exp38-40](exp38_40_carve_track.md) |
+| exp38a | soft0.05+prune+gate | 32.266 | 559 / 27 | 억제 최강, -0.3dB 과비용 | 〃 |
+| exp38b | prune+gate만 | 32.663 | 1,744 / 187 | soft가 가시 먼지 주역임을 분리 | 〃 |
+| exp38c | softlite0.02+prune+gate | 32.557 | 946 / 33 | PSNR 무손실 스위트스팟 | 〃 |
+| exp39 | MPS 트랙 carve (full soft) | 32.666 | (MPS) 가시 96→2 | MPS 전이 성공 | 〃 |
+| exp40br | 챔피언 재현 | 32.448 | 462 / 25 | 재현 확인 | 〃 |
+| **exp39b** | MPS softlite+force | **32.913** | (MPS) 가시 **0** | **MPS 채택** | 〃 |
+| exp40a | prune+gate+**force** | 32.667 | 1,309 / 134 | 3D force 부활 실증 (무비용) | 〃 |
+| **exp40b** | softlite+prune+gate+force | **32.576** | **498 / 28** | **채택 — 챔피언 레시피** | 〃 |
+
 > exp30~37 전체 완료 (2026-07-09). 큐 진행 중 발견된 자동 체인 중복 실행 버그와 run-to-run 노이즈(±0.24dB)는 카드 참조.

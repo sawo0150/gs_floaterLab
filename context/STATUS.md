@@ -1,24 +1,31 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-10. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-12 아침. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
 |---|---|---:|---|
-| 순수 PSNR | exp08 (baseline) | **33.012** | floater 미해결 (Pop1+Pop2 잔존) |
-| Pop1 해결 | exp13 (camera-bound filter) | 32.855 | Z-outlier -74%, \|Z\|max 42.7→4.85m |
-| Plateau 계열 | exp25 (tau enlarged) | 32.969 | **⚠ 미정렬 anchor로 얻은 결과 — 재검증 대상** |
+| **ORB 트랙 채택 레시피** | **exp40b (carve: softlite+prune+gate+force)** | **32.576** | **PSNR 무손실(재현 노이즈 내) + 가시 먼지 -99% (region 498, carve가시 12)** |
+| ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
+| **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
+| Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
 
 ## 지금 열려 있는 질문
 
-1. **exp37(dense init, plateau 없음)이 \|Z\|>4m=0을 달성** — Pop2 densification floater 억제의 가장 강력한 지금까지의 결과. ray-density 지표로 재검증해도 여전히 가장 깨끗함. MPS 트랙에도 같은 방식 적용해볼 가치. **1순위.**
-2. ~~dense confidence init + enlarged tau plateau (exp38/39)~~ → **기각**: floater 재검토 결과 enlarged tau plateau는 ray-미관측 공간까지 침범해 진짜 floater(opacity>0.5)를 더 만든다 (exp32 대비 6.6배). plateau 계열 자체가 이 트랙에서는 exp37보다 열세로 확정.
-3. ~~Round 7 재검증~~ → exp28/29로 해소: plateau loss는 정렬 여부에 거의 영향 안 받음. "tau > λ"는 MPS 한정 결론으로 재확정 (ORB는 반대).
-4. floater 지표 (07-12 갱신): **표준 GT = 수동 라벨 기반 3D 영역** (`floater_metric_region.py`, ORB 트랙 전용, 사람 검증 상속) + ray-density(`check_gaussian_ray_coverage.py`)로 상호보완. \|Z\|>4m·plateau-inside-ratio는 신뢰 안 함. **⚠ 새 GT 지표로 exp37이 baseline의 4.7배 최악 판정** (region_n 16,454 vs 3,477) — exp37 1순위 결론 재고 필요.
+1. ~~exp40br·exp39b~~ → 완료: 재현 성공(region 462/가시 25), MPS도 -0.10dB에 가시 먼지 0. **양 트랙 레시피 확정.**
+2. **train PSNR은 floater 품질 지표로 부적합 판명** (floater=잔차 기생충, 수동 편집조차 -3.7dB). 품질 판단은 region GT 지표 + 시각 검수. **held-out 뷰 평가 도입** 검토 (eval split 재구성).
+3. ~~exp37 1순위~~ → **역전 기각**: 표준 GT 지표로 baseline의 4.7배 최악(region_n 16,454). dense init 축은 carve와 결합해야만 의미.
+4. 잔여 가시 floater ~28개(exp40b)는 3D 신호 한계 — multi-view 색 일관성은 기각됐고(흰 방), 렌더-GT 잔차 축은 미탐색.
+
+## 확정된 방법론 (요약: rounds/round8_*)
+
+- **Carve Loss** (`3dgs-custom/eval/carve_loss.py`): 빈공간 증거 score `w·(1−maxop)` (수동 라벨 AUC 0.98) 위에 ① softlite opacity 압력(λ0.02) ② 예산 top-K prune(0.75%) ③ 출생 게이트(0.95; split의 29.5%가 허공 출생) ④ carve-potential force(xyz 견인, 진동 평형 위 일관 편향). 추가 입력 불필요(SLAM+카메라).
+- 표준 지표: region GT(`floater_metric_region.py`) + ray-density 상호보완. 오프라인 청소: `extract_floaters_rulebase.py`(예산 top-K) + 3D 삭제 영역(`build_floater_region.py`).
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-12 심야~아침**: **carve loss 학습 검증 트랙(exp38~40) 하룻밤 완주 — exp40b 채택** (학습이 회당 ~10분임이 판명되어 7 run 수행). 렌더 A/B로 "floater=train PSNR 기생충" 발견(수동 편집조차 -3.7dB → train PSNR 지표 부적합), gradient 프로브로 진동 평형 확인 → carve-potential force(3D force 부활) 구현·실증(무비용 -45% 가시 먼지), softlite+force 결합이 PSNR 무손실로 region 먼지 -86%. 출생 로그로 "허공 split 29.5%, 먼지가 먼지를 낳는 연쇄" 규명. → [exp38-40 카드](experiments/exp38_40_carve_track.md), [round8_gpu_queue_plan](rounds/round8_gpu_queue_plan.md)
 - **2026-07-11**: **Carve Loss 설계 완료 (분석만, 학습 없음)** — 카메라→SLAM 포인트 ray의 free-space carving 증거비 ρ(x)에 anchor 거리를 곱한 score w(x)가 수동 floater 판별 **AUC 0.974** (plateau 0.511). 수동 floater가 opacity 중앙값 0.044의 "한계 생존자"임을 발견(카드의 op>0.5 서술은 오류였음, 정정 완료). **부수 피해 재정량**: 원안 prune 규칙은 표면 시각 기여량 3.83% 손실로 폐기, 안전 규칙(w>0.9 & op<0.1 & contrib<p90)은 **recall 69.4%·기여손실 0.39%·구멍 0**. densify 게이트는 출생 91% 차단 가능하나 기여량 13.75% 영역에 걸려 학습 검증 필요. 렌더 PSNR 검증용 pruned 모델 4종 준비 완료(GPU 대기). → [carve_loss_design](rounds/round8_carve_loss_design.md)
 - **2026-07-11**: **plateau 방식으로 수동 floater 2,817개를 해결할 수 없음을 학습 없이 정량 확정** (`verify_plateau_capability.py`). 실제 학습 field(DepthPro anchor + ellipsoidal 적응형 tau) 기준 floater의 66%가 plateau 안이라 gradient 0 (측정 telemetry로 교차검증됨), 정규화 거리 D의 floater 판별 AUC 0.511(무작위). 단 raw 유클리드 거리는 AUC 0.93(SLAM) — **신호는 존재하나 적응형 tau가 판별력을 파괴**. λ 크기는 애초에 문제 아니었음. → [exp32_lineage_diag §3](experiments/exp32_lineage_diag.md)
 - **2026-07-11**: 사용자가 직접 SuperSplat으로 정밀 편집한 `point_cloud_cleaned.ply` (2,817개 floater 삭제)에 대한 수동 분석 완료. 수동 floater들은 표면 대비 RGB gradient를 2.23배 높게 받으며 소멸에 저항했고, Plateau gradient는 0.58배 적게 받으며 허공(outlier)에 방치되었음을 입증. 대다수(69%)가 3k~7k step 사이의 후반부에 split(평균 5.73회)을 통해 생성되었고, Seed 5061(10%) 등 특정 조상 포인트가 증식을 대량 주도함. -> [exp32_lineage_diag](experiments/exp32_lineage_diag.md)
