@@ -4,6 +4,7 @@
 
 ## 데이터/좌표
 
+- **SuperSplat에서 export한 ply는 좌표계가 회전/반전되고 속성 인코딩도 바뀐다** (2026-07-11 확인: `point_cloud_cleaned.ply`는 원본 대비 축 교환 + 최대 26m 좌표차, opacity/scale/rot 값도 재인코딩됨). 이 파일의 **좌표·속성을 직접 쓰면 안 되고**, 색 feature(f_dc) KD-tree 매칭으로 삭제 마스크만 추출한 뒤 **원본 ply의 행을 마스킹**해서 써야 한다 (`analyze_manual_floaters.py`, `make_carve_prune_variants.py` 방식). 렌더 비교용 변형도 반드시 원본 행 기반으로 재구성할 것.
 - **anchor/포인트 npy를 학습에 쓰기 전, 반드시 학습 데이터셋 world와의 정렬을 검증하라** (표면 NN 거리 또는 reprojection). exp19~26의 plateau anchor는 raw Atlas world 좌표 그대로였는데 MPS world 학습에 무변환 사용됨 — 표면 대비 median 0.48m + scale x0.95 오차 (2026-07-09 exp27에서 발견). `eval/plateau_loss.py`는 anchor_path를 무변환 로드한다. 정렬본/변환: `results/diagnostic/plateau_ellipsoid_v4_20260705_041132/{anchors_all_depth_pro_mpsaligned.npy, T_atlas_to_mps.npz, ALIGNMENT_NOTE.md}`
 - **OpenMAVIS `f_*.txt`(전체 프레임 trajectory)는 첫 keyframe body 기준으로 재원점화된 world**이고, `orb_export/*.jsonl`(keyframes/map_points)은 raw Atlas world다. 둘을 합칠 땐 keyframe timestamp 매칭으로 정렬 변환을 계산해야 한다 — `scripts/pipeline/full_traj_to_rgb_3dgs.py`가 처리하고 잔차를 검증함.
 - **init 626,811 pts의 출처는 ORB-SLAM이 아니라 Aria MPS semi-dense**다. `aria_to_3dgs.py`가 confidence(`inv_dist_std`/`dist_std`)를 버리고 xyz만 덤프한다. 필터링하려면 이 스크립트를 수정해야 함. (`reference/workspace_map.md`)
@@ -21,6 +22,7 @@
 
 ## 실험 설계
 
+- **모양 기반 floater 판별 prior는 이 장면에서 전멸했다** (2026-07-11) — 평면성(AUC 0.64), 법선 정렬(0.64), SH 고차 에너지(0.49), scale 등방성(0.51). floater는 split 산물이라 표면 조각과 형태가 같다. 작동하는 신호는 위치·맥락 계열: free-space carve(w), 이웃 최대 opacity 부재, 고립도. 또한 **prune 규칙의 부수 피해는 "가시 점 개수"가 아니라 시각 기여량(op×면적×노출수) 기준으로 평가하라** — 저op 점 수만 개의 합은 유의미하다 (`experiments/carve_loss_design.md`).
 - sparse depth prior를 강하게 걸면 outlier sparse geometry를 고정한다 (exp12). 필터링 후 + 약한 weight + delayed start가 전제조건.
 - plateau loss: λ ≤ 0.10, densification(7k) 이후 시작. opacity_weight/exp_loss/반복 hard pruning은 전부 역효과였다 (`rounds/round7_plateau_mps.md`).
 - VGGT frame 수 증가는 RAM이 아니라 **VRAM/attention memory** 병목. 96+ frames OOM.
