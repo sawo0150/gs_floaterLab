@@ -1,7 +1,7 @@
 # GPU 작업 큐 계획 (2026-07-12 수립, 실행 전)
 
 > 목적: GPU를 무인 루프로 돌리며 carve loss 검증 + gradient flow 규명 + 3D force 부활 가능성 판정.
-> 각 단계는 이전 단계 결과로 게이트됨. 성공 기준은 [carve_loss_design.md](carve_loss_design.md) "사전 등록" 섹션에 고정 (결과 보고 변경 금지).
+> 각 단계는 이전 단계 결과로 게이트됨. 성공 기준은 [round8_carve_loss_design.md](round8_carve_loss_design.md) "사전 등록" 섹션에 고정 (결과 보고 변경 금지).
 
 ## 큐 요약
 

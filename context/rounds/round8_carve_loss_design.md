@@ -1,4 +1,6 @@
-# carve_loss_design — Free-Space Carve 기반 floater loss 설계 (학습 없이 분석만)
+# Round 8 — Free-Space Carve 기반 floater loss 설계 (학습 없이 분석만)
+
+> 문서 내 "Round 1~13"은 이 분석 사이클의 내부 회차 번호로, 프로젝트 라운드 번호(이 문서 = round8)와 무관.
 
 - 날짜: 2026-07-11
 - 입력: exp32_lineage_diag 30k ply + 수동 라벨 2,817개 (ground truth), SLAM 7,205pts, 카메라 1,303개
@@ -7,7 +9,7 @@
 
 ## 목적
 
-plateau loss가 수동 floater를 원리적으로 못 잡는다는 검증([exp32_lineage_diag §3](exp32_lineage_diag.md)) 이후,
+plateau loss가 수동 floater를 원리적으로 못 잡는다는 검증([exp32_lineage_diag §3](../experiments/exp32_lineage_diag.md)) 이후,
 **같은 입력(SLAM 포인트 + 카메라 포즈)만으로** floater를 정확히 겨냥하는 3D loss를 설계하고,
 라벨 2,817개를 채점표로 삼아 학습 없이 후보들을 리그전으로 평가.
 

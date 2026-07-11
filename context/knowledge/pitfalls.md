@@ -22,7 +22,7 @@
 
 ## 실험 설계
 
-- **모양 기반 floater 판별 prior는 이 장면에서 전멸했다** (2026-07-11) — 평면성(AUC 0.64), 법선 정렬(0.64), SH 고차 에너지(0.49), scale 등방성(0.51). floater는 split 산물이라 표면 조각과 형태가 같다. 작동하는 신호는 위치·맥락 계열: free-space carve(w), 이웃 최대 opacity 부재, 고립도. 또한 **prune 규칙의 부수 피해는 "가시 점 개수"가 아니라 시각 기여량(op×면적×노출수) 기준으로 평가하라** — 저op 점 수만 개의 합은 유의미하다 (`experiments/carve_loss_design.md`).
+- **모양 기반 floater 판별 prior는 이 장면에서 전멸했다** (2026-07-11) — 평면성(AUC 0.64), 법선 정렬(0.64), SH 고차 에너지(0.49), scale 등방성(0.51). floater는 split 산물이라 표면 조각과 형태가 같다. 작동하는 신호는 위치·맥락 계열: free-space carve(w), 이웃 최대 opacity 부재, 고립도. 또한 **prune 규칙의 부수 피해는 "가시 점 개수"가 아니라 시각 기여량(op×면적×노출수) 기준으로 평가하라** — 저op 점 수만 개의 합은 유의미하다 (`rounds/round8_carve_loss_design.md`).
 - sparse depth prior를 강하게 걸면 outlier sparse geometry를 고정한다 (exp12). 필터링 후 + 약한 weight + delayed start가 전제조건.
 - plateau loss: λ ≤ 0.10, densification(7k) 이후 시작. opacity_weight/exp_loss/반복 hard pruning은 전부 역효과였다 (`rounds/round7_plateau_mps.md`).
 - VGGT frame 수 증가는 RAM이 아니라 **VRAM/attention memory** 병목. 96+ frames OOM.

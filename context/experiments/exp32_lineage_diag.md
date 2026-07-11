@@ -28,7 +28,7 @@
 ### 1) Decoupled Gradient Profile (Floater Mean vs Surface Mean)
 - **RGB (Photometric) Grad**: `7.2938e-01` vs `3.2684e-01` (비율: **`2.2316x`**)
   - *해석*: 사용자가 지운 2,817개의 floater들은 카메라 시야 내에 위치하여 오차 역전파의 영향을 많이 받아 표면보다 **2.23배** 더 큰 RGB gradient를 받음.
-  - **⚠ 정정 (07-11 후속 분석)**: opacity 중앙값은 **0.044** (표면 0.194), op>0.5는 2,817개 중 **48개**, op>0.3은 142개뿐. 즉 수동 floater 대부분은 "고opacity 생존자"가 아니라 **prune 임계(0.01) 바로 위에서 간신히 버티는 저opacity 먼지 무리**이며, 다수가 겹쳐 시각적 artifact로 보인 것. 이 성질이 carve loss 설계의 핵심 leverage가 됨 → [carve_loss_design](carve_loss_design.md)
+  - **⚠ 정정 (07-11 후속 분석)**: opacity 중앙값은 **0.044** (표면 0.194), op>0.5는 2,817개 중 **48개**, op>0.3은 142개뿐. 즉 수동 floater 대부분은 "고opacity 생존자"가 아니라 **prune 임계(0.01) 바로 위에서 간신히 버티는 저opacity 먼지 무리**이며, 다수가 겹쳐 시각적 artifact로 보인 것. 이 성질이 carve loss 설계의 핵심 leverage가 됨 → [round8_carve_loss_design](../rounds/round8_carve_loss_design.md)
 - **Plateau Loss Grad**: `8.1433e-04` vs `1.3975e-03` (비율: **`0.5827x`**)
   - *해석*: Plateau loss gradient를 표면 대비 **`0.58배`** 수준으로 적게 받음. 이는 사용자가 지운 가우시안들이 **실제 anchor가 있는 바닥/표면 구조물로부터 물리적으로 꽤 멀리 떨어진 Outlier 허공 영역**에 둥둥 떠 있었음을 증명함.
 

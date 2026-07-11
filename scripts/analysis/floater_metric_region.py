@@ -7,7 +7,7 @@ floater_metric_region.py
 GT = 수동 라벨 2,817개로 조각한 3D 삭제 영역 (dilate ∪ tetra 사면체 채움,
 `results/diagnostic/floater_region_gt.npz`, 85.4m³, 라벨 recall 98%+,
 exp32 가시 표면 침범 0). 사람이 검증한 공간을 상속하므로 현존 지표 중
-신뢰도 최고. 자세한 근거: context/experiments/carve_loss_design.md Round 12.
+신뢰도 최고. 자세한 근거: context/rounds/round8_carve_loss_design.md Round 12.
 
 지표 (낮을수록 좋음):
   region_n        영역 안 gaussian 수

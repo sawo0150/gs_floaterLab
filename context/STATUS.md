@@ -19,7 +19,7 @@
 
 ## 최근 흐름 (최신순)
 
-- **2026-07-11**: **Carve Loss 설계 완료 (분석만, 학습 없음)** — 카메라→SLAM 포인트 ray의 free-space carving 증거비 ρ(x)에 anchor 거리를 곱한 score w(x)가 수동 floater 판별 **AUC 0.974** (plateau 0.511). 수동 floater가 opacity 중앙값 0.044의 "한계 생존자"임을 발견(카드의 op>0.5 서술은 오류였음, 정정 완료). **부수 피해 재정량**: 원안 prune 규칙은 표면 시각 기여량 3.83% 손실로 폐기, 안전 규칙(w>0.9 & op<0.1 & contrib<p90)은 **recall 69.4%·기여손실 0.39%·구멍 0**. densify 게이트는 출생 91% 차단 가능하나 기여량 13.75% 영역에 걸려 학습 검증 필요. 렌더 PSNR 검증용 pruned 모델 4종 준비 완료(GPU 대기). → [carve_loss_design](experiments/carve_loss_design.md)
+- **2026-07-11**: **Carve Loss 설계 완료 (분석만, 학습 없음)** — 카메라→SLAM 포인트 ray의 free-space carving 증거비 ρ(x)에 anchor 거리를 곱한 score w(x)가 수동 floater 판별 **AUC 0.974** (plateau 0.511). 수동 floater가 opacity 중앙값 0.044의 "한계 생존자"임을 발견(카드의 op>0.5 서술은 오류였음, 정정 완료). **부수 피해 재정량**: 원안 prune 규칙은 표면 시각 기여량 3.83% 손실로 폐기, 안전 규칙(w>0.9 & op<0.1 & contrib<p90)은 **recall 69.4%·기여손실 0.39%·구멍 0**. densify 게이트는 출생 91% 차단 가능하나 기여량 13.75% 영역에 걸려 학습 검증 필요. 렌더 PSNR 검증용 pruned 모델 4종 준비 완료(GPU 대기). → [carve_loss_design](rounds/round8_carve_loss_design.md)
 - **2026-07-11**: **plateau 방식으로 수동 floater 2,817개를 해결할 수 없음을 학습 없이 정량 확정** (`verify_plateau_capability.py`). 실제 학습 field(DepthPro anchor + ellipsoidal 적응형 tau) 기준 floater의 66%가 plateau 안이라 gradient 0 (측정 telemetry로 교차검증됨), 정규화 거리 D의 floater 판별 AUC 0.511(무작위). 단 raw 유클리드 거리는 AUC 0.93(SLAM) — **신호는 존재하나 적응형 tau가 판별력을 파괴**. λ 크기는 애초에 문제 아니었음. → [exp32_lineage_diag §3](experiments/exp32_lineage_diag.md)
 - **2026-07-11**: 사용자가 직접 SuperSplat으로 정밀 편집한 `point_cloud_cleaned.ply` (2,817개 floater 삭제)에 대한 수동 분석 완료. 수동 floater들은 표면 대비 RGB gradient를 2.23배 높게 받으며 소멸에 저항했고, Plateau gradient는 0.58배 적게 받으며 허공(outlier)에 방치되었음을 입증. 대다수(69%)가 3k~7k step 사이의 후반부에 split(평균 5.73회)을 통해 생성되었고, Seed 5061(10%) 등 특정 조상 포인트가 증식을 대량 주도함. -> [exp32_lineage_diag](experiments/exp32_lineage_diag.md)
 - **2026-07-10**: floater 계보 및 gradient 분리 진단 실험(`exp32_lineage_diag`) 완료. 명시적 floater가 미관측 void 영역에 갇혀 RGB gradient가 정상의 1/4배(`0.14` vs `0.55`)로 억제되었음을 입증. 특히 Plateau loss가 10배 더 강하게 복구력을 가했음에도 이들이 opacity > 0.5로 생존했으며, 특정 seed 두 개(7015, 5392)가 전체 floater의 70%를 생산하는 주범임을 최초 정량 확인. -> [exp32_lineage_diag](experiments/exp32_lineage_diag.md)
@@ -35,7 +35,7 @@
 
 ## 다음 실험 후보 (우선순위순)
 
-1. **exp38: Carve Loss 학습 검증 — 구현·config·스크립트 준비 완료, GPU만 뜨면 실행** (`scripts/experiments/run_exp38_carve.sh`: exp38a=soft+prune+gate, exp38b=prune+gate만). 챔피언 score `w·(1−maxop_5cm)` AUC 0.98, 예산 prune 0.5%로 recall ~60% + soft loss 보완 예측 → [carve_loss_design](experiments/carve_loss_design.md). **주의: 챔피언 score 기준 exp37 dense init이 오히려 최다 먼지 부하(4.5배) — |Z|·unseen 지표의 사각지대. exp37 결론 재평가 필요.**
+1. **exp38: Carve Loss 학습 검증 — 구현·config·스크립트 준비 완료, GPU만 뜨면 실행** (`scripts/experiments/run_exp38_carve.sh`: exp38a=soft+prune+gate, exp38b=prune+gate만). 챔피언 score `w·(1−maxop_5cm)` AUC 0.98, 예산 prune 0.5%로 recall ~60% + soft loss 보완 예측 → [carve_loss_design](rounds/round8_carve_loss_design.md). **주의: 챔피언 score 기준 exp37 dense init이 오히려 최다 먼지 부하(4.5배) — |Z|·unseen 지표의 사각지대. exp37 결론 재평가 필요.**
 2. exp37 방식(dense confidence+monodepth init, plateau 없음)을 MPS 트랙에도 적용 — |Z|>4m=0·ray-density 우수함이 ORB 트랙만의 우연인지 재현 가능한 효과인지 확인.
 3. exp37(SLAM core seed) vs 고confidence-seed dense init(5cm/60k판) 직접 비교 — plateau 없이 seed 종류만 바꿔 dense init 자체의 최적 seed 탐색.
 4. ray-density 지표를 앞으로의 모든 신규 실험 평가에 표준 적용.

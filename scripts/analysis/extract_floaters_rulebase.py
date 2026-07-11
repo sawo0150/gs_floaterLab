@@ -5,7 +5,7 @@ extract_floaters_rulebase.py
 수동 라벨(2,817개)로 캘리브레이션된 룰베이스 floater 자동 추출기.
 301_1253 dataset의 아무 run 결과 ply에 적용 가능 (ORB/MPS 트랙 모두).
 
-규칙 (carve_loss_design.md에서 검증):
+규칙 (rounds/round8_carve_loss_design.md에서 검증):
     score = w(x) · (1 − maxop_5cm(x))
       w(x) = ρ(x) · min(d5_SLAM(x)/0.25, 1),  ρ = 빈공간 증거비 (사전 계산 field)
     score 내림차순으로 선택하되, 선택된 점들의 누적 시각 기여량이
