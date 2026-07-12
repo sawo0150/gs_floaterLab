@@ -55,3 +55,17 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - **원인 확정: ORB 지도의 표면 커버리지 부족.** 생존점(정상 표면)조차 d5_SLAM p50=0.304m — SLAM 점 6,080개가 방을 못 덮어 'SLAM 근접=표면' 가정과 ray-transit rho가 모두 실제 표면을 빈 공간으로 오판.
 - **처방: depth-anchor carve** — depth-pro(stride 40, ~66프레임)로 조밀 표면 앵커 생성, SLAM 점 대신 d5/terminal 앵커로 사용. hybrid init 이식에도 같은 재료 필요 → 일석이조. `scripts/anchors/inference_depthpro_scene.py` (범용 버전) 실행 중 (305, rot).
 - 12F: pseudo-label 파이프라인 백그라운드 진행 중.
+
+## 결과 5: 305 depth-anchor 처방 — 대폭 회복 + 라벨 이질성 발견 (07-13)
+
+| 신호 | AUC |
+|---|---|
+| 기존 champion score (SLAM 기반) | 0.7993 |
+| depth-anchor w (rho·d5 재구성, 67프레임) | **0.8855** |
+| depth-violation ratio (이미지 공간, 67프레임) | 0.8905 |
+| vr + 0.5·w 결합 | **0.9047** |
+
+- 생존점 d5 0.304→0.083 — depth 앵커가 표면 커버리지 문제를 해결. depth-pro 비용 33초/장면(67프레임).
+- (1−maxop) 보호항은 305에서 AUC를 깎음(0.886→0.83) — 가시 floater 많은 장면에서 보호항 유해, rot 사각지대 발견과 일관.
+- **라벨 이질성**: 미탐지 라벨의 95%가 depth 표면 0.15m 이내 = 305 라벨의 ~30%(2,761개)는 free-space 부유물이 아닌 **표면 부착 불량 blob**. free-space 신호의 원리적 사각 → 별도 신호(멀티뷰 색 일관성 등) 필요한 다른 문제 클래스.
+- 진행: stride 10(265프레임)으로 depth 보강 중 (관측 빈도 p50=9가 병목 의심) → 최종 AUC 재측정 예정.
