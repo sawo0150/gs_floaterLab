@@ -126,3 +126,20 @@
 **확립된 4원칙**: ① 먼지는 init에서 잡는다(사전 필터 -96%) ② 색은 선불(+1.0~1.6dB) ③ 갭의 정체는 배치·용량(스냅 +1.6dB) ④ 용량은 짧은 densify(3k)로 충분.
 
 **후속(선택)**: 44c(RoMA) — novel-view 추가 개선용 / 44e(2D GS lift) — init 고도화 / 저텍스처 장면(12F류) 재도전.
+
+## 07-12 저녁 — held-out 대반전 + Instant-GI PPM init
+
+**① held-out(segment) 재평가 결과:**
+
+| run | test PSNR | vs baseline(31.549) | vs exp40b(31.106) | region_n |
+|---|---:|---:|---:|---:|
+| 44h (스냅 init, 15k) | 30.804 | -0.75 | -0.30 | 1,326 |
+| **44f (스냅 init + densify≤7k, 30k)** | **32.126** | **+0.58** | **+1.02** | 572 |
+
+**44f가 held-out에서 baseline을 이긴 최초의 구성** — 깨끗한 착색 init이 novel-view 일반화를 실질 개선.
+"먼지 제거 = -0.44dB 비용" 결론이 **init 개선으로 역전**됨. (44h는 -0.3dB — 속도 타협분)
+
+**② exp44e (Instant-GI 사상 PPM init, 117k, 15k train):**
+train PSNR 32.001 + **region 먼지 123 / 기여 0.00% — 역대 최저** (스냅 1,362의 1/11).
+보정 monodepth의 per-pixel lift가 terminal-snap보다 배치가 정확. **fast-track 챔피언 교체 후보.**
+→ 검증 중: 44e held-out + 44f2(PPM init 품질기함 30k). RoMA(44c)는 local_corr 이슈를 torch 폴백으로 수리 후 매칭 재실행 중.
