@@ -43,3 +43,7 @@
 305(2,654장, data_device cpu) 학습을 266프레임 앵커 필드 빌드(수 GB)와 병행하다 iteration 0에서 OOM Killed.
 - 교훈: 이미지 2,000장+ 장면 학습 중에는 대형 CPU 분석 작업 병행 금지. CarveLoss points_txt는 10만 점 내외로 서브샘플, 카메라 수천 대 장면은 cam_stride 설정 필수.
 - pgrep 자기매칭 함정 4회째: 감시/대기 루프의 프로세스 확인은 결과물 파일·로그 마커(예: ALL-DONE) 기준으로 할 것.
+
+## checkpoint-resume 시 계측·계보 버퍼 크기 불일치 (2026-07-13)
+
+`--start_checkpoint` 복원은 capture()에 포함된 텐서만 되살린다. 우리 계측 버퍼(accum_rgb_grad/vec, accum_plateau_grad, accum_visibility)와 계보 버퍼(ancestor_idx, birth_step, generation, num_splits, num_clones)는 init 크기 그대로 남아 첫 backward(계측 +=)나 첫 carve prune(계보 인덱싱)에서 크기 불일치로 사망. train.py restore 직후 8종 재생성으로 수정. PyTorch 2.6부터 torch.load(weights_only=False)도 필요.
