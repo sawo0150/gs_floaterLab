@@ -143,3 +143,19 @@
 train PSNR 32.001 + **region 먼지 123 / 기여 0.00% — 역대 최저** (스냅 1,362의 1/11).
 보정 monodepth의 per-pixel lift가 terminal-snap보다 배치가 정확. **fast-track 챔피언 교체 후보.**
 → 검증 중: 44e held-out + 44f2(PPM init 품질기함 30k). RoMA(44c)는 local_corr 이슈를 torch 폴백으로 수리 후 매칭 재실행 중.
+
+## 07-12 저녁 2차 — 44f2 신기록: 3벤치마크 동시 개선
+
+| run | init | 시간 | train PSNR | test PSNR | region_n | 가시 |
+|---|---|---:|---:|---:|---:|---:|
+| baseline (exp30) | ORB 7k | 8분 | 32.906 | 31.549* | 3,477 | 238 |
+| exp40b (carve 정규) | ORB 7k | 14분 | 32.576 | 31.106* | 498 | 28 |
+| 44f (스냅 init) | 스냅 100k | 14분 | 32.672 | **32.126** | 745/572 | 80 |
+| **44f2 (PPM init + densify + carve)** | **PPM 117k** | 14분 | **33.524 (신기록)** | 검증 중 | **277** | 73 |
+| 44e (PPM, fast 15k) | PPM 117k | 8분 | 32.001 | 30.787 | **123~150** | 60 |
+| 44h (스냅, fast 15k) | 스냅 100k | 7.5분 | 32.076 | 30.804 | 1,326 | 176 |
+
+*eval split run 별도 측정치.
+- **44f2 = 새 절대 챔피언 후보**: 프로젝트 사상 최고 PSNR(exp08 33.012 경신) + 먼지 baseline의 7% + 동일 시간. Instant-GI 사상(내용-적응 확률맵 샘플링 + 보정 depth lift)의 기여 확정.
+- fast-track 챔피언 교체: 44h → **44e** (PSNR 동률·먼지 1/9).
+- RoMA init(44c, 71,789pts) 학습 중 — 기하 검증 배치의 최종 항목.
