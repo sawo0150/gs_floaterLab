@@ -6,8 +6,8 @@
 
 | 기준 | 실험 | PSNR@30k | 비고 |
 |---|---|---:|---|
-| **ORB 품질 기함** | **exp44f (스냅색 init + densify + carve)** | **32.672** | 먼지 745, 14분 — exp40b 계승 |
-| **ORB fast-track** | **exp44h (init 3분 + 학습 7.5분)** | **32.076** | 먼지 1,362 — 절반 시간에 노이즈 접경 |
+| **ORB 종합 챔피언** | **exp44d2 (RoMA+PPM 하이브리드 init + densify + carve)** | **33.799 (신기록)** | test 32.479(+0.93dB), 먼지 234, 14분 |
+| **ORB fast-track** | **exp44d (하이브리드 init, 15k)** | 32.347 | 먼지 147, 학습 8분 |
 | ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
 | **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
 | Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
