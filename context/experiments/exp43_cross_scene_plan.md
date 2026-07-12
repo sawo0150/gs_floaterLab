@@ -69,3 +69,9 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - (1−maxop) 보호항은 305에서 AUC를 깎음(0.886→0.83) — 가시 floater 많은 장면에서 보호항 유해, rot 사각지대 발견과 일관.
 - **라벨 이질성**: 미탐지 라벨의 95%가 depth 표면 0.15m 이내 = 305 라벨의 ~30%(2,761개)는 free-space 부유물이 아닌 **표면 부착 불량 blob**. free-space 신호의 원리적 사각 → 별도 신호(멀티뷰 색 일관성 등) 필요한 다른 문제 클래스.
 - 진행: stride 10(265프레임)으로 depth 보강 중 (관측 빈도 p50=9가 병목 의심) → 최종 AUC 재측정 예정.
+
+## 결과 6: 12F 채점 + 305 depth 보강 (07-13 새벽)
+
+- **12F도 305와 동일한 실패 패턴**: champion AUC 0.858, pseudo-label 정밀도 39%/재현율 45%. 생존점 d5 p50=0.366 (SLAM 14,791점에도 커버리지 부족 — 면적 대비 희소). **'ORB 커버리지 부족' 진단이 두 장면을 모두 설명.**
+- 305 depth-violation, 관측 빈도 보강(66→266프레임, vis p50 9→37): **AUC 0.891→0.9143**.
+- 진행 체인: 305 앵커·필드 266f 재구축(CPU) → 완료 시 305 depth-anchor carve 학습 자동 발사(GPU). 12F depth 캐시 147장 완료. rot hybrid init(RoMA+PPM 범용판 `build_hybrid_init_scene.py`) GPU 실행 중.
