@@ -89,5 +89,5 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 
 | Exp | 내용 | 상태 | 카드 |
 |---|---|---|---|
-| exp43 | 교차 장면 일반화 (1순위: 0408_919C_418, 사용자 라벨링 예정) + ORB confidence 재평가 | 계획 | [exp43](exp43_cross_scene_plan.md) |
-| exp44 | 고속 geometry 트랙: dense init × no-densify × carve (EDGS 사상) — 목표 5분/장면 | 계획 | [exp44](exp44_fast_geometry_plan.md) |
+| exp43 | 교차 장면: 305 확보(라벨 대기)·1253_rot pseudo-label 완비·12F/2F/3F/snu 탈락 | **라벨 대기** | [exp43](exp43_cross_scene_plan.md) |
+| **exp44** | **고속 geometry 트랙 완료 — 44h 레시피 채택** (스냅 init+densify≤3k+carve, 32.08/7.5분) · 품질 기함 44f(32.67/14분) | **완료** | [exp44](exp44_fast_geometry_plan.md) |

@@ -115,3 +115,14 @@
 2. dense init: monodepth 148k → **carve 필터 → ray 스냅 → 재필터 → 투영 착색** (CPU ~3분)
 3. 학습: densify≤3k + carve(soft/prune/gate/force) × 15k iter (GPU ~7.5분)
 → **총 ~11분/장면, PSNR 32.1, 먼지 1.4k (baseline 3.7k 대비 -63%)**
+
+## Verdict (07-12 확정)
+
+**Fast-track 레시피 채택 (exp44h)**: `스냅-재필터-착색 init(100k) + densify≤3k + carve 풀레시피 + 15k iter`
+→ **PSNR 32.08 / region 먼지 1,362 / 학습 7.5분 (+init 전처리 3분)** — 정규 트랙(exp40b, 14분)의 절반 시간에 baseline 노이즈 접경 품질. 44ht(λ·예산 튜닝)로 개선 없음 확인 — 가시 잔여 ~200은 기존 3D 신호 한계 집단.
+
+**품질 기함 유지 (exp44f)**: 같은 init + densify≤7k + 30k = **PSNR 32.67 / 먼지 745 / 14분** — 시간 무관 최고 품질 시 선택.
+
+**확립된 4원칙**: ① 먼지는 init에서 잡는다(사전 필터 -96%) ② 색은 선불(+1.0~1.6dB) ③ 갭의 정체는 배치·용량(스냅 +1.6dB) ④ 용량은 짧은 densify(3k)로 충분.
+
+**후속(선택)**: 44c(RoMA) — novel-view 추가 개선용 / 44e(2D GS lift) — init 고도화 / 저텍스처 장면(12F류) 재도전.
