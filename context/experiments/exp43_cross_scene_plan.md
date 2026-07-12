@@ -128,3 +128,11 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 | 45c progressive | stage2 torch.load 사고 후 재실행 중 | ⏳ |
 
 미해결 질문 2개: ① rot에서 carve 학습이 가시 먼지를 늘리는 메커니즘(응집 도피?) ② 라벨 없는 앵커 품질 자가진단.
+
+## 결과 10: rot 가시 먼지 부검 — 응집 가설 기각, force 항 유력 용의자 (07-13 아침, 우선순위 ②)
+
+- 계보 필드 부검(741점): **95%가 densify 출생**(birth p50 4,400, generation p50 5 — 깊은 split 사슬), init 출신 5%뿐. accum_visibility p50 686 (표면 874와 비슷 — 많은 뷰에서 실제로 렌더됨).
+- **응집 도피 가설 기각**: 가시 먼지의 65%는 15cm 내에 baseline 먼지가 0개 — 기존 먼지가 뭉친 게 아니라 **baseline엔 아예 없던 새 위치에 생성**된 것.
+- 새 가설: **carve force 항**(λ0.05, xyz 견인 — 점을 3D로 움직이는 유일한 구성요소)이 회전 궤적의 약한 다시점 구속에서 점들을 "이미지에 부합하는 잘못된 허공 위치"로 이주시킴. 1253(병진 궤적)에선 무해했던 이유도 설명됨.
+- 반증 실험: exp43rot_noforce(force만 끈 champion) 실행 중 → 가시 먼지가 baseline(106) 수준으로 내려오면 **"force는 병진 궤적 한정" 조건부 강등**.
+- 병행(우선순위 ③): 12F depth-anchor 필드 빌드 중 + RoMA **시차 보장 쌍 선택**(--min-baseline 0.2m) 구현 완료, rot hybrid v2 재빌드→학습 체인 등록.

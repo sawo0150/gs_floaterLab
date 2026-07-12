@@ -55,6 +55,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scene", required=True)
     ap.add_argument("--field", default="", help="재필터용 npz (기본: depth_anchors.npz → carve_field.npz 순)")
+    ap.add_argument("--min-baseline", type=float, default=0.0,
+                    help=">0이면 인접쌍 대신 카메라 중심 거리가 이 값 이상인 최근접 후속 keyframe과 쌍 구성 (회전 궤적 대책)")
     args = ap.parse_args()
 
     scene_dir = LAB / "data/scenes" / args.scene
@@ -74,9 +76,22 @@ def main():
     device = "cuda"
     model = roma_outdoor(device=device, use_custom_corr=False)
     K = np.array([[FX, 0, CX], [0, FY, CY], [0, 0, 1]])
+    # 쌍 구성: 기본 인접쌍 / min_baseline>0이면 시차 보장 쌍 (작은 시차 삼각측량 오류 대책)
+    centers = np.stack([-R.T @ t for R, t in zip(Rs, ts)])
+    if args.min_baseline > 0:
+        pairs_idx = []
+        for pi in range(len(kf)):
+            for pj in range(pi + 1, len(kf)):
+                if np.linalg.norm(centers[kf[pj][0]] - centers[kf[pi][0]]) >= args.min_baseline:
+                    pairs_idx.append((pi, pj))
+                    break
+        print(f"[pairs] min_baseline {args.min_baseline}m → {len(pairs_idx)}쌍 "
+              f"(시차 p50 {np.median([np.linalg.norm(centers[kf[j][0]]-centers[kf[i][0]]) for i,j in pairs_idx]):.2f}m)")
+    else:
+        pairs_idx = [(pi, pi + 1) for pi in range(len(kf) - 1)]
     roma_pts, roma_rgb = [], []
-    for pi in range(len(kf) - 1):
-        (ia, fa), (ib, fb) = kf[pi], kf[pi + 1]
+    for pi, pj in pairs_idx:
+        (ia, fa), (ib, fb) = kf[pi], kf[pj]
         pa, pb = str(imgdir / names[ia]), str(imgdir / names[ib])
         warp, certainty = model.match(pa, pb, device=device)
         matches, cert = model.sample(warp, certainty, num=N_SAMPLE_PER_PAIR)
