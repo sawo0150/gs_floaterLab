@@ -94,3 +94,14 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - **nomaxop 기각**: 보호항 해제가 가시 먼지를 오히려 늘림. 소프트 압력 확대 → 저op 먼지가 불투명 응집으로 도피하는 메커니즘 의심 (753→1,267).
 - **hybrid 이식의 명암**: PSNR +1.37dB는 즉시 최고 기록. 그러나 rot의 **회전 위주 궤적 = 인접 프레임 시차(baseline)가 작음** → RoMA 삼각측량·depth 보정 오류 점이 재필터를 뚫고 가시 먼지로 유입 (1253은 57 keyframe·충분한 시차·깨끗한 재필터 필드로 성립).
 - **결론: 1253 레시피의 이식성 한계는 '장면'보다 '궤적 특성'** — 쌍 선택을 시차(baseline) 기준으로 바꾸는 EDGS식 개선이 다음 열쇠. carve 계열이 rot에서 가시 먼지를 늘리는 메커니즘(응집 도피?)은 아침 분석 과제.
+
+## 결과 8: 305 depth-anchor carve 학습 — **교차 장면 재현 성공** (07-13 05:1x)
+
+| 305 | PSNR | region 먼지 | 가시 먼지 |
+|---|---|---|---|
+| baseline | 34.508 | 6,888 | 708 (free-space 65%) |
+| **depth-anchor carve** | 34.484 (동급) | **1,184 (-83%)** | **173 (-76%, free-space 17%)** |
+
+- 레시피: champion(exp40b) + points_txt=depth 앵커 100k(67프레임분 서브샘플) + cam_stride 40. 재시도 1회(OOM) 후 정상 완주.
+- **판정: 앵커 커버리지만 고치면 carve 학습이 다른 방에서 재현된다.** 잔존 가시 173점 중 진짜 free-space는 ~17%(≈29점) — 사실상 부유물 소멸.
+- 남은 검증: rot의 가시 먼지 역증가(741)도 희소 SLAM 필드 탓인지 — rot depth-anchor carve(exp43rot_deptha) 45c 뒤 체인 등록.
