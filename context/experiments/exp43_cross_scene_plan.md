@@ -33,3 +33,9 @@
 - **champion score 교차 장면 AUC 0.9813** (원본 0.976 이상) — 다른 궤적·다른 SLAM맵에서 완전 일반화
 - ORB confidence(obs≥5) A/B: 0.9807 — 무효과 재확인 (지도 깨끗)
 - 진행: rot 장면 carve 학습(exp43rot, dynamic carve 포함) — 진짜 라벨로 채점 예정
+
+## 결과 2: rot carve 학습 — dynamic carve의 자기강화 결함 발견 (07-13)
+
+exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 7,864→5,301(-33%) — 그러나 **가시 먼지 106→716 역증가.**
+**가설: dynamic carve 자기강화** — 가시 먼지 무리가 자신을 terminal 증거로 등록 → rho↓ → score↓ → 자기 보호 되먹임. 1253에선 깨끗한 init이라 잠복(가시 63 유지), raw init+densify 조건에서 발현.
+→ 반증 실험 exp43rot2(static carve) 실행 중. 확정 시 **dynamic carve는 '깨끗한 init 전제' 조건부 채택**으로 강등 + dyn 되먹임에 최소 나이(gaussian age) 조건 추가 검토.
