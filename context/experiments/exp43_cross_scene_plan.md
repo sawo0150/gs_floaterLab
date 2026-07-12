@@ -38,4 +38,12 @@
 
 exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 7,864→5,301(-33%) — 그러나 **가시 먼지 106→716 역증가.**
 **가설: dynamic carve 자기강화** — 가시 먼지 무리가 자신을 terminal 증거로 등록 → rho↓ → score↓ → 자기 보호 되먹임. 1253에선 깨끗한 init이라 잠복(가시 63 유지), raw init+densify 조건에서 발현.
-→ 반증 실험 exp43rot2(static carve) 실행 중. 확정 시 **dynamic carve는 '깨끗한 init 전제' 조건부 채택**으로 강등 + dyn 되먹임에 최소 나이(gaussian age) 조건 추가 검토.
+→ **반증 실험 결과 가설 기각**: exp43rot2(static) 도 가시 741 (dynamic 716과 동일) — dynamic 여부와 무관.
+**재해석: carve의 설계상 사각지대.** champion score의 (1−maxop_5cm) 보호항이 '이미 불투명해진' 먼지 무리를 보호함 → carve는 저op 먼지 전담이고, **가시 floater는 예방(좋은 init)이 담당**이라는 기존 분업이 raw init 장면에서 그대로 드러난 것. 검증: in-region 가시 741점의 78%가 free space(d5>0.25m) = 진짜 부유물. 1253에서 가시 먼지가 적었던 건 hybrid init 덕분.
+- 후속: ① rot에 hybrid init 이식(예방 경로 재현) ② densify 구간 한정 maxop 보호 해제 gate/prune variant (치료 경로 확장)
+
+## 결과 3: 305·12F 라벨 도착 (07-13)
+
+- 305: 9,059/111,596 (8.1%), op p50 0.053, **가시(op>0.3) 1,340** — 지금까지 가장 지저분한 장면. confidence 유효성 판정의 최적 시험대.
+- 12F: 1,449/20,436 (7.1%), op p50 0.053, 가시 161 — 저품질(fog) 장면 거동 관찰용.
+- 2F·snu(복도)는 기하 열화로 사용자 라벨링 불가 → 라벨 기반 검증 대상에서 제외 (파이프라인 한계 클래스 유지).
