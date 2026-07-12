@@ -47,3 +47,11 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - 305: 9,059/111,596 (8.1%), op p50 0.053, **가시(op>0.3) 1,340** — 지금까지 가장 지저분한 장면. confidence 유효성 판정의 최적 시험대.
 - 12F: 1,449/20,436 (7.1%), op p50 0.053, 가시 161 — 저품질(fog) 장면 거동 관찰용.
 - 2F·snu(복도)는 기하 열화로 사용자 라벨링 불가 → 라벨 기반 검증 대상에서 제외 (파이프라인 한계 클래스 유지).
+
+## 결과 4: 305 — champion score 첫 일반화 실패 + 원인 확정 (07-13)
+
+- **champion score AUC 0.7993** (사전등록 0.95 미달), pseudo-label precision 44%/recall 41% → 다른 방에서는 현행 레시피 실패.
+- 원인 배제 과정: tau 0.1~1.0 스윕·terminal 가중 1~10 스윕 전부 AUC 0.77~0.78 (**스케일 문제 아님**). 가시 gaussian 앵커 대체 0.82, dyn-occ 보강 0.81. 라벨 분해 — 표면근접 라벨은 9%뿐, 탐지가능(free-space·저op) 모집단으로 좁혀도 0.82 (**라벨 성격 문제도 아님**).
+- **원인 확정: ORB 지도의 표면 커버리지 부족.** 생존점(정상 표면)조차 d5_SLAM p50=0.304m — SLAM 점 6,080개가 방을 못 덮어 'SLAM 근접=표면' 가정과 ray-transit rho가 모두 실제 표면을 빈 공간으로 오판.
+- **처방: depth-anchor carve** — depth-pro(stride 40, ~66프레임)로 조밀 표면 앵커 생성, SLAM 점 대신 d5/terminal 앵커로 사용. hybrid init 이식에도 같은 재료 필요 → 일석이조. `scripts/anchors/inference_depthpro_scene.py` (범용 버전) 실행 중 (305, rot).
+- 12F: pseudo-label 파이프라인 백그라운드 진행 중.
