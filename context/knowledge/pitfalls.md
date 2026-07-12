@@ -37,3 +37,9 @@
 
 - 실험은 W&B run name과 result dir 이름을 반드시 맞춘다.
 - 실험 완료 시 갱신은 3개만: exp 카드 + INDEX 한 줄 + STATUS. (`context/README.md`)
+
+## 대형 장면 학습 + 병행 CPU 작업 = 시스템 RAM OOM (2026-07-13)
+
+305(2,654장, data_device cpu) 학습을 266프레임 앵커 필드 빌드(수 GB)와 병행하다 iteration 0에서 OOM Killed.
+- 교훈: 이미지 2,000장+ 장면 학습 중에는 대형 CPU 분석 작업 병행 금지. CarveLoss points_txt는 10만 점 내외로 서브샘플, 카메라 수천 대 장면은 cam_stride 설정 필수.
+- pgrep 자기매칭 함정 4회째: 감시/대기 루프의 프로세스 확인은 결과물 파일·로그 마커(예: ALL-DONE) 기준으로 할 것.

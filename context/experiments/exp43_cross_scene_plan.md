@@ -75,3 +75,9 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - **12F도 305와 동일한 실패 패턴**: champion AUC 0.858, pseudo-label 정밀도 39%/재현율 45%. 생존점 d5 p50=0.366 (SLAM 14,791점에도 커버리지 부족 — 면적 대비 희소). **'ORB 커버리지 부족' 진단이 두 장면을 모두 설명.**
 - 305 depth-violation, 관측 빈도 보강(66→266프레임, vis p50 9→37): **AUC 0.891→0.9143**.
 - 진행 체인: 305 앵커·필드 266f 재구축(CPU) → 완료 시 305 depth-anchor carve 학습 자동 발사(GPU). 12F depth 캐시 147장 완료. rot hybrid init(RoMA+PPM 범용판 `build_hybrid_init_scene.py`) GPU 실행 중.
+
+## 진행 노트 (07-13 04:1x): 오버나이트 GPU 체인
+
+1. 305 depth-carve 1차 시도 **OOM 사망** (2,654장 cpu 로드 + 병행 앵커 빌드) → 앵커 100k 서브샘플 + cam_stride 40으로 재큐잉.
+2. 체인: rot hyb(03:37~, hybrid init 이식) → rot nomaxop(maxop 보호 해제) → 305 재시도 → 45c progressive resolution(신규 코딩: r/2 8k → 원해상도 재개 15k).
+3. 266f 앵커 필드 빌드는 비용 대비 효용 낮아 중단 (vr 0.9143은 이미 확보, 학습은 67f 573k→100k 앵커 사용).
