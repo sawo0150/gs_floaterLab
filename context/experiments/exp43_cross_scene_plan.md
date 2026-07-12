@@ -1,0 +1,27 @@
+# exp43 (계획) — 교차 장면 일반화: 새 장소에서 carve 재현 + ORB confidence 재평가
+
+- 상태: **계획** (2026-07-12 수립, 미실행)
+- 목적: 1253호에서 확정한 방법론(carve exp40b 레시피 + region GT 지표 체계)이 **다른 장면에서 재현**되는지, 그리고 SLAM 품질이 나쁜 조건에서 **ORB confidence(observations/found_ratio)가 유효해지는지** 검증.
+- 배경: 1253호 ORB 지도는 깨끗해서(terminal증거 0인 anchor 16/7,205, fr<0.25가 floater 근처에 안 몰림) confidence 필터가 무효과(AUC +0.0004). 지도가 지저분한 장면에서는 다를 수 있음 — MPS에서 outlier 7.6%가 실재했던 것처럼.
+
+## 후보 장면 (전부 VRS+MPS 완비, `26-1_RPM/Datas/CustomData/0416_Data/`)
+
+| 우선 | 장면 | 성격 | 노림수 |
+|---|---|---|---|
+| **1** | **0408_919C_418** | 다른 건물·다른 방 | 정통 일반화 시험 (실내 room-scale 유지) — **사용자 라벨링 대상 추천** |
+| 2 | 0416_301-1253-2_rot | **같은 방, 다른 궤적(회전)** | 라벨 불필요 부가 시험 — 기존 region GT 스탬프·carve field의 궤적 독립성 검증 |
+| 3 | 0227_snu_floor2_1 | 다른 건물 복도(추정) | 최강 스트레스 (복도 = SLAM 취약 + floater 온상) — 2차 |
+
+## 절차
+
+1. `scripts/pipeline/run_full_pipeline.sh`를 919C_418로 실행 (VRS→EuRoC→OpenMAVIS→RGB 3DGS 데이터셋)
+2. ORB 지도 품질 진단 먼저: anchor terminal-증거 분포, obs/found_ratio 분포 — 1253 대비 얼마나 지저분한가
+3. baseline 30k 학습 → **사용자가 SuperSplat으로 floater 라벨링** (이번엔 저op 먼지도 가능한 만큼 포함 권장 — 지난 라벨의 불완전성 교훈)
+4. 라벨로 region GT v2 구축 + champion score AUC 재측정 — **confidence 유/무 A/B** (obs·fr 필터/가중)
+5. carve(exp40b 레시피) 학습 → 사전 등록 기준: region 가시 먼지 -90%+, PSNR은 그 장면 baseline 재현 노이즈 내
+
+## 사전 등록 판정
+
+- 재현 성공: 새 장면에서 champion score AUC ≥ 0.95, carve 학습으로 가시 먼지 ≥90% 감소
+- confidence 유효 판정: confidence 필터/가중이 AUC를 +0.01 이상 올리면 "지저분한 지도에서 유효" 채택
+- 실패 시 1순위 의심: 장면 스케일/tau(0.25m)·voxel(0.1m) 하드코딩 값의 장면 의존성

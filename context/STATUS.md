@@ -42,7 +42,11 @@
 
 ## 다음 실험 후보 (우선순위순)
 
-1. **held-out 뷰 평가 도입** (eval split 재구성) — train PSNR 부적합 판명 후 유일하게 남은 정량 품질 축. carve 유/무의 novel-view 일반화 차이가 진짜 승부처.
+> **프로젝트 목표 재정의 (07-12)**: Aria glass 실시간 촬영 스트림 → 분 단위 turnaround로 geometry 좋은 3DGS recon. 실시간 경로엔 MPS 사용 불가 → ORB 트랙이 본선.
+
+0. **exp44 (고속 geometry 트랙)**: dense init × no-densify × carve — floater 출생 채널(densification) 제거 + EDGS 사상. 목표 5분/장면 → [exp44](experiments/exp44_fast_geometry_plan.md)
+0'. **exp43 (교차 장면)**: 0408_919C_418 파이프라인 → baseline → **사용자 라벨링** → carve 재현 + ORB confidence 재평가 → [exp43](experiments/exp43_cross_scene_plan.md)
+1. ~~held-out 뷰 평가 도입~~ → 완료 (exp41/42: segment split + SSIM/LPIPS 표준화) (eval split 재구성) — train PSNR 부적합 판명 후 유일하게 남은 정량 품질 축. carve 유/무의 novel-view 일반화 차이가 진짜 승부처.
 2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색.
 3. dense init(구 exp37) + carve 결합 — dense init의 PSNR 이점을 carve로 정화해서 취할 수 있는지.
 4. carve field의 타 장면 일반화 (새 시퀀스에서 전체 파이프라인 재현).
