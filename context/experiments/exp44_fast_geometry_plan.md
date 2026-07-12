@@ -23,7 +23,10 @@
 | 44b | 44a | off | 44a + force | force 가치 재확인 |
 | 44c | **correspondence 삼각측량 init (EDGS/RoMA식)**: keyframe 쌍 dense matching → SLAM pose로 삼각측량 (기하 검증된 점) | off | soft+prune | monodepth의 scale 오차 없는 init |
 | 44d | **hybrid**: 44c(기하 검증) + monodepth fill(텍스처 없는 흰 벽/천장 — matching 실패 지역) | off | soft+prune | 이 방의 feature-poor 문제 정면 대응 |
+| 44e | **2D GS 선최적화 → 3D 사영** (Instant-GI 사상의 3D 이식, 사용자 제안): 각 keyframe에서 2D Gaussian을 빠르게 fit → monodepth로 3D lift | off | soft+prune | 내용-적응 밀도 + **색·이방성 사전 최적화** — init 시점에 이미 '거의 학습된' gaussian 제공 |
 | 공통 sweep | — | — | — | iterations ∈ {3k, 7k, 15k, 30k} — 시간-품질 Pareto |
+
+> 44e 메모: 2D fit이 주는 것 = ① 텍스처 복잡도 비례 점 밀도(평탄한 벽엔 큰 gaussian 소수) ② 사전 최적화된 색/공분산 → 3D 초기 수렴 가속. lift에는 monodepth 필요(44d와 공유). 다중 뷰 중복 점은 voxel 병합. 44a/c/d 결과를 본 뒤 착수 판단.
 
 ## 평가 (사전 등록)
 
