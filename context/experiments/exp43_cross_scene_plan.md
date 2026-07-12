@@ -105,3 +105,26 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - 레시피: champion(exp40b) + points_txt=depth 앵커 100k(67프레임분 서브샘플) + cam_stride 40. 재시도 1회(OOM) 후 정상 완주.
 - **판정: 앵커 커버리지만 고치면 carve 학습이 다른 방에서 재현된다.** 잔존 가시 173점 중 진짜 free-space는 ~17%(≈29점) — 사실상 부유물 소멸.
 - 남은 검증: rot의 가시 먼지 역증가(741)도 희소 SLAM 필드 탓인지 — rot depth-anchor carve(exp43rot_deptha) 45c 뒤 체인 등록.
+
+## 결과 9: rot depth-anchor carve 실패 — 원인은 앵커 품질 (07-13 05:5x)
+
+- exp43rot_deptha: PSNR 30.537, 가시 1,189 — 개선 실패.
+- 진단: **rot depth 앵커 자체가 불량.** 라벨 AUC 0.8511 (SLAM 앵커 0.9813), 라벨 floater의 d5(depth앵커) p50=0.21m — depth 표면이 허공에 박혀 있음. 회전 위주 궤적에서 depth-pro 프레임별 Huber 보정이 무너지는 것 (가시 SLAM inlier 부족 + 모션블러).
+- **밤새 종합 결론: carve의 성패를 가르는 단일 변수는 '앵커 품질'.**
+  - 1253·rot: SLAM 앵커 양호(AUC 0.98) → 점수 일반화 성공. 단 rot carve **학습**은 가시 먼지 악화(741) — 미해결(응집 도피 메커니즘 의심).
+  - 305: SLAM 희소(0.80) → depth 앵커로 회복(0.89~0.91) → **학습 재현 성공 (먼지 -83%, 가시 -76%, PSNR 동급)**.
+  - rot: depth 앵커 불량(0.85) → 학습도 실패. **장면별 앵커 소스 선택 규칙 필요: 라벨 없이도 계산 가능한 앵커 자가진단(예: SLAM-depth 상호 일관성) 도입이 다음 열쇠.**
+
+## 아침 브리핑 요약 (07-13 오버나이트 최종)
+
+| 실험 | 결과 | 판정 |
+|---|---|---|
+| 305 depth-anchor carve | 먼지 -83%·가시 -76%·PSNR 동급 | ✅ **교차 장면 학습 재현 성공** |
+| 305 점수 회복 | AUC 0.80→0.905 (depth 앵커+vr) | ✅ 처방 유효 |
+| 12F 채점 | AUC 0.858, 같은 커버리지 문제 | ⚠️ depth 앵커 미적용(후속) |
+| rot nomaxop | 가시 741→1,267 | ❌ 기각 |
+| rot hybrid init | PSNR +1.37dB, 가시 ×10 | ⚠️ 궤적(작은 시차) 한계 — 시차 기반 쌍 선택 필요 |
+| rot depth-anchor carve | 가시 1,189 | ❌ rot depth 앵커 불량 (회전 궤적) |
+| 45c progressive | stage2 torch.load 사고 후 재실행 중 | ⏳ |
+
+미해결 질문 2개: ① rot에서 carve 학습이 가시 먼지를 늘리는 메커니즘(응집 도피?) ② 라벨 없는 앵커 품질 자가진단.

@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-12 아침. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-13 아침. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -26,6 +26,7 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-13 새벽 (오버나이트)**: **exp43 교차 장면 트랙 완주 — 305에서 carve 학습 재현 성공** (depth-anchor 처방: 먼지 -83%·가시 -76%·PSNR 동급). 사용자 라벨 3종(1253_rot/305/12F) 검증: rot는 pseudo-label 정밀도 100%·AUC 0.98(같은 방 자동화 가능), 305·12F는 SLAM 커버리지 부족으로 champion score 실패(0.80/0.86) → **depth-pro 표면 앵커로 회복(0.905)**. 실패 5건 정직 기록: dynamic carve 자기강화 가설 기각, nomaxop 기각, rot hybrid 이식(+1.37dB나 먼지 ×10, 작은 시차 삼각측량), rot depth 앵커 불량(회전 궤적), 305 1차 OOM. **결론: carve 성패 = 앵커 품질. 다음 열쇠 = 라벨 없는 앵커 자가진단 + 시차 기반 쌍 선택.** → [exp43 카드](experiments/exp43_cross_scene_plan.md)
 - **2026-07-12 오후**: **exp44 고속 geometry 트랙 완주 — 44h 레시피 채택** (총 ~11분/장면: SLAM 후 init 전처리 3분 + 학습 7.5분 → PSNR 32.08·먼지 -63%). 4원칙 확립: 먼지는 init에서(필터 -96%)·색은 선불(+1.6dB)·갭은 배치(스냅 init)·용량은 densify 3k로 충분. RoMA(44c) 불필요 판정. 교차 장면: 305 라벨 대기, 1253_rot pseudo-label 완비, 복도류(12F/2F/3F/snu) 전멸 → 저텍스처 한계 별도 축. → [exp44 카드](experiments/exp44_fast_geometry_plan.md)
 - **2026-07-12 심야~아침**: **carve loss 학습 검증 트랙(exp38~40) 하룻밤 완주 — exp40b 채택** (학습이 회당 ~10분임이 판명되어 7 run 수행). 렌더 A/B로 "floater=train PSNR 기생충" 발견(수동 편집조차 -3.7dB → train PSNR 지표 부적합), gradient 프로브로 진동 평형 확인 → carve-potential force(3D force 부활) 구현·실증(무비용 -45% 가시 먼지), softlite+force 결합이 PSNR 무손실로 region 먼지 -86%. 출생 로그로 "허공 split 29.5%, 먼지가 먼지를 낳는 연쇄" 규명. → [exp38-40 카드](experiments/exp38_40_carve_track.md), [round8_gpu_queue_plan](rounds/round8_gpu_queue_plan.md)
 - **2026-07-11**: **Carve Loss 설계 완료 (분석만, 학습 없음)** — 카메라→SLAM 포인트 ray의 free-space carving 증거비 ρ(x)에 anchor 거리를 곱한 score w(x)가 수동 floater 판별 **AUC 0.974** (plateau 0.511). 수동 floater가 opacity 중앙값 0.044의 "한계 생존자"임을 발견(카드의 op>0.5 서술은 오류였음, 정정 완료). **부수 피해 재정량**: 원안 prune 규칙은 표면 시각 기여량 3.83% 손실로 폐기, 안전 규칙(w>0.9 & op<0.1 & contrib<p90)은 **recall 69.4%·기여손실 0.39%·구멍 0**. densify 게이트는 출생 91% 차단 가능하나 기여량 13.75% 영역에 걸려 학습 검증 필요. 렌더 PSNR 검증용 pruned 모델 4종 준비 완료(GPU 대기). → [carve_loss_design](rounds/round8_carve_loss_design.md)
@@ -47,7 +48,7 @@
 > **프로젝트 목표 재정의 (07-12)**: Aria glass 실시간 촬영 스트림 → 분 단위 turnaround로 geometry 좋은 3DGS recon. 실시간 경로엔 MPS 사용 불가 → ORB 트랙이 본선.
 
 0. **exp44 (고속 geometry 트랙)**: dense init × no-densify × carve — floater 출생 채널(densification) 제거 + EDGS 사상. 목표 5분/장면 → [exp44](experiments/exp44_fast_geometry_plan.md)
-0'. **exp43 (교차 장면)**: 0408_919C_418 파이프라인 → baseline → **사용자 라벨링** → carve 재현 + ORB confidence 재평가 → [exp43](experiments/exp43_cross_scene_plan.md)
+0'. ~~exp43 (교차 장면)~~ → **완료** (305 재현 성공, 위 참조). 후속: 앵커 자가진단 규칙 + 시차 기반 쌍 선택 + 12F depth-anchor 적용.
 1. ~~held-out 뷰 평가 도입~~ → 완료 (exp41/42: segment split + SSIM/LPIPS 표준화) (eval split 재구성) — train PSNR 부적합 판명 후 유일하게 남은 정량 품질 축. carve 유/무의 novel-view 일반화 차이가 진짜 승부처.
 2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색.
 3. dense init(구 exp37) + carve 결합 — dense init의 PSNR 이점을 carve로 정화해서 취할 수 있는지.
