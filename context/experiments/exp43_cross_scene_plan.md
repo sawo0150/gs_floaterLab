@@ -25,3 +25,11 @@
 - 재현 성공: 새 장면에서 champion score AUC ≥ 0.95, carve 학습으로 가시 먼지 ≥90% 감소
 - confidence 유효 판정: confidence 필터/가중이 AUC를 +0.01 이상 올리면 "지저분한 지도에서 유효" 채택
 - 실패 시 1순위 의심: 장면 스케일/tau(0.25m)·voxel(0.1m) 하드코딩 값의 장면 의존성
+
+## 결과 1: 301_1253_rot (07-13 새벽, 사용자 라벨 도착)
+
+- 사용자 라벨 5,168개 (5.6%, op p50 0.045 — 원본 장면과 동일 패턴)
+- **자동 pseudo-label: precision 100% (4,663/4,663), recall 90.2%** — 사람 추가분 505개뿐 (파일명 'pruningplus'로 보아 pseudo-cleaned에서 시작해 추가 삭제한 것으로 추정 = 자동 삭제 전부 승인)
+- **champion score 교차 장면 AUC 0.9813** (원본 0.976 이상) — 다른 궤적·다른 SLAM맵에서 완전 일반화
+- ORB confidence(obs≥5) A/B: 0.9807 — 무효과 재확인 (지도 깨끗)
+- 진행: rot 장면 carve 학습(exp43rot, dynamic carve 포함) — 진짜 라벨로 채점 예정
