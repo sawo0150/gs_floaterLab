@@ -21,6 +21,6 @@ run_one() {
         "${extra[@]}" 2>&1 | tee "$RESULTS/${name}_${ts}.log" | tail -1
     echo "=== DONE: $name ($(date)) ==="
 }
-run_one "exp44a0_nodensify_7k"        7000  ""
+
 run_one "exp44a_nodensify_carve_7k"   7000  "$REPO/configs/carve_loss/exp44a_nodensify.yaml"
 run_one "exp44a_nodensify_carve_15k"  15000 "$REPO/configs/carve_loss/exp44a_nodensify.yaml"
