@@ -19,5 +19,5 @@ run_one() {
         2>&1 | tee "$RESULTS/${name}_${ts}.log" | tail -1
     echo "DONE $name"
 }
-run_one "exp44d_hybrid_15k" 15000 3000
+run_one "exp44d2_eval_seg_30k_E" 30000 7000
 run_one "exp44d2_hybrid_densify_30k" 30000 7000
