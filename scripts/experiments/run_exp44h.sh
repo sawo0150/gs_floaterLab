@@ -18,5 +18,5 @@ run_one() {
     echo "DONE $name"
 }
 # 44h: 짧은 densify(3k) + 총 7k / 15k — snap-refilt init 기반
-run_one "exp44h_snaprefilt_dens3k_7k"  "$LAB/results/datasets/orb_dense_confmono_snap_refilt_scene" 7000 3000
-run_one "exp44h_snaprefilt_dens3k_15k" "$LAB/results/datasets/orb_dense_confmono_snap_refilt_scene" 15000 3000
+run_one "exp44ht_tuned_15k_A"  "$LAB/results/datasets/orb_dense_confmono_snap_refilt_scene" 15000 3000
+run_one "exp44ht_tuned_15k_B_dummy" "$LAB/results/datasets/orb_dense_confmono_snap_refilt_scene" 15000 3000

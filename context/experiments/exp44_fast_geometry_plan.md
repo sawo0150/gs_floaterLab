@@ -96,3 +96,22 @@
 - 재필터로 먼지 -79% 회수 (PSNR -0.35 트레이드).
 - **fast-track 현 최적: 44g′@15k = PSNR 31.47 / 먼지 1,539 / 7분** (exp40b 대비 -1.1dB, 시간 절반).
 - 진행 중: 44h(스냅 init + 짧은 densify 3k + carve, 7k/15k) — RoMA 없이 갭을 닫는 마지막 싼 카드. 이후에도 갭 크면 44c(RoMA) 착수.
+
+## 07-12 오후 4차 — 44h로 갭 해소, fast-track 레시피 윤곽
+
+| run | densify | iter | 시간 | PSNR | region_n | 가시 |
+|---|---|---:|---:|---:|---:|---:|
+| 44g′ (스냅+재필터, no-densify) | off | 15k | 7분 | 31.47 | 1,539 | 110 |
+| **44h (스냅+재필터 + densify≤3k + carve풀)** | ≤3k | 7k | 4분 | 30.28 | 1,879 | 264 |
+| **44h @15k** | ≤3k | 15k | **7.5분** | **32.08** | 1,362 | 194 |
+| (참조) exp40b 정규 | ≤7k | 30k | 14분 | 32.58 | 498 | 28 |
+
+**판정: RoMA(44c) 없이 갭 사실상 해소** — 44h@15k가 baseline 노이즈 접경(-0.5dB)에 시간 절반.
+짧은 densify(3k)가 용량을 채우고, gate+깨끗한 init이 먼지 폭발을 막는 구조가 작동.
+44c(RoMA)는 "novel-view 품질 추가 개선" 목적의 선택 카드로 강등. 진행 중: 44ht(soft 0.03·prune 조기화·예산 1% 튜닝) — 가시 먼지(194) 다듬기 최종 샷.
+
+### Fast-track 파이프라인 정리 (Aria 스트림 → recon, 데이터셋 이후 기준)
+1. SLAM(OpenMAVIS) → sparse 7k pts + poses
+2. dense init: monodepth 148k → **carve 필터 → ray 스냅 → 재필터 → 투영 착색** (CPU ~3분)
+3. 학습: densify≤3k + carve(soft/prune/gate/force) × 15k iter (GPU ~7.5분)
+→ **총 ~11분/장면, PSNR 32.1, 먼지 1.4k (baseline 3.7k 대비 -63%)**
