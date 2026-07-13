@@ -47,3 +47,8 @@
 ## checkpoint-resume 시 계측·계보 버퍼 크기 불일치 (2026-07-13)
 
 `--start_checkpoint` 복원은 capture()에 포함된 텐서만 되살린다. 우리 계측 버퍼(accum_rgb_grad/vec, accum_plateau_grad, accum_visibility)와 계보 버퍼(ancestor_idx, birth_step, generation, num_splits, num_clones)는 init 크기 그대로 남아 첫 backward(계측 +=)나 첫 carve prune(계보 인덱싱)에서 크기 불일치로 사망. train.py restore 직후 8종 재생성으로 수정. PyTorch 2.6부터 torch.load(weights_only=False)도 필요.
+
+## 먼지 지표의 run-to-run 분산은 PSNR보다 훨씬 크다 (2026-07-13)
+
+rot 장면 baseline 2회: region 가시 먼지 106 vs 1,091 (×10), op·면적 질량 8.7 vs 18.1 (×2). PSNR은 30.689 vs 30.763 (±0.07)로 안정인데 먼지는 폭주.
+- 교훈: **가시 먼지·질량 지표로 단일 런 비교 금지.** A/B 판정은 재현 런 또는 대조군 동시 실행 필수. 이 함정으로 하룻밤 "carve가 rot에서 가시 먼지를 늘린다"는 유령 메커니즘(응집·force·재분배 가설 3연속 기각)을 추적했음 — 진범은 분산.
