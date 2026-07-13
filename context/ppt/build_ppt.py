@@ -40,6 +40,23 @@ C_ROW0 = RGBColor(0xFF, 0xFF, 0xFF)
 C_ROW1 = RGBColor(0xEE, 0xF2, 0xF7)
 C_SECTIONBG = RGBColor(0x0F, 0x4C, 0x81)
 
+# 슬라이드 제목 앞부분(정규화) → 이미지 파일명(들). img/<name>.png 존재 시 우측에 삽입.
+IMG_MAP = {
+    "슬라이드 4": ["fig_landscape", "fig_raycoverage"],
+    "슬라이드 5": ["fig_label_highlight", "fig_region"],
+    "슬라이드 6": ["fig_auc_plateau", "fig_grad_asym"],
+    "슬라이드 7": ["fig_rho_section"],
+    "슬라이드 10": ["fig_waterfall", "fig_ab_render"],
+    "슬라이드 12": ["fig_pareto"],
+    "슬라이드 14": ["fig_sobel_ppm"],
+    "슬라이드 19": ["fig_crossscene_auc"],
+    "슬라이드 21": ["fig_huber"],
+    "슬라이드 22": ["fig_anchors"],
+    "슬라이드 25": ["fig_slamfree_ladder"],
+    "슬라이드 27": ["fig_scenes"],
+    "슬라이드 28": ["fig_landscape"],
+}
+
 SW, SH = Inches(13.333), Inches(7.5)
 MARGIN = Inches(0.55)
 BODY_TOP = Inches(1.15)
@@ -292,6 +309,33 @@ def render_bullet(slide, level, text, y):
     return h
 
 
+def figure_slide(prs, title, names):
+    from PIL import Image as PILImage
+    paths = [IMG / f"{n}.png" for n in names]
+    paths = [p for p in paths if p.exists()]
+    if not paths:
+        return
+    slide = blank(prs)
+    add_title(slide, title + " — 시각자료")
+    area_top = 1.35
+    area_h = 5.6
+    if len(paths) == 1:
+        boxes = [(MARGIN / 914400.0, area_top, BODY_W_IN, area_h)]
+    else:
+        half = (BODY_W_IN - 0.3) / 2
+        x0 = MARGIN / 914400.0
+        boxes = [(x0, area_top, half, area_h), (x0 + half + 0.3, area_top, half, area_h)]
+    for (bx, by, bw, bh), p in zip(boxes, paths):
+        iw, ih = PILImage.open(p).size
+        ar = iw / ih
+        w = bw; h = w / ar
+        if h > bh:
+            h = bh; w = h * ar
+        left = Inches(bx + (bw - w) / 2)
+        top = Inches(by + (bh - h) / 2)
+        slide.shapes.add_picture(str(p), left, top, width=Inches(w))
+
+
 def build():
     md = MD.read_text()
     items = parse(md)
@@ -348,6 +392,11 @@ def build():
             cont = True
             if idx >= len(blocks):
                 break
+
+        # 이 슬라이드 제목에 매핑된 시각자료가 있으면 그림 슬라이드 추가
+        m = re.match(r"^(슬라이드\s+[\w\-–]+)", title)
+        if m and m.group(1) in IMG_MAP:
+            figure_slide(prs, title, IMG_MAP[m.group(1)])
 
     prs.save(OUT)
     print(f"[saved] {OUT}  (슬라이드 {len(prs.slides.__iter__.__self__._sldIdLst)}장)")
