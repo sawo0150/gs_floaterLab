@@ -193,3 +193,15 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 | ORB confidence | ❌ 전 장면 무효과 (재확인) |
 | 회전 궤적(rot) | ⚠ dense init·depth 앵커 부적합, 먼지 지표 분산 ×10 — 별도 축 |
 | fog 장면(12F) | ⚠ 문제 클래스 (규칙 3이 자동 경고) |
+
+## 추가 결과 14: 12F SLAM-프리 floater 탐지 (07-13, 사용자 질문 후속)
+
+| 신호 | SLAM 의존 | AUC |
+|---|---|---|
+| SLAM 필드 champion | 필요 | 0.858 |
+| depth 앵커 필드 | 보정에 필요 | 0.843 |
+| **depth-violation (SLAM 보정)** | 보정에 필요 | **0.9076 — 12F 신기록** |
+| **depth-violation (raw metric depth)** | **불필요 (pose만)** | **0.8551** |
+
+- **SLAM-프리 성립**: depth-pro 절대 깊이(f_px=500)만으로 0.855 — 지도 포인트 0개여도 SLAM 필드와 동급. raw 스케일 오차 p50 1.274·IQR [0.87,1.52]가 5점 손실의 원인 → 교차 프레임 자가 보정으로 개선 여지.
+- **fog 판정 완화**: voxel 필드가 실패했을 뿐, 이미지 공간 depth-violation은 fog에서도 0.908(305의 0.914와 동급). 12F는 "필드 불가·vr 가능" 클래스로 재분류.
