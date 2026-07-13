@@ -205,3 +205,10 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 
 - **SLAM-프리 성립**: depth-pro 절대 깊이(f_px=500)만으로 0.855 — 지도 포인트 0개여도 SLAM 필드와 동급. raw 스케일 오차 p50 1.274·IQR [0.87,1.52]가 5점 손실의 원인 → 교차 프레임 자가 보정으로 개선 여지.
 - **fog 판정 완화**: voxel 필드가 실패했을 뿐, 이미지 공간 depth-violation은 fog에서도 0.908(305의 0.914와 동급). 12F는 "필드 불가·vr 가능" 클래스로 재분류.
+
+## 추가 결과 15: 캘리브레이션 확인 + pose-기하 자가 보정 — SLAM-포인트-프리 완성 (07-13, 사용자 제안)
+
+- **공장 캘리브레이션 확인**: `full_traj_to_rgb_3dgs.py`가 VRS device calibration으로 RGB를 `get_linear_camera_calibration(1024,1024,500)`에 정류 — **f_px=500은 정확**. 따라서 12F의 raw 스케일 1.274는 focal 문제가 아니라 fog에서의 depth-pro 깊이 편향.
+- **스케일 앵커 발견**: SLAM은 스테레오(기지 baseline)+IMU → **pose 이동량이 미터 단위**. 두 프레임 depth에 같은 s를 곱해도 카메라 이동량은 고정이므로 교차 프레임 일관성이 s를 유일 결정 → SLAM 포인트 없이 스케일 복원 가능.
+- 12F 실측: 자가 보정 s=1.425 (SLAM Huber 1.274와 근접), **SLAM-포인트-프리 vr AUC 0.855 → 0.8929** (SLAM 보정판 0.908의 98.3%).
+- **의의**: 지도 포인트가 전혀 없어도 (pose + depth-pro + 자가 보정 + depth-violation)으로 최악 장면에서 0.893 — 실시간 경로에서 SLAM 맵 품질에 대한 의존을 한 단계 더 제거.
