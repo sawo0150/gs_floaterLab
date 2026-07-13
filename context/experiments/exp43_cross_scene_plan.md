@@ -212,3 +212,16 @@ exp43rot(dynamic carve 포함, raw init): PSNR 30.53(baseline 동급), region_n 
 - **스케일 앵커 발견**: SLAM은 스테레오(기지 baseline)+IMU → **pose 이동량이 미터 단위**. 두 프레임 depth에 같은 s를 곱해도 카메라 이동량은 고정이므로 교차 프레임 일관성이 s를 유일 결정 → SLAM 포인트 없이 스케일 복원 가능.
 - 12F 실측: 자가 보정 s=1.425 (SLAM Huber 1.274와 근접), **SLAM-포인트-프리 vr AUC 0.855 → 0.8929** (SLAM 보정판 0.908의 98.3%).
 - **의의**: 지도 포인트가 전혀 없어도 (pose + depth-pro + 자가 보정 + depth-violation)으로 최악 장면에서 0.893 — 실시간 경로에서 SLAM 맵 품질에 대한 의존을 한 단계 더 제거.
+
+## 추가 결과 16 (vr 채널 학습 통합 판정, 07-13 오후)
+
+| 12F 30k | PSNR | region_n | 가시 |
+|---|---|---|---|
+| baseline | **32.034** | 2,703 | **120** |
+| carve(ctrl, SLAM 필드) | 31.044 | 1,310 | 221 |
+| carve+vr (score=max(s,vr)) | 30.925 | 1,204 | 193 |
+
+- **vr 학습 통합 무효과**: ctrl 대비 PSNR -0.12(노이즈), 먼지 -8%. 분석 AUC 0.908이 학습 개선으로 이전 안 됨.
+- **탐지≠제거의 간극 확정**: underfit 장면(fog·회전)에서는 이미지가 먼지를 요구 → 어떤 score로 눌러도 RGB gradient가 이김(rot 질량 증폭과 동일 역학). floater의 근본 해법은 압력이 아니라 **재구성 품질**(좋은 init·충분한 시차).
+- **12F에서 carve 자체가 -1dB** — 자가진단 규칙 3의 학습 증거. **파이프라인 규칙 확정: 자가진단이 '문제 클래스' 경고 시 carve를 끄고 baseline으로 학습**(모든 지표에서 최선).
+- vr 채널 코드(`depth_dir` config)는 유지하되 기본 off. vr의 채택 용도: **오프라인 청소·pseudo-label·SLAM-프리 탐지** (12F 신기록 0.908, SLAM-프리 0.893).
