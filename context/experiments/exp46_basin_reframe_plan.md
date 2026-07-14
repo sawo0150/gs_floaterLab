@@ -103,3 +103,10 @@
 - **지표 해석 주의**: region_n 5,517은 **조밀 init(586k) 아티팩트** — 라벨 볼륨 안에 정상 표면점이 대량 들어감(free-space 비율 0.01 = 99%가 표면 부착). **공정 지표는 free-space 먼지 개수**(4). region GT는 dense init에서 과대계상되므로 free-space split 병기 필수.
 - **비용**: N 586k(depth 앵커 1.4M 상속)로 무거움 — 실용화하려면 init dedupe/budget 필요. 품질·청정 결론과는 별개.
 - **판정**: (a)형(선명한 방)에서 **carve는 압력이 아니라 init 재료로 쓸 때 최강.** 305는 (a)형 확정. → 축 3(표면-확신 불투명 init)으로 심화 가치 높음.
+
+### 축 2 — 12F 좋은 init 진단: **예측(b) 반박, 그러나 지표 함정 주의** (07-14)
+
+- 12F hybrid init(carve 없음): **train PSNR 35.441 = baseline(32.034) 대비 +3.41dB.** 예측("fog=(b) 환원불가, init 무효")이 **train PSNR로는 반박됨** — 좋은 init이 12F도 크게 개선.
+- **그러나 판정 보류**: free-space 먼지 **1,289**(carve 없어 높음), N 454k. **+3.41dB가 진짜 기하 개선인지, 조밀 init의 floater 인플레이션인지 train PSNR로는 구분 불가**(floater=train PSNR 기생충 교훈 — 2,817 삭제가 -3.7dB였던 것과 규모 유사, 경계 필요).
+- **판별 런 발사**: 12F hybrid init + **carve**(exp46_ax2b) — 먼지를 청소한 뒤에도 PSNR이 유지되면 → **12F는 (a)형, init이 답**(예측 최종 반박) / 청소하니 PSNR이 baseline으로 떨어지면 → 인플레이션이었고 (b) 유지.
+- **함의(잠정)**: 305(축1)에 이어 12F도 좋은 init에 강하게 반응 → "fog=원리적 환원불가"보다 "저텍스처=init으로 해결 가능한 (a)형"일 가능성. self-diagnosis 규칙3("둘 다 실패→carve off")도 "좋은 init 먼저" 재해석 여지. **축2b 결과가 확정**.
