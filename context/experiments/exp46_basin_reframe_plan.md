@@ -154,3 +154,18 @@
 3. **distortion-style 원거리 양의 정규화** (축7 살린 변형) — 12F 원거리 잔여 먼지(243, 98% 원거리) 정면 대응. 감쇠가 아닌 양의 prior.
 4. 축 4 (appearance) — **강등**: (b) 케이스가 실증 안 됨(12F도 (a)). fog 잔차가 노출로 흡수 안 되고 init으로 풀림.
 5. 축 5(densify 재유도)·축 6(no-densify)은 위 결과 후 판단.
+
+## 배치 실행 (07-15) — 남은 축 일괄 발사
+
+| 축 | 실험 | 상태 |
+|---|---|---|
+| **7b (사용자)** | 12F hybrid+carve + max-dist 하드 컷오프(z_max=12m): 렌더 깊이>12m 픽셀은 L1 제외 | 실행 중 |
+| **B** | 12F hybrid + footprint 스케일 carve(voxel·tau·maxop ×3.1, round9) | 큐 |
+| **6** | 12F hybrid + no-densify + carve | 큐 |
+| **3** | 12F hybrid + 표면-확신 opacity init(carve score로 op 0.9/0.05) | 큐 |
+| **A** | 305 hybrid budget 122k(586k→) + carve — +3dB 경량화 유지? | 큐 |
+| **5** | 12F hybrid + birth-redirect(신생아를 표면 anchor로 스냅) | 배치2 큐 |
+| 4 | 노출/appearance | **보류** — (b) 미실현으로 강등 + exposure optimizer 설정 필요(비용>가치). 필요시 별도 |
+| C | distortion loss | **불가** — 렌더러가 per-ray weight 미출력. 축7b(max-dist)가 원거리 제어의 실용 대체 |
+
+- 구현: 7b·5(train.py/carve_loss env-gate), 3(gaussian_model opacity 주입), B(config 스케일), A(init dedupe). 전부 커밋.
