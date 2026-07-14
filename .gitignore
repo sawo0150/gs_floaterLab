@@ -30,3 +30,5 @@ results/**
 context/reference/papers/merged_original.pdf
 **/point_cloud/iteration_*/point_cloud*.ply
 **/point_cloud_*.ply
+floater_share/
+floater_share.zip
