@@ -25,7 +25,9 @@
   - 12F: fog(대비 25.6, 시점의존) → **(b)형 유력** — init으로 안 되고 appearance 필요 (미검증)
   - rot: 시차 부족 → (a)의 특수 케이스 (init +1.37dB 실증, 단 시차 자체 부족으로 잔여)
 
-## 개선안 5축 (carve/vr을 '압력'에서 'basin 설계'로 승격)
+## 개선안 7축 (carve/vr을 '압력'에서 'basin 설계'로 승격)
+
+> 선결 확인: 커스텀 렌더러가 이미 depth를 출력함(`gaussian_renderer/__init__.py` "depth") → 축 7 옵션 (a) per-pixel 깊이 가중 즉시 구현 가능.
 
 ### 축 1 — 305 hybrid init + carve (가장 확실, 재료 준비됨)
 - 근거: 305는 이미지 밝고 선명(대비 39, PSNR 34.5) → RoMA·depth가 잘 먹히는 **(a)형 후보**. 지금까지 305는 depth-anchor carve만 했고 **hybrid init은 미투입**.
@@ -61,12 +63,27 @@
 - 좋은 init(표면 씨앗) + no-densify 결합 = "fog는 PSNR 살짝 포기하고 깨끗하게" 운영점.
 - 축 2/4 결과에 따라 fog 장면 표준 레시피 후보.
 
+### 축 7 — 원거리 photometric 감쇠 (distance-attenuated photometric loss, 사용자 제안)
+- **근거**: [round9](../rounds/round9_pixel_frustum.md) — 원거리 1px가 물리적으로 큼(12F Q3 footprint 18.6mm = 1253의 3.1×, p95 28.7mm). 원거리 영역은 ① 픽셀 수 적고 깊이 모호해 supervision이 약하고 ② floater가 부피·시각 피해를 가장 크게 내는 곳. **먼 곳의 photometric 보상을 줄이면 그곳의 floater 숏컷이 얕아짐** → basin 재프레임의 "숏컷 보상 제거"에 직결.
+- **가설**: 렌더 깊이가 큰 픽셀(또는 카메라-공간 깊이가 큰 gaussian)의 photometric gradient를 감쇠하면, 먼 free-space floater가 잔차를 흡수해도 이득이 줄어 carve/기하 prior가 이김. 특히 12F·305처럼 footprint가 큰 장면에서 효과 클 것으로 예상.
+- **구현 옵션**:
+  - (a) **per-pixel 깊이 가중**: `L = Σ_p w(z_render_p)·‖I_p−Î_p‖`, w는 깊이 증가 시 감소. 렌더러의 depth 출력 필요(커스텀 rasterizer depth map 확인).
+  - (b) **per-gaussian gradient 스케일**: rasterizer backward에서 카메라 깊이로 gradient 감쇠 — 더 외과적, 렌더러 수정 필요.
+  - (c) **간단 프록시**: w(z)=1/(1+(z/z0)^k) 또는 z_far 초과 hard cutoff. z0/z_far는 **장면별 round9 분위수로 스케일**(예 Q3·p90) — 하드코딩 미터값 금지(1253 얕음 vs 12F 깊음 불일치).
+- **리스크·주의**:
+  - **먼 진짜 표면도 supervision 손실** → 원거리 벽/천장이 과소복원·흐려질 수 있음. Pareto = "원거리 디테일 ↔ 원거리 floater". 감쇠 강도 튜닝 필수.
+  - carve와 상보: carve는 free-space 먼지를 제거(위치), 축 7은 먼지 생성 유인을 제거(잔차) — **결합 실험**. 축 4(노출/appearance)와도 같은 계열("숏컷의 먹이 뺏기").
+  - 관련 선행: mip-NeRF 360 distortion loss·배경 모델링이 원거리 floater 억제로 알려짐 — 이론적 근거 있음.
+- **지표**: region GT 먼지(특히 **원거리 먼지 = 깊이 Q3 초과 분할**), held-out PSNR(원거리 열화 감시), 그리고 원거리/근거리 먼지 비율 변화.
+- **진단 가치**: 원거리 감쇠로 12F floater가 PSNR 무손실로 줄면 → "원거리 photometric 숏컷" 메커니즘 확증. PSNR이 크게 떨어지면 → 원거리 supervision이 load-bearing이었다는 반증.
+
 ## 실행 우선순위 (사용자 합의)
 
 1. **축 1 (305 hybrid init)** — (a)형에서 "init > 압력" 확증. 가장 근거 확실, 재료 완비.
 2. **축 2 (12F 좋은 init 진단)** — (a)/(b) 병명 확정.
 3. 축 2가 (b) → **축 4 (노출 재설계)**, 축 1 성공 → **축 3 (표면-확신 init)** 로 심화.
-4. 축 5(densify 재유도)·축 6(no-densify 운영점)은 위 결과 본 뒤 판단.
+4. **축 7 (원거리 photometric 감쇠)** — round9로 근거 확보됨. footprint 큰 12F/305에서 효과 예상 → 축 2와 묶어 검증(둘 다 원거리 floater 대책). 렌더러 depth 출력 확인이 선결.
+5. 축 5(densify 재유도)·축 6(no-densify 운영점)은 위 결과 본 뒤 판단.
 
 ## 한 줄 요약
 
