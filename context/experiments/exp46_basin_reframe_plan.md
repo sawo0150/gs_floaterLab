@@ -88,3 +88,18 @@
 ## 한 줄 요약
 
 **carve는 "floater를 지우는 압력 도구"에서 "올바른 basin을 init으로 심고 densify를 그쪽으로 유도하는 basin 설계 도구"로 승격돼야 한다.** 압력(soft/prune)은 clean 장면 마무리용으로 잔존. 단 fog((b)형)만은 init으로도 안 되고 appearance 채널이 필요하며, 그 갈림을 12F 실험(축 2)이 판정한다.
+
+## 실행 결과
+
+### 축 1 — 305 hybrid init + carve: **(a)형에서 "init > 압력" 결정적 확증** (07-14)
+
+| 305 30k | PSNR | N | region_n | 가시 | **free-space 먼지(진짜 부유물)** |
+|---|---:|---:|---:|---:|---:|
+| baseline | 34.51 | 112k | 6,888 | 708 | 461 |
+| depth-carve (압력 위주) | 34.48 | 98k | 1,184 | 173 | 29 |
+| **hybrid init + carve (축1)** | **35.84** | 586k | 5,517 | 647 | **4** |
+
+- **좋은 init이 품질·청정 둘 다 이김**: PSNR **35.84 = 305 최고**(baseline +1.33dB, depth-carve +1.36dB), 진짜 free-space 먼지 **461→29→4**로 hybrid가 가장 깨끗. "먼 표면을 미리 불투명하게 심으면 floater가 잔차를 흡수할 이유가 사라진다"는 basin 가설의 직접 증거.
+- **지표 해석 주의**: region_n 5,517은 **조밀 init(586k) 아티팩트** — 라벨 볼륨 안에 정상 표면점이 대량 들어감(free-space 비율 0.01 = 99%가 표면 부착). **공정 지표는 free-space 먼지 개수**(4). region GT는 dense init에서 과대계상되므로 free-space split 병기 필수.
+- **비용**: N 586k(depth 앵커 1.4M 상속)로 무거움 — 실용화하려면 init dedupe/budget 필요. 품질·청정 결론과는 별개.
+- **판정**: (a)형(선명한 방)에서 **carve는 압력이 아니라 init 재료로 쓸 때 최강.** 305는 (a)형 확정. → 축 3(표면-확신 불투명 init)으로 심화 가치 높음.
