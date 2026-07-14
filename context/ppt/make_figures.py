@@ -344,11 +344,269 @@ def fig_ab_render():
         print("  copied fig_ab_render (exp30r vs exp40b)")
 
 
+from matplotlib.patches import FancyBboxPatch
+
+def _flow(ax, boxes, arrows, xlim, ylim):
+    ax.set_xlim(*xlim); ax.set_ylim(*ylim); ax.axis("off"); ax.grid(False)
+    for (x, y, w, h, txt, color) in boxes:
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.015",
+                                    fc=color, ec=ACCENT, lw=1.3))
+        ax.text(x + w/2, y + h/2, txt, ha="center", va="center", fontsize=9)
+    for a in arrows:
+        x1, y1, x2, y2 = a[:4]
+        col = a[4] if len(a) > 4 else "#555"
+        ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
+                    arrowprops=dict(arrowstyle="->", lw=1.6, color=col))
+
+
+# ── 17. 입력 파이프라인 (슬라이드 2) ────────────────────────
+def fig_pipeline_intro():
+    fig, ax = plt.subplots(figsize=(9.2, 2.4))
+    steps = ["Aria Glass\n영상 스트림", "VRS", "EuRoC\n변환", "OpenMAVIS\nSLAM",
+             "pose + 희소지도", "3D Gaussian\nSplatting", "방 3D 복원"]
+    n = len(steps); w = 1.15; gap = 0.28; x = 0.1
+    boxes, arrows = [], []
+    for i, s in enumerate(steps):
+        col = "#dbe7f3" if 0 < i < n-1 else ("#cfe3cf" if i == n-1 else "#f6e2c0")
+        boxes.append((x, 0.3, w, 0.9, s, col))
+        if i < n-1:
+            arrows.append((x+w, 0.75, x+w+gap, 0.75))
+        x += w + gap
+    _flow(ax, boxes, arrows, (0, x), (0, 1.5))
+    ax.set_title("실시간 스트림 → 분 단위 3DGS 복원 (ORB 트랙이 본선)")
+    save(fig, "fig_pipeline_intro")
+
+
+# ── 18. φ 거리장 단면 (슬라이드 8) ──────────────────────────
+def fig_phi_section():
+    from scipy.ndimage import distance_transform_edt
+    z = np.load(LAB/"results/experiments/exp32_lineage_diag/carve_fields.npz")
+    te = z["terminal"]; vox = 0.10
+    attract = te > 1.0
+    phi = distance_transform_edt(~attract) * vox
+    zbest = int(np.argmax(z["transit"].sum(axis=(0,1))))
+    fig, ax = plt.subplots(figsize=(5.0, 3.6))
+    im = ax.imshow(phi[:,:,zbest].T, origin="lower", cmap="viridis", aspect="equal")
+    ax.set_title("φ: 빈 공간 → 표면까지 거리장 (force 견인)")
+    ax.set_xlabel("X voxel"); ax.set_ylabel("Y voxel")
+    fig.colorbar(im, ax=ax, fraction=0.04, label="φ (m)")
+    save(fig, "fig_phi_section")
+
+
+# ── 19. 4요소 활성 타임라인 (슬라이드 8) ────────────────────
+def fig_timeline():
+    fig, ax = plt.subplots(figsize=(6.4, 2.6))
+    rows = [("birth gate", 0, 7, "#c0392b"),
+            ("soft 압력", 1, 30, "#0f4c81"),
+            ("force 견인", 1, 30, "#27ae60"),
+            ("budget prune", 7, 30, "#e67e22")]
+    for i,(nm,a,b,c) in enumerate(rows):
+        ax.barh(i, b-a, left=a, height=0.55, color=c, alpha=0.85)
+        ax.text(a+0.2, i, nm, va="center", fontsize=9, color="white", fontweight="bold")
+    ax.axvline(7, ls="--", color="#888"); ax.text(7.2, 3.6, "densify 종료(7k)", fontsize=8, color="#666")
+    ax.set_yticks([]); ax.set_xlabel("iteration (×1000)")
+    ax.set_title("4요소의 분업: 출생→성장→견인→정리")
+    save(fig, "fig_timeline")
+
+
+# ── 20. 실험 설계 매트릭스 (슬라이드 9) ─────────────────────
+def fig_design_matrix():
+    runs = ["38a","38b","38c","30r","39","40a","40b*"]
+    comps = ["soft","prune","gate","force"]
+    M = np.array([
+        [1,1,1,0],[0,1,1,0],[1,1,1,0],[0,0,0,0],[1,1,1,0],[0,1,1,1],[1,1,1,1]])
+    fig, ax = plt.subplots(figsize=(5.4, 3.4))
+    ax.imshow(M, cmap="Blues", vmin=0, vmax=1.4, aspect="auto")
+    for i in range(len(runs)):
+        for j in range(len(comps)):
+            ax.text(j, i, "✓" if M[i,j] else "·", ha="center", va="center",
+                    color="white" if M[i,j] else "#999", fontsize=13, fontweight="bold")
+    ax.set_xticks(range(len(comps))); ax.set_xticklabels(comps)
+    ax.set_yticks(range(len(runs))); ax.set_yticklabels(runs)
+    ax.set_title("성분 분해 매트릭스 (40b=챔피언)"); ax.grid(False)
+    save(fig, "fig_design_matrix")
+
+
+# ── 21. 재현성 + 허공출생 (슬라이드 11) ─────────────────────
+def fig_repro():
+    fig, axs = plt.subplots(1, 2, figsize=(7.8, 3.2))
+    axs[0].bar(["1차\n498","재현\n462"], [498,462], color=[ACCENT,GREEN])
+    axs[0].set_title("챔피언 먼지 재현성"); axs[0].set_ylabel("region 먼지")
+    axs[1].pie([29.5,70.5], labels=["허공 출생\n29.5%","표면 출생"], colors=[RED,"#dfe6e9"],
+               autopct="", startangle=90, wedgeprops=dict(width=0.45))
+    axs[1].set_title("split 출생의 29.5%가 허공\n(먼지가 먼지를 낳는 연쇄)")
+    save(fig, "fig_repro")
+
+
+# ── 22. 3대 벤치마크 개선 (슬라이드 13) ─────────────────────
+def fig_benchmark():
+    fig, ax = plt.subplots(figsize=(5.6, 3.2))
+    cats = ["학습시간\n16→8분","PSNR\n+0.9dB","먼지\n-88%"]
+    base = [1,1,1]; new = [0.5, 1.0, 0.12]
+    x = np.arange(3)
+    ax.bar(x-0.18, base, 0.36, label="baseline", color="#bbb")
+    ax.bar(x+0.18, new, 0.36, label="chamoption(44d2)", color=ACCENT)
+    ax.set_xticks(x); ax.set_xticklabels(cats)
+    ax.set_ylabel("상대값 (baseline=1)"); ax.legend(fontsize=8)
+    ax.set_title("3대 벤치마크 동시 개선")
+    save(fig, "fig_benchmark")
+
+
+# ── 23. init 4원칙 (슬라이드 15) ────────────────────────────
+def fig_4principles():
+    fig, axs = plt.subplots(2, 2, figsize=(7.2, 5.0))
+    a = axs[0,0]; a.bar(["필터 전","필터 후"], [20892, 815], color=["#bbb",GREEN])
+    a.set_title("① 먼지는 init에서 (-96%)", fontsize=10); a.set_ylabel("먼지")
+    a = axs[0,1]; a.bar(["회색","착색"], [0, 1.3], color=["#bbb",ACCENT])
+    a.set_title("② 색은 선불 (+1.0~1.6dB)", fontsize=10); a.set_ylabel("ΔPSNR")
+    a = axs[1,0]; a.bar(["필터만","스냅"], [0, 1.6], color=["#bbb","#e67e22"])
+    a.set_title("③ 갭=배치 (스냅 +1.6dB)", fontsize=10); a.set_ylabel("ΔPSNR")
+    a = axs[1,1]; a.bar(["no-densify","densify≤3k"], [30.95, 32.08], color=["#bbb",GREEN])
+    a.set_title("④ 용량=짧은 densify", fontsize=10); a.set_ylabel("PSNR@15k"); a.set_ylim(30,32.5)
+    fig.suptitle("Init 엔지니어링 4원칙", fontsize=12, fontweight="bold", y=1.02)
+    fig.tight_layout()
+    save(fig, "fig_4principles")
+
+
+# ── 24. init 3축 삼각 (슬라이드 16) ─────────────────────────
+def fig_init_triangle():
+    fig, ax = plt.subplots(figsize=(5.2, 4.2))
+    tri = np.array([[0,1],[-0.87,-0.5],[0.87,-0.5],[0,1]])
+    ax.plot(tri[:,0], tri[:,1], color="#ccc", lw=1)
+    ax.text(0,1.08,"품질\n(PPM)",ha="center",fontsize=10,color=ACCENT,fontweight="bold")
+    ax.text(-1.0,-0.6,"청정\n(RoMA)",ha="center",fontsize=10,color=GREEN,fontweight="bold")
+    ax.text(1.0,-0.6,"속도\n(fast)",ha="center",fontsize=10,color="#e67e22",fontweight="bold")
+    ax.scatter([0],[0.55],s=200,color="#8e44ad",zorder=5)
+    ax.text(0,0.42,"hybrid\n(종합 우승)",ha="center",fontsize=9,fontweight="bold")
+    ax.scatter([0,-0.45,0.4],[0.6,-0.25,-0.2],s=90,color=[ACCENT,GREEN,"#e67e22"])
+    ax.set_aspect("equal"); ax.axis("off")
+    ax.set_title("세 축 = PPM(품질)·RoMA(청정)·속도, hybrid가 결합")
+    save(fig, "fig_init_triangle")
+
+
+# ── 25. 챔피언 레시피 파이프라인 (슬라이드 17) ──────────────
+def fig_recipe():
+    fig, ax = plt.subplots(figsize=(8.8, 3.0))
+    boxes = [
+        (0.1, 1.55, 2.2, 0.8, "RoMA 삼각측량\n71.8k (기하검증)", "#cfe3cf"),
+        (0.1, 0.35, 2.2, 0.8, "PPM depth-lift\n102.9k (커버리지)", "#dbe7f3"),
+        (3.0, 0.95, 2.3, 0.8, "4cm voxel 병합\n+ carve 재필터", "#f6e2c0"),
+        (6.0, 0.95, 2.6, 0.8, "densify≤7k + carve\n30k → 14분", "#e8d5f0"),
+    ]
+    arrows = [(2.3,1.9,3.0,1.4),(2.3,0.75,3.0,1.25),(5.3,1.35,6.0,1.35)]
+    _flow(ax, boxes, arrows, (0,8.8), (0,2.7))
+    ax.set_title("44d2 종합 챔피언 레시피 (train 33.80 / 먼지 234)")
+    save(fig, "fig_recipe")
+
+
+# ── 26. 라벨 수 (슬라이드 18) ───────────────────────────────
+def fig_labels_bar():
+    fig, ax = plt.subplots(figsize=(5.0, 3.2))
+    names = ["1253_rot","305","12F"]; vals = [5168, 9059, 1449]
+    vis = [None, 1340, 161]
+    b = ax.bar(names, vals, color=ACCENT, label="전체 라벨")
+    for i,v in enumerate(vis):
+        if v: ax.bar(names[i], v, color=RED)
+    for r,v in zip(b,vals): ax.text(r.get_x()+r.get_width()/2, v+120, f"{v:,}", ha="center", fontsize=9, fontweight="bold")
+    ax.set_ylabel("사용자 라벨 floater 수")
+    ax.set_title("사용자 직접 라벨 (빨강=가시 op>0.3)")
+    save(fig, "fig_labels_bar")
+
+
+# ── 27. d5 분포 (슬라이드 20) ───────────────────────────────
+def fig_d5_hist():
+    from build_floater_region import load_gauss
+    from scipy.spatial import cKDTree
+    base = LAB/"results/experiments/scene_301_305_baseline_20260712_102731/point_cloud/iteration_30000"
+    v, xyz, op, sc = load_gauss(base/"point_cloud.ply")
+    human = np.load(base/"human_mask.npy")
+    slam = _load_pts(LAB/"data/scenes/301_305/03_rgb_3dgs/sparse/0/points3D.txt")
+    d5 = cKDTree(slam).query(xyz, k=5, workers=-1)[0].mean(1)
+    fig, ax = plt.subplots(figsize=(5.4, 3.4))
+    bins = np.linspace(0, 1.0, 40)
+    ax.hist(d5[~human], bins, density=True, alpha=0.6, color=GRAY, label="생존 표면")
+    ax.hist(d5[human], bins, density=True, alpha=0.6, color=RED, label="라벨 floater")
+    ax.axvline(np.median(d5[~human]), color="#333", ls="--", lw=1)
+    ax.text(0.31, ax.get_ylim()[1]*0.8, "생존점도 SLAM에서\n0.30m — 표면 못 덮음", fontsize=8)
+    ax.set_xlabel("SLAM까지 거리 d5 (m)"); ax.set_ylabel("밀도"); ax.legend(fontsize=8)
+    ax.set_title("305: SLAM이 표면을 못 덮는다는 증거")
+    save(fig, "fig_d5_hist")
+
+
+# ── 28. rot 대조군 (슬라이드 23) ────────────────────────────
+def fig_control_bars():
+    fig, ax = plt.subplots(figsize=(6.2, 3.3))
+    names = ["baseline\n(최초)","carve\nstatic","dynamic","nomaxop","noforce","baseline\n재실행"]
+    vals = [106, 741, 716, 1267, 812, 1091]
+    cols = [GREEN,"#e67e22","#e67e22","#e67e22","#e67e22",RED]
+    b = ax.bar(names, vals, color=cols)
+    for r,v in zip(b,vals): ax.text(r.get_x()+r.get_width()/2, v+20, f"{v}", ha="center", fontsize=9, fontweight="bold")
+    ax.set_ylabel("가시 먼지 개수")
+    ax.set_title("대조군의 심판: 106 vs 1,091 = run-to-run 분산 ×10")
+    save(fig, "fig_control_bars")
+
+
+# ── 29. 자가진단 플로차트 (슬라이드 24) ─────────────────────
+def fig_diag_flow():
+    fig, ax = plt.subplots(figsize=(7.6, 3.6))
+    boxes = [
+        (3.0, 3.0, 2.4, 0.7, "새 장면 SLAM+depth", "#f6e2c0"),
+        (3.0, 1.95, 2.4, 0.7, "① SLAM 자기NN\n< 0.05m ?", "#dbe7f3"),
+        (0.2, 0.7, 2.2, 0.7, "SLAM 앵커\n(1253·rot)", "#cfe3cf"),
+        (3.0, 0.7, 2.4, 0.7, "② depth 불일치\n< 0.04 ?", "#dbe7f3"),
+        (6.0, 1.5, 2.2, 0.7, "depth 앵커\n(305)", "#cfe3cf"),
+        (6.0, 0.2, 2.2, 0.7, "carve OFF\n(12F fog)", "#f5c6cb"),
+    ]
+    arrows = [(4.2,3.0,4.2,2.65),(3.0,2.3,2.4,1.05,GREEN),(4.2,1.95,4.2,1.4),
+              (5.4,1.05,6.0,1.75,GREEN),(5.4,0.7,6.0,0.55,RED)]
+    _flow(ax, boxes, arrows, (0,8.3), (0,4.0))
+    ax.text(2.6,1.6,"예",color=GREEN,fontsize=8); ax.text(5.5,1.5,"예",color=GREEN,fontsize=8)
+    ax.text(5.5,0.75,"아니오",color=RED,fontsize=8)
+    ax.set_title("라벨 없는 앵커 자가진단 2규칙 (4/4 장면 정답)")
+    save(fig, "fig_diag_flow")
+
+
+# ── 30. 최종 파이프라인 (슬라이드 26) ───────────────────────
+def fig_pipeline_final():
+    fig, ax = plt.subplots(figsize=(8.6, 3.4))
+    boxes = [
+        (0.1, 1.4, 1.9, 0.8, "새 장면\nSLAM", "#f6e2c0"),
+        (2.4, 1.4, 2.0, 0.8, "자가진단\n2규칙", "#dbe7f3"),
+        (5.0, 2.35, 3.3, 0.62, "SLAM 양호 → SLAM carve", "#cfe3cf"),
+        (5.0, 1.44, 3.3, 0.62, "SLAM 희소 → depth carve (-83%)", "#cfe3cf"),
+        (5.0, 0.53, 3.3, 0.62, "둘 다 불량 → carve OFF", "#f5c6cb"),
+    ]
+    arrows = [(2.0,1.8,2.4,1.8),(4.4,1.8,5.0,2.65),(4.4,1.8,5.0,1.75),(4.4,1.8,5.0,0.85)]
+    _flow(ax, boxes, arrows, (0,8.5), (0,3.2))
+    ax.set_title("진단-분기 전자동 파이프라인 (사람 라벨 0회)")
+    save(fig, "fig_pipeline_final")
+
+
+# ── 31. 6축 우선순위 트리 (슬라이드 29) ─────────────────────
+def fig_axes_tree():
+    fig, ax = plt.subplots(figsize=(7.8, 3.6))
+    boxes = [
+        (0.2, 1.5, 2.1, 0.8, "① 305 hybrid\ninit (즉시)", "#cfe3cf"),
+        (2.7, 1.5, 2.1, 0.8, "② 12F 진단\n(a)/(b) 확정", "#dbe7f3"),
+        (5.3, 2.5, 2.4, 0.7, "(a) → ③ 표면-확신 init", "#e8f0e0"),
+        (5.3, 1.5, 2.4, 0.7, "(b) → ④ 노출/appearance", "#f0e0e0"),
+        (5.3, 0.5, 2.4, 0.7, "⑤⑥ densify·no-densify", "#eeeeee"),
+    ]
+    arrows = [(2.3,1.9,2.7,1.9),(4.8,1.9,5.3,2.85,GREEN),(4.8,1.9,5.3,1.85,RED),(4.8,1.9,5.3,0.85)]
+    _flow(ax, boxes, arrows, (0,7.9), (0,3.5))
+    ax.set_title("다음 실험 6축 — carve를 'basin 설계'로 (exp46)")
+    save(fig, "fig_axes_tree")
+
+
 def main():
     for fn in [fig_landscape, fig_raycoverage, fig_auc_plateau, fig_grad_asym,
                fig_label_highlight, fig_region, fig_rho_section, fig_waterfall,
                fig_pareto, fig_scenes, fig_sobel_ppm, fig_anchors, fig_huber,
-               fig_crossscene_auc, fig_slamfree_ladder, fig_ab_render]:
+               fig_crossscene_auc, fig_slamfree_ladder, fig_ab_render,
+               fig_pipeline_intro, fig_phi_section, fig_timeline, fig_design_matrix,
+               fig_repro, fig_benchmark, fig_4principles, fig_init_triangle,
+               fig_recipe, fig_labels_bar, fig_d5_hist, fig_control_bars,
+               fig_diag_flow, fig_pipeline_final, fig_axes_tree]:
         try:
             fn()
         except Exception as e:

@@ -42,19 +42,35 @@ C_SECTIONBG = RGBColor(0x0F, 0x4C, 0x81)
 
 # 슬라이드 제목 앞부분(정규화) → 이미지 파일명(들). img/<name>.png 존재 시 우측에 삽입.
 IMG_MAP = {
+    "슬라이드 2": ["fig_pipeline_intro"],
+    "슬라이드 3": ["fig_ab_render"],
     "슬라이드 4": ["fig_landscape", "fig_raycoverage"],
     "슬라이드 5": ["fig_label_highlight", "fig_region"],
     "슬라이드 6": ["fig_auc_plateau", "fig_grad_asym"],
     "슬라이드 7": ["fig_rho_section"],
+    "슬라이드 8": ["fig_timeline", "fig_phi_section"],
+    "슬라이드 9": ["fig_design_matrix"],
     "슬라이드 10": ["fig_waterfall", "fig_ab_render"],
+    "슬라이드 11": ["fig_repro"],
     "슬라이드 12": ["fig_pareto"],
+    "슬라이드 13": ["fig_benchmark"],
     "슬라이드 14": ["fig_sobel_ppm"],
+    "슬라이드 15": ["fig_4principles"],
+    "슬라이드 16": ["fig_init_triangle"],
+    "슬라이드 17": ["fig_recipe"],
+    "슬라이드 18": ["fig_labels_bar"],
     "슬라이드 19": ["fig_crossscene_auc"],
+    "슬라이드 20": ["fig_d5_hist"],
     "슬라이드 21": ["fig_huber"],
     "슬라이드 22": ["fig_anchors"],
+    "슬라이드 23": ["fig_control_bars"],
+    "슬라이드 24": ["fig_diag_flow"],
     "슬라이드 25": ["fig_slamfree_ladder"],
+    "슬라이드 26": ["fig_pipeline_final"],
     "슬라이드 27": ["fig_scenes"],
     "슬라이드 28": ["fig_landscape"],
+    "슬라이드 29": ["fig_axes_tree"],
+    "슬라이드 30": ["fig_ab_render"],
 }
 
 SW, SH = Inches(13.333), Inches(7.5)
@@ -309,7 +325,7 @@ def render_bullet(slide, level, text, y):
     return h
 
 
-def figure_slide(prs, title, names):
+def figure_slide(prs, title, names, captions=None):
     from PIL import Image as PILImage
     paths = [IMG / f"{n}.png" for n in names]
     paths = [p for p in paths if p.exists()]
@@ -318,7 +334,7 @@ def figure_slide(prs, title, names):
     slide = blank(prs)
     add_title(slide, title + " — 시각자료")
     area_top = 1.35
-    area_h = 5.6
+    area_h = 5.0 if captions else 5.7
     if len(paths) == 1:
         boxes = [(MARGIN / 914400.0, area_top, BODY_W_IN, area_h)]
     else:
@@ -334,6 +350,14 @@ def figure_slide(prs, title, names):
         left = Inches(bx + (bw - w) / 2)
         top = Inches(by + (bh - h) / 2)
         slide.shapes.add_picture(str(p), left, top, width=Inches(w))
+    # 캡션(원 [시각자료] 설명)을 하단에 작게
+    if captions:
+        cap = slide.shapes.add_textbox(MARGIN, Inches(6.5), BODY_W, Inches(0.85))
+        tf = cap.text_frame; tf.word_wrap = True
+        for j, c in enumerate(captions):
+            p = tf.paragraphs[0] if j == 0 else tf.add_paragraph()
+            rb = p.add_run(); rb.text = "🎨 "; rb.font.size = Pt(10); rb.font.name = FONT
+            add_runs(p, c, 10, C_VIS)
 
 
 def build():
@@ -356,9 +380,13 @@ def build():
         if title.startswith("슬라이드 1 —") and "표지" in title:
             continue
 
+        m = re.match(r"^(슬라이드\s+[\w\-–]+)", title)
+        has_fig = bool(m and m.group(1) in IMG_MAP)
+
         # 플로우 배치 (넘치면 계속 슬라이드)
         idx = 0
         cont = False
+        captions = []
         while idx < len(blocks) or idx == 0:
             slide = blank(prs)
             add_title(slide, title + ("  (계속)" if cont else ""))
@@ -369,6 +397,9 @@ def build():
                 b = blocks[idx]
                 if b[0] == "note":
                     notes.append(b[1]); idx += 1; continue
+                if b[0] == "visual" and has_fig:
+                    # 그림이 따로 있으면 인라인 노란박스 대신 캡션으로 이관
+                    captions.append(b[1]); idx += 1; continue
                 if b[0] == "bullet":
                     bh = h_bullet(b[1], b[2]); render = lambda s, yy, b=b: render_bullet(s, b[1], b[2], yy)
                 elif b[0] == "visual":
@@ -393,10 +424,9 @@ def build():
             if idx >= len(blocks):
                 break
 
-        # 이 슬라이드 제목에 매핑된 시각자료가 있으면 그림 슬라이드 추가
-        m = re.match(r"^(슬라이드\s+[\w\-–]+)", title)
-        if m and m.group(1) in IMG_MAP:
-            figure_slide(prs, title, IMG_MAP[m.group(1)])
+        # 이 슬라이드 제목에 매핑된 시각자료가 있으면 그림 슬라이드 추가(캡션 포함)
+        if has_fig:
+            figure_slide(prs, title, IMG_MAP[m.group(1)], captions)
 
     prs.save(OUT)
     print(f"[saved] {OUT}  (슬라이드 {len(prs.slides.__iter__.__self__._sldIdLst)}장)")
