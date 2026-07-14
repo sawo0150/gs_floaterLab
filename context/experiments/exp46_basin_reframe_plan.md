@@ -169,3 +169,16 @@
 | C | distortion loss | **불가** — 렌더러가 per-ray weight 미출력. 축7b(max-dist)가 원거리 제어의 실용 대체 |
 
 - 구현: 7b·5(train.py/carve_loss env-gate), 3(gaussian_model opacity 주입), B(config 스케일), A(init dedupe). 전부 커밋.
+
+## 배치 결과 (07-15, 채점 진행 중)
+
+### 축 7b — max-dist 하드 컷오프(z<12m): 무효과 (사용자 아이디어, 정직 판정)
+
+| 12F | PSNR | free 먼지(원거리/근거리) |
+|---|---:|---|
+| hybrid+carve (기준) | 35.071 | 243 (239/4) |
+| **7b max-dist z<12** | 35.177 | **236 (231/4)** |
+
+- **차이 없음**: 먼지 243→236(노이즈), PSNR +0.11(노이즈). z_max=12(≈24mm/px)가 너무 높아 원거리 먼지(대부분 9.3~12m)를 거의 안 건드림.
+- 더 공격적 z_max(≈Q3 9.3m)로 낮추면 먼지는 더 잘리겠지만, soft판(z0=9.3)에서 이미 **-0.54dB** 확인됨 → 진짜 표면도 함께 잘림. **원거리 photometric 제거는 "무효(약)/PSNR손실(강)"의 딜레마** — 축7(soft)·7b(hard) 공통 결론: 원거리 먼지의 레버가 아님. 양의 prior(carve 스케일·init)가 답.
+- 남은 배치(B footprint·6·3·5·A) 채점 진행 중 — 특히 축B(footprint 스케일 carve)가 원거리 먼지 직접 공략.
