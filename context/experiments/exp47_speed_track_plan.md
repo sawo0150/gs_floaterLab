@@ -68,3 +68,14 @@
 - 런 원본은 `results/experiments/`에 flat 유지(모든 glob 경로 보존).
 - **폴더뷰(브라우징)**: `results/by_exp/<expNN>/` symlink 인덱스 — `python scripts/experiments/index_runs_by_exp.py`로 재생성(멱등, gitignored).
 - **앞으로**: 새 실험 배치 끝에 인덱서 재실행 → 새 런이 자동으로 exp 번호별 폴더뷰에 반영. exp47 런 스크립트에 인덱서 호출 포함.
+
+## 실행 결과 (12F, 07-15)
+
+| 축 | 시간 | PSNR | 먼지 | 판정 |
+|---|---:|---:|---:|---|
+| 기준 hybrid+carve | 66분 | 35.07 | 243 | — |
+| S3 15k iter | 39.5분 | 32.80 | 174 | ❌ PSNR 하한 미달 |
+| S5 budget235k | 62.7분 | 34.40 | 117 | ⚠ 품질OK·시간 이득 없음 |
+
+- **startup 고정비 ~13분**(carve 빌드+2194장 로드) — iter만 줄여선 분 단위 불가.
+- **budget(N↓)만으론 시간 이득 없음** — iter 30k가 병목. 진짜 감속은 iter↓+이미지↓(kf)+해상도↓ 조합 필요. S4/S6/S1S4/TARGET 채점 대기.
