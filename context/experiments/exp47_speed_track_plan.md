@@ -62,3 +62,9 @@
 ## 연결
 - 다음 트랙 exp48(incremental): 여기서 확정한 per-chunk 레시피로 keyframe 청크 단위 depth-lift init + 로컬 갱신.
 - 품질 방법론(carve·hybrid init)은 [exp46](exp46_basin_reframe_plan.md) 확정분 그대로 사용.
+
+## 실행/결과 관리 관례 (2026-07-15 도입)
+
+- 런 원본은 `results/experiments/`에 flat 유지(모든 glob 경로 보존).
+- **폴더뷰(브라우징)**: `results/by_exp/<expNN>/` symlink 인덱스 — `python scripts/experiments/index_runs_by_exp.py`로 재생성(멱등, gitignored).
+- **앞으로**: 새 실험 배치 끝에 인덱서 재실행 → 새 런이 자동으로 exp 번호별 폴더뷰에 반영. exp47 런 스크립트에 인덱서 호출 포함.
