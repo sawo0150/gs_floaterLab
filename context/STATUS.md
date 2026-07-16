@@ -11,7 +11,7 @@
 | ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
 | **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
 | Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
-| **Incremental 3DGS** | **exp49 D1-b (Photo-SLAM Replay, SLAM+PPM init)** | **23.11dB (median 22.88)** | **held-out 163뷰. exp51에서 depth supervision으로 30dB+ 목표** |
+| **Incremental 3DGS** | **exp51 축A (Photo-SLAM Replay, SLAM+PPM init + depth loss λ=0.5)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB, 26dB 미만이라 축B(중복방지)+C(밀도) 계속** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
 
@@ -29,6 +29,21 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 (exp51 축A 완료 — depth supervision +2.42dB 확정, 그러나 26dB 미만이라 축B/C로 계속)**:
+  Photo-SLAM CUDA 래스터라이저(forward.cu/backward.cu/rasterizer_impl.cu/rasterize_points.cu)에 3dgs-custom의
+  `out_invdepth`/`dL_dout_invdepth` 패턴을 이식(alpha-weighted expected inverse depth, forward accumulation +
+  backward `dL_dtz -= dL_dinvdepth/(t.z)^2`) — vanilla Photo-SLAM 래스터라이저엔 depth 출력 자체가 없었음(내부
+  정렬용 view-space z만 존재, 픽셀 depth 이미지 미출력). `GaussianRenderer::render()` 리턴 튜플에 5번째 원소로
+  추가(4개 기존 호출부 `std::get<0..3>`라 하위호환, 명시적 튜플 타입 1곳만 수정). depth 타깃은 신규
+  `scripts/incremental/build_depth_targets.py`(`build_depthmono_ppm_chunks.py`의 causal `calib_depth()` 재사용)로
+  keyframe RGB에 SLAM-보정 dense inverse-depth를 사전계산(56/57 성공, chunk_000만 SLAM point 부족으로 스킵) —
+  **raw depth-pro를 그대로 안 쓰고 SLAM point로 Huber 보정한 값만 사용**(사용자 요구사항 반영). init(SLAM+PPM)은
+  그대로 유지, depth loss는 photometric loss에 additive(사용자 요구사항 반영). λ는 `EXP51_LAMBDA_DEPTH` env var로
+  재빌드 없이 스캔 가능하게 설계. **결과: baseline(D1-b 재확인, λ=0) 22.87dB(D1-b 23.11과 오차범위 내 — 래스터라이저
+  patch 회귀 없음 확인) → λ=0.1: 25.11 → λ=0.5: 25.29(+2.42, 최고) → λ=1.0: 25.06(과대 λ는 photometric 희생).**
+  depth supervision이 VIGS 조사에서 예측한 대로 실제 큰 레버임을 확정했으나, exp51 결정 규칙(≥28dB=depth만으로
+  충분) 기준 미달(26dB 미만) → **축B(init 렌더-alpha 중복방지)+축C(keyframe 밀도 57→2/3/4배) 결합이 다음 단계로
+  확정.** → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-17 (프로젝트 목표 명문화 + exp51 계획 — 진짜 병목은 depth supervision)**: 사용자와 North Star 정리 → CLAUDE.md/AGENTS.md에 최종 그림(Aria 흑백 SLAM localization + RGB incremental 고품질·floater無·실시간 mapping)과 현재 단계 우선순위 명시. **핵심 재프레임: "22dB 지도에 floater(carve) 먼저 넣는 건 순서 오류 — 고품질(30dB+)이 선결"**(저품질에선 이미지가 floater를 요구, exp43 12F 확인). exp49 D1(hybrid init 튜닝)은 PPM +0.97dB(23.11), RoMA·times_of_use·기타 무효로 마무리 — init 미세튜닝은 수확체감. **VIGS-SLAM(ECCV2026, ETH CVG) 조사로 진짜 레버 규명**: VIGS도 keyframe만 supervise(우리와 동일, "dense 프레임 다 씀"은 오해)이나 품질이 좋은 건 ① **RGB+depth supervision**(depth가 gaussian 앵커링, 우리는 RGB photometric only라 빠짐 — exp43 벽의 원인도 이것) ② isotropic loss+scale clamp+visible-only opacity reset ③ init 중복방지 훅(alpha로 이미 덮인 픽셀 스킵, 공개코드엔 미완성). **exp51 신설**: depth supervision(축A, SLAM point로 보정한 depth-pro 사용, init은 유지)·init 중복방지(축B, 빈 픽셀만)·keyframe 밀도 2/3/4배(축C)·dense supervision(축D)·floater억제(축E). baseline D1-b 23.11 → 목표 배치상한 30.2. loop 첫 사이클=축A(판 가르는 실험). → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-16 밤 (exp50 B1 — Fisheye624 라이브 stereo-inertial 트래킹 root-cause 수정으로 최초 성공)**: exp49 B1(Photo-SLAM)에서 Fisheye624 이식 후 라이브 트래킹이 매 keyframe마다 리셋되던 문제를, DiskChunGS(같은 ORB-SLAM3 계열)에 동일 패치를 이식해 재현한 뒤 3단계로 근본 진단. IMU_STEREO로 돌려도 증상 불변 → "IMU 부재" 가설 기각. **① 파일 무결성**: Fisheye624 원본과 byte-identical, 카메라 수학은 무죄. **② 계측**: ORB 추출 N~1500 정상이나 stereo 매칭 성공은 9~31개뿐(~98% 손실). **③ 근본 원인 2건**: (a) `ComputeStereoFishEyeMatches()`가 `mpCamera`를 무조건 `static_cast<KannalaBrandt8*>`로 캐스팅 — 실제론 `Fisheye624*`라 UB, 엉뚱한 왜곡모델로 삼각측량 → `GeometricCamera`에 `virtual TriangulateMatches` 추가해 가상 디스패치로 전환. (b) `mpCamera2` 설정 조건이 `cameraType()==KannalaBrandt`로 하드코딩돼 `Fisheye624Type`이 안 걸림 → rectified pinhole용 블록매칭 경로로 잘못 빠짐(fisheye 매칭 함수 자체가 호출도 안 됨) → 조건에 `Fisheye624Type` 추가. **수정 후 stereo 매칭 9~31→33~76개(지속), 리셋 0회 — Aria Fisheye624 IMU_STEREO 라이브 트래킹 최초 성공.** 이후 GaussianMapper의 COLMAP 카메라 export가 PINHOLE만 지원해 크래시 — 예상된 다음 관문(RGB 매핑 카메라 분리 주입 설계로 해결 예정). 부수적으로 `euroc_stereo_inertial.cpp`의 `output_directory` argv 인덱스 버그(Phase C 미실행 방증)도 발견·수정. → [exp50](experiments/exp50_diskchungs_plan.md)
 - **2026-07-16 밤 (exp50 Phase A&B 완료 — DiskChunGS 빌드 완주 및 Stereo-Inertial 연동 성공)**: ETH Zurich의 최신 out-of-core 가우시안 SLAM 기법인 DiskChunGS의 전체 빌드(Phase A) 및 EuRoC Stereo-Inertial 예제 구현(Phase B)을 완벽하게 마무리함. TensorRT 제거에 따른 OpenCV StereoSGBM fallback 처리, PyTorch C++ API 버전 호환성(c10::cuda::CUDACachingAllocator 대신 cudaMemGetInfo 적용, torch::linalg::inv 대신 torch::inverse), glm::perspective 형변환 오류 패치 등을 완료하여 `✓ Build completed successfully!` 획득. `bin/euroc_stereo_inertial` 바이너리 생성 완료로 Phase C 데이터셋 평가 실행 준비 완비. → [exp50](experiments/exp50_diskchungs_plan.md)
