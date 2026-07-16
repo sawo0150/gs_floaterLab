@@ -96,3 +96,4 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 | **exp44** | **고속 geometry 트랙 완료 — 44h 레시피 채택** (스냅 init+densify≤3k+carve, 32.08/7.5분) · 품질 기함 44f(32.67/14분) | **완료** | [exp44](exp44_fast_geometry_plan.md) |
 | exp48 | Incremental 3DGS: PPM K=3 + RoMA (Hybrid) 및 온라인 루프 홀인 Selective Opacity Reset 도입 (18.23dB). 종결 — eval 버그(llffhold-8이 test.txt 무시) 규명, 진짜 벽은 저텍스처 영역 + vanilla 3dgs가 online에 안 맞는 틀 | **종결** | [exp48](exp48_incremental_plan.md) |
 | exp49 | Photo-SLAM(ORB-SLAM3+GS, CVPR24) 이관: opacity_reset off·상수 LR·times-of-use 슬라이딩 윈도우로 exp48 문제를 설계로 회피한 검증된 online baseline. 빌드 완료(Blackwell+CUDA12.8 호환패치). replay로 Fisheye624 우회 → 배치 baseline → incremental → 방법론 이식 | 계획 | [exp49](exp49_photoslam_plan.md) |
+| exp50 | DiskChunGS: Out-of-Core 디스크 스왑 SLAM. B1에서 Fisheye624 라이브 트래킹 root-cause 2건 수정(하드코딩 static_cast, KannalaBrandt-only 게이트) 후 최초 성공(리셋 9~31→0, 매칭 33~76개 지속). 다음: RGB 매핑 카메라 분리 주입 | 진행 | [exp50](exp50_diskchungs_plan.md) |
