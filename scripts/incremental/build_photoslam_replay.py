@@ -95,6 +95,10 @@ def main():
     ap.add_argument("--kf-dir", default="04_incremental")
     ap.add_argument("--dense-dir", default="05_incremental_dense")
     ap.add_argument("--out-dir", default="06_photoslam_replay")
+    ap.add_argument("--init-source", default="slam",
+                    choices=["slam", "slam+ppm", "slam+ppm+roma"],
+                    help="청크별 init 점 소스 (exp49 Phase D). ppm/roma 파일은 "
+                         "05_incremental_dense에 exp48이 인과 순서로 생성해 둔 것 사용")
     args = ap.parse_args()
 
     scene = LAB / "data/scenes" / args.scene
@@ -111,12 +115,23 @@ def main():
         img_src = ch / "images" / src_name
         name = f"kf_{idx:03d}.jpg"  # 청크 간 이름 충돌 방지 (원본은 전부 frame_00001.jpg)
 
-        # 새 점: chunk 0은 04의 초기 점, 이후는 05의 extra
+        # 새 점: chunk 0은 04의 초기 점, 이후는 05의 extra (+옵션에 따라 ppm/roma)
         if idx == 0:
             pts_path = ch / "sparse/0/points3D.txt"
         else:
             pts_path = dense_root / ch.name / "sparse/0/extra_points3D.txt"
         xyz, rgb = read_points(pts_path)
+
+        extra_sources = []
+        if "ppm" in args.init_source:
+            extra_sources.append(dense_root / ch.name / "sparse/0/ppm_points3D.txt")
+        if "roma" in args.init_source:
+            extra_sources.append(dense_root / ch.name / "sparse/0/roma_points3D.txt")
+        for src in extra_sources:
+            exyz, ergb = read_points(src)
+            if len(exyz):
+                xyz = np.concatenate([xyz, exyz], axis=0)
+                rgb = np.concatenate([rgb, ergb], axis=0)
 
         dst = out_root / ch.name
         write_chunk(dst, q, t, name, img_src, xyz, rgb, image_id=idx + 1)

@@ -88,10 +88,20 @@ Photo-SLAM 출력 PLY(표준 3DGS 포맷, SH deg3)를 **3dgs-custom render.py --
 
 **자체 구현 대비 +3.9dB, 붕괴 뷰(PSNR<15) 35~41 → 5개.** 동일 예산·동일 held-out에서 **아키텍처 전환만으로 exp48의 18dB 천장을 넘김(22dB).** 남은 30dB 배치 상한과의 격차는 두 축이 남아있음: ① init이 아직 raw SLAM sparse 점만(hybrid init 미적용) ② floater(어려운 held-out 뷰에 바늘형 아티팩트) — **둘 다 우리 방법론(Phase D: hybrid init + carve loss)이 정확히 겨냥하는 대상.** v1은 하이퍼파라미터 무튜닝(lr 감쇠·keyframe-only supervision·inactive_geo_densify off) 상태라 헤드룸 큼.
 
-### Phase D — 우리 방법론 이식 (다음)
+### Phase D — 우리 방법론 이식 (loop 진행 중, 2026-07-16 밤~)
 - D1: **hybrid init**(RoMA+PPM+depth-mono) — Photo-SLAM의 geometry-based densification과 결합/대체. init이 배치 트랙 단일 지배 레버였으므로 우선순위 높음.
 - D2: **carve loss** — Photo-SLAM 학습 루프(`trainForOneIteration`)에 floater 억제 압력 이식. loss 레벨이라 이식 가능성 높음.
 - D3: **Aria 센서 분리**(흑백 트래킹/RGB 매핑) — Phase C가 replay라 pose는 이미 RGB 프레임용으로 변환된 걸 공급(exp48 `build_incremental_chunks.py`의 T_rgb 변환 재사용). 라이브 트래킹까지 갈 거면 위 "제약" 2번(Fisheye624 이식).
+
+**런 테이블** (동일 예산 iters_per_kf=150=총 8550, 동일 llffhold-8 163뷰 하네스):
+
+| 런 | init | held-out PSNR | 중앙값 | PSNR<15 | N최종 | 비고 |
+|---|---|---:|---:|---:|---:|---|
+| D1-a (=Phase C v1) | SLAM만 | 22.14 | 21.67 | 5 | 716k | baseline |
+| **D1-b** | SLAM+PPM(K=3) | **23.11 (+0.97)** | **22.88 (+1.21)** | 9 | 1,128k | `build_photoslam_replay.py --init-source slam+ppm`, exp48의 인과적 ppm_points3D.txt 재사용 |
+| D1-c | SLAM+PPM+RoMA | (진행 중) | | | | 06_photoslam_replay_full |
+
+D1-b 소견: PPM 점(청크당 ~1만)이 평균 +0.97dB·중앙값 +1.21dB 개선 — exp48에서도 PPM 연결이 첫 실제 개선이었던 것과 일관. 단 PSNR<15 뷰는 5→9로 소폭 증가(꼬리 악화, PPM 점의 depth 오차가 일부 뷰에 floater로 작용했을 가능성 — D2 carve의 타깃).
 
 ## 데이터 자산 (이미 보유)
 - EuRoC 입력: `data/01_euroc_openmavis_input/mav0/{cam0,cam1,imu0}` (stereo 1311프레임) + `timestamps.txt` + `Aria.yaml`
