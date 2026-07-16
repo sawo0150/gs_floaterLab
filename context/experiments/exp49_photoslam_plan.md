@@ -25,8 +25,22 @@ survey list(Awesome-3DGS-SLAM 등) 조사 결과, "incremental이 검증된" 후
 우리 Aria SLAM 카메라(`data/01_euroc_openmavis_input/Aria.yaml`)는 **`Camera.type: "Fisheye624"`** (6 radial + 2 tangential + 4 thin-prism). 이건 OpenMAVIS(MAVIS)가 자체 지원하는 모델이고, **Photo-SLAM이 번들한 스톡 ORB-SLAM3는 Pinhole/KannalaBrandt8(KB4)만 지원 → Fisheye624 트래킹 불가**.
 
 → 두 갈래:
-1. **(권장) SLAM 트래킹을 아예 안 씀 — 이미 완주한 OpenMAVIS export를 replay.** exp48 철학 그대로. `examples/train_colmap.cpp`가 **`GaussianMapper`를 `pSLAM=nullptr`로 구동**(COLMAP 씬에서 직접 읽기)하는 걸 확인 — 즉 Photo-SLAM의 **우수한 매핑 백엔드(geometry densification, no-reset, times-of-use 슬라이딩 윈도우)만 떼어내 우리 데이터로 먹일 수 있음.** Fisheye624 문제를 통째로 우회.
-2. **(후순위) OpenMAVIS의 Fisheye624 카메라 모델을 Photo-SLAM의 ORB-SLAM3에 이식** — 라이브 트래킹+루프클로저까지 원할 때. C++ 대공사지만 OpenMAVIS가 이미 구현해둔 걸 옮기는 것. Phase 3 이후로 연기.
+1. **(권장) SLAM 트래킹을 아예 안 씀 — 이미 완주한 OpenMAVIS export를 replay.** exp48 철학 그대로. `examples/train_colmap.cpp`가 **`GaussianMapper`를 `pSLAM=nullptr`로 구동**(COLMAP 씬에서 직접 읽기)하는 걸 확인 — 즉 Photo-SLAM의 **우수한 매핑 백엔드(geometry densification, no-reset, times-of-use 슬라이딩 윈도우)만 떼어내 우리 데이터로 먹일 수 있음.** Fisheye624 문제를 통째로 우회. → Phase C가 이걸로 성공(22dB).
+2. **(라이브 B1, 착수함) OpenMAVIS의 Fisheye624 카메라 모델을 Photo-SLAM의 ORB-SLAM3에 이식** — 라이브 트래킹+루프클로저까지. 아래 "B1 진행" 참조.
+
+## B1 진행 — Fisheye624 라이브 트래킹 이식 (2026-07-16, 부분 성공)
+
+**완료:**
+- Fisheye624.{h,cpp}(OpenMAVIS, `TwoViewReconstruction`만 의존·양 포크 시그니처 동일) → Photo-SLAM ORB-SLAM3에 이식. `GeometricCamera`에 `CAM_FISHEYE624` 상수. `libORB_SLAM3.so`에 에러 없이 컴파일·링크.
+- `Settings.cc`에 Fisheye624 stereo 파싱(readCamera1/2 16-param 브랜치 + `Fisheye624Type` enum + scaleCol 처리), Tracking 진단 출력. KB4의 비정합 fisheye stereo 처리 패턴을 그대로 미러.
+- **euroc_stereo가 우리 Aria.yaml을 Fisheye624로 정상 로드/파싱, GaussianMapper까지 end-to-end 구동 확인** ("Camera 0 is fisheye624", 381프레임 전부 처리).
+
+**블로커(발견):** **순수 STEREO 모드는 Aria fisheye 초기화에 너무 취약** — 매 프레임 22~33점짜리 미니맵 생성 후 즉시 "Less than 15 matches" → map reset 반복, 트래킹 지속 실패. 반면 **OpenMAVIS는 같은 데이터를 IMU_STEREO(visual-inertial)로 잘 트래킹.** 즉 카메라 모델 이식은 성공했으나, **로버스트 라이브 트래킹엔 IMU_STEREO가 필수.** ORB-SLAM3 lib는 IMU_STEREO를 지원하나 **Photo-SLAM에 IMU 예제가 없음**(euroc_stereo는 순수 stereo).
+
+**남은 갈래(미결정):**
+- **B1a**: IMU_STEREO 예제 신규 작성 — mav0/imu0 로드 + `System::IMU_STEREO` + `TrackStereo(imu)` + GaussianMapper 연결. ORB-SLAM3 lib 지원하므로 가능하나 IMU 데이터 로딩+튜닝+예제 상당 작업. 그 후 RGB 주입(아래)도 남음.
+- **B2(재부상)**: Photo-SLAM 트래킹 재이식 대신 **OpenMAVIS의 이미 작동하는 IMU_STEREO 라이브 트래킹**을 그대로 쓰고 우리 GaussianMapper(trainReplay가 증명)에 라이브 스트리밍. Photo-SLAM 순수-stereo가 취약함이 판명되면서 상대적 매력 상승.
+- **RGB 매핑 주입(공통 난관)**: `Atlas.h::MappingOperation::addKeyFrame`가 매퍼로 갈 튜플(`imgLeftRGB`+`GetPose()`)을 생성 — 여기에 RGB 프레임+RGB extrinsic 변환 pose를 실으면 기존 GaussianMapper 경로가 RGB 매핑. 단 KeyFrame에 RGB 필드 plumbing(Tracking→KeyFrame→Atlas) 필요.
 
 ## Phase 계획
 
