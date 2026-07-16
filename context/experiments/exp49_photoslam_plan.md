@@ -99,7 +99,8 @@ Photo-SLAM 출력 PLY(표준 3DGS 포맷, SH deg3)를 **3dgs-custom render.py --
 |---|---|---:|---:|---:|---:|---|
 | D1-a (=Phase C v1) | SLAM만 | 22.14 | 21.67 | 5 | 716k | baseline |
 | **D1-b** | SLAM+PPM(K=3) | **23.11 (+0.97)** | **22.88 (+1.21)** | 9 | 1,128k | `build_photoslam_replay.py --init-source slam+ppm`, exp48의 인과적 ppm_points3D.txt 재사용 |
-| D1-c | SLAM+PPM+RoMA | (진행 중) | | | | 06_photoslam_replay_full |
+| D1-c | SLAM+PPM+RoMA | 22.76 (-0.35 vs D1-b) | 22.42 | 7 | 1,201k | RoMA 추가 무효과 — 배치 트랙("청정 축")과 달리 incremental에선 이득 없음 |
+| scan-tou8 | SLAM+PPM, times_of_use 1→8 | (진행 중) | | | | 결정 규칙 발동(D1-c<23.5): init 아닌 구조 축 스캔 |
 
 D1-b 소견: PPM 점(청크당 ~1만)이 평균 +0.97dB·중앙값 +1.21dB 개선 — exp48에서도 PPM 연결이 첫 실제 개선이었던 것과 일관. 단 PSNR<15 뷰는 5→9로 소폭 증가(꼬리 악화, PPM 점의 depth 오차가 일부 뷰에 floater로 작용했을 가능성 — D2 carve의 타깃).
 
