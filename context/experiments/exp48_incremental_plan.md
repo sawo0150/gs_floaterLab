@@ -1,6 +1,6 @@
 # exp48 — Incremental 3DGS: SLAM 청크를 warm-start로 받아 매핑
 
-- 상태: **Phase 0b "완료" 판정 철회 — 품질 재검증 결과 심각한 미달, 원인 진단 중** (2026-07-15 밤 수립 → 2026-07-16 v2 재설계·진단). 아래 "v2 재설계 및 품질 조사" 섹션이 최신 상태.
+- 상태: **종결 (2026-07-16). vanilla 3dgs-custom 위 자체 incremental 구현은 근본 한계 확인 → 검증된 online baseline([exp49](exp49_photoslam_plan.md) Photo-SLAM)으로 이관.** 최종 도달 18.23dB(배치 상한 30.2dB 미달). 하단 "eval 스크립트 버그 발견" 섹션이 마지막 진단(진짜 벽은 저텍스처 영역 + windowed 구조 자체).
 - 배경: [exp47](exp47_speed_track_plan.md)에서 배치(full-scene) 학습 속도를 66분→26.8분(cheapcarve, S2)까지 줄였으나, 남은 고정비의 상당수(~13분, carve field 통짜 빌드 + 전체 프레임 로드)가 **incremental에서는 애초에 존재하지 않는 비용**임을 인지 — warm-start면 매 청크 재학습이 아니라 이어서 학습이므로. 배치 트랙에서 더 쥐어짜는 것은 "실제로 안 겪을 비용"을 상대로 최적화하는 셈이라 판단, incremental(exp48)로 직행하기로 결정.
 
 ## 재프레임: SLAM의 "실시간성"과 GS의 "incremental성"을 분리한다
