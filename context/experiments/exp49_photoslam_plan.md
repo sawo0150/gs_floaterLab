@@ -62,9 +62,19 @@ survey list(Awesome-3DGS-SLAM 등) 조사 결과, "incremental이 검증된" 후
 - **train keyframe PSNR(57뷰): 평균 31.12dB, 최저 22.84, 최고 39.37, PSNR<15 = 0개.** exp48이 같은 장면에서 8~17dB로 무너졌던 것과 극적 대비. 렌더 육안: 책상 나뭇결·조명·의자·바닥까지 또렷 — exp48 안개 렌더와 차원이 다름.
 - ⚠ **주의: 이건 train view(학습한 57 keyframe)라 exp48의 held-out 18dB와 직접 비교 불가.** 공정 비교엔 held-out 163뷰 평가 필요(다음 단계 C-eval).
 
-**다음 (C-eval):** llffhold-8 기준 held-out 163뷰를 non-train keyframe으로 scene에 추가(times_of_use=0)해서 렌더 → GT와 PSNR. exp48 18dB / 배치 상한 30.2dB와 같은 잣대 비교.
+### Phase C-eval — held-out 163뷰 공정 비교 ✅ (2026-07-16)
 
-### Phase D — 우리 방법론 이식
+Photo-SLAM 출력 PLY(표준 3DGS 포맷, SH deg3)를 **3dgs-custom render.py --eval로 렌더** — exp48과 완전히 동일한 하네스(llffhold-8 163뷰, 같은 GT). 좌표계 일치 확인(문 키패드·비상구 표시 GT와 정렬, 오정렬이면 균일 8~10dB인데 max 39dB).
+
+| | held-out PSNR | 중앙값 | 최저/최고 | PSNR<15 | 예산 |
+|---|---:|---:|---:|---:|---|
+| exp48 (자체 incremental) | 18.0~18.23 | ~17 | ~8/34 | 35~41/163 | 8550 iter |
+| **exp49 Phase C v1 (Photo-SLAM)** | **22.14** | **21.67** | **12.23/39.05** | **5/163** | 8550 iter |
+| 배치 상한 (exp48 통제) | 30.2 | — | — | — | 8550 iter |
+
+**자체 구현 대비 +3.9dB, 붕괴 뷰(PSNR<15) 35~41 → 5개.** 동일 예산·동일 held-out에서 **아키텍처 전환만으로 exp48의 18dB 천장을 넘김(22dB).** 남은 30dB 배치 상한과의 격차는 두 축이 남아있음: ① init이 아직 raw SLAM sparse 점만(hybrid init 미적용) ② floater(어려운 held-out 뷰에 바늘형 아티팩트) — **둘 다 우리 방법론(Phase D: hybrid init + carve loss)이 정확히 겨냥하는 대상.** v1은 하이퍼파라미터 무튜닝(lr 감쇠·keyframe-only supervision·inactive_geo_densify off) 상태라 헤드룸 큼.
+
+### Phase D — 우리 방법론 이식 (다음)
 - D1: **hybrid init**(RoMA+PPM+depth-mono) — Photo-SLAM의 geometry-based densification과 결합/대체. init이 배치 트랙 단일 지배 레버였으므로 우선순위 높음.
 - D2: **carve loss** — Photo-SLAM 학습 루프(`trainForOneIteration`)에 floater 억제 압력 이식. loss 레벨이라 이식 가능성 높음.
 - D3: **Aria 센서 분리**(흑백 트래킹/RGB 매핑) — Phase C가 replay라 pose는 이미 RGB 프레임용으로 변환된 걸 공급(exp48 `build_incremental_chunks.py`의 T_rgb 변환 재사용). 라이브 트래킹까지 갈 거면 위 "제약" 2번(Fisheye624 이식).
