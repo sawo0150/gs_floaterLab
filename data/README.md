@@ -43,4 +43,4 @@ scripts/pipeline/run_full_pipeline.sh stage3     # 특정 단계만
 
 2026-07-07 이전의 심링크 무더기(batch/smoke/full/keyframes 등)는 제거했다.
 실제 파일이었던 `depth_maps/`(monodepth 출력)와 `rgb_3dgs_openmavis_orb_full_301_1253/`은
-`../data_trash_20260707/`에 있다. 확인 후 필요 없으면 통째로 삭제하면 된다.
+`../data_trash_20260707/`에 보관돼 있었으나 2026-07-15 용량 정리 시 삭제됨 (필요 시 `inference_monodepth.py`로 재생성).

@@ -85,12 +85,13 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 
 > exp30~37 전체 완료 (2026-07-09). 큐 진행 중 발견된 자동 체인 중복 실행 버그와 run-to-run 노이즈(±0.24dB)는 카드 참조.
 
-## 계획 카드 (미실행)
+## 계획 및 신규 트랙 카드
 
 | Exp | 내용 | 상태 | 카드 |
 |---|---|---|---|
 | exp43 | 교차 장면 완주: rot 점수 AUC 0.98·pseudo-label 정밀도 100% / 305 **depth-anchor carve 재현 성공**(먼지 -83%·PSNR 동급) / 실패 5건 정직 기록 — 결론: carve 성패=앵커 품질 | **완료** | [exp43](exp43_cross_scene_plan.md) |
 | exp45 | 채택 큐 4종: 45a 노출 기각(-6dB)·45b dynamic 조건부(깨끗한 init 전제)·44e3 보류(먼지 ×4)·45c progressive resolution 진행 중 | 진행 | [exp44 카드 참조](exp44_fast_geometry_plan.md) |
-| exp47 | 속도 최적화 트랙: 품질 하한 고정하고 속도만 — S1 cuda·S2 carve저빈도·S3 iter·S4 keyframe subset·S5 중간budget. incremental per-chunk 레시피 확정 목적(목표 5분 내) | 계획 | [exp47](exp47_speed_track_plan.md) |
-| exp46 | basin 재프레임: floater=photo loss의 정당한 숏컷 분지 → 압력 대신 '올바른 geometry를 가까운 basin으로'. (a)도달불가=init/(b)환원불가=appearance 이분법 + 다음 실험 7축(원거리 photometric 감쇠 포함) | 계획 | [exp46](exp46_basin_reframe_plan.md) |
+| exp46 | basin 재프레임: floater=photo loss의 정당한 숏컷 분지 → 압력 대신 '올바른 geometry를 가까운 basin으로'. (a)도달불가=init/(b)환원불가=appearance 이분법 + 다음 실험 7축(원거리 photometric 감쇠 포함) | **완료** | [exp46](exp46_basin_reframe_plan.md) |
+| exp47 | 속도 최적화 트랙: 품질 하한 고정하고 속도만 — S1 cuda·S2 carve저빈도·S3 iter·S4 keyframe subset·S5 중간budget. incremental per-chunk 레시피 확정 목적(목표 5분 내) | **완료** | [exp47](exp47_speed_track_plan.md) |
 | **exp44** | **고속 geometry 트랙 완료 — 44h 레시피 채택** (스냅 init+densify≤3k+carve, 32.08/7.5분) · 품질 기함 44f(32.67/14분) | **완료** | [exp44](exp44_fast_geometry_plan.md) |
+| exp48 | Incremental 3DGS: PPM K=3 + RoMA (Hybrid) 및 온라인 루프 홀인 Selective Opacity Reset 도입 성공 (PSNR 18.23dB, 중앙값 1.07dB 상승) | **완료** | [exp48](exp48_incremental_plan.md) |

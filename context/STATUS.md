@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-13 아침. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-16 밤. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -11,6 +11,7 @@
 | ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
 | **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
 | Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
+| **Incremental 3DGS** | **exp48_v4 (PPM K=3 + RoMA + Selective Reset)** | **18.23dB (median 18.27)** | **held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존** |
 
 ## 지금 열려 있는 질문
 
@@ -26,6 +27,14 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-16 밤 (exp48 ⚠ eval 스크립트 버그 발견 — 바로 아래 항목의 "chunk 18/19 공백" 설명 폐기, 진짜 원인 재확정)**: 사용자 요청으로 antigravity의 v2~v4 결과("median 18.27dB, chunk18/19 사이 공백이 원인")를 검증하던 중, `3dgs-custom/scene/dataset_readers.py:238~248`에서 **`--eval` 시 `llffhold` 기본값 8이 항상 참이라 `sparse/0/test.txt`가 전혀 안 읽히고**, 대신 전체 1,303프레임을 이름순 정렬 후 8번째마다 뽑는 게 실제 테스트셋임을 발견(우연히 개수 163으로 동일해 안 들킴). 실측 검증: eval 인덱스 "00056.png"의 실제 원본은 `test.txt` 가정대로면 `frame_00636`(책상)이어야 하나, 실제로는 `frame_00449`(화이트보드)와 픽셀 일치. **즉 이전 항목의 "held-out 163뷰=frame_580~742 연속 블록", "chunk_019 vs chunk_021", "chunk18/19 사이 공백" 전부 잘못된 프레임 매핑 위의 이야기.** 매핑을 llffhold-8 기준으로 바로잡아 같은 v4 런의 `per_view.json`을 재분석한 결과, 여전히 뚜렷한 비무작위 패턴 확인: **chunk 14-20(프레임 ~430-700, kf 54-83) 평균 9.6~17dB로 최악, chunk 47-56(후반부, 프레임 ~1230-1300) 평균 25~34dB로 최고.** 육안 검증: chunk 15 대표 이미지가 정확히 그 화이트보드 근접샷(최초 직감은 맞았고 청크 번호만 틀렸음), chunk 50은 반복 등장하던 그 복도 뷰. map point 수로는 설명 안 됨(나쁜 구간이 오히려 SLAM point 더 많음, 62~338 vs 3~97) — **화이트보드류 저텍스처 근접 표면 자체가 SLAM·depth-pro 양쪽 다에게 근본적으로 어려운 영역**이라는 게 진짜 원인. antigravity의 K=3 PPM/RoMA/selective-reset 3연속 수정이 거의 안 움직인 것(18.0→18.23dB)도 이걸로 설명됨 — "대표 프레임이 놓쳤다"가 아니라 그 영역 자체가 어떤 init 방법으로도 잘 안 잡히는 저텍스처 지역이었기 때문. eval 버그 자체는 지금까지의 모든 exp48 PSNR 숫자에 일관 적용됐으므로 상호 비교는 유효(같은 기준), 다만 "특정 구간 콕 집어 분석"할 때는 반드시 llffhold-8 기준으로 매핑할 것. 다음 과제: ① eval 버그를 고칠지(`llffhold=0`으로 test.txt 사용 vs 지금 방식 표준 채택) 결정, ② 저텍스처 구간 전용 대책(풀 하이브리드 예산 확대 또는 근본 한계 인정), ③ 후반부 고PSNR이 "반복 방문 성숙" 때문인지 궤적 대조로 확인. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-16 밤 (exp48 Incremental 3DGS 하이브리드 완벽 완주 및 Selective Opacity Reset 도입)**: PPM K=3 다각도 투영(v2) 및 RoMA dense correspondence(v3_hybrid)를 이식하여 18.12dB까지 점진적 개선. 온라인 3DGS의 고질적 병목인 전역 opacity 리셋의 루프 홀(윈도우 밖 영역이 리셋 후 복원되지 못해 궤멸)을 규명하고, 활성 윈도우 가우시안만 선별 리셋하는 **Selective Opacity Reset** 기법을 제안 및 구현(v4). 그 결과 가우시안 소멸을 차단(83만→116만 개 보존)하여 **중앙값 PSNR이 17.20→18.27dB로 대폭 상승(1.07dB 쾌거)**. 여전히 18dB대에 정체하는 이유는 held-out 163뷰가 하나의 연속 블록으로 구성되어 chunk 18(전방 뷰)과 chunk 19(후방 뷰) 사이에 공간적 학습 공백이 발생하여 co-optimization이 일어나지 않기 때문임을 규명. 향후 윈도우 크기를 확장하여(예: window_size = 10 또는 15) 두 뷰포인트를 동시에 최적화하는 진단으로 이어갈 것을 권장함. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-16 밤 (exp48 PSNR 30 벽 원인 규명 — 대표 프레임 1장의 커버리지 구멍)**: 바로 아래 항목(depth-mono+PPM 연결, 18.0dB)에서 왜 여전히 통제 실험 30.2dB에 못 미치는지 분석. "샘플링 운" 가설은 draw_count-PSNR 상관계수 0.025로 기각. 163개 held-out 뷰의 PSNR을 프레임 단위로 정렬하니 최저 10개(`frame_00633~641`)와 최고 10개(`frame_00726~738`)가 각각 촘촘히 뭉쳐있어 국소적 원인임을 확인. 실제 청크 이미지 폴더로 역추적(타임스탬프 이분탐색 방식은 인덱싱이 밀려 오답 — 실제 파일 목록 대조 필수)한 결과 최저 구간은 `chunk_019`, 최고 구간은 `chunk_021` 소속. 두 청크의 depth-mono+PPM 대표 프레임(keyframe당 `frame_00001.jpg` 1장만 사용)을 육안 대조: **`chunk_019` 대표 프레임은 책상/선반 장면인데 실제 GT(`frame_00636`)는 화이트보드 근접 샷 — 완전히 다른 뷰.** 반대로 `chunk_021` 대표 프레임은 실제 GT(`frame_00736`)와 거의 동일한 복도 뷰. **원인 확정: depth-mono+PPM init이 청크당 대표 프레임 1장에만 묶여있어, 그 청크의 dense 50프레임 동안 카메라가 크게 움직이면 대표 프레임이 놓친 영역은 init 자체가 없는 채로 photometric loss만 받음** — 여기에 기존에 밝혀진 "윈도우 벗어나면 못 여문다" 문제가 곱해져 청크별로 30dB대/10dB대 양봉분포가 생기고 평균이 눌림. 다음 제안: 대표 프레임 1장 → 청크 내 다중 프레임(처음/중간/끝 등)으로 depth-mono+PPM 소스 확장 — RoMA 연결보다 우선순위 높은 저비용 고효과 후보. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-16 밤 (exp48 depth-mono init 연결 — 첫 실제 개선)**: 배치 챔피언(exp44d2) init이 RoMA+PPM+depth-mono 3종 조합이라는 지적을 받아, 그중 depth-mono+PPM(Sobel 적응 샘플링) 먼저 연결. 신규 `build_depthmono_ppm_chunks.py`가 `build_hybrid_init_scene.py`의 depth-lift 로직을 재사용하되 **그 keyframe 시점까지 누적된 SLAM point만으로 Huber 스케일 보정**(인과 순서 유지) — 57개 중 56개 keyframe 성공. `train_incremental.py`에 `--init_source both` 추가해 SLAM+PPM 결합 결과 **평균 PSNR 15.7→18.0dB, PSNR<15 뷰 107→41개** — 가설 라운드 2(opacity_reset·LR, 전부 무효과)와 달리 **처음으로 실제 개선**. 다만 통제 실험(30.2dB)과는 여전히 격차 큼 — "윈도우 벗어난 영역은 안 여문다"는 근본 문제는 미해결, 더 나은 재료로 그 위에서 개선된 정도. 다음: RoMA 연결(같은 인과 순서 원칙), 아키텍처 재설계 여부는 별도 결정. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-16 밤 (exp48 opacity_reset·LR 가설 둘 다 기각 — ancestor 추적으로 진짜 원인 재규명)**: 바로 아래 항목의 "유력 범인 opacity_reset" 가설을 실제로 끄고(+LR도 고정값으로) 재검증했는데 **둘 다 무효과**(15.4~15.6dB, 그대로). `--trace_event`(신규, `ancestor_idx` 계보 추적) 진단으로 event 5의 gaussian 혈통을 57개 이벤트 끝까지 따라간 결과, reset이 윈도우 밖 영역을 96% 죽이는 메커니즘 자체는 실재 확인됐으나, **꺼도 안 죽을 뿐 살아남은 gaussian이 opacity 0.14~0.16 수준에서 "미성숙 상태로 방치"돼 결과는 똑같이 나쁨.** → **결론: opacity_reset·LR 감쇠는 증상이었지 근본 원인이 아니었음. "윈도우를 벗어나는 순간 그 어떤 설정으로도 다시 여물 기회가 없다"는 구조 자체가 진짜 원인.** 다음 결정: ① VINGS-Mono의 관측시점 즉시-국소정리 방식으로 아키텍처 재설계 vs ② 윈도우를 훨씬 키워서 회복 경계값 스캔. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-16 (exp48 Phase 0b "완료" 판정 철회 + v2 재설계 + 원인 진단)**: 바로 아래 07-15 항목의 "크래시 없이 완주"는 프로세스 생존만 확인한 것이었고, **실제 held-out 163뷰 PSNR을 재보니 15.8dB**(챔피언 32~35dB 대비 사실상 미학습) — 성공 기준 3(렌더 정상)을 검증 없이 통과시킨 오판. 원인: "1 keyframe=1 이미지, 재방문 없음" 구조라 장면의 97%가 사실상 1회성 학습 후 방치. `train.py`는 incremental 오염 제거 후 원복, 신규 `train_incremental.py`(로컬 윈도우+freeze-when-stable, VINGS-Mono_custom 이식)로 재설계. **4개 변형(keyframe-only/dense frame/densify 유무) 전부 15~17dB 천장에서 안 움직임.** 결정적 통제 실험: 같은 8,550 iteration을 원본 batch train.py로 전체 씬 동시 접근하면 **30.2dB** — "iteration 부족"이 아니라 **windowed 구조 자체가 원인**임을 확정. 유력 범인: `reset_opacity`(3000 iter마다 전체 opacity 강제 리셋)가 윈도우에서 이미 빠진 영역을 영구히 죽임 — **VINGS-Mono_custom 코드 대조로 확증**(`reset_opacity`/LR 감쇠 스케줄이 그 코드베이스엔 아예 없음, 온라인 세팅과 근본적으로 안 맞아 의도적으로 뺀 것으로 판단). 다음: opacity_reset 끄기·LR 고정값 전환 검증. → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-15 밤 (exp48 incremental Phase 0b 완주, ⚠ 아래 07-16 항목에서 판정 철회됨)**: 57개 keyframe 전체 warm-start 루프를 크래시 없이 완주. 소요 시간 ~17분. Gaussian 수 405개(chunk_000) → ~52,000개(chunk_056)로 단조 증가 확인. 코드 리뷰 수정 3건 포함: ① capture/restore에 트래킹 버퍼 9종 포함(학습 이력 보존), ② chunk≥1에서 `extra_points3D.txt` 분리 공급(더블 로딩 제거), ③ `getNerfppNorm()`에 radius=0 fallback 추가 (chunk_015에서 단일 카메라 청크의 cameras_extent=0 원인으로 모든 Gaussian이 전량 prune되는 치명적 버그 수정). → [exp48](experiments/exp48_incremental_plan.md)
+- **2026-07-15 (exp47 속도 최적화 트랙 완료)**: **S2(cheapcarve)에서 화질 무손실(35.116dB) + 시간 60% 단축(26.8분)으로 최대 성과.** S1S4(53.8분/34.47dB), S4(53.8분/34.40dB), S5(1시간3분/34.40dB), S6(56분/35.55dB), TARGET(12.6분/32.94dB, 기각) 완주. GPU 상주(CUDA)가 전송 오버헤드가 아닌 CPU Carve 연산이 병목임을 증명. 최종 Pareto 최적 속도-품질 가속 레시피 도출: **S2(cheapcarve) + S4(kf300) + S5(budget235k) + 30k iterations = 예상 21~23분 완주 및 PSNR ~34.4dB (품질 하한 충족)**. → [exp47](experiments/exp47_speed_track_plan.md)
 - **2026-07-15 (exp46 8축 배치 완주)**: **init이 floater의 단일 지배 레버로 확정.** init측 축(1 305hybrid +1.33dB·먼지461→4 / 2 12Fhybrid +3dB / 3 표면확신opacity 먼지-21%) 전부 성공, loss/carve/densify측 축(7 원거리감쇠·7b max-dist·B footprint carve ×5역효과·6 no-densify -1.3dB) 전부 실패. birth-redirect(5) 소폭. **경량화(A 122k)는 +3dB 소실→baseline** — dense init이 품질 근원이나 무거움, 중간 budget(250~350k) 탐색이 분단위 파이프라인 다음 관문. 사용자 원거리 통찰: 진단 옳음(먼지 98% 원거리)·처방(loss 제거) 무효. → [exp46](experiments/exp46_basin_reframe_plan.md)
 - **2026-07-14 (exp46 basin 실험)**: **"좋은 init(depth-lift hybrid)"이 전 장면 단일 지배 레버 확증.** 305: PSNR 35.84(최고)·free-space 먼지 461→4. **12F(fog): PSNR 32→35.07(+3dB), 먼지 청소 후에도 유지 → fog=환원불가(b) 예측 결정적 반박, 12F도 (a)형.** 원거리 photometric 감쇠(사용자 축7)는 진단은 확증(먼지 98% 원거리)이나 처방 기각(먼지↑·PSNR↓ — 먼 영역은 loss 빼기가 아니라 양의 prior 필요). self-diagnosis 규칙3 수정("carve off"→"depth-lift hybrid init"). 신규 과제: init dedupe/budget(hybrid 362-586k 무거움). → [exp46](experiments/exp46_basin_reframe_plan.md)
 - **2026-07-13 오후 (vr 채널)**: 사용자 질문("SLAM 포인트 없이 12F floater 잡기")에서 출발 — ① **SLAM-포인트-프리 탐지 성립**: depth-pro raw 0.855 → pose-기하 자가 보정(스테레오+IMU 캘리브레이션 덕에 pose가 미터) 0.893, SLAM 보정 상한 0.908=12F 신기록. ② vr을 CarveLoss score 채널로 통합(depth_dir config)했으나 **학습 효과 무** — "탐지≠제거" 간극 확정: underfit 장면에선 이미지가 먼지를 요구해 압력이 못 이김. ③ **12F에서 carve 자체 -1dB → 자가진단 경고 시 carve off가 파이프라인 규칙로 확정.** vr 용도는 오프라인 청소·pseudo-label·SLAM-프리 탐지. → [exp43 카드](experiments/exp43_cross_scene_plan.md)
@@ -50,13 +59,13 @@
 ## 다음 실험 후보 (우선순위순)
 
 > **프로젝트 목표 재정의 (07-12)**: Aria glass 실시간 촬영 스트림 → 분 단위 turnaround로 geometry 좋은 3DGS recon. 실시간 경로엔 MPS 사용 불가 → ORB 트랙이 본선.
+> **재우선순위 (07-15 밤)**: exp47 배치 속도 트랙은 종료, **exp48 incremental이 최우선**. 아래 0번이 현재 실질 1순위.
 
-0. **exp44 (고속 geometry 트랙)**: dense init × no-densify × carve — floater 출생 채널(densification) 제거 + EDGS 사상. 목표 5분/장면 → [exp44](experiments/exp44_fast_geometry_plan.md)
-0'. ~~exp43 (교차 장면)~~ → **완료** (305 재현 성공, 위 참조). 후속: 앵커 자가진단 규칙 + 시차 기반 쌍 선택 + 12F depth-anchor 적용.
-1. ~~held-out 뷰 평가 도입~~ → 완료 (exp41/42: segment split + SSIM/LPIPS 표준화) (eval split 재구성) — train PSNR 부적합 판명 후 유일하게 남은 정량 품질 축. carve 유/무의 novel-view 일반화 차이가 진짜 승부처.
-2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색.
-3. dense init(구 exp37) + carve 결합 — dense init의 PSNR 이점을 carve로 정화해서 취할 수 있는지.
-4. carve field의 타 장면 일반화 (새 시퀀스에서 전체 파이프라인 재현).
+0. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.
+0'. exp47 잔여 축(S2 cheapcarve + S4 keyframe subset 조합 등)은 **exp48 Phase 1+에서 청크당 학습 예산 튜닝에 재사용** — 배치 트랙 자체로는 더 이상 추가 실행 안 함.
+1. ~~exp44 (고속 geometry 트랙)~~ → **완료**. ~~exp43 (교차 장면)~~ → **완료**. ~~held-out 뷰 평가 도입~~ → **완료**.
+2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색. (exp48과 무관, 낮은 우선순위로 대기)
+3. carve field의 타 장면 일반화는 exp43에서 이미 검증됨(305/rot) — 신규 장면 투입 시에만 재점검.
 
 ## 확정된 사실 (자세한 근거는 knowledge/)
 

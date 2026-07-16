@@ -15,7 +15,7 @@ DP_DIR = os.path.join(MONO_DEPTH_DIR, "ml-depth-pro/src")
 M3D_DIR = os.path.join(MONO_DEPTH_DIR, "Metric3D")
 
 KEYFRAMES_DIR = "/home/wosas/Desktop/Incremental_mapping_test/orb_gs_bridge/data/3dgs_data/customdata_fisheye624_v2_30000/aria_0416_data_0416_301_1253_0416_301_1253_stereo_fisheye624_v2/images"  # 구 data/ symlink 실제 타깃 (2026-07-07 data 재구축으로 경로 직접 참조)
-OUTPUT_DIR = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/depth_maps"  # 구 출력은 data_trash_20260707/depth_maps
+OUTPUT_DIR = "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/diagnostic/depth_maps"  # 구 출력(data_trash_20260707/depth_maps)은 2026-07-15 삭제됨
 
 # Device configuration
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

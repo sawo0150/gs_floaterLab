@@ -19,4 +19,4 @@ Scope: dataset `0416_301-1253`, SLAM은 OpenMAVIS, 재구성은 custom 3DGS. (2D
 | `scripts/` | pipeline / experiments / diagnostic / analysis / anchors |
 | `results/` | experiments / rounds / diagnostic / datasets / logs / archive |
 | `repos/` | 외부 repo 심링크 (3dgs-custom, OpenMAVIS, vggt) |
-| `data_trash_20260707/` | 구 data 잔여물 (확인 후 삭제 가능) |
+| `data_trash_20260707/` | (2026-07-15 삭제됨 — 구 depth_map 캐시, 용량 정리) |
