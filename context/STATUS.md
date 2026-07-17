@@ -29,6 +29,18 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 (exp51 축B 완료 — init 렌더-alpha 중복방지, PSNR 무변화·N -16%, 축C 인에이블러 확정)**:
+  래스터라이저에 `out_alpha`(=1-T, 픽셀별 누적 opacity) 출력 추가(backward 불필요 — init 시점
+  `NoGradGuard` 안에서만 사용). `trainReplay`에서 새 keyframe 추가 직전, 그 keyframe의 pose로 **현재
+  가우시안 맵을 먼저 렌더**해 alpha를 얻고, 이번 청크의 init 후보점(world xyz)을 같은 카메라로 투영해
+  픽셀 alpha가 threshold(0.5) 이상인("이미 덮인") 점을 스킵 — VIGS-SLAM이 변수만 만들고 실제로는 마스킹
+  안 하던(`transmittance` 계산 후 미사용) 부분을 제대로 구현. `EXP51_DEDUP_INIT`/`EXP51_DEDUP_ALPHA_THRESH`
+  env var로 토글. **결과: 25.27dB(축A 25.29와 오차범위 내, PSNR 무변화) — 가우시안 수는 1,089k→917k
+  (-16%) 품질 손실 없이 감소.** dedup 로그로 의도대로 동작 확인(청크 1: 12494개 중 6798개 유지 vs
+  청크 56: 9361개 중 130개만 유지 — 맵이 찰수록 스킵률 급증). **결론: dedup 자체는 PSNR 레버가 아니라
+  축 C(keyframe 밀도 2~4배)의 인에이블러** — dedup 없이 밀도만 올리면 중복점이 배로 늘어 낭비·부작용
+  위험, dedup이 이를 막아 밀도 실험을 안전하게 해줌. 다음: 축 C(keyframe 57→114→171→228 밀도 스캔).
+  → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-17 (exp51 축A 완료 — depth supervision +2.42dB 확정, 그러나 26dB 미만이라 축B/C로 계속)**:
   Photo-SLAM CUDA 래스터라이저(forward.cu/backward.cu/rasterizer_impl.cu/rasterize_points.cu)에 3dgs-custom의
   `out_invdepth`/`dL_dout_invdepth` 패턴을 이식(alpha-weighted expected inverse depth, forward accumulation +
