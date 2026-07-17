@@ -46,7 +46,8 @@ C_SECTIONBG = RGBColor(0x0F, 0x4C, 0x81)
 # 슬라이드 제목 앞부분(정규화) → 이미지 파일명(들). img/<name>.png 존재 시 우측에 삽입.
 IMG_MAP = {
     "슬라이드 4": ["fig_305_compare", "fig_12F_compare"],
-    "슬라이드 5": ["fig_speed_pareto", "fig_12F_lossless"],
+    "슬라이드 5": ["fig_init_recipe"],
+    "슬라이드 6": ["fig_speed_pareto", "fig_12F_lossless"],
 }
 
 SW, SH = Inches(13.333), Inches(7.5)

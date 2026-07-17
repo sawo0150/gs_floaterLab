@@ -8,6 +8,7 @@
   - 12F_hybcarve_00658.png / 12F_S2cheapcarve_00658.png  (exp47 축S2: 기준 66분 vs cheapcarve 26.8분 — 무손실 검증용)
 
 figure 목록:
+  fig_init_recipe   init(hybrid) 생성 파이프라인 — 어떤 anchor로 무엇을 걸러냈는지 (신규)
   fig_305_compare   305 baseline vs hybrid init 렌더 비교 + PSNR/먼지 수치
   fig_12F_compare   12F baseline vs hybrid+carve 렌더 비교 + PSNR/먼지 수치
   fig_dust_bars     free-space 먼지 개수 before/after (305, 12F 두 패널, log scale)
@@ -22,6 +23,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 from matplotlib import font_manager as _fm
 from PIL import Image
 
@@ -55,6 +57,40 @@ def save(fig, name):
     fig.savefig(IMG / f"{name}.png")
     plt.close(fig)
     print(f"  saved {name}.png")
+
+
+def _flow(ax, boxes, arrows, xlim, ylim):
+    ax.set_xlim(*xlim); ax.set_ylim(*ylim); ax.axis("off"); ax.grid(False)
+    for (x, y, w, h, txt, color) in boxes:
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02",
+                                    fc=color, ec=ACCENT, lw=1.3))
+        ax.text(x + w / 2, y + h / 2, txt, ha="center", va="center", fontsize=9.5)
+    for a in arrows:
+        x1, y1, x2, y2 = a[:4]
+        col = a[4] if len(a) > 4 else "#555"
+        ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
+                    arrowprops=dict(arrowstyle="->", lw=1.6, color=col))
+
+
+# ── 0. init 파이프라인 — 실제 anchor 상세 (scripts/anchors/build_hybrid_init_scene.py 그대로) ──
+def fig_init_recipe():
+    fig, ax = plt.subplots(figsize=(11.5, 5.4))
+    boxes = [
+        (0.2, 3.6, 2.4, 1.3, "RoMA 삼각측량\n인접 keyframe쌍 dense\ncorrespondence\n→ reproj<2px만 채택\n(기하 검증)", "#dbe7f3"),
+        (0.2, 1.9, 2.4, 1.3, "Sobel-PPM depth-lift\n텍스처 가중 샘플 4k/frame\n+ SLAM-Huber 보정 depth\n(콘텐츠-적응)", "#dbe7f3"),
+        (0.2, 0.2, 2.4, 1.3, "원본 SLAM 점\n(희소, 항상 신뢰)", "#dbe7f3"),
+        (3.1, 2.1, 2.0, 1.6, "병합\n4cm voxel dedupe\nRoMA 우선권", "#f6e2c0"),
+        (5.6, 2.1, 2.6, 1.6, "재필터 (핵심 anchor)\ndepth-anchor field\n(exp43, depth-pro 보정\n조밀 표면 anchor)\nw = ρ·d5 > 0.5 제거", "#f9d0d0"),
+        (8.7, 2.1, 2.2, 1.6, "최종 hybrid init\nSLAM + RoMA + PPM\n(305: 89.4만 / 12F: 59.7만)", "#cfe3cf"),
+    ]
+    arrows = [
+        (2.6, 4.25, 3.1, 3.1), (2.6, 2.55, 3.1, 2.95), (2.6, 0.85, 3.1, 2.6),
+        (5.1, 2.9, 5.6, 2.9), (8.2, 2.9, 8.7, 2.9),
+    ]
+    _flow(ax, boxes, arrows, (0, 11.2), (0, 5.4))
+    ax.set_title("Init(hybrid) 생성 파이프라인 — 재필터 단계의 anchor가 핵심", fontsize=13, fontweight="bold")
+    fig.tight_layout()
+    save(fig, "fig_init_recipe")
 
 
 # ── 1. 305 렌더 비교 ────────────────────────────────────────
@@ -168,6 +204,7 @@ def fig_12F_lossless():
 
 
 def main():
+    fig_init_recipe()
     fig_305_compare()
     fig_12F_compare()
     fig_dust_bars()
