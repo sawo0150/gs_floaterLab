@@ -96,6 +96,23 @@ sub-frame이 자기 뷰 기준 causal PPM(depth-pro+calib_depth)+depth 타깃을
 (a) 예산을 밀도에 비례해 늘려(iters_per_kf 고정, 총 iteration↑) 순수 밀도 효과 재검증,
 (b) 축C는 여기서 접고 축D(dense supervision-only, gaussian 생성 없이 view만 추가)나 축E(floater)로
 전환, (c) 축A+B 조합(25.29dB)을 현재 최선으로 확정하고 다른 병목(윈도우 방식·아키텍처) 재검토.
+→ **사용자 결정: (a)+(c) 동시 진행.**
+
+## 사용자 결정 후속 (2026-07-17): (a) 예산비례 밀도 재검증 + (c) per-view 진단
+
+**(c) per-view 진단 (축A+B 25.29dB 모델, held-out 163뷰 per_view.json 분석)**: 최악 15개 뷰가 뚜렷한
+클러스터 2곳에 집중 — ① **frame_00449~473, frame_00665~697 (PSNR 16~20dB)**: exp48이 이미 진단한
+"저텍스처 화이트보드 근접면" 구간과 **정확히 일치**(STATUS 2026-07-16 "chunk 14-20, 프레임 ~430-700
+최악" 기록). 축A(depth supervision)로도 이 구간은 못 고쳤음 — depth-pro 자체가 저텍스처 근접면에서
+약하기 때문(anchor 원인이 depth-pro 실패라 depth loss가 잘못된 타깃으로 supervise). ② **신규 발견:
+frame_00313~329, frame_01057~1073 (PSNR 11.6~19dB, 최저 00134=11.64dB)** — 육안 확인(00039.png GT/render
+비교) 결과 화이트보드와는 다른 유형: **광택 바닥 반사 + 밝은 천장 형광등 글레어 + 밀집 잡동사니(서버랙,
+모니터, 케이블, 큐브)**가 겹친 장면. 렌더에 뚜렷한 바늘형 floater 스펙클과 흐릿한 지오메트리 확인 —
+specular/thin-structure 케이스로 SLAM 특징점 매칭과 3DGS 표현 둘 다에게 어려운 콘텐츠. **결론: 남은
+갭(25.29→30.2)은 아키텍처(windowed/times-of-use) 문제가 아니라 장면 콘텐츠 난이도(저텍스처면 +
+specular/clutter)가 지배적** — Photo-SLAM의 times-of-use 슬라이딩 윈도우(hard evict 없음)가 exp48의
+"윈도우 이탈 후 영구 방치" 문제를 이미 해결했다는 기존 결론과 일치. 이 두 클러스터는 축E(floater 억제,
+바늘 스펙클 타깃)의 명확한 타깃이 될 수 있음.
 
 **구현 메모**: Photo-SLAM CUDA 래스터라이저(forward.cu/backward.cu/rasterizer_impl.cu/rasterize_points.cu)에
 3dgs-custom의 `out_invdepth`/`dL_dout_invdepth` 패턴을 이식(alpha-weighted expected inverse depth,
