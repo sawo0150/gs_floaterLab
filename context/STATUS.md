@@ -29,6 +29,19 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 (exp51 축C 첫 시도 — keyframe 밀도 2배 고정예산으로는 무효과, 다음 방향 결정 필요)**:
+  `build_photoslam_replay_dense.py`(신규): 원본 57 keyframe 각각의 dense 구간에서 D개 균등 프레임을
+  승격시켜 각각을 독립 gaussian-생성 청크(`chunk_NNN_Y`)로 만듦 — sub-frame 0(원 keyframe)만 SLAM
+  extra point 받고 전 sub-frame이 자기 뷰 기준 causal PPM+depth 타깃(축A 재사용)을 받음. D=2로 113개
+  서브청크 생성(57→113, 원본 chunk_000은 dense 프레임 부족으로 승격 없음). **총 iteration 예산을 D1-b와
+  동일하게 고정**(iters_per_kf 150→75)해 축A(λ=0.5)+축B(dedup) 위에 학습 → **25.11dB — 축A+B(25.27~25.29)
+  대비 개선 없음(오차범위 내).** N은 927k로 비슷한 규모(dedup이 정상 작동해 중복 급증은 안 일어남).
+  **해석: "뷰 다양성 부족"이 병목이 아니라, 예산을 뷰 수에 비례해 나눈 것(150→75 iter/뷰)이 상쇄 효과를
+  만들었을 가능성** — 순수 밀도 효과와 예산 희석 효과가 이 실험 설계로는 분리 안 됨. D=3/4을 같은
+  방식(고정예산)으로 반복해도 같은 결론이 나올 공산이 커 **일단 보류**(정지규칙: 2연속 동일원인 실패
+  방지). 다음 결정 필요: ① 예산을 밀도에 비례해 늘려 순수 밀도 효과 재검증 ② 축C 접고 축D(dense
+  supervision-only)나 축E(floater)로 전환 ③ 축A+B(25.29dB)를 현재 최선으로 확정, 다른 병목(윈도우
+  아키텍처) 재검토. → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-17 (exp51 축B 완료 — init 렌더-alpha 중복방지, PSNR 무변화·N -16%, 축C 인에이블러 확정)**:
   래스터라이저에 `out_alpha`(=1-T, 픽셀별 누적 opacity) 출력 추가(backward 불필요 — init 시점
   `NoGradGuard` 안에서만 사용). `trainReplay`에서 새 keyframe 추가 직전, 그 keyframe의 pose로 **현재
