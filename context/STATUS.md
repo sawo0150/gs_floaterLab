@@ -11,7 +11,7 @@
 | ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
 | **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
 | Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
-| **Incremental 3DGS** | **exp51 축A (Photo-SLAM Replay, SLAM+PPM init + depth loss λ=0.5)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB, 26dB 미만이라 축B(중복방지)+C(밀도) 계속** |
+| **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 축C(밀도)는 무효과로 종결 확정 — 잔여 갭은 저텍스처/specular 콘텐츠, 다음 축E(floater)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
 
@@ -29,6 +29,19 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 (exp51 축C 종결 — 밀도는 고정·비례 예산 둘 다 무효과 확정, 현재 최선 25.29dB 축A+B)**:
+  사용자 결정(옵션 a+c 동시 진행)에 따라 ① 예산비례 밀도 재검증: D=2 replay(113 서브청크)를 예산
+  안 나누고 그대로 150 iter/청크(총 16,950 iter, D1-b의 2배)로 재학습 → **25.30dB** — 앞서의 고정예산
+  결과(25.11)와도, 밀도 안 늘린 축A+B(25.27~25.29)와도 전부 오차범위 내 동일. **"예산 희석" 가설도
+  기각 — 밀도 자체가 이 지점에서 추가 레버가 아님을 확정.** ② per-view 진단(축A+B 25.29dB 모델의
+  held-out per_view.json): 최악 뷰가 두 클러스터에 집중 — 기존 진단된 저텍스처 화이트보드 근접면
+  (frame 430-700대, exp48 기록과 일치)과 신규 발견된 specular 바닥+글레어+잡동사니 구간(frame
+  313-329/1057-1073, 렌더에 바늘형 floater 스펙클 육안 확인). **결론: 남은 갭(25.29→30.2)은
+  windowed/times-of-use 아키텍처 문제가 아니라 장면 콘텐츠 난이도(저텍스처+specular/clutter)가
+  지배적** — 밀도·예산을 아무리 늘려도 이 어려운 뷰들의 depth-pro/SLAM 신호 자체가 나빠 개선이 안 됨.
+  **exp51 축C(keyframe 밀도) 여기서 종료**(D=3/4 미실행, 정지 규칙 충족), **현재 확정 최선 = 축A+B
+  25.29dB.** 다음 후보: 축E(floater 억제, 진단된 두 클러스터 타깃) 또는 이 장면에서 배치 상한
+  30.2dB 자체의 재현 가능성 재검토. → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-17 (exp51 축C 첫 시도 — keyframe 밀도 2배 고정예산으로는 무효과, 다음 방향 결정 필요)**:
   `build_photoslam_replay_dense.py`(신규): 원본 57 keyframe 각각의 dense 구간에서 D개 균등 프레임을
   승격시켜 각각을 독립 gaussian-생성 청크(`chunk_NNN_Y`)로 만듦 — sub-frame 0(원 keyframe)만 SLAM
