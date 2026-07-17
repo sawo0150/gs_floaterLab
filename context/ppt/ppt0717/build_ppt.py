@@ -44,8 +44,10 @@ C_ROW1 = RGBColor(0xEE, 0xF2, 0xF7)
 C_SECTIONBG = RGBColor(0x0F, 0x4C, 0x81)
 
 # 슬라이드 제목 앞부분(정규화) → 이미지 파일명(들). img/<name>.png 존재 시 우측에 삽입.
-# 신규 발표라 아직 그림 없음 — [시각자료] 텍스트는 outline md 안에 있으므로 본문 노란 박스로 표시됨.
-IMG_MAP = {}
+IMG_MAP = {
+    "슬라이드 4": ["fig_305_compare", "fig_12F_compare"],
+    "슬라이드 5": ["fig_speed_pareto", "fig_12F_lossless"],
+}
 
 SW, SH = Inches(13.333), Inches(7.5)
 MARGIN = Inches(0.55)
