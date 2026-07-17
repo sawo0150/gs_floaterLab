@@ -1,11 +1,17 @@
 # exp51 — Incremental mapping을 배치급 품질(30dB+)로: depth supervision + keyframe 밀도/중복방지
 
-- 상태: **축 A+B+C 종결 (2026-07-17) — 현재 최선 25.29dB(A+B). C(밀도, 고정·비례 예산 둘 다) 무효과로 확정 종료. 다음: 축E(floater) 또는 목표 재검토.**
+- 상태: **⚠ 2026-07-17 정정 — "축C 콘텐츠 난이도" 결론 철회, 예산(iteration 수) 재검증 진행 중.**
 - 배경: [exp49](exp49_photoslam_plan.md) Phase C~D에서 Photo-SLAM replay가 held-out 22~23dB 정체.
   init 튜닝(D1: PPM +0.97dB, RoMA·하이퍼 무효)으로는 못 넘음. CLAUDE.md North Star의 현재 단계
   ("incremental mapping 30dB+ 먼저, floater는 그다음")를 직접 겨냥.
-- baseline: exp49 **D1-b = 23.11dB** (SLAM+PPM init, RGB photometric only, keyframe 57장). 상한: 배치 30.2dB.
-- **축 A 결과: 25.29dB (λ=0.5, +2.42dB)** — depth supervision 확정 유효, 그러나 목표엔 부족. 상세는 아래 런 계획 표.
+- baseline: exp49 **D1-b = 23.11dB** (SLAM+PPM init, RGB photometric only, keyframe 57장).
+- **⚠ 상한 정정**: "배치 30.2dB"는 **exp48 시절 8,550-iteration 예산 캡을 씌운 통제실험** 수치였지
+  진짜 배치 상한이 아니었음. **동일 장면(301_1253=`data/03_rgb_3dgs_full`) 풀 30k-iteration 배치는
+  훨씬 높음** — exp30 baseline(ORB init, hybrid 트릭 없음) **test 31.5dB**, exp44d2 챔피언(RoMA+PPM
+  hybrid) **test 32.5dB**(exp44_fast_geometry_plan.md 확정표). 즉 축A~C 전부 8,550~16,950 iteration
+  캡 안에서만 실험했던 것 — **"콘텐츠가 근본적으로 어렵다"는 축C 결론은 진짜 배치 상한과 비교 안 하고
+  내린 성급한 판단이었음(사용자 지적으로 발견, 아래 정정 섹션 참조).**
+- **축 A 결과: 25.29dB (λ=0.5, +2.42dB)** — depth supervision 확정 유효. 상세는 아래 런 계획 표.
 
 ## VIGS-SLAM 조사 결과 (핵심 정정)
 
@@ -125,6 +131,19 @@ density2 replay(113 서브청크)를 예산 안 나누고 그대로 150 iter/청
 않음(같은 패턴 반복이 거의 확실, 정지 규칙 충족). **exp51 현재 최선 = 축A+B, 25.29dB.** 다음은
 축E(floater 억제, 진단된 두 클러스터 타깃)로 진행하거나, 여기서 30dB 목표 재검토(콘텐츠 난이도가
 지배적이라면 배치 상한 30.2dB 자체도 이 장면에서 재현 가능한지 확인 필요).
+
+## ⚠ 정정 (2026-07-17, 사용자 지적): "콘텐츠 난이도" 결론 철회 — 진짜 원인은 예산 부족일 가능성
+
+위 "축C 최종 결론"의 "콘텐츠가 근본적으로 어렵다"는 해석은 **"배치 30.2dB"를 배치 상한으로 오인한
+채 내린 판단이었다.** 실제로 30.2dB는 exp48이 자체구현 incremental(8,550 iter)과 공정 비교하려고
+**배치를 8,550 iteration으로 예산 캡을 씌운 통제실험** 수치일 뿐, 진짜 배치 상한이 아니다. 같은 장면
+(301_1253=`data/03_rgb_3dgs_full`)의 풀 30k-iteration 배치 결과는 exp44_fast_geometry_plan.md에
+이미 있었다: **baseline(exp30, ORB init only) test 31.549dB, 챔피언(exp44d2, hybrid init) test
+32.479dB.** 축A~C는 전부 8,550~16,950 iteration(iters_per_kf 150, D=1~2)으로 캡 걸려 있었다 —
+배치의 30k에 크게 못 미친다. 즉 "더 촘촘한 뷰/더 많은 총 iteration을 넣어도 안 움직였다"는
+근거였던 축C(a) 실험조차 16,950 iter로, 배치 30k의 절반 수준이었다. **재검증 필요**: 축A+B
+레시피를 훨씬 큰 예산(iters_per_kf=500, 총 ~28,500 iter, 배치 30k에 근접)으로 재학습해, 순수
+"학습량 부족"이 남은 갭의 진짜 원인인지 확인 중 (51-F, 아래).
 
 **구현 메모**: Photo-SLAM CUDA 래스터라이저(forward.cu/backward.cu/rasterizer_impl.cu/rasterize_points.cu)에
 3dgs-custom의 `out_invdepth`/`dL_dout_invdepth` 패턴을 이식(alpha-weighted expected inverse depth,
