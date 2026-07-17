@@ -11,7 +11,7 @@
 | ORB baseline | exp30 / exp30r | 32.906 / 32.579 | run-to-run 노이즈 ±0.33dB 실측 |
 | **MPS 트랙 채택** | exp08 (baseline) / **exp39b (carve softlite+force)** | 33.012 / **32.913** | **가시 먼지 96→0, 기여 6.42→0.21%** |
 | Pop1 해결 | exp13 (camera-bound filter) | 32.855 | 확정 유지 |
-| **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 축C(밀도)는 무효과로 종결 확정 — 잔여 갭은 저텍스처/specular 콘텐츠, 다음 축E(floater)** |
+| **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
 
@@ -29,6 +29,21 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 (exp51 진단 확정 — 잔여 갭은 depth-init 바늘형 floater, 배치 30.2dB가 진짜 상한 아니었음)**:
+  사용자 지적("일반 3dgs로 33 나왔었는데")으로 발견: "배치 30.2dB"는 exp48 시절 8,550-iteration
+  예산 캡을 씌운 통제실험 수치였을 뿐 진짜 배치 상한이 아니었음 — 동일 장면(301_1253) 풀 30k 배치는
+  exp30 baseline(ORB init) test **31.5dB**, exp44d2 챔피언 test **32.5dB**(exp44_fast_geometry_plan.md
+  기존 확정표). 축A~C는 전부 8,550~16,950 iteration 캡 안에서만 실험한 것이었음. **51-F(예산 3.3배,
+  iters_per_kf=500, 28,581 iter) 재검증 → 25.59dB(+0.30만)** — 학습량 부족 가설도 강하게 기각.
+  Photo-SLAM 키프레임 샘플러(`useOneRandomSlidingWindowKeyframe`) 코드 직접 확인 결과 최근 키프레임
+  편향이 아니라 등록된 전원을 균등 순환하는 방식임도 확인 — 재방문 빈도 편향도 아님. **시각 진단으로
+  확정**: 최악 뷰(frame_00449 근방, 화이트보드+문 장면)의 GT/render를 직접 대조 — GT는 평범한데
+  **render는 화면 전체가 바늘형(needle) floater 아티팩트로 뒤덮임**(28,581 iter 학습 후에도).
+  "블러/저화질"이 아니라 명백한 depth-init 실패로 인한 floater — 한번 anchored된 바늘형 가우시안은
+  순수 photometric gradient로는 잘 안 사라짐(축B의 dedup도 "새 점 스킵"이지 "기존 나쁜 점 제거"가
+  아니라 무력). **결론: 밀도·예산·재방문 빈도 전부 아니고 정확히 프로젝트의 기존 carve loss 방법론
+  (exp38~44d2, 배치에서 -83~93% 먼지 검증됨)이 타겟하는 문제.** 다음: 축E — carve loss를 incremental
+  파이프라인(LibTorch C++)에 이식. → [exp51](experiments/exp51_dense_supervision_plan.md)
 - **2026-07-17 (exp51 축C 종결 — 밀도는 고정·비례 예산 둘 다 무효과 확정, 현재 최선 25.29dB 축A+B)**:
   사용자 결정(옵션 a+c 동시 진행)에 따라 ① 예산비례 밀도 재검증: D=2 replay(113 서브청크)를 예산
   안 나누고 그대로 150 iter/청크(총 16,950 iter, D1-b의 2배)로 재학습 → **25.30dB** — 앞서의 고정예산

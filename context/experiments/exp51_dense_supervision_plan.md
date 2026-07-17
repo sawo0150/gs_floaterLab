@@ -1,6 +1,6 @@
 # exp51 — Incremental mapping을 배치급 품질(30dB+)로: depth supervision + keyframe 밀도/중복방지
 
-- 상태: **⚠ 2026-07-17 정정 — "축C 콘텐츠 난이도" 결론 철회, 예산(iteration 수) 재검증 진행 중.**
+- 상태: **2026-07-17 진단 확정 — 남은 갭의 정체는 depth-init floater(바늘형 아티팩트), 시각 확인 완료. 다음: 축E(carve loss 이식).**
 - 배경: [exp49](exp49_photoslam_plan.md) Phase C~D에서 Photo-SLAM replay가 held-out 22~23dB 정체.
   init 튜닝(D1: PPM +0.97dB, RoMA·하이퍼 무효)으로는 못 넘음. CLAUDE.md North Star의 현재 단계
   ("incremental mapping 30dB+ 먼저, floater는 그다음")를 직접 겨냥.
@@ -141,9 +141,29 @@ density2 replay(113 서브청크)를 예산 안 나누고 그대로 150 iter/청
 이미 있었다: **baseline(exp30, ORB init only) test 31.549dB, 챔피언(exp44d2, hybrid init) test
 32.479dB.** 축A~C는 전부 8,550~16,950 iteration(iters_per_kf 150, D=1~2)으로 캡 걸려 있었다 —
 배치의 30k에 크게 못 미친다. 즉 "더 촘촘한 뷰/더 많은 총 iteration을 넣어도 안 움직였다"는
-근거였던 축C(a) 실험조차 16,950 iter로, 배치 30k의 절반 수준이었다. **재검증 필요**: 축A+B
-레시피를 훨씬 큰 예산(iters_per_kf=500, 총 ~28,500 iter, 배치 30k에 근접)으로 재학습해, 순수
-"학습량 부족"이 남은 갭의 진짜 원인인지 확인 중 (51-F, 아래).
+근거였던 축C(a) 실험조차 16,950 iter로, 배치 30k의 절반 수준이었다.
+
+**51-F (큰 예산 재검증, iters_per_kf=500, 총 28,581 iter, 배치 30k에 근접)**: 축A+B 레시피를 3.3배
+예산으로 재학습 → **25.59dB (+0.30 vs 8,550-iter 25.29)**. 예산을 대폭 늘려도 소폭 개선에 그침 —
+**"학습량 부족" 가설도 강하게 기각.** Photo-SLAM 키프레임 샘플러(`useOneRandomSlidingWindowKeyframe`,
+src/gaussian_mapper.cpp:1417) 코드를 직접 확인: 셔플 순서로 등록된 모든 키프레임을 순환하며, 한 바퀴
+다 돌면 전원에게 +1 사용권을 동시에 재충전하는 방식 — **최근 키프레임 편향이 아니라 균등 순환.**
+즉 밀도도, 예산도, 재방문 편향도 전부 아니다. 남은 유력 가설: **각 keyframe이 자기 자신의 단일
+시점 depth-pro 추정치 하나로만 init되어 specular/저텍스처 구간에서 처음부터 잘못 앵커링되고,
+배치처럼 겹치는 여러 시점이 동시에 존재해 서로 지오메트리를 교차검증·수렴시킬 기회가 없어 그
+오류가 이후에도 안 고쳐지는 구조적 문제.** → 시각 진단으로 확인(아래).
+
+**시각 진단 결과 (확정)**: 51-F(28,581 iter)의 최악 뷰(00058.png, frame_00449 근방 — 화이트보드
+근접+문/키패드 장면) GT/render 육안 대조. GT는 평범한 실내 장면인데 **render는 화면 전체를 뒤덮는
+바늘형(needle) floater 아티팩트**로 도배됨 — 방 구조(문·창문)는 흐릿하게 알아볼 수 있으나 그 위에
+길게 뻗은 고불투명도 가우시안 스트릭이 전면을 가림. **이건 "블러/저화질"이 아니라 명백한 floater
+문제** — 28,581 iteration을 줘도 안 없어진 이유도 설명됨(한번 anchored된 바늘형 가우시안은 순수
+photometric gradient만으로는 잘 안 없어짐, 축B의 dedup도 "새 점 추가 스킵"이지 "이미 있는 나쁜 점
+제거"는 아니라 이 문제엔 무력). **결론 확정: 밀도·예산·재방문 빈도 전부 아니고, 이건 정확히
+프로젝트의 기존 carve loss 방법론(exp38~44d2, 배치 트랙에서 이미 검증: -83~93% 먼지)이 타겟하는
+문제 그 자체.** exp51 축E(floater 억제)가 다음 순서로 확정 — VIGS 스타일 간이 버전(isotropic
+loss+scale clamp)보다 **우리가 이미 검증한 carve loss(free-space evidence 기반)를 incremental에
+이식하는 쪽이 훨씬 근거 있는 선택.**
 
 **구현 메모**: Photo-SLAM CUDA 래스터라이저(forward.cu/backward.cu/rasterizer_impl.cu/rasterize_points.cu)에
 3dgs-custom의 `out_invdepth`/`dL_dout_invdepth` 패턴을 이식(alpha-weighted expected inverse depth,
