@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-16 밤. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-17 밤. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -14,6 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음** |
 
 ## 지금 열려 있는 질문
 
@@ -29,6 +30,91 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-17 밤 (exp52 VIGS-SLAM 클론·빌드·평가 — 소스검증 4건 + 1253 베이스라인 keyframe 30.90dB)**:
+  `github.com/cvg/VIGS-SLAM` 클론(`repos/main/VIGS-SLAM` 심링크) 후 `vigs-slam-5090` conda env를
+  실제로 빌드(공식 `environment_5090.yaml` 그대로는 6가지 이슈로 전부 실패 — lietorch==0.2
+  PyPI 부재/torch-scatter 빌드순서/nvidia-cuda-runtime 버전충돌/pycuda TensorRT전용 제외/
+  diff-gaussian-rasterization의 `<cstdint>` 누락/conda-forge CUDA 헤더 경로 — 전부 해결).
+  데모 실행이 keyframe 1에서 재현성 있게 SIGSEGV → `PYTHONFAULTHANDLER=1`로 근본원인 특정
+  (`vigs/imu.py:170` sophuspy `SO3.exp` — PyPI 프리빌트 wheel이 numpy 2.x와 ABI 불일치,
+  `--force-reinstall --no-binary=:all:` 소스 재빌드로 해결). **소스 직접 분석으로 exp51 시절
+  가정 4건 검증/정정**: ① isotropic scale loss+scale clamp(우리 exp51엔 없음, 신규 이식 후보)
+  ② "비가시만 선별 opacity reset"은 코드는 있으나 **공개 config 5개 전부에서 비활성** — 실제
+  교훈은 "선택 리셋"이 아니라 "그냥 주기적 전체 리셋을 안 한다" ③ init 렌더-alpha 중복방지용
+  `transmittance` 계산은 **100% dead code** 확인 — 우리 exp51 축B가 진짜 기여였음을 재확증
+  ④ **normal supervision(Omnidata) 신규 발견** — depth 외 축, 바늘형 floater에 유효할 후보.
+  **베이스라인(알고리즘 무수정) 실행**: RPNG 데모 held-out 25.75dB. **1253 데이터**(projectaria_tools로
+  VRS에서 RGB-IMU 외부파라미터 직접 추출, 기존 Aria.yaml IMU-cam1 값과 소수점 6자리까지
+  일치해 교차검증) held-out **26.85dB**, **keyframe 30.90dB**, 6~8분/129kf/201k가우시안.
+  ⚠ 단 이 수치는 트래킹 후 붙는 26,000-iteration 오프라인 폴리싱을 포함 — **실시간 수치
+  아님**, `--pure_online` 재검증 필요(다음 스텝). 1253_rot도 같은 절차로 실행 중.
+  → [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-18 밤 (exp52 TensorRT 가속 실측 — Omnidata 78%↓이나 온라인 루프는 5.1%↓에 그침, 매핑이 여전히 승부처)**:
+  병목 분석에서 지목된 "TensorRT 미사용"을 실제로 해결 — `tensorrt-cu12`/`pycuda`/`onnx`
+  계열 재설치(`trtexec` CLI가 pip wheel엔 없어 **Python TensorRT API로 직접 엔진
+  빌드**, `Builder`+`OnnxParser`+FP16 config), Omnidata depth/normal만 ONNX 익스포트→
+  `onnxsim`→FP16 엔진(85초×2, 1회성). **결과: prior_extractor(Omnidata) 46.45ms→10.15ms
+  (−78%), motion_filter 총합 27.0→15.8초(−41.5%), 그러나 온라인 루프 전체는
+  209.4→198.7초(−5.1%)에 그침** — Omnidata 비중이 애초 7%뿐이라 이론대로 작은 순
+  이득(motion_filter 감소 −11.2초가 거의 그대로 반영, model_loading +0.6초가 유일한
+  상쇄). PSNR 완전 동일(22.73→22.54dB, 오차범위). DroidNet update_module(12.5초,
+  6.0%)의 TensorRT화가 다음 후보지만 동적 shape라 훨씬 복잡 — 스코프 밖으로 보류.
+  **결론 불변: 매핑(rasterize+backward, 30%)이 여전히 최대 병목, TensorRT는 보조
+  수단일 뿐 승부수가 아님.** → [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-18 밤 (exp52 온라인 루프 함수 단위 병목 분해 — gs_mapping rasterize+backward가 30%로 최대, 미계측 오버헤드도 30%)**:
+  이전 병목 분석("트래킹 vs 매핑" 거친 단위)을 커널/함수 단위로 더 쪼갬 —
+  `factor_graph.py::update()`(correlation lookup/update-op 신경망/CUDA BA solve/upsample)와
+  `motion_filter.py::track()`(feature_encoder/Omnidata prior_extractor/context_encoder/
+  flow_check)에 동일한 opt-in 타이머 추가. 1253 전체(1303프레임) 온라인 루프 208.2초 완전
+  분해 결과: **gs_mapping의 rasterize+backward 62.8초(30.2%, 단일 최대 원인)** > frontend의
+  **bundle_adjust(CUDA BA solve) 28.6초(13.7%)** > gs_mapping의 loss_compute 15.8초(7.6%)
+  ≈ motion_filter의 **prior_extractor(Omnidata depth+normal) 14.5초(7.0%, TensorRT 미사용이
+  직접 원인 — 우리 빌드는 pycuda/TensorRT를 제외했음)** > frontend의 update_op_forward(DROID
+  GRU) 12.5초(6.0%). **미계측 오버헤드가 ~62초(30%)** 로 그 자체로 큰 비중(모델 로딩·IPC·
+  Python 제어흐름·GPU 동기화 대기로 추정, 더 파려면 torch.profiler/py-spy 필요). **결론:
+  매핑(rasterize+backward)이 트래킹 핵심연산(BA solve)보다 확실히 무겁다는 기존 결론이
+  함수 단위로도 재확인됨.** → [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-18 (exp52 ⚠ 정정 — `--pure_online` 실측: "keyframe 30dB"는 6~8dB가 오프라인 폴리싱 몫, 순수 온라인은 우리보다 낮음)**:
+  병목 분석에서 나온 가설("오프라인 폴리싱이 PSNR을 몇 dB나 사주는가")을 실제로
+  `--pure_online` 플래그로 전체 데이터셋 재실행해 검증(`demo.py`에 평가 전용 opt-in 훅
+  추가 — `--pure_online`이 원래 스킵하는 `traj_filler`+`eval_rendering`을 온라인 루프
+  종료 **직후**, 최종 BA·색정제 없이 호출해 순수 온라인 PSNR만 측정, 온라인 시간 측정에는
+  영향 없음). **결과: 1253 순수 온라인 held-out 22.73dB/keyframe 22.95dB(온라인 루프
+  207.6초), 1253_rot held-out 23.53dB/keyframe 23.61dB(344.7초)** — 앞서 보고한 폴리싱
+  포함 수치(26.85/30.90, 25.08/30.31) 대비 **폴리싱이 held-out +1.55~4.12dB, keyframe
+  +6.70~7.95dB를 만들어낸 것**이었음이 실측 확정. **핵심 정정: 순수 온라인 품질(22.7~23.5dB)은
+  우리 exp51 축A+B(held-out 25.29dB)보다 오히려 낮다** — "VIGS가 우리보다 우월하다"는
+  이전 인상은 폴리싱 포함 수치와 우리 무폴리싱 수치를 비교한 불공정 비교였음. 온라인
+  루프 시간도 재확인(1253 실시간의 1.6배, rot 2.3배 — rot가 온라인 단계에서도 더 느림).
+  **다음 방향 수정: VIGS 아키텍처를 그대로 가져오기보다, normal supervision(exp51에 없는
+  축)처럼 폴리싱 없이도 우리 축A+B를 능가할 구체적 레버를 찾는 쪽이 더 정확한 질문.** →
+  [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-18 (exp52 병목 분석 확정 — 오프라인 색정제가 전체시간의 80%, 온라인 루프는 실시간에 근접)**:
+  `vigs.py`/`gs_backend.py`에 opt-in 타이밍 계측(`VIGS_TIMING_LOG`, 미설정 시 no-op) 삽입 후
+  1253 250프레임 서브셋으로 트래킹만(A, 57.3초) vs 트래킹+매핑(B, 280.8초) 절제 실험 +
+  phase별 실측. **B의 79.7%(195.9초)가 `offline_color_refinement`(26,000 iteration, config에
+  고정돼 데이터 크기와 무관) 하나** — 앞서 본 keyframe 30dB의 상당 부분이 이 고정비용
+  폴리싱에서 나옴을 시사. **온라인 구간(motion_filter+frontend+gs_mapping)만 떼면 41.9초/
+  250프레임 = Aria 캡처 속도(25초분) 대비 약 1.7배** — 온라인 루프 자체는 생각보다 실시간에
+  가까움. 온라인 구간 안에서는 gs_mapping(23.3초, render+backward가 97.9%)이 트래킹
+  (18.7초)보다 비쌈. **결론: 실시간화 최우선 과제는 온라인 최적화가 아니라 오프라인
+  폴리싱 압축/스킵** — `3dgs_before_final.ply`(폴리싱 전) 자체를 평가해 PSNR 기여분을
+  정량화하는 게 다음 스텝. → [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-17 밤 (exp52 후속 — 1253_rot도 keyframe 30dB 유지)**: 같은 절차(Tcb 재추출,
+  소수점까지 1253과 일치)로 회전 궤적 데이터(1498프레임) 실행 → held-out 25.08dB / **keyframe
+  30.31dB**, 266,423가우시안, **총 소요 12.5분**(파일 타임스탬프로 정확히 측정 — 처음에
+  `ps aux` 누적 CPU 시간을 경과 시간으로 잘못 읽어 "24분"이라 썼던 것을 사용자 지적으로
+  정정). 1253 대비 소폭 하락(-1.77dB/-0.59dB)하지만 회전 궤적에서도 크게 안 무너짐 —
+  우리 carve loss가 rot에서 겪은 run-to-run 분산 이슈와는 다른 종류의 견고성. →
+  [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-17 밤 (results/experiments/ 정리 — Plateau 시대 36개 run archive)**: 317개로
+  비대해진 `results/experiments/`에서 **완전히 닫힌 축(exp01-37, Plateau loss 시대 — carve
+  loss(exp38+)가 전면 대체)** 을 `results/archive/mps_plateau_era/`·`archive/orb_plateau_era/`로
+  이동(36개 run). STATUS.md·PPT 스크립트가 지금도 경로로 직접 참조하는 챔피언/기준선만
+  남김(exp08, exp13, exp30/exp30r, exp32_lineage_diag, exp37) — 이동 후 전부 경로 존재
+  확인·`index_runs_by_exp.py` 재생성 완료. exp38 이후(현재 방법론의 근거)는 미손대짐;
+  exp44(72 run, 대부분 중간탐색)는 추가 정리 여지 있으나 보류. 상세:
+  `results/archive/README_plateau_era_archive.md`.
 - **2026-07-17 (exp51 진단 확정 — 잔여 갭은 depth-init 바늘형 floater, 배치 30.2dB가 진짜 상한 아니었음)**:
   사용자 지적("일반 3dgs로 33 나왔었는데")으로 발견: "배치 30.2dB"는 exp48 시절 8,550-iteration
   예산 캡을 씌운 통제실험 수치였을 뿐 진짜 배치 상한이 아니었음 — 동일 장면(301_1253) 풀 30k 배치는
@@ -135,8 +221,11 @@
 
 > **프로젝트 목표 재정의 (07-12)**: Aria glass 실시간 촬영 스트림 → 분 단위 turnaround로 geometry 좋은 3DGS recon. 실시간 경로엔 MPS 사용 불가 → ORB 트랙이 본선.
 > **재우선순위 (07-15 밤)**: exp47 배치 속도 트랙은 종료, **exp48 incremental이 최우선**. 아래 0번이 현재 실질 1순위.
+> **재우선순위 (07-17 밤)**: "실시간"이 최우선 기준으로 재확인됨. exp52 VIGS-SLAM이 1253에서 keyframe 30.90dB를 냈지만 오프라인 폴리싱 포함 수치라 **`--pure_online` 재검증(진짜 온라인 품질 + 프레임당 FPS)이 축E보다 먼저 봐야 할 질문**으로 부상.
+> **재우선순위 (07-18 밤)**: `--pure_online` 실측 완료 — 순수 온라인 VIGS(22.7~23.5dB)가 우리 exp51(25.29dB)보다 낮음이 확정됐으므로 **VIGS 이식보다 exp51 자체 개선(축E carve loss, normal supervision)이 다시 최우선**.
 
-0. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.
+0. **exp51 축E(carve loss 이식) 또는 normal supervision 이식**: VIGS 비교로 "폴리싱 없는 우리 축A+B(25.29dB)가 VIGS의 순수 온라인(22.7~23.5dB)보다 이미 낫다"가 확정됐으니, VIGS 아키텍처 자체를 가져오기보다 그 소스에서 발견한 유효 레버(normal supervision, isotropic loss+scale clamp)를 우리 파이프라인에 이식하는 쪽으로 복귀.
+0''. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.
 0'. exp47 잔여 축(S2 cheapcarve + S4 keyframe subset 조합 등)은 **exp48 Phase 1+에서 청크당 학습 예산 튜닝에 재사용** — 배치 트랙 자체로는 더 이상 추가 실행 안 함.
 1. ~~exp44 (고속 geometry 트랙)~~ → **완료**. ~~exp43 (교차 장면)~~ → **완료**. ~~held-out 뷰 평가 도입~~ → **완료**.
 2. exp40b 잔여 가시 floater ~25개의 정체 확인 (패치 투영 or SuperSplat) + 렌더-GT 잔차 기반 신호 탐색. (exp48과 무관, 낮은 우선순위로 대기)
