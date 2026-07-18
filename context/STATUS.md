@@ -30,6 +30,14 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-19 (exp52 ⚠ 정정 — 1253 실제 녹화시간은 65초·~20fps, "실시간 대비" 배수 전부 재계산)**:
+  사용자 질문("1253 전체 데이터 녹화 시간?")으로 발견 — RGB 프레임 타임스탬프(첫~끝)로
+  직접 계산한 실제 녹화 시간은 **1253 65.1초(1303프레임, ~20fps)**, **1253_rot 74.85초
+  (1498프레임, ~20fps)**. 이전 실시간 배수 계산이 전부 "~10fps" 오가정(2배 오차) 위에서
+  나온 것이었음 — 정정: 가속 전 온라인 루프(1253) 209.36초 → 실시간의 **3.22배**(1.6배
+  아님), 1253_rot 344.7초 → **4.60배**(2.3배 아님), imu_cpp+TensorRT 전부 적용 후(180.10초)
+  → **2.77배**(여전히 3배 가까이 느림, 5.1%/14.0% 등 상대적 개선폭 자체는 정확했으므로
+  변경 없음 — 절대적인 "실시간과의 거리"만 재계산 필요했음). → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-17 밤 (exp52 VIGS-SLAM 클론·빌드·평가 — 소스검증 4건 + 1253 베이스라인 keyframe 30.90dB)**:
   `github.com/cvg/VIGS-SLAM` 클론(`repos/main/VIGS-SLAM` 심링크) 후 `vigs-slam-5090` conda env를
   실제로 빌드(공식 `environment_5090.yaml` 그대로는 6가지 이슈로 전부 실패 — lietorch==0.2
@@ -49,6 +57,20 @@
   ⚠ 단 이 수치는 트래킹 후 붙는 26,000-iteration 오프라인 폴리싱을 포함 — **실시간 수치
   아님**, `--pure_online` 재검증 필요(다음 스텝). 1253_rot도 같은 절차로 실행 중.
   → [exp52](experiments/exp52_vigs_slam_eval.md)
+- **2026-07-18 밤 (exp52 imu_cpp+DroidNet TensorRT 전부 적용 — 온라인 루프 −14.0%, 그래도 매핑 비중은 오히려 50.2%로 증가)**:
+  이전에 스코프 밖으로 미뤘던 항목 마저 처리 — `imu_cpp`(README 선택 C++ IMU
+  프리적분 모듈) 빌드(시스템 패키지 이미 있어 즉시 성공), DroidNet fnet·update_module
+  TensorRT화(README 예시 shape는 우리 데이터와 안 맞아 실측 shape로 재 export —
+  fnet 고정 (1,1,3,464,464), update_module H=W=58 고정+num(edge수) 동적 3~52 —
+  `trtexec` 바이너리 없어 Python TensorRT API로 `IOptimizationProfile` 직접 구성).
+  **결과: imu_integrate 12.42→0.19초(−98.5%, 사실상 공짜), feature_encoder −78%,
+  prior_extractor −77%, 그러나 update_op_forward는 12.54→13.62초(+8.6%, 효과 없음
+  — 네트워크가 이미 가벼움+동적 shape 재바인딩 오버헤드+TRT/PyTorch 경계 동기화
+  비용 추정, "뭐든 TRT면 빨라진다"가 아님을 확인). **온라인 루프 총합 209.4→180.1초
+  (−14.0%), PSNR 완전 무변화(22.73→22.90dB).** 그런데 gs_mapping(rasterize+backward)
+  비중은 **30.2%→50.2%로 오히려 커짐** — 다른 항목들이 줄면서 분모가 작아진 결과.
+  **최종 결론: 매핑을 최적화하지 않는 한 나머지를 아무리 가속해도 온라인 루프의
+  절반은 여전히 매핑.** → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-18 밤 (exp52 TensorRT 가속 실측 — Omnidata 78%↓이나 온라인 루프는 5.1%↓에 그침, 매핑이 여전히 승부처)**:
   병목 분석에서 지목된 "TensorRT 미사용"을 실제로 해결 — `tensorrt-cu12`/`pycuda`/`onnx`
   계열 재설치(`trtexec` CLI가 pip wheel엔 없어 **Python TensorRT API로 직접 엔진
