@@ -30,6 +30,23 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-19 (exp52 구조적 전환 — `_gs_parallel: true`로 온라인 루프 180.1→133.0초(−26.1%), 업스트림 레이스 컨디션 발견·수정)**:
+  "gs_mapping을 0으로 줄여도 실시간 되나?"를 직접 계산(180.10−90.5=89.6초>65.1초 녹화시간)
+  → **순차 구조로는 컴포넌트 최적화만으로 실시간 불가**임을 확정, 구조적 전환으로 방향
+  전환. tracking→CPU 이관안은 기각(TensorRT GPU 전용, GPU 1장뿐). 코드베이스 내장
+  `_gs_parallel: true`(비동기 tracking/mapping 오버랩) 첫 실행에서 `IndexError`
+  크래시 → **업스트림 진짜 버그 발견**: IMU 재초기화 시 메인 스레드의
+  `remove_all_gaussians()`가 락 없이 `self.gaussians`를 교체해 `_gs_worker` 백그라운드
+  스레드의 락 보호 `map()`과 경합(`config/iphone.yaml`도 `parallel: true`라 죽은
+  코드 아님). `with self._gaussian_lock:`로 수정. 수정 후 재실행이 또 다른 문제로
+  막힘: `_gs_worker`가 daemon 스레드라 죽어도 메인 프로세스가 안 죽고 계속 돌아
+  **좀비 프로세스가 GPU 메모리 10.83GiB를 계속 점유** → 재시도가 그 메모리와 다투다
+  OOM, 게다가 CUDA 컨텍스트 손상으로 정상 종료도 못하고 행(hang). 두 정체 프로세스
+  `kill -9`로 정리 후 깨끗한 GPU에서 재실행 → 완주. **결과: 온라인 루프
+  180.10→133.04초(−26.1%), PSNR 22.90/23.09→22.63/22.89dB(오차범위 내 동일),
+  실시간 대비 2.77배→2.04배.** 매핑 실제 연산(86.24초)의 66%(56.92초)가 트래킹과의
+  GPU 유휴시간 오버랩으로 흡수됨, 34%(29.20초)만 GPU 경합으로 critical path에 누출.
+  사용자의 구조적 직관이 실측 확인됨 — 다만 2.04배로 아직 실시간 미달. → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-19 (exp52 ⚠ 정정 — 1253 실제 녹화시간은 65초·~20fps, "실시간 대비" 배수 전부 재계산)**:
   사용자 질문("1253 전체 데이터 녹화 시간?")으로 발견 — RGB 프레임 타임스탬프(첫~끝)로
   직접 계산한 실제 녹화 시간은 **1253 65.1초(1303프레임, ~20fps)**, **1253_rot 74.85초
@@ -245,6 +262,7 @@
 > **재우선순위 (07-15 밤)**: exp47 배치 속도 트랙은 종료, **exp48 incremental이 최우선**. 아래 0번이 현재 실질 1순위.
 > **재우선순위 (07-17 밤)**: "실시간"이 최우선 기준으로 재확인됨. exp52 VIGS-SLAM이 1253에서 keyframe 30.90dB를 냈지만 오프라인 폴리싱 포함 수치라 **`--pure_online` 재검증(진짜 온라인 품질 + 프레임당 FPS)이 축E보다 먼저 봐야 할 질문**으로 부상.
 > **재우선순위 (07-18 밤)**: `--pure_online` 실측 완료 — 순수 온라인 VIGS(22.7~23.5dB)가 우리 exp51(25.29dB)보다 낮음이 확정됐으므로 **VIGS 이식보다 exp51 자체 개선(축E carve loss, normal supervision)이 다시 최우선**.
+> **참고 (07-19)**: exp52에서 "실시간화는 컴포넌트 가속이 아니라 구조(비동기 tracking/mapping 오버랩)로 풀어야 한다"는 일반 교훈을 확보(`_gs_parallel`로 −26.1%). 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — 이 교훈은 CLAUDE.md 3단계("라이브 통합")에서 exp50에 재사용할 자산.
 
 0. **exp51 축E(carve loss 이식) 또는 normal supervision 이식**: VIGS 비교로 "폴리싱 없는 우리 축A+B(25.29dB)가 VIGS의 순수 온라인(22.7~23.5dB)보다 이미 낫다"가 확정됐으니, VIGS 아키텍처 자체를 가져오기보다 그 소스에서 발견한 유효 레버(normal supervision, isotropic loss+scale clamp)를 우리 파이프라인에 이식하는 쪽으로 복귀.
 0''. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.

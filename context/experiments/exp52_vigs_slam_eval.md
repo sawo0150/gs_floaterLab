@@ -425,3 +425,73 @@ update_op_forward는 TensorRT화해도 안 빨라짐(오히려 8.6% 느려짐). 
 (85.3→90.5초, 노이즈 범위로 추정). **"매핑을 최적화하지 않는 한 다른 걸 아무리
 가속해도 절반 이상은 여전히 매핑"** 이라는 게 최종 결론 — 이번 가속 라운드(imu_cpp
 + TensorRT 3종)로 확실히 검증됨.
+
+## 구조적 접근 — `_gs_parallel: true` (async tracking/mapping overlap, 2026-07-19)
+
+**질문의 전환**: 위 결론(gs_mapping이 최대 50.2%)을 본 뒤 "그럼 gs_mapping을 0으로
+수렴시키면 실시간이 되는가?"를 직접 계산해보면 — 180.10초에서 gs_mapping(90.5초)을
+전부 빼도 89.6초가 남는데, 이는 이미 1253의 실제 녹화 시간 65.1초를 넘는다. **즉
+매핑을 공짜로 만들어도 현재 구조(순차 실행: tracking 끝나야 mapping 시작)로는
+원리적으로 실시간이 불가능** — 컴포넌트 최적화가 아니라 **구조(아키텍처) 자체를
+바꿔야 한다**는 결론. "tracking을 CPU로, mapping만 GPU로" 분리안은 기각(TensorRT는
+GPU 전용이고 tracking의 무거운 부분은 dense correlation/GRU/BA — CPU가 GPU보다
+느림; `nvidia-smi`로 GPU 1장뿐임도 확인). 대신 코드베이스에 이미 내장된 대안,
+**`_gs_parallel: true`(비동기 tracking/mapping 오버랩, 같은 GPU 한 장 공유)**를
+검증.
+
+**업스트림 레이스 컨디션 발견·수정**: `_gs_parallel: true`로 처음 돌리자
+`IndexError: Dimension out of range`가 `gs_backend.py`의 `map()`(`scaling.mean(dim=1)`)
+에서 발생. 원인 추적: IMU 재초기화 시점(`track_frontend.py:257`,
+`self.t1 == self.imu_late_init_from`)에 메인(tracking) 스레드가
+`self.video.gs.remove_all_gaussians()`를 **락 없이** 호출해 `self.gaussians`를
+빈 `GaussianModel(0, ...)`로 통째로 교체하는데, 이게 백그라운드 `_gs_worker` 스레드의
+락 보호 `process_track_data()`/`map()`과 경합함(`process_track_data()`는
+`self._gaussian_lock`을 잡지만 `remove_all_gaussians()`는 안 잡음) — 업스트림
+VIGS-SLAM의 진짜 버그(`config/iphone.yaml`도 `parallel: true`라 죽은 코드는 아님,
+경합 창이 좁아서 안 걸렸을 뿐). `gs_backend.py`의 `remove_all_gaussians()` 본문을
+`process_track_data()`/`rescale()`과 동일하게 `with self._gaussian_lock:`로 감싸서
+수정.
+
+**2차 장애 — 좀비 프로세스가 GPU 메모리를 물고 있던 문제**: 레이스 수정 전 크래시된
+런에서, `_gs_worker`는 **daemon 스레드**라 그 스레드가 죽어도(uncaught exception)
+메인 프로세스는 안 죽고 계속 돌아감 — 결과적으로 매핑이 조용히 멈춘 채 트래킹만
+끝까지 진행되는 "좀비" 프로세스가 되어 GPU 메모리 10.83GiB를 프로세스 종료 시점까지
+계속 점유. 레이스 수정 후 재실행한 두 번째 시도가 이 좀비와 GPU 메모리를 다투다
+`torch.OutOfMemoryError`(TensorRT 엔진 할당 실패 826MB/1550MB) 로 크래시했고, 이
+두 번째 프로세스마저 CUDA 컨텍스트 손상으로 인해 **정상 종료하지 못하고 행(hang)**
+되어(`State: S (sleeping)`, GPU 메모리 4.2GiB 계속 점유) 남아있었음. `ps aux`/
+`nvidia-smi --query-compute-apps`로 두 정체 프로세스 모두 확인 후 `kill -9`로 정리,
+GPU 메모리가 실제로 반환됨을 확인한 뒤 동일 커맨드를 깨끗한 GPU 상태에서 재실행 —
+이번엔 에러 없이 완주(`shell_exit: 0`).
+
+**결과 — 온라인 루프 180.10초 → 133.04초 (−26.1%), 품질 무손실**:
+
+| | 순차 실행(imu_cpp+TensorRT, gs_parallel 없음) | `_gs_parallel: true`(레이스 수정 포함) | 변화 |
+|---|---:|---:|---:|
+| 온라인 루프 총합 | 180.10초 | **133.04초** | **−26.1% (−47.06초)** |
+| held-out / keyframe PSNR | 22.90 / 23.09dB | 22.63 / 22.89dB | 오차범위 내 동일 |
+| 실시간 대비(÷65.1초) | 2.77배 | **2.04배** | 여전히 느리지만 유의미하게 개선 |
+| `TRACK_LOOP_DONE`→`ONLINE_LOOP_DONE` 갭 | — | 0.05ms | 종료 시점 매핑 잔여 백로그 없음(끝까지 tracking 속도를 따라잡음) |
+
+**왜 줄었는지 — 실측 오버랩**: 메인(tracking) 스레드에서 측정한 `gs_mapping`
+태그는 이제 0.70초(큐에 작업 넣고 즉시 리턴)뿐이고, 실제 매핑 연산
+(`map()` 내부: rasterize 38.86초+loss_compute 22.74초+backward 22.91초+
+optimizer_step/densify_prune 1.72초 = **86.24초**, 47회 호출)은 `_gs_worker`
+백그라운드 스레드에서 트래킹과 **동시에** 돈다. 트래킹만의 비용(frontend 74.28초+
+motion_filter 15.56초+pgba_run 5.07초+gs_mapping 큐잉 0.70초 ≈ **vigs_track_total
+103.72초**)과 매핑 86.24초를 단순히 더하면 순차 실행 시 189.96초가 되어야 하는데
+실측 총합은 133.04초 — 즉 **매핑 비용의 약 66%(56.92초)가 GPU 유휴 시간에 흡수되어
+공짜에 가까웠고, 나머지 34%(29.20초)만 GPU 경합(같은 GPU 한 장을 두 스레드가 공유)
+으로 critical path에 새어나옴.**
+
+**남은 직렬 비용 — PGBA**: `pgba_call_gs`(루프클로저 반영 재매핑, 4회 호출 합
+6.16초)는 `_gs_parallel` 하에서도 큐를 우회해 **동기적으로** 실행됨(루프클로저는
+포즈가 크게 바뀌므로 매핑을 즉시 갱신해야 함 — 설계상 타당). 다음 최적화 여지가
+있다면 이 부분이지만 절대 비중은 작음(온라인 루프의 4.6%).
+
+**결론**: 사용자의 구조적 직관("gs_mapping을 0으로 줄여도 순차 구조로는 실시간
+불가")이 실측으로 확인됐고, 코드베이스에 이미 있던 `_gs_parallel` 오버랩 아키텍처가
+실제로 유효한 해법 방향임을 검증(−26.1%, 품질 무손실). 다만 133.04초/65.1초=2.04배로
+**아직 실시간에는 못 미침** — 남은 격차(주로 GPU 경합으로 새어나오는 34% 매핑 비용
++ frontend의 bundle_adjust/update_op_forward)를 줄이려면 매핑 자체의 연산량 감소
+(예: iteration 수·해상도·densify 빈도 조정)나 멀티 GPU 분리가 다음 방향.
