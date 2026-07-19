@@ -30,6 +30,23 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-20 (exp52 GS Mapping 루프 최대 세분화 — 12단계, `process_track_data` 전체로 계측 범위 확장 + PPT 정정판 재생성)**:
+  기존 `map()` 내부 5단계(rasterize/loss_compute/backward/optimizer_step/densify_prune)
+  만으론 `_process_track_data_impl()`(pose/scale 업데이트·camera 생성·`add_next_kf` 등
+  map() **바깥** 부가작업)가 완전히 미계측이었음 — `gs_backend.py`에 `_Sect` 6개 추가해
+  전체 계측. 1253 재실행 결과(GS Mapping 스레드 총 93.0초, 12단계): rasterize 36.2%+
+  backward 22.7%+loss_compute 22.5%=81.4%로 여전히 압도적, `process_track_data` 부가작업
+  (camera_init+add_next_kf+render_for_mask+pose_scale_update+w2c_compute)은 4.2%뿐
+  (가설과 달리 무시할 수준). **신규 발견**: `map_dispatch`(89.15초, `self.map()` 호출
+  전체를 감싼 태그) − 기존 5단계 합(77.15초) = **12.0초(12.9%)의 새 미계측 포켓** —
+  `map()` 코드 재검토 결과 매 iteration마다 전체 gaussian에 대해 계산하는
+  `isotropic_loss`(scaling.mean 등, gaussian 개수 늘수록 커짐)와
+  viewpoint 샘플링(`torch.randperm` 기반)이 유력 후보(다음 계측 대상, 아직 개별
+  계측 안 함). 이번 발견으로 GS Mapping 스레드의 실제 총 부하는 기존 "raw 76.22초"
+  (map() 내부 5단계만)보다 **93.0초에 더 가까움**을 확인.
+  **PPT 정정판**(`context/ppt/ppt0720/`) 재생성: 위 timing-bug 정정 수치(150.56s/
+  98.94s/88.3%/1.52배 등) 전부 반영 + 신규 슬라이드 2개(타이밍 버그 정정 요약,
+  GS Mapping 12단계 세분화) 추가, 총 10슬라이드로 재구성. → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-20 (exp52 ⚠ 중대 정정 — "온라인 루프 총합"에 리더 프로세스 인위적 20초 슬립이 섞여있던 버그 발견·수정, 실시간 격차 대폭 축소)**:
   "27.0초 오버헤드 중 미계측 21.1초가 정확히 뭔지" 실험으로 확인하라는 요청에 따라
   `demo.py` 메인루프에 `pbar_update`/`pbar_set_description`/`save_trajectory_periodic`
