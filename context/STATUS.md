@@ -30,6 +30,35 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-20 (exp52 원 논문 검증 + frontend 내부 구조 상세화 + ⚠정정: VIGS fps 스윕 "프레임당 비용 증가" 해석 오류)**:
+  DROID-SLAM(NeurIPS21)·VIGS-SLAM(ECCV26) 원 논문을 `context/reference/papers/`에
+  다운받아 직접 읽고 검증. **DROID-SLAM 원문**: "2대의 3090 GPU로만 실시간"(frontend/
+  backend GPU 분리), EuRoC/TUM은 다운샘플+프레임스킵 조건부, **TartanAir(빠른 모션)
+  에서는 원 저자도 8fps로 실시간 실패** — 우리가 겪은 "DROID 계열은 실시간이 빡빡함"이
+  구현 문제가 아니라 아키텍처 계열의 원래 특성임을 원문으로 확인. **VIGS-SLAM 부록
+  Table 9**(RTX 5090+i7-14700K 공식 벤치마크): tracking만 39.83fps(RPNG 30fps 목표
+  대비 여유) vs tracking+mapping 12.02fps(목표의 40%) — **"매핑이 실시간 최대
+  병목"이라는 우리 결론을 저자 자신의 최상급 GPU 수치가 독립 재확인**. 부록 6절
+  실시간 데모도 iPhone 17 Pro→RTX 5090 조합임을 확인.
+  **Frontend Tracking 내부 구조 상세화**(`factor_graph.py::get_network_update()`
+  코드 대조): ConvGRU는 (hidden state + context feature + correlation feature +
+  motion feature) → (새 hidden state + dense flow revision + confidence + damping
+  + 8×8 업샘플마스크)를 냄 — pose/depth는 GRU가 직접 안 내고 별도 `bundle_adjust`
+  (DBA layer)가 냄. `iters1=4`+`iters2=2`(하드코딩) 반복은 고전 Gauss-Newton의
+  재선형화와 동일 원리(재투영→룩업→GRU→BA→재투영 반복). "윈도우 채우고 다음
+  윈도우로" 아니라 **매 keyframe마다 슬라이딩 윈도우**(`frontend_window=25`,
+  `frontend_radius=2`/`nms=1`)로 오래된 edge는 버려짐. "dense correspondence"는
+  edge 개수(3~52개, 오히려 sparse)가 아니라 **edge 하나 안의 픽셀 밀도**를 뜻함.
+  **⚠정정**: fps 스윕에서 "VIGS는 fps 낮출수록 프레임당 비용이 커진다(73→222ms)"고
+  썼던 서술이 오해 소지 있었음 — timing.csv를 call-count/per-call로 재분해하니
+  **per-call 비용은 거의 안 변함**(bundle_adjust만 12.7→15.1ms 소폭↑, 나머지는 오히려
+  감소)이고 **frontend 총합도 fps 낮출수록 감소**(48.3→32.9초). "프레임당 평균"은
+  분모(입력 프레임 수, 4배 감소)로 나눈 착시였고, 진짜 원인은 **keyframe 개수가
+  입력 fps와 거의 무관**(VIGS −6.6%, ORB −20.8%, 둘 다 optical-flow/모션 임계값
+  기반이라 실제 카메라 이동량으로 결정됨). 결론 방향(VIGS는 fps 낮춰도 실시간
+  안 됨, 5fps도 1.11배)은 안 바뀌지만 **원인이 "계산이 힘들어짐"이 아니라 "keyframe
+  발생량 자체가 안 줄어듦"** — 다음 레버는 `iters1`/`iters2` 축소나
+  `motion_filter.thresh` 상향(keyframe 밀도 억제) 쪽. → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-19 (exp52 궤적 정확도 evo 평가 + dense correspondence 아키텍처 분석 — VIGS depth가 tracking BA와 공동 최적화됨을 소스로 확인)**:
   위 fps 스윕의 6개 궤적을 MPS `closed_loop_trajectory.csv`(GT) 기준 `evo_ape`로
   평가. **SE3(raw) RMSE는 ORB 0.16~0.25m vs VIGS 0.11~0.21m로 비슷하지만, 스케일
