@@ -30,6 +30,18 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-20 (exp53 신설 — Frontend Tracking 실시간화 트랙, exp52에서 분리)**:
+  exp52가 gs_mapping(≈50%)뿐 아니라 **Frontend Tracking 자체도 이미 실시간 예산을
+  초과**한다는 걸 확정한 데 이어(위 항목), 사용자와 논의해 이 부분을 전담하는
+  신규 트랙으로 분리. **exp52는 종료 아님** — mapping 쪽 실시간성(gs_parallel,
+  추후 RTX 5090 재검증 등)은 exp52에서 계속. exp53은 dense correspondence
+  품질을 먼저 계측(①confidence weight ②iteration별 delta 수렴 — 축A 사전진단용
+  ③BA 재투영 오차)한 뒤, 축A(`iters1=4`/`iters2=2` 반복 축소, 최우선)·축B
+  (`motion_filter.thresh` 상향, keyframe 밀도 자체 억제)·축C(`frontend_window`
+  /`radius`/`nms` 축소)·축D(correlation 해상도 축소, 낮은 우선순위)·축E(커널
+  튜닝, 보류)를 순서대로 스캔. Pass 기준: frontend 총합≤실제 녹화시간(65.1초),
+  evo APE(Sim3)는 exp50(ORB, 13cm)보다 항상 우위 유지(안 그러면 dense
+  correspondence 채택 의의 자체가 사라짐). 미착수. → [exp53](experiments/exp53_frontend_realtime_plan.md)
 - **2026-07-20 (exp52 원 논문 검증 + frontend 내부 구조 상세화 + ⚠정정: VIGS fps 스윕 "프레임당 비용 증가" 해석 오류)**:
   DROID-SLAM(NeurIPS21)·VIGS-SLAM(ECCV26) 원 논문을 `context/reference/papers/`에
   다운받아 직접 읽고 검증. **DROID-SLAM 원문**: "2대의 3090 GPU로만 실시간"(frontend/
@@ -333,6 +345,7 @@
 > **재우선순위 (07-17 밤)**: "실시간"이 최우선 기준으로 재확인됨. exp52 VIGS-SLAM이 1253에서 keyframe 30.90dB를 냈지만 오프라인 폴리싱 포함 수치라 **`--pure_online` 재검증(진짜 온라인 품질 + 프레임당 FPS)이 축E보다 먼저 봐야 할 질문**으로 부상.
 > **재우선순위 (07-18 밤)**: `--pure_online` 실측 완료 — 순수 온라인 VIGS(22.7~23.5dB)가 우리 exp51(25.29dB)보다 낮음이 확정됐으므로 **VIGS 이식보다 exp51 자체 개선(축E carve loss, normal supervision)이 다시 최우선**.
 > **참고 (07-19)**: exp52에서 "실시간화는 컴포넌트 가속이 아니라 구조(비동기 tracking/mapping 오버랩)로 풀어야 한다"는 일반 교훈을 확보(`_gs_parallel`로 −26.1%). 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — 이 교훈은 CLAUDE.md 3단계("라이브 통합")에서 exp50에 재사용할 자산.
+> **참고 (07-20)**: exp52에서 신규 발견한 "Frontend Tracking 자체가 실시간 병목"을 **exp53(신설)**으로 분리해 전담 트랙화(계획 단계, 미착수). 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — exp53은 exp51 완료 후 착수하거나 여유 볼 때 병행.
 
 0. **exp51 축E(carve loss 이식) 또는 normal supervision 이식**: VIGS 비교로 "폴리싱 없는 우리 축A+B(25.29dB)가 VIGS의 순수 온라인(22.7~23.5dB)보다 이미 낫다"가 확정됐으니, VIGS 아키텍처 자체를 가져오기보다 그 소스에서 발견한 유효 레버(normal supervision, isotropic loss+scale clamp)를 우리 파이프라인에 이식하는 쪽으로 복귀.
 0''. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.
