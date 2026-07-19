@@ -30,6 +30,30 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-19 (exp52 궤적 정확도 evo 평가 + dense correspondence 아키텍처 분석 — VIGS depth가 tracking BA와 공동 최적화됨을 소스로 확인)**:
+  위 fps 스윕의 6개 궤적을 MPS `closed_loop_trajectory.csv`(GT) 기준 `evo_ape`로
+  평가. **SE3(raw) RMSE는 ORB 0.16~0.25m vs VIGS 0.11~0.21m로 비슷하지만, 스케일
+  보정(Sim3) 후엔 ORB 13cm대 vs VIGS 1.3cm로 10배 차이** — VIGS의 dense
+  correlation 트래킹이 궤적 "형태" 정확도에서 압도적. 스케일 보정계수는 둘 다
+  작음(ORB 0.953~0.980, VIGS 1.025~1.048) — ORB는 캘리브레이션된 스테레오
+  기준선(하드웨어 상수)에서 스케일을 얻어 안정적인 반면, VIGS는 IMU 융합 1회성
+  초기화(`imu_late_init_from`)에서 나온 전역 스칼라 하나가 살짝 편향되어 전체
+  궤적에 균일하게 곱해짐 — "형태 정확도"와 "절대 스케일"은 독립적인 두 축임을 확인.
+  **소스 추적으로 mapping 기하와의 연결고리 규명**: `factor_graph.py`의 dense
+  correlation+학습된 GRU가 코너 특징점(ORB는 keyframe당 겨우 150~166개 매칭,
+  ~3010개 추출 중 95% 손실)이 아니라 사실상 전체 픽셀을 포즈 추정에 구속조건으로
+  씀. 결정적으로 `vigs.py:169`의 `call_gs()`가 Gaussian mapper에 넘기는 depth는
+  Omnidata 원본이 아니라 **`self.video.disps_up`** — Omnidata는 `mono_depth_alpha:
+  0.01`의 약한 prior로만 쓰이고 실제 depth는 JDSA(Joint Dense Scale-aware BA)로
+  **포즈와 같은 최적화에서 공동 정제됨**(normals만 Omnidata raw). 우리
+  exp50/51 파이프라인은 반대로 depth-pro를 트래킹과 **완전히 무관한 독립
+  프로세스**로 돌림 — exp51 depth supervision 축(+2.42dB)이 VIGS 급 형태
+  정확도까지 못 간 구조적 원인이자, **이 프로젝트가 처음부터 쫓던 floater(같은
+  3D 지점이 view마다 다른 위치로 삼각측량되는 문제)의 뿌리와 정확히 같은
+  메커니즘**임을 확인. 다음 과제로 남김(depth를 keyframe별 독립 정적 prior가
+  아니라 트래킹 포즈 최적화와 공동 정제하는 구조 — 우리 ORB 기반 트래킹에
+  dense-correlation을 도입하는 건 별도 아키텍처 결정 필요, exp51 범위 밖).
+  → [exp52](experiments/exp52_vigs_slam_eval.md)
 - **2026-07-19 (exp52 트래킹 전용 fps 스윕 — exp50(ORB) vs VIGS, 동일 60초 창에서 20/10/5fps 비교)**:
   `_gs_parallel`로도 2.04배 미달이었던 데서 "tracking 자체가 무거운 거 아니냐"는
   질문 제기 → VIGS의 dense 단안 트래킹과 우리가 실제 채택할 exp50(ORB-SLAM3 기반

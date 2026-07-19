@@ -556,3 +556,117 @@ VIGS(dense 단안)보다 우리가 실제로 채택할 exp50의 ORB-SLAM3 기반
 쪽이 실시간에 훨씬 유리함**을 동일 조건 비교로 확정. exp52의 "VIGS 아키텍처를 통째로
 가져오기보다 유효 레버만 이식" 결론에 트래킹 관점의 근거가 하나 추가됨 — 매핑뿐
 아니라 트래킹도 exp50 경로가 실시간화에 더 유리한 출발점.
+
+## 트래킹 궤적 정확도 — MPS 기준 evo 평가 (2026-07-19)
+
+**방법**: 위 fps 스윕에서 나온 6개 궤적(ORB `KeyFrameTrajectory.txt`, VIGS
+`traj_kf_beforeBA.txt`)을 모두 MPS의 `closed_loop_trajectory.csv`(디바이스 자체
+클로즈드루프 SLAM, 이 프로젝트의 사실상 GT)를 기준으로 `evo_ape`로 평가. 두 방식
+모두 정렬: **SE3**(회전+평행이동만, 스케일 보정 없음 — "그대로 나온" 궤적의 실사용
+품질)와 **Sim3**(스케일까지 보정 — "형태"만 분리해서 보는 진단용).
+
+| fps | ORB APE RMSE(SE3) | ORB 스케일 보정계수 | ORB APE RMSE(Sim3) | VIGS APE RMSE(SE3) | VIGS 스케일 보정계수 | VIGS APE RMSE(Sim3) |
+|---|---:|---:|---:|---:|---:|---:|
+| 20fps | 0.188m | 0.969 | 0.131m | 0.209m | 1.048 | **0.013m** |
+| 10fps | 0.160m | 0.980 | 0.133m | 0.132m | 1.030 | **0.013m** |
+| 5fps | 0.248m | 0.953 | 0.128m | 0.111m | 1.025 | **0.013m** |
+
+**핵심 발견 — 실시간성은 ORB가 유리하지만 궤적 "형태" 정확도는 VIGS가 10배 좋음**:
+스케일 보정계수 자체는 둘 다 작음(3~5% 수준, ORB가 약간 더 안정적 — 아래 원인 참조).
+그런데 이 작은 스케일 오차를 제거(Sim3)하면 **ORB는 여전히 13cm대 잔차가 남는 반면
+VIGS는 1.3cm로 사실상 GT와 일치** — fps를 바꿔도 두 값 다 흔들리지 않아 매우 안정적인
+차이. 즉 VIGS의 dense correlation 기반 트래킹은 궤적의 상대적 기하 형태를 ORB의
+sparse feature 매칭보다 훨씬 정밀하게 복원하고, 다만 절대 스케일에 IMU 초기화발
+체계적 편향이 실려 있어서 raw(SE3) 비교에서는 그 차이가 가려짐.
+
+**결론**: 실시간성만 보면 exp50(ORB) 경로가 압도적으로 유리하다는 앞 절의 결론은
+안 바뀜(최종 시스템도 stereo라 VIGS식 IMU 단독 스케일 문제 자체가 없음). 다만
+**"ORB가 빠르지만 궤적 정확도는 VIGS보다 떨어진다"는 트레이드오프가 실측으로 확정**
+됐고, 이 정확도 차이의 근본 원인(sparse vs dense correspondence)은 매핑 기하
+품질에도 직접 영향을 준다 — 아래 절에서 메커니즘을 상세히 분석.
+
+## 왜 dense correspondence가 tracking과 mapping 둘 다에 유리한가 (아키텍처 분석, 2026-07-19)
+
+사용자 질문: "VIGS의 dense correspondence 때문에 성능도 좋고 mapping 기하도 더
+좋은 거 아니냐 — tracking 모듈이 정확히 어떻게 영향을 끼치는지" → 소스 코드
+(`vigs/motion_filter.py`, `vigs/factor_graph.py`, `vigs/depth_video.py`,
+`vigs/vigs.py`, `vigs/gs_backend.py`)를 직접 추적해 확인.
+
+### 1) Tracking 정확도: sparse 대응점 개수·구속력의 근본적 차이
+
+- **ORB(exp50)**: 프레임당 ORB 특징점 ~3,000개를 뽑지만(`[diag2] N=3010`), 우리의
+  넓은 시야각 Fisheye624 스테레오에서 실제 좌우 매칭에 성공하는 건 **150~166개뿐**
+  (~95% 손실 — `[diag2] nStereoMatched=166`). 포즈 추정·BA는 이 적은 수의 이산적
+  코너 특징점에만 의존 — 개별 매칭 노이즈(왜곡·저텍스처·반복 패턴에서의 오매칭)가
+  평균화되지 못하고 그대로 포즈 불확실성으로 남음.
+- **VIGS(DROID 계열)**: `factor_graph.py`의 `add_factors()`가 프레임 쌍 전체에 대해
+  **4D dense correlation volume**(모든 픽셀 대 모든 픽셀, `CorrBlock`)을 만들고,
+  학습된 GRU(`self.update_op`, DroidNet update module)가 이걸 반복적으로 읽어
+  **픽셀 단위 dense flow/disparity 수정값 + 신뢰도(confidence weight)**를 산출.
+  이 dense 수정값+신뢰도가 `cuda_ba`(bundle adjustment)의 residual/information으로
+  직접 들어감 — 즉 코너 특징점 100~200개가 아니라 **사실상 이미지 전체 픽셀이
+  포즈 추정에 기여**. 구속조건이 훨씬 많고 조밀하며, end-to-end 학습으로 저텍스처·
+  블러 등 코너 검출기가 취약한 조건에도 강건.
+- 이 차이가 정확히 위 evo 결과(Sim3 기준 ORB 13cm vs VIGS 1.3cm)로 나타남 —
+  dense correspondence는 "이론상 더 정확해야 한다"가 아니라 **실측으로 10배 차이가
+  확인된 사실**.
+
+### 2) 그런데 왜 VIGS는 스케일이 틀리나 — 정확도(형태)와 스케일은 별개 축
+
+- ORB는 스케일을 **캘리브레이션된 스테레오 기준선**(Aria.yaml `Stereo baseline:
+  0.142716`, 하드웨어로 고정된 물리 상수)에서 얻음 — 매 스테레오 프레임마다
+  삼각측량으로 계속 재확인되는 값이라 매우 안정적(보정계수 0.953~0.980, fps 무관).
+- VIGS는 단안+IMU라 스케일을 **IMU 융합 최적화로 추정**해야 함(config의
+  `imu_late_init_from: 20` — 20번째 keyframe 근방에서 짧은 1회성 초기화 최적화로
+  스케일을 확정). 이 짧은 초기화 구간에 충분한 가속도 여기(excitation)가 없으면
+  스케일 하나가 전역적으로 살짝 틀어진 채(1.025~1.048, ~3~5%) 이후 전체 궤적에
+  균일하게 곱해짐 — Sim3 정렬이 이 하나의 전역 스칼라만 제거하면 형태는 거의
+  완벽하게 남는 이유.
+- 즉 **"dense correspondence → 형태 정확도"와 "IMU 초기화 → 절대 스케일"은
+  독립적인 두 축**. 우리 최종 시스템은 흑백 stereo라 스케일은 처음부터 ORB처럼
+  캘리브레이션에서 나오므로(VIGS식 단안 스케일 문제 자체가 없음), dense
+  correspondence의 형태-정확도 이점만 순수하게 가져올 여지가 있음.
+
+### 3) 매핑 기하로의 직접 연결 — depth가 "따로 도는 추정"이 아니라 "포즈와 공동 최적화된 상태"
+
+가장 중요한 아키텍처 차이. 소스 추적 결과:
+
+- `motion_filter.py`의 `prior_extractor()`가 Omnidata로 초기 monocular
+  depth+normal을 뽑고, `depth_video.py`의 **JDSA**(Joint Dense Scale-aware
+  Bundle Adjustment, `disps, dscales, _ = JDSA(target, weight, eta, poses,
+  disps, intrinsics, self.disps_prior, dscales, ii, jj, self.mono_depth_alpha)`)
+  가 이걸 **약한 prior**(`mono_depth_alpha: 0.01` — 매우 작은 가중치)로만 쓰고,
+  실제 `disps`(dense depth 상태)는 **correlation 기반 dense flow 증거로 매
+  스텝 계속 갱신됨** — 즉 최종 depth는 Omnidata를 그대로 쓰는 게 아니라 여러
+  keyframe 간 multi-view 기하 증거로 정제된 값.
+- 결정적으로, `vigs.py`의 `call_gs()`가 Gaussian mapper로 넘기는 depth는
+  **`1./self.video.disps_up[viz_idx]`** — 방금 그 **포즈와 같은 BA에서 공동
+  최적화된 dense depth 그 자체**임(별도 코드 확인, `vigs/vigs.py:169`). 반면
+  normals는 `self.video.normals[viz_idx]`로, 이건 BA로 안 다듬어진 **Omnidata
+  raw 출력을 그대로** 씀(보조적 normal-consistency loss `lambda_dnormal`용).
+- **즉 VIGS에서 tracking과 mapping은 "같은 correlation·BA 파이프라인이 만든 하나의
+  일관된 기하"를 공유한다.** 포즈가 정확해지면 depth도 같이 정확해지고(동일 최적화
+  변수), 그 depth가 그대로 Gaussian 초기화·RGBD supervision(`get_loss_mapping_rgbd`)
+  에 들어감 — 여러 keyframe에서 같은 3D 지점을 봤을 때 서로 다른 위치에 놓일 여지가
+  구조적으로 적음.
+- **우리(exp50/51) 파이프라인과의 대비**: exp50은 ORB-SLAM3의 **희소** 스테레오
+  매칭점(keyframe당 ~150개)만으로 트래킹하고, 매핑용 dense depth는 **완전히 별도
+  프로세스**(depth-pro IPC)가 트래킹과 무관하게, keyframe 이미지만 보고 독립적으로
+  추정. exp51의 depth supervision 축(A)이 +2.42dB을 냈지만 VIGS 급(순수 온라인
+  22.7~23.5dB로 여전히 우리(25.29dB)보다 낮았던 것과는 별개로, "형태 정확도"
+  관점에서) 온전한 상한까지 못 간 이유가 여기 있음 — **우리 depth prior는 트래킹의
+  포즈·기하와 공동 최적화되지 않은, 매 keyframe 독립적인 정적 추정치**라서 view
+  간 기하 일관성이 VIGS의 `disps_up`만큼 보장되지 않음. 이게 바로 이 프로젝트가
+  처음부터 쫓아온 **floater(자유공간 먼지)의 근본 원인 중 하나**와 정확히 같은
+  메커니즘 — 같은 3D 지점이 서로 다른 view에서 서로 다른 위치로 삼각측량/supervise
+  되면 그 불일치가 부유하는 Gaussian으로 남음.
+
+**결론**: dense correspondence는 "성능이 좋다"는 막연한 인상이 아니라, ①
+포즈 추정의 구속조건 밀도(수백 배)로 인한 실측 10배 형태 정확도, ② 그 정확한
+depth 상태가 mapping supervision과 **같은 최적화 루프를 공유**한다는 두 가지
+구체적 메커니즘으로 mapping 기하에 기여함. 우리 파이프라인이 이걸 온전히
+가져오려면 단순히 "더 좋은 monocular depth 모델을 쓰는" 수준이 아니라, **depth
+추정을 트래킹의 포즈 최적화와 공동으로(jointly) 정제하는 구조**가 필요 —
+현재 exp51처럼 depth를 keyframe별 독립 정적 prior로 붙이는 방식의 구조적 한계.
+다음 실험 후보로 남겨둠(exp51 범위 밖, 우리 트래킹이 ORB 기반이라 dense-correlation
+자체 도입은 별도 아키텍처 결정 필요).
