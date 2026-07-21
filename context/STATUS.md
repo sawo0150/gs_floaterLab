@@ -30,6 +30,23 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-21 (exp54 신설 — GS Mapping 연산 시간 ablation, 7축)**:
+  exp52의 "rasterize+backward+loss_compute=81.4%" 발견을 구체화하는 신규 트랙.
+  사용자와 논의해 7축 확정: ①keyframe gaussian 밀도(`pcd_downsample`) ②init gaussian
+  밀도(`pcd_downsample_init`) — **사용자가 "voxel당 밀도"로 제안했다가, 코드 확인 결과
+  이 코드베이스엔 voxel 다운샘플이 없고 `random_down_sample`(uniform random)만 있어서
+  ①과 같은 다이얼임을 확인·정정, 대신 init 전용 파라미터가 시퀀스 전체에 compounding
+  되는 진짜 별도 축임을 발견해 ②로 대체** ③`iters`(map() 반복횟수) ④렌더 해상도
+  ⑤`max_viewpoints` ⑥densify 공격성 ⑦**PPM 기반(Sobel content-adaptive) 샘플링** —
+  사용자가 지목한 "PPM"은 이 프로젝트 exp44/48에서 이미 검증된 content-adaptive
+  확률맵 샘플링(`build_depthmono_ppm_chunks.py`의 `ppm_sample()`, Sobel gradient
+  가중 확률로 edge/디테일 영역 우선 샘플링) — VIGS의 uniform random downsample을
+  이걸로 교체하면 같은 gaussian 개수로 더 높은 PSNR(exp44 "PPM=품질 왕" 재확인)
+  또는 동일 PSNR을 더 적은 개수로 달성해 rasterize/backward를 무료로 줄일 가능성.
+  같은 1253 씬에 대해 이미 PPM 결과물이 존재해(`05_incremental_dense/chunk_*/
+  sparse/0/ppm_points3D.txt`) 이식 난이도 낮음. 계측은 exp52 인프라 재사용, 절대
+  pass 기준 없이 "시간 대 PSNR" 트레이드오프 곡선 탐색이 목적. 미착수.
+  → [exp54](experiments/exp54_gsmapping_speed_ablation_plan.md)
 - **2026-07-20 (exp52 GS Mapping 루프 최대 세분화 — 12단계, `process_track_data` 전체로 계측 범위 확장 + PPT 정정판 재생성)**:
   기존 `map()` 내부 5단계(rasterize/loss_compute/backward/optimizer_step/densify_prune)
   만으론 `_process_track_data_impl()`(pose/scale 업데이트·camera 생성·`add_next_kf` 등
@@ -386,6 +403,7 @@
 > **재우선순위 (07-18 밤)**: `--pure_online` 실측 완료 — 순수 온라인 VIGS(22.7~23.5dB)가 우리 exp51(25.29dB)보다 낮음이 확정됐으므로 **VIGS 이식보다 exp51 자체 개선(축E carve loss, normal supervision)이 다시 최우선**.
 > **참고 (07-19)**: exp52에서 "실시간화는 컴포넌트 가속이 아니라 구조(비동기 tracking/mapping 오버랩)로 풀어야 한다"는 일반 교훈을 확보(`_gs_parallel`로 −26.1%). 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — 이 교훈은 CLAUDE.md 3단계("라이브 통합")에서 exp50에 재사용할 자산.
 > **참고 (07-20)**: exp52에서 신규 발견한 "Frontend Tracking 자체가 실시간 병목"을 **exp53(신설)**으로 분리해 전담 트랙화(계획 단계, 미착수). 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — exp53은 exp51 완료 후 착수하거나 여유 볼 때 병행.
+> **참고 (07-21)**: exp52의 gs_mapping 12단계 세분화(rasterize+backward+loss_compute=81.4%)를 구체화하는 **exp54(신설, GS Mapping 연산량 ablation, 7축, PPM 이식 포함)**. 우선순위는 안 바뀜(여전히 0번 exp51이 최우선) — exp53/54는 실시간화 트랙으로 exp51과 병행 가능.
 
 0. **exp51 축E(carve loss 이식) 또는 normal supervision 이식**: VIGS 비교로 "폴리싱 없는 우리 축A+B(25.29dB)가 VIGS의 순수 온라인(22.7~23.5dB)보다 이미 낫다"가 확정됐으니, VIGS 아키텍처 자체를 가져오기보다 그 소스에서 발견한 유효 레버(normal supervision, isotropic loss+scale clamp)를 우리 파이프라인에 이식하는 쪽으로 복귀.
 0''. **exp48b (carve loss + anti-drift)**: Phase 0b 성공. warm-start loop가 약 52k Gaussian을 유지하면서 57청크 전체 돌아감을 확인 — 다음은 exp48b로 **carve loss과 옵 영역 보호(anti-drift)를 incremental loop에 이식**하는 단계.
