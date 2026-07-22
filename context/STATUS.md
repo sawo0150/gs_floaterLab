@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지). exp55(내용-적응 예산)로 **평균 gaussian 수 −35.9%**(PSNR·궤적 손실 없음, 오히려 소폭 개선) 추가 확보 — 시간은 tracking-bound라 −3.2%뿐이나 연산량 자체는 크게 가벼워짐** |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지). exp55(내용-적응 예산)로 **평균 gaussian 수 −35.9%**(PSNR·궤적 손실 없음, 오히려 소폭 개선) 추가 확보 — 시간은 tracking-bound라 −3.2%뿐이나 연산량 자체는 크게 가벼워짐. exp55 Phase 3(carve loss 온라인 근사)까지 채택 — 자체 구현한 floater 진단 지표로 **가시 floater −7.5%, PSNR/시간 비용 없음** 실측 확인** |
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,33 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp55 Phase 3 완료 — region GT 없이 새 floater 지표를 직접 만들어 carve loss 효과 검증, 가시 floater -7.5%·PSNR 비용 없음)**:
+  "carve loss까지 구현해보고 의미있는지 확인해달라"는 요청. 기존 표준 지표
+  `floater_metric_region.py`가 `data/03_rgb_3dgs_full`(ORB 배치) 좌표계 전용
+  수동 라벨 GT라 1253/VIGS엔 적용 불가함을 코드로 확인 — 지표 없이 채택/기각을
+  판단하지 않고, **carve_loss.py 자신의 검증된(AUC 0.98) 신호 설계**(transit/
+  terminal ray-cast 필드 → rho → w=rho·min(d5nn_slam/τ,1))를 오프라인 진단
+  지표로 새로 구현해 직접 검증. `gs_backend.py`에 `_export_depth_anchors()`
+  신규 — VIGS 자신의 BA-정제 추적 depth(학습된 가우시안과 무관)를 성기게
+  unprojection해 COLMAP 포맷으로 export, exp43의 "depth-anchor carve" 선례를
+  그대로 따름(ORB 대신 depth 언프로젝션을 anchor로). **실측 중 버그 2건 발견·
+  수정**: `1./disps_up`가 0-disparity에서 Inf를 내는데 첫 필터가 못 거름(anchor
+  좌표 NaN까지 오염) → `isfinite` 추가, 그래도 남는 초원거리 값(수백~수천m)엔
+  상한(`d<20.0`)도 추가 — 두 버그 다 "혹시나" 하고 실제로 값 범위를 찍어봐서
+  발견([[feedback_verify_unmeasured]] 원칙 재확인). `scripts/analysis/
+  exp55_score_carve_vigs.py`(신규, 재사용 가능) 작성해 이 필드로 최종 PLY의
+  각 gaussian에 score를 매겨 carve_lambda=0/0.05를 동일 조건에서 비교.
+  **결과: 가시(op>0.3) floater(score>0.3) 수 14,199→13,066(−8.0%), 비율
+  18.76%→17.35%(상대 −7.5%), 평균 score(전체/가시) 둘 다 −4~5%** — 네 지표가
+  전부 일관되게 개선(우연이라기엔 방향이 너무 일치). 동시에 **PSNR은 22.53/
+  22.84→22.61/22.95로 오히려 소폭 상승, evo APE·시간도 사실상 동급** — 이전
+  라운드에서 관측했던 "carve PSNR 비용 −0.1~0.3dB"는 단일 비교의 노이즈였던
+  것으로 재해석(이번엔 매칭 페어로 재측정). **결론: carve loss는 거의 공짜로
+  floater를 줄임 — `carve_lambda=0.05` 채택.** 한계: carve-on/off 각각 단일
+  비교라 이 지표 자체의 run-to-run 노이즈 폭은 아직 미측정, 가시 floater
+  문지방(op>0.3·score>0.3)은 carve_loss.py 원 설계값을 그대로 가져온 것으로
+  이번 VIGS 적용에 대해 사람이 재라벨링 검증한 건 아님 — 두 한계 다 정직하게
+  기록. → [exp55](experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-22 (exp55 Phase 1+2 구현·실행·검증 — 평균 gaussian 수 −35.9%, PSNR 손실 없음. Phase 3도 구현·실행했으나 floater 지표 부재로 기본 off)**:
   "평균 gaussian per frame 수가 확실히 줄어서 mapping 속도가 빨라졌으면 하는 게
   목적, phase1~3 다 구현·실행해달라"는 요청에 따라 `/loop`로 전부 실행.
