@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지)** |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지). exp55(내용-적응 예산)로 **평균 gaussian 수 −35.9%**(PSNR·궤적 손실 없음, 오히려 소폭 개선) 추가 확보 — 시간은 tracking-bound라 −3.2%뿐이나 연산량 자체는 크게 가벼워짐** |
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,41 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp55 Phase 1+2 구현·실행·검증 — 평균 gaussian 수 −35.9%, PSNR 손실 없음. Phase 3도 구현·실행했으나 floater 지표 부재로 기본 off)**:
+  "평균 gaussian per frame 수가 확실히 줄어서 mapping 속도가 빨라졌으면 하는 게
+  목적, phase1~3 다 구현·실행해달라"는 요청에 따라 `/loop`로 전부 실행.
+  **Phase 1(캘리브레이션)**은 계획했던 "로컬 영역 독립 학습" 대신 시간 내 가능한
+  실용적 대체 설계로 실행 — 같은 시퀀스를 dense(`ds=64`)/sparse(`ds=384`) 두
+  전역 예산으로 돌려 keyframe별 PSNR을 비교(`eval_rendering_kf`·
+  `create_pcd_from_image_and_depth`에 opt-in per-keyframe 로깅 신규 추가).
+  **결과: Sobel 평균과 "밀도 증가로 얻는 PSNR 이득" 사이 Pearson r=0.538**(113
+  keyframe) — 사용자 가설을 실측으로 확인, 상위 10%(디테일 多)는 +0.70dB
+  이득·하위 10%(단조)는 −2.70dB 손해. 이 곡선을 10/90 백분위 2점 선형보간으로
+  피팅해 배율 함수(0.91~1.57배)로 저장(`config/exp55/aria1253_content_curve.json`,
+  저장소에 영구 저장). **Phase 2(적응 예산 컨트롤러)**: `pcd_downsample`
+  128→256·`pcd_downsample_init` 32→64로 베이스를 훨씬 성기게 하고, 그 위에
+  프레임별 배율을 곱함. 사용자가 요청한 "명시적 max cap"도 신규 구현
+  (`enforce_kf_caps()` — 기존에 있던 per-gaussian 출생 keyframe 태그
+  `unique_kfIDs`로 그룹핑해 상한 초과 keyframe의 저opacity 가우시안부터 pruning,
+  growth_allowance=2.0로 densify가 초기 배정의 최대 2배까지는 자유롭게 채우도록
+  허용). **결과: 평균 gaussian 수 94,219→60,439(−35.9%), 최종 개수
+  131,771→85,196(−35.3%), PSNR 22.78/23.14→22.77/23.30(동급, kf는 오히려
+  +0.16dB), evo APE(Sim3) 2.41→1.90cm(오히려 개선)** — 사용자가 명시한 목표를
+  정확히 달성. 시간은 61.34→59.39s(−3.2%)로 상대적으로 작은데, exp54에서 이미
+  규명한 tracking-bound 상태(tracking 50.87s>mapping 47.92s) 때문 — gaussian
+  절감이 wall-clock엔 부분적으로만 반영됨, 이 결과의 진짜 가치는 "속도"보다
+  "동일 품질에 필요한 연산량 자체가 35% 줄었다"는 것. **Phase 3(carve loss
+  온라인 근사)**: `carve_loss.py`의 배치(전체 카메라 사전 확보) 구조를 그대로
+  못 쓴다는 기존 판단대로, voxel field 대신 훨씬 가벼운 **depth-violation
+  전용 근사**를 신규 설계·구현 — VIGS가 매 `map()` 호출마다 이미 갖고 있는
+  BA-정제 추적 depth(`disps_up`)를 신뢰 표면 삼아, 렌더 depth가 그보다
+  margin 이상 카메라 쪽으로 가까운 픽셀만 편측 페널티(기존 대칭 L1 depth
+  loss와 달리 floater 특유의 신호만 잡음). 테스트 결과 크래시 없이 정상
+  동작하나 PSNR −0.1~0.3dB 비용 확인, **floater가 실제로 줄었는지 잴 지표가
+  없어(region GT를 incremental 결과물에 적용 가능한지 미확인) 기본값
+  off로 유지** — Phase 3 완결의 다음 과제는 코드가 아니라 floater 품질 지표
+  확보. Phase 2Q(품질 지향 스윕)는 이번 라운드 미실행. → [exp55](
+  experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-22 (exp55에 Phase 2Q 추가 — 품질(pure_online PSNR) 지향 스윕, 사용자가 우선순위를 속도보다 품질로 명시)**:
   exp55 계획 직후 사용자가 우선순위를 명확히 함 — 시간 단축은 "되면 좋은" 수준이고
   **1순위는 pure_online PSNR을 exp53+54 최종 레시피(22.78/23.14) 위로 실제로 끌어올리는
