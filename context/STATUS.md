@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음** |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**1.12배**까지 축소(PSNR 22.39/22.72, evo APE Sim3 1.59cm, ORB 대비 8배 여유 유지)** |
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,27 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp53+54 실제 실행 — `/loop` 자동화, 실시간 배수 1.52배→1.12배)**:
+  "exp53·54를 실제로 실행해달라"는 요청에 따라 `/loop`로 여러 턴에 걸쳐 축을 순서대로
+  스캔. **exp53 축A**(`track_frontend.py`의 `iters1`/`iters2`, 4/2→1/0): 온라인 루프
+  98.94→**78.41s(−20.7%, 이 세션 단일 축 최대 레버)**, evo APE(Sim3)는 2/1·1/1·1/0
+  세 단계 전부 **1.59cm로 완전 고정**(ORB 13cm보다 8배 우위 유지, pass 기준 여유 큼) —
+  재선형화 반복을 사실상 1회로 줄여도 dense correlation 정보량이 충분해 수렴엔 지장
+  없다는 뜻으로 해석, **채택**. **exp54 축1**(`pcd_downsample`, 64→128): −3.3%, 부작용
+  없음, **채택**. **exp54 축2**(`pcd_downsample_init`, 32→64)와 **축3**(`map() iters`,
+  10→5)은 **기각** — 축2는 densify가 성긴 init을 보충 증식해 최종 gaussian 수가 오히려
+  늘고 시간도 +1.2%(축2·축6이 상쇄 관계임을 발견), 축3은 −1.5% 시간에 −0.46dB PSNR로
+  ROI가 나쁘고 **이 시점 tracking이 이미 91%를 차지함을 규명**(exp53 우선순위를
+  끌어올린 근거). **축A(1/0)+축1(ds128) 조합 = 72.91s(1.12배)**, 이 세션 최고 기록 —
+  tracking 총합(61.27s)·mapping 총합(53.23s)이 둘 다 개별적으로 65.1초 예산 아래로
+  내려온 첫 지점. `pcd_downsample=256`까지 더 미는 시도는 무효(72.68s 변화 없음,
+  tracking-bound 재진입)+PSNR만 −1.3dB 추가 손실이라 기각, 128 확정. 남은 갭(72.91s
+  vs 이론적 완벽 병렬 61.27s)은 오버랩 효율 저하(88.3%→78.1%)가 원인으로 추정 —
+  순수 연산량 축소보다 스레드/큐 동기화 튜닝이 다음 레버일 가능성. 코드
+  (`track_frontend.py`·`config/aria1253.yaml`)는 VIGS-SLAM(업스트림 저장소)에
+  uncommitted로 유지(3dgs-custom과 동일한 dirty-worktree 방침). → [exp53](
+  experiments/exp53_frontend_realtime_plan.md) · [exp54](
+  experiments/exp54_gsmapping_speed_ablation_plan.md)
 - **2026-07-21 (exp54 신설 — GS Mapping 연산 시간 ablation, 7축)**:
   exp52의 "rasterize+backward+loss_compute=81.4%" 발견을 구체화하는 신규 트랙.
   사용자와 논의해 7축 확정: ①keyframe gaussian 밀도(`pcd_downsample`) ②init gaussian

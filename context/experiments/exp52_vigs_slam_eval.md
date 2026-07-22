@@ -916,3 +916,19 @@ densify_prune)만으로는 `_process_track_data_impl()`(pose/scale 업데이트,
 
 **exp53 반영**: `map()` 내부 미계측 12.0초(12.9%)를 다음 계측 후보로 추가 —
 `isotropic_loss` 계산과 view 샘플링을 각각 `_Sect`로 감싸면 완전히 해소 가능.
+
+## exp53+exp54 실행 결과 요약 (2026-07-22, `/loop` 자동 실행 — 상세는 각 카드 참조)
+
+exp53(frontend)·exp54(gs_mapping)를 실제로 실행해 실시간 배수를 1.52배(위 정정 수치)에서
+**1.12배까지 축소**. `track_frontend.py`의 `iters1=4→1`/`iters2=2→0`(exp53 축A, 단독
+−20.7%)과 `config/aria1253.yaml`의 `pcd_downsample=64→128`(exp54 축1, 단독 −3.3%)을
+조합해 온라인 루프 **98.94s→72.91s**. evo APE(Sim3)는 1.30cm→1.59cm로 소폭 상승했으나
+ORB 기준선(13cm)보다 여전히 8배 이상 우위라 pass 기준 문제 없음. 이 지점에서 tracking
+총합(61.27s)·mapping 총합(53.23s)이 **둘 다 개별적으로 65.1초 예산 아래**로 내려와,
+남은 격차(72.91s vs 61.27s 이론적 완벽 병렬)는 순수 연산량이 아니라 **오버랩 효율**
+(78.1%, baseline의 88.3%보다 낮아짐)이 다음 병목일 가능성이 큼. `pcd_downsample`을
+256까지 더 밀어붙이는 시도는 무효(72.68s, 변화 없음 — tracking-bound 재진입)+PSNR만
+추가 손실이라 기각, 128을 최종값으로 확정. 상세 축별 수치·기각 사유는 [exp53](
+exp53_frontend_realtime_plan.md)·[exp54](exp54_gsmapping_speed_ablation_plan.md) 참조.
+코드는 VIGS-SLAM(업스트림 저장소)에 uncommitted 상태로 유지(3dgs-custom과 동일한
+dirty-worktree 방침) — 이 문서들이 단일 진실 소스.
