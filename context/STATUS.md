@@ -30,6 +30,20 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp55에 Phase 2Q 추가 — 품질(pure_online PSNR) 지향 스윕, 사용자가 우선순위를 속도보다 품질로 명시)**:
+  exp55 계획 직후 사용자가 우선순위를 명확히 함 — 시간 단축은 "되면 좋은" 수준이고
+  **1순위는 pure_online PSNR을 exp53+54 최종 레시피(22.78/23.14) 위로 실제로 끌어올리는
+  것**. exp54 축7(PPM, 동일 예산에서 +0.16dB)을 반대 방향으로 활용 — 예산을 아끼는
+  대신 **늘리는** 쪽으로 스윕하는 Phase 2Q 신설: Q1(`pcd_downsample`을 128보다 낮춰
+  96→64→48까지, PPM 유지) Q2(PPM 가중치 강도 γ 스윕, `p ∝ sob^γ`로 일반화해 얼마나
+  세게 엣지에 몰아줘야 최적인지 탐색) Q3(`pcd_downsample_init`을 32보다 낮춰 초기
+  keyframe 골격 품질에 투자, axis2/6+2와 정반대 방향) Q4(`densify_grad_threshold`
+  하향 재평가, exp54는 상향 방향만 봤음). **Q1·Q3가 헤드라인 후보** — exp54는 지금까지
+  예산을 줄이는 방향만 스캔했고, 늘리는 방향은 이 incremental 트랙에서 한 번도
+  스캔된 적이 없음. 현재 실시간 레시피(61.34s)가 예산(65.1s) 대비 ~6% 슬랙을
+  남기고 있어 최소한 이만큼은 품질에 재투자 가능. Phase 1(캘리브레이션) 없이도
+  Q1부터 바로 착수 가능해 실행 순서를 Phase 2Q 우선으로 재배열. 여전히 계획
+  단계, 미착수. → [exp55](experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-22 (exp55 신설 — 내용-적응 per-frame gaussian 예산 + carve loss 이식 계획, 3단계)**:
   사용자 제안: exp54가 `pcd_downsample`을 장면 전체에 균일 적용했던 것과 달리,
   keyframe마다 GT 이미지의 Sobel/std(엣지·디테일 정도)에 맞춰 gaussian 예산을
