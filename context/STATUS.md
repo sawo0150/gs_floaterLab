@@ -30,6 +30,27 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-23 (exp55 부록 — 직렬 실행으로 tracking/mapping 순수 시간 분리, "tracking-bound" 결론이 병렬 한정이었음을 발견)**:
+  "지금 상태로 직렬 돌리면 각 프로세스 순수 시간이 어떻게 되나" 확인 요청 →
+  `Training.parallel: false`로 exp55 최종 레시피 그대로 재실행. **순수 tracking
+  27.9s vs 순수 mapping 80.1s**(직렬 총합 114.5s, `N,gs_mapping`/`N,pgba_call_gs`
+  블로킹 mapping 태그 합을 빼서 분리 — tracking-only가 motion_filter+frontend+
+  pgba_run 합(27.85s)과 거의 정확히 일치해 교차검증됨). 이게 exp54가 확정한
+  "tracking-bound"(병렬에서 tracking 50.87s>mapping 47.92s)와 정면 모순돼
+  파고든 결과 **두 가지 발견**: ①**GPU 경합이 병렬 tracking을 거의 2배로
+  부풀림** — 순수 27.9s vs 병렬 측정 50.87s, 차이 23초가 mapping과 GPU를
+  나눠 쓰는 경합 비용(세션 초반의 정성적 "gs_parallel에서 frontend가 느려진다"
+  가설이 정량 확인됨). ②**병렬은 "겹쳐서 숨기는" 것뿐 아니라 mapping 작업
+  자체를 skip하고 있었음** — `map()` 호출 횟수 직렬 110회 vs 병렬 22회(5배
+  차이), `_gs_queue`가 mapper가 못 따라잡으면 오래된 패킷을 버리는 구조라
+  keyframe의 약 80%가 매핑 업데이트를 못 받음(최종 gaussian 수는 85k~90k로
+  비슷하지만 densify/최적화 반복 횟수는 5배 차이). **함의**: 현재 실시간
+  배수(0.92배)는 진짜지만, 그 안의 tracking·mapping 배분은 순수 아키텍처
+  비용이 아니라 큐 드롭 정책+GPU 경합의 부산물 — "tracking-bound"라는 exp54
+  표현은 병렬 실행 조건 한정이었음을 명확히 정정. 다음 조사 후보: `queue_size`
+  확대로 드롭을 줄이며 실시간 예산 안에 드는지, GPU 경합을 줄이는 CUDA stream
+  우선순위 스케줄링으로 tracking의 23초 경합 비용을 회수할 수 있는지.
+  → [exp55](experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-22 (exp55 Phase 3 완료 — region GT 없이 새 floater 지표를 직접 만들어 carve loss 효과 검증, 가시 floater -7.5%·PSNR 비용 없음)**:
   "carve loss까지 구현해보고 의미있는지 확인해달라"는 요청. 기존 표준 지표
   `floater_metric_region.py`가 `data/03_rgb_3dgs_full`(ORB 배치) 좌표계 전용

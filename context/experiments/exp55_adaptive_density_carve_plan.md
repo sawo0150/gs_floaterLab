@@ -10,7 +10,11 @@
   score 네 지표 전부 일관 개선(−4~8%), **PSNR·시간엔 비용 없음**(오히려 소폭
   개선) → `carve_lambda=0.05` **채택**. Phase 2Q(품질 지향 스윕, Q1~Q4)는 이번
   라운드에서 미실행 — Phase 2가 이미 같은 방향(내용-적응 재배분)에서 강한 결과를
-  내 우선순위 밀림, 다음 라운드 후보.
+  내 우선순위 밀림, 다음 라운드 후보. **⚠ 부록(2026-07-23)**: 직렬 실행으로
+  분리한 순수 시간은 tracking 27.9s vs mapping 80.1s — "tracking-bound"(exp54)는
+  병렬 실행 한정 결론이었음이 드러남. 병렬의 실시간 배수(0.92배)는 GPU 경합으로
+  tracking이 부풀고 큐 드롭으로 mapping이 5분의 1(22회 vs 직렬 110회)만 도는
+  두 효과의 합성 결과 — 상세는 하단 "부록" 절.
 - 배경: exp53+54로 실시간(0.94배)은 달성했지만, exp54는 `pcd_downsample`을 **장면
   전체에 균일하게** 적용하는 방식이었다. 사용자 제안: keyframe마다 gaussian 개수를
   **그 프레임 내용에 맞게** 다르게 배정하면(디테일 많은 프레임엔 많이, 단조로운
@@ -331,6 +335,51 @@ Training:
 (exp53의 `track_frontend.py` iters1=1/iters2=0, `motion_filter.thresh=3.6`,
 `frontend_window=15`/`frontend_radius=1`은 그대로 유지 — exp55는 mapping 쪽만
 건드림.)
+
+## 부록 — 직렬 실행으로 tracking/mapping 순수 시간 분리 (2026-07-23, 사용자 요청)
+
+"지금 상태로 직렬 돌리면 각 프로세스 순수 시간이 어떻게 되나" 확인 요청 — 최종
+레시피(Phase2+3 전부 적용) 그대로 `Training.parallel: false`로 1253 재실행.
+
+| | 순수 시간(직렬) |
+|---|---:|
+| **tracking-only** | **27.9s** |
+| **mapping-only** | **80.1s**(`map_dispatch` 75.5s + keyframe별 부가작업 4.7s) |
+| 직렬 총합(`vigs_track_total`+데모루프 오버헤드) | 114.5s |
+| (대조) 현재 채택 레시피(병렬) | 59.8s |
+
+`vigs_track_total`은 직렬에선 `call_gs`가 블로킹이라 tracking+mapping을 함께
+재는 태그가 되므로, `N,gs_mapping`/`N,pgba_call_gs`(블로킹 mapping 호출 개별
+태그) 합을 빼서 분리 — 분리한 tracking-only(27.9s)가 `motion_filter`+`frontend`
++`pgba_run`의 합(27.85s)과 거의 정확히 일치해 분리가 맞음을 교차검증.
+
+**표면적으로는 "mapping이 tracking보다 2.9배 무겁다"로 보이는데, 이게 exp54에서
+확정한 "tracking-bound"(병렬에서 tracking 50.87s > mapping 47.92s) 결론과
+정면으로 모순 — 이 모순을 파서 두 가지를 새로 발견**:
+
+1. **GPU 경합이 병렬 tracking을 거의 2배로 부풀리고 있었다.** 병렬 실행의
+   tracking 측정치(50.87s, Phase2 단독 테스트)는 mapping과 GPU를 나눠 쓰는
+   와중에 측정된 값 — 순수 tracking(27.9s)과의 차이 **23초가 GPU 경합
+   비용**. 세션 초반부터 정성적으로만 얘기했던 "gs_parallel에서 frontend가
+   느려진다"(exp52)가 이제 정량적으로 확인됨.
+2. **병렬 모드는 "겹쳐서 숨기는" 것뿐 아니라 mapping 작업 자체를 건너뛰고
+   있었다.** `map()` 호출 횟수: **직렬 110회 vs 병렬 22회(5배 차이)**.
+   `vigs.py::call_gs()`의 `_gs_queue`가 mapper가 못 따라잡으면 오래된
+   패킷을 버리는 구조(`while self._gs_queue.full(): ... get_nowait()`)라서,
+   병렬 모드는 keyframe의 약 80%에 대한 매핑 업데이트를 스킵 중. 최종
+   gaussian 개수는 비슷(85k 병렬 vs 90k 직렬)하지만 densify/최적화가 도는
+   횟수는 5배 차이 — 병렬의 59.8초는 "자연스러운 오버랩"이 아니라 "부풀려진
+   tracking + 5분의 1로 줄어든 mapping"의 합성 결과.
+
+**함의**: 지금 실시간 배수(0.92배)는 진짜 실시간이 맞지만, 그 안의 tracking·
+mapping 배분 자체는 "순수 아키텍처 비용"이 아니라 **큐 드롭 정책과 GPU 경합의
+부산물**이다. 순수 비용 기준(직렬)으로는 mapping이 압도적 병목(80.1s, 70%)이라
+exp54/55의 mapping 경량화 노력이 정확한 표적이었음을 재확인하지만, 동시에
+"tracking-bound"라는 exp54의 표현은 **병렬 실행 조건 한정**이었다는 걸 명확히
+해야 함 — 이 정정을 반영. 다음 조사 후보: 큐 드롭 정책을 덜 공격적으로
+바꾸면(예: `queue_size` 확대) mapping이 더 많은 keyframe을 반영하면서도 아직
+실시간 예산 안에 들어오는지, 또는 GPU 경합 자체를 줄이는 스케줄링(예: CUDA
+stream 우선순위)이 tracking의 23초 경합 비용을 회수할 수 있는지.
 
 ## 다음 단계
 
