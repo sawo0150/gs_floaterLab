@@ -920,15 +920,21 @@ densify_prune)만으로는 `_process_track_data_impl()`(pose/scale 업데이트,
 ## exp53+exp54 실행 결과 요약 (2026-07-22, `/loop` 자동 실행 — 상세는 각 카드 참조)
 
 exp53(frontend)·exp54(gs_mapping)를 실제로 실행해 실시간 배수를 1.52배(위 정정 수치)에서
-**1.12배까지 축소**. `track_frontend.py`의 `iters1=4→1`/`iters2=2→0`(exp53 축A, 단독
-−20.7%)과 `config/aria1253.yaml`의 `pcd_downsample=64→128`(exp54 축1, 단독 −3.3%)을
-조합해 온라인 루프 **98.94s→72.91s**. evo APE(Sim3)는 1.30cm→1.59cm로 소폭 상승했으나
-ORB 기준선(13cm)보다 여전히 8배 이상 우위라 pass 기준 문제 없음. 이 지점에서 tracking
-총합(61.27s)·mapping 총합(53.23s)이 **둘 다 개별적으로 65.1초 예산 아래**로 내려와,
-남은 격차(72.91s vs 61.27s 이론적 완벽 병렬)는 순수 연산량이 아니라 **오버랩 효율**
-(78.1%, baseline의 88.3%보다 낮아짐)이 다음 병목일 가능성이 큼. `pcd_downsample`을
-256까지 더 밀어붙이는 시도는 무효(72.68s, 변화 없음 — tracking-bound 재진입)+PSNR만
-추가 손실이라 기각, 128을 최종값으로 확정. 상세 축별 수치·기각 사유는 [exp53](
-exp53_frontend_realtime_plan.md)·[exp54](exp54_gsmapping_speed_ablation_plan.md) 참조.
-코드는 VIGS-SLAM(업스트림 저장소)에 uncommitted 상태로 유지(3dgs-custom과 동일한
-dirty-worktree 방침) — 이 문서들이 단일 진실 소스.
+**1.12배까지 축소**(1라운드: `iters1=4→1`/`iters2=2→0` + `pcd_downsample=64→128`,
+98.94s→72.91s). 이어서 exp53의 남은 축(B: `motion_filter.thresh` 상향, C:
+`frontend_window`/`radius` 축소)과 exp54의 남은 축(4: render_downsample 신규 구현,
+5: max_viewpoints, 6+2: densify 공격성+init 밀도 결합, 7: PPM 샘플링 신규 구현)을 전부
+실행 — **최종 레시피(축A+B+C+exp54축1+축7)가 61.34s, 실시간 배수 0.94배로 처음
+1.0배 미만 돌파**. 가장 큰 추가 레버는 축B(`motion_filter.thresh` 2.4→3.6,
+−15.4%) — keyframe 발생률 자체를 낮춰 tracking·mapping 양쪽 작업량을 동시에
+줄이는 유일한 축이었음(다른 축은 한쪽만 줄임). PPM(축7)은 속도 변화 없이 PSNR을
+순수 개선(exp44 "PPM=품질 왕"이 VIGS에서도 재현)해 공짜로 채택. axis5·axis6+2는
+이 지점에서 gaussian 개수/view 수가 더 이상 지배 변수가 아님을 재확인하며 기각,
+축D(correlation 해상도)는 사전학습된 GRU 가중치에 shape가 고정 결합되어 있어
+**재학습 없이는 구현 불가**로 판정(조사만 하고 실행 안 함). evo APE(Sim3)는
+1.30cm→2.41cm로 상승했으나 ORB 기준선(13cm)보다 여전히 5.4배 우위. 최종 지점에서
+tracking(52.31s)·mapping(49.79s) 둘 다 개별 예산 아래, 오버랩 효율 81.9%. 상세
+축별 수치·기각 사유·구현 코드 위치는 [exp53](exp53_frontend_realtime_plan.md)·
+[exp54](exp54_gsmapping_speed_ablation_plan.md) 참조. 코드는 VIGS-SLAM(업스트림
+저장소)에 uncommitted 상태로 유지(3dgs-custom과 동일한 dirty-worktree 방침) — 이
+문서들이 단일 진실 소스.

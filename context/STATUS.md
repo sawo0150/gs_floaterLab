@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**1.12배**까지 축소(PSNR 22.39/22.72, evo APE Sim3 1.59cm, ORB 대비 8배 여유 유지)** |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지)** |
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,35 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp53+54 나머지 축 전부 실행 — `/loop` 자동화, 실시간 배수 1.12배→0.94배, 5070 Ti에서 최초로 실시간 돌파)**:
+  "안 한 축들 빠짐없이 구현까지 해서 다 실험 돌려달라"는 요청에 따라 exp53
+  축B~D·exp54 축4~7을 전부 실행. **exp53 축B**(`motion_filter.thresh` 2.4→3.6):
+  온라인 루프 72.91→**61.67s(−15.4%, 이 세션 최대 레버)** — keyframe 발생률 자체를
+  낮춰 tracking·mapping 양쪽 작업량을 동시에 줄이는 유일한 축(다른 축은 한쪽만
+  줄임), 이 지점에서 **최초로 실시간(0.947배) 돌파**. **축C**(`frontend_window`/
+  `radius` 25/2→15/1): 60.65s(−1.7% 추가). **exp54 축4**(신규 구현 —
+  `vigs.py::call_gs()`에 `render_downsample` 추가, 매핑 렌더 해상도를 절반으로):
+  58.09s(−4.2%)지만 PSNR −0.8dB라 이미 실시간을 넘긴 지금은 미채택(코드는 보존,
+  eval 해상도 불일치로 크래시하던 `eval_utils.py` 버그도 같이 수정). **축5**
+  (`max_viewpoints` 20→10): 거의 무변화(−0.7%)에 PSNR −1.7dB로 최악의 ROI, 기각.
+  **축6+2 결합**(densify 공격성 3배+init 밀도 2배 희석): "성긴 init을 densify가
+  보충 증식해 상쇄된다"던 가설을 실제로 억제(최종 gaussian 116,143로 축1의
+  122,957보다도 적게 성공)했는데도 **시간은 그대로** — 이 지점부턴 gaussian
+  개수/밀도 축 전체가 소진됐음을 확정. **exp54 축7**(신규 구현 — PPM
+  content-adaptive 샘플링을 `gaussian_model.py::create_pcd_from_image_and_depth()`에
+  이식, `Dataset.ppm_sampling` 플래그): 동일 예산에서 속도 변화 없이 PSNR
+  +0.16dB 순개선(exp44 "PPM=품질 왕"이 VIGS에서도 재현) — 공짜 이득이라 채택.
+  **exp53 축D**(correlation 해상도)는 조사 결과 `num_levels`/`radius`가 사전학습된
+  ConvGRU 가중치의 입력 채널 수와 shape로 고정 결합돼 있어 **재학습 없이는 구현
+  불가로 판정**(실행하지 않고 결론만 기록). **최종 레시피**(축A+B+C+exp54축1+축7)
+  = **61.34s, 실시간 배수 0.94배** — baseline(1.52배)에서 실시간의 62%를 실제로
+  깎아 5070 Ti 단일 GPU에서 **처음으로 실시간(<1.0배) 달성**. tracking(52.31s)·
+  mapping(49.79s) 둘 다 개별 예산 이하, evo APE(Sim3)는 2.41cm로 ORB(13cm) 대비
+  5.4배 여유 유지. 남은 미탐색 축은 E(커널 튜닝, 고위험·저기대효과)뿐이나 이미
+  목표 달성으로 낮은 우선순위. 코드는 VIGS-SLAM(업스트림 저장소)에 uncommitted로
+  유지(3dgs-custom과 동일한 dirty-worktree 방침). → [exp53](
+  experiments/exp53_frontend_realtime_plan.md) · [exp54](
+  experiments/exp54_gsmapping_speed_ablation_plan.md)
 - **2026-07-22 (exp53+54 실제 실행 — `/loop` 자동화, 실시간 배수 1.52배→1.12배)**:
   "exp53·54를 실제로 실행해달라"는 요청에 따라 `/loop`로 여러 턴에 걸쳐 축을 순서대로
   스캔. **exp53 축A**(`track_frontend.py`의 `iters1`/`iters2`, 4/2→1/0): 온라인 루프
