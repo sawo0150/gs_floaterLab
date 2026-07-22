@@ -30,6 +30,28 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-22 (exp55 신설 — 내용-적응 per-frame gaussian 예산 + carve loss 이식 계획, 3단계)**:
+  사용자 제안: exp54가 `pcd_downsample`을 장면 전체에 균일 적용했던 것과 달리,
+  keyframe마다 GT 이미지의 Sobel/std(엣지·디테일 정도)에 맞춰 gaussian 예산을
+  차등 배정 + init은 최소로 주고 densify로 채움("적게 시작해 키우는 쪽이 싸다")
+  + densify가 활발해지며 생기는 floater 위험은 carve loss로 통제. **exp54
+  축2·축6+2 결과와의 긴장 관계를 먼저 명시**: 그 실험들은 "전역적으로 성기게
+  시작 + 보정 증식 억제"였고 시간 절감이 없었음(이미 tracking-bound라 gaussian
+  개수 자체가 더 이상 지배 변수가 아님을 확인) — exp55는 "총량 축소"가 아니라
+  "같은 총량의 효율적 재배분"이 목표라는 점이 다름, 다만 "적게 시작해 키우는
+  게 싸다"는 전제 자체는 재검증 필요. **exp44 Instant-GI/PPM 선례**(44e2: 신경망
+  PPM≈수제 Sobel 확률맵)를 근거로, 관계 캘리브레이션도 신경망 대신 Sobel/std
+  직접 계산으로 하는 쪽을 권고(exp54 축7에서 이미 이식한 계산 재사용 가능). 3단계:
+  ①Sobel/std↔PSNR-고정 시 필요 gaussian 개수 관계 캘리브레이션(선결 조건, 관계
+  곡선 없이 축을 흔들면 또 다른 임의 상수 스윕일 뿐) ②그 관계로 per-frame
+  적응 예산 컨트롤러 구현, exp54 최종 레시피(61.34s/0.94배) 대비 재검증 ③carve
+  loss 이식 — **CLAUDE.md North Star 2단계("floater 억제를 고품질 지도 위에
+  이식")와 자연 합류**. `carve_loss.py`는 "카메라 전체+SLAM anchor 전체로
+  한 번에" evidence field를 빌드하는 배치 구조라 VIGS의 온라인 루프(미래
+  keyframe을 모름)엔 그대로 못 씀 — 이식이 아니라 사실상 재설계 필요, 첫 작업은
+  코드 이식이 아니라 온라인 근사 설계 자체(슬라이딩 윈도우 field vs `disps_up`
+  depth-violation 채널만 활용 등). 계획만 수립, 미착수. → [exp55](
+  experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-22 (exp53+54 나머지 축 전부 실행 — `/loop` 자동화, 실시간 배수 1.12배→0.94배, 5070 Ti에서 최초로 실시간 돌파)**:
   "안 한 축들 빠짐없이 구현까지 해서 다 실험 돌려달라"는 요청에 따라 exp53
   축B~D·exp54 축4~7을 전부 실행. **exp53 축B**(`motion_filter.thresh` 2.4→3.6):
