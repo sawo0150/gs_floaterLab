@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-17 밤. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-25. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -30,6 +30,17 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-25 (exp55 부록 — mapping iters 상향 테스트, 기각)**: "실시간이 되긴
+  하는데 품질이 아쉽다, 남는 예산(5.3s)만큼 mapping iters를 더 줄 수 있지
+  않나"는 질문에 직접 실측. 정규 keyframe `map()` 호출의 `iters`를 10→15,
+  10→20으로 올려 각각 1253 전체 재실행(그 외 exp55 최종 레시피 동일). **결과:
+  iters=15는 예산 내(62.53s, 0.96배)지만 PSNR 22.36/22.66로 baseline(22.61/
+  22.95)보다 악화, iters=20은 PSNR 뒤섞이면서 예산까지 초과(65.91s, 1.01배)**.
+  원인: `_gs_queue`의 드롭-온-풀 정책 — iters를 올릴수록 `map()` 1회가 느려져
+  mapper가 더 뒤처지고, 처리되는 keyframe 수 자체가 줄어듦(22→19→16회) —
+  "한 keyframe에 더 깊게"가 "더 적은 keyframe만 커버"로 상쇄되고도 남음.
+  **결론: `iters=10` 유지(기각), 다음 후보는 keyframe coverage를 지키는
+  `Training.queue_size`(현재 2) 확대.** → [exp55](experiments/exp55_adaptive_density_carve_plan.md)
 - **2026-07-23 (exp55 부록 — 직렬 실행으로 tracking/mapping 순수 시간 분리, "tracking-bound" 결론이 병렬 한정이었음을 발견)**:
   "지금 상태로 직렬 돌리면 각 프로세스 순수 시간이 어떻게 되나" 확인 요청 →
   `Training.parallel: false`로 exp55 최종 레시피 그대로 재실행. **순수 tracking
