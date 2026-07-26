@@ -29,6 +29,20 @@
   300까지 내리면 시간은 더 줄지만(46.15s) PSNR이 −0.35~0.44dB 실손실이라
   기각, 600이 스위트스팟. **exp53+54+55+56 누적: 47.08s, 실시간 배수
   0.72배(exp55 baseline 대비 −21.3%), kf PSNR 23.21(오히려 +0.26dB 개선).**
+  **Phase 5(신규, 07-27) — 파트별 시간을 파라미터 회귀식으로 규명**: 세션
+  전체(11개 run, 548개 실제 `map()` 호출)의 `map_call` opt-in 로그를 처음
+  집계해 최소자승 회귀(`scripts/analysis/exp56_fit_timing_model.py`) —
+  직렬(경합 0) 데이터에서 R²=0.93~0.998로 rasterize/loss_compute/backward/
+  optimizer_step 각각이 `(iters, n_view, n_gauss, 해상도)`와 어떤 관계식인지
+  정확히 도출(실측 5% 이내로 검증). 결론: **`iters × n_view`(반복 횟수 ×
+  카메라 수)가 압도적 — gaussian 수 계수는 그 1/10, 해상도 계수는 통계적으로
+  0**. 병렬 데이터로 다시 피팅하면 고정비 계수만 거의 2배(경합이 "커널
+  launch 대기시간"만 정확히 부풀림을 계수로 확인). `n_view` 의존이 왜
+  이렇게 큰지도 코드로 확인: `render()`가 원본 3DGS 코드 그대로라 애초에
+  카메라 1대 전용(batch 미지원)이라, `map()`이 Python for문으로 카메라를
+  하나씩 순차 처리하며 고정비를 매번 새로 지불하는 구조 — 잠재력 큰(뷰당
+  고정비의 최대 91% 절감 가능) 다음 후보(rasterizer batch화)를 식별했으나
+  CUDA 소스 수정이 필요해 고위험으로 별도 라운드 필요.
 - 배경: 사용자 관찰 — "실시간이 되긴 하는데 품질이 썩 좋지는 않다. gaussian
   개수를 줄여도 그만큼 속도가 안 빨라지는 것 같은데 왜 그런가." exp55에서
   평균 gaussian 수를 −35.9% 줄였지만 순수 mapping 시간은 −12.2%뿐이었고
@@ -377,8 +391,112 @@ evo APE Sim3도 2.07cm으로 동급/개선.
 "초기화급 호출이 극소수인데 전체 시간의 절반 가까이를 차지한다"는 헤드라인
 결론 자체는 정확한 횟수(2 vs 3)와 무관하게 견고함.
 
+## Phase 5 — 파트별 시간을 파라미터 회귀식으로 규명 (2026-07-27, 사용자 요청)
+
+**요청**: "40s를 파트별로 나누고, 각 파트가 어떤 param에 종속되는지, 총
+시간과 param의 관계식(추세선)을 꼼꼼히 규명해달라." Phase 0~4는 전부
+`map_dispatch`(호출 전체 합) 또는 개별 호출 몇 개를 손으로 비교하는
+수준이었음 — 이번엔 **기존에 이미 있었지만 한 번도 집계 안 해본
+`map_call` opt-in 로그**(`rasterize`/`loss_compute`/`backward`/
+`optimizer_step`마다 `iters`/`n_view`/`n_gauss` 메타데이터 포함)를 이 세션
+전체 실험(exp55~56, 11개 run, 548개 실제 `map()` 호출)에서 전부 파싱해
+최소자승 회귀로 관계식을 피팅. 스크립트:
+`scripts/analysis/exp56_fit_timing_model.py`(재사용 가능, 신규 run 추가 시
+`RUNS` 리스트에 추가하면 재실행 가능).
+
+### 파트 구조부터 — `map()`의 실제 루프
+
+```python
+for _ in range(iters):                          # iters번 반복
+    for viewpoint in current_viewpoints:         # 매 iteration마다 n_view대 카메라를
+        render(viewpoint, ...)                   #   "한 대씩" 순차 호출 (rasterize)
+        get_loss_mapping_rgbd(...)               #   (loss_compute)
+    loss_mapping.backward()                      # iteration당 1번(전체 뷰 합산 후)
+    optimizer.step()                             # iteration당 1번
+```
+`rasterize`·`loss_compute`는 **iteration마다 카메라 1대씩 순차 처리**하는
+구조라 자연 단위가 "뷰-연산 1회"(`iters × n_view`)이고, `backward`·
+`optimizer_step`은 iteration당 1번만 불리지만 그 안에서 다루는
+그래프 크기/파라미터 수가 `n_view`·`n_gauss`에 비례.
+
+### 회귀 결과 (직렬 데이터만, GPU 경합 없음 — n=330 실제 호출)
+
+| 파트 | 관계식 | R² |
+|---|---|---:|
+| rasterize | `1.473·(iters·n_view) + 0.00545·(iters·n_view·n_gauss/1000) − 0.035·(iters·n_view·pixratio)` | **0.992** |
+| loss_compute | `0.956·(iters·n_view) + 0.00207·(iters·n_view·n_gauss/1000) − 0.024·(iters·n_view·pixratio)` | **0.994** |
+| backward | `−1.623·iters + 1.126·(iters·n_view) + 0.126·(iters·n_gauss/1000)` | **0.929** |
+| optimizer_step | `1.739·iters − 0.095·(iters·n_view) + 0.001·(iters·n_gauss/1000)` | **0.998** |
+
+(`pixratio` = 1.0 원해상도, 0.25 = `render_downsample=2`. 계수의 부호/크기가
+±0.02~0.09 수준으로 작은 항은 통계적으로 0과 구분 안 됨 — 잡음.)
+
+**검증(회귀에 실제로 쓰인 값이지만 별도로 대조)**: `iters=95, n_view=11,
+n_gauss=18103`(Phase 4에서 발견한 그 초기화 호출) → 모델 예측 **3,927ms**,
+실측 **3,734ms**(오차 5%).
+
+### 파트별로 뭐가 지배적인가 — 계수를 직접 비교
+
+| 항 | 대표 계수 크기(뷰-연산 또는 iteration당) | 지금 규모에서 기여 |
+|---|---:|---|
+| **고정비(a)** — `iters`·`n_view` 자체 | rasterize 1.47ms + loss_compute 0.96ms + backward(n_view항) 1.13ms **≈ 뷰-연산 1회당 3.5ms** | **가장 큼** |
+| gaussian 수(b) | 1000개당 0.005~0.13ms | n_gauss 5만 기준 rasterize·loss_compute 합쳐 ≈0.4ms(뷰-연산당) — 고정비의 10% 남짓 |
+| 해상도(c) | −0.02~−0.03(잡음, 사실상 0) | 무시 가능 |
+
+**즉 시간을 지배하는 건 압도적으로 `iters`와 `n_view`(카메라 수)의 곱이지,
+gaussian 수·해상도가 아니다** — Phase 0~2가 이미 보인 결론을 이번엔 정확한
+숫자(계수)로 다시 확인.
+
+### 병렬(실배포 상태)에서는 고정비(a)만 부풀어
+
+같은 피팅을 병렬 데이터(n=186, GPU 경합 있음)로 하면 R²는 0.73~0.86으로
+떨어지지만(경합이 노이즈를 더함) **고정비(a) 계수만 거의 2배**로 뜀 —
+rasterize 1.47→2.69, loss_compute 0.96→1.76, backward의 `n_view` 계수도
+1.13→1.93. **gaussian/해상도 계수는 거의 그대로.** GPU 경합은 "커널
+launch·스케줄링 대기시간"만 정확히 부풀리지, 데이터 처리 자체를 느리게
+만들지 않는다는 걸 계수 수준에서 확인 — exp55 부록의 정성적 "경합이
+tracking을 부풀린다"는 관찰을 mapping 쪽에서도 정량 재확인한 셈.
+
+### 왜 하필 `n_view`(카메라 수)에 이렇게 크게 종속되는가 — 코드 레벨 원인
+
+`vigs/gaussian/renderer/__init__.py::render()`를 직접 확인 — 이건 **원본
+3DGS(Inria/GRAPHDECO) 코드 그대로**이고, 원래 설계 자체가 **카메라 1대만
+받아서 그때그때 `GaussianRasterizationSettings`/`GaussianRasterizer`를
+새로 만들어 처리**하는 함수다(batch 차원 없음, `viewmatrix`/`projmatrix`가
+스칼라 하나). VIGS의 `map()`은 멀티뷰 supervision이 필요해 이 단일-카메라
+함수를 Python for문으로 `n_view`번 반복 호출하는 구조를 얹었을 뿐, 원본
+함수 자체는 여러 카메라를 한 번에 처리하도록 만들어진 적이 없다.
+
+이게 왜 문제냐면 — rasterize/loss_compute 비용의 85~95%가 픽셀·gaussian
+처리량이 아니라 **커널 launch/디스패치 고정비**(Phase 0에서 확인)인데,
+이 고정비는 **카메라를 하나 처리할 때마다 매번 새로 지불**된다(같은
+iteration 안에서도 배치로 묶이지 않고 순수 순차 for-loop, 카메라 사이에
+공유되는 게 전혀 없음). 그래서 카메라를 하나 더 넣으면 그 카메라의
+데이터量과 무관하게 "고정비 한 세트"가 통째로 추가된다 — `iters`가 이
+파이프라인을 몇 번 반복하는지를 결정하듯, `n_view`는 "한 iteration 안에서
+이 파이프라인을 몇 번 반복하는지"를 결정하는 것이라 **사실상 iters와
+동일한 메커니즘(고정비 반복)이 곱으로 두 번 걸리는 구조**.
+
+**함의(다음 후보, 고위험·미착수)**: 만약 rasterizer가 여러 카메라를 **한
+번의 커널 launch로 묶어 처리**(batch dimension)할 수 있다면, 뷰-연산당
+고정비를 `n_view`번이 아니라 **1번만** 지불하게 돼 이론상 뷰당 고정비의
+(n_view−1)/n_view ≈ 91%(n_view=11 기준)를 아낄 여지가 있다 — Phase 0에서
+확인한 "고정비가 압도적"이라는 사실 자체가 이 lever의 잠재력을 크게 만듦.
+다만 이건 `thirdparty/diff-gaussian-rasterization`의 **CUDA 소스 자체를
+멀티카메라 batch 지원하도록 수정**해야 하는 일이라, Phase 3에서 겪은
+stream-분리 크래시(같은 서드파티 CUDA 코드의 미검증 영역을 건드려 실제로
+크래시 남)와 같은 성격의 리스크 — 신중한 별도 라운드가 필요.
+
 ## 다음 단계
 
+0. **(Phase 5에서 새로 발견, 잠재력 최대이나 고위험) rasterizer 멀티카메라
+   batch 지원** — `n_view`(카메라 수)가 뷰-연산당 고정비를 그대로 곱으로
+   반복시키는 게 회귀로 확인됨(뷰-연산당 ≈3.5ms 고정비, n_view=11이면
+   iteration당 ≈38.5ms가 오직 "카메라를 11번 나눠 호출한다"는 이유만으로
+   붙음). 원본 3DGS `render()`가 애초에 단일 카메라 전용이라 batch화하려면
+   `thirdparty/diff-gaussian-rasterization` CUDA 소스 수정이 필요 —
+   Phase 3의 stream-분리 크래시와 같은 성격의 리스크, 별도 신중한 라운드로
+   분리해서 착수할 가치.
 1. **Phase 4의 "왜 2~3회인가" 미해결 질문 규명** — `remove_all_gaussians()`는
    코드상 정확히 한 번만 조건이 참이 되는데 실측 로그엔 초기화급 호출이 그보다
    많이 잡힘. 정확한 메커니즘을 알면 PGBA 호출(`iters=20`, 4회, 3.96~3.93s)도

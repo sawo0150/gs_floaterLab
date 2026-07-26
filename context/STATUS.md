@@ -30,6 +30,28 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-27 (exp56 Phase 5 — 파트별 시간을 파라미터 회귀식으로 규명, `iters×n_view`가 압도적임을 계수로 확정)**:
+  "40초를 파트별로 나누고, 각 파트가 어떤 param에 종속되는지, 관계식(추세선)을
+  꼼꼼히 규명해달라"는 요청. 세션 전체 실험(exp55~56, 11개 run, 548개 실제
+  `map()` 호출)의 기존 `map_call` opt-in 로그(`iters`/`n_view`/`n_gauss`
+  메타)를 처음 집계해 최소자승 회귀(`scripts/analysis/
+  exp56_fit_timing_model.py`, 신규 재사용 도구). **직렬(GPU 경합 0) 데이터
+  기준 R²=0.93~0.998**로 rasterize/loss_compute/backward/optimizer_step
+  각각의 관계식 도출(실측 대비 5% 이내로 검증 통과). 결론: **`iters×n_view`
+  (반복 횟수 × 카메라 수) 항의 계수가 압도적**(뷰-연산 1회당 ≈3.5ms 고정),
+  gaussian 수 계수는 그 1/10 수준(1000개당 0.005~0.13ms), 해상도 계수는
+  통계적으로 0과 구분 안 됨. 병렬로 재피팅하면 고정비 계수만 거의 2배로
+  뜀(gaussian/해상도 계수는 그대로) — GPU 경합이 "커널 launch 대기시간"만
+  정확히 부풀린다는 걸 계수 레벨로 확인. **"왜 n_view에 이렇게 종속적인가"도
+  코드로 규명**: `vigs/gaussian/renderer/__init__.py::render()`가 원본
+  3DGS(Inria) 코드 그대로라 애초에 카메라 1대 전용(batch 미지원) —
+  `map()`이 Python for문으로 카메라를 하나씩 순차 처리하며 고정비를 매번
+  새로 지불하는 구조. **다음 후보 식별(고위험, 미착수)**: rasterizer가
+  멀티카메라 batch를 지원하면 뷰당 고정비의 최대 91%(n_view=11 기준)를
+  아낄 여지 — `thirdparty/diff-gaussian-rasterization` CUDA 소스 수정이
+  필요해 Phase 3의 stream-분리 크래시와 같은 성격의 리스크, 별도 신중한
+  라운드로 분리.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-27 (exp56 Phase 4 — 이 세션 최대 발견: map() 호출 26회 중 2~3회가 mapping 시간의 49% 차지, init_itr_num 1050→600 채택)**:
   "1iter당 연산량을 줄이려면 어떤 핵심 부분을 건드려야 하나, 최소 50% 줄일
   수 있는 지점을 알려달라"는 요청에 `/loop`로 반복 조사. 그동안 한 번도
