@@ -6,7 +6,13 @@
   여유 0.08배→0.23배), PSNR mean/kf 둘 다 개선(+0.21dB), map() 성사 횟수도
   22→26회 증가라는 전 지표 동시 개선(iters=10이 과잉 투자였음을 실측 확정).
   Phase 2(`render_downsample=2`를 이 새 baseline 위에 재검증)는 기각(시간
-  이득 −1.7%뿐, PSNR −0.8dB 손해).
+  이득 −1.7%뿐, PSNR −0.8dB 손해). Phase 3(coverage/GPU경합을 직접 겨냥한
+  3축: `queue_size`↑·CUDA Graph·stream 분리)은 **전부 기각** — queue_size=4는
+  역효과(시간·PSNR·coverage 셋 다 악화), CUDA Graph는 조사 후 구조적 부적합
+  판정(구현 안 함), stream 분리는 **실행 중 CUDA illegal memory access로
+  크래시**(custom rasterizer의 멀티스트림 미검증 상태 추정, 안전하게 되돌림 —
+  다른 프로세스/GPU엔 영향 없음 확인). **exp56의 실질적 성과는 Phase 1
+  (iters 10→7) 단독으로 확정.**
 - 배경: 사용자 관찰 — "실시간이 되긴 하는데 품질이 썩 좋지는 않다. gaussian
   개수를 줄여도 그만큼 속도가 안 빨라지는 것 같은데 왜 그런가." exp55에서
   평균 gaussian 수를 −35.9% 줄였지만 순수 mapping 시간은 −12.2%뿐이었고
@@ -140,16 +146,117 @@ self.map(self.current_window, iters=7, include_global=True)  # 10 -> 7
 "얼마나 자주/많이 도는가"가 지배적이라는 게 두 방향 실험(iters↑/iters↓) 모두
 에서 일관되게 확인됨.
 
+## Phase 3 — coverage/경합을 직접 겨냥한 3축 (2026-07-26, 사용자 요청)
+
+exp56 Phase 1/2로 "N/해상도를 줄이는" 레버가 소진됐음이 확정된 뒤, 사용자가
+제안한 다음 3개 축을 전부 실행:
+
+1. **`Training.queue_size`(2→4) 확대** — 오버헤드(iters·해상도)는 그대로 두고
+   드롭되는 keyframe만 줄여 coverage를 늘리는 방향.
+2. **커널 launch를 CUDA Graph로 묶기** — 조사 결과 **기각(미실행)**, 사유는
+   아래 참조.
+3. **GPU 경합 완화(CUDA stream 분리)** — mapping을 tracking과 분리된 별도
+   CUDA stream에서 실행해 legacy default stream 공유로 인한 암묵적 동기화를
+   제거.
+
+### 축2(CUDA Graph) — 조사 후 기각, 구현 안 함
+
+**이유**: CUDA Graph capture는 재생(replay) 구간의 모든 텐서가 **고정된 메모리
+주소·shape**를 유지해야 하는데, VIGS의 `map()` 루프는 구조적으로 이 조건과
+맞지 않음:
+- `densify_and_prune()`가 gaussian 파라미터(`_xyz`/`_opacity`/...)를 주기적으로
+  cat/prune해 메모리를 재할당 — capture된 그래프가 무효화됨(다행히 한 `map()`
+  호출 내에서는 대개 발생 안 함, 26회 중 4회만 densify 발생).
+- **keyframe마다 gaussian 개수(N)와 `current_window`의 카메라 구성이 다름** —
+  즉 거의 매 `map()` 호출마다 새로 capture해야 함. 특히 exp55의 content-adaptive
+  예산(축2)이 keyframe마다 다른 N을 만드는 설계라 이 문제가 구조적으로 더 심함.
+- `torch.optim.Adam`이 `capturable=True` 없이 기본 설정으로 쓰이고 있어(코드
+  확인, `gaussian_model.py:472`) graph-safe하지 않음 — 이것만 고쳐도 별도
+  검증이 필요한 변경.
+- 대안으로 `torch.compile(mode="reduce-overhead")`(PyTorch가 CUDA Graph
+  안전장치를 자동 처리)도 검토했으나, 동일한 이유(매 호출마다 다른 N/shape)로
+  **컴파일을 거의 매번 다시 해야 해서 컴파일 비용이 iters=7 루프가 절약하는
+  시간보다 커질 가능성이 높음** — 이 workload(매 keyframe마다 동적 N)는애초에
+  CUDA Graph/torch.compile이 설계된 "고정 배치 크기 반복 학습"과 정반대 패턴.
+- **결론**: 구현하지 않음. 조용히 잘못된 결과를 낼 위험(그래프가 stale
+  메모리를 참조)이 큰데 이득은 불확실 — exp53 축D(재학습 없이 구현 불가)와
+  같은 성격의 "조사 후 기각".
+
+### 축1(queue_size)·축3(CUDA stream 분리) — 구현·실행
+
+- **축1**: `Training.queue_size: 2→4`.
+- **축3**: `vigs.py`에 `Training.gs_dedicated_stream`(신규, 기본 false) 플래그
+  추가 — true면 `self._gs_stream = torch.cuda.Stream()`을 만들어 `_gs_worker`의
+  `process_track_data` 호출을 `with torch.cuda.stream(self._gs_stream):`로
+  감쌈. **⚠ 구현 중 레이스 컨디션 실측 전에 발견·수정**: 기존 코드는 tracking
+  스레드와 mapping 스레드가 명시적 stream 관리 없이 **동일한 legacy default
+  stream을 공유**하고 있었음(`grep`으로 전체 레포에 `cuda.Stream`/`cuda.stream`
+  이 전무함을 확인) — mapping을 별도 stream으로 분리하면 `demo.py`의
+  `_gs_queue.join()` 직후 메인 스레드가 곧바로 `save_ply`/`eval_rendering`으로
+  gaussian GPU 텐서를 읽는데, `queue.join()`은 파이썬 호출이 반환됐음만
+  보장하지 GPU 커널 완료를 보장하지 않음 — **stream 동기화 없이는 아직 끝나지
+  않은 densify/optimizer.step() 쓰기와 경합해 PLY/PSNR이 조용히 오염될 수
+  있는 실제 레이스**였음. `demo.py`의 `_gs_queue.join()` 직후에
+  `torch.cuda.current_stream().wait_stream(vigs._gs_stream)`을 추가해 해결
+  (실행 전에 코드 리딩으로 발견 — [[feedback_verify_unmeasured]] 원칙:
+  실측 전에 이런 위험은 코드로 직접 확인해야 함).
+
+**측정** (iters=7 baseline 위, 1253 전체):
+
+| 설정 | 온라인 루프 총합 | 실시간 배수 | PSNR(mean/kf) | evo APE Sim3 | map() 성사 횟수 |
+|---|---:|---:|---:|---:|---:|
+| baseline(queue=2, stream 공유) | 50.17s | 0.77배 | 22.82 / 23.16 | 2.41cm | 26회 |
+| queue_size=4 | 52.38s | 0.80배 | 22.57 / 23.05 | 1.91cm | **25회** |
+| gs_dedicated_stream=true | **크래시** | | | | |
+
+**축1(queue_size=4) — 기각, 역효과**: 시간 +4.4%(50.17→52.38s), PSNR
+mean/kf 둘 다 악화(−0.25/−0.11dB), **map() 성사 횟수도 26→25회로 오히려
+감소** — "버퍼를 키우면 더 많이 처리될 것"이라는 예상과 정반대. 원인 추정:
+드롭 정책(`while full: get_nowait()`)은 큐 크기와 무관하게 "최근 N개만
+유지"이므로, 버퍼가 클수록 mapper가 밀렸을 때 **더 오래된(최대 4개 밀린)
+packet부터 순서대로 처리**하게 돼 신선도가 오히려 나빠짐(queue=2일 땐
+최대 2개 밀린 packet까지만 허용). 처리량 자체도 늘지 않아 순이득이 없음 —
+**기각, `queue_size=2` 유지**.
+
+**축3(gs_dedicated_stream) — 실행 중 크래시, 기각**: keyframe 10~11 부근에서
+`torch.AcceleratorError: CUDA error: an illegal memory access was encountered`
+발생, GPU 컨텍스트가 오염돼 이후 모든 CUDA 호출이 연쇄 실패 — 프로세스
+강제 종료 후 `nvidia-smi`로 GPU가 깨끗한 상태(459MiB, 유휴 프로세스 없음)로
+복구됐음을 확인, 다른 작업엔 영향 없음.
+
+**원인 분석**: 레포 전체에 명시적 CUDA stream 관리가 전혀 없었다는 걸
+구현 전에 이미 확인했었는데(`grep`으로 확인), 즉 지금까지 tracking과
+mapping은 **암묵적으로 legacy default stream을 공유**하고 있었고, 이
+legacy null stream 특유의 "다른 모든 stream과 교차 동기화"하는 특성이
+사실상 두 스레드의 GPU 작업을 순차화해 안전하게 만들어주고 있었다.
+mapping을 별도 stream으로 옮기자 **진짜 동시 실행**이 되면서, custom CUDA
+rasterizer(`thirdparty/diff-gaussian-rasterization`, 이 프로젝트 계열의
+전형적인 hand-written CUDA extension)가 멀티스트림 환경에서 안전하다고
+검증된 적이 없는 내부 상태(재사용되는 정적/스크래치 버퍼 등, 추정)와
+충돌한 것으로 판단됨 — 정확한 라인은 CUDA 커널 소스까지 파고들어야 하는데
+투자 대비 낮은 우선순위로 판단해 더 파지 않음.
+
+**결론 — 기각(구현 안전성 문제로 재시도 안 함)**: `gs_dedicated_stream`
+플래그는 코드에 남겨두되(기본 false, off) `vigs.py`에 "패치 없이 켜지
+말 것" 경고 주석 추가. rasterizer CUDA 소스를 멀티스트림 안전하게 고치지
+않는 한 이 축은 닫힌 것으로 취급 — exp53 축D(재학습 없이 구현 불가)·exp56
+축2(CUDA Graph, 구조적 부적합)와 같은 성격의 "조사/시도 후 기각".
+
+**Phase 3 종합**: 3축(queue_size↑·CUDA Graph·stream 분리) 전부 기각 —
+coverage/경합을 직접 겨냥한 접근은 이번 아키텍처(legacy default stream
+암묵적 동기화에 의존하는 스레드 안전성, 큐의 "최근 N개만 유지" 드롭 정책)
+에서는 추가 이득을 못 냄. **exp56의 실질적 성과는 Phase 1(iters=7)
+하나로 확정.**
+
 ## 다음 단계
 
-1. **`Training.queue_size`(현재 2) 확대** — iters=7로 이미 coverage가 늘었는데
-   (22→26회), 큐 자체를 키우면 드롭이 더 줄어 추가 이득이 있는지 확인할
-   가치. iters↓와 queue_size↑는 같은 방향(coverage 확대)이라 조합 시너지
-   가능성.
-2. iters를 7 밑으로(예: 3~4) 더 내리는 것도 미탐색 — Phase 1에서 5→7 사이
+1. iters를 7 밑으로(예: 3~4) 더 내리는 것도 미탐색 — Phase 1에서 5→7 사이
    수확체감이 이미 보였으므로 ROI는 낮을 가능성이 크지만, 완전히 배제하진
    않음.
-3. carve floater 지표(exp55의 `exp55_score_carve_vigs.py`)로 iters=7 채택
+2. carve floater 지표(exp55의 `exp55_score_carve_vigs.py`)로 iters=7 채택
    레시피의 floater 수준도 재확인할 가치 — carve_lambda는 그대로 0.05를
    유지했지만 iters가 줄어 carve loss 자체의 gradient step 수도 줄었으므로
    효과가 희석됐을 가능성.
+3. (낮은 우선순위, 고위험) `thirdparty/diff-gaussian-rasterization`을
+   멀티스트림 안전하게 패치하면 축3(stream 분리)을 다시 시도할 여지 — CUDA
+   커널 소스 레벨 작업이라 투자 대비 효과가 불확실, 지금 우선순위는 아님.

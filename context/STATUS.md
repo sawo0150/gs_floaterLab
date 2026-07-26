@@ -50,6 +50,26 @@
   재확인). exp53+54+55+56 최종 = **50.17s, 실시간 배수 0.77배(예산
   대비 여유 3배 확대), PSNR 22.82/23.16(exp55 대비도 개선)**.
   → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
+- **2026-07-26 (exp56 Phase 3 — coverage/GPU경합 직접 겨냥 3축 전부 기각)**:
+  사용자 제안으로 `queue_size`↑·CUDA Graph·mapping 전용 stream 분리 3축을
+  전부 실행. **`queue_size` 2→4**: 역효과(50.17→52.38s, PSNR −0.25/−0.11dB,
+  map() 성사 횟수도 26→25회로 오히려 감소) — 드롭 정책이 "최근 N개만 유지"라
+  버퍼가 클수록 mapper가 더 오래된 packet부터 처리하게 돼 신선도만 나빠짐,
+  기각·`queue_size=2` 유지. **CUDA Graph**: 조사 후 구현 안 함 — keyframe마다
+  gaussian 개수·`current_window` 구성이 달라 거의 매 호출 재capture 필요(Adam도
+  `capturable=True` 미설정), 재capture/재컴파일 비용이 iters=7 루프 절감분보다
+  클 가능성이 높아 이 workload(동적 shape)엔 구조적으로 안 맞음 — exp53
+  축D와 같은 성격의 "조사 후 기각". **mapping 전용 CUDA stream 분리**: 구현
+  중 레이스 컨디션을 코드 리딩으로 먼저 발견해 수정했음에도(`demo.py`의
+  `_gs_queue.join()` 뒤 `wait_stream` 추가) **실행하자 keyframe 10~11에서
+  CUDA illegal memory access로 크래시** — 레포 전체에 명시적 stream 관리가
+  없어 tracking/mapping이 legacy default stream의 암묵적 교차동기화로
+  우연히 "안전"했던 것으로 추정, custom rasterizer(`thirdparty/diff-gaussian-
+  rasterization`)가 진짜 동시실행엔 미검증 상태. 안전하게 프로세스 종료·
+  `nvidia-smi`로 GPU 정상 확인, 코드는 기본 off로 남기고 경고 주석 추가.
+  **exp56의 실질적 성과는 Phase 1(iters 10→7) 단독으로 확정** — 50.17s,
+  실시간 배수 0.77배, PSNR 22.82/23.16.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-25 (exp55 부록 — mapping iters 상향 테스트, 기각)**: "실시간이 되긴
   하는데 품질이 아쉽다, 남는 예산(5.3s)만큼 mapping iters를 더 줄 수 있지
   않나"는 질문에 직접 실측. 정규 keyframe `map()` 호출의 `iters`를 10→15,
