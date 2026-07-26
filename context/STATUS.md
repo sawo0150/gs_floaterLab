@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-26. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-27. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7)로 갱신: 59.80s→50.17s(실시간 배수 0.92→0.77배), PSNR 22.61/22.95→22.82/23.16(오히려 개선), map() 성사 횟수 22→26회 — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 고정비 자체와 큐 드롭 coverage를 동시에 개선, 전 지표 동시 개선 달성** | 
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600)로 갱신: 59.80s→47.08s(실시간 배수 0.92→0.72배, −21.3%), PSNR 22.61/22.95→22.73/23.21(kf +0.26dB), map() 성사 횟수 22→30회 — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, 이어서 `map_call` 세부 로그를 처음 집계해 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 mapping 시간의 49%를 차지"하는 핵심 지점을 발견, init_itr_num을 낮춰 2차 개선 — 두 번 다 전 지표 동시 개선 달성** | 
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,25 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-27 (exp56 Phase 4 — 이 세션 최대 발견: map() 호출 26회 중 2~3회가 mapping 시간의 49% 차지, init_itr_num 1050→600 채택)**:
+  "1iter당 연산량을 줄이려면 어떤 핵심 부분을 건드려야 하나, 최소 50% 줄일
+  수 있는 지점을 알려달라"는 요청에 `/loop`로 반복 조사. 그동안 한 번도
+  집계하지 않았던 `map_call` opt-in 로그(`iters`/`n_view`/`n_gauss` 메타)를
+  처음 파싱 — **`map()` 호출 26회가 균일하지 않았음을 발견**: 정규 keyframe
+  (21회, iters=7)·PGBA(4회, iters=20) 외에, **맵 최초 초기화 + IMU 재초기화
+  시(`track_frontend.py`의 `remove_all_gaussians()`가 `t1==imu_late_init_from`
+  일 때 gaussian을 통째로 삭제) 무거운 초기화 경로(iters=90~131)를 타는
+  호출이 2~3회 있는데, 이 소수 호출이 합쳐서 전체 mapping 시간의 49.3%를
+  차지**하고 있었음. `Training.init_itr_num`(초기화 반복 횟수 기준값,
+  1050)을 300/600으로 낮춰 재검증 — 300은 시간 최대(46.15s)지만 PSNR
+  −0.35~0.44dB로 실손실(노이즈 ±0.24~0.33dB 초과) → 기각. **600은 시간
+  −6.2%(50.17→47.08s) 확보하면서 PSNR은 사실상 무손실(kf 오히려 +0.05dB),
+  map() 성사 횟수 26→30회 증가** → 채택. **exp53+54+55+56 누적 최종: 47.08s,
+  실시간 배수 0.72배(exp55 baseline 대비 −21.3%), kf PSNR 23.21(+0.26dB
+  개선)**. 미해결 한 가지: `remove_all_gaussians()`가 코드상 정확히 한 번만
+  조건 성립하는데 실측 로그엔 초기화급 호출이 2~3회로 보임 — 정확한 원인은
+  다음 조사 후보.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-26 (exp56 부록 — render_downsample 무효과가 GPU 경합 때문 아니냐는 재검증, 경합 가설 기각)**:
   Phase 2/3의 "데이터量(픽셀·gaussian 수)을 줄여도 mapping이 안 빨라진다"는
   결론이 전부 병렬(`parallel: true`) 모드에서만 나온 것 아니냐는 재확인
