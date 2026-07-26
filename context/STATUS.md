@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-25. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-26. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.73** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→**0.94배(실시간 최초 돌파)**까지 축소(PSNR 22.78/23.14, evo APE Sim3 2.41cm, ORB 대비 5.4배 여유 유지). exp55(내용-적응 예산)로 **평균 gaussian 수 −35.9%**(PSNR·궤적 손실 없음, 오히려 소폭 개선) 추가 확보 — 시간은 tracking-bound라 −3.2%뿐이나 연산량 자체는 크게 가벼워짐. exp55 Phase 3(carve loss 온라인 근사)까지 채택 — 자체 구현한 floater 진단 지표로 **가시 floater −7.5%, PSNR/시간 비용 없음** 실측 확인** |
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7)로 갱신: 59.80s→50.17s(실시간 배수 0.92→0.77배), PSNR 22.61/22.95→22.82/23.16(오히려 개선), map() 성사 횟수 22→26회 — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 고정비 자체와 큐 드롭 coverage를 동시에 개선, 전 지표 동시 개선 달성** | 
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,26 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-26 (exp56 — mapping 고정비 규명 + iters 10→7 채택, 전 지표 동시 개선)**:
+  "gaussian 개수를 줄여도 왜 속도가 안 줄어드나"는 사용자 질문에 답하려
+  기존 `_Sect` 세부 타이밍 계측(rasterize/backward/loss_compute/optimizer_step/
+  densify_prune, 신규 실행 없이 exp55의 직렬 재실행 timing.csv 재분석)을
+  뜯어봄. **Phase 0**: 순수 map() 68.16s 중 rasterize 40%+backward 34%+
+  loss_compute 24% — loss_compute는 순수 픽셀(해상도) 고정비로 gaussian
+  개수(N)와 완전 무관, rasterize/backward도 이 N 규모(85k~130k)에선 exp54
+  축6+2·exp55 Phase2가 반복 확인한 대로 고정비가 N-비례 항을 압도 — **N을
+  줄이는 레버가 이미 소진됐음을 원리적으로 확정**. **Phase 1**: 그렇다면
+  N 대신 `iters`(고정비에 곱으로 걸림)를 낮추는 실험 — `map()` iters
+  10→7→5 스캔. **결과: iters=7에서 시간 −16.1%(59.80→50.17s), PSNR
+  mean/kf 둘 다 +0.21dB 개선, map() 성사 횟수도 22→26회 증가**라는 전
+  지표 동시 개선(오늘 오전 반대 방향 iters↑ 테스트의 정확히 대칭 결과 —
+  `_gs_queue` 드롭 정책 하에서 coverage가 반복 깊이보다 지배적임을 양방향
+  실험으로 재확인). iters=5는 7과 사실상 동급(수확체감) → **iters=7 채택**.
+  **Phase 2**: 이 새 baseline 위에 exp54 축4(render_downsample=2)도 재검증
+  — 시간 이득 −1.7%뿐에 PSNR −0.8dB 손해로 기각(구 baseline 때와 같은 결론
+  재확인). exp53+54+55+56 최종 = **50.17s, 실시간 배수 0.77배(예산
+  대비 여유 3배 확대), PSNR 22.82/23.16(exp55 대비도 개선)**.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-25 (exp55 부록 — mapping iters 상향 테스트, 기각)**: "실시간이 되긴
   하는데 품질이 아쉽다, 남는 예산(5.3s)만큼 mapping iters를 더 줄 수 있지
   않나"는 질문에 직접 실측. 정규 keyframe `map()` 호출의 `iters`를 10→15,
