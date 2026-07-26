@@ -30,6 +30,19 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-26 (exp56 부록 — render_downsample 무효과가 GPU 경합 때문 아니냐는 재검증, 경합 가설 기각)**:
+  Phase 2/3의 "데이터量(픽셀·gaussian 수)을 줄여도 mapping이 안 빨라진다"는
+  결론이 전부 병렬(`parallel: true`) 모드에서만 나온 것 아니냐는 재확인
+  질문 — 순수 직렬(`parallel: false`, tracking과 GPU 경합 0)로 iters=7
+  baseline vs render_downsample=2(픽셀 1/4)를 재비교. **결과: 직렬에서도
+  rasterize/backward/loss_compute가 겨우 −3.4%/−1.0%/−1.9%만 감소**(병렬
+  측정치 −5.5~−7.7%보다도 작음) — 경합 가설 기각, 데이터量은 병렬·직렬
+  무관하게 이 시간 구조를 거의 안 좌우함이 재확인됨. 대조로 `iters`
+  10→7은 직렬에서도 −20~24%로 확실히 비례(rasterize −22.0%, backward
+  −24.2%, loss_compute −20.9%) — "GPU 연산량"은 (a)커널 1회가 처리하는
+  데이터量(거의 공짜)과 (b)커널 호출 횟수(iters, 거의 선형)로 나뉜다는
+  구조적 사실을 병렬/직렬 양쪽에서 확정.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-26 (exp56 — mapping 고정비 규명 + iters 10→7 채택, 전 지표 동시 개선)**:
   "gaussian 개수를 줄여도 왜 속도가 안 줄어드나"는 사용자 질문에 답하려
   기존 `_Sect` 세부 타이밍 계측(rasterize/backward/loss_compute/optimizer_step/
