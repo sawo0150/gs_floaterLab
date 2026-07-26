@@ -42,7 +42,17 @@
   카메라 1대 전용(batch 미지원)이라, `map()`이 Python for문으로 카메라를
   하나씩 순차 처리하며 고정비를 매번 새로 지불하는 구조 — 잠재력 큰(뷰당
   고정비의 최대 91% 절감 가능) 다음 후보(rasterizer batch화)를 식별했으나
-  CUDA 소스 수정이 필요해 고위험으로 별도 라운드 필요.
+  CUDA 소스 수정이 필요해 고위험으로 별도 라운드 필요. **Phase 6(신규,
+  07-27) — iters↓·n_view↑ 재배분(같은 view-op 예산, 품질 축) 시도, 기각**:
+  Phase 5 회귀식에서 나온 "같은 iters×n_view면 시간은 그대로이니 뷰를
+  다양하게 하면 품질이 오히려 좋아지지 않을까"라는 가설을 실측 — dead
+  config였던 `Training.window_size`를 실제 로직에 연결(`current_window`
+  상한 하드코딩 `10`을 대체)해 두 지점(window=15/iters=5, window=19/iters=4)
+  테스트. **시간 예측은 정확히 맞았지만(거의 무변화) PSNR은 −1.1→−3.5dB로
+  window를 키울수록 단조 악화** — 프론티어(최근 keyframe)가 과거 keyframe
+  들과 제한된 gradient 예산을 나눠 쓰게 되면서 수렴이 희석되는 것으로 분석,
+  3번째 지점은 추세가 명확해 실행 없이 기각 확정. window_size는 기본값
+  10으로 원복(코드 연결 자체는 유지 — 향후 재검증 가능한 자산).
 - 배경: 사용자 관찰 — "실시간이 되긴 하는데 품질이 썩 좋지는 않다. gaussian
   개수를 줄여도 그만큼 속도가 안 빨라지는 것 같은데 왜 그런가." exp55에서
   평균 gaussian 수를 −35.9% 줄였지만 순수 mapping 시간은 −12.2%뿐이었고
@@ -486,6 +496,79 @@ iteration 안에서도 배치로 묶이지 않고 순수 순차 for-loop, 카메
 멀티카메라 batch 지원하도록 수정**해야 하는 일이라, Phase 3에서 겪은
 stream-분리 크래시(같은 서드파티 CUDA 코드의 미검증 영역을 건드려 실제로
 크래시 남)와 같은 성격의 리스크 — 신중한 별도 라운드가 필요.
+
+## Phase 6 — iters↓·n_view↑ 재배분(같은 view-op 예산, 품질 축) (2026-07-27, 사용자 제안)
+
+Phase 5 회귀식(`rasterize/loss_compute ∝ iters×n_view`)에서 나온 자연스러운
+질문: 같은 `iters×n_view`(view-op 총량) 예산을 유지한 채 **iters를 줄이고
+n_view(카메라 수)를 늘리면** — 회귀식대로면 rasterize/loss_compute 시간은
+거의 그대로(경제적 규모 없음)이고 `optimizer_step`만 `iters`에 비례하니
+살짝 이득이지만, **매 gradient step마다 더 다양한 뷰를 보게 돼 기하 일관성
+(품질)이 개선될 수 있다**는 게 가설 — 순수 품질 축, 속도 축 아님.
+
+**구현**: `self.window_size`(config `Training.window_size`)가 로드만 되고
+실제로는 한 번도 안 쓰이던 **dead config**였음을 발견(`current_window`
+상한이 `10`으로 하드코딩, 우연히 config 기본값 10과 일치) — 실제 로직에
+연결(`gs_backend.py`, `len(self.current_window) > self.window_size`)해서
+window 크기(≈`n_view`)를 config로 통제 가능하게 만듦. 정규 keyframe
+`map()` 호출에 `max_viewpoints=self.window_size + 3`도 추가해 window+global
+전체가 잘리지 않고 다 들어가도록 함(기존 기본값 20은 window_size≥18에서
+subsampling 발생).
+
+**축**: baseline(window_size=10→n_view≈11-13, iters=7, product≈77-91) 대비
+product를 대략 유지하면서 재배분:
+
+| 축 | window_size | iters | 예상 n_view | product |
+|---|---:|---:|---:|---:|
+| baseline(현재 채택) | 10 | 7 | 11~13 | 77~91 |
+| 1 | 15 | 5 | 16~18 | 80~90 |
+| 2 | 19 | 4 | 20~22 | 80~88 |
+| 3 | 25 | 3 | 26~28 | 78~84 |
+
+측정: 1253 전체, 그 외 exp56 최종 채택 레시피(init_itr_num=600 등) 유지.
+
+| 축 | 온라인 루프 총합 | 실시간 배수 | PSNR(mean/kf) | evo APE Sim3 | map() 성사 횟수 |
+|---|---:|---:|---:|---:|---:|
+| baseline | 47.08s | 0.72배 | 22.73 / 23.21 | 2.07cm | 30회 |
+| **1(ws=15,iters=5, 실측 n_view=16)** | 46.17s | 0.71배 | **21.64 / 21.89**(**−1.09/−1.32dB**) | 2.41cm | 30회 |
+| **2(ws=19,iters=4, 실측 n_view=20)** | 46.34s | 0.71배 | **19.27 / 19.57**(**−3.46/−3.64dB**) | 2.41cm | 32회 |
+| 3(ws=25,iters=3) | **미실행(추세로 기각 확정, 아래 참조)** | | | | |
+
+**가설 기각 — 명확하고 악화 추세**: 시간은 예상대로 거의 안 바뀌었지만
+(회귀식 예측대로, product를 맞췄으니 rasterize/loss_compute는 거의 그대로)
+**PSNR이 축1(−1.1~1.3dB)→축2(−3.5~3.6dB)로 window를 키울수록 더 나빠짐** —
+이 프로젝트 노이즈(±0.24~0.33dB)를 훨씬 벗어나는 명백한 실손실, 그것도
+단조 악화 추세. "같은 view-op 예산이면 재배분은 공짜"라는 Phase 5 회귀식의
+**시간 예측은 정확히 맞았지만, 품질에 대한 예측(다양한 뷰가 도움될 것)은
+정반대로 틀렸다** — 그래서 축3(ws=25, iters=3, 더 극단적 재배분)은 추세가
+이미 명확해 실행하지 않고 기각 확정.
+
+**왜 틀렸는가(원인 분석)**: `window_size`를 키우면 "iteration당 보는 뷰
+개수"만 늘어나는 게 아니라 **current_window 자체가 훨씬 오래된 keyframe까지
+붙잡아두는 방향으로 바뀐다** — incremental SLAM 특성상 지도의 "프론티어"
+(가장 최근에 새로 들어온, 아직 수렴 안 된 영역)가 한정된 iteration 예산을
+과거 keyframe들과 나눠 써야 하고, 게다가 iters까지 줄였으니(7→5→4) **새로
+들어온 gaussian이 densify/수렴할 시간 자체가 줄면서 동시에 그 적은
+gradient step조차 오래된 영역과 경쟁**하게 됨 — "총 view-op 예산"은 같아도
+"프론티어에 집중되는 유효 gradient 밀도"는 크게 줄어드는 구조. Phase 5
+회귀식은 순수 **연산 시간**만 설명하는 모델이라 이런 **최적화 동역학
+(optimization dynamics)** 효과는 애초에 잡을 수 없었던 것 — 시간과 품질은
+서로 다른 메커니즘으로 움직인다는 걸 확인.
+
+**코드 자산은 유지**: `self.window_size`가 dead config였던 걸 실제 로직에
+연결한 수정 자체는 유지(기본값 10 그대로 두면 기존과 완전히 동일하게
+동작 확인됨) — 향후 window_size를 진짜 원인 분석 없이 건드리면 안 된다는
+확실한 반증 데이터를 남긴 것으로 가치가 있음.
+
+**⚠ CLAUDE.md 로드맵(dense-frame supervision)에 대한 함의**: 이 결과는
+"n_view를 단순히 늘리기만 하면 품질이 좋아진다"는 가정에 대한 반증이다 —
+dense-frame supervision(keyframe 사이 프레임을 supervision 뷰로 추가)을
+나중에 시도할 때, 단지 뷰 개수만 늘리고 iters를 줄이거나 window를 무작정
+넓히면 **오히려 프론티어 수렴이 희석돼 역효과가 날 수 있음**을 미리
+확인한 셈 — 뷰를 늘리려면 (a) iters는 유지/늘리거나 (b) 프론티어(최근
+keyframe)에 gradient가 집중되도록 가중치를 주는 설계가 같이 필요할
+가능성이 큼. batch 렌더링으로 "시간" 문제를 풀어도 "품질" 문제는 별도로
+설계해야 한다는 경고.
 
 ## 다음 단계
 

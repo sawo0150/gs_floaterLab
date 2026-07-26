@@ -30,6 +30,27 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-27 (exp56 Phase 6 — iters↓·n_view↑ 재배분 품질 가설 기각, window를 키울수록 PSNR 단조 악화)**:
+  Phase 5 회귀식("같은 iters×n_view 예산이면 시간은 그대로")에서 나온
+  자연스러운 후속 질문 — "그럼 iters를 낮추고 카메라 뷰를 늘리면 다양한
+  뷰를 봐서 품질이 좋아지지 않을까"를 실측. `Training.window_size`가 로드만
+  되고 실제로는 한 번도 안 쓰이던 dead config였음을 발견(`current_window`
+  상한이 `10`으로 하드코딩, 우연히 config 기본값과 일치) — 실제 로직에
+  연결해 두 지점(window=15/iters=5→n_view=16, window=19/iters=4→n_view=20,
+  둘 다 iters×n_view는 baseline과 비슷하게 유지) 테스트. **결과: 시간은
+  회귀식 예측대로 거의 무변화(46.2~46.3s)지만 PSNR이 −1.09~1.32dB(축1)→
+  −3.46~3.64dB(축2)로 window를 키울수록 단조 악화** — 노이즈(±0.24~0.33dB)
+  를 훨씬 벗어나는 명백한 반증. 3번째 지점(window=25/iters=3)은 추세가
+  이미 명확해 실행 없이 기각 확정. 원인 분석: window를 키우면 incremental
+  SLAM의 "프론티어"(최근 keyframe, 아직 안 수렴한 영역)가 과거 keyframe들과
+  제한된 gradient 예산을 나눠 쓰게 되고 iters까지 줄어 수렴이 희석되는
+  구조 — Phase 5 회귀식은 순수 연산 시간 모델이라 이런 최적화 동역학은
+  설명 못 함, 시간과 품질이 서로 다른 메커니즘임을 확인. window_size는
+  기본값(10)으로 원복(코드 연결 자체는 유지). **함의**: CLAUDE.md 로드맵의
+  "dense-frame supervision"(뷰 개수를 늘리는 방향)을 나중에 시도할 때
+  단순히 뷰만 늘리면 역효과가 날 수 있다는 경고 — 프론티어 집중 설계가
+  같이 필요.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-27 (exp56 Phase 5 — 파트별 시간을 파라미터 회귀식으로 규명, `iters×n_view`가 압도적임을 계수로 확정)**:
   "40초를 파트별로 나누고, 각 파트가 어떤 param에 종속되는지, 관계식(추세선)을
   꼼꼼히 규명해달라"는 요청. 세션 전체 실험(exp55~56, 11개 run, 548개 실제
