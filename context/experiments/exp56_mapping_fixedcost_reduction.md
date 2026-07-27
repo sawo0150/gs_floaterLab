@@ -63,7 +63,23 @@
   "덤으로" 다양성만 추가하니 수렴 방해 없이 순이득. 6과 10이 PSNR은 동급
   (수확체감)이라 시간·coverage·궤적이 더 나은 **`n_global_views=6` 채택**.
   **exp53+54+55+56 최종(갱신): 47.20s, 실시간 배수 0.73배, PSNR 22.97/23.43
-  (exp55 baseline 대비 mean +0.36dB, kf +0.48dB).**
+  (exp55 baseline 대비 mean +0.36dB, kf +0.48dB).** **Phase 8(신규, 07-27) —
+  batch 구현 전에 프로파일로 진짜 원인 확인, 대신 안전한 부수 발견을 적용**:
+  사용자가 batch 구현을 요청해 `torch.profiler`로 `render()` 1회를 격리
+  분석 — Python autograd 디스패치 오버헤드는 작아(0.1~0.14ms/call) 진짜
+  고정비는 **CUDA 커널 실행 자체**임을 확인, 즉 진짜 batch화는
+  forward.cu/backward.cu(~2800줄) 커널 자체에 카메라 batch 차원을 넣어야
+  하는 큰 작업(그래디언트가 조용히 틀려질 위험, Phase 3보다 높은 위험도) —
+  이번 세션에서 안전하게 검증까지 마치기 어렵다고 판단해 보류. 대신
+  프로파일링 중 **`Camera.world_view_transform`/`full_proj_transform`/
+  `camera_center`가 매 `render()` 호출마다(카메라 pose는 안 바뀌는데도)
+  `torch.linalg.inv()`를 포함해 처음부터 재계산되고 있음을 발견** —
+  R/T가 바뀌는 지점이 `update_RT()` 단 하나뿐임을 grep으로 확인한 뒤
+  세 property에 캐싱 추가(그래디언트 수학은 전혀 안 건드리는 무위험
+  변경). **결과: 시간 −3.0%(47.20→45.79s), PSNR +0.52/+0.45dB, map() 성사
+  26→36회(+38%) — 전부 개선, 이 세션 최고 ROI 레버.** **exp53+54+55+56
+  최종: 45.79s, 실시간 배수 0.70배(exp55 baseline 대비 −23.4%), PSNR
+  23.49/23.88(exp55 baseline 대비 mean +0.88dB, kf +0.93dB).**
 - 배경: 사용자 관찰 — "실시간이 되긴 하는데 품질이 썩 좋지는 않다. gaussian
   개수를 줄여도 그만큼 속도가 안 빨라지는 것 같은데 왜 그런가." exp55에서
   평균 gaussian 수를 −35.9% 줄였지만 순수 mapping 시간은 −12.2%뿐이었고
@@ -172,7 +188,7 @@ Phase2+3+exp56 Phase1) `render_downsample=2`를 추가로 얹어 재검증 — �
 유지)**. evo APE만 1.91cm로 개선됐는데 이는 트래킹과 무관한 렌더 해상도
 변경이라 우연/노이즈로 해석(가드레일 통과에는 어차피 문제없는 수준).
 
-## 최종 채택 설정 (Phase 1 + Phase 4 + Phase 7)
+## 최종 채택 설정 (Phase 1 + Phase 4 + Phase 7 + Phase 8)
 
 ```yaml
 # vigs/gs_backend.py, 정규 keyframe map() 호출
@@ -183,19 +199,22 @@ self.map(self.current_window, iters=7, include_global=True,
 init_itr_num: 600      # 1050 -> 600 (Phase 4)
 window_size: 10         # dead config를 실제 로직에 연결(Phase 6), 기본값 유지
 n_global_views: 6       # 2 -> 6 (Phase 7)
+
+# vigs/gaussian/utils/camera_utils.py: world_view_transform/full_proj_transform/
+# camera_center property 캐싱, update_RT()에서만 무효화 (Phase 8)
 ```
 (`render_downsample`은 config에 넣지 않음 — 기본 1/off 유지. exp55의
 `pcd_downsample`/`adaptive_density`/`carve_lambda` 등 나머지 설정은 그대로.)
 
 ## 최종 결과 요약 (exp53+54+55+56 누적, 1253 전체)
 
-| | exp55 최종(iters=10, init=1050) | +Phase1(iters=7) | +Phase4(init=600) | +Phase7(n_global=6, 최종) | 누적 변화 |
-|---|---:|---:|---:|---:|---:|
-| 온라인 루프 총합 | 59.80s | 50.17s | 47.08s | **47.20s** | **−21.1%** |
-| 실시간 배수(예산 65.1s) | 0.92배 | 0.77배 | 0.72배 | **0.73배** | 여유 3.4배 확대 |
-| PSNR mean/kf | 22.61 / 22.95 | 22.82 / 23.16 | 22.73 / 23.21 | **22.97 / 23.43** | mean **+0.36dB**, kf **+0.48dB** |
-| evo APE Sim3 | 2.41cm | 2.41cm | 2.07cm | **1.95cm** | 개선 |
-| map() 성사 횟수 | 22회 | 26회 | 30회 | 26회 | — |
+| | exp55 최종(iters=10, init=1050) | +Phase1(iters=7) | +Phase4(init=600) | +Phase7(n_global=6) | +Phase8(카메라 캐싱, 최종) | 누적 변화 |
+|---|---:|---:|---:|---:|---:|---:|
+| 온라인 루프 총합 | 59.80s | 50.17s | 47.08s | 47.20s | **45.79s** | **−23.4%** |
+| 실시간 배수(예산 65.1s) | 0.92배 | 0.77배 | 0.72배 | 0.73배 | **0.70배** | 여유 3.7배 확대 |
+| PSNR mean/kf | 22.61 / 22.95 | 22.82 / 23.16 | 22.73 / 23.21 | 22.97 / 23.43 | **23.49 / 23.88** | mean **+0.88dB**, kf **+0.93dB** |
+| evo APE Sim3 | 2.41cm | 2.41cm | 2.07cm | 1.95cm | **2.42cm** | 동급 |
+| map() 성사 횟수 | 22회 | 26회 | 30회 | 26회 | **36회** | +64% |
 
 **사용자 질문("품질 개선 방법 없나" → "1iter당 연산량 줄이려면 어디를
 건드려야 하나" → "카메라 뷰를 늘리면 안 되나")에 대한 답**: iters를 올리는
@@ -208,9 +227,15 @@ Phase 0/2 결론을 더 파고들어 **Phase 4에서 진짜 핵심 지점을 찾
 뷰를 늘리면 품질이 좋아지지 않나"를 제안 — Phase 6(window 자체를 키움)은
 프론티어 gradient 희석으로 대실패(PSNR −1~3.5dB)했지만, **Phase 7(프론티어
 window는 그대로 두고 과거-뷰 곁눈질만 늘림)은 성공** — PSNR mean/kf 둘 다
-개선(+0.24/+0.22dB)에 시간 비용은 무시할 수준(+0.25%). **exp55 baseline
-대비 최종 누적: 시간 −21.1%, PSNR mean +0.36dB·kf +0.48dB, 궤적도 개선** —
-"시간을 줄이면서 품질까지 함께 끌어올린" 결과.
+개선(+0.24/+0.22dB)에 시간 비용은 무시할 수준(+0.25%). 마지막으로 사용자가
+batch 렌더링 구현을 요청 — 프로파일로 먼저 확인해보니 진짜 CUDA 커널
+비용이라 batch화 자체는 그래디언트 위험이 큰 별도 작업으로 보류했지만,
+그 과정에서 **Phase 8: 카메라 pose가 안 바뀌는데도 매 view마다 재계산되던
+행렬 역산(`torch.linalg.inv()`)을 캐싱**하는 무위험 최적화를 발견·적용 —
+시간 −3.0%, PSNR +0.52/+0.45dB, coverage +38%로 이 세션 최고 ROI였다.
+**exp55 baseline 대비 최종 누적: 시간 −23.4%(45.79s, 실시간 배수 0.70배),
+PSNR mean +0.88dB·kf +0.93dB, 궤적도 동급** — "시간을 거의 1/4 줄이면서
+PSNR을 거의 1dB 끌어올린" 결과.
 
 ## Phase 3 — coverage/경합을 직접 겨냥한 3축 (2026-07-26, 사용자 요청)
 
@@ -639,18 +664,74 @@ coverage·궤적이 전부 살짝 더 나빠 — **`n_global_views=6` 채택**.
 **exp53+54+55+56 누적 최종(갱신)**: 47.20s, 실시간 배수 0.73배, PSNR
 mean/kf **22.97/23.43**(exp55 baseline 대비 mean +0.36dB, kf +0.48dB).
 
+## Phase 8 — rasterizer batch화 조사 → 진짜 CUDA 커널 비용임을 프로파일로 확인, 대신 안전한 부수 발견을 먼저 적용 (2026-07-27, 사용자 요청)
+
+사용자가 "batch 구현 ㄱㄱ"를 요청 — 실제 착수 전에 `torch.profiler`로 `render()`
+단일 호출을 격리해 CPU(Python/autograd 디스패치)와 CUDA(커널 실행) 시간을
+직접 분리해봄(합성 gaussian으로 마이크로벤치, 절대 수치는 비현실적이지만
+**구조**는 유효):
+
+**확인**: `_RasterizeGaussians`/`_RasterizeGaussiansBackward`(Python autograd
+wrapper) 자체의 CPU 오버헤드는 호출당 0.1~0.14ms로 작음 — 즉 뷰-연산당
+고정비의 정체는 Python 디스패치가 아니라 **진짜 CUDA 커널 실행/launch**
+(forward의 preprocess/duplicate/sort/render, backward의 대응 커널). 이는
+"Python 루프를 C++ 루프로만 바꿔도 상당 부분 해결될 것"이라는 낙관적
+가설을 기각 — **진짜 이득을 보려면 forward.cu/backward.cu/
+rasterizer_impl.cu(~2800줄)의 타일 정렬·블렌딩 커널 자체에 카메라 batch
+차원을 넣어야 함**. 이건 그래디언트가 조용히 틀려질 수 있는 위험도가
+Phase 3(stream 분리, 크래시로 바로 티가 남)보다 한 단계 높은 작업(수치가
+미묘하게 틀린 채 계속 학습되는 실패 모드) — 이번 세션에서 안전하게
+검증까지 마치기엔 스코프가 크다고 판단해 **보류**.
+
+**부수 발견(안전, 즉시 적용)**: 프로파일링 중 `render()` 1회 호출마다
+`Camera.world_view_transform`/`full_proj_transform`/`camera_center`가
+property로 정의돼 **매번 `torch.linalg.inv()`를 포함해 처음부터 다시
+계산**되고 있음을 발견 — 같은 `map()` iteration 안에서 카메라 pose(R/T)는
+안 바뀌는데도 뷰마다(그리고 `full_proj_transform`/`camera_center`가
+내부적으로 `world_view_transform`을 또 부르므로 사실상 호출당 최대 3중으로)
+재계산되고 있었음. 코드 전체를 grep해 R/T가 바뀌는 지점이 `Camera.
+update_RT()` 단 한 곳(+생성자, 캐시가 비어있는 시점)뿐임을 확인한 뒤 —
+`vigs/gaussian/utils/camera_utils.py`의 세 property에 **캐싱**을 추가하고
+`update_RT()`에서만 무효화. 그래디언트 수학은 전혀 안 건드리는(캐싱된
+값도 원래와 동일한 계산 결과) 무위험 변경.
+
+**측정**: 1253 전체, exp56 최종 채택 레시피(iters=7, init_itr_num=600,
+window_size=10, n_global_views=6) 위에 캐싱만 추가.
+
+| 설정 | 온라인 루프 총합 | 실시간 배수 | PSNR(mean/kf) | evo APE Sim3 |
+|---|---:|---:|---:|---:|
+| baseline(캐싱 없음) | 47.20s | 0.73배 | 22.97 / 23.43 | 1.95cm |
+| **+카메라 행렬 캐싱(채택)** | **45.79s** | **0.70배** | **23.49 / 23.88**(**+0.52/+0.45dB**) | 2.42cm |
+
+**무위험 변경인데 시간·품질·coverage 전부 개선 — 이 세션 최고 ROI 레버**:
+시간 −3.0%(47.20→45.79s), **PSNR +0.52/+0.45dB**(노이즈 범위를 확실히
+넘는 실개선), **map() 성사 횟수 26→36회(+38%)**. 그래디언트 수학을 전혀
+안 건드리고(캐싱된 값 = 원래 계산값과 동일) 순수하게 CPU 측 중복 계산만
+없앴을 뿐인데, 그만큼 매 view-op가 빨라져 mapper가 훨씬 덜 밀리면서
+(coverage 급증) 품질까지 따라 올라간 것으로 해석 — Phase 1/4/7에서 반복
+확인된 "coverage가 늘면 품질도 는다" 패턴이 여기서도 재현. **채택**.
+
+**exp53+54+55+56 누적 최종(갱신)**: 45.79s, 실시간 배수 **0.70배**(exp55
+baseline 대비 **−23.4%**), PSNR mean/kf **23.49/23.88**(exp55 baseline
+대비 mean **+0.88dB**, kf **+0.93dB**) — 시간을 거의 1/4 줄이면서 PSNR은
+거의 1dB 끌어올린 결과.
+
+**batch 렌더링(진짜 CUDA 커널 수정)은 계속 보류**: 이번 발견으로 얻은
+이득은 batch화가 목표로 했던 "커널 launch 자체를 줄이는" 것과는 다른
+경로(CPU측 중복 계산 제거)라 batch화의 필요성 자체를 없애지는 않음 —
+다만 지금 실시간 여유(65.1s 예산 대비 45.8s, 여유 19.3s)가 이미 커져서
+batch화의 시급성은 낮아짐. 여전히 고위험(그래디언트 정합성 검증 필요)
+작업이라 이번 세션에선 미착수 상태 유지.
+
 ## 다음 단계
 
--1. **(진행 중, 07-27) rasterizer 멀티카메라 batch 지원 착수** — 사용자가
-    직접 요청, 아래 "Phase 8" 절 참조.
-0. **(Phase 5에서 새로 발견, 잠재력 최대이나 고위험) rasterizer 멀티카메라
-   batch 지원** — `n_view`(카메라 수)가 뷰-연산당 고정비를 그대로 곱으로
-   반복시키는 게 회귀로 확인됨(뷰-연산당 ≈3.5ms 고정비, n_view=11이면
-   iteration당 ≈38.5ms가 오직 "카메라를 11번 나눠 호출한다"는 이유만으로
-   붙음). 원본 3DGS `render()`가 애초에 단일 카메라 전용이라 batch화하려면
-   `thirdparty/diff-gaussian-rasterization` CUDA 소스 수정이 필요 —
-   Phase 3의 stream-분리 크래시와 같은 성격의 리스크, 별도 신중한 라운드로
-   분리해서 착수할 가치.
+0. **rasterizer 멀티카메라 batch 지원(고위험, 여전히 보류)** — Phase 8에서
+   프로파일로 확인한 대로 진짜 CUDA 커널 비용이라 batch화의 잠재력 자체는
+   여전히 유효(`n_view`가 뷰-연산당 고정비를 그대로 곱으로 반복). 다만
+   Phase 8의 카메라 캐싱으로 실시간 여유가 커져서(19.3s 여유) 시급성은
+   낮아짐 — `thirdparty/diff-gaussian-rasterization`의 forward.cu/
+   backward.cu 커널 자체를 수정해야 하는 별도의 신중한 라운드로 남겨둠
+   (forward부터 pixel-exact 검증 → backward는 gradient 대조 검증 필요).
 1. **Phase 4의 "왜 2~3회인가" 미해결 질문 규명** — `remove_all_gaussians()`는
    코드상 정확히 한 번만 조건이 참이 되는데 실측 로그엔 초기화급 호출이 그보다
    많이 잡힘. 정확한 메커니즘을 알면 PGBA 호출(`iters=20`, 4회, 3.96~3.93s)도
