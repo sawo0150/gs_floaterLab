@@ -80,6 +80,23 @@
   26→36회(+38%) — 전부 개선, 이 세션 최고 ROI 레버.** **exp53+54+55+56
   최종: 45.79s, 실시간 배수 0.70배(exp55 baseline 대비 −23.4%), PSNR
   23.49/23.88(exp55 baseline 대비 mean +0.88dB, kf +0.93dB).**
+  **Phase 8b(신규, 07-27, 사용자 요청 "물어보지 말고 끝까지") — batch를
+  실제로 구현·검증·통합, 결론은 "정확하지만 속도 이득 없음"**: 기존
+  단일-카메라 CUDA 커널(수정 없음)을 C++에서 카메라 수만큼 루프 도는
+  안전한 설계로 구현(`rasterize_points_batch.{h,cu}` 신규) — forward는
+  순차 실행과 완전 bit-exact, backward는 float32 잡음 수준으로 일치(raw
+  바인딩·Python 통합 레벨 둘 다 검증). **1차 실전 실행에서 PSNR 붕괴
+  (6.65dB)를 실측으로 발견** — `render_batch()`의 `depth` 텐서가
+  `render()`의 `(1,H,W)` 관례와 다른 `(H,W)` shape를 반환해
+  `get_loss_normal()`의 reshape 로직이 매 호출 조용히 실패(`except
+  Exception: pass`가 은폐)하고 있었음, 격리 수치검증은 이 project-specific
+  loss 함수를 안 건드려서 못 잡음 — 수정 후 재실행하니 크래시 없고
+  PSNR도 오히려 소폭 개선(23.55/24.07)했지만 **시간은 개선 없음(45.79→
+  47.37s), 정규 호출 평균 시간이 761.6ms→755.7ms로 사실상 동일(<1%)** —
+  Phase 8에서 프로파일로 예견한 대로 "진짜 병목은 CUDA 커널 실행 자체라
+  Python 오버헤드만 없애는 걸로는 이득이 없다"가 실측으로 확정됨.
+  `batch_render` 기본값 false로 원복(채택 안 함), 코드는 향후 커널-레벨
+  batch화의 기반 자산으로 보존.
 - 배경: 사용자 관찰 — "실시간이 되긴 하는데 품질이 썩 좋지는 않다. gaussian
   개수를 줄여도 그만큼 속도가 안 빨라지는 것 같은데 왜 그런가." exp55에서
   평균 gaussian 수를 −35.9% 줄였지만 순수 mapping 시간은 −12.2%뿐이었고
@@ -722,6 +739,131 @@ baseline 대비 **−23.4%**), PSNR mean/kf **23.49/23.88**(exp55 baseline
 다만 지금 실시간 여유(65.1s 예산 대비 45.8s, 여유 19.3s)가 이미 커져서
 batch화의 시급성은 낮아짐. 여전히 고위험(그래디언트 정합성 검증 필요)
 작업이라 이번 세션에선 미착수 상태 유지.
+
+## Phase 8b — rasterizer 멀티카메라 batch 실제 구현 (2026-07-27, 사용자 요청: "물어보지 말고 끝까지")
+
+Phase 8에서 "진짜 batch는 CUDA 커널 자체를 고쳐야 하는 고위험 작업"이라
+보류했었는데, 사용자가 "묻지 말고 될 때까지 가보라"고 명시적으로 요청 —
+실제로 구현·검증·통합까지 완료.
+
+### 설계 — 안전을 위해 커널 자체는 건드리지 않음
+
+`forward.cu`/`backward.cu`는 원본 3DGS 코드가 아니라 VIGS가 이미 크게
+확장한 버전(`ray_planes`/`ts`를 이용한 깊이 모호성 해소, eigenvalue 기반
+공분산 분해, **SE3 리대수 카메라 pose 그래디언트(`dL_dtau`)까지 손으로
+미분한 커널**)이라는 걸 코드를 실제로 읽고 확인 — 이 커널을 직접 고쳐
+멀티카메라 batch 차원을 넣는 건 그래디언트가 조용히 틀려질 위험이 매우
+커서(Phase 3 stream-크래시보다 한 단계 위험도 높음, 크래시처럼 바로
+티가 안 나고 미묘하게 나쁜 채로 계속 학습됨) 채택하지 않음.
+
+대신: **기존의, 이미 검증된 단일-카메라 CUDA 커널(forward/backward)을
+그대로, 수정 없이, C++ 쪽에서 카메라 수만큼 루프 돌리는 방식**으로 구현
+(`thirdparty/diff-gaussian-rasterization/rasterize_points_batch.{h,cu}`,
+신규 파일). 커널 수학은 1바이트도 안 바꿨으니 정확성 리스크가 거의 0 —
+얻는 이득은 "Python에서 카메라 수만큼 별도로 `.apply()`를 호출하던 것"을
+"C++ 안에서 한 번에 처리"로 바꿔 Python/autograd 디스패치 오버헤드(카메라
+행렬 캐싱과 같은 종류의 "고정비") 및 커널 launch 자체를 카메라 수만큼
+반복하는 구조는 유지하되 그 사이의 파이썬 왕복을 없애는 것.
+
+가우시안 파라미터(means3D/opacity/scales/rotations/sh)는 카메라 배치
+전체가 **공유**하므로, backward에서 카메라별 그래디언트를 C++에서 그냥
+`+=`로 합산 — 이건 원래 Python 쪽에서 `loss_mapping = sum(per-view losses);
+loss_mapping.backward()`가 하던 것과 수학적으로 동일.
+
+### 실측 코드 리딩으로 잡은 진짜 위험 지점 2개 (구현 전에 발견, 실행 전에 수정)
+
+1. **`dL_dmeans2D`(스크린 공간 그래디언트)를 배치 합산하면 안 됨** —
+   `GaussianModel.add_densification_stats()`가 **뷰마다 따로** 호출되며
+   그 뷰만의 그래디언트 norm을 누적하는 구조(`xyz_gradient_accum[filter]
+   += norm(grad[filter,:2])`, `denom[filter] += 1`)임을 코드에서 확인 —
+   합산하면 (a) `norm(합)≠합(norm)`이라 크기 자체가 달라지고 (b) `denom`
+   누적 횟수도 달라져 densify 판단 자체가 바뀜. **카메라별로 분리 유지**
+   하도록 수정.
+2. **`projmatrix_raw`가 실제로는 죽은 파라미터**임을 커널 소스에서 직접
+   확인 — `BACKWARD::preprocess`에 전달만 되고 내부에서 한 번도 읽히지
+   않음(`grep`으로 전체 파일 확인). 처음엔 아무 값이나 넣어도 안전하다는
+   뜻이지만, 나중에 커널이 바뀌면 잠복 버그가 될 수 있어 의미상 올바른
+   값(`viewpoint.projection_matrix`, 카메라 intrinsics 행렬)을 정확히
+   넣도록 구현.
+
+### 정확성 검증 (실행 전 필수 게이트로 설정, 통과 후에만 통합 진행)
+
+**1단계 — raw CUDA 바인딩 레벨**(`scripts/analysis`에 준하는 검증 스크립트,
+합성 gaussian 5개 카메라): forward 색상/깊이/알파 **완전 bit-exact**(diff
+0.0), backward 그래디언트(means3D/opacity/scales/rotations/sh/means2D)
+전부 float32 잡음 수준(상대오차 ~1e-9)으로 순차 실행과 일치.
+
+**2단계 — Python 통합 레벨**(실제 `Camera`/`GaussianModel` 객체로
+`render()` 순차 루프 vs `render_batch()` 비교): forward **완전 일치**
+(diff 0.0), backward 그래디언트는 상대오차 ~1e-3~1e-4(활성화 함수·SH
+평가 등 연산이 더 길어지며 GPU atomic 연산의 실행순서 비결정성이 살짝
+증폭된 것으로 판단, 동일 코드 재실행 시에도 유사한 수준의 편차가 나타남 —
+학습에 영향 없는 수준). `viewspace_points.grad`(densification 통계용)도
+카메라별로 올바르게 분리됨을 확인.
+
+**과정에서 실제로 잡은 버그 2건**(실행 전 발견, 프로덕션에 영향 없었음):
+`colors_precomp` 자리에 실수로 `sh`를 넣었던 것(다른 파라미터 슬롯 혼동),
+`viewspace_points`를 하나의 텐서를 슬라이싱해 반환했더니 `.grad`가 채워지지
+않는 문제(leaf 텐서가 아니라 select 연산 노드가 돼버림 — 카메라별 독립
+leaf 텐서를 만들어 stack하는 방식으로 수정).
+
+### 통합 — `Training.batch_render`(신규, 기본 false) 플래그로 opt-in
+
+`gs_backend.py::map()`의 `for viewpoint in current_viewpoints:` 순차
+루프를 `render_batch()` 단일 호출로 대체하는 분기 추가(플래그 꺼져 있으면
+기존 코드 100% 그대로, 되돌리기 쉬움). 짧은 시퀀스(200프레임) 스모크
+테스트 통과 확인 후 1253 전체 실행:
+
+| 설정 | 온라인 루프 총합 | 실시간 배수 | PSNR(mean/kf) | evo APE Sim3 |
+|---|---:|---:|---:|---:|
+| baseline(batch_render off) | 45.79s | 0.70배 | 23.49 / 23.88 | 2.42cm |
+| batch_render=true (1차 실행) | **34.21s(위험 신호)** | 0.53배 | **6.65 / 6.42(붕괴)** | 1.91cm |
+
+**1차 실행에서 PSNR 붕괴 — 격리 검증을 통과했는데도 실전에서 실패한
+사례**: 시간은 34.21s로 훨씬 빨라 보였지만 PSNR이 6.65/6.42로 완전히
+붕괴 — 명백히 뭔가 잘못됨. `except Exception: pass`가 원인을 숨기고
+있었음(디버그 프린트로 열어보니 매 호출이 조용히 실패하고 있었음 —
+시간이 빨랐던 건 batch화 덕분이 아니라 **연산 자체가 실패해서 거의
+아무 일도 안 하고 있었기 때문**).
+
+**실제 원인 — `depth` 텐서 shape 불일치**: `render()`는 depth를 `(1,H,W)`
+로 반환하는데(원본 rasterizer의 `torch::full({1,H,W},...)` 그대로),
+`render_batch()`는 배치 차원과 채널 차원을 한 번에 슬라이싱해
+`out_depth[b,0]`(shape `(H,W)`)를 반환하고 있었음 — 이 미묘한 shape
+차이가 `get_loss_normal()` → `depth_to_normal()` → `.reshape(*depth.
+shape[1:], 3)`에서 `depth.shape[1:]`를 잘못 계산해(`(464,)` vs 올바른
+`(464,464)`) `RuntimeError`를 던짐, `except`가 그걸 삼켜버려 손실 계산이
+거의 아무 것도 안 한 채로 계속 진행됨. **격리된 forward/backward 수치
+검증(Phase 8b 본문)은 이 project-specific loss 함수를 애초에 안 건드려서
+못 잡아낸 것** — "커널 수학이 맞다"와 "실제 학습 파이프라인과 통합했을 때
+맞다"는 다른 질문이라는 걸 재확인. `out_depth[b]`(채널 차원 유지)로 수정,
+`transmittance`도 같은 패턴이라 함께 수정.
+
+**2차 실행(수정 후) — 정확성은 확인, 속도 이득은 없음**:
+
+| 설정 | 온라인 루프 총합 | 실시간 배수 | PSNR(mean/kf) | evo APE Sim3 | map() 성사 |
+|---|---:|---:|---:|---:|---:|
+| baseline(batch_render off) | 45.79s | 0.70배 | 23.49 / 23.88 | 2.42cm | 36회 |
+| batch_render=true(수정 후) | 47.37s | 0.73배 | **23.55 / 24.07**(소폭 개선) | 1.91cm | 38회 |
+
+크래시/붕괴 없음(traceback 0건), PSNR은 오히려 소폭 개선(노이즈 범위
+근처)되고 coverage도 늘었지만 — **시간은 개선이 아니라 오히려 소폭 악화**
+(45.79→47.37s). 정규 keyframe 호출의 평균 시간을 직접 대조하면 원인이
+분명해짐: baseline 761.6ms/call vs batch_render 755.7ms/call — **차이가
+1% 미만, 사실상 동일**. Phase 8에서 `torch.profiler`로 미리 확인했던
+가설이 실측으로 확정된 것: **뷰당 고정비의 정체는 Python/autograd 디스패치
+오버헤드가 아니라 진짜 CUDA 커널 실행/launch 그 자체**였고, 내 구현(기존
+단일-카메라 커널을 C++에서 루프 도는 것)은 **커널 launch 횟수 자체를
+전혀 줄이지 않았으므로**(여전히 카메라 수만큼 forward/backward 커널이
+그대로 실행됨, 단지 그 사이 Python 왕복만 없앤 것) 애초에 큰 이득을 낼
+구조가 아니었음 — Python 오버헤드가 원래 작았으니 그걸 없애봐야 남는 게
+거의 없었던 것.
+
+**결론 — 구현은 정확하지만(버그 수정 후 검증됨) 채택 안 함**:
+`batch_render` 기본값 `false`로 원복(코드는 남겨둠, 향후 재검증 가능한
+자산). **진짜 속도 이득을 보려면 결국 처음에 고위험으로 분류해 보류했던
+그 작업 — forward.cu/backward.cu 커널 자체에 배치 차원을 넣어 커널 launch
+횟수 자체를 줄이는 것 — 이 유일한 길임이 이번 실측으로 재확인됨.**
 
 ## 다음 단계
 

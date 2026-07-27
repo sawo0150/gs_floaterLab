@@ -30,6 +30,33 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-27 (exp56 Phase 8b — batch 렌더링 실제 구현·검증·통합, 결론: 정확하지만 속도 이득 없음, 채택 안 함)**:
+  사용자가 "물어보지 말고 batch cuda 될 때까지 끝까지 가보라"고 명시적으로
+  요청 — Phase 8에서 보류했던 실제 구현에 착수. 기존 단일-카메라 CUDA 커널
+  (forward.cu/backward.cu)은 VIGS가 이미 크게 확장한 버전(SE3 리대수 카메라
+  pose 그래디언트까지 손으로 미분한 커널)이라 직접 수정하는 대신, **커널은
+  1바이트도 안 바꾸고 C++에서 카메라 수만큼 루프 도는 안전한 설계**로
+  신규 구현(`rasterize_points_batch.{h,cu}`). 실행 전 raw 바인딩 레벨(forward
+  bit-exact, backward float32 잡음 수준) + Python 통합 레벨(실제 Camera/
+  GaussianModel로 재검증) 둘 다 수치 검증 통과 후 통합 — 이 과정에서 실제
+  버그 2건 발견·수정(`colors_precomp` 자리에 `sh` 오기입, `viewspace_points`
+  슬라이싱으로 `.grad`가 안 채워지는 leaf-tensor 문제).
+  **1차 실전 실행(1253 전체)에서 PSNR 붕괴(6.65dB) 발견** — 원인은
+  `render_batch()`의 `depth` 반환 shape이 `render()`의 `(1,H,W)` 관례와
+  다른 `(H,W)`였던 것: `get_loss_normal()`의 reshape 로직이 매 호출 조용히
+  실패하고 `except Exception: pass`가 이를 은폐(시간이 34s로 빨라 보였던 것도
+  batch화 덕이 아니라 손실 계산 자체가 거의 안 되고 있었기 때문). 격리
+  수치검증은 이 project-specific loss 함수를 안 건드려서 못 잡아낸 사례 —
+  "커널 수학이 맞다"와 "실제 파이프라인 통합이 맞다"는 다른 질문임을 재확인.
+  수정 후 재실행: **크래시 없음, PSNR도 오히려 소폭 개선(23.55/24.07)했지만
+  시간은 개선 없음**(45.79→47.37s, 정규 호출 평균 761.6ms→755.7ms로 <1%
+  차이) — Phase 8에서 `torch.profiler`로 예견한 "진짜 병목은 CUDA 커널
+  실행 자체라 Python 오버헤드만 없애는 걸로는 이득이 없다"가 실측으로
+  확정됨. `batch_render` 기본값 false로 원복(채택 안 함), 코드는 향후
+  커널-레벨(forward.cu/backward.cu 자체에 batch 차원을 넣는) 작업의 기반
+  자산으로 보존. exp56 최종 채택 레시피는 Phase 1+4+7+8(카메라 캐싱)까지 —
+  45.79s, 실시간 배수 0.70배, PSNR 23.49/23.88로 변경 없음.
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-27 (exp56 Phase 8 — batch 렌더링 구현을 프로파일로 먼저 검증, 대신 무위험 카메라 캐싱 발견해 이 세션 최고 ROI 달성)**:
   사용자가 "batch 구현 ㄱㄱ"(Phase 5/7에서 식별한 rasterizer 멀티카메라
   batch화) 요청 — 실제 CUDA 커널 수정 전에 `torch.profiler`로 `render()`
