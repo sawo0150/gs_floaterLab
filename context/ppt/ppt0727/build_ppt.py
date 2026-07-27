@@ -273,11 +273,23 @@ def build():
     note(s, MARGIN, Inches(6.75), BODY_W, Inches(0.5),
          "재학습 없이 안 되는 것도 시도해보고 명확히 접었다는 게 중요 — 막연히 미룬 게 아니라 판정을 끝냄.")
 
-    # 슬라이드 5 — exp54
+    # 슬라이드 5 — exp54 (표 형태로 재구성: 축마다 "뭘 바꿨는지"를 평문으로 설명)
     s = blank(prs); set_bg(s)
     eyebrow_title(s, "§1 · EXP54", "매핑 경량화 — 7축 스캔")
-    add_image_fit(s, IMG / "fig_exp54_axes.png", MARGIN, Inches(1.4), BODY_W, Inches(4.6))
-    note(s, MARGIN, Inches(6.35), BODY_W, Inches(0.9),
+    axis_rows = [
+        ("축1 · 채택", GREEN, "keyframe당 초기 gaussian 점 개수를 절반으로 (pcd_downsample 64→128) → 시간 −3.3%, 품질 손실 없음"),
+        ("축2 · 기각", CORAL, "첫 keyframe만 더 성기게 초기화 → 오히려 densify가 보충해버려 +1.2%(역효과) — 축6과 짝으로 봐야 하는 축"),
+        ("축3 · 기각", CORAL, "keyframe당 최적화 반복 10→5로 절반 → 이 시점엔 트래킹이 병목(91%)이라 mapping 줄여도 ±0%, ROI 없음"),
+        ("축4 · 보류", PURPLE, "매핑 렌더링 해상도를 절반으로(render_downsample=2) → −4.2%, PSNR −0.8dB — 유효하지만 이미 실시간이라 미채택, 코드만 보존"),
+        ("축5 · 기각", CORAL, "한 번의 map() 호출에서 보는 카메라 뷰 개수 상한을 축소(max_viewpoints↓) → ±0%, 효과 없음"),
+        ("축6+2 · 기각", CORAL, "gaussian 증식 속도 억제 + 성긴 초기화 결합 → 최종 gaussian 수는 줄었는데 시간은 그대로(+0.2%) — 개수 자체가 더는 병목이 아님을 처음 시사"),
+        ("축7 · 채택", GREEN, "균일 샘플링 대신 이미지 디테일에 따라 점을 배분(PPM 적응 샘플링) → 시간 그대로, PSNR +0.16dB 공짜"),
+    ]
+    ay = Inches(1.5)
+    row_h = Inches(0.615)
+    for i, (tag, color, text) in enumerate(axis_rows):
+        action_row(s, MARGIN, ay + row_h * i, BODY_W, tag, color, text)
+    note(s, MARGIN, ay + row_h * len(axis_rows) + Inches(0.15), BODY_W, Inches(0.9),
          "속도 축만 스캔한 게 아니라 축3에서 우연히 \"이 시점엔 트래킹이 91%\"라는 걸 발견 — "
          "이게 exp53 우선순위의 직접 근거가 됨(서로 다른 실험이 서로의 근거를 만든 사례).")
 
@@ -482,6 +494,30 @@ def build():
     note(s, MARGIN, Inches(6.3), BODY_W, Inches(0.9),
          "권장: C(반복수 스윕)로 저위험 저비용 검증 먼저 → A/B(상시 백그라운드화)로 구조를 바꾸는 건 "
          "exp56 Phase7의 아이디어를 그대로 확장하는 것이라 다음 사이클 후보로 유력.")
+
+    # 슬라이드 18d — post-processed급 online이 왜 어려운가 (현실적 한계)
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§4 · REALITY CHECK", "post-processed급 online — 쉽지 않은 이유")
+    add_image_fit(s, IMG / "fig_realtime_gap.png", MARGIN, Inches(1.35), Inches(6.3), Inches(4.2))
+    bx = MARGIN + Inches(6.6); bw = BODY_W - Inches(6.6)
+    bullet_block(s, bx, Inches(1.5), bw, Inches(4.2), [
+        "계산량 격차: 26,000 iter × ~6.4ms/view-op(Phase8 실측치 그대로 적용) ≈ 166~196초 필요 — 지금 파이프라인 여유는 65.1s 예산 대비 19.3초뿐, 약 8~10배 부족",
+        "더 근본적 문제: color_refinement는 \"전체 궤적을 이미 다 본 상태\"에서 모든 keyframe을 반복 방문하는 global 작업 — 라이브 스트림엔 애초에 \"다 봤다\"는 시점이 없음",
+        "즉 \"매 순간 완전히 캐치업된 post-processed급\"은 계산량 문제 이전에 정의상 불가능",
+    ], size=12.5)
+    note(s, bx, Inches(6.1), bw, Inches(1.0),
+         "그래서 목표를 \"항상 최종 품질\"이 아니라 \"프론티어 + 뒤에서 점점 따라잡는 품질\"로 재정의하는 게 "
+         "현실적 — 다음 슬라이드가 그 그림.")
+
+    # 슬라이드 18e — bounded-lag 목표 재정의
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§4 · REALITY CHECK", "현실적 목표: bounded-lag 온라인 정제")
+    add_image_fit(s, IMG / "fig_bounded_lag.png", MARGIN, Inches(1.4), BODY_W, Inches(3.9))
+    note(s, MARGIN, Inches(5.6), BODY_W, Inches(1.5),
+         "루프클로저 global BA를 백그라운드로 돌리는 성숙한 SLAM 시스템들과 같은 패턴 — 프론티어(방금 본 곳)는 "
+         "항상 실시간으로 그려지고, 그 뒤를 정제(refinement)가 시간차를 두고 계속 따라오며 품질을 끌어올린다. "
+         "\"실시간 = 항상 완성본\"이 아니라 \"실시간 = 프론티어가 안 밀린다 + 지나간 곳은 계속 좋아진다\"로 "
+         "성공 기준 자체를 바꾸는 게 이번 발견의 결론.")
 
     # 슬라이드 19 — 결론
     s = blank(prs); set_bg(s)

@@ -549,6 +549,51 @@ def fig_overall_timeline():
     savefig(fig, "fig_overall_timeline.png")
 
 
+# ════════════════════════════════════════════════════════════════
+# 후처리 부록 — post-processed급 online이 왜 어려운가 (2026-07-27 추가)
+# ════════════════════════════════════════════════════════════════
+def fig_realtime_gap():
+    labels = ["색정제에 필요한 시간\n(26,000 iter × ~6.4ms)", "현재 파이프라인 여유\n(65.1s 예산 − 45.79s)"]
+    vals = [166, 19.3]
+    colors = [CORAL, BLUE]
+    fig, ax = plt.subplots(figsize=(8.5, 5.2))
+    bars = ax.bar(labels, vals, color=colors, width=0.45, zorder=3)
+    for b, v in zip(bars, vals):
+        ax.text(b.get_x() + b.get_width() / 2, v + 4, f"~{v:.0f}s", ha="center",
+                 fontsize=17, fontweight="bold", color=TEXT)
+    ax.annotate("", xy=(1, 45), xytext=(0, 45),
+                arrowprops=dict(arrowstyle="<->", color=BUDGET, lw=2))
+    ax.text(0.5, 55, "약 8.6배 격차", transform=ax.transData, fontsize=14, color=BUDGET,
+            fontweight="bold", ha="center")
+    ax.set_ylabel("시간 (s)")
+    ax.set_ylim(0, 190)
+    style_ax(ax)
+    ax.grid(axis="y", alpha=0.2, zorder=0)
+    ax.set_title("GPU 유휴시간을 100% 긁어모아도 부족 — 계산량 자체의 격차", fontsize=12.5, color=MUTED, pad=12)
+    savefig(fig, "fig_realtime_gap.png")
+
+
+def fig_bounded_lag():
+    fig, ax = plt.subplots(figsize=(11, 4.2))
+    t = np.linspace(0, 10, 200)
+    frontier = t
+    lag = np.clip(t - 2.2, 0, None)
+    ax.plot(t, frontier, color=BUDGET, linewidth=3, label="실시간 프론티어 (지금 보는 곳)", zorder=3)
+    ax.plot(t, lag, color=GREEN, linewidth=3, linestyle="--", label="백그라운드 정제 (뒤에서 따라옴)", zorder=3)
+    ax.fill_between(t, lag, frontier, where=frontier >= lag, color=GREEN, alpha=0.08, zorder=1)
+    ax.annotate("", xy=(7.5, 7.5), xytext=(7.5, 5.3), arrowprops=dict(arrowstyle="<->", color=MUTED, lw=1.6))
+    ax.annotate("bounded lag\n(계속 따라잡되 완전히 캐치업은 안 함)", xy=(7.5, 6.4), xytext=(4.3, 8.7),
+                fontsize=11.5, color=MUTED, ha="left", va="center",
+                arrowprops=dict(arrowstyle="->", color=MUTED, lw=1.2, connectionstyle="arc3,rad=-0.15"))
+    ax.set_xlabel("세션 진행 시간 →")
+    ax.set_yticks([])
+    ax.set_xticks([])
+    style_ax(ax, hide_y=True)
+    ax.legend(loc="upper left", fontsize=12, framealpha=0, labelcolor=TEXT)
+    ax.set_title("목표 재정의: \"항상 최종 품질\"이 아니라 \"프론티어 + 뒤따라오는 정제\"", fontsize=13, color=MUTED, pad=12)
+    savefig(fig, "fig_bounded_lag.png")
+
+
 if __name__ == "__main__":
     print("generating figures ->", IMG)
     fig_tldr_ratio()
@@ -566,4 +611,6 @@ if __name__ == "__main__":
     fig_exp56_phase8()
     fig_exp56_phase8b()
     fig_overall_timeline()
+    fig_realtime_gap()
+    fig_bounded_lag()
     print("done.")
