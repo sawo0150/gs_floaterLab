@@ -11,6 +11,7 @@
 실행: python make_figures.py
 출력: img/*.png
 """
+import sys
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -21,6 +22,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 IMG = HERE / "img"
 IMG.mkdir(exist_ok=True)
+sys.path.insert(0, str(HERE.parent.parent.parent / "scripts" / "analysis"))
 
 # ── 한글 폰트 ──────────────────────────────────────────────────────
 for cand in [
@@ -107,18 +109,21 @@ def fig_tldr_ratio():
 def fig_exp53_axes():
     labels = ["축A\ncorrelation iters\n4/2→1/0", "축B\nmotion_filter.thresh\n2.4→3.6", "축C\nfrontend_window/radius\n25/2→15/1", "축D\ncorrelation 해상도\n(재학습 필요)"]
     vals = [-20.7, -15.4, -1.7, 0]
+    psnr = ["+0.21/+0.21dB", "+0.41/+0.55dB", "+0.02/+0.12dB", None]  # mean/kf, 그 축 단독 증분
     colors = [BLUE, BUDGET, GREEN, GRID]
-    fig, ax = plt.subplots(figsize=(10.5, 4.8))
+    fig, ax = plt.subplots(figsize=(10.5, 5.2))
     bars = ax.bar(labels, vals, color=colors, width=0.55, zorder=3)
     for i, (b, v) in enumerate(zip(bars, vals)):
         if i < 3:
             ax.text(b.get_x() + b.get_width() / 2, v - 1.3, f"{v:.1f}%",
                      ha="center", fontsize=15, fontweight="bold", color=TEXT)
+            ax.text(b.get_x() + b.get_width() / 2, v - 2.9, f"ΔPSNR {psnr[i]}",
+                     ha="center", fontsize=10.5, color=GREEN)
         else:
-            ax.text(b.get_x() + b.get_width() / 2, 0.6, "구현 불가\n(기각)",
+            ax.text(b.get_x() + b.get_width() / 2, 0.6, "구현 불가\n(기각, 미실행)",
                      ha="center", fontsize=12, color=MUTED, fontweight="bold")
     ax.set_ylabel("온라인 루프 총합 변화 (%)")
-    ax.set_ylim(-25, 4)
+    ax.set_ylim(-27, 4)
     style_ax(ax)
     ax.grid(axis="y", alpha=0.25, zorder=0)
     ax.axhline(0, color=GRID, linewidth=1)
@@ -130,31 +135,36 @@ def fig_exp53_axes():
 # 슬라이드 5 — exp54: 매핑 경량화 7축
 # ════════════════════════════════════════════════════════════════
 def fig_exp54_axes():
+    # 축 이름은 짧게(파라미터 전체 설명은 별도 슬라이드로 분리) -- 긴 라벨이 막대 끝
+    # 위치 라벨과 겹치던 문제(exp56 슬라이드5 겹침 버그)를 "라벨을 항상 x=0 오른쪽
+    # 고정 위치에 둔다"로 근본 해결(막대 부호/길이와 무관하게 절대 안 겹침).
+    # PSNR은 mean/kf dB 증분(그 축을 켰을 때의 baseline 대비 변화, exp54 문서 실측치)
     rows = [
-        ("축1  pcd_downsample 64→128", -3.3, GREEN, "채택"),
-        ("축2  init 밀도 2배↓", +1.2, CORAL, "기각(축6과 상쇄)"),
-        ("축3  map() iters 10→5", 0.0, CORAL, "기각(ROI 나쁨)"),
-        ("축4  render_downsample=2", -4.2, PURPLE, "보류(-0.8dB, 코드만 보존)"),
-        ("축5  max_viewpoints 축소", 0.0, CORAL, "기각"),
-        ("축6+2  densify 억제+init 성김", +0.2, CORAL, "기각(개수↓해도 시간 그대로)"),
-        ("축7  PPM 적응 샘플링", 0.0, GREEN, "채택(+0.16dB 공짜)"),
+        ("축1", -3.3, GREEN, "−3.3%  채택", "−0.05/−0.14dB"),
+        ("축2", +1.2, CORAL, "+1.2%  기각", "+0.24/+0.19dB"),
+        ("축3", -1.5, CORAL, "−1.5%  기각", "−0.46/−0.48dB"),
+        ("축4", -4.2, PURPLE, "−4.2%  보류", "−0.83/−0.68dB"),
+        ("축5", -0.7, CORAL, "−0.7%  기각", "−1.73/−1.98dB"),
+        ("축6+2", +0.2, CORAL, "+0.2%  기각", "−0.07/−0.29dB"),
+        ("축7", +0.9, GREEN, "+0.9%  채택", "+0.16/+0.11dB"),
     ]
     labels = [r[0] for r in rows]
     vals = [r[1] for r in rows]
     colors = [r[2] for r in rows]
     tags = [r[3] for r in rows]
-    fig, ax = plt.subplots(figsize=(11, 5.4))
+    psnrs = [r[4] for r in rows]
+    fig, ax = plt.subplots(figsize=(12, 5.4))
     y = np.arange(len(rows))[::-1]
     bars = ax.barh(y, vals, color=colors, height=0.55, zorder=3)
     ax.axvline(0, color=GRID, linewidth=1)
-    for yi, v, tag in zip(y, vals, tags):
-        xpos = v + (0.35 if v >= 0 else -0.35)
-        ha = "left" if v >= 0 else "right"
-        vlabel = f"{v:+.1f}%" if v != 0 else "±0%"
-        ax.text(xpos, yi, f"{vlabel}  —  {tag}", va="center", ha=ha, fontsize=11.5, color=TEXT)
+    LABEL_X = 1.7
+    for yi, tag, ps in zip(y, tags, psnrs):
+        ax.text(LABEL_X, yi, tag, va="center", ha="left", fontsize=13, color=TEXT, fontweight="bold")
+        ps_color = CORAL if ps.startswith("−") else GREEN
+        ax.text(LABEL_X + 3.0, yi, f"ΔPSNR {ps}", va="center", ha="left", fontsize=11, color=ps_color)
     ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=12)
-    ax.set_xlim(-5, 8)
+    ax.set_yticklabels(labels, fontsize=14, fontweight="bold")
+    ax.set_xlim(-6, 11.5)
     ax.set_xlabel("온라인 루프 총합 변화 (%, 음수=단축)")
     style_ax(ax)
     ax.grid(axis="x", alpha=0.25, zorder=0)
@@ -594,6 +604,68 @@ def fig_bounded_lag():
     savefig(fig, "fig_bounded_lag.png")
 
 
+# ════════════════════════════════════════════════════════════════
+# 슬라이드 13b (신규) — Phase 5: 파라미터 vs 시간 회귀분석 피팅
+# ════════════════════════════════════════════════════════════════
+def fig_phase5_fit():
+    import exp56_fit_timing_model as m
+
+    rows = []
+    for run, ds, mode in m.RUNS:
+        rows += m.parse(run, ds, mode)
+    serial_rows = [r for r in rows if r["mode"] == "serial"]
+
+    coef_r, r2_r = m.fit(serial_rows, "rasterize",
+                          [m.f_ncalls, m.f_ncalls_gauss, m.f_ncalls_pix], ["a", "b", "c"], "_")
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.4))
+
+    ax = axes[0]
+    x = np.array([r["iters"] * r["n_view"] for r in serial_rows])
+    y = np.array([r["rasterize"] for r in serial_rows])
+    ng = np.array([r["n_gauss"] for r in serial_rows])
+    sc = ax.scatter(x, y, c=ng, cmap="viridis", s=24, alpha=0.8, zorder=3, edgecolors="none")
+    xs = np.linspace(x.min(), x.max(), 50)
+    ng_med = np.median(ng)
+    ys = coef_r[0] * xs + coef_r[1] * xs * ng_med / 1000 + coef_r[2] * xs * 1.0
+    ax.plot(xs, ys, color=BUDGET, linewidth=2.6, zorder=4, label="fit (n_gauss=중앙값 기준)")
+    ax.set_xlabel("iters × n_view  (한 map() 호출의 \"view-op\" 수)")
+    ax.set_ylabel("rasterize 시간 (ms)")
+    ax.set_title(f"rasterize 시간은 view-op 수에 거의 완전히 선형 (R²={r2_r:.3f})", fontsize=12.5, color=MUTED)
+    cb = fig.colorbar(sc, ax=ax)
+    cb.set_label("n_gauss (참고용, 색으로 표시)", color=MUTED, fontsize=10)
+    cb.ax.yaxis.set_tick_params(color=MUTED)
+    plt.setp(cb.ax.get_yticklabels(), color=MUTED)
+    ax.legend(loc="upper left", fontsize=10.5, framealpha=0, labelcolor=TEXT)
+    style_ax(ax)
+    ax.grid(alpha=0.15, zorder=0)
+
+    ax = axes[1]
+    iters_typ, nview_typ, ngauss_typ = 7, 17, 90000
+    terms = [
+        ("고정비\n(view-op당)", coef_r[0] * iters_typ * nview_typ, BUDGET),
+        ("gaussian\n비례항", coef_r[1] * iters_typ * nview_typ * ngauss_typ / 1000, BLUE),
+        ("픽셀(해상도)\n비례항", coef_r[2] * iters_typ * nview_typ * 1.0, CORAL),
+    ]
+    labels = [t[0] for t in terms]
+    vals = [t[1] for t in terms]
+    colors = [t[2] for t in terms]
+    bars = ax.bar(labels, vals, color=colors, width=0.5, zorder=3)
+    for b, v in zip(bars, vals):
+        ax.text(b.get_x() + b.get_width() / 2, v + (3 if v >= 0 else -9), f"{v:.0f}ms", ha="center",
+                 fontsize=14, fontweight="bold", color=TEXT)
+    ax.axhline(0, color=GRID, linewidth=1)
+    ax.set_ylabel("정규 keyframe 1회의 rasterize 시간 기여분 (ms)")
+    ax.set_title("iters=7 · n_view=17 · n_gauss=9만 기준 항목별 분해", fontsize=12.5, color=MUTED)
+    style_ax(ax)
+    ax.grid(axis="y", alpha=0.15, zorder=0)
+
+    fig.suptitle("Phase 5 — 548개 실제 map() 호출 로그를 회귀분석으로 피팅 (직렬, GPU 경합 없음)",
+                 fontsize=14, color=TEXT, y=1.02)
+    fig.tight_layout()
+    savefig(fig, "fig_phase5_fit.png")
+
+
 if __name__ == "__main__":
     print("generating figures ->", IMG)
     fig_tldr_ratio()
@@ -613,4 +685,5 @@ if __name__ == "__main__":
     fig_overall_timeline()
     fig_realtime_gap()
     fig_bounded_lag()
+    fig_phase5_fit()
     print("done.")

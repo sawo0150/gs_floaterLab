@@ -184,6 +184,27 @@ def action_row(slide, x, y, w, tag, tag_color, text):
               12, TEXT, anchor=MSO_ANCHOR.MIDDLE)
 
 
+def formula_card(slide, x, y, w, h, metric, formula_lines, r2, color):
+    card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
+    card.adjustments[0] = 0.05
+    card.fill.solid(); card.fill.fore_color.rgb = PANEL
+    card.line.color.rgb = color; card.line.width = Pt(1.25)
+    card.shadow.inherit = False
+    tf = card.text_frame
+    tf.word_wrap = True
+    tf.margin_left = Inches(0.22); tf.margin_right = Inches(0.22)
+    tf.margin_top = Inches(0.14); tf.margin_bottom = Inches(0.14)
+    p = tf.paragraphs[0]
+    r = p.add_run(); r.text = f"{metric}   (R² = {r2:.3f})"
+    r.font.size = Pt(14); r.font.bold = True; r.font.color.rgb = color; r.font.name = FONT
+    for line in formula_lines:
+        p2 = tf.add_paragraph()
+        p2.space_before = Pt(7)
+        p2.line_spacing = 1.25
+        r2run = p2.add_run(); r2run.text = line
+        r2run.font.size = Pt(13); r2run.font.color.rgb = TEXT; r2run.font.name = MONO
+
+
 def simple_table(slide, x, y, w, rows, col_widths, header=True, row_h=Inches(0.5)):
     n_rows = len(rows)
     n_cols = len(rows[0])
@@ -273,25 +294,51 @@ def build():
     note(s, MARGIN, Inches(6.75), BODY_W, Inches(0.5),
          "재학습 없이 안 되는 것도 시도해보고 명확히 접었다는 게 중요 — 막연히 미룬 게 아니라 판정을 끝냄.")
 
-    # 슬라이드 5 — exp54 (표 형태로 재구성: 축마다 "뭘 바꿨는지"를 평문으로 설명)
+    # 슬라이드 4b (신규) — 트래킹 축이 실제로 뭘 바꾸는 건지 설명
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§1 · EXP53 · 용어", "트래킹 축A~D, 실제로 뭘 바꾸는 건가")
+    add_text(s, MARGIN, Inches(1.35), BODY_W, Inches(0.5),
+              "파이프라인: 카메라 프레임 → motion_filter(이게 keyframe인가?) → frontend(correlation → GRU 반복정제 → local BA)",
+              12.5, MUTED)
+    tk_rows = [
+        ("축A", BLUE, "correlation iters — 두 프레임의 optical flow(correlation)를 GRU로 여러 번 반복해서 다듬는 횟수(iters1/iters2). 시간 −20.7%, ΔPSNR +0.21/+0.21dB(오히려 개선) — 4/2회를 1/0회로 줄여도 정확도 손실 없었음"),
+        ("축B", BUDGET, "motion_filter.thresh — 새 프레임이 이전 keyframe 대비 \"이만큼은 움직여야 keyframe으로 인정\"하는 임계값. 시간 −15.4%, ΔPSNR +0.41/+0.55dB — keyframe 자체가 덜 생겨 트래킹·매핑 작업량이 동시에 줄어듦, 이 세션 최대 레버"),
+        ("축C", GREEN, "frontend_window/radius — local BA가 한 번에 붙잡고 최적화하는 \"최근 keyframe 그래프\"의 크기(window)와 이웃 범위(radius). 시간 −1.7%, ΔPSNR +0.02/+0.12dB — 줄이면 BA solve 행렬이 작아져 계산이 가벼워짐"),
+        ("축D", MUTED, "correlation 해상도 — correlation volume(두 프레임 유사도 맵)을 뽑는 특징맵의 해상도. 사전학습된 신경망 가중치의 입력 shape에 못박혀 있어 재학습 없인 못 건드림 — 미실행"),
+    ]
+    ay = Inches(2.1)
+    row_h = Inches(1.1)
+    for i, (tag, color, text) in enumerate(tk_rows):
+        action_row(s, MARGIN, ay + row_h * i, BODY_W, tag, color, text)
+
+    # 슬라이드 5 — exp54 (원래 막대그래프 유지, 겹침 버그만 수정)
     s = blank(prs); set_bg(s)
     eyebrow_title(s, "§1 · EXP54", "매핑 경량화 — 7축 스캔")
-    axis_rows = [
-        ("축1 · 채택", GREEN, "keyframe당 초기 gaussian 점 개수를 절반으로 (pcd_downsample 64→128) → 시간 −3.3%, 품질 손실 없음"),
-        ("축2 · 기각", CORAL, "첫 keyframe만 더 성기게 초기화 → 오히려 densify가 보충해버려 +1.2%(역효과) — 축6과 짝으로 봐야 하는 축"),
-        ("축3 · 기각", CORAL, "keyframe당 최적화 반복 10→5로 절반 → 이 시점엔 트래킹이 병목(91%)이라 mapping 줄여도 ±0%, ROI 없음"),
-        ("축4 · 보류", PURPLE, "매핑 렌더링 해상도를 절반으로(render_downsample=2) → −4.2%, PSNR −0.8dB — 유효하지만 이미 실시간이라 미채택, 코드만 보존"),
-        ("축5 · 기각", CORAL, "한 번의 map() 호출에서 보는 카메라 뷰 개수 상한을 축소(max_viewpoints↓) → ±0%, 효과 없음"),
-        ("축6+2 · 기각", CORAL, "gaussian 증식 속도 억제 + 성긴 초기화 결합 → 최종 gaussian 수는 줄었는데 시간은 그대로(+0.2%) — 개수 자체가 더는 병목이 아님을 처음 시사"),
-        ("축7 · 채택", GREEN, "균일 샘플링 대신 이미지 디테일에 따라 점을 배분(PPM 적응 샘플링) → 시간 그대로, PSNR +0.16dB 공짜"),
-    ]
-    ay = Inches(1.5)
-    row_h = Inches(0.615)
-    for i, (tag, color, text) in enumerate(axis_rows):
-        action_row(s, MARGIN, ay + row_h * i, BODY_W, tag, color, text)
-    note(s, MARGIN, ay + row_h * len(axis_rows) + Inches(0.15), BODY_W, Inches(0.9),
+    add_image_fit(s, IMG / "fig_exp54_axes.png", MARGIN, Inches(1.4), BODY_W, Inches(4.6))
+    note(s, MARGIN, Inches(6.35), BODY_W, Inches(0.9),
          "속도 축만 스캔한 게 아니라 축3에서 우연히 \"이 시점엔 트래킹이 91%\"라는 걸 발견 — "
-         "이게 exp53 우선순위의 직접 근거가 됨(서로 다른 실험이 서로의 근거를 만든 사례).")
+         "이게 exp53 우선순위의 직접 근거가 됨(서로 다른 실험이 서로의 근거를 만든 사례). "
+         "각 축이 정확히 뭘 바꾸는 실험인지는 다음 슬라이드에서 설명.")
+
+    # 슬라이드 5b (신규) — 매핑 축이 실제로 뭘 바꾸는 건지 설명
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§1 · EXP54 · 용어", "매핑 축1~7, 실제로 뭘 바꾸는 건가")
+    add_text(s, MARGIN, Inches(1.32), BODY_W, Inches(0.5),
+              "파이프라인: keyframe 도착 → 초기 gaussian 샘플링(축1/2/7) → map() 반복 최적화(축3) → rasterize·densify(축4/5/6)",
+              12, MUTED)
+    map_rows = [
+        ("축1", GREEN, "pcd_downsample — 매 keyframe마다 RGB-D에서 새 gaussian을 뽑을 때의 샘플링 간격. 64→128은 점 개수 절반. 시간 −3.3%, ΔPSNR −0.05/−0.14dB(거의 동일) — 채택"),
+        ("축2", CORAL, "pcd_downsample_init — 축1과 같은 개념인데 \"시퀀스 맨 첫 keyframe\"에만 적용. 시간 +1.2%(역효과), ΔPSNR +0.24/+0.19dB — densify가 나중에 보충해버려 시간 이득이 상쇄됨, 기각"),
+        ("축3", CORAL, "map() iters — keyframe 하나를 처리할 때 gaussian을 SGD로 최적화하는 반복 횟수. 시간 −1.5%, ΔPSNR −0.46/−0.48dB — 이 시점엔 트래킹이 병목(91%)이라 ROI 나쁨, 기각"),
+        ("축4", PURPLE, "render_downsample — 매핑용 렌더링 자체를 낮은 해상도로 그림(원래는 트래킹 해상도의 8배까지 업샘플). 시간 −4.2%, ΔPSNR −0.83/−0.68dB — 유효하나 이미 실시간이라 손실 감수 안 함, 보류"),
+        ("축5", CORAL, "max_viewpoints — map() 한 번의 호출에서 동시에 보는 카메라 뷰 개수의 상한. 시간 −0.7%(거의 무변화), ΔPSNR −1.73/−1.98dB — 최악의 ROI, 기각"),
+        ("축6", CORAL, "densify_grad_threshold — gaussian이 \"부족하다\"고 판단해 새로 쪼개거나 복제하는(densify) 공격성을 정하는 임계값. 시간 +0.2%, ΔPSNR −0.07/−0.29dB — 개수는 줄여도 시간은 그대로, 기각"),
+        ("축7", GREEN, "PPM 적응 샘플링 — 균일 샘플링 대신 이미지 디테일(Sobel gradient)에 따라 점을 더/덜 배분. 시간 +0.9%(오차범위), ΔPSNR +0.16/+0.11dB — 같은 예산에서 품질만 공짜로 오름, 채택"),
+    ]
+    ay = Inches(1.95)
+    row_h = Inches(0.66)
+    for i, (tag, color, text) in enumerate(map_rows):
+        action_row(s, MARGIN, ay + row_h * i, BODY_W, tag, color, text)
 
     # 슬라이드 6 — 실시간 최초 돌파
     s = blank(prs); set_bg(s)
@@ -388,6 +435,66 @@ def build():
         "init_itr_num 1050→600으로 낮춰 추가 시간 −6.2%, PSNR 사실상 무손실(300까지 내리면 실손실 확인 후 기각)",
     ], size=12)
     note(s, bx, Inches(5.8), bw, Inches(0.9), "호출 26개 중 딱 2~3개에 절반이 몰려있었다는 게 이번 사이클 최대 발견.")
+
+    # 슬라이드 13b (신규) — Phase 5: 파라미터 vs 시간 회귀분석 피팅 실물
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§3 · PHASE 5", "회귀분석 피팅 — 무엇이 시간을 결정하는가")
+    add_image_fit(s, IMG / "fig_phase5_fit.png", MARGIN, Inches(1.35), BODY_W, Inches(5.1))
+    note(s, MARGIN, Inches(6.6), BODY_W, Inches(0.8),
+         "왼쪽: 548개 실제 map() 호출을 iters×n_view(한 호출이 처리하는 \"view-op\" 수) 하나로 설명하면 "
+         "R²=0.992 — gaussian 수(점 색깔)는 같은 x값 안에서도 시간을 거의 안 바꿈. "
+         "오른쪽: 그 회귀식을 항목별로 분해하면 \"view-op당 고정비\"가 gaussian-비례항의 3배, 픽셀-비례항은 사실상 0에 가까움.")
+
+    # 슬라이드 13c (신규) — Phase 5: 회귀식 자체 (수식)
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§3 · PHASE 5 · 수식", "실제로 피팅된 4개 관계식")
+    add_text(s, MARGIN, Inches(1.3), BODY_W, Inches(0.35),
+              "직렬(GPU 경합 없음) 330개 실제 map_call 로그, 최소제곱(least-squares) 피팅",
+              12, MUTED)
+    # 파라미터 glossary — 수식에 나오는 기호가 각각 뭔지
+    gloss = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, MARGIN, Inches(1.68), BODY_W, Inches(1.0))
+    gloss.adjustments[0] = 0.06
+    gloss.fill.solid(); gloss.fill.fore_color.rgb = PANEL
+    gloss.line.color.rgb = GRID; gloss.line.width = Pt(1)
+    gloss.shadow.inherit = False
+    tf = gloss.text_frame; tf.word_wrap = True
+    tf.margin_left = Inches(0.2); tf.margin_right = Inches(0.2)
+    tf.margin_top = Inches(0.1); tf.margin_bottom = Inches(0.1)
+    glossary_items = [
+        ("iters", "그 map() 호출에서 gaussian을 SGD로 최적화하는 반복 횟수 (정규 keyframe=7, 초기화=90~131 등)"),
+        ("n_view", "그 반복 1회마다 렌더링해서 loss를 재는 카메라 뷰 개수 (window+global 곁눈질 합)"),
+        ("n_gauss", "그 시점의 전체 gaussian 개수"),
+        ("pixratio", "렌더 해상도 배율 = 1/render_downsample² (원해상도면 1)"),
+        ("ncalls", "= iters × n_view — 한 번의 map() 호출이 처리하는 총 \"view-op\" 수 (rasterize/loss_compute는 view마다 도니까 이 단위가 자연스러움)"),
+    ]
+    for i, (sym, desc) in enumerate(glossary_items):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = PP_ALIGN.LEFT
+        p.line_spacing = 1.15
+        r1 = p.add_run(); r1.text = f"{sym}  "
+        r1.font.size = Pt(11.5); r1.font.bold = True; r1.font.color.rgb = BUDGET; r1.font.name = MONO
+        r2 = p.add_run(); r2.text = desc
+        r2.font.size = Pt(11); r2.font.color.rgb = TEXT; r2.font.name = FONT
+    cw = (BODY_W - Inches(0.3)) / 2
+    ch = Inches(1.55)
+    gx = Inches(0.3)
+    gy = Inches(0.22)
+    fy0 = Inches(2.85)
+    formula_card(s, MARGIN, fy0, cw, ch, "rasterize",
+                 ["= 1.473·ncalls", "+ 0.00545·ncalls·(n_gauss/1000)", "− 0.0346·ncalls·pixratio   [ms]"],
+                 0.9921, BLUE)
+    formula_card(s, MARGIN + cw + gx, fy0, cw, ch, "loss_compute",
+                 ["= 0.956·ncalls", "+ 0.00207·ncalls·(n_gauss/1000)", "− 0.0241·ncalls·pixratio   [ms]"],
+                 0.9935, BUDGET)
+    formula_card(s, MARGIN, fy0 + ch + gy, cw, ch, "backward",
+                 ["= −1.623·iters", "+ 1.126·iters·n_view", "+ 0.126·iters·(n_gauss/1000)   [ms]"],
+                 0.9294, PURPLE)
+    formula_card(s, MARGIN + cw + gx, fy0 + ch + gy, cw, ch, "optimizer_step",
+                 ["= 1.739·iters", "− 0.0946·iters·n_view", "+ 0.00093·iters·(n_gauss/1000)   [ms]"],
+                 0.9975, GREEN)
+    note(s, MARGIN, fy0 + 2 * ch + gy + Inches(0.15), BODY_W, Inches(0.6),
+         "네 식 전부 \"iters·n_view\" 항의 계수가 gaussian/픽셀 항보다 압도적으로 큼(또는 그 항 자체가 없음) — "
+         "그래서 \"n_view(카메라 수)가 시간을 지배한다\"는 결론이 감이 아니라 계수로 확정됨.")
 
     # 슬라이드 14 — Phase 5~7
     s = blank(prs); set_bg(s)
