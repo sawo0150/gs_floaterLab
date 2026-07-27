@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600)로 갱신: 59.80s→47.08s(실시간 배수 0.92→0.72배, −21.3%), PSNR 22.61/22.95→22.73/23.21(kf +0.26dB), map() 성사 횟수 22→30회 — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, 이어서 `map_call` 세부 로그를 처음 집계해 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 mapping 시간의 49%를 차지"하는 핵심 지점을 발견, init_itr_num을 낮춰 2차 개선 — 두 번 다 전 지표 동시 개선 달성** | 
+| **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600 + n_global_views 2→6)로 갱신: 59.80s→47.20s(실시간 배수 0.92→0.73배, −21.1%), PSNR 22.61/22.95→22.97/23.43(mean +0.36dB, kf +0.48dB), 궤적도 개선 — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, `map_call` 로그 집계로 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 시간의 49%"를 발견해 init_itr_num으로 2차 개선, 회귀분석으로 "카메라 수(n_view)가 시간을 지배"함을 계수로 확정한 뒤 "프론티어 window는 그대로, 과거-뷰 곁눈질만 늘리기"로 품질까지 개선(Phase7) — 시간·품질 동시 개선을 4단계 연속 달성. 이어서 rasterizer 멀티카메라 batch 구현 진행 중(Phase 8)** | 
 
 ## 지금 열려 있는 질문
 
@@ -30,6 +30,18 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-27 (exp56 Phase 7 — Phase 6과 정반대: 프론티어 window 보존한 채 과거-뷰만 늘리니 PSNR 개선, n_global_views=6 채택)**:
+  Phase 6 실패 원인("프론티어가 과거 keyframe과 gradient 예산을 경쟁")을
+  사용자가 정확히 짚어 "그럼 window는 안 건드리고 `include_global`의
+  하드코딩된 `2`(iteration마다 과거 keyframe 랜덤 2개 추가)만 늘리면 안
+  되냐"고 제안 — `Training.n_global_views`로 config화해 6/10 두 지점 테스트.
+  **결과: 둘 다 PSNR 개선(+0.17~0.30dB), 시간 비용은 무시할 수준(+0.25~
+  0.9%)** — Phase 6과 정반대. 6과 10은 PSNR 동급(수확체감)이라 시간·coverage·
+  궤적이 더 나은 `n_global_views=6` 채택. exp55 baseline 대비 최종 누적:
+  **47.20s(−21.1%), PSNR mean +0.36dB·kf +0.48dB, 궤적도 개선** — 시간과
+  품질을 동시에 끌어올린 결과. 사용자가 이어서 "batch 구현 ㄱㄱ" 요청 —
+  rasterizer 멀티카메라 batch 착수(Phase 8, 진행 중, 별도 기록 예정).
+  → [exp56](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-27 (exp56 Phase 6 — iters↓·n_view↑ 재배분 품질 가설 기각, window를 키울수록 PSNR 단조 악화)**:
   Phase 5 회귀식("같은 iters×n_view 예산이면 시간은 그대로")에서 나온
   자연스러운 후속 질문 — "그럼 iters를 낮추고 카메라 뷰를 늘리면 다양한
