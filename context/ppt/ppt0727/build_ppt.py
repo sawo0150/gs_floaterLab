@@ -443,13 +443,45 @@ def build():
     rows = [
         ("① 고위험", CORAL, "CUDA 커널 레벨 batch화(Phase 8b가 실패한 진짜 원인 해결) — 이득 불확실"),
         ("② 저위험", BLUE, "init_itr_num/iters 더 세밀한 스캔 — 이득 작음"),
-        ("③ 다음 단계", GREEN, "Localization(흑백 SLAM 트래킹) 실제 통합 — exp50과 합류"),
+        ("③ 신규 후보", PURPLE, "오프라인 색정제를 실시간 호환으로 재설계 — 다음 슬라이드, +3~6dB 확인됨"),
+        ("④ 다음 단계", GREEN, "Localization(흑백 SLAM 트래킹) 실제 통합 — exp50과 합류"),
     ]
     ay = Inches(3.5)
     for i, (tag, color, text) in enumerate(rows):
         action_row(s, MARGIN, ay + Inches(0.75) * i, BODY_W, tag, color, text)
-    note(s, MARGIN, Inches(6.1), BODY_W, Inches(0.9),
+    note(s, MARGIN, Inches(6.5), BODY_W, Inches(0.9),
          "carve loss로 floater 억제는 유지 중. ①번은 리스크 대비 이득이 불확실해서 팀 논의가 필요한 지점.")
+
+    # 슬라이드 18b — 후처리(색정제)가 사주는 PSNR
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§4 · NEW FINDING", "부록: 오프라인 후처리가 사주는 PSNR")
+    add_image_fit(s, IMG / "fig_ply_compare.png", MARGIN, Inches(1.35), BODY_W, Inches(3.5))
+    stats_y = Inches(5.0)
+    stat_pill(s, MARGIN, stats_y, Inches(3.9), Inches(1.0), "후처리 고정비용\n(26,000 iter, 프레임수 무관)", "~196s", CORAL)
+    stat_pill(s, MARGIN + Inches(4.1), stats_y, Inches(3.9), Inches(1.0), "PSNR 이득(mean/kf)", "+3.04 / +6.45dB", GREEN)
+    stat_pill(s, MARGIN + Inches(8.2), stats_y, Inches(4.0), Inches(1.0), "exp56 최종 레시피 위 실측", "26.53 / 30.33dB", TEXT)
+    note(s, MARGIN, Inches(6.15), BODY_W, Inches(1.1),
+         "07/18 구버전 설정에서 처음 발견된 패턴(+4.12/+7.95dB)이 exp56 최종 레시피에서도 재현됨(2026-07-27 재검증). "
+         "26k iteration은 시퀀스 길이와 무관한 고정 배치 작업이라 현재 구조로는 \"실시간\"이 아니라 \"끝나고 한 번에 몰아서\" — "
+         "다음 슬라이드는 이걸 실시간 호환으로 만들 방법에 대한 제안.")
+
+    # 슬라이드 18c — 실시간 호환 후처리 설계안
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "§4 · PROPOSAL", "후처리를 실시간 호환으로 만들려면")
+    bullet_block(s, MARGIN, Inches(1.5), BODY_W, Inches(1.0), [
+        "핵심 문제: 26,000 iteration이 시퀀스 종료 후 한 번에 블로킹으로 몰림 — 온라인 시스템엔 \"종료 시점\"이 없음",
+    ], size=13.5)
+    ay = Inches(2.7)
+    rows = [
+        ("A · 상시 백그라운드화", BLUE, "26k를 세션 끝에 몰아서 돌리지 않고, 이미 지나간(프론티어 밖) keyframe에 대해 GPU 유휴 사이클마다 소량씩 지속 refinement — n_global_views(Phase7)가 이미 하던 걸 전용 백그라운드 루프로 확장"),
+        ("B · 우선순위 스케줄링", BUDGET, "_gs_queue가 비어 mapper가 노는 시점(exp55 부록에서 이미 발견한 유휴 구간)을 감지해 그 틈에만 refinement 스텝을 끼워 넣음 — 신규 keyframe 처리를 항상 최우선으로 선점"),
+        ("C · 반복수 자체 축소", GREEN, "iters=10→7이 온라인에서 그랬듯, 26,000도 고정 상수일 뿐 — 스윕(예: 5000/10000)해서 수확체감 지점을 찾으면 고정비용 자체를 줄일 수 있음(저위험, 미검증)"),
+    ]
+    for i, (tag, color, text) in enumerate(rows):
+        action_row(s, MARGIN, ay + Inches(1.05) * i, BODY_W, tag, color, text)
+    note(s, MARGIN, Inches(6.3), BODY_W, Inches(0.9),
+         "권장: C(반복수 스윕)로 저위험 저비용 검증 먼저 → A/B(상시 백그라운드화)로 구조를 바꾸는 건 "
+         "exp56 Phase7의 아이디어를 그대로 확장하는 것이라 다음 사이클 후보로 유력.")
 
     # 슬라이드 19 — 결론
     s = blank(prs); set_bg(s)
