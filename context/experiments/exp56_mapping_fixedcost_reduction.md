@@ -975,11 +975,36 @@ for-loop이라 아키텍처 변경 없이 "each render() 호출 앞에 그 뷰�
 표준적으로 지원 — 그래디언트가 인덱싱된 위치로만 정확히 라우팅되고 나머지는
 자동으로 0-grad, 별도 sparse-gradient 처리 불필요).
 
-**다음 실행 단계**: `gs_backend.py::map()`의 per-viewpoint for-loop 안에서 각
-`render()` 호출 직전에 이 frustum pre-filter로 `means3D/opacity/scales/
-rotations/features`를 슬라이싱해 넘기는 구현 → 1253 전체로 시간·PSNR 실측
-(Phase 8b 수준의 검증: forward 수치 일치 → 실전 PSNR 붕괴 여부 확인 → 안전하면
-채택). 스크립트: `scripts/analysis/exp56_phase9b_frustum_filter_roi.py`.
+**⚠ 구현 전 확인: 기존 `filter_mask` 인자는 이미 있지만 이 용도로 못 씀** —
+`diff_gaussian_rasterization/__init__.py`의 `filter_mask`는 grep으로 확인해보니
+`rasterize_points.cu`/`cuda_rasterizer/*`(실제 CUDA 소스) 어디에도 안 쓰이고,
+Python 쪽 `backward()`에서 **커널이 이미 전체 N을 다 계산한 뒤에** `grad[~filter_mask]
+= 0.0`으로 사후적으로 그래디언트만 지우는 장치임(`__init__.py:151-157`) — **연산 자체를
+스킵하지 않아 시간 절감이 전혀 없음**. 진짜 절감을 얻으려면 `render()` 호출 **이전에
+입력 텐서 자체를 슬라이싱**해야 함.
+
+**정확한 구현 계획(다음 실행 단계, 코드 미변경 상태로 계획만 기록)**:
+1. `gaussian/renderer/__init__.py`에 `render_filtered(viewpoint_camera, pc, bg_color,
+   keep_mask)` 신규 함수 — `pc.get_xyz[keep_mask]`/`get_opacity[keep_mask]`/
+   `get_scaling[keep_mask]`/`get_rotation[keep_mask]`/`get_features[keep_mask]`로
+   부분집합을 만든 뒤 기존 `render()`와 동일한 로직으로 호출(기존 `render()` 자체는
+   수정 안 함 — 새 함수가 감싸는 형태).
+2. **`viewspace_point_tensor`는 반드시 full-N zero tensor로 유지**하고 KEPT 행에만
+   실제 그래디언트가 채워지게(EXCLUDED 행은 자동으로 0-grad, 이게 "원래 안 보였다"는
+   것과 의미상 동일) — `add_densification_stats(viewspace_point_tensor, update_filter)`가
+   `self.xyz_gradient_accum[update_filter]`와 `viewspace_point_tensor.grad[update_filter]`를
+   **같은 인덱스 공간(전체 N)**으로 가정하고 접근함(`gaussian_model.py:813-817`, 확인
+   완료) — 여기서 인덱스가 어긋나면 Phase 8b급 조용한 버그가 남.
+3. `radii`/`visibility_filter`(길이=kept 수)도 `torch.zeros(N)`에 `keep_mask`로
+   scatter-back해서 `max_radii2D[visibility_filter_acm[idx]]` 갱신 로직과 호환되게.
+4. margin=3.0을 기본값으로, `gs_backend.py::map()`의 기존 per-viewpoint for-loop
+   안에서 뷰마다(공유 union 아님, Phase 9 후속에서 확인한 대로) 개별 호출.
+5. 검증 순서(Phase 8b와 동일 수준 요구): ① 필터 없음 vs `keep_mask=all_true`로
+   호출한 필터 있음 버전이 forward/backward 수치 일치하는지(경로 자체의 정확성) →
+   ② 짧은 라이브 구간(length=300)에서 크래시/PSNR 붕괴 없는지 → ③ 1253 전체
+   시간·PSNR 실측. **아직 코드 미착수 — 다음 이터레이션에서 진행.**
+
+스크립트: `scripts/analysis/exp56_phase9b_frustum_filter_roi.py`.
 
 ## 다음 단계
 
