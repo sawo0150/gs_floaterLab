@@ -185,6 +185,73 @@ rotation, RGB/depth/normal loss; camera pose/exposure 고정, densify/prune 없�
 - `results/experiments/exp57_15x_control`
 - 실패 기록: `results/experiments/exp57_fullbg_15x_smoke`
 
+## 2026-07-29 추가 — dense RGB gradient의 상한과 1.5× causal 통합
+
+### 비키프레임 RGB supervision 상한
+
+종료 후 고정 online checkpoint에 keyframe뿐 아니라 비키프레임 RGB를 supervision으로
+추가했다. evaluator가 쓰는 `idx % 5 == 0`과 겹치지 않도록 `idx % 5 == 2`만 사용했고,
+keyframe도 제외했다. 총 231개 RGB-only view를 추가했으며 pose는 `traj_filler` 결과를
+사용했다. 이 단계는 미래 frame을 모두 받은 뒤 실행한 **gradient-quality upper-bound**이고
+causal online 결과가 아니다.
+
+| step | 시간 | held-out PSNR | keyframe PSNR | held-out Δ |
+|---:|---:|---:|---:|---:|
+| 0 | 0.00s | 22.83 | 23.22 | — |
+| 500 | 4.45s | 24.51 | 24.89 | +1.68 |
+| 1,000 | 8.90s | 24.96 | 25.49 | +2.12 |
+| 2,000 | 17.95s | 25.39 | 26.30 | +2.55 |
+| 5,000 | 45.10s | **26.13** | **27.79** | **+3.30** |
+
+기존 keyframe-only 5k의 within-run held-out 상승은 +2.15dB였다. dense RGB는 한 step
+비용을 약 24% 늘렸지만 5k 개선폭을 **+1.15dB** 키웠다. 즉 현재 큰 병목은 단순
+iteration 수뿐 아니라 gradient를 만드는 관측 뷰의 밀도이며, North Star 문서의
+`dense-frame supervision` 우선순위를 VIGS에서도 직접 확인했다.
+
+### 실제 1.5× stream에 causal 통합
+
+다음 keyframe이 도착했을 때만 직전 두 tracked keyframe 사이의 과거 RGB frame pose를
+SE(3) 보간해 mapper에 등록했다. 따라서 미래 keyframe은 사용하지 않으며, dense view는
+Gaussian 생성·depth/normal loss·camera pose update 없이 RGB loss만 제공한다.
+background sampler는 기존 keyframe과 도착 완료된 dense view를 함께 round-robin한다.
+
+300-frame smoke에서 dense 29개/616 step으로 정상 완주한 뒤 1,253-frame을 두 번
+실행했다. 평가 활성 run 결과:
+
+| 1.5× paced | keyframe-only background | + causal dense RGB | 변화 |
+|---|---:|---:|---:|
+| 입력 target | 97.65s | 97.65s | — |
+| tracking 입력 처리 | — | **97.33s** | deadline 내 |
+| mapper drain 포함 online loop | 약 102.0s | **98.47s** | 0.82s 초과 |
+| background step | 3,194 | **3,821** | +627 |
+| causal dense view | 0 | **108** | +108 |
+| held-out PSNR | 23.982 | **24.227** | **+0.245dB** |
+| keyframe PSNR | 24.369 | **24.499** | **+0.131dB** |
+| held-out LPIPS | 0.4561 | **0.4532** | 개선 |
+
+평가 없는 독립 반복도 98.45s, dense 110개, 3,742 step으로 거의 같아 runtime은
+재현됐다. 입력 자체는 cadence를 따라갔지만 종료 시 mapper backlog를 비우는 1.14초
+때문에 엄밀한 end-to-end deadline은 **0.84% 실패**다.
+
+판정:
+
+- dense-frame gradient는 offline 상한(+3.30dB)과 causal 1.5×(+0.25dB) 모두
+  held-out을 개선해 **방향 채택**.
+- 그러나 1.5×에서 기존 5k checkpoint 25.62dB를 유지하지는 못했다. causal pose가
+  단순 keyframe 보간이고, map이 계속 변하는 동안 3.8k step이 분산되며, 마지막
+  미완결 keyframe 구간의 dense frame은 아직 등록되지 않는 차이가 있다.
+- 다음은 2× budget에서 5k cap 상한을 확인하고, random/round-robin 대신 residual과
+  view novelty로 dense view의 gradient 효율을 높인다. 실제 Aria live에서는 MPS가
+  postprocessing pose source가 될 수 없으므로 Fisheye624+IMU localization pose를
+  같은 dense-view 입력 인터페이스에 공급해야 한다.
+
+추가 산출물:
+
+- `results/experiments/exp57_densepolish_curve`
+- `results/experiments/exp57_causal_dense_15x_{smoke,full,eval}`
+- VIGS 코드: `--background_dense_stride`, causal SE(3) keyframe-bracket 등록,
+  keyframe+dense background sampler
+
 ## 문제 정의
 
 현재 `map()`은 서로 목적이 다른 두 작업을 같은 iteration 예산에서 수행한다.

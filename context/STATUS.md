@@ -33,6 +33,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 dense RGB gradient 상한 + 1.5× causal 통합)**:
+  evaluator와 겹치지 않는 비키프레임 RGB 231장(`idx%5==2`, keyframe 제외)을 고정
+  online checkpoint polishing에 추가하자 5k/45.10s held-out/keyframe이
+  **22.83/23.22→26.13/27.79(+3.30/+4.57dB)**. 기존 keyframe-only 5k의 held-out
+  개선폭 +2.15dB보다 **+1.15dB** 커 supervision 밀도가 gradient 품질의 핵심임을
+  확인. 이어 실제 1.5× timestamp stream에서 다음 keyframe이 도착한 뒤에만 직전
+  구간의 과거 RGB pose를 SE(3) 보간하는 causal dense scheduler 구현. 전체 실측은
+  dense 108장+3,821 step, held-out/keyframe **24.23/24.50**으로 기존 keyframe-only
+  background 23.98/24.37 대비 **+0.25/+0.13dB**, LPIPS도 개선. tracking은
+  97.33s로 97.65s deadline 내였으나 mapper drain 포함 98.47s로 **0.84% 초과**.
+  dense 방향은 채택하지만 5k 25.62dB 유지는 아직 실패. 다음은 2×에서 5k cap 상한과
+  residual/novelty sampler를 검증. MPS는 postprocessing이므로 실제 live pose는
+  Fisheye624+IMU localization이 같은 dense-view 인터페이스에 공급해야 함.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 1.5× Aria stream 검증 + 앞선 26k 해석 정정)**:
   먼저 정정: 5k full은 held-out/keyframe 25.62/27.94(+2.15/+4.03dB), 26k는
   25.69/**30.62**(+2.22/+6.71dB)로 원래처럼 keyframe 30dB를 정상 재현했다.
