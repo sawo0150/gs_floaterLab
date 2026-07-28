@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-28 (exp57/58 계획 재편 — 품질 축 우선, CUDA 후속은 번호 이동)**:
+  기존 독립 exp57 카드는 없었고 exp56 Phase 9~11에 CUDA 내부 visibility skip과
+  `BACKWARD::preprocess` 최적화 구상만 흩어져 있었음. 사용자 결정으로 이 고위험
+  속도 축을 **exp58**로 정식 분리하고, 새 **exp57**은 실시간 품질 도약 전담으로
+  재정의: frontier update와 causal background polishing을 별도 queue로 분리하고,
+  랜덤 과거 뷰 대신 residual·coverage·viewpoint novelty·staleness 기반 global replay를
+  사용. 첫 단계는 exp56 checkpoint에서 0/250/500/1k/2k/5k/26k polishing 압축 곡선을
+  측정해 held-out 상승이 초반에 실제 존재하는지 확인하며, 이후 SH/color-only polishing을
+  온라인 여유 시간에 분산. 기존 STATUS/exp56의 역사적 `exp57` 언급은 번호 재배정 전
+  표현이며 현재는 **exp58을 의미함**.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md),
+  [exp58](experiments/exp58_cuda_visibility_backward_plan.md)
 - **2026-07-28 (exp56 Phase 11 — renderCUDA 커널 레벨 멀티카메라 batch화, 결론: 채택. Phase 8b/10과 달리 첫 순이득)**:
   Phase 8/8b/10이 계속 고위험으로 미뤄온 `forward.cu`/`backward.cu` 직접 수정을
   범위를 좁혀 시도 — `renderCUDA`(forward+backward)만 `grid.z=camera`로 진짜

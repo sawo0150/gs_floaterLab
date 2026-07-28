@@ -869,7 +869,7 @@ shape[1:], 3)`에서 `depth.shape[1:]`를 잘못 계산해(`(464,)` vs 올바른
 
 지도교수 미팅 피드백("view 개수보다 iter당 시간을 줄이는 게 중요", "backprop이 어떤
 gaussian에 gradient를 줄지 정하면 쉬움", visibility filter 활용 제안) 이후, Phase 0/5가
-내린 "고정비(N-무관)가 지배적" 결론이 이 제안과 정면으로 부딪힌다는 걸 짚고(exp57
+내린 "고정비(N-무관)가 지배적" 결론이 이 제안과 정면으로 부딪힌다는 걸 짚고(exp58
 설계 논의 중 발견) — 직접 **통제된 실험**으로 확인하기로 함(추정으로 넘기지 않는다는
 프로젝트 원칙, `feedback_verify_unmeasured` 적용).
 
@@ -922,10 +922,10 @@ ground truth로 채택.
 가능성 — 이 통제 실험은 rasterize/backward **자체**만 놓고 보면 N이 꽤 크게
 작용함을 보여줌.
 
-**exp57 방향에 대한 함의**: 지도교수가 제안한 "visibility 기반으로 backprop할
+**exp58 방향에 대한 함의**: 지도교수가 제안한 "visibility 기반으로 backprop할
 gaussian을 선별"하는 방향은 **이 결과로 재확인됨** — 특히 backward가 forward보다
 N-slope이 3.3배 가파르므로(22.1 vs 6.65 μs/gaussian), backward에 참여하는 gaussian
-수를 줄이는 게 forward만 줄이는 것보다 ROI가 클 것으로 예상. exp57에 "coarse
+수를 줄이는 게 forward만 줄이는 것보다 ROI가 클 것으로 예상. exp58에 "coarse
 frustum/거리 기반 pre-filter로 map() 호출에 넘기는 유효 N을 줄이기" 항목을
 공식적으로 추가.
 
