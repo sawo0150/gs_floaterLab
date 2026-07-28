@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 Aria gray geometry-only + carve-score prune — 전부 기각)**:
+  VRS factory calibration으로 Fisheye624 좌·우 522장을 464 pinhole로 rectification,
+  RGB와 평균/최대 0.079/0.089ms로 동기화해 실제 extrinsic pose에 연결. gray는
+  xyz/scale/rotation만, RGB는 SH/color/opacity만 gradient를 허용한 50:50 5k는
+  held-out **24.00→20.77dB**로 geometry 붕괴. gray 10% + xyz ±5mm/scale·rotation
+  trust-region은 **24.83dB@1.470×**로 안전하지만 기존 27.87보다 −3.04dB.
+  opacity를 전혀 쓰지 않은 depth-anchor carve score 상위 5%(4,010/80,205) pruning도
+  **24.72→22.30dB**, 총 **1.552× live**로 품질·시간 모두 실패. 기존 exp57
+  27.87dB@1.428× 채택 유지. 흑백은 다음에 photometric hard split이 아니라
+  stereo metric depth/epipolar geometry constraint로 써야 함.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 최종 성공 — held-out 27.87dB @ 1.428× live)**:
   2× stream에서 causal background 5k를 전부 넣어도 24.24dB로 1.5×와 같아
   step 수가 아니라 미성숙 map에 너무 일찍 적용한 update 소실이 병목임을 확인.

@@ -327,6 +327,91 @@ deadline margin이 남는다.
 - **최종 채택 run**:
   `results/experiments/exp57_paced1x_tail_dense_gaussian`
 
+## Aria 흑백 geometry-only / RGB appearance-only + carve-prune (2026-07-29)
+
+사용자 제안대로 실제 Aria SLAM 좌·우 흑백 카메라를 추가 supervision으로 연결했다.
+VRS factory calibration에서 Fisheye624 내·외부 파라미터를 읽어 464×464 pinhole
+(f=232)로 rectification하고, RGB timestamp와 가장 가까운 cam0/cam1 frame을 매칭했다.
+좌·우 각 261장, 총 522장이며 RGB와의 절대 timestamp 차이는 평균 **0.079ms**,
+최대 **0.089ms**다. `T_gray_world = inv(T_device_gray) @ T_device_rgb @
+T_rgb_world`로 VIGS의 RGB trajectory에 붙였다. 생성기는
+`scripts/incremental/build_exp57_gray_supervision.py`.
+
+학습 scope `sensor_split`을 구현했다.
+
+- 흑백 step: luminance를 평균 0/RMS 1로 정규화한 photometric loss, Gaussian
+  `xyz/scaling/rotation`만 gradient 허용. SH/color/opacity와 camera pose/exposure는
+  차단.
+- RGB step: 기존 L1+SSIM, `f_dc/f_rest/opacity`만 허용. geometry와 camera는 차단.
+- 흑백 zero-support view의 0-분산 미분 NaN은 epsilon-inside-sqrt 정규화와
+  non-finite step skip으로 방어. 전체 run에서는 skip 0회.
+
+### A. 단순 sensor split 50:50 — 실패
+
+5k 중 절반을 gray geometry, 절반을 RGB appearance/opacity에 배분했다.
+
+| step | held-out PSNR | keyframe PSNR | refinement |
+|---:|---:|---:|---:|
+| 0 | 24.005 | 24.466 | 0s |
+| 1k | 21.525 | 21.579 | 3.87s |
+| 5k | **20.771** | **20.838** | 20.51s |
+
+흑백의 cross-sensor photometric 오차를 색으로 설명하지 못하게 막자 Adam이 이를
+geometry 이동으로 전부 설명해 mature RGB map을 훼손했다. 기존 exp57 채택값
+27.87dB보다 −7.10dB이므로 즉시 기각.
+
+### B. 제한형: gray 10% + geometry trust region — 안전해졌지만 실패
+
+gray 비율을 10%(약 500 step)로 줄이고, refinement 시작 geometry에서
+`xyz ±5mm`, raw log-scale/quaternion parameter `±0.02`를 넘지 못하게 제한했다.
+
+| step | held-out PSNR | keyframe PSNR | refinement |
+|---:|---:|---:|---:|
+| 0 | 24.025 | 24.510 | 0s |
+| 1k | 24.557 | 24.856 | 4.03s |
+| 5k | **24.829** | **25.097** | 19.66s |
+
+무제한안의 붕괴는 막았지만 기존 exp57 Gaussian-only 5k
+**27.869/27.818dB**보다 held-out −3.04dB. RGB geometry를 잠근 손실을 제한된
+gray geometry가 대체하지 못한다. online loop 76.05s + refinement 19.66s =
+**95.72s, 1.470× live**로 시간은 1.5× 안이지만 품질 기준으로 기각.
+
+### C. opacity-independent carve evidence 상위 5% prune — 실패
+
+사용자 요청대로 opacity를 낮추는 loss나 opacity threshold를 쓰지 않고, 현재까지
+도착한 RGB keyframe 146개와 BA depth anchor 20,244개로 transit/terminal voxel
+evidence를 누적했다. score는 `rho * min(d5(anchor)/0.25, 1)`이며 opacity는 계산과
+선택 어디에도 쓰지 않았다. score>0.3 중 상위 5%만 보수적으로 제거했다.
+
+| 상태 | Gaussian | held-out PSNR | keyframe PSNR |
+|---|---:|---:|---:|
+| sensor-split 5k | 80,205 | 24.722 | 24.987 |
+| + carve-score prune | **76,195** | **22.301** | **22.550** |
+
+4,010개(5%) 제거로 held-out **−2.42dB**. score 계산+prune도 6.61s가 추가되어
+online 75.53s + refinement 18.88s + carve 6.61s = **101.02s,
+1.552× live**로 deadline도 실패했다. 첫 carve 실행은 intrinsics GPU tensor를
+NumPy와 곱한 타입 버그로 pruning 직전에 실패했고, float 변환 수정 후 별도 전체
+retry에서 위 결과를 얻었다.
+
+### 판정
+
+- **세 변형 모두 기각**, exp57 기존 채택 레시피(27.87dB@1.428×) 유지.
+- 흑백 추가 시점 자체는 정확히 동기화·보정됐지만, “gray photometric
+  geometry-only”는 appearance mismatch와 occlusion을 geometry error로 오인한다.
+- 다음에 흑백을 다시 쓰려면 photometric loss가 아니라 **좌·우 stereo로 얻은
+  metric depth/epipolar correspondence를 geometry constraint로 변환**해야 한다.
+  RGB geometry를 완전히 잠그는 hard split도 재검토해야 한다.
+- 현재 depth-anchor carve score는 진단용으로는 유효해도 hard prune selector로는
+  specificity가 부족하다. prune 전 region GT 검증 또는 multi-view contribution
+  보호항이 선결 조건이다.
+
+산출물:
+
+- `results/experiments/exp57_gray_sensor_split_5k`
+- `results/experiments/exp57_gray_trust_5k`
+- `results/experiments/exp57_gray_carveprune_retry`
+
 ## 문제 정의
 
 현재 `map()`은 서로 목적이 다른 두 작업을 같은 iteration 예산에서 수행한다.
