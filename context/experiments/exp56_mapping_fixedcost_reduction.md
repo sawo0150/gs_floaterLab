@@ -932,7 +932,54 @@ frustum/거리 기반 pre-filter로 map() 호출에 넘기는 유효 N을 줄이
 **한계(정직하게 기록)**: 이 마이크로벤치마크는 카메라 1개를 고정 반복한 것이라 실제
 map() 호출의 다양한 시점 조합(여러 카메라가 서로 다른 영역을 보는 경우)과는 다름 —
 절대 수치가 아니라 "N이 실제로 유의미하게 영향을 준다"는 정성적 결론에 무게를 둘 것.
-스크립트는 스크래치패드에만 있고 아직 `scripts/`로 옮기지 않음(재사용 시 옮길 것).
+스크립트: `scripts/analysis/exp56_phase9_kernel_microbenchmark.py`.
+
+### Phase 9 후속 — frustum pre-filter의 실제 ROI 검증 (구현 전 사전 조사)
+
+Phase 9가 "N이 유의미하다"를 확인했으니, 구현(고위험 커널 수정 없이 host-side 필터링만)
+전에 **얼마나 절감 여지가 있는지부터** 정량화. exp56 최종 체크포인트(90,770개)에
+실제 keyframe 궤적 29곳에서 `render()`가 이미 공짜로 주는 `visibility_filter`
+(`radii>0`)를 ground truth 삼아 측정.
+
+**1) 단일 뷰 기준 가시 비율**: 평균 **25.9%만 visible** — 카메라 하나당 gaussian의
+74%가 안 보이는데도 매번 preprocessCUDA/computeCov2D 등 전체 N을 통과함(장면
+전역에 걸쳐 계속 누적되는 지도 구조상 당연 — 로컬 window 카메라가 전역 90k 중
+자기 근방 일부만 봄).
+
+**2) 저비용 frustum pre-filter 설계·검증**: 커널 안 건드리고 순수 PyTorch로 —
+gaussian 중심을 `world_view_transform`(render()가 쓰는 것과 동일)으로 카메라
+좌표계에 투영해 z>0 및 FOV cone(여유배율 margin) 안에 있는지만 검사. **margin을
+스윕해 recall(진짜 visible을 놓치지 않는 비율) vs keep_frac(필터 통과 비율)
+트레이드오프 확인**:
+
+| margin | mean recall | min recall | mean keep_frac |
+|---:|---:|---:|---:|
+| 1.3 | 96.64% | 91.10% | 38.99% |
+| 2.0 | 99.62% | 98.97% | 42.93% |
+| **3.0** | **99.97%** | **99.92%** | **45.54%** |
+| 4.0 | 100.00% | 99.99% | 46.82% |
+
+`margin=3.0`을 안전 기본값으로 채택(진짜 visible을 놓칠 위험 사실상 0, 그런데도
+단일 뷰 기준 N을 절반 가까이 줄임).
+
+**3) ⚠ 중요한 반전 — per-call 공유 필터로는 이 절감이 대부분 사라짐**: 정규 keyframe
+`map()` 1회는 뷰 1개가 아니라 **~17개**(window+global)를 봄. 이 17개 뷰의
+**합집합(union)**으로 필터를 한 번만 계산해 map() 호출 전체에 공유하면 —
+서로 다른 뷰가 서로 다른 영역을 보므로 합집합이 금방 지도 대부분을 덮어버려
+**keep_frac이 평균 76.0%까지 뛰어오름**(단일 뷰 45.5%의 절반도 안 되는 절감).
+**결론: 필터를 map() 호출 전체에 한 번 공유하면 안 되고, 이미 존재하는
+per-viewpoint for-loop 안에서 뷰마다 따로 걸어야** Phase 9가 확인한 진짜 절감
+(뷰당 N 절반 가까이)을 실제로 가져올 수 있음 — 다행히 현재 구조가 이미 뷰별
+for-loop이라 아키텍처 변경 없이 "each render() 호출 앞에 그 뷰만의 필터링된
+텐서 슬라이스를 넘기기"로 구현 가능(leaf tensor 인덱싱은 PyTorch autograd가
+표준적으로 지원 — 그래디언트가 인덱싱된 위치로만 정확히 라우팅되고 나머지는
+자동으로 0-grad, 별도 sparse-gradient 처리 불필요).
+
+**다음 실행 단계**: `gs_backend.py::map()`의 per-viewpoint for-loop 안에서 각
+`render()` 호출 직전에 이 frustum pre-filter로 `means3D/opacity/scales/
+rotations/features`를 슬라이싱해 넘기는 구현 → 1253 전체로 시간·PSNR 실측
+(Phase 8b 수준의 검증: forward 수치 일치 → 실전 PSNR 붕괴 여부 확인 → 안전하면
+채택). 스크립트: `scripts/analysis/exp56_phase9b_frustum_filter_roi.py`.
 
 ## 다음 단계
 
