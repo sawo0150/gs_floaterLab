@@ -661,3 +661,69 @@ densification, clone, split은 계속 금지한다.
 - random은 무효, 정보량 sampler만 유효 → gradient 품질/분산이 병목.
 - sampler도 무효 → view 수가 아니라 depth/normal target 품질 또는 표현력이 병목.
 - 품질은 오르나 실시간 실패 → exp58/loss fusion으로 동일 update를 가속.
+
+## 2026-07-29 추가 — Aria photo+IMU 전용 strict 1.5× 검증
+
+### 입력 계약
+
+사용자 지시에 따라 `--strict_aria_online`을 추가하고 다음을 실행 시 강제했다.
+
+- 입력: `data/aria1253/rgb`의 timestamp 순 Aria RGB photo 1,303장 +
+  `data/aria1253/imu.txt`의 IMU만 허용.
+- `--pure_online --realtime_replay --replay_time_scale 1.5` 필수.
+- 경로에 `mps`가 있거나 gray manifest/external carve anchor/tail
+  `--polish_milestones`가 있으면 즉시 거부.
+- provenance를 `input_provenance.json`에 기록. 최종 결과의 `mps_inputs=[]`,
+  `post_stream_refinement=false`.
+- PPM init(`Dataset.ppm_sampling=true`)과 soft carve
+  (`Training.carve_lambda=0.05`)는 현재까지 도착한 RGB와 VIGS가 온라인으로 추정한
+  depth/pose만 사용한다. hard carve pruning은 앞선 고품질 전 검증에서 PSNR을
+  크게 훼손했으므로 이번 strict run에는 넣지 않았다.
+
+### 구현 중 발견·수정한 문제
+
+1. background optimizer가 `step()` 뒤 LR schedule을 바꾸고 그 LR을 다음 frontier
+   update에 누출하던 순서 오류를 수정했다. polish step에만 전용 xyz LR을 적용한 뒤
+   모든 group LR을 복원한다.
+2. causal dense Camera가 모든 RGB를 GPU에 영구 cache하여 약 400장 시점 PGBA의
+   986MiB correlation allocation과 충돌했다. dense RGB는 CPU에 두고 선택된 view만
+   step 동안 전송하도록 바꿔 OOM 없이 완주했다.
+3. 서비스 조건처럼 모델은 replay clock 전에 prewarm한다. 첫 사진에서는 알려진
+   tensor 크기만 읽으며 supervision/update는 하지 않는다.
+4. `--eval_online_final`은 online timer와 immutable map 저장 뒤 held-out을 render만
+   하고 optimizer update는 0회 수행한다.
+
+### 기각한 압축 보조축
+
+| 축 | held-out curve | 순수 refinement 시간 | 판정 |
+|---|---|---:|---|
+| batch=4, full-res | 1k 26.588 → 5k 29.659 | 5k 62.90s | optimizer step 수가 중요, 기각 |
+| 모든 Gaussian LR×2 | 2.5k 26.410 → 10k 28.480 | 10k 48.12s | 수렴/안정성 악화, 기각 |
+| 5k half-res + 5k full | 2.5k 27.135, 5k 28.243, 10k 29.582 | 10k 52.05s | preprocess가 N 지배, full-res보다 느려 기각 |
+
+### strict 1.5× 최종 결과
+
+결과 디렉터리:
+`results/experiments/exp57_strict15x_mature700_lag150_eval`
+
+- scheduler: frame 700부터, 최신 frame 대비 150-frame 이상 지난 arrived-only view,
+  non-evaluator RGB offsets `{1,2,3,4}`, fixed camera Gaussian update.
+- causal background: **1,441 optimizer steps / 1,441 view updates**.
+- held-out/keyframe: **23.870 / 24.300dB**, SSIM **0.77247**,
+  LPIPS **0.47240**.
+- Gaussian: **66,214개**.
+- online: **102.129s** = 원본 65.10s의 **1.569×**. 1.5× input deadline
+  97.65s보다 **4.48s 초과**.
+- 동일 online-depth-anchor 기반 post-hoc carve 진단(학습 입력 아님):
+  visible floater **13,611 / 62,918 = 21.633%**. 30dB offline map은
+  **14,112 / 64,148 = 21.999%**라 비율 차이는 −0.37%p뿐이며, strict map의
+  Gaussian 자체가 더 적어 절대 개수 감소를 floater 개선으로 해석하면 안 된다.
+
+**결론: 실패.** 1.5× paced 입력 중 map이 성숙한 뒤 update를 시작하고 stability lag를
+줘도 1,441회만 흡수됐고, held-out은 앞선 1.5× causal 결과 24.227dB보다도
+0.36dB 낮다. 고정 완성 map에서는 15k가 30.389dB를 만들지만, 성장 중인 map에
+분산된 update는 이후 densification/PGBA/재초기화로 효력이 소실된다. 따라서
+`rolling polish`만으로 pure-online 30dB를 주장할 수 없다. 다음 유효 방향은
+완료 공간 chunk를 freeze한 뒤 별도 map state에서 polish하고 merge하는
+double-buffer streaming이며, 이 역시 입력은 photo+IMU와 online pose/depth로
+제한해야 한다.

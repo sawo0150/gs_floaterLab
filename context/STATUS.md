@@ -33,6 +33,21 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 Aria photo+IMU-only strict 1.5× — 30dB 재현 실패)**:
+  `--strict_aria_online`으로 timestamp 순 RGB photo+IMU만 허용하고 MPS 경로,
+  external gray/carve 입력, tail refinement를 실행 시 거부하도록 고정했다.
+  PPM init과 soft carve는 도착한 RGB 및 VIGS online depth/pose만 사용. dense RGB
+  GPU 영구 cache로 PGBA OOM이 난 문제를 CPU-resident view로 수정하고, background
+  LR의 frontier 누출도 제거한 뒤 완주. frame 700 이후 150-frame lag를 둔
+  arrived-only rolling polish는 1,441 step을 흡수했지만 held-out/keyframe은
+  **23.870/24.300dB**, Gaussian **66,214개**, online **102.129s =
+  1.569× live**로 1.5× deadline도 4.48s 넘었다. post-hoc online-depth carve
+  진단은 visible floater 13,611/62,918(21.633%)로 30dB offline map의
+  21.999%와 사실상 동급. batch4, LR×2, half→full coarse 축도 모두 30dB/시간
+  동시 기준에 실패. **완성 map 15k=30.389dB 상한은 유효하지만 성장 map에 흩뿌린
+  update는 소실되므로 rolling 단일-map은 기각**; 다음은 완료 spatial chunk를
+  freeze/polish/merge하는 double-buffer streaming. MPS는 계속 금지.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 held-out 30dB 최초 달성 — dense RGB 4-offset)**:
   evaluator `idx%5==0`은 그대로 제외하고 dense supervision을 한 offset 239장→
   `idx%5∈{1,2,3,4}` 954장으로 확대. supervision별 **loss**를 tracked keyframe은
