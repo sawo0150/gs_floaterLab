@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 pure-online independent snapshot/double-buffer 기각)**:
+  센서 입력을 timestamp 순 Aria RGB photo 1,303장+IMU로만 고정하고
+  **MPS 후처리 trajectory/depth/point cloud를 절대 사용하지 않았다**. 고정 calibration
+  외 pose/depth는 해당 시점까지 VIGS가 online 추정한 값만 허용했다. 별도 Gaussian
+  model+Adam, stable point ID rebase, PGBA 후 causal dense-pose refresh, 종료 전
+  publish를 구현해 strict 1.5× 전체 검증. all-parameter snapshot은 held-out
+  **20.926dB**로 geometry drift가 컸고, rebase 때 SH appearance만 보존해도
+  **23.551/23.933dB**, 73,107 GS, 3,951 update, **103.911s=1.596×**로 rolling
+  23.870dB/1.569×보다 낮았다. full-scene snapshot double-buffer는 기각하며,
+  다음은 arrived RGB를 frontier가 직접 소비할 때 supervision coverage를 높이고
+  update를 압축하는 방향이다. 30dB 미달 map이므로 hard carve prune은 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 30dB update 실행비 압축 — 미세 최적화만으로 부족)**:
   MPS 없이 Aria RGB photo+IMU replay로만 진단. PyTorch subset indexing/scatter를
   CUDA `active_indices`로 대체한 rasterizer는 gradient 상대오차 3.7e-6 이하로

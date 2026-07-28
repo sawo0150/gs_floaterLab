@@ -874,3 +874,55 @@ fast loop는 5k 시간을 **7.9%** 줄이고 품질을 유지했으나, 선형 �
 - `results/experiments/exp57_dense4_15k_nodup_loss_v2`
 - `results/experiments/exp57_dense4_5k_fastloop`
 - `scripts/analysis/exp57_cuda_subset_bench.py`
+
+## 2026-07-29 추가 — independent snapshot/double-buffer 실측
+
+### 입력 계약
+
+이 절의 모든 실행은 **pure online**이다. replay가 timestamp 순서로 전달하는
+Aria RGB photo 1,303장과 IMU만 센서 입력으로 사용했다. 고정 factory calibration은
+허용하지만, 학습 pose/depth는 해당 시점까지 VIGS가 online으로 만든 값만 사용한다.
+MPS trajectory/depth/point cloud 등 후처리 산출물은 절대 사용하지 않았고 provenance도
+`policy=strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`로 기록됐다. 종료 후 online-depth anchor는 평가용
+진단에만 허용하며 학습에는 넣지 않는다.
+
+### 구현
+
+- frontier와 optimizer state를 전혀 공유하지 않는 Gaussian snapshot 및 별도 Adam.
+- clone/split/prune에도 유지되는 stable point ID로 100 frame마다 최신 frontier
+  구조를 rebase.
+- PGBA 뒤에는 도착한 dense RGB camera pose를 최신 causal keyframe pose 사이에서
+  다시 보간.
+- 종료 경계에서 snapshot을 publish하고 이후 optimizer update는 0회.
+- rebase 시 보존 범위를 `all`과 `appearance`로 분리. `appearance`는 SH feature만
+  보존하고 xyz/opacity/scale/rotation은 최신 frontier 값을 사용.
+
+800-frame 1.5× smoke에서 fast loop는 snapshot update를 1,351→2,171회
+(+60.7%) 늘렸고 stable-ID refresh/merge 및 PGBA dense-pose refresh가 정상 동작했다.
+
+### strict 1.5× 전체 결과
+
+| 변형 | snapshot update | held-out / kf PSNR | GS | online | 판정 |
+|---|---:|---:|---:|---:|---|
+| 초기 snapshot 고정 | 3,901 | 20.030 / 20.102 | 73,021 | 102.59s | late densification 누락, 기각 |
+| 100f rebase, all 보존 | 3,919 | 21.625 / 21.810 | 72,356 | 102.60s | stale pose/geometry drift, 기각 |
+| + causal dense-pose refresh, all | 3,921 | 20.926 / 21.136 | 71,179 | 약 103s | pose 보정으로도 회복 안 됨 |
+| 100f rebase, **appearance만 보존** | **3,951** | **23.551 / 23.933** | **73,107** | **103.911s (1.596×)** | baseline보다 −0.319dB, 기각 |
+| rolling baseline | 1,441 | **23.870 / 24.300** | 66,214 | **102.129s (1.569×)** | 비교 기준 |
+
+appearance-only가 all-parameter 이식보다 +2.625dB 회복한 것은 오래 polish한
+geometry를 성장 중인 최신 visibility field에 이식하는 것이 주된 붕괴 원인임을
+보인다. 그러나 가장 좋은 snapshot도 rolling baseline보다 held-out −0.319dB이고
+1.5× deadline 97.65초를 6.26초 넘었다. 따라서 **full-scene independent snapshot
+double-buffer도 기각**한다. 다음 품질 축은 별도 snapshot update를 늘리는 것이
+아니라, frontier가 실제로 소비하는 arrived RGB supervision의 coverage/정보량을
+높이면서 동일 frame에 대한 중복 update를 압축하는 방향이어야 한다. 고품질 map이
+아니므로 hard carve pruning은 아직 적용하지 않는다.
+
+산출물:
+
+- `results/experiments/exp57_snapshot_strict15x_start500_fast`
+- `results/experiments/exp57_snapshot_rebase100_strict15x`
+- `results/experiments/exp57_snapshot_rebase100_densepose_strict15x`
+- `results/experiments/exp57_snapshot_appearance_rebase100_strict15x`
