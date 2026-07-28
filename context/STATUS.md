@@ -33,6 +33,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 held-out 30dB 최초 달성 — dense RGB 4-offset)**:
+  evaluator `idx%5==0`은 그대로 제외하고 dense supervision을 한 offset 239장→
+  `idx%5∈{1,2,3,4}` 954장으로 확대. supervision별 **loss**를 tracked keyframe은
+  RGB+BA depth+normal, dense non-keyframe은 RGB-only로 분리하되, 둘 다
+  xyz/scale/rotation/opacity/color 전체 Gaussian에 gradient가 흐르게 한 것이 핵심.
+  고정 online trajectory held-out/keyframe이 5k 28.236/28.109,
+  10k 29.618/29.404, **15k 30.389/30.321dB**, 20k 30.505/30.428.
+  15k→20k +0.116dB뿐이라 15k 채택. 반대로 parameter hard split은 25.04dB로
+  붕괴, soft split 28.83, per-view exposure 28.23으로 기각 — dense photometric
+  gradient가 geometry까지 도달해야 함을 대조군으로 확정. online 75.45s +
+  15k refinement 62.83s = **138.28s, 2.124× live**라 30dB 품질 목표는 달성했고
+  실시간화는 rolling chunk/exp58로 refinement를 숨기거나 압축하는 후속 과제.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 Aria gray geometry-only + carve-score prune — 전부 기각)**:
   VRS factory calibration으로 Fisheye624 좌·우 522장을 464 pinhole로 rectification,
   RGB와 평균/최대 0.079/0.089ms로 동기화해 실제 extrinsic pose에 연결. gray는

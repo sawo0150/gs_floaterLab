@@ -327,6 +327,79 @@ deadline margin이 남는다.
 - **최종 채택 run**:
   `results/experiments/exp57_paced1x_tail_dense_gaussian`
 
+## 30dB 달성 — dense RGB 4-offset + source별 loss gradient (2026-07-29)
+
+기존 채택안은 non-evaluator dense RGB를 `idx%5==2` 한 offset만 사용해 239장
+정도였다. evaluator(`idx%5==0`)를 그대로 제외하면서 **1,2,3,4 네 offset을 전부**
+등록하도록 확장해, 실행별 keyframe 중복을 제외한 dense supervision **954~955장**을
+사용했다. 새로 추가한 dense supervision set은 evaluator frame과 겹치지 않는다.
+
+핵심은 supervision별 gradient를 **parameter hard-freeze가 아니라 loss source로**
+다르게 주는 것이다.
+
+- tracked keyframe: RGB L1+SSIM + BA-refined inverse-depth + normal gradient
+- dense non-keyframe: RGB L1+SSIM gradient만 사용
+- 두 source 모두 `xyz/scale/rotation/opacity/color(SH)` 전체 Gaussian parameter에
+  gradient가 도달. camera pose/exposure는 고정, densification/pruning 없음.
+
+즉 dense frame에는 불확실한 보간 depth/normal을 만들지 않고 photometric
+multi-view consistency만 주되, 그 photometric gradient가 geometry까지 움직이는 것은
+허용한다.
+
+### 최종 성공 곡선
+
+실제 timestamp-paced 1× online map이 끝난 stable-map boundary에서, evaluator와
+분리된 dense 954장 + tracked keyframe으로 Gaussian-only refinement를 연속 실행했다.
+held-out trajectory는 모든 milestone에서 polishing 전 online trajectory로 고정했다.
+
+| step | refinement | held-out PSNR | keyframe PSNR | SSIM | LPIPS |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 0.00s | 24.034 | 24.486 | 0.77758 | 0.45602 |
+| 5k | 20.67s | 28.236 | 28.109 | 0.88233 | 0.23533 |
+| 10k | 41.55s | 29.618 | 29.404 | 0.89959 | 0.19814 |
+| **15k** | **62.83s** | **30.389** | **30.321** | **0.90604** | **0.18437** |
+| 20k | 84.24s | 30.505 | 30.428 | 0.90811 | 0.17858 |
+
+**held-out와 keyframe 모두 30dB를 넘었다.** 15k→20k는 21.42초를 더 쓰고
+held-out +0.116dB뿐이므로 최소 채택점은 **15k**다. 이 run의 online loop는
+75.45초, 따라서 15k까지 계산 합은 **138.28초 = 65.1초 live의 2.124×**다.
+품질 목표 30dB는 달성했지만 아직 1.5× 또는 true-real-time은 아니다.
+
+### supervision별 parameter gradient 대조군
+
+같은 dense 4-offset 위에서 “각 supervision이 어떤 parameter를 움직여야 하는가”를
+분리해 측정했다.
+
+| 변형 | routing | 최종 held-out | 판정 |
+|---|---|---:|---|
+| hard split | 0~5k all; 이후 dense→color/opacity, keyframe depth/normal→geometry only | 5k 28.271 → 7.5k 25.667 → 10k **25.042** | depth-only geometry가 RGB map 파괴 |
+| soft split | 0~5k all; 이후 dense→color/opacity, keyframe RGB+depth+normal→all | 10k 28.356, 15k **28.830** | 안전하지만 30dB 미달 |
+| soft+exposure | soft split + 선택된 view exposure만 최적화, pose 고정 | 15k 28.133, 20k **28.229**(kf 29.361) | training-view exposure 과적합 |
+| **loss-source split + all Gaussian** | keyframe RGB+depth+normal, dense RGB-only; parameter는 둘 다 all | 10k 29.618, 15k **30.389** | **채택** |
+
+첫 exposure 구현은 1,066개 camera parameter group을 한 Adam에서 매번 순회해
+230→59 iter/s로 느려지는 구현 병목이 있어 7.3k에서 중단했다. 선택된 camera의
+`exposure_a/b` 두 값만 가진 optimizer를 view별 캐시하도록 고친 뒤 230~250
+iter/s를 회복해 위 최종 exposure 대조군을 얻었다. 품질은 기각.
+
+### 결론
+
+- **supervision마다 loss modality는 달라야 한다**: dense RGB에 가짜 depth/normal을
+  붙이지 않고, tracked keyframe에만 BA geometry prior를 준다.
+- 그러나 **parameter를 source별로 hard 분리하면 안 된다**. Dense multi-view
+  photometric gradient가 Gaussian geometry까지 도달해야 held-out 30dB가 된다.
+- frame 수 증가는 iteration당 연산량을 늘리지 않는다(한 step에 view 하나 샘플).
+  품질 이득은 239→954장 coverage 증가에서 왔다.
+- 다음 속도 목표는 새 15k recipe를 바꾸는 것이 아니라, 완료 chunk rolling
+  double-buffer와 exp58 CUDA backward 최적화로 62.83초 refinement를 숨기거나
+  압축하는 것.
+
+최종 산출물:
+
+- `results/experiments/exp57_dense4_gaussian20k`
+- 대조군: `exp57_dense4_staged10k`, `exp57_dense4_softstaged15k`,
+  `exp57_dense4_exposure20k_fast`
+
 ## Aria 흑백 geometry-only / RGB appearance-only + carve-prune (2026-07-29)
 
 사용자 제안대로 실제 Aria SLAM 좌·우 흑백 카메라를 추가 supervision으로 연결했다.
