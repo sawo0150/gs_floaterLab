@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-28. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-07-29. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 Best
 
@@ -33,6 +33,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 Phase 0/1 — polishing 압축 성공, SH-only scheduler 기각, true-streaming 속도 기준 반전)**:
+  동일 online checkpoint의 full refinement 곡선에서 held-out이 2k/14.21s
+  **+1.28dB**, 5k/36.31s **+2.15dB** 상승했지만 5k→26k 추가 156초는
+  **+0.07dB뿐**(keyframe만 +2.68dB)이라 기존 26k 후반의 training-view 과적합을
+  확인. SH/color-only는 더 싸지만 2k/9.30s +0.59dB, 5k/23.17s +0.73dB로 상한이
+  낮음. tracking event+5ms idle guard+과거 view round-robin+SH-only causal
+  scheduler를 구현해 paced 300 smoke에서 +0.24/+0.23dB를 냈으나, paced 1253
+  A/B(768 step)는 held-out/keyframe −0.08/−0.04dB로 run noise를 넘지 못해
+  **채택 보류**. 더 중요한 발견: source timestamp로 pace한 background-off control도
+  **74.75s/65.1s=1.15배** — 기존 exp56의 44~52초(0.68~0.80배)는 unpaced reader에서
+  mapper packet drop이 더 많이 일어난 처리량 수치였고 실제 live deadline 보장이
+  아니었음. VIGS는 이미 RGB+IMU reader queue로 causal replay 가능하지만 실제 Aria
+  live adapter는 아직 없고 MPS는 postprocessing이라 live pose source가 될 수 없음.
+  다음은 paced replay를 본선 하네스로 고정해 frontier/map deadline budget을 먼저
+  1.0배 아래로 만든 뒤, SH+exposure/opacity/confidence-gated geometry를 단계적으로
+  연다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-28 (exp57/58 계획 재편 — 품질 축 우선, CUDA 후속은 번호 이동)**:
   기존 독립 exp57 카드는 없었고 exp56 Phase 9~11에 CUDA 내부 visibility skip과
   `BACKWARD::preprocess` 최적화 구상만 흩어져 있었음. 사용자 결정으로 이 고위험

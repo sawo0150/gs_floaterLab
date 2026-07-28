@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **계획 (2026-07-28)**
+- 상태: **Phase 0 완료, Phase 1 1차 구현 기각/보류 (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -9,6 +9,114 @@
   **프론티어를 방해하지 않는 인과적 전역 정제**에 재투자하여 순수 온라인 품질을 크게 올린다.
 - 번호 변경: exp56 Phase 9~11에서 `exp57`로 부르던 CUDA 내부 visibility/
   `BACKWARD::preprocess` 후속은 [exp58](exp58_cuda_visibility_backward_plan.md)로 이동.
+
+## 2026-07-29 실행 결과 요약
+
+### 먼저 확인된 스트리밍 전제
+
+사용자 질문("background global이면 스트리밍을 먼저 구현해야 하지 않나, MPS 데이터를
+받아서")을 계기로 입력 경로를 다시 확인했다.
+
+- VIGS의 `demo.py`는 이미 별도 reader process가 RGB+IMU를 시간순 queue로 공급하고,
+  도착한 frame/keyframe만 `track()`/`call_gs()`에 넘긴다. 따라서 **미래 frame을
+  미리 쓰지 않는 causal replay**는 이미 가능하다.
+- 다만 기존 벤치는 파일을 가능한 빨리 읽는 unpaced replay였다. 실제 센서 cadence와
+  queue 동작을 재현하지 못했다.
+- `--realtime_replay`를 추가해 source timestamp에 맞춰 입력을 공급했다.
+- 이 실험의 `data/aria1253/{rgb,imu.txt}`는 Aria 기록을 재생하는 입력이고 MPS pose를
+  online 정답으로 넣은 것이 아니다. **실제 장치 live adapter는 아직 미구현**이며,
+  MPS는 본질적으로 녹화 후 처리이므로 live pose source로 사용할 수 없다.
+
+### Phase 0-A — full refinement 압축 곡선: 성공
+
+한 번의 unpaced causal replay로 만든 동일 online checkpoint에서 누적 refinement를
+실행했다. 모든 held-out 값은 milestone마다 동일한 online tracking trajectory를 고정해
+렌더한 VIGS 평가값이며, keyframe 값만 refinement의 per-view pose를 반영한다.
+
+| step | 순수 refinement 시간 | held-out PSNR | keyframe PSNR | held-out Δ |
+|---:|---:|---:|---:|---:|
+| 0 | 0.00s | 23.47 | 23.91 | — |
+| 250 | 1.75s | 23.94 | 24.54 | +0.47 |
+| 500 | 3.53s | 24.09 | 24.95 | +0.62 |
+| 1,000 | 7.08s | 24.37 | 25.54 | +0.90 |
+| 2,000 | 14.21s | 24.75 | 26.33 | +1.28 |
+| 5,000 | 36.31s | 25.62 | 27.94 | +2.15 |
+| 26,000 | 192.35s | 25.69 | 30.62 | +2.22 |
+
+핵심 판독:
+
+- 2k까지 held-out이 실제로 올라 Phase 0 진행 기준은 통과했다.
+- **5k→26k의 추가 156초는 held-out +0.07dB뿐인데 keyframe은 +2.68dB**다.
+  기존 26k의 후반 대부분은 실시간 품질이 아니라 training-view fitting이다.
+- 따라서 26k 전체를 background로 옮길 이유가 없고 full-scope sweet spot은 2k~5k다.
+
+### Phase 0-B — SH/color-only 곡선: 유효하지만 상한이 낮음
+
+동일 방식의 별도 고정 checkpoint에서 geometry/opacity/pose/exposure gradient를 버리고
+`f_dc`/`f_rest`만 갱신했다.
+
+| step | 시간 | held-out PSNR | keyframe PSNR | held-out Δ |
+|---:|---:|---:|---:|---:|
+| 0 | 0.00s | 23.58 | 24.04 | — |
+| 250 | 1.16s | 23.80 | 24.27 | +0.21 |
+| 500 | 2.29s | 23.92 | 24.41 | +0.33 |
+| 1,000 | 4.66s | 24.03 | 24.53 | +0.45 |
+| 2,000 | 9.30s | 24.17 | 24.68 | +0.59 |
+| 5,000 | 23.17s | 24.31 | 24.86 | +0.73 |
+
+SH-only도 held-out을 올리지만 full 2k의 +1.28dB 대비 절반 이하다. 즉 큰 품질 도약의
+상당 부분은 opacity/geometry/pose 쪽이며, SH-only만으로 26dB 목표는 불가능하다.
+
+### Phase 1 — causal idle scheduler 1차 구현: 구조 검증, 품질은 기각
+
+구현 내용:
+
+- mapper queue가 비고 tracking event가 5ms 이상 idle일 때만 1-step 실행
+- 새 tracking/map packet 우선, step 중간 선점 지연은 한 step으로 제한
+- 현재 frontier window를 제외한 과거 도착 view를 round-robin 선택
+- SH/color만 갱신, densify/prune 및 xyz/scale/rotation/opacity/pose/exposure 갱신 금지
+- `background_polish_max_steps=1500`, worker 종료/저장 race 방지
+
+300-frame paced smoke에서는 109 step으로 control 대비 held-out/keyframe
+**+0.24/+0.23dB**였지만, 1,303-frame 전체 A/B에서는 run-to-run map 차이를 넘지 못했다.
+
+| paced 1,303 | background off | SH-only background on | 변화 |
+|---|---:|---:|---:|
+| background step | 0 | 768 | +768 |
+| online loop | 74.75s | 74.46s | 차이 없음 |
+| held-out PSNR | 24.04 | 23.96 | −0.08dB |
+| keyframe PSNR | 24.49 | 24.45 | −0.04dB |
+| gaussian | 81,547 | 81,037 | 서로 다른 mapping schedule/run noise |
+
+**판정: 1차 SH-only scheduler는 채택하지 않는다.** 실행 구조와 causality는 검증됐지만
+전체 품질 이득이 없다. 정보량 sampler 구현으로 넘어가기 전에 parameter scope와
+실시간 baseline을 먼저 해결해야 한다.
+
+### 가장 중요한 반전 — 기존 "0.68배 실시간"은 true-streaming 측정이 아님
+
+unpaced exp56 Phase 11은 44~52초에 끝났지만 paced control은 **74.75초 / 녹화
+65.1초 = 1.15배**였다. unpaced 입력에서는 mapper가 밀리며 오래된 packet을 더 많이
+drop해 빨리 끝났고, timestamp-paced 입력에서는 mapper가 더 많은 packet을 받아
+처리하다 backlog가 생겼다. 따라서 기존 수치는 처리량 벤치로는 유효하지만 실제 live
+cadence의 end-to-end deadline을 보장하지 않는다.
+
+**다음 순서**:
+
+1. paced replay를 본선 속도 하네스로 고정하고 exp56 frontier/map budget을 다시
+   65.1초 아래로 맞춘다(명시적 deadline/token budget 또는 map packet rate 제한).
+2. 그 위에서 1~2k 상당의 spare budget을 정확히 계측한다.
+3. SH+exposure → +opacity → confidence-gated geometry 순으로 고정-checkpoint 곡선을
+   측정하고, held-out 이득이 있는 최소 scope만 scheduler에 연다.
+4. 그 뒤에야 residual/staleness/coverage sampler(Phase 2)를 비교한다.
+
+산출물:
+
+- `results/experiments/exp57_polish_curve`
+- `results/experiments/exp57_appearance_curve`
+- `results/experiments/exp57_background_{smoke,smoke_control,full,full_control}`
+- VIGS 코드: `demo.py --realtime_replay/--polish_milestones/--polish_scope`,
+  `vigs.py` idle scheduler, `gs_backend.py` milestone 및 appearance-only refinement,
+  `config/exp57_background_polish.yaml`
 
 ## 문제 정의
 
