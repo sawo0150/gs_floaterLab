@@ -91,7 +91,8 @@ def run_filtered(g, cam, bg, keep_mask):
     pkg = render_filtered(cam, g, bg, keep_mask)
     loss = pkg["render"].sum() + pkg["depth"].sum()
     loss.backward()
-    pkg["_scatter_grad_after_backward"]()
+    if "_scatter_grad_after_backward" in pkg:
+        pkg["_scatter_grad_after_backward"]()
     grads = {
         "xyz": g._xyz.grad.clone(),
         "opacity": g._opacity.grad.clone(),
@@ -210,7 +211,8 @@ def run_filtered_realistic(g, cam, bg, keep_mask, gt_image):
     image = torch.clamp(pkg["render"], 0.0, 1.0)
     loss = torch.abs(image - gt_image).mean() + torch.abs(pkg["depth"]).mean() * 0.01
     loss.backward()
-    pkg["_scatter_grad_after_backward"]()
+    if "_scatter_grad_after_backward" in pkg:
+        pkg["_scatter_grad_after_backward"]()
     grads = {k: getattr(g, f"_{k}" if k != "features_dc" else "_features_dc").grad.clone() for k in ["xyz", "opacity", "scaling", "rotation", "features_dc"]}
     out = {"render": image.detach().clone(), "radii": pkg["radii"].detach().clone(), "vis": pkg["visibility_filter"].detach().clone()}
     zero_grads(g)

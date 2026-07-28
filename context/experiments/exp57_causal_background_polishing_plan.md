@@ -827,3 +827,50 @@ prune/cap을 다시 허용해 Gaussian 수를 baseline 아래로 낮춰도 품�
 Aria RGB photo와 IMU, 그리고 그 시점까지 VIGS가 online 추정한 pose/depth뿐이다.
 MPS 후처리 데이터는 사용하지 않았고 앞으로의 exp57 pure-online 실험에서도
 금지한다.
+
+## 2026-07-29 추가 — 30dB update 실행비 압축 진단
+
+입력 계약은 계속 동일하다. 아래 replay의 센서 입력은 timestamp 순 Aria RGB
+photo 1,303장과 IMU뿐이며 MPS 후처리 데이터는 0개다. 다만 종료 후 fixed-map
+polishing을 붙인 **속도/수렴 상한 진단**이므로 strict pure-online 성공 결과로
+간주하지 않는다.
+
+### CUDA-native visible subset
+
+기존 `render_filtered()`가 만든 PyTorch advanced indexing 5개와 그 backward
+scatter를 없애기 위해, full Gaussian tensor와 `active_indices`를 rasterizer에
+직접 전달하도록 forward/backward CUDA preprocess를 확장했다.
+
+- all-visible forward/radii: bit-exact
+- L1+depth gradient 상대오차: xyz 1.15e-6, opacity 8.8e-8, scaling 1.2e-6,
+  rotation 3.7e-6, feature 1.5e-7
+- 90,770 GS, 1024px end-to-end: full 3.1696ms/update,
+  cached subset 3.1047ms/update = **2.05% 개선**
+- 매번 mask를 다시 계산하면 3.3058ms로 **4.3% 악화**
+
+수치적으로는 유효한 opt-in 자산이지만 15k update를 실시간 예산으로 압축할 레버는
+아니므로 전체 strict replay에는 투입하지 않았다.
+
+### 동일 수학 polishing loop 정리
+
+`color_refinement(batch_size=1)`이 같은 RGB/RGBD/normal loss graph를 두 번 만들고
+첫 graph를 버리던 중복 계산을 제거했다. 이어 검증된 finite RGB dense view에 한해
+`--polish_fast_loop` 옵션으로 매 update의 `cuda.synchronize()`, finite-loss host
+branch, `loss.item()` 진행률 동기화를 제거하고 milestone에서만 동기화했다.
+
+| 진단 | 5k held-out | 10k held-out | 15k held-out | refinement 시간 |
+|---|---:|---:|---:|---:|
+| 중복 loss 제거 | 28.345 | 29.582 | **30.321** | 20.95 / 42.01 / 63.53s |
+| + fast loop | **28.325** | - | - | **19.30s @5k** |
+
+중복 loss 제거 run은 15k에서 30dB를 재현했지만 기존 62.83s와 사실상 같았다.
+fast loop는 5k 시간을 **7.9%** 줄이고 품질을 유지했으나, 선형 외삽한 15k도 약
+58초라 strict 1.5×의 약 22초 여유에는 들어가지 않는다. 결론은 커널 launch/host
+동기화 미세 최적화만으로 부족하며, 5k 부근에서 30dB에 도달하도록 update 수를
+압축하거나 별도 spatial chunk를 stream 중 독립 수렴시키는 구조가 필요하다는 것이다.
+
+산출물:
+
+- `results/experiments/exp57_dense4_15k_nodup_loss_v2`
+- `results/experiments/exp57_dense4_5k_fastloop`
+- `scripts/analysis/exp57_cuda_subset_bench.py`

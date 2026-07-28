@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 30dB update 실행비 압축 — 미세 최적화만으로 부족)**:
+  MPS 없이 Aria RGB photo+IMU replay로만 진단. PyTorch subset indexing/scatter를
+  CUDA `active_indices`로 대체한 rasterizer는 gradient 상대오차 3.7e-6 이하로
+  통과했지만 cached subset도 update당 **2.05%** 개선뿐이었다. single-view
+  polishing의 중복 loss graph를 제거해도 15k held-out **30.321dB** 재현 시간은
+  **63.53s**로 그대로였고, per-step CUDA/`loss.item()` 동기화를 milestone-only로
+  바꾼 fast loop도 5k **20.95→19.30s(−7.9%)**, held-out **28.325dB**였다.
+  이는 post-stream fixed-map 상한 진단일 뿐 pure-online 성공이 아니다. strict
+  1.5×의 약 22초 여유에 30dB를 넣으려면 미세 최적화가 아니라 update 수 압축 또는
+  별도 spatial chunk의 stream 중 독립 수렴이 필요하다. 입력 계약은 계속
+  `mps_inputs=[]`, photo+IMU 및 당시 online VIGS pose/depth만 허용한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 lineage freeze 정정 재실험 — cutoff 버그 정정 후에도 기각)**:
   직전 18.004dB run은 `unique_kfIDs`(frame index)에 sensor timestamp cutoff를
   전달해 모든 Gaussian을 한꺼번에 freeze한 단위 버그가 있었으므로 **무효**로
