@@ -956,3 +956,82 @@ viewpoint novelty, staleness를 이용해 supervision 선택 품질을 높이는
 
 - `results/experiments/exp57_frontier_fast_smoke300_enabled`
 - `results/experiments/exp57_frontier_fast_strict15x`
+
+## 2026-07-29 추가 — strict 27dB milestone 전환 및 coverage/예산 재배분
+
+사용자 결정으로 pure-online의 1차 성공 기준을 held-out 30dB에서 **27dB**로
+조정했다. 계약은 MPS 없이 timestamp 순 Aria RGB photo+IMU only, fixed 1.5×,
+마지막 frame 이후 optimizer update 0회로 동일하다. 27dB 이전에는 low-quality map에
+hard carve pruning을 섞지 않고 PSNR 원인을 먼저 해결한다.
+
+### causal dense interval 누락 수정
+
+기존 scheduler는 frontend 호출마다 마지막 keyframe 쌍 하나만 처리했다. 한 호출
+사이에 여러 keyframe 상태가 갱신되거나 buffer가 변하면 중간 구간이 영구 누락되어,
+non-evaluator dense 후보 약 954장 중 실제 등록은 450장뿐이었다. 도착한 keyframe의
+모든 unseen 인접 구간을 한 번씩 순회하도록 수정했다. 어떤 dense frame도 양쪽
+keyframe이 이미 도착하기 전에는 등록하지 않아 causal order는 유지된다.
+
+300-frame smoke에서 등록 수가 **114→213장(1.87×)**으로 증가했다. 전체 strict
+1.5×에서는 **450→931장**으로 회복했다.
+
+| strict 1.5× | 기존 rolling | 모든 causal interval |
+|---|---:|---:|
+| dense RGB | 450 | **931** |
+| update | 1,441 | 1,361 |
+| held-out / kf PSNR | 23.870 / 24.300 | **23.982 / 24.402** |
+| SSIM / LPIPS | 0.77247 / 0.47240 | **0.77262 / 0.46679** |
+| Gaussian | 66,214 | 67,961 |
+| online | 102.129s | **104.752s (1.609×)** |
+
+coverage 수정은 held-out **+0.112dB**, LPIPS 개선으로 유효하지만 27dB에는 크게
+부족하다. PGBA마다 931개 dense pose를 갱신하는 비용이 추가돼 시간은 악화했다.
+동일 SE(3) 보간을 keyframe interval별 batch로 바꿔 CPU 왕복을 2×dense에서
+1×keyframe으로 줄였으며 이후 run에서 약 3초를 회수했다.
+
+### late frontier 반복 → mature dense update 재배분
+
+frame 700 이후 일반 frontier `map()` 반복을 7→2로 줄이고 fast rolling에 예산을
+넘겼다. dense 931장을 유지한 채 update는 **4,215회**로 증가했고 online도
+**101.801s**로 줄었지만 held-out/keyframe은 **24.113/24.479dB**, Gaussian
+81,580개였다. update를 frame 1000 이후에만 집중하고 반복을 1로 낮춘 조건은
+1,010 update, **23.879/24.178dB**, 79,889 GS, 101.769s였다.
+
+**둘 다 기각.** 5k에 가까운 update 수를 만들어도 growing map에 이르게 분산하면
+소실되고, 끝의 mature 구간만 쓰면 실제 사용 가능한 GPU 시간이 약 4초라 update가
+부족하다.
+
+### 모든 RGB 보존 + visual tracking만 20→10fps
+
+`tracking_stride=2`를 추가해 모든 RGB는 도착 즉시 보관하고 dense supervision 및
+전체 held-out 평가에 그대로 사용하되, 무거운 VIGS visual tracking만 매 2번째
+frame에 실행했다. IMU는 선택된 timestamp 사이를 기존 방식으로 preintegrate한다.
+300-frame smoke는 전체 RGB 평가와 1,000 background update를 정상 완주했다.
+
+전체 run은 2,574 update를 확보했지만 keyframe 108개, 최종 57,891 GS,
+held-out/keyframe **23.417/23.764dB**, online **101.562s**였다. visual trajectory와
+최종 PGBA/pruning 변화의 손실이 계산 이득보다 커 **기각**한다.
+
+### fixed-view-horizon temporal completed chunk
+
+기존 snapshot이 생성 이후 view까지, 그 시점 Gaussian이 없는 오래된 model에
+학습한 문제를 차단했다. frame 703 snapshot은 view≤703만 2,560회 독립 polish하고
+종료 시 이후 frontier birth 47,354개를 append했다. 그러나 최종 91,906 GS,
+held-out/keyframe **18.860/18.939dB**, online **103.051s**로 강하게 실패했다.
+과거 chunk만 렌더하면 이후 overlap/occluder가 빠진 상태에서 opacity와 geometry가
+잘못 최적화되며, late Gaussian 단순 append로는 compositing을 복구할 수 없다.
+temporal chunk는 overlap-aware joint rendering 없이 사용할 수 없다.
+
+SSIM window cache도 수학/gradient bit-exact로 구현했지만 464² forward+backward
+microbench가 0.792→0.799ms로 개선이 없어 속도 근거로 채택하지 않는다.
+
+현재 strict 최고는 **23.982dB**다. 27dB 미달이므로 floater labeling/hard carve
+pruning은 아직 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_dense_allintervals_{smoke300,strict15x}`
+- `results/experiments/exp57_late2_denseall_fast_strict15x`
+- `results/experiments/exp57_late1_start1000_lag0_denseall_fast_strict15x`
+- `results/experiments/exp57_trackstride2_{smoke300,start900_dense5k_strict15x}`
+- `results/experiments/exp57_temporalchunk700_fixedhorizon_strict15x`

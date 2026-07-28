@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 1차 목표 strict 27dB 전환 — dense 누락 수정 +0.112dB)**:
+  목표를 MPS 없는 RGB+IMU-only, fixed 1.5×, zero-tail held-out **27dB 먼저**로
+  조정. dense scheduler가 마지막 keyframe 쌍만 처리해 후보 약 954장 중 450장만
+  등록하던 버그를 고쳐 모든 도착 완료 인접 구간을 causal하게 처리, **931장**으로
+  회복했다. strict held-out/keyframe은 **23.982/24.402dB**로 +0.112/+0.102dB,
+  LPIPS도 개선해 현재 최고지만 online 104.752s로 deadline 미달. SE(3) pose refresh
+  batch화 후 late frontier 7→2 재배분은 4,215 update에도 **24.113dB**, frame1000
+  집중은 23.879, 모든 RGB를 보존한 tracking 20→10fps는 23.417, view≤703만 독립
+  polish한 temporal chunk는 overlap/occluder 부재로 **18.860dB**라 모두 기각.
+  27dB 미달이므로 floater labeling과 hard carve pruning은 아직 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 frontier fast rolling — update +44.9%에도 품질 악화)**:
   MPS 없이 timestamp 순 Aria RGB+IMU만 사용. 매-step finite host sync 제거와
   queue poll 2→0.2ms로 snapshot이 아닌 최신 frontier를 직접 갱신했다. strict
