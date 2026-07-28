@@ -33,6 +33,21 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 strict completed-lineage same-tensor freeze — 강한 기각)**:
+  Aria timestamp 순 RGB photo+IMU만 쓰는 strict 1.5× 조건에서 clone/split에도
+  보존되는 `unique_kfIDs`를 lineage로 삼아, 150-frame lag를 지난 Gaussian을
+  frontier Adam/densify/prune/cap에서 freeze하고 별도 background Adam으로만
+  polishing했다. 200-frame smoke는 20 step 정상 실행했지만 전체 1,303-frame
+  run은 1,237 step 후 held-out/keyframe **18.004/18.071dB**로 이전 strict
+  rolling 23.870/24.300 대비 **−5.866/−6.229dB** 붕괴. Gaussian도
+  **66,214→96,757**, post-hoc online-depth 진단 visible floater도
+  **21.633%→27.840%**로 악화했고 online **102.391s=1.573× live**로 deadline도
+  실패했다. separate Adam은 momentum overwrite를 막았지만 같은 tensor에서 초기
+  저품질 lineage까지 prune으로부터 영구 보호한 구조가 누적을 만들었다.
+  **same-tensor lineage mask 방식은 폐기**; 다음에는 별도 Gaussian model의
+  spatial chunk를 독립 polish한 뒤 overlap 검증·중복 제거·merge해야 한다.
+  provenance `mps_inputs=[]`, 학습 입력은 photo+IMU 및 online VIGS pose/depth뿐.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 Aria photo+IMU-only strict 1.5× — 30dB 재현 실패)**:
   `--strict_aria_online`으로 timestamp 순 RGB photo+IMU만 허용하고 MPS 경로,
   external gray/carve 입력, tail refinement를 실행 시 거부하도록 고정했다.

@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **Phase 0 완료, Phase 1 1차 구현 기각/보류 (2026-07-29)**
+- 상태: **고정-map 30dB 상한 확인 / strict photo+IMU-only rolling·same-tensor freeze 모두 기각 (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -727,3 +727,52 @@ densification, clone, split은 계속 금지한다.
 완료 공간 chunk를 freeze한 뒤 별도 map state에서 polish하고 merge하는
 double-buffer streaming이며, 이 역시 입력은 photo+IMU와 online pose/depth로
 제한해야 한다.
+
+## 2026-07-29 추가 — completed-lineage same-tensor freeze 검증
+
+앞 절의 double-buffer 가설에서 가장 작은 구현인 **동일 Gaussian tensor 안의
+lineage freeze**를 먼저 검증했다.
+
+### 구현
+
+- clone/split 뒤에도 보존되는 `unique_kfIDs`를 Gaussian의 출생 lineage로 사용.
+- 최신 frame보다 150 frame 이상 지난 lineage를 completed로 전환.
+- completed lineage는 frontier Adam의 gradient와 momentum을 제거하고,
+  frontier densify/prune/cap에서 보호.
+- background polishing은 frontier와 optimizer state를 공유하지 않는 별도 Adam으로
+  completed lineage만 갱신.
+- frame 700 이후 도착 완료된 non-evaluator dense RGB view만 사용.
+- 입력 계약은 계속 strict: timestamp 순 RGB photo 1,303장 + IMU만 사용,
+  `mps_inputs=[]`, 종료 후 refinement 없음.
+
+200-frame smoke에서 completed-lineage 경로가 20 step 실제 실행되고 정상 종료된 뒤
+전체 1.5× replay를 실행했다.
+
+| strict 1.5× | 이전 rolling baseline | completed-lineage freeze | 변화 |
+|---|---:|---:|---:|
+| background step | 1,441 | **1,237** | −204 |
+| held-out PSNR | 23.870 | **18.004** | **−5.866dB** |
+| keyframe PSNR | 24.300 | **18.071** | **−6.229dB** |
+| held-out SSIM / LPIPS | 0.77247 / 0.47240 | **0.64835 / 0.66563** | 모두 악화 |
+| Gaussian | 66,214 | **96,757** | **+46.1%** |
+| online loop | 102.129s | **102.391s** | +0.262s |
+| 원본 65.10s 대비 | 1.569× | **1.573×** | 1.5× deadline 4.74s 초과 |
+
+동일 online-depth anchor를 재사용한 **post-hoc 진단만** 수행했다. 이 anchor는 학습에
+사용하지 않았으며 MPS 데이터가 아니다.
+
+| map | visible floater | visible floater 비율 |
+|---|---:|---:|
+| 이전 strict rolling | 13,611 / 62,918 | 21.633% |
+| completed-lineage freeze | **22,556 / 81,020** | **27.840%** |
+| 고정-map 30dB 참조 | 14,112 / 64,148 | 21.999% |
+
+**판정: 강한 기각.** 별도 Adam으로 momentum overwrite는 막았지만, 같은 tensor에서
+completed lineage를 frontier prune/cap으로부터 영구 보호하자 초기 저품질 Gaussian도
+함께 고정되어 Gaussian 수와 floater가 누적됐다. 동시에 과거 lineage만 갱신하는
+background gradient는 전체 장면의 가시성 결합을 보존하지 못해 PSNR이 5.87dB
+붕괴했다. 따라서 “lineage mask만 둔 same-tensor double-buffer”는 폐기한다.
+다음 시도는 완료 영역을 **별도 Gaussian model/checkpoint**로 떼어 독립적으로
+polish한 뒤, overlap 검증과 중복 제거를 거쳐 render/merge하는 진짜 spatial chunk
+구조여야 한다. 그 경우에도 입력은 도착한 Aria photo+IMU와 VIGS online pose/depth로만
+제한한다.
