@@ -30,6 +30,21 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-28 (exp56 Phase 9 — "고정비 지배" 결론 재검증: 통제된 마이크로벤치마크로 N도 상당히 유의미함을 확인, exp57 방향 재조정)**:
+  지도교수 미팅 피드백("view 개수보다 iter당 시간이 중요, backprop할 gaussian을
+  visibility로 선별하면 쉬움")이 Phase 0/5의 "고정비(N-무관) 지배" 결론과
+  충돌한다는 걸 exp57 설계 논의 중 발견 — 실측으로 재검증. 카메라 1개 고정,
+  gaussian N만 1만~9만(exp56 최종 체크포인트 실측 서브샘플)으로 바꿔 forward/
+  backward를 반복 측정. **방법론 버그 발견**: `torch.profiler` key_averages()가
+  C++ 확장 wrapper(`_RasterizeGaussians[Backward]`)의 self_device_time에 자식
+  커널 시간을 중복 합산(N=90,770에서 프로파일러 총합 8.39ms vs 순수 wall-clock
+  3.43ms, 2.4배 과대) — `torch.cuda.synchronize()` 기준 wall-clock으로 교차검증해
+  이걸 잡아냄. **진짜 결과**: forward는 N-비례가 56.4%, backward는 84.6%(R²=0.988/
+  0.999)로 N이 상당히 유의미 — Phase 0/5의 "N-무관 고정비 지배"는 다변량 실측
+  로그에서 여러 항목이 섞여 계수가 희석된 결과였을 가능성. 지도교수의 visibility
+  기반 backprop 선별 제안이 이 결과로 재확인됨(backward N-slope이 forward의
+  3.3배) → exp57에 "coarse frustum pre-filter로 유효 N 절감" 항목 공식 추가.
+  → [exp56 Phase 9](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-27 (exp56 Phase 8b — batch 렌더링 실제 구현·검증·통합, 결론: 정확하지만 속도 이득 없음, 채택 안 함)**:
   사용자가 "물어보지 말고 batch cuda 될 때까지 끝까지 가보라"고 명시적으로
   요청 — Phase 8에서 보류했던 실제 구현에 착수. 기존 단일-카메라 CUDA 커널
