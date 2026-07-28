@@ -776,3 +776,54 @@ background gradient는 전체 장면의 가시성 결합을 보존하지 못해 
 polish한 뒤, overlap 검증과 중복 제거를 거쳐 render/merge하는 진짜 spatial chunk
 구조여야 한다. 그 경우에도 입력은 도착한 Aria photo+IMU와 VIGS online pose/depth로만
 제한한다.
+
+## 2026-07-29 정정 — lineage cutoff 단위 버그 및 유효 재실험
+
+위의 18.004dB 결과를 사후 감사한 결과, completed cutoff의 단위가 잘못된 것을
+발견했다. `unique_kfIDs`는 sensor timestamp가 아니라 replay frame index
+(`video.tstamp`: 0, 4, 11, ...)인데, 최초 구현은 cutoff에 sensor timestamp를
+전달했다. 따라서 frame 700에서 모든 Gaussian을 한꺼번에 completed로 오판했다.
+위 18.004dB run은 **구현 버그가 든 무효 결과**이며 same-tensor freeze의 성능
+근거로 쓰지 않는다.
+
+단위를 frame index로 통일하고, opacity reset 및 최종 scale clamp 같은 optimizer
+밖의 직접 write도 completed mask를 지키도록 수정했다. smoke test에서
+`frozen=22,891/27,838, cutoff=104`로 일부 lineage만 동결되는 것을 확인한 뒤
+전체 strict 1.5× replay를 다시 수행했다.
+
+| strict 1.5× | rolling baseline | 단위 수정 freeze | freeze + prune/carve |
+|---|---:|---:|---:|
+| background step | 1,441 | 1,190 | **1,227** |
+| held-out PSNR | **23.870** | 22.002 | **21.868** |
+| keyframe PSNR | **24.300** | 22.216 | **22.066** |
+| held-out SSIM / LPIPS | **0.77247 / 0.47240** | 0.74379 / 0.50336 | **0.73490 / 0.51561** |
+| Gaussian | 66,214 | 77,799 | **57,109** |
+| online loop | 102.129s | 102.505s | **약 103.77s** |
+| 원본 65.10s 대비 | 1.569× | 1.575× | **약 1.594×** |
+
+`freeze + prune/carve`에서는 completed lineage의 gradient/momentum/densification은
+막되, 저 opacity/과대 scale Gaussian을 영구 보존하지 않도록 opacity/size prune과
+per-lineage cap은 허용했다. background RGBD loss에는 현재 RGB 및 VIGS online
+tracked depth만 쓰는 depth-violation carve(`lambda=0.05`)를 적용했다. 그 결과
+Gaussian 누적은 억제됐지만 held-out은 baseline보다 **−2.002dB** 낮았다.
+
+동일 online-depth anchor를 쓴 post-hoc 진단(평가 전용, 학습 미사용):
+
+| map | visible floater | visible floater 비율 |
+|---|---:|---:|
+| rolling baseline | 13,611 / 62,918 | 21.633% |
+| freeze + prune/carve | **11,609 / 55,061** | **21.084%** |
+| 고정-map 30dB 참조 | 14,112 / 64,148 | 21.999% |
+
+floater 비율은 −0.549%p만 줄고 PSNR은 2.002dB 손실되어 품질 대비 이득이 없다.
+따라서 **버그를 고친 유효 실험으로도 same-tensor completed-lineage freeze는
+기각**한다. 단, 원인은 이전 기록의 “모든 초기 Gaussian 영구 보호”만이 아니다.
+prune/cap을 다시 허용해 Gaussian 수를 baseline 아래로 낮춰도 품질이 회복되지
+않았으므로, 성장 중 단일 visibility/compositing 표현에서 일부 lineage만 고정하는
+구조 자체가 dense RGB gradient의 전역 결합을 깨는 것이 더 직접적인 원인이다.
+
+입력 provenance는 세 run 모두 `policy=strict_aria_rgb_imu_only`,
+`mps_inputs=[]`, `post_stream_refinement=false`이다. 학습 입력은 timestamp 순
+Aria RGB photo와 IMU, 그리고 그 시점까지 VIGS가 online 추정한 pose/depth뿐이다.
+MPS 후처리 데이터는 사용하지 않았고 앞으로의 exp57 pure-online 실험에서도
+금지한다.

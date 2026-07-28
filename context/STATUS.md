@@ -33,6 +33,22 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 lineage freeze 정정 재실험 — cutoff 버그 정정 후에도 기각)**:
+  직전 18.004dB run은 `unique_kfIDs`(frame index)에 sensor timestamp cutoff를
+  전달해 모든 Gaussian을 한꺼번에 freeze한 단위 버그가 있었으므로 **무효**로
+  정정한다. frame index로 수정하고 opacity reset/scale clamp 직접 write까지
+  completed mask를 적용한 유효 전체 run은 held-out/keyframe **22.002/22.216dB**,
+  77,799 GS, 102.505s=1.575×였다. 이어 completed의 gradient/momentum/densification만
+  막고 opacity/size prune 및 cap을 다시 허용하며, 현재 RGB+VIGS online depth만
+  쓰는 background carve를 결합했지만 **21.868/22.066dB**, 57,109 GS,
+  약 103.77s=1.594×였다. post-hoc online-depth floater는
+  11,609/55,061=**21.084%**로 rolling 21.633%보다 −0.549%p뿐인 반면 PSNR은
+  −2.002dB. 따라서 Gaussian 누적을 막아도 일부 lineage 동결이 성장 map의 전역
+  visibility/gradient 결합을 깨므로 same-tensor freeze는 기각한다.
+  provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+  `post_stream_refinement=false`; 학습 입력은 timestamp 순 photo+IMU와 그때까지의
+  VIGS online pose/depth뿐이며 MPS 후처리 데이터는 금지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 strict completed-lineage same-tensor freeze — 강한 기각)**:
   Aria timestamp 순 RGB photo+IMU만 쓰는 strict 1.5× 조건에서 clone/split에도
   보존되는 `unique_kfIDs`를 lineage로 삼아, 150-frame lag를 지난 Gaussian을
