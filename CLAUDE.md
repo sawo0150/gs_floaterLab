@@ -15,20 +15,23 @@ Aria glass 기반 **실시간 incremental 3DGS 매핑** 시스템을 만드는 �
 
 즉 "흑백으로 정밀하게 위치를 잡고, RGB로 실시간 고품질 지도를 짓되 floater가 없는" 시스템.
 
-## 현재 단계 (2026-07-17)
+## 현재 단계 (2026-07-29)
 
-localization까지 한 번에 붙이는 건 어려우므로 **매핑 품질부터** 확보한다. 우선순위 순서:
+localization까지 한 번에 붙이는 건 어려우므로 **strict streaming 매핑 품질부터** 확보한다.
+우선순위 순서:
 
-1. **[지금] incremental mapping을 배치급 고품질(30dB+)로 끌어올리기.** 현재 Photo-SLAM replay가
-   22dB에 정체 — **진짜 병목은 supervision 밀도**(keyframe 57장만 씀 vs 배치는 dense 프레임
-   ~1140장). 다음 실험: **dense-frame supervision**(keyframe 사이 RGB 프레임들도 pose와 함께
-   supervision 뷰로 추가). ⚠ **22dB 지도에 floater 억제(carve)를 먼저 넣는 건 순서가 틀림** —
-   낮은 품질에선 "이미지가 floater를 요구"해 carve가 안 통함(exp43 12F에서 확인). 고품질이 선결.
-2. **[그다음] floater 억제(carve loss)를 고품질 지도 위에 이식** — 우리 floater 방법론(exp44d2)이
-   incremental에서도 통하는지 region GT 지표로 검증.
-3. **[그다음] 라이브 통합** — 검증된 매핑 레시피를 실제 라이브 트래킹(exp50 DiskChunGS,
-   Fisheye624 흑백 트래킹 이미 성공)에 얹기. dense-frame pose는 최종 시스템에선 흑백 SLAM
-   트래킹이 실시간으로 공급 → dense supervision은 공짜 입력.
+1. **[지금] pure-online strict streaming에서 held-out PSNR 27dB를 먼저 달성.**
+   strict 기준은 timestamp 순 Aria RGB photo+IMU만 사용하고, MPS 후처리 trajectory/depth/
+   point cloud는 절대 사용하지 않으며, fixed 1.5× live budget과 마지막 프레임 뒤 optimizer
+   update 0회(zero-tail)를 동시에 지키는 것이다. 고정 calibration은 허용하지만 학습 pose/depth는
+   해당 시점까지 online 추정한 값만 쓴다. 현재 병목은 도착한 dense RGB supervision을 성장 중인
+   지도에 손실 없이 축적하는 것. ⚠ **27dB 미달 지도에 hard carve/floater pruning을 먼저 넣지
+   않는다** — 품질이 선결 조건.
+2. **[그다음] strict streaming 27dB 지도에 floater 억제(carve loss)를 이식** — 우리 floater
+   방법론(exp44d2)이 incremental에서도 통하는지 held-out PSNR + region GT로 검증.
+3. **[그다음] 동일 strict 조건에서 held-out 30dB+로 확장.**
+4. **[그다음] 실제 Aria 라이브 통합** — Fisheye624 stereo+IMU localization 위에 RGB
+   incremental mapping을 연결.
 
 배치 트랙(exp01~47)은 이 목표의 **품질 상한/방법론 검증**용이며, floater 감소 자체는 배치에서
 이미 해결됨(exp44d2, 33.8dB). incremental 트랙(exp48~50)이 위 최종 그림의 본선.

@@ -33,6 +33,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (프로젝트 1차 목표 확정 — strict streaming held-out 27dB)**:
+  사용자 결정으로 당장의 성공 기준을 30dB가 아니라 **pure-online strict streaming
+  held-out 27dB**로 확정했다. strict는 timestamp 순 Aria RGB photo+IMU-only,
+  MPS 후처리 trajectory/depth/point cloud 금지, fixed 1.5× live budget,
+  마지막 프레임 뒤 optimizer update 0회(zero-tail)를 모두 만족해야 한다.
+  고정 calibration만 허용하며 학습 pose/depth는 당시까지의 online 추정치만 쓴다.
+  27dB 달성 전 hard carve/floater pruning은 보류하고, 달성 후 carve 검증,
+  그 다음 동일 strict 조건의 30dB+로 진행한다.
 - **2026-07-29 (exp57 1차 목표 strict 27dB 전환 — dense 누락 수정 +0.112dB)**:
   목표를 MPS 없는 RGB+IMU-only, fixed 1.5×, zero-tail held-out **27dB 먼저**로
   조정. dense scheduler가 마지막 keyframe 쌍만 처리해 후보 약 954장 중 450장만
