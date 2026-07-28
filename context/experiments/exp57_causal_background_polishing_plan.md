@@ -252,6 +252,81 @@ background sampler는 기존 keyframe과 도착 완료된 dense view를 함께 r
 - VIGS 코드: `--background_dense_stride`, causal SE(3) keyframe-bracket 등록,
   keyframe+dense background sampler
 
+## 2026-07-29 최종 — 27dB를 1.5× live budget 안에서 달성
+
+### streaming 중 분산 5k가 안 된 이유
+
+2× timestamp stream(130.20초 budget)에서 causal dense Gaussian background를
+5,000 step 전부 실행했지만 held-out/keyframe은 **24.24/24.51dB**로 1.5×의
+24.23/24.50과 같았다. 실행은 128.59초로 deadline을 통과했다. 즉 step 수가 아니라
+**계속 생성·prune·pose-correct되는 미성숙 map에 gradient를 너무 일찍 적용해 update가
+소실되는 것**이 병목이었다.
+
+offline full refinement와의 차이를 좁히려고 camera pose/exposure까지 background Adam으로
+갱신하는 cache-safe 경로도 구현했다. `update_pose()`를 `no_grad`에서 commit해 기존
+`LinalgInvExBackward` crash는 해결했지만, 1.5× 전체 품질이 **22.15dB**로 붕괴했다.
+SLAM이 map 좌표를 계속 바꾸는 동안 photometric camera pose를 별도로 움직이면 geometry
+gradient가 잘못 정렬되므로 **online full-scope는 기각**한다.
+
+frame 800 이후에만 Gaussian-safe polishing을 실행하는 late-start도 980 step,
+22.16dB로 실패했다. 다만 이 시기 실험들은 최종 Gaussian 수가 64k~80k로 크게 달라지는
+mapper 비결정성이 있었으므로 late-start 단독 효과로 과해석하지 않는다. 이후 Python/
+NumPy/PyTorch seed를 명시적으로 고정했다.
+
+### 고정 map에서 Gaussian-only dense curve
+
+camera pose/exposure를 완전히 고정한 채 RGB-only dense view 230개와 keyframe을 섞어
+Gaussian 파라미터(SH/xyz/opacity/scale/rotation)만 갱신했다.
+
+| step | refinement 시간 | held-out PSNR | keyframe PSNR | held-out Δ |
+|---:|---:|---:|---:|---:|
+| 0 | 0.00s | 22.99 | 23.30 | — |
+| 1,000 | 4.09s | 25.17 | 25.24 | +2.18 |
+| 5,000 | **20.25s** | **27.73** | **27.66** | **+4.74** |
+
+이 결과로 pose refinement 없이도 27dB를 넘었다. 이전 full dense curve가 5k에
+26.13dB/45.10초였던 것보다 오히려 빠르고 높다. camera optimizer 비용 제거뿐 아니라
+seed/run checkpoint 차이가 함께 있으므로 절대 차이를 parameter-scope 효과만으로
+해석하지는 않지만, 채택 레시피는 더 안전한 Gaussian-only다.
+
+### 최종 timestamp-paced 1× + tail settle 검증
+
+실제 source timestamp cadence(65.10초)를 그대로 재생하고 background 경쟁 없이
+frontier map을 끝까지 안정화한 뒤, 지금까지 도착한 frame만 사용해 dense pose를 채우고
+Gaussian-only refinement를 실행했다. evaluator view(`idx%5==0`)와 supervision
+view(`idx%5==2`)는 겹치지 않는다.
+
+| 시점 | 누적 계산시간 | live 대비 | held-out PSNR | keyframe PSNR |
+|---|---:|---:|---:|---:|
+| online map 완료 | 72.49s | 1.114× | 23.66 | 23.93 |
+| + dense Gaussian 1k | 76.63s | 1.177× | 25.54 | 25.61 |
+| + dense Gaussian 5k | **92.96s** | **1.428×** | **27.87** | **27.82** |
+
+5k 최종 SSIM/LPIPS는 held-out **0.87185 / 0.25555**다. 따라서 exp57의 목표였던
+**held-out 약 27dB를 1.5× live budget(97.65초) 안에서 달성**했다. 4.69초의
+deadline margin이 남는다.
+
+판정과 제품화 경계:
+
+- **채택**: stable-map boundary + non-eval dense RGB + Gaussian-only 5k settle.
+- 이 결과는 실제 Aria 파일을 timestamp대로 공급한 causal replay이며 미래 frame은
+  사용하지 않는다. 다만 실제 장치 adapter 자체를 구현한 것은 아니다.
+- 유한 녹화가 끝난 뒤 20.5초 정제해 1.428×에 도달한 결과다. 무한 live stream에서
+  항상 최신 map이 즉시 27dB인 것은 아니다. 제품화는 완료된 spatial/temporal chunk를
+  freeze해 20초 안에 polish하는 rolling double-buffer가 필요하다.
+- MPS pose는 녹화 후 처리라 live 의존성으로 쓰지 않는다. 실제 Aria에서는
+  Fisheye624+IMU localization이 확정한 chunk pose와 RGB frame을 동일한 dense
+  supervision 인터페이스에 넘긴다.
+
+추가 산출물:
+
+- `results/experiments/exp57_causal_dense_20x_eval`
+- 실패: `exp57_causal_dense_fullscope_15x_eval`,
+  `exp57_causal_dense_late800_15x_eval`
+- `results/experiments/exp57_densepolish_gaussian_curve`
+- **최종 채택 run**:
+  `results/experiments/exp57_paced1x_tail_dense_gaussian`
+
 ## 문제 정의
 
 현재 `map()`은 서로 목적이 다른 두 작업을 같은 iteration 예산에서 수행한다.

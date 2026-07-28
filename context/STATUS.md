@@ -33,6 +33,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 최종 성공 — held-out 27.87dB @ 1.428× live)**:
+  2× stream에서 causal background 5k를 전부 넣어도 24.24dB로 1.5×와 같아
+  step 수가 아니라 미성숙 map에 너무 일찍 적용한 update 소실이 병목임을 확인.
+  online camera pose/exposure 정렬은 crash를 고쳤지만 22.15dB로 붕괴해 기각.
+  반대로 고정 map에서 camera를 건드리지 않고 non-eval dense RGB 230장으로
+  Gaussian-only 5k를 돌리면 **20.25초에 held-out 27.73dB**. 최종 timestamp-paced
+  1× 검증은 online map 72.49초 + dense Gaussian 5k 20.47초 =
+  **92.96초(65.1초 live의 1.428×)**, held-out/keyframe **27.87/27.82dB**,
+  SSIM/LPIPS 0.87185/0.25555로 **27dB@1.5× 목표 최초 달성**. 채택 레시피는
+  stable-map boundary + dense RGB + pose/exposure 고정 Gaussian-only settle.
+  실제 장치 adapter는 아직 없고, 무한 live에서는 완료 chunk를 freeze/polish하는
+  rolling double-buffer로 이 20초 tail을 숨겨야 함. MPS는 postprocess이므로 live
+  pose source가 아니며 Fisheye624+IMU localization pose를 사용해야 함.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 dense RGB gradient 상한 + 1.5× causal 통합)**:
   evaluator와 겹치지 않는 비키프레임 RGB 231장(`idx%5==2`, keyframe 제외)을 고정
   online checkpoint polishing에 추가하자 5k/45.10s held-out/keyframe이
