@@ -30,6 +30,22 @@
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-28 (exp56 Phase 10 — frustum pre-filter 실제 구현·1253 실측, 결론: 기각. Phase 9를 뒤집지 않고 오히려 재확인)**:
+  Phase 9가 "N이 유의미하다"를 확인한 뒤, `render_filtered()`/`frustum_prefilter()`를
+  실제로 구현(기존 `render()` 무수정, host-side에서 gaussian 부분집합만 뽑아 넘김,
+  뷰마다 개별 필터링). 수치 검증(Phase 8b 기준, float32 atomic 노이즈 수준 일치)과
+  length=300 라이브 스모크 테스트 통과 후 1253 전체 실측: **온라인 루프 −0.89%
+  (45.79→45.38s, 잡음 수준), PSNR −0.35/−0.29dB, map() 성사 36→30회(−17%) — 기각.**
+  `map_call` 로그로 원인 진단: rasterize avg/call이 139ms→**290ms로 오히려 2배
+  느려짐** — 필터링 자체(행렬곱+5개 인덱싱 연산, map() 1회당 최대 17번)가 만드는
+  추가 커널 launch 비용이 줄어든 gaussian 수만큼 아낀 시간보다 컸음. **이건 Phase
+  9를 뒤집는 게 아니라 오히려 더 강하게 재확인** — "N-비례가 유의미하다"와
+  "host-side에서 N을 줄이면 공짜로 이득"은 다른 명제이고, launch 자체가 비싸다는
+  Phase 9 결론상 필터링을 CUDA 커널 내부(preprocessCUDA)에 융합해야만 진짜 이득이
+  남 — 처음부터 고위험으로 미뤄온 forward.cu/backward.cu 직접 수정과 결국 같은
+  결론으로 수렴. `Training.frustum_prefilter` 기본값 false 유지(코드는 `batch_render`
+  와 같은 패턴으로 자산 보존).
+  → [exp56 Phase 10](experiments/exp56_mapping_fixedcost_reduction.md)
 - **2026-07-28 (exp56 Phase 9 — "고정비 지배" 결론 재검증: 통제된 마이크로벤치마크로 N도 상당히 유의미함을 확인, exp57 방향 재조정)**:
   지도교수 미팅 피드백("view 개수보다 iter당 시간이 중요, backprop할 gaussian을
   visibility로 선별하면 쉬움")이 Phase 0/5의 "고정비(N-무관) 지배" 결론과

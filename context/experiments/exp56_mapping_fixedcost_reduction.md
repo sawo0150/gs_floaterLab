@@ -1064,9 +1064,48 @@ GPU atomic 비결정성이 원인, 이 스케일에서 증폭돼 드러난 것).
 1253 앞 300프레임 실행 — **크래시 없음**, gaussian 개수가 keyframe마다 정상적으로
 누적됨(0→24,995까지 정상 증가, 0에서 멈추거나 폭주하는 이상 없음).
 
-### 검증 ③ — 1253 전체 시간·PSNR 실측
+### 검증 ③ — 1253 전체 시간·PSNR 실측 (완료, 결론: 기각)
 
-진행 중 — 결과가 나오는 대로 이 절에 추가.
+`Training.frustum_prefilter: true`(margin=3.0), 그 외 exp56 최종 채택 레시피
+그대로 1253 전체 실행(`VIGS_TIMING_LOG` 켜서 재실행, exp56_ax8_camcache와
+동일 `vigs_track_total` 지표로 비교):
+
+| | baseline(exp56_ax8_camcache) | frustum_prefilter(Phase 10) | 변화 |
+|---|---:|---:|---:|
+| 온라인 루프 총합(`vigs_track_total`) | 45.79s | 45.38s | **−0.89%**(사실상 잡음 수준) |
+| PSNR mean/kf | 23.49 / 23.88 | 23.14 / 23.59 | **−0.35 / −0.29dB** |
+| map() 성사 횟수 | 36회 | 30회 | **−17%** |
+
+**map_call 로그로 원인 진단 — rasterize가 오히려 2배 느려짐**:
+
+| | baseline avg/call | frustum avg/call |
+|---|---:|---:|
+| rasterize | 139.4ms | **290.5ms**(+108%) |
+| backward | 348.9ms | 439.4ms(+26%) |
+| loss_compute | 434.9ms | 420.0ms(−3%, 거의 무변화, 예상대로 N-무관) |
+
+**원인 확정**: `keep_mask = frustum_prefilter(...)` 호출을 `with _Sect(_acc,
+"rasterize")` 블록 **안에** 넣었기 때문에(뷰마다, 즉 map() 1회당 최대 17번) 이
+필터링 자체의 비용(`(N,4)@(4,4)` 행렬곱 + 5개의 별도 인덱싱 연산 —
+`get_xyz[idx]`/`get_scaling[idx]`/`get_opacity[idx]`/`get_rotation[idx]`/
+`get_features[idx]`, 각각 자체 커널 launch)이 "rasterize" 시간에 그대로
+잡힘. **이 필터링 자체가 만들어내는 추가 launch 비용이, 필터링으로 줄어든
+gaussian 수만큼 rasterizer 커널이 아낀 시간보다 컸다** — 결과적으로 순
+효과가 마이너스에 가까움. map() 1회가 더 느려지니 mapper가 밀려 큐 드롭이
+늘어 성사 횟수가 36→30으로 줄고(Phase1/4/7/8에서 반복 확인된 "느려지면
+coverage↓→PSNR↓" 패턴 그대로 재현), PSNR도 같이 하락.
+
+**결론 — 기각, `frustum_prefilter` 기본값 `false` 유지**(코드는 향후 자산으로
+보존, `batch_render`와 같은 패턴). **이게 Phase 9의 결론을 뒤집는 게 아니라
+오히려 더 강하게 재확인하는 결과다**: Phase 9는 "N-비례 항이 유의미하다"였지,
+"host-side에서 N을 줄이면 공짜로 이득이 난다"가 아니었음 — N을 줄이는 행위
+자체가 Python/PyTorch 레벨에서는 반드시 추가 커널 launch를 동반하고, Phase 9가
+이미 확인한 대로 launch 자체의 비용이 크기 때문에 "덜 계산하되 launch를 더
+하는" 방식은 구조적으로 손해를 보기 쉽다. **진짜 이득을 보려면 필터링을
+Python/host 레벨이 아니라 CUDA 커널 내부(preprocessCUDA에 조건 분기를 넣어
+애초에 launch를 늘리지 않고 안에서 skip)에 융합해야 한다** — 이건 처음부터
+고위험으로 분류해 미뤄왔던 forward.cu/backward.cu 직접 수정과 결국 같은
+결론으로 수렴함(Phase 8/8b/다음 단계 0번과 동일).
 
 ## 다음 단계
 
