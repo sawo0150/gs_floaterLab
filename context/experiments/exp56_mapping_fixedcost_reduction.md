@@ -1107,15 +1107,93 @@ Python/host 레벨이 아니라 CUDA 커널 내부(preprocessCUDA에 조건 분�
 고위험으로 분류해 미뤄왔던 forward.cu/backward.cu 직접 수정과 결국 같은
 결론으로 수렴함(Phase 8/8b/다음 단계 0번과 동일).
 
+## Phase 11 — renderCUDA 커널 레벨 멀티카메라 batch화 (2026-07-28, 채택)
+
+사용자 요청("renderCUDA(forward+backward)만 카메라 여러 개를 한 번에 처리하도록
+커널 레벨로 batch화")으로, Phase 8/8b/10이 계속 고위험으로 미뤄온
+`forward.cu`/`backward.cu` 직접 수정을 드디어 시도. 범위를 의도적으로
+좁힘 — **`renderCUDA`(forward+backward)만** 진짜로 `grid.z=camera`로
+배치하고, `preprocessCUDA`/정렬(`duplicateWithKeys`+`cub::DeviceRadixSort`+
+`identifyTileRanges`)/`computeCov2DCUDA`(backward, `dL_dtau` SE3 포즈
+그래디언트가 있는 곳)는 전부 **카메라별 host-loop로 그대로 유지**. `backward.cu`를
+읽고 `dL_dtau`가 `computeCov2DCUDA`/`preprocessCUDA`(backward)에만 있고
+`renderCUDA`(backward)의 파라미터 목록엔 전혀 없음을 grep으로 먼저 확인 —
+renderCUDA는 순수 tile-blending 수학이라 포즈 그래디언트 리스크가 0이라는
+걸 구현 전에 확정했음.
+
+**구현**: `rasterize_points_kernelbatch.{h,cu}`(신규 파일) — forward는
+카메라별로 `FORWARD::preprocess`(기존, 무수정)를 순회 호출해 `(B,P,...)`
+스택 텐서에 직접 써넣고, `renderCUDA_batch`(신규, `blockIdx.z=cam`)를
+**단 한 번** 배치 launch. backward도 대칭: `renderCUDA_batch`(backward)를
+한 번 배치 launch해 `dL_dmeans2D`(카메라별, 미합산) 등을 얻은 뒤, 카메라별로
+기존 `BACKWARD::preprocess`(무수정)를 순회 호출해 합산. `gaussian/renderer/
+__init__.py`에 `render_kernel_batch()` 추가, `gs_backend.py::map()`에
+`Training.kernel_batch_render`(opt-in, 기본 false) 플래그로 배선 —
+`batch_render`/`frustum_prefilter`와 같은 패턴, 둘 다 켜져 있으면 이게 우선.
+
+**세그폴트 발견·수정**: 1차 구현 직후 검증 스크립트가 **아무 출력도 없이
+즉시 segfault**(exit 139). `compute-sanitizer --tool memcheck`는 0 errors를
+보고했는데도 크래시 — 즉 GPU 메모리 접근 문제가 아니라 **호스트 측** 문제라는
+뜻. `gdb --batch -ex run -ex bt`로 정확한 스택트레이스를 잡으니 크래시 지점이
+`RasterizeGaussiansKernelBatchCUDA` 함수 **내부, 커널 launch 이전**이었음.
+원인: `focal_x_t`/`focal_y_t`를 `torch::zeros({B}, float_opts)`로 할당했는데
+`float_opts = means3D.options().dtype(torch::kFloat32)`가 `means3D`의
+디바이스(CUDA)를 그대로 물려받아 **이 텐서가 GPU 메모리**로 만들어짐 —
+그런데 바로 다음 host `for`문에서 `focal_x_acc[b] = focal_x`로 **CPU 코드가
+GPU 포인터를 직접 역참조**하고 있었음(즉시 SIGSEGV). forward/backward 두
+함수 모두 같은 패턴이 있었고(backward는 쓰기+읽기 두 군데), 둘 다 "호스트
+`std::vector<float>`에 채운 뒤 루프 종료 후 한 번만 `.to(device)`로 업로드"
+방식으로 수정(이미 `point_list_ptr_host`에 쓰던 것과 동일 패턴). 재빌드 후
+정상 동작 확인.
+
+**검증(Phase 8b와 동일 기준)**: `scripts/analysis/exp56_phase11_kernelbatch_check.py`
+(B=6 카메라, N=90,770, `render()` 순차 루프 대비) — forward는 **6개 카메라
+전부 bit-exact(diff 0.0)**, backward gradient 상대오차 xyz 1.6e-5 / opacity
+5.3e-8 / scaling 2.9e-6 / rotation 2.1e-5 / features_dc 2.0e-7(전부 atomic
+비결정성 노이즈 수준과 동일 자릿수), `viewspace_points.grad`도 카메라별로
+올바른 shape(N,3)으로 채워짐. length=300 라이브 스모크(크래시 없음, gaussian
+0→24,996 정상 증가, PSNR이 flag off 버전과 같은 자릿수: 15.49/14.84 vs
+15.13/14.49)까지 통과 후 1253 전체 실행.
+
+**1253 전체 실측 결과**:
+
+| | baseline(exp56_ax8_camcache) | Phase 11(kernel_batch_render) | 변화 |
+|---|---:|---:|---:|
+| `vigs_track_total` | 45.79s | **44.00s** | **−3.9%** |
+| PSNR mean/kf | 23.49 / 23.88 | 23.46 / 23.98 | 사실상 무변화(kf +0.10dB) |
+| map() 성사 횟수 | 36회 | 37회 | 거의 동일 |
+| rasterize avg/call | 139.4ms | **66.8ms** | **−52.1%** |
+| backward avg/call | 348.9ms | 368.5ms | +5.6%(거의 무변화) |
+
+`rasterize`(배치화한 부분)만 놓고 보면 launch 비용이 정확히 절반으로
+줄었음 — Phase 9가 예측한 "renderCUDA가 커널 launch-count-dominant"
+가설이 이 컴포넌트에 한해 실측으로 확인됨. 다만 `backward`는 거의 그대로인데,
+배치 안 한 `BACKWARD::preprocess`(카메라별 SE3 포즈 그래디언트 순회, 여전히
+`backward` 시간의 대부분을 차지)가 손대지 않은 채 남아있기 때문 — 그래서
+전체 이득은 rasterize 한 컴포넌트의 절감폭만큼 크지 않고 총합 −3.9%로 제한됨.
+
+**결론 — 채택.** Phase 8b/10과 달리 이번엔 시간 이득이 있으면서 PSNR 손실도
+없는 첫 배치화 계열 결과. `Training.kernel_batch_render: true`가 신규
+opt-in 레시피(기본 false 유지, 아직 config/aria1253.yaml 기본값엔 반영
+안 함 — 추가 시퀀스로 재검증 후 기본 채택 여부 결정 권장). 다음 후보:
+`BACKWARD::preprocess`(현재 backward 시간의 지배 항목)도 배치화하면 추가
+이득 가능성 — 단 이건 `dL_dtau` SE3 포즈 그래디언트 코드를 직접 건드려야 해서
+훨씬 높은 위험도의 별도 라운드로 분리 권장.
+
+**부록 — 1차 풀런 시도의 이상 현상**: 최초 백그라운드 실행 시도는 하네스의
+백그라운드 태스크 추적이 ~20분 지점에서 강제 kill(에러 없이 그냥 종료,
+`ps`로도 프로세스 소멸 확인 — 진행률 82%, 정상 진행 중이었음). `nohup`+
+`disown`으로 하네스 추적에서 분리해 재실행하니 정상 완료(전체 루프
+50초). 1차 실행이 왜 그렇게 느렸는지는 확정 검증하지 않았음(가장 유력한
+추정은 직전 length=300 스모크 테스트 2회의 GPU 컨텍스트/메모리가 완전히
+정리되기 전에 풀런을 시작해 GPU 리소스를 경합했을 가능성) — 2차 실행이
+정상 속도로 끝나 재현 조사의 실익이 낮다고 판단해 보류.
+
 ## 다음 단계
 
-0. **rasterizer 멀티카메라 batch 지원(고위험, 여전히 보류)** — Phase 8에서
-   프로파일로 확인한 대로 진짜 CUDA 커널 비용이라 batch화의 잠재력 자체는
-   여전히 유효(`n_view`가 뷰-연산당 고정비를 그대로 곱으로 반복). 다만
-   Phase 8의 카메라 캐싱으로 실시간 여유가 커져서(19.3s 여유) 시급성은
-   낮아짐 — `thirdparty/diff-gaussian-rasterization`의 forward.cu/
-   backward.cu 커널 자체를 수정해야 하는 별도의 신중한 라운드로 남겨둠
-   (forward부터 pixel-exact 검증 → backward는 gradient 대조 검증 필요).
+0. ~~**rasterizer 멀티카메라 batch 지원(고위험, 여전히 보류)**~~ → **Phase 11에서
+   구현·채택 완료**(renderCUDA만 범위 한정, 위 참조). 남은 고위험 후속은
+   `BACKWARD::preprocess`(SE3 포즈 그래디언트) 배치화.
 1. **Phase 4의 "왜 2~3회인가" 미해결 질문 규명** — `remove_all_gaussians()`는
    코드상 정확히 한 번만 조건이 참이 되는데 실측 로그엔 초기화급 호출이 그보다
    많이 잡힘. 정확한 메커니즘을 알면 PGBA 호출(`iters=20`, 4회, 3.96~3.93s)도
