@@ -926,3 +926,33 @@ double-buffer도 기각**한다. 다음 품질 축은 별도 snapshot update를 
 - `results/experiments/exp57_snapshot_rebase100_strict15x`
 - `results/experiments/exp57_snapshot_rebase100_densepose_strict15x`
 - `results/experiments/exp57_snapshot_appearance_rebase100_strict15x`
+
+## 2026-07-29 추가 — frontier fast rolling update 밀도 A/B
+
+snapshot 실패의 원인이 merge/rebase인지, update 수 부족인지 분리하기 위해 같은
+low-latency loop를 최신 frontier에 직접 적용했다. validated RGB view에서 매 step
+`torch.isfinite()` host synchronization을 생략하고 queue poll을 2ms→0.2ms로
+줄였다. 입력은 계속 timestamp 순 Aria RGB+IMU only이고 MPS는 0개다.
+
+300-frame smoke에서 913 update가 실제 실행되어 배선을 확인한 뒤, rolling baseline과
+동일한 frame 700 시작, 150-frame stability lag, dense RGB offsets `{1,2,3,4}`,
+Gaussian-full/camera-fixed 조건으로 전체 strict 1.5×를 실행했다.
+
+| strict 1.5× | 기존 rolling | fast rolling | 변화 |
+|---|---:|---:|---:|
+| update | 1,441 | **2,088** | **+44.9%** |
+| held-out PSNR | **23.870** | 23.728 | **−0.142dB** |
+| keyframe PSNR | **24.300** | 24.170 | −0.130dB |
+| SSIM / LPIPS | 0.77247 / 0.47240 | 0.76897 / 0.47094 | 혼재 |
+| Gaussian | 66,214 | 67,554 | +1,340 |
+| online | 102.129s (1.569×) | **103.212s (1.585×)** | deadline 초과 확대 |
+
+**기각.** host synchronization을 줄여 update 수는 크게 늘었지만 품질은 오히려
+소폭 낮아졌다. growing frontier에 round-robin update를 더 많이 넣는 것 자체는
+30dB 방향이 아니다. 다음은 동일 update 예산에서 arrived RGB의 residual, coverage,
+viewpoint novelty, staleness를 이용해 supervision 선택 품질을 높이는 축이다.
+
+산출물:
+
+- `results/experiments/exp57_frontier_fast_smoke300_enabled`
+- `results/experiments/exp57_frontier_fast_strict15x`

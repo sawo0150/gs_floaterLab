@@ -33,6 +33,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 frontier fast rolling — update +44.9%에도 품질 악화)**:
+  MPS 없이 timestamp 순 Aria RGB+IMU만 사용. 매-step finite host sync 제거와
+  queue poll 2→0.2ms로 snapshot이 아닌 최신 frontier를 직접 갱신했다. strict
+  1.5× 전체에서 update는 1,441→**2,088(+44.9%)**로 늘었지만 held-out/keyframe은
+  23.870/24.300→**23.728/24.170dB**, online은 **103.212s=1.585×**로 악화.
+  growing map에 round-robin update를 더 넣는 축도 기각한다. 다음은 동일 예산에서
+  arrived RGB를 residual·coverage·viewpoint novelty·staleness로 선별하는 축이다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 pure-online independent snapshot/double-buffer 기각)**:
   센서 입력을 timestamp 순 Aria RGB photo 1,303장+IMU로만 고정하고
   **MPS 후처리 trajectory/depth/point cloud를 절대 사용하지 않았다**. 고정 calibration
