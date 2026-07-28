@@ -33,6 +33,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 1.5× Aria stream 검증 + 앞선 26k 해석 정정)**:
+  먼저 정정: 5k full은 held-out/keyframe 25.62/27.94(+2.15/+4.03dB), 26k는
+  25.69/**30.62**(+2.22/+6.71dB)로 원래처럼 keyframe 30dB를 정상 재현했다.
+  held-out trajectory를 polishing 전 pose로 고정한 curve와 offline BA+final remap+
+  refined pose를 반영한 기존 exp56 final을 섞어 "5k 이후 과적합"이라 단정한 것은
+  과한 해석이므로 철회. 추가로 사용자의 "Aria 입력이 1.5배 느리다면?"을 실제
+  timestamp interval 1.5×(65.10→97.65초) causal replay로 검증. offline과 동일하게
+  camera pose까지 background 갱신한 smoke는 cached inverse tensor와 `update_pose()`
+  in-place 변경의 autograd version 충돌로 실패. 안전한 Gaussian-full(SH/xyz/opacity/
+  scale/rotation, RGB+depth+normal, pose/exposure 고정)로 전체 A/B: control과
+  background 모두 약 102초로 **추가 지연 없이 3,194 step(5k의 64%) 흡수**,
+  held-out/keyframe **23.74/24.18→23.98/24.37(+0.25/+0.19dB)**, LPIPS도
+  0.4663→0.4561 개선. 하지만 고정 checkpoint 5k의 25.62dB는 유지하지 못했고,
+  control 자체도 97.65초 deadline을 4.4% 초과. 다음은 2.5~3k cap과 input backlog/
+  deadline token gate로 true-live deadline을 먼저 강제한 뒤 cache-safe boundary에서
+  pose/exposure scope를 여는 것.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 Phase 0/1 — polishing 압축 성공, SH-only scheduler 기각, true-streaming 속도 기준 반전)**:
   동일 online checkpoint의 full refinement 곡선에서 held-out이 2k/14.21s
   **+1.28dB**, 5k/36.31s **+2.15dB** 상승했지만 5k→26k 추가 156초는

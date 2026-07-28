@@ -118,6 +118,73 @@ cadence의 end-to-end deadline을 보장하지 않는다.
   `vigs.py` idle scheduler, `gs_backend.py` milestone 및 appearance-only refinement,
   `config/exp57_background_polish.yaml`
 
+## 2026-07-29 추가 — Aria 입력이 1.5배 느릴 때 5k 품질을 유지할 수 있는가
+
+### 이전 26k 해석 정정
+
+앞 절의 "5k→26k 후반은 과적합" 표현은 held-out과 keyframe을 분리하지 않아 너무
+강한 결론이었다.
+
+- 5k full: held-out **25.62**(+2.15), keyframe **27.94**(+4.03)
+- 26k full: held-out **25.69**(+2.22), keyframe **30.62**(+6.71)
+
+즉 기존처럼 26k에서 keyframe 30dB는 정상적으로 재현됐다. 이번 curve의 held-out은
+polishing 전 online trajectory를 고정했지만 기존 exp56 final 26.53/30.33은 offline
+BA+final remap+refined keyframe pose를 trajectory에 반영한 수치라 직접 비교가 아니다.
+5k→26k held-out +0.07dB만으로 과적합을 확정할 수 없으며, pose를 milestone별로
+trajectory에 반영한 재평가가 필요하다.
+
+### 실험 설정
+
+- 실제 RGB timestamp 간격을 `1.5×`로 늘림:
+  65.10초 기록 → **97.65초 입력 stream**
+- 미래 frame을 사용하지 않는 reader queue causal replay
+- background 최대 5,000 step
+- mapper/tracking 우선, 5ms 이상 idle일 때만 과거 view 1-step
+- `--replay_time_scale 1.5` 추가
+
+offline `color_refinement`와 똑같이 camera pose까지 background에서 갱신하는 1차
+smoke는 Camera cached inverse tensor를 `update_pose()`가 in-place 변경해 다음
+autograd graph와 충돌(`LinalgInvExBackward0 version mismatch`)했다. 해당 run은
+실패로 기록하고 종료했다. 안전 범위를 **Gaussian-full**(SH+xyz+opacity+scale+
+rotation, RGB/depth/normal loss; camera pose/exposure 고정, densify/prune 없음)로
+축소해 재실행했다.
+
+### 1.5× 전체 A/B 결과
+
+| 1,303-frame, 1.5× paced | control | Gaussian-full background | 변화 |
+|---|---:|---:|---:|
+| 입력 target 길이 | 97.65s | 97.65s | — |
+| online loop | 약 102.1s | 약 102.0s | **추가 지연 없음** |
+| 실시간 배수(1.5× stream 기준) | 1.045배 | 1.044배 | 둘 다 약 4.4% 초과 |
+| background step | 0 | **3,194** | 5k의 63.9% |
+| held-out PSNR | 23.74 | **23.98** | **+0.25dB** |
+| keyframe PSNR | 24.18 | **24.37** | **+0.19dB** |
+| held-out LPIPS | 0.4663 | **0.4561** | 개선 |
+| gaussian 수 | 70,971 | 66,281 | mapping schedule/coverage 차이 |
+
+### 판정
+
+- **1.5배 느린 Aria stream이면 약 3.2k의 안전한 Gaussian polishing을 추가 지연 없이
+  흡수하며 품질도 +0.2~0.25dB 개선할 수 있다.**
+- 그러나 고정 checkpoint에서 측정한 5k full 결과(held-out 25.62dB)는 유지하지
+  못했다. 실제 stream에서는 5k 전부가 들어가지 않았고 camera pose refinement를
+  제외했으며, background와 frontier의 schedule이 달라졌기 때문이다.
+- control 자체도 target 97.65초보다 약 4.4초 느리므로 엄밀한 deadline은 아직
+  실패다. 현재 3,194 step이 추가 지연을 만들지는 않았지만, true live 합격을 위해
+  base mapper를 4~5% 줄이거나 input queue backlog를 보는 deadline-aware polish
+  gate가 필요하다.
+- 다음 유효 실험은 "무조건 5k"가 아니라 **2.5k~3k cap + queue backlog/deadline
+  token gate**로 97.65초 안에 강제하고, exposure/pose는 cache-safe한 별도
+  refinement boundary에서만 여는 것이다.
+
+추가 산출물:
+
+- `results/experiments/exp57_gaussianbg_15x_smoke`
+- `results/experiments/exp57_gaussianbg_15x_full`
+- `results/experiments/exp57_15x_control`
+- 실패 기록: `results/experiments/exp57_fullbg_15x_smoke`
+
 ## 문제 정의
 
 현재 `map()`은 서로 목적이 다른 두 작업을 같은 iteration 예산에서 수행한다.
