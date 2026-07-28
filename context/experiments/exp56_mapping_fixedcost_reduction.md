@@ -929,6 +929,28 @@ N-slope이 3.3배 가파르므로(22.1 vs 6.65 μs/gaussian), backward에 참여
 frustum/거리 기반 pre-filter로 map() 호출에 넘기는 유효 N을 줄이기" 항목을
 공식적으로 추가.
 
+**exp55의 "N −35.9%인데 시간 −12.2%"와의 정합성 확인(사용자 재질문, 2026-07-28)**:
+이 −12.2%(mapping 전체) / −15.1%(map() 5단계) 수치는 exp55 최종 레시피
+(**적응 예산 + carve loss 둘 다 적용**된 상태)로 잰 것 — exp55 문서 자신도 이미
+"carve loss가 loss_compute에 계산을 소폭 더했다"고 원인 중 하나로 적어뒀음(구현
+당시엔 두 원인 다 "고정비 지배" 프레임 안에서 부차적으로 처리됨). Phase 9 계수로
+역산: rasterize+backward가 map() 5단계의 74%(Phase 0)이고 그중 N-비례가 평균
+약 70%(forward 56.4%·backward 84.6%를 Phase0 비중 40:34로 가중평균)이므로,
+N을 35.9% 줄이면 순수 N-효과만으로 0.74×0.70×0.359 ≈ **18.6%**의 map()-전체
+시간 감소가 기대됨 — 여기서 같이 켜진 carve loss의 loss_compute 추가 비용을
+빼면 관측된 −15.1%와 **자기일관적으로 맞아떨어짐**(모순 아니었음). 즉 "N을
+줄여도 시간이 별로 안 준다"는 게 "N이 원래 시간에 별 영향이 없어서"가 아니라
+"N-효과(−18.6%)가 carve의 추가 비용으로 일부 상쇄됐기 때문"이었다는 것 —
+Phase 9의 "N이 유의미하다"는 결론과 완전히 정합.
+
+**이게 visibility filtering을 더 강하게 지지하는 이유**: exp55의 N-감축은 **무딘
+도구**다 — 보이든 안 보이든 지도 전체에서 균일하게 gaussian을 줄임. 반면
+visibility filtering은 Phase 9 후속 ROI 조사가 확인한 "뷰당 평균 74%가 애초에
+안 보임"(위 §)이라는 **낭비되는 부분만 정밀 타격**하는 도구 — keep_frac 45.5%
+(더 많이 걷어냄)이면서도 "보이는" gaussian은 거의 100% 보존(margin=3.0에서
+recall 99.97%)하니, exp55의 균일 감축보다 이론상 더 큰 시간 절감을 **품질
+손상 없이** 얻을 여지가 큼.
+
 **한계(정직하게 기록)**: 이 마이크로벤치마크는 카메라 1개를 고정 반복한 것이라 실제
 map() 호출의 다양한 시점 조합(여러 카메라가 서로 다른 영역을 보는 경우)과는 다름 —
 절대 수치가 아니라 "N이 실제로 유의미하게 영향을 준다"는 정성적 결론에 무게를 둘 것.
@@ -1002,9 +1024,49 @@ Python 쪽 `backward()`에서 **커널이 이미 전체 N을 다 계산한 뒤�
 5. 검증 순서(Phase 8b와 동일 수준 요구): ① 필터 없음 vs `keep_mask=all_true`로
    호출한 필터 있음 버전이 forward/backward 수치 일치하는지(경로 자체의 정확성) →
    ② 짧은 라이브 구간(length=300)에서 크래시/PSNR 붕괴 없는지 → ③ 1253 전체
-   시간·PSNR 실측. **아직 코드 미착수 — 다음 이터레이션에서 진행.**
+   시간·PSNR 실측.
 
-스크립트: `scripts/analysis/exp56_phase9b_frustum_filter_roi.py`.
+스크립트(ROI 사전조사): `scripts/analysis/exp56_phase9b_frustum_filter_roi.py`.
+
+## Phase 10 — `render_filtered()` 구현·검증 (2026-07-28)
+
+위 계획대로 구현. `gaussian/renderer/__init__.py`에 `frustum_prefilter()`(margin=3.0
+기본값)와 `render_filtered()` 신규 함수 추가(기존 `render()`는 1바이트도 안 건드림),
+`gs_backend.py::map()`의 정규 keyframe per-viewpoint for-loop 안에 `Training.
+frustum_prefilter`(opt-in, 기본 false) 플래그로 배선 — 뷰마다 개별적으로 필터링
+(Phase 9 후속에서 확인한 대로 공유 union 아님).
+
+### 검증 ① — 수치 정확성(Phase 8b와 동일 기준)
+
+**첫 시도(실패, 원인 규명)**: `keep_mask=all_true`로 `render_filtered()`와
+`render()`를 비교했더니 forward는 bit-exact인데 xyz/scaling/rotation의 backward
+gradient가 최대 50~87% 상대오차로 크게 어긋남 — 처음엔 버그로 의심. **원인 규명**:
+테스트 loss로 `render.sum()+depth.sum()`(1024×1024 전체 픽셀을 그대로 합산)을 썼더니
+그래디언트 절대값이 수십만~수백만 단위로 폭발 → 이 스케일에서는 **`render()` 자신도
+반복 호출 간 재현이 안 됨**(같은 입력으로 `render()`를 두 번 부른 것끼리 비교해도
+최대 diff 2.5e6, 918개 gaussian이 어긋남 — `render_filtered()`와 무관하게 원본 커널의
+GPU atomic 비결정성이 원인, 이 스케일에서 증폭돼 드러난 것). **realistic loss**(L1 vs
+고정 랜덤 GT + depth 항, `gs_backend.py`가 실제 쓰는 것과 같은 스케일)로 다시 재면:
+
+| 비교 | grad 상대오차(max) |
+|---|---:|
+| `render()` vs 자기 자신(반복 호출) | ~1e-7(atomic 비결정성 기준선) |
+| `render_filtered(all_true)` vs `render()` | xyz 7.7e-6, opacity 1.8e-7, scaling 6.4e-6, rotation 9.0e-6, features_dc 2.3e-7 |
+| `render_filtered(partial frustum)` vs `render()`, (진짜 visible ∩ kept)만 비교 | xyz 8.6e-7, opacity 8.8e-8, scaling 1.2e-6, rotation 5.8e-6 |
+
+**전부 `render()` 자체의 반복-호출 노이즈 수준(~1e-7)과 같은 자릿수** — Phase 8b가
+채택 기준으로 삼았던 "float32 노이즈 수준 일치"를 만족. `render_filtered()` 검증 통과.
+스크립트: `scripts/analysis/exp56_phase10_render_filtered_check.py`.
+
+### 검증 ② — 짧은 라이브 구간(length=300)
+
+`--pure_online --length 300`, `Training.frustum_prefilter: true`(margin=3.0)로
+1253 앞 300프레임 실행 — **크래시 없음**, gaussian 개수가 keyframe마다 정상적으로
+누적됨(0→24,995까지 정상 증가, 0에서 멈추거나 폭주하는 이상 없음).
+
+### 검증 ③ — 1253 전체 시간·PSNR 실측
+
+진행 중 — 결과가 나오는 대로 이 절에 추가.
 
 ## 다음 단계
 
