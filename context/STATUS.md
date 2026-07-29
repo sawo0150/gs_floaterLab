@@ -33,6 +33,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 overlap-aware joint-context/delta merge — full strict 기각)**:
+  snapshot target을 현재 frontier complement와 공동 렌더해 overlap/occluder 문맥을
+  보존했고, stale absolute overwrite를 막는 residual delta merge
+  `frontier += α·(polished−source)`도 구현했다. 400-frame은 control 대비
+  +0.178dB, 600-frame 첫 run은 +0.146dB였지만 idle guard 5/20ms 및 paired
+  control에서 이득이 재현되지 않았다. authoritative 1,253-frame background-off
+  paired A/B는 control **23.357/23.603dB, 77,544GS, 99.062s** 대비 delta
+  **22.512/22.667dB, 76,684GS, 98.675s**로 −0.845/−0.936dB였고 둘 다
+  97.65s deadline 초과. non-preemptive snapshot GPU step이 frontier packet
+  timing과 densify/prune schedule을 바꾸는 것이 지배적이므로 independent snapshot
+  family를 종료한다. 다음은 결정론적으로 frontier view-op를 재배분하거나 regular
+  map() 내부에 dense gradient를 융합하는 방향이다. strict 최고 23.982dB와 27dB 전
+  hard carve 보류 원칙은 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 dense pose-only alignment — +0.084dB지만 control 미달)**:
   `torch.autograd.grad`로 Gaussian leaf gradient를 완전히 차단하고 dense camera
   SE(3)만 보정한 뒤 같은 view로 Gaussian mapping하는 2-stage 경로를 구현했다.

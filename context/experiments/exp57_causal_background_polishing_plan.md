@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **고정-map 30dB 상한 확인 / strict photo+IMU-only rolling·same-tensor freeze 모두 기각 (2026-07-29)**
+- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 23.982dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -9,6 +9,18 @@
   **프론티어를 방해하지 않는 인과적 전역 정제**에 재투자하여 순수 온라인 품질을 크게 올린다.
 - 번호 변경: exp56 Phase 9~11에서 `exp57`로 부르던 CUDA 내부 visibility/
   `BACKWARD::preprocess` 후속은 [exp58](exp58_cuda_visibility_backward_plan.md)로 이동.
+
+## 현재 1차 목표
+
+- **성공 지표**: held-out PSNR **27dB 이상**
+- **입력**: timestamp 순 Aria RGB photo + IMU only
+- **금지 입력**: MPS 후처리 trajectory/depth/point cloud
+- **시간 제약**: source duration 65.10초의 fixed **1.5× = 97.65초 이내**
+- **종료 제약**: 마지막 센서 frame 뒤 optimizer update **0회(zero-tail)**
+- 고정 calibration은 허용하지만 pose/depth supervision은 그 시점까지 online으로
+  추정된 값만 사용한다.
+- 27dB 달성 전에는 hard carve/floater pruning을 품질 레버로 섞지 않는다.
+  27dB 달성 뒤 carve를 검증하고, 그 다음 동일 strict 조건에서 30dB+로 확장한다.
 
 ## 2026-07-29 실행 결과 요약
 
@@ -644,16 +656,17 @@ densification, clone, split은 계속 금지한다.
 
 1차 목표:
 
-- 실시간 배수 **<1.0 유지**
-- exp56 대비 held-out PSNR **+1.0dB 이상**
+- strict streaming held-out PSNR **27dB 이상**
+- timestamp 순 Aria RGB photo+IMU only, MPS 후처리 입력 **0개**
+- fixed **1.5× live budget 이내**
+- 마지막 frame 뒤 optimizer update **0회**
 - keyframe PSNR만 상승하고 held-out이 정체하는 과적합이 아닐 것
-- frontier map() 성사 횟수와 queue drop이 exp56보다 유의하게 악화되지 않을 것
-- floater 지표/시각 품질 악화 없음
+- 인과 순서를 지키고 미래 keyframe 정보를 사용하지 않을 것
 
-최종 목표:
+27dB 달성 후:
 
-- causal online 상태에서 held-out **26dB 이상**
-- 후속 geometry 축과 결합해 배치급 30dB 방향으로 접근
+- carve loss/floater 억제를 이식해 held-out PSNR과 region GT를 함께 검증
+- 동일 strict 조건에서 held-out **30dB+**로 확장
 
 ## 실패 시 해석
 
@@ -1147,3 +1160,56 @@ overlap-aware spatial submap을 frontier와 공동 렌더한 뒤 merge하는 구
 
 - `results/experiments/exp57_denseposealign1_smoke300`
 - `results/experiments/exp57_mapdense1_endpoint020_start300_{noalign,align1,align3}_smoke600`
+
+## 2026-07-29 추가 — overlap-aware joint-context + residual delta merge
+
+이전 temporal snapshot의 18dB 붕괴가 이후 overlap/occluder 부재 때문인지 분리하기
+위해, snapshot target Gaussian은 gradient를 받되 현재 frontier의 나머지 Gaussian은
+detached context로 함께 렌더하는 joint-context proxy를 구현했다. target lineage는
+snapshot 직전 150 frame으로 제한하고, surviving stable point ID만 frontier에
+합쳤다. 모든 run은 strict Aria RGB+IMU-only이며 MPS 입력과 post-stream optimizer
+update는 0회다.
+
+400-frame에서는 no-snapshot control **19.465/18.650dB** 대비 absolute merge가
+**19.643/18.771dB(+0.178/+0.121)**로, snapshot 계열 최초로 control을 넘었다.
+그러나 600-frame에서는 971 update가 **22.185/22.188dB**로 control
+22.402/22.388보다 낮았다. update를 400회로 제한하면 **22.341/22.307**로
+회복했지만 여전히 −0.061/−0.081dB였고, snapshot 시작을 450으로 늦춰도
+**22.282/22.299**로 개선되지 않았다.
+
+absolute snapshot이 이후 frontier 학습을 되돌리는 문제를 없애기 위해
+`frontier += alpha * (polished_snapshot - source_snapshot)` 형태의 opt-in
+`--snapshot_polish_merge_delta`를 구현했다. 600-frame 첫 run은
+**22.548/22.524dB**로 당시 control 22.402/22.388보다 +0.146/+0.136dB였으나,
+paired control 재실행은 22.461/22.455로 run-to-run mapping schedule 변동이
+유의미함을 확인했다. snapshot branch에 빠져 있던 idle guard를 추가하고 5/20ms로
+검증해도 각각 **22.307/22.304**, **22.353/22.313dB**로 paired control보다
+낮았다.
+
+authoritative 1,253-frame background-off paired A/B:
+
+| strict 1.5×, tail optimizer 0 | no-snapshot control | joint-context delta |
+|---|---:|---:|
+| held-out PSNR | **23.357** | 22.512 (**−0.845**) |
+| keyframe PSNR | **23.603** | 22.667 (**−0.936**) |
+| Gaussian | 77,544 | 76,684 |
+| online wall | 99.062s | 98.675s |
+| deadline 97.65s | +1.412s | +1.025s |
+
+delta 자체는 stale absolute overwrite를 고쳤지만, 같은 non-preemptive GPU worker에서
+snapshot render/backward를 실행하면 frontier mapping packet의 처리 시점과
+densify/prune 결과가 달라진다. 짧은 smoke의 국소 이득은 full stream에서 재현되지
+않았고 품질·deadline 모두 실패했다. 따라서 independent snapshot/joint-context
+family는 full strict 경로에서 종료한다. 다음은 opportunistic idle work가 아니라
+frontier map()의 반복을 명시적으로 줄여 확보한 **결정론적 view-op 예산** 안에서
+dense supervision을 재배분하거나, regular map() 자체에 dense gradient를 융합해
+mapping schedule을 보존하는 방향이다.
+
+산출물:
+
+- `results/experiments/exp57_jointcontext_window150_{smoke400,smoke600}`
+- `results/experiments/exp57_jointcontext_window150_cap400_smoke600`
+- `results/experiments/exp57_jointcontext_start450_window150_cap400_smoke600`
+- `results/experiments/exp57_jointcontext_delta_window150_cap400_{smoke600,strict15x}`
+- `results/experiments/exp57_jointcontext_delta_guard{,20}_window150_cap400_smoke600`
+- `results/experiments/exp57_jointcontext_paired_control_{smoke600,strict15x}`
