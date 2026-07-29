@@ -2754,3 +2754,43 @@ zero-tail을 모두 통과했다. 다음은 endpoint 수보다 freeze 뒤 append
 산출물:
 
 - `results/experiments/exp57_disjoint_forcekf1249_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — post-freeze PPM newborn RGBD 1-step, 미재현 신기록
+
+freeze 이후 기존 코드를 감사한 결과 append-only PPM Gaussian은
+`add_next_kf()`로 생성된 직후 `frozen_birth_only` return을 타며, 자신을 만든
+keyframe의 BA depth/normal/RGB로 한 번도 frontier 최적화되지 않았다. 이를 해결하려고
+`--mapping_freeze_birth_refine_iters`를 추가했다.
+
+각 birth 직후 전체 map과 함께 렌더하되 fresh Adam과 exact appended-row mask를 사용해
+방금 태어난 Gaussian만 ordinary frontier RGBD+normal+soft-carve loss로 1회 갱신한다.
+기존 row는 zero-gradient뿐 아니라 fresh Adam이라 과거 momentum 이동도 없고,
+camera/topology/densify/prune도 고정된다. 300-frame smoke에서 7개 birth를 정상
+처리한 뒤 full strict-disjoint로 승격했다.
+
+| strict-disjoint 1.5× | 기준선 | birth RGBD 1-step | 변화 |
+|---|---:|---:|---:|
+| **fixed 252-view PSNR** | 26.0686 | **26.3318** | **+0.2632dB** |
+| fixed SSIM | 0.83314 | 0.83420 | +0.00106 |
+| fixed LPIPS | 0.33314 | **0.29921** | −0.03393 |
+| background update | 4,715 | 4,998 | +283 |
+| Gaussian 수 | 78,534 | 75,068 | −3,466 |
+| online loop | 97.238s | **97.267s** | +0.029s |
+| post-stream update | 0 | 0 | 동일 |
+
+13개 append-only keyframe birth에 각각 1-step이 실행됐다. provenance는
+RGB+IMU-only, MPS 0, fixed-eval mapping exclusion, 1.5×, zero-tail을 모두
+통과했다. 따라서 **26.332dB를 유효한 새 단일-run strict best**로 기록한다.
+
+다만 intervention은 frame1050 이후인데 구간별 PSNR은
+25.801/28.814/29.130/27.351/26.875/**22.279/18.801dB**였다. 상승은 주로
+200–999에서 나왔고 직접 영향을 받는 1000–1252는 기준선보다 오히려 낮다.
+즉 이 run의 +0.263dB를 newborn refine의 인과 효과로 아직 귀속할 수 없고 parallel
+scheduler 분산이 크게 섞였다. 같은 설정 반복에서 전체와 late bin이 함께 유지되는지
+확인하기 전에는 recipe로 채택하지 않는다. 27dB까지 단일-run 기준 0.668dB이며
+hard carve/pruning은 계속 보류한다.
+
+산출물:
+
+- smoke: `results/experiments/exp57_disjoint_birthrefine1_freeze250_appendbirths_smoke300`
+- full: `results/experiments/exp57_disjoint_birthrefine1_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
