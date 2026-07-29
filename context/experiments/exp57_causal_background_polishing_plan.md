@@ -3819,3 +3819,68 @@ run의 저장된 `input_provenance.json`과 동일한 VIGS Aria photo+IMU stream
 - `results/experiments/exp57_disjoint_mapafterimu_freeze900_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_freeze850_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_freeze850_repeat3_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 채택 — freeze800에서 strict 27.846dB 평균과 floater 동시 개선
+
+freeze850에서도 경계 추세가 꺾이지 않았으므로, 동일한 pre-IMU gate,
+append-only PPM birth, post-freeze causal dense supervision 조건에서 freeze800과
+freeze750을 추가했다. 이번에는 `VIGS_DEPTH_ANCHOR_LOG`와
+`VIGS_DEPTH_ANCHOR_CAM_LOG`로 VIGS 자체 online BA depth/pose의 sparse anchor를
+평가용으로만 저장했다. anchor는 학습에 들어가지 않았고 MPS/미래 frame도
+사용하지 않았다.
+
+| strict fixed 252-view | freeze800 run 1 | freeze800 run 2 | freeze750 |
+|---|---:|---:|---:|
+| PSNR | **27.8568** | **27.8361** | 27.6969 |
+| SSIM | 0.85711 | **0.86267** | 0.85950 |
+| LPIPS | 0.25536 | **0.25344** | 0.25486 |
+| background update | **6,081** | 5,805 | 5,768 |
+| Gaussian | 83,799 | 83,997 | 84,041 |
+| online wall | 97.2349s | 97.2710s | **97.2160s** |
+| deadline margin | 0.4151s | 0.3790s | 0.4340s |
+| post-stream update | 0 | 0 | 0 |
+
+freeze800 평균은 **27.8464dB**, 두 run range는 0.0207dB다. freeze850 평균
+27.6390보다 +0.2074dB이고, freeze750에서 27.6969로 다시 하락했으므로
+freeze800을 새 strict recipe로 채택한다.
+
+동일 `exp55_score_carve_vigs.py`의 opacity>0.3 ∩ carve-score>0.3 proxy:
+
+| floater proxy | freeze1050 anchor control | freeze800 run 1 | freeze800 run 2 |
+|---|---:|---:|---:|
+| visible Gaussian | 57,423 | 57,071 | 57,590 |
+| visible floater | 16,639 | **15,252** | **15,573** |
+| visible floater 비율 | 28.976% | **26.725%** | **27.041%** |
+| mean score | 0.2473 | 0.2430 | **0.2426** |
+
+freeze800 floater 평균은 15,412.5개로 control보다 **1,226.5개(7.37%)**
+적고, 비율은 평균 26.883%로 **−2.093%p**다. run별 online pose/depth로
+anchor field를 다시 만들므로 완전한 고정 GT는 아니지만, 두 반복에서 PSNR과
+proxy가 함께 좋아진 방향성은 일치한다. regular frontier carve λ0.05와 PPM
+init은 유지했고, 이미 실패한 background carve/hard prune은 추가하지 않았다.
+
+freeze800 fixed temporal bins:
+
+| frame bin | run 1 | run 2 |
+|---|---:|---:|
+| 0–199 | 29.7069 | 29.6273 |
+| 200–399 | 30.3055 | 30.0391 |
+| 400–599 | 30.0936 | 29.9403 |
+| 600–799 | 28.3043 | 28.4471 |
+| 800–999 | 28.2008 | 27.9289 |
+| 1000–1199 | 22.9683 | 23.4725 |
+| 1200–1252 | 19.7280 | 19.7068 |
+
+초중반은 30dB에 근접하거나 넘지만 마지막 253 frame이 전체 평균을 제한한다.
+따라서 30dB의 다음 축은 전역 replay 비중 변경이 아니라, evaluator RGB를
+보지 않은 채 frame1000 이후 non-eval RGB의 birth/coverage를 기존 map 손상 없이
+보강하는 구조여야 한다.
+
+세 run 모두 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed evaluator
+mapping exclusion, fixed 1.5×, 97.65초 deadline, tail update 0을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze750_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

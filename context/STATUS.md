@@ -34,6 +34,13 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 > frame1000–1199 **22.91–23.45dB**, 1200–1252 **19.38–19.51dB**인 후반
 > coverage다.
 
+> **2026-07-29 최신 best 추가 정정:** freeze 경계를 더 좁혀 800에서
+> **27.8568/27.8361dB**를 재현했다(평균 **27.8464dB**, range 0.0207).
+> freeze750은 27.6969로 다시 하락해 freeze800을 채택한다. 평가용 online
+> depth-anchor carve proxy도 freeze800에서 **15,252/15,573개
+> (26.72/27.04%)**로, 과거 freeze1050 anchor control 16,639개(28.98%)보다
+> 평균 7.37% 적었다. MPS0, 97.65초 deadline, tail update 0은 모두 통과했다.
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
@@ -66,6 +73,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 freeze800 — strict 27.846dB 평균 + floater 동시 개선)**:
+  append-birth 조건의 freeze 경계를 850→800→750으로 좁혔다. freeze800은
+  fixed **27.8568/27.8361dB**(평균 **27.8464**, range 0.0207), freeze750은
+  27.6969로 하락했다. freeze800 floater proxy는 **15,252/15,573개
+  (26.72/27.04%)**로 freeze1050 anchor control 16,639개(28.98%)보다
+  평균 1,226.5개(7.37%) 적었다. 두 채택 run은 97.235/97.271s,
+  tail0, RGB+IMU only/MPS0를 통과했다. freeze800을 채택하며 frame1000 이후
+  23.0–23.5/19.7dB late coverage가 strict30의 다음 병목이다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 freeze850 — strict fixed 27.639dB 평균으로 채택)**:
   pre-IMU gate, append-only PPM birth, post-freeze dense supervision을 유지하고
   freeze 경계를 1050→950→900→850으로 앞당겼다. freeze950은
