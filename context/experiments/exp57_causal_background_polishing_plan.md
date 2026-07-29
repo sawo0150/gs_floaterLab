@@ -3368,3 +3368,40 @@ RGB photo+IMU only/MPS 0/fixed evaluator mapping exclusion 계약도 모두
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1060_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — causal background quota5200도 반복 분산을 못 줄여 기각
+
+free-running idle worker의 frame별 update burst를 줄이기 위해
+`--background_polish_causal_target_steps`를 구현했다. frame700부터 현재 도착
+frame 진행률에 비례한 누적 step 상한만 unlock하며, 현재 frame index와 완료
+step만 읽는다. 미래 RGB/pose를 쓰지 않고 기본값 −1은 기존 동작을 보존한다.
+
+static late-iters3/freeze1050에서 target5200을 두 번 실행했다.
+
+| quota5200 | run 1 | run 2 |
+|---|---:|---:|
+| **fixed 252-view PSNR** | **26.8585** | 26.6756 |
+| fixed SSIM | 0.84387 | 0.84413 |
+| fixed LPIPS | 0.29301 | 0.30126 |
+| background update | 4,676 | 4,305 |
+| GS | 77,554 | 77,907 |
+| online wall | 97.2442s | 97.2456s |
+| post-stream update | 0 | 0 |
+
+두-run 평균은 **26.7671dB**, 차이는 0.183dB다. temporal bins는 run 1이
+27.002/29.730/29.488/27.274/26.960/22.760/19.983dB, run 2가
+26.913/29.142/28.915/27.136/27.061/23.022/19.555dB다.
+
+quota는 상한일 뿐이고, 마지막 sensor frame 뒤 catch-up을 금지하는 strict
+계약 때문에 최종 5,200회를 강제할 수 없다. 더 근본적으로 두 run은 quota가
+시작되는 frame700 이전부터 Gaussian 수가 달라져 frontier topology 분산이 이미
+발생했다. 따라서 background pacing만으로 반복 27을 만들 수 없으며 quota5200을
+기각하고 기본 비활성 상태로 둔다.
+
+두 run 모두 RGB photo+IMU only, MPS 입력 0개, fixed evaluator mapping
+exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_quota5200_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_quota5200_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

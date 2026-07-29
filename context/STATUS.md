@@ -51,6 +51,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 causal quota5200 — 26.859/26.676dB, 분산 억제 실패)**:
+  frame 진행률별 background 누적 step 상한을 causal하게 unlock하는 quota를
+  구현했지만 두 run은 fixed **26.8585/26.6756dB**(평균 26.7671),
+  update 4,676/4,305회로 여전히 갈렸다. 둘 다 97.65s/tail0/RGB+IMU only/MPS0
+  계약은 통과했다. strict tail0에서는 부족분 catch-up이 불가능하고 frame700
+  이전부터 topology가 달라져 background pacing만으로 분산을 못 막는다.
+  quota5200은 기각하고 default off로 둔다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late-iters3 freeze1060 — 26.720dB, 경계 스캔 종료)**:
   freeze1050보다 regular mapping을 10 frame 더 허용했지만 fixed는
   **26.7204dB**, background 4,747 update, 77,007GS였다. 마지막 bins도
