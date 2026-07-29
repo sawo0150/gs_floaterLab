@@ -2211,3 +2211,56 @@ map에 hard carve/floater pruning을 섞지 않는 원칙은 유지한다.
   `results/experiments/exp57_dense_trajfiller_offset4_residual_start650_late2_pgbacut1120_len1253_strict15x`
 - 판정 제외 1,303-frame 진단:
   `results/experiments/exp57_dense_trajfiller_offset1_residual_start650_late2_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — optical replay + stable-map freeze1050, strict 25.435dB
+
+과거 freeze1000은 keyframe만 26.015dB로 올리고 held-out을 24.031dB로 낮췄다.
+당시는 keyframe-only/interpolation supervision이라 freeze 뒤 late 신규 시점
+coverage를 잃었다. 현재 offset4 trajectory-filler는 완료된 causal interval의
+비-keyframe RGB view를 계속 replay하므로, regular growing-map을 멈춘 뒤에도
+late view direction supervision을 유지할 수 있다. 이 차이를 이용해 offset4
+채택점에 `--mapping_freeze_after_frame`만 결합하고 경계를 스캔했다.
+
+| full strict 1.5× | no-freeze | freeze1000 | **freeze1050** | freeze1075 | freeze1100 |
+|---|---:|---:|---:|---:|---:|
+| held-out PSNR | 24.538 | 25.050 | **25.435** | 25.198 | 24.685 |
+| keyframe PSNR | 24.521 | 27.367 | **27.548** | 26.944 | 25.985 |
+| SSIM | 0.80179 | 0.79946 | **0.80113** | 0.79883 | 0.79863 |
+| LPIPS | 0.39362 | 0.36900 | **0.34930** | 0.35319 | 0.38420 |
+| background update | 5,025 | 5,494 | **5,748** | 5,445 | 5,057 |
+| final Gaussian | 67,145 | 64,226 | **68,970** | 72,897 | 52,649 |
+| online wall | 97.309s | 97.274s | **97.283s** | 97.308s | 97.300s |
+
+1050의 단일 최고값이 wall-time scheduler의 우연인지 확인하기 위해 같은 seed와
+CLI로 한 번 더 실행했다.
+
+| freeze1050 재현성 | 원 run | 반복 run | 차이 |
+|---|---:|---:|---:|
+| held-out PSNR | **25.435** | **25.347** | −0.088dB |
+| keyframe PSNR | 27.548 | 27.129 | −0.419dB |
+| SSIM / LPIPS | 0.80113 / 0.34930 | **0.80944 / 0.35248** | 혼재 |
+| background update | 5,748 | 5,301 | −447 |
+| final Gaussian | 68,970 | 68,513 | −457 |
+| online wall | 97.283s | 97.403s | +0.120s |
+| deadline margin | 0.367s | 0.247s | 둘 다 통과 |
+
+고정 seed여도 실시간 idle scheduler가 실제 wall-time 여유에 따라 background step
+수를 정하므로 bitwise deterministic하지 않다. 그럼에도 두 run 모두 기존 no-freeze
+24.538dB보다 +0.809dB 이상 높아 freeze1050의 개선은 재현됐다. 1075는 Gaussian이
+72,897개까지 늘었지만 품질이 낮았고, 1100은 late prune 뒤 52,649개로 크게 줄며
+더 악화됐다. 즉 Gaussian 수의 단조 증가가 아니라 **충분한 late surface를 얻은 뒤
+파괴적인 topology update 전에 고정하고 optical dense replay로 수렴시키는 시점**이
+핵심이다.
+
+새 strict best는 held-out **25.435dB**(반복 25.347dB), keyframe
+27.548dB다. 두 run 모두 RGB+IMU-only, MPS 입력 0, fixed 1.5×,
+post-stream optimizer update 0을 지켰다. held-out 27dB까지 **1.565dB**가
+남아 있으므로 hard carve/pruning은 아직 실행하지 않는다.
+
+산출물:
+
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1000_start650_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1050_start650_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1050_repeat_start650_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1075_start650_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1100_start650_late2_pgbacut1120_len1253_strict15x`

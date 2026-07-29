@@ -14,7 +14,7 @@
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **Strict streaming 1.5×** | **exp57 causal trajectory-filler offset4 + PGBA residual 보존** | **held-out 24.538 / kf 24.521** | **RGB+IMU only, MPS 없음, tail update 0, 97.309s < 97.65s deadline, 5,025 replay step. deadline-valid 신기록** |
+| **Strict streaming 1.5×** | **exp57 optical offset4 + stable-map freeze1050** | **held-out 25.435 / kf 27.548** | **반복 held-out 25.347(차이 0.088dB). RGB+IMU only, MPS 없음, tail update 0, 두 run 모두 97.65s deadline 통과. 27dB까지 1.565dB** |
 | **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600 + n_global_views 2→6 + Camera 행렬 캐싱)로 갱신: 59.80s→45.79s(실시간 배수 0.92→0.70배, −23.4%), PSNR 22.61/22.95→23.49/23.88(mean +0.88dB, kf +0.93dB), map() 성사 +64% — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, `map_call` 로그 집계로 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 시간의 49%"를 발견해 init_itr_num으로 2차 개선, 회귀분석으로 "카메라 수(n_view)가 시간을 지배"함을 계수로 확정한 뒤 "프론티어 window는 그대로, 과거-뷰 곁눈질만 늘리기"로 3차 개선(Phase7), rasterizer batch 구현을 프로파일로 조사하다 발견한 "카메라 pose 불변인데 매 view마다 행렬 역산 재계산" 무위험 버그를 캐싱으로 고쳐 4차 개선(Phase8, 이 세션 최고 ROI) — 4단계 전부 시간·품질 동시 개선.
 **Phase 11(renderCUDA 커널 레벨 멀티카메라 batch화, opt-in `kernel_batch_render`)로 5차
 개선: 45.79s→44.00s(−3.9%), PSNR 23.49/23.88→23.46/23.98(무손실), rasterize
@@ -34,6 +34,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 optical offset4 + freeze1050 — strict 신기록 25.435dB, 반복 재현)**:
+  optical dense replay가 late non-keyframe coverage를 계속 공급하도록 둔 채 regular
+  growing-map만 고정하는 경계를 1000/1050/1075/1100으로 스캔했다. held-out은
+  각각 **25.050/25.435/25.198/24.685dB**였고, freeze1050이 no-freeze
+  24.538dB보다 **+0.897dB** 높았다. 동일 seed 재실행도 **25.347dB**
+  (원 run 대비 −0.088dB)로 이득을 재현했다. 원 run/반복은 각각
+  5,748/5,301 update, 68,970/68,513GS, 97.283/97.403s이며 모두 strict
+  deadline과 zero-tail을 통과했다. 1075의 과성장(72,897GS)과 1100의 late
+  prune(52,649GS) 모두 나빠, 더 많은 Gaussian 자체가 답이 아니라 topology를
+  안정시키는 시점이 중요하다. 새 strict best는 25.435dB이고 27dB까지
+  1.565dB가 남아 hard carve는 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 optical offset 선별 — offset4 strict 신기록 24.538dB)**:
   trajectory-filler dense view를 stride5의 offset별로 분리했다. 600-frame
   held-out은 offset1/2/3/4가 각각 **25.704/25.336/24.865/25.746dB**였고,
