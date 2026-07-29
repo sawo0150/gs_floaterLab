@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.483dB (2026-07-29)**
+- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.538dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -2154,3 +2154,60 @@ view의 수명 관리를 다음 병목으로 본다. 27dB 전 hard carve/floater
   `results/experiments/exp57_dense_trajfiller_offset2_start650_late2_pgbacut1120_strict15x`
 - 채택:
   `results/experiments/exp57_dense_trajfiller_residual_offset2_start650_late2_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — optical stride phase 선별, offset4 strict 신기록
+
+offset2의 성공 뒤 “optical dense view를 더 넣으면 coverage가 늘어난다”는 가설을
+검증했다. 먼저 offsets1/2/3/4를 모두 넣자 600-frame 등록 view는 107→431장으로
+늘었지만 update는 3,291→2,989회로 줄었고 held-out은 **25.336→24.027dB
+(−1.309dB)**로 악화됐다. 따라서 coverage 수보다 trajectory-filler pose의
+일관성이 중요하다고 보고 각 stride phase를 단독 분리했다.
+
+| 600-frame, start300/late-iters1 | held-out / kf | update | online | 판정 |
+|---|---:|---:|---:|---|
+| offset2 기존 | 25.336 / 25.223 | 3,291 | 48.288s | 기준 |
+| **offset1** | **25.704 / 25.553** | 3,284 | 48.316s | full 승격 |
+| offset3 | 24.865 / 24.668 | 3,223 | 48.321s | 기각 |
+| **offset4** | **25.746 / 25.463** | 3,249 | 48.338s | full 승격 |
+| offsets1–4 | 24.027 / 23.576 | 2,989 | 48.289s | 강한 기각 |
+| offsets1+4 | 24.232 / 24.039 | 3,328 | 48.288s | 강한 기각 |
+
+단일 offset1과 offset4는 모두 강했지만 둘을 함께 넣으면 다시 붕괴했다. 이는 단순히
+나쁜 offset3이 전체 혼합을 망친 것이 아니다. 서로 다른 optical phase의 작은 pose
+오차가 동일 Gaussian geometry를 다른 방향으로 당기고, uniform random replay가
+이를 평균내지 못한다. 현재 구조에서는 많은 dense view보다 **한 phase의 일관된
+trajectory lineage**가 더 중요하다.
+
+full은 authoritative 1,253-frame 범위로 실행했다. 중간에 `--length 1253`을 빠뜨린
+1,303-frame 진단 run은 24.926dB였지만 101.024s로 strict 판정에서 제외하고,
+아래 두 run만 채택 판정에 사용했다.
+
+| full strict 1.5× | offset2 기존 best | offset1 | **offset4** |
+|---|---:|---:|---:|
+| held-out PSNR | 24.483 | 24.465 | **24.538** |
+| keyframe PSNR | 24.520 | **24.553** | 24.521 |
+| SSIM / LPIPS | 0.80350 / 0.39884 | 0.80335 / 0.39444 | 0.80179 / **0.39362** |
+| background update | 4,581 | 4,591 | **5,025** |
+| final Gaussian | 62,069 | 67,572 | 67,145 |
+| online wall | 97.287s | **97.256s** | 97.309s |
+| deadline margin | 0.363s | **0.394s** | 0.341s |
+
+offset1은 keyframe과 시간은 좋지만 held-out이 기존 best보다 −0.018dB라 기각한다.
+offset4는 held-out **+0.055dB**로 새 deadline-valid strict best다. 입력은
+RGB+IMU-only, `mps_inputs=[]`, fixed 1.5×, post-stream optimizer update 0회다.
+따라서 offset4 단독을 채택한다. 27dB까지 **2.462dB**가 남았으며, low-quality
+map에 hard carve/floater pruning을 섞지 않는 원칙은 유지한다.
+
+산출물:
+
+- 600-frame:
+  `results/experiments/exp57_dense_trajfiller_offsets1234_residual_start300_late1_smoke600`,
+  `results/experiments/exp57_dense_trajfiller_offset1_residual_start300_late1_smoke600`,
+  `results/experiments/exp57_dense_trajfiller_offset3_residual_start300_late1_smoke600`,
+  `results/experiments/exp57_dense_trajfiller_offset4_residual_start300_late1_smoke600`,
+  `results/experiments/exp57_dense_trajfiller_offsets14_residual_start300_late1_smoke600`
+- full:
+  `results/experiments/exp57_dense_trajfiller_offset1_residual_start650_late2_pgbacut1120_len1253_strict15x`,
+  `results/experiments/exp57_dense_trajfiller_offset4_residual_start650_late2_pgbacut1120_len1253_strict15x`
+- 판정 제외 1,303-frame 진단:
+  `results/experiments/exp57_dense_trajfiller_offset1_residual_start650_late2_pgbacut1120_strict15x`
