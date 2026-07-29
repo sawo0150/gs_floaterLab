@@ -2380,3 +2380,45 @@ start700, late-iters2, freeze1050, post-freeze causal RGB, PGBA cutoff1120이다
   `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_roundrobin_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
   `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_full_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
   `results/experiments/exp57_dense_offsets1234_optical14_untrustedappop020_denseonly_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — offset weighting·SH·camera 분해, 전부 기각
+
+start700 Gaussian-only 채택점의 남은 0.604dB를 줄이기 위해 supervision phase,
+view-dependent appearance, camera nuisance parameter를 각각 분리했다.
+
+| strict 1.5× start700 계열 | held-out / kf PSNR | update | GS | online | 판정 |
+|---|---:|---:|---:|---:|---|
+| 채택점 원 run | **26.396 / 27.299** | 5,112 | 70,320 | 97.290s | 최고 |
+| 채택점 반복 | 26.083 / 27.077 | 5,415 | 70,347 | 97.285s | 재현 범위 |
+| offset weight 1:0.3, 4:0.7 | 26.133 / - | - | - | strict 통과 | 개선 없음 |
+| SH degree 1 | 26.099 / - | - | - | strict 통과 | 기각 |
+| SH degree 1 + `f_rest` LR 4× | 26.133 / - | - | - | strict 통과 | 기각 |
+| per-view exposure-only + Gaussian | 25.650 / 26.471 | 4,926 | 70,214 | **97.282s** | 기각 |
+| bounded pose-only + Gaussian | 25.724 / 26.592 | 3,633 | 70,279 | **97.258s** | 기각 |
+
+offset4에 더 높은 sampling weight를 줘도 26.13dB였으므로 두 optical phase의 단순
+비율 문제가 아니었다. SH degree 1을 즉시 활성화하고 `f_rest` 학습률까지 4배
+올려도 degree 0보다 개선되지 않았다. 현재 view coverage와 step 예산에서는
+추가 view-dependent coefficient가 일반화를 만들 만큼 수렴하지 않는다.
+
+기존 camera `full`은 pose와 exposure를 동시에 움직여 25.452dB였기 때문에 두
+요인을 별도로 구현해 재검증했다. per-view exposure-only는 25.650dB였다. 학습
+뷰마다 별도 광도 자유도를 주면 Gaussian이 공통 appearance를 설명해야 할 압력이
+약해지고, exposure parameter가 없는 held-out frame에 일반화되지 않았다.
+pose-only는 exposure를 고정하고 view당 1mm/0.057도 이하의 bounded Adam step만
+허용했지만 25.724dB였다. 추가 camera update 비용으로 Gaussian update가
+3,633회까지 감소했고, photometric pose가 map residual을 따라가는 방향도
+held-out geometry 개선으로 이어지지 않았다.
+
+다섯 run 모두 RGB+IMU-only, MPS 입력 0, timestamp-causal replay, fixed 1.5×,
+post-stream update 0을 유지했다. 따라서 offset weighting, SH1, background
+camera pose/exposure refinement 축을 종료하고 Gaussian-only dense random
+채택점을 유지한다. hard carve/pruning은 held-out 27dB 전까지 계속 보류한다.
+
+추가 산출물:
+
+- `results/experiments/exp57_dense_trajfiller_offsets14_w030070_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_sh1_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_sh1_frest4_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_exposure_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_poseonly_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`

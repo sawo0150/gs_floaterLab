@@ -34,6 +34,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 offset weighting·SH·camera 분해 — 전부 기각)**:
+  strict 최고 recipe의 남은 갭을 phase 비율, view-dependent appearance, camera
+  nuisance로 분리했다. offset1:4 sampling weight를 0.3:0.7로 바꿔도
+  **26.133dB**, SH degree1은 **26.099dB**, `f_rest` LR 4×도
+  **26.133dB**로 개선이 없었다. 기존 camera `full` 실패를 다시 분해한
+  exposure-only는 **25.650/26.471dB**, bounded pose-only는
+  **25.724/26.592dB**로 둘 다 기각했다. pose-only는 추가 camera update
+  비용 때문에 Gaussian update도 3,633회로 감소했다. 전 run이 RGB+IMU-only,
+  MPS 없음, fixed 1.5×, zero-tail을 지켰다. Gaussian-only dense random
+  start700과 strict 최고 26.396dB(반복 26.083)를 유지하며 27dB 전 hard
+  carve는 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 dense-only maturity700 — strict 최고 26.396dB, 반복 26.083dB)**:
   freeze1050/post-freeze RGB/optical offsets1+4에서 background pool의 keyframe을
   제외하고 dense RGB만 random sample했다. start650은 **26.229dB**였고,
