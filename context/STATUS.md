@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 regular-preserving mature-row polish — full strict 기각)**:
+  기존 fixed-lineage 실패에서 regular gradient까지 끊은 효과를 분리하려고, full
+  map을 공동 렌더하되 추가 dense gradient만 cutoff 이전 출생 행에 제한하고 별도
+  Adam으로 step하는 opt-in을 구현했다. regular mapper의 gradient/densify/prune은
+  old/late 모두 그대로 유지했다. 600 target300은 control 22.461 대비
+  **23.444/23.297dB(+0.983 held-out)**, 1,504 step, 28,622GS, 48.266s였지만
+  full target650은 **21.983/22.144dB, 1,724 step, 63,019GS, 98.966s**로 품질과
+  deadline 모두 실패했다. RGB+IMU-only, MPS 금지, zero-tail은 준수했다.
+  same-tensor background의 대상/스케줄 축도 종료하며, 다음은 별도 polish가 아닌
+  regular mapper의 per-arrival supervision 개선이다. strict 최고 23.982dB,
+  1차 목표 27dB와 27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 independent origin-partition dual-map union — full strict 기각)**:
   stable snapshot과 late overlay를 parameter merge 없이 최종 render-time union했다.
   point ID 기준 첫 구현은 pre-snapshot clone/split 자손까지 late row로 중복 포함해

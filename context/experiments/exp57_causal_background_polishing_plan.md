@@ -1483,3 +1483,39 @@ spatial double-buffer, independent origin-partition union까지 모두 full stri
 - `results/experiments/exp57_snapshotunion_s300_random_joint_smoke600`
 - `results/experiments/exp57_snapshotunion_origin_s300_random_joint_smoke600`
 - `results/experiments/exp57_snapshotunion_origin_s650_random_joint_strict15x`
+
+## 2026-07-29 추가 — regular mapping 보존 mature-row polish 기각
+
+기존 fixed-lineage 실험은 completed Gaussian을 background Adam으로 polish하는 대신
+regular mapper의 gradient/densify/prune에서도 끊었기 때문에 전역 visibility 결합이
+깨졌다. 이 원인을 분리하기 위해 `--background_target_origin_cutoff`를 추가했다.
+현재 full map을 공동 렌더하되 추가 dense gradient만 cutoff 이전 출생 행에 남기고
+별도 Adam으로 step한다. `_frozen_origin_cutoff`는 설정하지 않으므로 regular
+mapper는 old/late Gaussian 모두 기존과 동일하게 gradient, densify, prune한다.
+
+600-frame start/cutoff300 gaussian-scope random smoke는 1,504 update를 실행해
+held-out/keyframe **23.444/23.297dB**, 28,622GS, online 48.266s였다. paired
+control 22.461dB 대비 held-out **+0.983dB**라 full start/cutoff650으로 승격했다.
+
+| 조건 | held-out / kf | background step | GS | online |
+|---|---:|---:|---:|---:|
+| 600 control | 22.461 / 22.455 | 0 | 34,517 | 48.311s |
+| **600 mature-row target300** | **23.444 / 23.297** | **1,504** | **28,622** | **48.266s** |
+| **full mature-row target650** | **21.983 / 22.144** | **1,724** | **63,019** | **98.966s** |
+
+full run은 strict 최고보다 held-out −1.999dB이고 97.65s deadline도 1.316초
+초과했다. 마지막 sensor frame 뒤 optimizer update는 0회였으며 provenance는
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`, `post_stream_refinement=false`다.
+
+regular mapper를 보존해도 별도 Adam의 mature geometry update는 후반 PGBA와
+densify/prune을 거치며 full 전역 일관성으로 일반화되지 않았다. 이로써
+same-tensor background는 all-row, appearance-only, fixed/rolling lineage freeze,
+regular-preserving mature-row target까지 소진했다. 별도 background optimizer의
+대상/스케줄 변형은 종료하고, 다음 품질 축은 regular mapper 자체가 매 도착 시점에
+소비하는 supervision을 개선하는 방향이다. strict 최고 23.982dB와 1차 목표
+27dB는 유지하며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_target300_random_gaussian_smoke600`
+- `results/experiments/exp57_target650_random_gaussian_strict15x`
