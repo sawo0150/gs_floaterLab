@@ -2004,3 +2004,50 @@ pruning은 실행하지 않았다.
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150cap2500_pgbacut1120_strict15x`
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150cap1000_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150cap1000_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — background LR parameter-group 분리도 full 기각
+
+uniform 1.5×가 full에서 무너지는 원인이 geometry인지 appearance인지 분리하기 위해
+`--background_polish_lr_multiplier_scope`를 추가했다. `appearance_opacity`는
+`f_dc`, `f_rest`, `opacity`만, `geometry`는 `xyz`, `scaling`, `rotation`만
+배율을 적용한다. 기본값 `all`은 기존 동작과 동일하다.
+
+| 600 start300/late-iters2 | LR×1.0 | appearance+opacity 1.5× | **geometry 1.5×** |
+|---|---:|---:|---:|
+| held-out PSNR | 24.859 | 24.654 | **25.090** |
+| keyframe PSNR | 24.679 | 24.545 | **25.024** |
+| SSIM / LPIPS | - | 0.79565 / 0.46104 | 0.79878 / 0.46109 |
+| background update | 3,284 | 3,438 | 3,301 |
+| final Gaussian | 38,241 | 37,496 | 38,301 |
+| online wall | 48.276s | 48.298s | 48.299s |
+
+appearance+opacity는 held-out −0.205dB였고 geometry-only는 +0.231dB였다. 따라서
+prefix uniform LR 이득의 출처는 geometry 가속이며, appearance 배율은 오히려
+해롭다는 인과 분리가 됐다. geometry-only를 full cutoff1120으로 승격했다.
+
+| full strict 1.5× | LR×1.0 | **geometry 1.5×** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.319 / 24.385** | 23.816 / 23.916 | −0.503 / −0.469dB |
+| SSIM / LPIPS | **0.78868 / 0.44374** | 0.77948 / 0.46234 | 둘 다 악화 |
+| background update | 5,087 | 5,247 | +160 |
+| final Gaussian | 66,784 | 65,531 | −1,253 |
+| online wall | 97.264s | 97.300s | +0.036s |
+| deadline margin | 0.386s | 0.350s | 둘 다 통과 |
+
+prefix의 geometry 수렴 가속은 확인했지만, 높은 geometry LR을 evolving full map의
+PGBA·densification·신규 표면 성장 전체에 누적하면 형상 안정성을 해친다. 짧은
+prefix 최적값을 full에 외삽할 수 없다는 이전 제한형 결과와 일치한다. 따라서
+uniform, 초기-step 제한, parameter-group 분리를 포함한 background LR 배율
+family를 종료한다. opt-in scope 코드는 향후 진단 자산으로 남기며 기본 동작은
+변하지 않는다.
+
+모든 run은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했고
+`--eval_metrics_only`로 optimizer update 없는 동일 평가를 수행했다. strict best
+24.319dB와 1차 목표 27dB를 유지하며, 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_appopacity_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_geometry_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150_geometry_pgbacut1120_strict15x`

@@ -34,6 +34,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background LR parameter-group 분리 — full 기각)**:
+  uniform LR 실패 원인을 분리하려고 SH+opacity와 xyz+scale+rotation 배율을
+  독립 적용했다. 600-frame에서 appearance+opacity 1.5×는 **24.654dB
+  (−0.205)**로 기각됐고, geometry-only 1.5×는 **25.090dB(+0.231)**로
+  prefix 이득의 출처가 geometry임을 확인했다. 그러나 geometry-only full은
+  5,247 update, 65,531GS, **97.300s(deadline 통과)**에도
+  **23.816/23.916dB**로 strict best보다 held-out −0.503dB였다. 높은 geometry
+  LR은 evolving full map에서 누적 안정성을 해치므로 parameter-group 분리를
+  포함한 background LR 배율 계열을 종료한다. strict best 24.319dB와 1차 목표
+  27dB, 그 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background LR×1.5 초기-step 제한 — prefix 양성, full 재기각)**:
   무제한 LR×1.5의 full 붕괴를 막기 위해 background 첫 2,500회 또는 1,000회에만
   배율을 적용하고 이후 자동으로 1.0으로 복귀시켰다. 600-frame에서는 cap2500이
