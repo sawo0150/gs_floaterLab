@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.538dB (2026-07-29)**
+- 상태: **strict-disjoint photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 검증 기준선 26.069dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -2617,3 +2617,55 @@ geometry가 기존 표면 앞을 가려 0–999 구간까지 무너졌다. 따�
   `results/experiments/exp57_freeze1050_appendbirths_forcekf1102_1152_1202_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - newborn-only recent:
   `results/experiments/exp57_freeze1050_appendbirths_recent050_newbornonly_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — mapping-side fixed-eval 제외, strict-disjoint 기준선 26.069dB
+
+기존 evaluator union/keyframe overlap 문제를 끝내기 위해
+`--mapping_exclude_fixed_eval_views`를 추가했다. fixed evaluator set인
+frame `idx%5==0`과 마지막 frame은 tracker 입력과 최종 렌더 평가에는 남기되,
+Gaussian 초기화·PPM birth·current/global window·background polish 후보에서는
+전부 제외한다. frame0 제외 시 첫 trainable keyframe의 origin/depth가 여전히
+`0`/`depth_packet[0]`을 쓰던 초기화 버그도 발견해 실제 `idx`와
+`depth_packet[i]`를 사용하도록 수정했다.
+
+기존 append-only PPM birth 채택점과 같은 설정을 이 guard로 재실행했다.
+
+| strict-disjoint 1.5× | 결과 |
+|---|---:|
+| **fixed 252-view PSNR** | **26.0686dB** |
+| fixed SSIM / LPIPS | 0.83314 / 0.33314 |
+| legacy union / keyframe PSNR | 26.0062 / 25.8954dB |
+| Gaussian update | 4,715 |
+| Gaussian 수 | 78,534 |
+| sensor loop | **97.238s / 97.65s** |
+| post-stream update | **0** |
+| fixed-eval mapping excluded | **true** |
+| fixed-eval/keyframe 표기 overlap | 26 / 252 |
+
+overlap 26장은 tracker가 keyframe으로 분류한 사실만 뜻하며, 새 guard 때문에
+Gaussian supervision에는 들어가지 않았다. provenance도
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`를 확인했다. 따라서 **26.069dB를 최초의 유효한
+strict-disjoint 기준선**으로 채택한다. 기존 legacy 최고 26.396dB는 비교 이력으로만
+남기며 held-out best로 사용하지 않는다.
+
+고정 평가 뷰의 200-frame 구간별 PSNR은 다음과 같다.
+
+| frame | PSNR |
+|---|---:|
+| 0–199 | 26.033 |
+| 200–399 | 27.615 |
+| 400–599 | 27.743 |
+| 600–799 | 26.812 |
+| 800–999 | 26.206 |
+| 1000–1199 | **23.723** |
+| 1200–1252 | **20.334** |
+
+27dB까지 **0.931dB**가 남았고, evaluation leakage를 제거해도 병목은 마지막
+253-frame coverage다. 다음 품질 축은 평가 frame RGB를 직접 학습하지 않으면서
+late non-eval RGB의 online depth/birth와 기존 map의 compositing 균형을 개선하는
+것이다. 27dB 전 hard carve/floater pruning 보류 원칙은 유지한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_eval5_freeze1050_appendbirths_v2_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
