@@ -34,6 +34,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 CUDA batch2 replay — view 처리량↑, 품질 기각)**:
+  background batch2가 kernel-batch render를 사용하므로 600 start300에서 시험했다.
+  1,995 optimizer step으로 3,990 view를 처리해 batch1의 3,284 view보다 +706
+  늘었고 48.308s로 시간도 유지했다. 그러나 **24.433/24.206dB**로 batch1보다
+  held-out −0.426dB였다. 평균 gradient 한 번은 두 순차 Adam step을 대체하지
+  못하므로 view 처리량보다 optimizer step 횟수가 중요하다. batch1을 유지하고,
+  다음은 step 수를 보존한 background 전용 LR 압축이다. strict best 24.319dB,
+  1차 목표 27dB와 그 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 replay start400 — 600에서 강한 기각)**:
   start300에서 regular map을 너무 일찍 7→2로 줄였는지 분리하려고 전환점을
   frame400으로 늦췄다. 2,159 update, 37,316GS, 48.298s로 deadline 경계는

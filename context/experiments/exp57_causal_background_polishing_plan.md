@@ -1888,3 +1888,31 @@ best 24.319dB와 1차 목표 27dB를 유지하며 27dB 전 hard carve/floater pr
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start400_late2_smoke600`
+
+## 2026-07-29 추가 — CUDA batch2 replay 기각
+
+`background_polish_step()`은 batch가 2 이상이면 Phase 11의
+`render_kernel_batch()`를 사용하므로, 두 random view의 renderCUDA launch를 묶고
+loss를 평균한 뒤 optimizer를 한 번 step한다. 같은 start300/late-iters2 조건에서
+batch2를 시험했다.
+
+| 600 | batch1 | **batch2** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.859 / 24.679** | 24.433 / 24.206 | −0.426 / −0.473dB |
+| SSIM / LPIPS | - | 0.79580 / 0.47739 | - |
+| optimizer step | **3,284** | 1,995 | −1,289 |
+| supervised view update | 3,284 | **3,990** | +706 |
+| final Gaussian | 38,241 | 37,396 | −845 |
+| online wall | 48.276s | 48.308s | +0.032s |
+
+kernel batch로 view 처리량은 늘었지만 두 view 평균 gradient 한 번이 두 순차 Adam
+step을 대체하지 못했다. 현재 수렴에는 view 수보다 optimizer step 횟수가
+중요하므로 `background_polish_batch_size=1`을 유지한다.
+
+RGB+IMU-only, MPS 금지, zero-tail을 준수했고 지표-only 평가를 사용했다. strict
+best 24.319dB와 1차 목표 27dB를 유지하며 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_batch2_smoke600`
