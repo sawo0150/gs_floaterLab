@@ -1108,3 +1108,42 @@ overlap-aware spatial submap을 공동 렌더·merge하는 구조다. 둘 다 �
 
 - `results/experiments/exp57_mapdense3_endpoint020_smoke600`
 - `results/experiments/exp57_mapdense1_endpoint{020,010}_smoke600`
+
+## 2026-07-29 추가 — Gaussian-frozen dense photometric pose alignment
+
+endpoint sampler의 남은 −0.140dB가 보간 pose 오차 때문인지 직접 검증했다.
+dense view가 foreground에 처음 선택될 때 Gaussian은 그대로 두고 RGB
+L1+SSIM loss의 `cam_rot_delta/cam_trans_delta` gradient만
+`torch.autograd.grad`로 받아 pose-only Adam step을 수행한 뒤, 보정 pose로
+일반 Gaussian mapping을 다시 실행했다. step당 translation/rotation delta는
+각 component 1e-3 이하로 제한했고 PGBA refresh 뒤 보정 상태를 초기화했다.
+
+Gaussian optimizer의 모든 leaf `.grad`가 `None`인지 runtime assert해 gradient
+격리를 검증했다. 300-frame smoke는 gradient 누출과 cached-matrix autograd
+version 충돌 없이 완주했고 held-out **15.509dB**였다.
+
+600-frame에서는 endpoint≤0.20, dense 1-slot, dense start frame 300을 고정했다.
+
+| 조건 | pose align | held-out / kf | online | Gaussian |
+|---|---:|---:|---:|---:|
+| no-dense control | 0 | **22.402 / 22.388** | 48.330s | 34,006 |
+| start300, no-align | 0 | 22.234 / 22.159 | 48.274s | 34,602 |
+| start300, align≤1/view | 84 step / 84 view | **22.318 / 22.236** | 48.302s | 34,552 |
+| start300, align≤3/view | 155 step / 89 view | 22.296 / **22.255** | 48.303s | 34,732 |
+
+1-step alignment은 같은 dense 조건에서 held-out **+0.084dB**를 회복하면서
+추가 online 비용이 약 0.03초뿐이라 pose 보정 자체는 작지만 유효했다. 그러나
+no-dense control보다 여전히 −0.084dB이고, 3-step은 mean PSNR이 다시
+−0.022dB 내려갔다. 현재 성장 map의 photometric landscape를 더 오래 따라가면
+보간 pose GT에 가까워진다는 보장이 없다는 뜻이다.
+
+따라서 dense pose alignment를 full strict run으로 승격하지 않는다. endpoint
+filter/slot 축소/pose alignment를 모두 합쳐도 direct foreground dense replacement는
+control을 넘지 못했으므로 이 family는 종료한다. 다음은 final-map dense 5k의
++4dB gradient가 성장 과정에서 소실되지 않도록, temporal append가 아니라
+overlap-aware spatial submap을 frontier와 공동 렌더한 뒤 merge하는 구조다.
+
+산출물:
+
+- `results/experiments/exp57_denseposealign1_smoke300`
+- `results/experiments/exp57_mapdense1_endpoint020_start300_{noalign,align1,align3}_smoke600`

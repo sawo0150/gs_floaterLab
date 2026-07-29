@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 dense pose-only alignment — +0.084dB지만 control 미달)**:
+  `torch.autograd.grad`로 Gaussian leaf gradient를 완전히 차단하고 dense camera
+  SE(3)만 보정한 뒤 같은 view로 Gaussian mapping하는 2-stage 경로를 구현했다.
+  runtime assert로 Gaussian `.grad` 누출 0을 검증하고 cached pose 충돌 없이 완주.
+  600-frame start300/no-align **22.234dB** 대비 1-step/84뷰는
+  **22.318(+0.084)dB**, online 비용 약 +0.03초. 3-step/155회는 22.296으로
+  상한이 오르지 않았고 no-dense control 22.402에도 −0.084dB였다. 따라서
+  endpoint filter·slot 축소·pose alignment까지의 direct dense foreground family를
+  종료하고 full strict run으로 승격하지 않는다. 다음은 final-map dense gradient의
+  성장 중 소실을 막는 overlap-aware spatial submap이다. strict 최고 23.982dB와
+  27dB 전 hard carve 보류 원칙은 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 causal dense pose-confidence sampler — 손실 축소, 순이득 없음)**:
   양쪽 keyframe이 도착한 dense frame의 interval alpha를 보존하고 endpoint까지의
   정규화 거리를 pose-confidence로 쓰는 sampler를 구현했다. 600-frame control
