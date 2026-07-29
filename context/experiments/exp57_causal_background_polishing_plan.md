@@ -3294,3 +3294,27 @@ RGB+IMU only, MPS 0, fixed evaluator exclusion, deadline/tail0 계약을 통과�
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_second700iters3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — causal feedback target5100은 low 선택 0회
+
+현재 arrived frame 진행률에 대한 background step 목표선을 계산하고, replay가
+뒤처지면 iters2(`low`), 앞서면 iters3(`high`)를 고르는 opt-in feedback
+scheduler를 구현했다. 현재 frame index와 완료 step만 읽으며 미래 RGB/pose는
+사용하지 않는다.
+
+최종 target5100 첫 실행은 fixed **26.7996dB**, SSIM/LPIPS
+0.84231/0.29081, 5,233 update, 77,027GS, **97.221s**, tail0이었다.
+bins는 26.592/29.490/29.388/27.554/26.911/22.807/20.316dB다.
+
+선택 횟수는 `adaptive_low=0`, `adaptive_high=38`이었다. 최종 frame1252에서
+5,100회를 요구하는 선형 목표가 mapping freeze frame1050에서는 약 3,228회만
+요구하므로 실제 replay가 항상 목표보다 앞섰고, 결과적으로 static late3와
+동일하게 동작했다. feedback 구조가 실패한 것은 아니지만 target5100은 제어력이
+없어 미채택이다. 다음은 mapping 구간에서 low가 실제 발생하도록 target6500을
+검증한다.
+
+RGB+IMU only, MPS 0, evaluator exclusion, deadline/tail0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_lateadaptive5100_iters2or3_pgbacut1120_len1253_strict15x`

@@ -45,6 +45,12 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 causal feedback target5100 — low0/high38, 26.800dB)**:
+  frame 진행률 대비 replay step 목표로 iters2/3을 고르는 feedback을 구현했다.
+  target5100은 mapping 종료 시 목표선이 너무 낮아 low 선택 0회/high 38회로
+  static late3와 같았고, 5,233 update에도 fixed **26.800dB**였다.
+  97.221s/tail0 계약은 통과했다. 실제 제어가 발생하도록 target6500을 검증한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late2→second700 iters3 — fixed 26.792dB, 고정경계 종료)**:
   650–699만 iters2, 이후 iters3인 최소 절충도 background 4,782 update,
   fixed **26.792dB**에 그쳤다. 97.247s/tail0 계약은 통과했지만 static frame
