@@ -4,6 +4,12 @@
 
 ## 현재 1차 목표
 
+> **2026-07-29 목표 우선순위 확정:** 당장의 종료 기준은 strict streaming
+> held-out **27dB**이며 30dB는 1차 목표가 아니다. 아래 기록처럼 이 기준은
+> freeze800에서 27.8568/27.8361dB로 이미 반복 통과했다. 따라서 이후 작업은
+> 27dB를 깨지 않는 재현성·floater 검증까지만 1차 범위로 보고, strict 30dB는
+> 별도 후속 목표로 둔다.
+
 **30dB보다 먼저 pure-online strict streaming held-out 27dB를 달성한다.**
 판정 계약은 timestamp 순 Aria RGB photo+IMU only, MPS 후처리 입력 0개,
 fixed 1.5×(length1253 기준 97.65초 이내), 마지막 센서 frame 뒤 optimizer

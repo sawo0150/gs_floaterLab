@@ -11,6 +11,10 @@ Aria glass 기반 **실시간 incremental 3DGS 매핑** 시스템:
 2. **Mapping**: RGB 카메라 정보를 incremental하게(keyframe마다) 받아 3DGS 지도를 online 확장.
 3. **동시 충족**: ① 고품질(배치급, PSNR 30dB+) ② floater 없음(좋은 geometry) ③ 실시간.
 
+> **현재 운영 목표는 North Star의 30dB가 아니라 strict streaming held-out
+> 27dB를 먼저 재현 가능하게 달성하는 것이다.** 30dB는 이 마일스톤과
+> floater 검증을 통과한 뒤의 후속 목표로만 취급한다.
+
 ## 현재 단계 & 우선순위 (2026-07-29)
 
 localization은 나중. 지금은 **strict streaming 매핑 품질 확보**가 목표. 순서:

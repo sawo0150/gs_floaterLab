@@ -15,6 +15,10 @@ Aria glass 기반 **실시간 incremental 3DGS 매핑** 시스템을 만드는 �
 
 즉 "흑백으로 정밀하게 위치를 잡고, RGB로 실시간 고품질 지도를 짓되 floater가 없는" 시스템.
 
+> **현재 운영 목표는 North Star의 30dB가 아니라 strict streaming held-out
+> 27dB를 먼저 재현 가능하게 달성하는 것이다.** 30dB는 이 마일스톤과
+> floater 검증을 통과한 뒤의 후속 목표로만 취급한다.
+
 ## 현재 단계 (2026-07-29)
 
 localization까지 한 번에 붙이는 건 어려우므로 **strict streaming 매핑 품질부터** 확보한다.
