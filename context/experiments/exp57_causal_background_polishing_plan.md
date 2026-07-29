@@ -3419,3 +3419,70 @@ trajectory의 xyz 성분별 평균 절대차는 약 **0.60/1.17/1.88cm**, 최대
 따라서 반복 PSNR 분산의 다음 조사 대상은 online tracker/PGBA의 수치 변동과
 regular GS worker의 GPU 실행 interleaving이다. 동일 timestamp keyframe 집합을
 유지하는 것만으로 동일 map topology를 보장하지 못한다.
+
+## 2026-07-29 추가 진단 — tracking-only는 stable, GS 동시 실행이 pose 분산 증폭
+
+동일 RGB+IMU 1.5× replay와 PGBA cutoff1120에서 `--gsmapping`만 제거한
+tracking-only 대조군을 두 번 실행했다. no-mapping 경로가 존재하지 않는
+`_gs_queue`를 종료/PGBA rescale 시 참조하던 guard 버그 두 곳도 발견해
+`args.gsmapping` 조건으로 수정했다. mapping 경로 동작은 바뀌지 않는다.
+
+두 run 모두 keyframe 111개와 timestamp가 일치했고 online wall은
+**97.252/97.243s**였다. 최종 pose의 xyz 평균 절대차는 **1.05mm**, 최대는
+**3.82mm**였다. mapping 동시 실행 두 run은 keyframe 116개, xyz 성분별 평균
+0.60/1.17/1.88cm, 최대 3.83cm였으므로 regular GS GPU interleaving이 tracker의
+작은 수치 변동을 대략 한 자릿수~10배 증폭한다.
+
+또한 online IMU metric rescale은 tracking-only가
+0.973669/0.973596인 반면 mapping run은 1.039782/1.038361이었다. GS 부하가
+IMU 초기화 당시 keyframe/PGBA 상태를 바꾸고, 서로 다른 scale을 이후 전체
+trajectory와 Gaussian map에 적용하는 경로가 확인됐다.
+
+tracking-only는 품질 평가용 map이 없으므로 PSNR 성공 판정에는 쓰지 않고
+원인 분리 대조군으로만 기록한다.
+
+산출물:
+
+- `results/experiments/exp57_trackingonly_rgbimu_pgbacut1120_len1253_strict15x_fixed`
+- `results/experiments/exp57_trackingonly_rgbimu_repeat_pgbacut1120_len1253_strict15x_fixed`
+- guard 수정 전 실패·판정 제외:
+  `results/experiments/exp57_trackingonly_rgbimu_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — online IMU scale quantum0.005, 분산 감소·품질 미달
+
+online으로 계산된 metric scale에만 causal quantization을 적용하는
+`--imu_rescale_quantum`을 구현했다. default 0은 기존 raw scale을 그대로
+사용한다. quantum0.005는 미래 pose/RGB를 보지 않고 IMU 초기화 시점에 이미
+계산된 scale을 가장 가까운 0.005 배수로 반올림한다.
+
+static late-iters3/freeze1050에서 세 번 반복했다.
+
+| quantum0.005 | run 1 | run 2 | run 3 |
+|---|---:|---:|---:|
+| raw scale | 1.039834 | 1.040007 | 1.039796 |
+| applied scale | **1.040** | **1.040** | **1.040** |
+| **fixed 252-view PSNR** | 26.7275 | **26.7547** | 26.7118 |
+| fixed SSIM | 0.84768 | 0.84704 | 0.84642 |
+| fixed LPIPS | 0.29952 | **0.29483** | 0.29657 |
+| background update | 4,866 | 4,890 | 4,826 |
+| GS | 76,641 | 77,323 | 76,975 |
+| online wall | 97.216s | 97.257s | 97.256s |
+| post-stream update | 0 | 0 | 0 |
+
+세-run 평균은 **26.7314dB**, 범위는 **0.0429dB**다. unquantized late-iters3
+3회 범위 0.4314dB보다 약 10배 좁아졌고, 첫 두 quantized trajectory의 xyz
+평균/최대 차이도 5.28/23.84mm로 unquantized 12.18/38.31mm보다 작았다.
+
+그러나 unquantized late-iters3 평균 26.8419dB보다 −0.111dB이며 세 run 모두
+27dB에 못 미쳤다. 따라서 quantum0.005는 재현 가능한 A/B 진단 기반으로는
+유효하지만 strict 27 품질 레시피로 채택하지 않는다. 기본값 0을 유지하고,
+향후 품질 레버의 run-to-run 판정이 필요할 때 opt-in stabilizer로만 쓴다.
+
+세 run 모두 RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping
+exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_imuquant005_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_imuquant005_repeat_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_imuquant005_repeat2_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

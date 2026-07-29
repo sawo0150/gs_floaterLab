@@ -51,6 +51,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 IMU scale quantum0.005 — 분산 10× 감소, 평균 26.731dB)**:
+  online metric scale을 0.005 간격으로 causal 반올림해 세 run 모두 1.040을
+  적용했다. fixed는 **26.728/26.755/26.712dB**(평균 26.731, 범위 0.043)로
+  unquantized 범위 0.431보다 약 10배 안정화됐다. 모두 deadline/tail0/
+  RGB+IMU only/MPS0을 통과했다. 다만 평균 품질은 −0.111dB이고 27 미달이라
+  품질 레시피로는 기각, default off A/B stabilizer로만 보존한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
+- **2026-07-29 (exp57 tracking-only 대조 — GS interleaving이 pose 분산 증폭)**:
+  GS를 제거한 두 strict replay는 keyframe 111개가 같고 xyz 평균/최대 차이가
+  1.05/3.82mm였다. mapping 동시 실행은 최대 38.3mm였으며 IMU rescale도
+  tracking-only 0.9736대, mapping 1.038~1.040으로 갈렸다. tracker 자체보다
+  regular GS 부하가 IMU-init/keyframe 상태와 pose 분산을 크게 증폭하는 경로를
+  확인했다. no-mapping queue guard 버그 두 곳도 default-preserving 수정했다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 반복 분산 원인 — background 전 pose가 이미 다름)**:
   quota 두 run은 keyframe 116개의 timestamp가 완전히 같지만 최종 xyz 평균
   절대차가 0.60/1.17/1.88cm, 최대 3.83cm였다. background 시작 전 kf17에서
