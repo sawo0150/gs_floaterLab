@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 post-PGBA forced keyframe 3장 — fixed 25.776dB, 축 종료)**:
+  global PGBA 교란을 분리하려고 cutoff1120 뒤 1152/1202/1249만 강제 보존했다.
+  세 frame 모두 남고 **97.292s**, tail 0을 통과했지만 fixed는 **25.776dB**,
+  4,993 update, 77,199GS였다. late bins는 23.171/19.837dB로 52-view 가중
+  control 대비 +0.085dB뿐이며 전체 환산 기대 이득은 약 +0.018dB다.
+  pre-freeze scheduler 손실을 상쇄할 수 없고 27dB 레버 규모도 아니므로
+  forced-keyframe 보존 축을 종료하고 1×/refine=0 자연 keyframe recipe를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 forced late keyframe 보존 4장 — fixed 25.720dB, 기각)**:
   evaluator와 겹치지 않는 1102/1152/1202/1249를 강제 생성하고 frontend
   redundancy removal에서도 보존했다. 네 장 모두 최종 keyframe에 남았고

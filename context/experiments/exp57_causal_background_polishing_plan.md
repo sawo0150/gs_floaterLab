@@ -2912,3 +2912,29 @@ forced-keyframe 보존 축을 완전히 종료한다.
 산출물:
 
 - `results/experiments/exp57_disjoint_preserveforced1102_1152_1202_1249_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 정정 — post-PGBA forced keyframe만으로도 회복 안 돼 축 종료
+
+직전 4장 run의 frame1102가 PGBA cutoff1120 이전이라는 교란을 제거하고,
+1152/1202/1249 세 장만 강제 보존했다. 세 frame 모두 최종 keyframe으로 남았으며
+입력·평가 계약은 동일하다.
+
+strict-disjoint fixed 결과는 **25.7759dB**, SSIM/LPIPS
+0.83324/0.31046, 4,993 update, 77,199GS, **97.292s**, tail 0이었다.
+구간별 PSNR은
+25.398/27.724/28.344/26.324/25.476/**23.171/19.837dB**다.
+
+paired control 23.274/19.124와 비교하면 첫 late bin은 −0.103dB, 마지막 12장은
++0.713dB다. 두 구간의 52-view 가중 평균 이득은 약 **+0.085dB**이고 fixed
+전체에 대한 최대 직접 기여는 약 **+0.018dB**뿐이다. 전체 수치가 낮은 것은
+개입 이전 scheduler state 차이가 지배하며, late intervention 자체도 0.55dB
+이상의 27dB 갭을 메울 규모가 아니다.
+
+따라서 forced-keyframe 보존 축은 완전히 종료한다. opt-in 구현은 진단 자산으로
+남기되 recipe는 1×/refine=0 natural keyframe을 유지한다. 다음 27dB 후보는
+keyframe 수를 억지로 늘리는 방식이 아니라 동일 causal dense RGB budget의
+학습 효율이나 freeze 이전 전역 상태의 분산을 개선해야 한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_preserveforced1152_1202_1249_postpgba_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
