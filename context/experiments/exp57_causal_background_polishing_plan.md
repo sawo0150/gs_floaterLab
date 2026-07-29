@@ -1519,3 +1519,32 @@ regular-preserving mature-row target까지 소진했다. 별도 background optim
 
 - `results/experiments/exp57_target300_random_gaussian_smoke600`
 - `results/experiments/exp57_target650_random_gaussian_strict15x`
+
+## 2026-07-29 추가 — regular mapper target-row dense PCGrad 기각
+
+별도 background optimizer 없이 regular `map()`의 기존 RGBD gradient와
+densify/prune을 모두 보존하면서, 추가 dense-frame gradient만 오래된 Gaussian에
+제한하는 변형을 검증했다. `--mapping_dense_projected_origin_lag 150`이면 각
+mapping 시점에 `unique_kfIDs <= newest_frame - 150`인 행만 dense gradient의
+PCGrad dot/norm 계산과 합산 대상이 된다. geometry/appearance 모두 norm ratio
+0.25, batch 12, mapping call당 dense step 1회를 사용했다.
+
+| 조건 | held-out / kf | GS | online |
+|---|---:|---:|---:|
+| 600 paired control | 22.461 / 22.455 | 34,517 | 48.311s |
+| **600 target-lag150 dense PCGrad** | **20.636 / 20.686** | **32,158** | **48.284s** |
+
+held-out이 control보다 **−1.825dB**로 크게 악화됐다. 전체 행 PCGrad가 앞서
+22.405dB로 순이득이 없었던 데 이어, 과거 출생 행에만 투영해도 regular mapper의
+causal visibility/geometry 결합을 해쳤다. 600 prefix부터 명확한 음성이므로
+1,253 full strict run으로 승격하지 않는다. 이 결과로 regular mapper 내부
+gradient projection의 행 대상 변형도 종료한다.
+
+실행은 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+`post_stream_refinement=false`를 준수했고 마지막 sensor frame 뒤 optimizer
+update는 0회였다. strict 최고 23.982dB와 1차 목표 **strict held-out 27dB**는
+유지한다. 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_densepcgrad1_batch12_targetlag150_smoke600`

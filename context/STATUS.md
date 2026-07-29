@@ -33,6 +33,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 regular mapper target-row dense PCGrad — 600에서 즉시 기각)**:
+  별도 background optimizer가 아니라 regular `map()`의 RGBD gradient를 그대로
+  보존하면서, 추가 dense gradient만 `newest_frame - 150` 이전 출생 Gaussian
+  행에 PCGrad+norm cap으로 합치는 opt-in을 구현했다. 600-frame paired control
+  22.461/22.455dB 대비 결과는 **20.636/20.686dB(held-out −1.825dB)**,
+  32,158GS, online 48.284s로 크게 악화됐다. prefix 단계부터 명확한 음성이므로
+  1,253 full로 승격하지 않고 이 target-row projection 축을 종료한다. 실행은
+  RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했다. strict 최고
+  23.982dB와 1차 목표 27dB는 유지하며, 27dB 전 hard carve는 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 regular-preserving mature-row polish — full strict 기각)**:
   기존 fixed-lineage 실패에서 regular gradient까지 끊은 효과를 분리하려고, full
   map을 공동 렌더하되 추가 dense gradient만 cutoff 이전 출생 행에 제한하고 별도
