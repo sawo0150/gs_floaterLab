@@ -79,6 +79,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 recent50% newborn-only — 26.574dB 강한 실패, family 종료)**:
+  post-freeze recent dense step의 appearance+opacity gradient를 newborn 행에만
+  적용하는 비중을 5%→50%로 높였다. fixed는 **26.5736dB**로 freeze800
+  2-run 평균보다 **−1.2729dB**였고, 7개 temporal bin이 전부 악화했다.
+  visible floater도 **15,734개(27.10%)**, mean score 0.2453으로 기준 평균
+  15,412.5개/0.2428보다 나빠졌다. 97.2702s, tail0, MPS0, evaluator
+  exclusion은 통과했다. row masking은 과거 Gaussian의 직접 gradient를
+  막아도 uniform full-map replay의 절반을 대체하는 coverage 손실은 막지
+  못한다. recent newborn-only family는 5% 무이득/50% 강한 실패로 닫는다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 recent5% newborn-only — 첫 양성 미재현, 기각)**:
   forced recent dense step의 appearance+opacity gradient를 freeze 이후 태어난
   Gaussian 행에만 별도 Adam으로 적용했다. 첫 run은 **27.9030dB**와 floater

@@ -4013,3 +4013,57 @@ exclusion, fixed 1.5×, 97.65초 deadline, tail update 0을 통과했다.
 
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent005_newbornonly_appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent005_newbornonly_appopacity_anchor_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — recent50% newborn-only 강한 실패, recent family 종료
+
+recent5%의 첫 run 양성이 실제 gradient 부족 때문인지 확인하려고 동일한
+newborn-only appearance+opacity 경로의 강도를 50%로 올렸다. 즉 background
+step 절반을 현재까지 도착한 recent dense non-eval RGB에 배정하되,
+그 step의 gradient는 `unique_kfIDs>=800`인 post-freeze Gaussian 행에만
+적용했다. evaluator RGB는 supervision에 쓰지 않았고 나머지 strict recipe는
+freeze800 control과 동일하다.
+
+| strict fixed 252-view | freeze800 2-run 평균 | recent50% newborn-only | 변화 |
+|---|---:|---:|---:|
+| PSNR | **27.8464** | 26.5736 | **−1.2729dB** |
+| SSIM | **0.85989** | 0.84439 | −0.01550 |
+| LPIPS | **0.25440** | 0.28881 | +0.03441(악화) |
+| background update | 5,943 | 5,381 | −562 |
+| Gaussian | 83,898 | 83,920 | +22 |
+| online wall | 97.2530s | 97.2702s | deadline 통과 |
+| post-stream update | 0 | 0 | 통과 |
+
+| temporal bin | freeze800 평균 | recent50% | 변화 |
+|---|---:|---:|---:|
+| 0–199 | 29.6671 | 28.2798 | −1.3873 |
+| 200–399 | 30.1723 | 28.1187 | −2.0536 |
+| 400–599 | 30.0170 | 29.0361 | −0.9809 |
+| 600–799 | 28.3757 | 26.8965 | −1.4792 |
+| 800–999 | 28.0649 | 26.6708 | −1.3941 |
+| 1000–1199 | 23.2204 | 22.7297 | −0.4907 |
+| 1200–1252 | 19.7174 | 18.9396 | −0.7778 |
+
+| floater proxy | freeze800 평균 | recent50% | 변화 |
+|---|---:|---:|---:|
+| visible floater | **15,412.5** | 15,734 | +321.5 |
+| visible floater 비율 | **26.883%** | 27.102% | +0.219%p |
+| mean score | **0.2428** | 0.2453 | +0.0025 |
+
+5%에서 보인 일회성 양성은 50%에서 증폭되지 않았고 오히려 모든 temporal
+bin이 함께 무너졌다. row masking은 기존 Gaussian에 recent step의 gradient가
+직접 들어가는 것은 막지만, 그 step이 uniform full-map replay를 대체한다는
+사실은 바꾸지 못한다. 따라서 안정된 전체 map을 유지할 gradient coverage가
+절반으로 줄어든 것이 지배적이다. recent 비중을 더 스캔하지 않고,
+newborn-only recent family는 **5% 평균 무이득 / 50% 강한 실패**로 종료한다.
+strict27 채택 recipe는 recent fraction 0의 freeze800 control을 유지한다.
+
+run은 fixed **26.5736dB**, SSIM/LPIPS 0.84439/0.28881,
+83,920GS, background 5,381 update, 97.2702초(deadline margin 0.3798초),
+tail update 0이었다. depth-anchor 하네스 재산출은 visible
+**15,734/58,055개(27.1019%)**, mean score 0.24532였다. provenance는
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+`fixed_eval_mapping_excluded=true`를 확인했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent050_newbornonly_appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
