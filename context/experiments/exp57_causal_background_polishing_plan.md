@@ -2313,3 +2313,70 @@ MPS 입력 0, 평가용 offset0 supervision 제외, fixed 1.5×, post-stream upd
 - `results/experiments/exp57_dense_trajfiller_offsets14_residual_freeze1050_postviews_start650_late2_pgbacut1120_len1253_strict15x`
 - 실패·판정 제외:
   `results/experiments/exp57_dense_trajfiller_offsets1234_residual_freeze1050_postviews_start650_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — dense-only maturity700, strict 최고 26.396dB
+
+post-freeze offsets1+4의 random pool은 dense RGB 약 459장뿐 아니라 tracked
+keyframe 약 106장도 함께 포함했다. keyframe PSNR은 이미 27dB대이고 frontier
+mapper가 별도로 계속 학습하므로, idle background step만 causal dense RGB에
+집중하는 `--background_polish_dense_only`를 추가했다.
+
+| strict 1.5× | held-out / kf | SSIM / LPIPS | update | GS | online |
+|---|---:|---:|---:|---:|---:|
+| start650 mixed pool | 26.129 / 27.152 | 0.82804 / 0.33335 | 5,576 | 70,510 | 97.309s |
+| start650 **dense-only** | **26.229 / 26.962** | **0.83428 / 0.32526** | 5,446 | 70,343 | 97.309s |
+| dense-only start500 | 26.125 / 26.958 | 0.83063 / 0.32559 | 6,526 | 70,743 | 97.266s |
+| **dense-only start700** | **26.396 / 27.299** | **0.83888 / 0.31609** | 5,112 | 70,320 | 97.290s |
+| dense-only start750 | 26.328 / 27.041 | 0.83396 / 0.33055 | 4,445 | 70,230 | 97.298s |
+| start700 반복 | 26.083 / 27.077 | 0.82774 / 0.32015 | 5,415 | 70,347 | 97.285s |
+
+start500은 update를 1,414회 더 했지만 start700보다 −0.271dB였다. dense replay는
+횟수보다 growing map maturity가 중요하며 start700이 현재 최고 경계다. 다만 동일
+seed여도 wall-time idle scheduler와 candidate 도착 시점이 달라 반복 run은
+26.083dB로 원 run보다 −0.313dB였다. 따라서 **단일 strict 최고는 26.396dB**로
+기록하되 재현 가능한 범위가 26.08~26.40dB임을 숨기지 않는다.
+
+주변 축도 다음과 같이 분리했다.
+
+| start700 계열 | held-out / kf | 판정 |
+|---|---:|---|
+| random, late-iters2 | **26.396 / 27.299** | 채택 |
+| random, late-iters1 | 26.304 / 27.102 | 기각 |
+| round-robin | 22.754 / 23.276 | 강한 기각 |
+| dense camera `full` pose/exposure | 25.452 / 26.274 | 기각 |
+| post-freeze LR 1.25(start650) | 25.894 / 26.754 | 기각 |
+| endpoint confidence 0.25(start650) | 25.800 / 26.966 | 기각 |
+| freeze1000 + post-view(start650) | 25.729 / 27.072 | 기각 |
+
+추가 phase에서 발생한 late CUDA assert도 조사했다. offsets1+2+4 및 1–4를 모두
+trajectory-filler로 처리하면 keyframe 약 89/frame1077 부근에서 device-side
+assert가 재현됐다. filler chunk 16→8, endpoint gate, Gaussian lock 직렬화로도
+해결되지 않아 단순 batch 크기·rasterizer 동시성 가설은 기각했다. optical
+trajectory-filler를 검증된 offsets1+4에만 적용하고 추가 offset은 causal endpoint
+interpolation으로 남기는 `--background_dense_optical_offsets`를 구현하자 끝까지
+안정적으로 완주했다. 그러나 offset2 추가는 25.737dB였다.
+
+추가 interpolation offsets2+3이 geometry를 끌지 않도록
+`--background_untrusted_dense_scope appearance_opacity`와 sampling fraction
+0.2도 구현·검증했다. 안정적으로 913 dense view를 등록했지만 결과는
+25.916/26.700dB로 기각했다. 추가 view는 geometry gradient를 막아도 제한된
+optimizer step의 trusted optical supervision을 희석했다.
+
+현재 채택 recipe는 Gaussian-only, optical offsets1+4, dense-only random,
+start700, late-iters2, freeze1050, post-freeze causal RGB, PGBA cutoff1120이다.
+최고 run과 반복 모두 RGB+IMU-only, MPS 입력 0, evaluator offset0 supervision
+제외, fixed 1.5×, post-stream optimizer update 0을 지켰다. 27dB까지 단일
+최고값 기준 **0.604dB**가 남아 hard carve/pruning은 계속 보류한다.
+
+주요 산출물:
+
+- 채택 최고:
+  `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- 반복:
+  `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_repeat_pgbacut1120_len1253_strict15x`
+- maturity:
+  `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start{500,750}_late2_pgbacut1120_len1253_strict15x`
+- 기각:
+  `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_roundrobin_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
+  `results/experiments/exp57_dense_trajfiller_offsets14_denseonly_full_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
+  `results/experiments/exp57_dense_offsets1234_optical14_untrustedappop020_denseonly_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
