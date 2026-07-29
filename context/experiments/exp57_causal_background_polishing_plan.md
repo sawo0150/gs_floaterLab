@@ -1862,3 +1862,29 @@ update 없는 동일 평가 지표만 저장했다. strict best 24.319dB와 1차
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_trackstride2_smoke600`
+
+## 2026-07-29 추가 — replay 시작 frame400 기각
+
+start300에서 regular frontier `map()` 반복을 7→2로 너무 일찍 줄여 late geometry
+coverage를 잃는지 분리하려고, background replay와 late mapping 전환을 모두
+frame400으로 늦췄다.
+
+| 600 late-iters2 | start300 | **start400** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.859 / 24.679** | 23.993 / 23.795 | −0.866 / −0.884dB |
+| SSIM / LPIPS | - | 0.79004 / 0.47365 | - |
+| background update | **3,284** | 2,159 | −1,125 |
+| final Gaussian | 38,241 | 37,316 | −925 |
+| online wall | 48.276s | 48.298s | +0.022s |
+
+regular 반복을 더 오래 보존한 이득보다 Gaussian-full random replay 1,125회를 잃은
+손해가 훨씬 컸다. 따라서 약 50% 상대 경계인 600의 start300과 full의 start650을
+유지하고, 다음 처리량 실험은 시작점을 바꾸지 않는다.
+
+RGB+IMU-only, MPS 금지, zero-tail을 준수했고 지표-only 평가를 사용했다. strict
+best 24.319dB와 1차 목표 27dB를 유지하며 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start400_late2_smoke600`

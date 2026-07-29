@@ -34,6 +34,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 replay start400 — 600에서 강한 기각)**:
+  start300에서 regular map을 너무 일찍 7→2로 줄였는지 분리하려고 전환점을
+  frame400으로 늦췄다. 2,159 update, 37,316GS, 48.298s로 deadline 경계는
+  지켰지만 **23.993/23.795dB**로 start300의 24.859/24.679보다 held-out
+  **−0.866dB**였다. 현재는 후반 regular 반복 보존보다 Gaussian-full random
+  replay 누적량이 더 중요하므로 50% 상대 경계(start300/600, start650/full)를
+  유지한다. 다음은 같은 시작점에서 batch당 view 수를 늘리는 처리량 축이다.
+  strict best 24.319dB, 1차 목표 27dB와 그 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 tracking stride2 + Gaussian replay — 600에서 기각)**:
   모든 RGB+IMU는 계속 ingest하되 visual tracker만 2-frame마다 실행해 replay 예산을
   늘렸다. 600 start300/late-iters2에서 update는 3,284→3,599였지만 결과는
