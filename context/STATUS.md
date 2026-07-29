@@ -2,6 +2,16 @@
 
 > 마지막 갱신: 2026-07-29. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
+## 현재 1차 목표
+
+**30dB보다 먼저 pure-online strict streaming held-out 27dB를 달성한다.**
+판정 계약은 timestamp 순 Aria RGB photo+IMU only, MPS 후처리 입력 0개,
+fixed 1.5×(length1253 기준 97.65초 이내), 마지막 센서 frame 뒤 optimizer
+update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서도
+완전히 제외한다. 현재 검증 best는 26.069dB로 0.931dB가 남았다.
+27dB 달성·반복 검증 전에는 hard carve/floater pruning을 품질 레버로 섞지
+않으며, carve 검증과 동일 strict 조건의 30dB+는 그 다음 단계로 둔다.
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
