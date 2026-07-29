@@ -3093,3 +3093,26 @@ fixed evaluator mapping exclusion, 97.65초 deadline, tail update 0을 통과했
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — shuffled recent 5%는 late 개선·전체 악화로 기각
+
+코드 감사에서 shuffled epoch가 먼저 `keys`를 만들면 명시한
+`background_postfreeze_recent_fraction` 분기가 실행되지 않는 것을 발견했다.
+recent fraction이 0인 default와 채택 recipe는 그대로 두고, opt-in fraction이
+양수일 때만 shuffled draw를 late non-eval RGB draw로 대체하도록 수정했다.
+
+0ms 채택점에 post-freeze recent 5%만 적용한 strict 결과는 fixed
+**26.4717dB**, SSIM/LPIPS 0.84269/0.29783, 5,247 update, 74,592GS,
+**97.259s**, tail update 0이었다. temporal bins는
+26.527/28.664/28.591/27.006/26.419/23.655/19.696dB다.
+
+0ms uniform 반복과 비교하면 마지막 두 bin은
+23.383→23.655(+0.272), 19.197→19.696dB(+0.499)로 의도대로 개선됐다.
+그러나 전체는 26.764→26.472dB(−0.293)이고 0–999 대부분이 악화했다.
+5%의 작은 편향도 공유 Gaussian의 전역 compositing 균형을 깨므로 recent
+forced-sampling 축을 재차 기각한다. 0ms uniform shuffled recipe와 단일 최고
+26.882dB를 유지하며 hard carve/pruning은 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_recent005_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

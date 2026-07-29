@@ -45,6 +45,13 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 shuffled recent 5% — late 개선, fixed 26.472dB 기각)**:
+  shuffled epoch에서 recent fraction이 무시되던 opt-in 분기 버그를 수정해 0ms
+  채택점에 late non-eval RGB 5%를 적용했다. 마지막 bins는 uniform 반복 대비
+  **23.383→23.655, 19.197→19.696dB**로 올랐지만 0–999 손실이 더 커 fixed
+  전체는 **26.472dB**, 5,247 update, 97.259s, tail 0이었다. 작은 late 편향도
+  공유 Gaussian의 전역 균형을 깨므로 기각하며 0ms uniform best 26.882를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background idle guard 0ms — 26.882/26.764dB, 채택)**:
   1ms 아래의 idle slot도 회수하되 queue-empty/tracking-inactive 조건을 유지해 두
   strict run을 실행했다. fixed 252-view는 **26.882/26.764dB**(평균 26.823),
