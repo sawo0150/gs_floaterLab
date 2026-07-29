@@ -3019,3 +3019,44 @@ carve/pruning은 계속 보류한다.
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — background idle guard 5→1ms, 반복 개선으로 채택
+
+shuffled epoch의 유효 update를 늘리기 위해 background worker가 frontier 작업
+사이에 요구하는 무작업 여유를 config 5ms에서 opt-in 1ms로 낮췄다.
+`--background_polish_idle_guard_ms`를 추가했으며 default −1은 기존 config 값을
+그대로 사용한다. background 전용 seed 0과 shuffled epoch를 포함한 나머지
+strict-disjoint 조건은 동일하게 유지해 두 번 실행했다.
+
+| idle guard 1ms | run 1 | run 2 |
+|---|---:|---:|
+| **fixed 252-view PSNR** | 26.6867 | **26.7520** |
+| fixed SSIM | 0.84523 | **0.84668** |
+| fixed LPIPS | 0.29613 | **0.29610** |
+| background update | **5,335** | 5,166 |
+| GS | 74,709 | 74,734 |
+| online wall | **97.229s** | 97.242s |
+| post-stream update | 0 | 0 |
+
+두 run의 fixed PSNR 평균은 **26.719dB**로 직전 shuffled-epoch 3-run 평균
+26.523dB보다 **+0.196dB**다. 두 run 모두 직전 단일 최고 26.639dB를
+넘었으므로 1ms idle guard를 채택한다. strict-disjoint 단일 최고는
+**26.752dB**로 갱신되며 27dB까지 **0.248dB**가 남았다.
+
+temporal bins는 run 1이
+26.889/28.907/28.552/27.283/27.035/23.640/19.400dB, run 2가
+27.023/28.790/28.847/27.779/26.871/23.329/19.664dB다. 마지막 두 bin은
+여전히 절대 병목이므로 27dB 달성 판정은 하지 않는다. 입력 provenance는
+RGB photo+IMU only, MPS 입력 0개이며 두 run 모두 97.65초 deadline과
+`ONLINE_FINAL_EVAL map_updates=0`을 통과했다.
+
+평가 중 root filesystem 여유가 사라져 첫 시도의 PLY 저장이 2MB에서
+`ENOSPC`로 중단됐다. 불완전한 2MB PLY만 삭제하고 `/dev/shm`에서 동일 실험을
+복구했다. 두 run의 작은 `final_result.json`과 `input_provenance.json`은 아래
+정식 결과 경로에 보존했지만, 유효 PLY는 공간 부족 때문에 정식 경로로 복사하지
+않았다. 품질 판정은 보존된 고정 evaluator의 per-view 지표로 수행했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard1ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard1ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

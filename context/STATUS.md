@@ -45,6 +45,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background idle guard 1ms — 26.687/26.752dB, 채택)**:
+  shuffled dense epoch에서 idle guard를 5→1ms로 낮춰 두 strict run을 실행했다.
+  fixed 252-view는 **26.687/26.752dB**(평균 26.719), update는
+  5,335/5,166회, online wall은 **97.229/97.242s**였고 둘 다 RGB+IMU only,
+  MPS 0, tail update 0 계약을 통과했다. 직전 shuffled 3-run 평균보다
+  +0.196dB이고 두 run 모두 기존 best 26.639를 넘어 채택한다. strict 단일
+  최고를 **26.752dB**로 정정하며 27dB까지 0.248dB가 남았다. 마지막 bins는
+  여전히 23.329/19.664dB 수준이라 hard carve/pruning은 계속 보류한다.
+  root disk `ENOSPC`로 첫 PLY 저장이 중단돼 불완전한 2MB 파일만 삭제했고,
+  `/dev/shm` 복구 결과의 metric/provenance만 정식 결과 경로에 보존했다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 shuffled dense epoch — median 26.528dB, best 26.639dB 채택)**:
   독립 background RNG 위에서 매 causal dense view를 epoch당 한 번 무작위 순서로
   쓰는 sampler를 3회 검증했다. fixed는 **26.402/26.639/26.528dB**,
