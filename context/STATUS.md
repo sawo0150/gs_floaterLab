@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 robust residual historical sampler — 600에서 기각)**:
+  regular mapping에서 이미 계산한 per-view RGBD loss를 EMA로 저장하고, historical
+  global 6-slot 중 절반을 robust-capped high-residual view, 나머지를 uniform
+  random으로 선택했다. 추가 render/backward는 없었다. 결과는
+  **18.364/18.368dB**, 31,338GS, online 48.273s로 paired control보다 held-out
+  **−4.097dB**였다. growing map의 높은 residual은 유익한 supervision보다
+  pose/occlusion 불일치 outlier를 가리켜 hard mining이 geometry를 훼손한다.
+  count-only와 high-residual historical sampler를 모두 종료한다. strict 최고
+  23.982dB, 1차 목표 27dB, MPS 금지/zero-tail 및 27dB 전 hard carve 보류는
+  유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 least-used historical balancing — 600에서 기각)**:
   추가 view-op 없이 regular mapper의 historical keyframe 6개 global slot만 uniform
   random에서 least-used 우선(random tie-break)으로 바꿨다. 하지만 600-frame

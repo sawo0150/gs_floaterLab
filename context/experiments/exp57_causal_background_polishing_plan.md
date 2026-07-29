@@ -1610,3 +1610,31 @@ robust residual/유효성을 직접 반영해야 한다.
 산출물:
 
 - `results/experiments/exp57_balancedglobal_smoke600`
+
+## 2026-07-29 추가 — robust residual historical sampler 기각
+
+count-only balancing이 stale historical gradient를 과대표집했으므로, current-map
+유효성을 직접 쓰는 `--mapping_global_residual_sampling`을 구현했다. 각 view가
+regular RGBD map step에서 이미 낸 loss를 EMA(0.9)로 저장해 별도 render는 하지
+않는다. high-residual score는 median+2×MAD로 cap하고 오래 갱신되지 않은 score는
+감쇠했다. historical global 6-slot 중 50%만 이 score로 hard selection하고 나머지는
+uniform random exploration으로 보존했다. map reset/IMU 재초기화 시 EMA도 비운다.
+
+| 조건 | held-out / kf | GS | online |
+|---|---:|---:|---:|
+| 600 paired control | 22.461 / 22.455 | 34,517 | 48.311s |
+| **robust high-residual 50%** | **18.364 / 18.368** | **31,338** | **48.273s** |
+
+추가 compute 없이도 held-out이 **−4.097dB** 붕괴했다. 현재 growing map에서 큰
+training loss는 “많이 배우면 좋은 view”가 아니라 아직 정합되지 않은 pose,
+occlusion 경계, 새 표면을 포함한 outlier 신호다. robust cap과 uniform 50% 혼합도
+이를 막지 못했다. 따라서 historical slot의 count-only balancing과 high-residual
+hard mining은 모두 종료하며 full run으로 승격하지 않는다.
+
+실행은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했다. strict 최고
+23.982dB와 1차 목표 27dB를 유지하고, 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_residualglobal050_smoke600`
