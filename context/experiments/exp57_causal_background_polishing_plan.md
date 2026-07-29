@@ -3116,3 +3116,37 @@ forced-sampling 축을 재차 기각한다. 0ms uniform shuffled recipe와 단�
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_recent005_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — 0ms 세 번째 반복과 freeze1040 미세 스캔
+
+0ms 단일 최고 26.882dB가 27dB를 반복적으로 넘길 수 있는 분산인지 확인하려고
+동일 recipe를 세 번째 실행했다.
+
+| guard 0ms | run 1 | run 2 | run 3 |
+|---|---:|---:|---:|
+| fixed 252-view PSNR | **26.8821** | 26.7642 | 26.6278 |
+| background update | **5,731** | 5,234 | 5,242 |
+| online wall | 97.233s | 97.252s | **97.227s** |
+| post-stream update | 0 | 0 | 0 |
+
+3-run 평균은 **26.758dB**다. 세 번째 temporal bins는
+26.346/28.747/29.036/27.292/26.791/23.635/19.692dB였다. 따라서 26.882는
+유효한 단일 최고지만 단순 반복만으로 27dB를 달성하는 recipe는 아니다.
+
+기존 freeze 경계 스윕이 1000/1050/1075/1100만 포함했으므로 현재
+disjoint+append-birth+0ms 조건에서 freeze1040도 미세 스캔했다. 결과는 fixed
+**26.4894dB**, SSIM/LPIPS 0.83756/0.30328, 4,639 update, 74,586GS,
+**97.429s**, tail update 0이었다. bins는
+26.644/28.852/28.585/27.217/27.071/22.599/19.714dB로, freeze1050보다
+일찍 regular map을 멈추면 1000–1199 coverage가 손실됐다. freeze1040은
+명확히 기각하고 1050을 유지한다.
+
+두 실행 모두 RGB+IMU only, MPS 0, fixed evaluator 252-view mapping exclusion,
+1.5× deadline, post-stream update 0을 통과했다. root filesystem `ENOSPC` 동안
+`/dev/shm`에서 실행했으며 공간 확보 뒤 metric/provenance를 아래 정식 경로에
+보존했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1040_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

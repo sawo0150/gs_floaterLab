@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 0ms 3회 평균 26.758dB, freeze1040 26.489dB 기각)**:
+  0ms uniform shuffled 세 번째 반복은 fixed **26.628dB**, 5,242 update,
+  **97.227s**, tail 0이었다. 세 run은 26.882/26.764/26.628dB로 평균
+  **26.758dB**이며 단순 반복만으로 27을 넘지는 못했다. freeze 경계 미세 스캔
+  1040은 **26.489dB**, 4,639 update, 97.429s로 1000–1199 coverage를 잃어
+  기각하고 freeze1050을 유지한다. root `ENOSPC` 동안 `/dev/shm`에서 실행한
+  metric/provenance는 공간 확보 뒤 정식 결과 경로에 보존했다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 shuffled recent 5% — late 개선, fixed 26.472dB 기각)**:
   shuffled epoch에서 recent fraction이 무시되던 opt-in 분기 버그를 수정해 0ms
   채택점에 late non-eval RGB 5%를 적용했다. 마지막 bins는 uniform 반복 대비
