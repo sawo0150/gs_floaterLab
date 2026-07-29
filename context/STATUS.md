@@ -34,6 +34,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late appearance+opacity recent50 — 전체 −0.626dB, 기각)**:
+  late recent-view step에만 xyz/scale/rotation을 동결하고 color/SH/opacity를
+  갱신했다. strict-disjoint fixed 252-view는 **25.443dB**, 4,743 update,
+  79,524GS, **97.268s**, tail 0이었다. frame1200–1252는
+  20.334→21.192dB로 +0.857dB 회복했지만 0–199가 −1.928dB,
+  800–1199도 악화됐다. geometry를 막아도 공유 Gaussian의 appearance/compositing
+  충돌로 초기 영역이 무너지므로 newborn-only와 함께 forced-recent sampling
+  계열을 종료한다. 다음은 late view를 편향 표집하지 않고 정상 frontier update에
+  남기되 topology만 고정하는 방식이다. strict best 26.069dB를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 최초 strict-disjoint 기준선 — fixed 252-view 26.069dB)**:
   evaluator의 frame `idx%5==0`+마지막 frame을 Gaussian init·PPM birth·regular/global
   map window·background polish에서 모두 제외하는 mapping-side guard를 구현했다.

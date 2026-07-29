@@ -2669,3 +2669,28 @@ late non-eval RGB의 online depth/birth와 기존 map의 compositing 균형을 �
 산출물:
 
 - `results/experiments/exp57_disjoint_eval5_freeze1050_appendbirths_v2_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late appearance+opacity 전용 recent50 기각
+
+late recent50의 전역 joint gradient가 기존 지도를 망친 원인을 geometry와
+appearance로 분리했다. post-freeze recent step에만 xyz/scale/rotation gradient를
+막고 color/SH/opacity만 갱신하는
+`--background_postfreeze_recent_scope appearance_opacity`를 추가했다. 일반 random
+step은 기존 all-Gaussian joint gradient를 유지했다.
+
+strict-disjoint fixed 252-view 결과는 **25.4427dB**, SSIM/LPIPS
+0.82323/0.35432, 4,743 update, 79,524GS, **97.268s**, tail update 0이었다.
+기준선 26.0686dB보다 **−0.626dB**다. 마지막 frame1200–1252는
+20.334→**21.192dB(+0.857)**로 회복했지만, 0–199는
+26.033→**24.105dB(−1.928)**, 800–999는 −1.325dB,
+1000–1199도 −0.406dB였다.
+
+따라서 late-view 편향의 전역 손상은 geometry gradient가 주원인이 아니다.
+같은 Gaussian의 color/opacity가 여러 시점의 compositing을 공유하므로 appearance만
+허용해도 초기 영역이 무너진다. newborn-only와 appearance+opacity 격리를 모두
+기각하고 recent forced-sampling 계열을 종료한다. 다음은 late view를 편향 표집하지
+않고 정상 frontier joint update에 남기되 topology만 고정하는 방식이다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_recent050_appopacity_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
