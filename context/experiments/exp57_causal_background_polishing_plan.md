@@ -1353,3 +1353,39 @@ reconcile할 수 없다는 뜻이다. 다음 구조는 stable base와 late overl
 - `results/experiments/exp57_freeze899_dense5k{,_nocarve}_strict15x`
 - `results/experiments/exp57_freeze899_random_nocarve_strict15x`
 - `results/experiments/exp57_fullsnapshot_random_jointdelta_{,app_}cap400_smoke600`
+
+## 2026-07-29 추가 — spatial double-buffer reconciliation 기각
+
+stable base를 먼저 random settle하고 late overlay를 계속 성장시킨 뒤, 두 부분을
+최종 공동 렌더 loss로 짧게 reconciliation하는 spatial double-buffer를 구현했다.
+frame 300 snapshot을 frame 500에서 appearance(SH+opacity) residual delta로 합치고
+그 시점에 regular mapping을 freeze한 뒤, base와 late overlay를 함께 렌더하는
+random background settle을 남은 스트림 시간에 수행했다. geometry delta는 late
+coverage를 보존하기 위해 합치지 않았고 carve는 껐다.
+
+600-frame 검증은 paired control **22.461/22.455dB** 대비
+**23.003/25.342dB(+0.542/+2.887)**, 1,295 reconciliation step, 34,918GS,
+online 48.288s로 강한 양성 신호를 보였다. 따라서 같은 구조를 전체 strict
+1.5×에 승격해 snapshot 650, merge/freeze 1040으로 실행했다.
+
+| 조건 | held-out / kf PSNR | reconcile step | GS | online / deadline |
+|---|---:|---:|---:|---:|
+| strict 기존 최고 | **23.982 / 24.402** | - | - | deadline 미달 run |
+| double-buffer 600-frame | **23.003 / 25.342** | 1,295 | 34,918 | 48.288s |
+| **double-buffer full 1,253** | **23.782 / 25.039** | **1,436** | **65,996** | **97.285s / 0.365s 여유** |
+
+full run은 deadline과 zero-tail을 통과했지만 held-out은 기존 strict 최고보다
+**−0.200dB**, 목표보다 −3.218dB였다. 600-frame의 큰 keyframe 이득도 full에서는
+감소했고, merge 이후 213-frame의 늦은 coverage를 appearance-only residual과
+짧은 joint settle만으로 일관되게 흡수하지 못했다. 따라서 이 schedule을 채택하지
+않으며, 짧은 prefix 결과만 보고 전체 품질을 예측할 수 없다는 대조군으로 남긴다.
+
+입력 provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`; 마지막 센서 프레임 뒤 optimizer update는 0회다.
+1차 목표는 계속 **strict streaming held-out 27dB**이며 27dB 전 hard
+carve/floater pruning은 실행하지 않는다. 현재 strict 최고는 **23.982dB**다.
+
+산출물:
+
+- `results/experiments/exp57_doublebuffer_s300_mf500_random_app_smoke600`
+- `results/experiments/exp57_doublebuffer_s650_mf1040_random_app_strict15x`

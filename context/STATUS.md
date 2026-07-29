@@ -33,6 +33,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 spatial double-buffer — 600 양성, full strict 기각)**:
+  stable snapshot을 random settle해 frame500에 appearance residual로 합치고 late
+  overlay와 공동 렌더 reconciliation한 600-frame run은 paired control
+  22.461dB 대비 **23.003dB(+0.542)**, kf +2.887dB였다. 그러나 snapshot650,
+  merge/freeze1040으로 승격한 1,253-frame strict 1.5×는
+  **23.782/25.039dB, 1,436 step, 65,996GS, 97.285s**였다. deadline은
+  0.365초 통과하고 zero-tail/MPS 금지를 지켰지만 strict 최고 23.982보다
+  −0.200dB여서 기각. prefix 이득이 full late coverage로 일반화되지 않았다.
+  1차 목표는 strict held-out 27dB, hard carve는 그 전까지 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 stable-map random settle — 강한 국소 신호, 전체 27dB 미달)**:
   regular RGBD gradient를 보존하고 dense gradient를 parameter-group별 PCGrad+norm
   cap으로 더했지만 600-frame control 22.461dB 대비 최선
