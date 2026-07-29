@@ -34,6 +34,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 PGBA xyz Adam moment 공변 변환 — 600에서 기각)**:
+  PGBA의 `x'=C'+R(x-C)/s`에 맞춰 xyz Adam 1차 moment를 `Rm/s`, diagonal
+  2차 moment를 `R²v/s²`로 변환하는 opt-in을 구현했다. 90도 회전/scale2 synthetic
+  수치검증은 기대값과 일치했고 600 strict도 3,380 update로 정상 완주했다. 그러나
+  Gaussian-full random+late-iters2 기준 **24.677/24.533dB**, 37,411GS,
+  48.286s로 변환 없는 24.859/24.679보다 held-out **−0.182dB**였다. diagonal
+  Adam state로는 회전 후 축간 covariance를 보존하지 못해 full로 승격하지 않는다.
+  strict best 24.099dB와 27dB 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 Gaussian-full random + late-iters2 — deadline-valid 신기록)**:
   fixed-map 27dB의 필수 조건이 all-Gaussian gradient였는데 기존 full 예산 재배분은
   appearance-only만 시험한 누락을 바로잡았다. frame650부터 regular map depth를

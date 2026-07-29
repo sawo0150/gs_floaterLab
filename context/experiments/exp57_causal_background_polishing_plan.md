@@ -1689,3 +1689,32 @@ Gaussian-full gradient를 약화시키는 것이 아니라, late PGBA 직후 남
 
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_strict15x`
+
+## 2026-07-29 추가 — PGBA xyz Adam moment 공변 변환 기각
+
+late PGBA가 Gaussian 좌표를 바꾼 뒤 Adam geometry moment가 이전 좌표계에 남는
+문제를 reset 없이 바로잡기 위해 `--pgba_transform_xyz_adam_moments`를 구현했다.
+PGBA의 local affine transform이 `x'=C'+R(x-C)/s`이므로:
+
+- Adam first moment: `m' = Rm/s`
+- diagonal second moment: `v' = diag(R diag(v) Rᵀ)/s² = R²v/s²`
+
+90도 z-rotation과 scale2 synthetic test에서 `[1,2,3]→[-1,0.5,1.5]`,
+`[1,4,9]→[1,0.25,2.25]` 기대값을 정확히 통과했다.
+
+| 600 Gaussian-full random + late-iters2 | held-out / kf | update | GS | online |
+|---|---:|---:|---:|---:|
+| moment 변환 없음 | **24.859 / 24.679** | 3,284 | 38,241 | 48.276s |
+| **xyz moment 공변 변환** | **24.677 / 24.533** | **3,380** | **37,411** | **48.286s** |
+
+구현과 runtime은 정상이나 held-out이 **−0.182dB**다. Adam이 보존하는 것은 full
+covariance가 아니라 축별 diagonal second moment뿐이라, 일반 3D 회전 후 생기는
+축간 covariance를 정확히 나타낼 수 없다. 앞선 zero-reset도 더 크게 악화됐으므로
+PGBA moment reset/근사 transform 축은 종료하고 full strict로 승격하지 않는다.
+
+strict best는 24.099dB/97.274s로 유지한다. 입력은 RGB+IMU-only, MPS 금지,
+fixed 1.5×, zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_xyzmoment_smoke600`
