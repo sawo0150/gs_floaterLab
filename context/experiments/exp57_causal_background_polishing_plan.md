@@ -2264,3 +2264,52 @@ post-stream optimizer update 0을 지켰다. held-out 27dB까지 **1.565dB**가
 - `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1050_repeat_start650_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1075_start650_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1100_start650_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — post-freeze causal RGB 회수, offsets1+4 strict 26.129dB
+
+freeze1050 성공을 해석하며 코드 경로를 다시 확인한 결과, 직전 절의 “freeze 뒤에도
+late view supervision을 유지한다”는 설명은 부정확했다. 기본 scheduler는 frozen
+map과 같은 coordinate state만 쓰려는 guard로 background `max_frame_idx`를
+1049에 고정했고, 실제로는 frame1050 이후 도착 RGB를 학습하지 않았다.
+
+한편 freeze 뒤 mapping packet은 완전히 버려지는 것이 아니라 `frozen_pose_only`로
+PGBA의 pose/scale transform을 기존 Gaussian과 camera에 계속 적용한다. 따라서
+post-freeze RGB도 현재 좌표계에서 causal하게 사용할 수 있다. 이를 명시적 opt-in
+`--background_polish_allow_postfreeze_views`로 구현했다. 플래그가 없으면 기존
+guard와 결과가 그대로 유지된다. 플래그가 있어도 아직 도착하지 않은 frame,
+MPS pose/depth/point cloud, 종료 뒤 optimizer tail은 사용하지 않는다.
+
+| freeze1050 strict 1.5× | pre-freeze offset4 | post-freeze offset4 | **post-freeze offsets1+4** |
+|---|---:|---:|---:|
+| held-out PSNR | 25.435 | 25.616 | **26.129** |
+| keyframe PSNR | **27.548** | 27.019 | 27.152 |
+| SSIM | 0.80113 | 0.81326 | **0.82804** |
+| LPIPS | 0.34930 | 0.35349 | **0.33335** |
+| background update | 5,748 | **5,720** | 5,576 |
+| final Gaussian | 68,970 | 69,146 | 70,510 |
+| online wall | **97.283s** | 97.258s | 97.309s |
+| deadline margin | 0.367s | **0.392s** | 0.341s |
+
+post-freeze offset4만으로 held-out +0.181dB를 얻었다. 더 중요한 변화는 offsets1+4다.
+growing-map 600-frame 실험에서는 두 optical phase 혼합이 단일 offset4보다
+−1.514dB였지만, topology를 1050에서 고정하고 post-freeze RGB까지 받는 현재
+조건에서는 단일 offset4보다 **+0.513dB** 높았다. 충분한 geometry를 먼저 만든 뒤
+topology 변화를 멈추면 추가 phase의 view-direction coverage가 pose-gradient
+충돌보다 커지는 구간이 존재한다.
+
+offsets1–4 전체도 동일 조건으로 실행했으나 frame1077 부근 background render에서
+CUDA device-side assert가 발생했다. 평가까지 완주하지 못했으므로 PSNR 성공으로
+간주하지 않고 판정 제외한다. 프로세스 종료 뒤 `nvidia-smi`에서 별도 GPU
+프로세스가 없고 장치 상태가 정상임을 확인했다.
+
+새 strict best는 held-out **26.129dB**, keyframe 27.152dB다. RGB+IMU-only,
+MPS 입력 0, 평가용 offset0 supervision 제외, fixed 1.5×, post-stream update
+0회를 모두 지켰다. 27dB까지 **0.871dB**가 남았으므로 hard carve/pruning은
+아직 실행하지 않는다.
+
+산출물:
+
+- `results/experiments/exp57_dense_trajfiller_offset4_residual_freeze1050_postviews_start650_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dense_trajfiller_offsets14_residual_freeze1050_postviews_start650_late2_pgbacut1120_len1253_strict15x`
+- 실패·판정 제외:
+  `results/experiments/exp57_dense_trajfiller_offsets1234_residual_freeze1050_postviews_start650_late2_pgbacut1120_len1253_strict15x`
