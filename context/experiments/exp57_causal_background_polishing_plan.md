@@ -2565,3 +2565,55 @@ post-stream optimizer update 0을 지켰다. final keyframe 한 장은 마지막
 
 - `results/experiments/exp57_freeze1050_appendbirths_forcefinalkf_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_freeze1050_appendbirths_forcefinalkf_repeat_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 정정 — force-final 신기록은 held-out 누수로 판정 제외
+
+직전 절을 평가 계약 관점에서 다시 감사한 결과, evaluator는 `idx%5==0`뿐 아니라
+마지막 frame도 항상 평가한다. `--force_final_keyframe`은 바로 그 마지막 RGB를
+Gaussian supervision/PPM birth에 사용했다. 따라서 26.426/26.321dB run은
+RGB+IMU-only, 1.5×, zero-tail이라는 실행 계약은 지켰지만 **평가 이미지를 직접
+학습했으므로 held-out 품질 기록으로는 무효**다. strict best를 26.396dB로
+되돌리고 force-final 두 run을 판정 제외한다.
+
+평가 프레임과 겹치지 않는 offset2의 1102/1152/1202만 강제 keyframe으로 만든
+대체 run도 실행했다. legacy union mean은 **26.195dB**, fixed offset0 252-view
+mean은 **26.317dB**, keyframe 26.043dB, 5,012 update, 92,128GS,
+**97.378s**였다. 일부 forced keyframe은 frontend redundancy 제거로 남지 않았고,
+품질도 append-only보다 낮아 기각한다.
+
+### evaluator 지표 정의 추가 정정
+
+`eval_rendering()`의 기존 `mean_psnr`은 고정 평가 frame뿐 아니라 모든 tracked
+keyframe을 union으로 포함한다. 별도 `mean_psnr_kf`를 출력하면서도 union 값을
+문서에서 “held-out”이라고 부른 것은 엄밀하지 않았다. 앞으로 JSON에 다음을
+추가한다.
+
+- `fixed_eval_mean_{psnr,ssim,lpips}`: frame `idx%5==0` + 마지막 frame,
+  항상 동일한 252장
+- `fixed_eval_keyframe_overlap_count`: 그 252장 중 tracker keyframe과 겹쳐
+  Gaussian supervision에 들어갈 가능성이 있는 수
+- per-view `is_fixed_eval_view`
+
+기존 결과의 legacy union 값은 비교 연속성을 위해 보존하되, 진짜 held-out 성공
+주장은 fixed evaluator frame을 Gaussian mapping supervision에서도 완전히 제외한
+run으로만 한다. 현재 최신 run에서는 fixed 252장 중 keyframe overlap이 26장이라,
+새 guard가 구현되기 전 수치는 **strict-disjoint held-out 증거가 아니다**.
+
+## 2026-07-29 추가 — recent newborn-only gradient도 강한 기각
+
+late RGB 강제 표집이 기존 지도를 직접 끌어 망치는 문제를 막기 위해, recent50
+step에서는 `unique_kfIDs>=1050`인 append-only 신규 Gaussian만 별도 Adam으로
+갱신했다. 나머지 uniform step은 기존처럼 전체 map을 학습했다.
+
+결과는 legacy union **24.516/24.387dB**, fixed offset0 **24.612dB**,
+SSIM 0.81305, LPIPS 0.36609, 4,777 update, 91,813GS, **97.272s**였다.
+기존 Gaussian의 gradient/momentum을 막아도 신규 Gaussian 자체의 opacity와
+geometry가 기존 표면 앞을 가려 0–999 구간까지 무너졌다. 따라서 row-wise gradient
+격리만으로 visibility/compositing 충돌을 해결할 수 없으며 이 축을 종료한다.
+
+산출물:
+
+- non-evaluator forced keyframes:
+  `results/experiments/exp57_freeze1050_appendbirths_forcekf1102_1152_1202_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- newborn-only recent:
+  `results/experiments/exp57_freeze1050_appendbirths_recent050_newbornonly_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
