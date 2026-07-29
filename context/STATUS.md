@@ -51,6 +51,13 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late-iters3 freeze1060 — 26.720dB, 경계 스캔 종료)**:
+  freeze1050보다 regular mapping을 10 frame 더 허용했지만 fixed는
+  **26.7204dB**, background 4,747 update, 77,007GS였다. 마지막 bins도
+  23.415/19.850dB로 회복되지 않았다. **97.203s/tail0/RGB+IMU only/MPS0**
+  계약은 통과했다. freeze1040/1060 양쪽 이동이 모두 실패했으므로 1050을
+  유지하고 boundary 스캔을 종료한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 causal feedback target6500 — low13/high25, 26.807dB 기각)**:
   target6500은 causal controller가 low 13회/high 25회로 실제 전환했고
   5,310 background update를 확보했지만 fixed는 **26.8067dB**였다.

@@ -3346,3 +3346,25 @@ RGB+IMU only, MPS 입력 0개, fixed evaluator 252-view mapping exclusion,
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_lateadaptive6500_iters2or3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late-iters3 freeze1060은 26.720dB, 기각
+
+가장 강했던 static late-iters3에서 후반 regular mapping을 10 frame 더 허용해
+coverage를 보존할 수 있는지 확인했다. freeze 경계만 1050→1060으로 옮기고
+나머지 strict recipe는 고정했다.
+
+fixed 252-view 결과는 **26.7204dB**, SSIM/LPIPS
+**0.84850/0.29734**, background update 4,747회, 77,007GS였다.
+temporal bins는
+26.670/28.839/28.958/27.498/27.004/23.415/19.850dB다.
+
+online wall은 **97.2034s/97.65s**, post-stream update는 0회였고,
+RGB photo+IMU only/MPS 0/fixed evaluator mapping exclusion 계약도 모두
+통과했다. 그러나 freeze1050 late-iters3 3-run 평균 26.8419dB보다
+−0.122dB이고 단일 최고 27.0039dB에도 못 미친다. 마지막 두 bin도 유의하게
+회복되지 않아 freeze1060을 기각하고 1050을 유지한다. freeze1040/1060 양쪽
+미세 이동이 모두 실패했으므로 freeze boundary 스캔은 종료한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1060_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
