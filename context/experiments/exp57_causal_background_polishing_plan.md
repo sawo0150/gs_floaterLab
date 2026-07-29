@@ -3973,3 +3973,43 @@ exclusion을 확인했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_late1000birthrefine1appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — recent5% newborn-only 첫 양성 미재현, 기각
+
+전체 map recent replay가 과거 Gaussian을 망친 문제를 피하려고 기존 opt-in
+`background_postfreeze_recent_newborn_only`를 freeze800에서 처음 검증했다.
+background step의 5%를 post-freeze recent dense non-eval RGB로 강제하고,
+그 step의 appearance+opacity gradient는 `unique_kfIDs>=800`인 post-freeze
+Gaussian 행에만 별도 Adam으로 적용했다. 나머지 95% shuffled step은 기존
+uniform full-map Gaussian polish다. provenance에 newborn-only 사용 여부도
+명시하도록 보완했다.
+
+| strict fixed 252-view | run 1 | run 2 | 2-run 평균 | freeze800 평균 대비 |
+|---|---:|---:|---:|---:|
+| PSNR | **27.9030** | 27.7545 | 27.8288 | −0.0177dB |
+| SSIM | **0.86265** | 0.86131 | 0.86198 | +0.00209 |
+| LPIPS | **0.25648** | 0.25750 | 0.25699 | +0.00259(악화) |
+| background update | 5,722 | 5,720 | 5,721 | −222 |
+| Gaussian | 83,978 | 84,182 | 84,080 | +182 |
+| online wall | 97.2343s | 97.2359s | 97.2351s | 통과 |
+| post-stream update | 0 | 0 | 0 | 통과 |
+
+| floater proxy | run 1 | run 2 | 평균 | freeze800 평균 대비 |
+|---|---:|---:|---:|---:|
+| visible floater | **15,126** | 15,786 | 15,456 | +43.5 |
+| visible floater 비율 | **26.136%** | 27.362% | 26.749% | −0.134%p |
+| mean score | **0.2420** | 0.2457 | 0.2439 | +0.0011 |
+
+첫 run은 단일 최고 27.9030dB와 floater 감소를 보였지만 반복에서
+0.1485dB가 흔들렸고, 두-run 평균은 채택 control보다 낮았다. floater 절대
+수와 mean score도 평균상 악화했다. row masking은 과거 전체 map을 직접
+갱신하는 recent replay보다 개입을 좁혔지만, strict30을 향한 안정적 이득은
+아니다.
+
+두 run 모두 RGB+IMU only, `mps_inputs=[]`, fixed evaluator mapping
+exclusion, fixed 1.5×, 97.65초 deadline, tail update 0을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent005_newbornonly_appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent005_newbornonly_appopacity_anchor_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

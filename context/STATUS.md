@@ -73,6 +73,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 recent5% newborn-only — 첫 양성 미재현, 기각)**:
+  forced recent dense step의 appearance+opacity gradient를 freeze 이후 태어난
+  Gaussian 행에만 별도 Adam으로 적용했다. 첫 run은 **27.9030dB**와 floater
+  15,126개로 양성이었지만 반복은 **27.7545dB/15,786개**였다. 평균
+  **27.8288dB**는 freeze800 평균보다 −0.0177dB, floater 평균 15,456개는
+  +43.5개다. 97.234/97.236s, tail0, MPS0는 통과했지만 안정적 이득이 없어
+  기각한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late1000 newborn appearance 정착 — 전체 무이득 기각)**:
   frame1000 이후 PPM newborn 행만 appearance+opacity 1-step으로 자기 RGB에
   정착시켰다. fixed는 **27.8391dB**로 freeze800 평균 대비 −0.0074dB,
