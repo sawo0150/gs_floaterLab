@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late-iters3 — 최초 27.004dB, 반복 26.949dB)**:
+  frame650 이후 frontier mapping 반복을 2→3으로 늘려 fixed
+  **27.0039/26.9492dB**(평균 26.9765)를 얻었다. late-iters2 3-run 평균보다
+  +0.219dB이고 두 run 차이도 0.055dB라 품질 효과는 재현됐다. 둘 다 5,161
+  background update, **97.234/97.254s**, tail 0, RGB+IMU only/MPS 0 계약을
+  통과했다. 최초 27 초과는 유효하지만 반복 run이 27 미만이라 1차 목표 달성을
+  아직 확정하지 않고 late-iters4를 검증한다. hard carve/pruning도 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background SSIM interval2 — fixed 26.703dB 기각)**:
   background에서 SSIM을 매 2번째 step에만 계산했지만 update는 5,253회로
   0ms 기존 범위에서 늘지 않았고 fixed는 **26.703dB**, SSIM/LPIPS는

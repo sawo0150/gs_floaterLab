@@ -3174,3 +3174,40 @@ post-stream update 0 계약은 통과했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_ssimint2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late mapping iters3, 최초 27.004dB·반복 26.949dB
+
+기존 start700 계열에서 late-iters1→2가 +0.092dB였으므로 0ms 채택점의
+frame650 이후 frontier mapping 반복을 2→3으로 늘렸다. evaluator exclusion,
+background sampler와 freeze1050 이후 동작은 동일하다.
+
+| late-iters3 | run 1 | run 2 |
+|---|---:|---:|
+| **fixed 252-view PSNR** | **27.0039** | 26.9492 |
+| fixed SSIM | **0.84831** | 0.84767 |
+| fixed LPIPS | **0.28807** | 0.29056 |
+| background update | 5,161 | 5,161 |
+| GS | 77,189 | 77,925 |
+| online wall | 97.234s | 97.254s |
+| post-stream update | 0 | 0 |
+
+run 1은 strict-disjoint fixed evaluator에서 **처음 27dB를 넘었다**. run 2는
+26.949dB로 근접했고 두-run 평균은 **26.9765dB**, 차이는 0.0547dB다.
+late-iters2 3-run 평균 26.758dB보다 +0.219dB라 frontier 반복 증가의 품질
+효과는 강하고 재현됐다. 그러나 두 번째 run이 27 미만이므로 “반복 검증된
+27dB 달성”으로는 아직 판정하지 않는다.
+
+temporal bins는 run 1이
+26.825/29.419/29.553/27.900/27.305/23.157/19.880dB, run 2가
+26.995/29.416/29.154/27.747/27.380/23.076/20.044dB다. 전반·중반 geometry
+품질 상승이 전체 27 근접을 만들었고, 마지막 253-frame coverage 병목은 남았다.
+
+두 run 모두 RGB+IMU only, MPS 0, fixed 252-view mapping exclusion,
+97.65초 deadline, tail update 0을 통과했다. late-iters3를 새 잠정 채택점으로
+올리고, 다음은 4회 반복이 background replay를 지나치게 줄이지 않으면서 남은
+0.051dB 반복 갭을 메우는지 확인한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
