@@ -3521,3 +3521,34 @@ RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping exclusion,
 산출물:
 
 - `results/experiments/exp57_disjoint_imuquant005_window8_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — window8 scale-bin 대조 26.703dB, 축 종료
+
+첫 window8 run의 applied scale 1.035 교란을 제거하려고 quantum을
+0.005→0.01로 넓혔다. 이번 raw scale 1.039949는 의도대로 **1.040**에
+causal 반올림됐으며, window8 이외의 recipe는 그대로 유지했다.
+
+| 항목 | window8 + quantum0.01 |
+|---|---:|
+| raw / applied IMU scale | 1.039949 / **1.040** |
+| **fixed 252-view PSNR** | **26.7031dB** |
+| fixed SSIM / LPIPS | 0.84721 / 0.29735 |
+| background update | 4,961 |
+| GS | 75,174 |
+| online wall | **97.2607s** |
+| post-stream update | **0** |
+
+fixed temporal bins는 26.955/28.692/28.920/27.359/26.859/23.554/
+19.634dB다. 결과는 window8+scale1.035의 26.8454보다 −0.142dB이며,
+window10+quantum0.005 세-run 평균 26.7314보다도 −0.028dB다. 따라서
+첫 window8 상승은 안정된 window 효과가 아니다. window8과 quantum0.01을
+모두 채택하지 않고 frontier window 축을 종료하며 기본 window10/
+quantum0을 유지한다.
+
+RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping exclusion,
+97.65초 deadline, 마지막 sensor frame 뒤 optimizer update 0 계약은 모두
+통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_imuquant01_window8_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

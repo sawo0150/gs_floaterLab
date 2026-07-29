@@ -51,6 +51,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 window8 scale-bin 대조 — 26.703dB, 축 종료)**:
+  첫 window8의 scale1.035 교란을 제거하려 quantum0.01을 써 raw
+  1.03995→**1.040**을 적용했지만 fixed는 **26.7031dB**였다.
+  첫 run보다 −0.142dB이고 window10 quant 평균보다도 낮다.
+  **97.261s/tail0/RGB+IMU only/MPS0** 계약은 통과했다. window8의
+  26.845는 안정된 인과 이득이 아니므로 window8·quantum0.01을 기각하고
+  frontier window 축을 종료한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 frontier window8 — fixed 26.845dB, 유망하지만 미채택)**:
   window 10→8로 frontier gradient 집중을 시도해 background 5,023 update,
   fixed **26.8454dB**를 얻었다. quantized-window10 평균보다 +0.114dB이나
