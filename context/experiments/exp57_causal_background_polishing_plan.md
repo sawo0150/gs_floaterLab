@@ -1836,3 +1836,29 @@ RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했다. strict best
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_pgbacut1070_strict15x`
+
+## 2026-07-29 추가 — tracking stride2 replay 재투자 기각
+
+late 구간에서 tracking이 연속 active라 background idle 기회가 부족한 문제를 직접
+겨냥했다. RGB와 IMU는 모두 timestamp 순으로 ingest하면서 visual tracker만 매
+2번째 RGB에서 실행하고, 비워진 GPU 시간을 Gaussian-full random replay에 넘겼다.
+
+| 600 start300 + late-iters2 | tracking stride1 | **stride2** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.859 / 24.679** | 24.525 / 24.281 | −0.334 / −0.398dB |
+| SSIM / LPIPS | - | 0.79492 / 0.47243 | - |
+| background update | 3,284 | **3,599** | +315 |
+| final Gaussian | 38,241 | 38,940 | +699 |
+| online wall | **48.276s** | 48.537s | +0.261s |
+
+추가 replay는 실제로 생겼지만 tracker 표본 감소에 따른 pose/geometry supervision
+손실이 더 컸고, queue drain까지 포함한 online wall도 개선되지 않았다. 따라서
+full strict로 승격하지 않고 `tracking_stride=1`을 유지한다.
+
+RGB+IMU-only, MPS 금지, zero-tail을 준수했고 `--eval_metrics_only`로 optimizer
+update 없는 동일 평가 지표만 저장했다. strict best 24.319dB와 1차 목표 27dB를
+유지하며, 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_trackstride2_smoke600`

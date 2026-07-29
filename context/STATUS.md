@@ -34,6 +34,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 tracking stride2 + Gaussian replay — 600에서 기각)**:
+  모든 RGB+IMU는 계속 ingest하되 visual tracker만 2-frame마다 실행해 replay 예산을
+  늘렸다. 600 start300/late-iters2에서 update는 3,284→3,599였지만 결과는
+  **24.525/24.281dB**, 38,940GS, 48.537s로 stride1의 24.859/24.679dB,
+  48.276s보다 품질과 시간 모두 악화됐다. pose/geometry supervision 손실이 추가
+  315 update 이득보다 커 full로 승격하지 않는다. tracking_stride1과 strict best
+  24.319dB를 유지하고, 다음은 tracker를 약화하지 않는 frontier/replay 시작 경계다.
+  1차 목표 27dB와 그 전 hard carve 보류도 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 PGBA cutoff1070 — 과도한 억제로 기각)**:
   cutoff1120이 마지막 frame1184 PGBA만 막아 +0.220dB였으므로, 1077·1119·1184
   세 late PGBA를 모두 막아 안정 구간을 늘렸다. update는 5,087→6,489로 늘고
