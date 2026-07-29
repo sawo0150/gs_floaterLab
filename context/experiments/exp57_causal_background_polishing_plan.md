@@ -2976,3 +2976,46 @@ PSNR 평균은 약 26.428dB로 기존 paired control 최고 26.450과 같고 27d
 
 - `results/experiments/exp57_disjoint_backgroundrng0_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — shuffled-uniform dense epoch, median 개선·새 best로 채택
+
+독립 uniform random은 4.7k step에서 각 view 방문 횟수에 중복/누락 분산이 남는다.
+시간순 round-robin은 앞서 연속 frame gradient 때문에 22.754dB로 붕괴했다.
+두 문제를 피하도록 opt-in `--background_polish_shuffle_epoch`를 구현했다.
+
+- 현재 도착해 사용 가능한 dense view를 독립 RNG로 섞는다.
+- 한 epoch에서 각 view를 정확히 한 번 사용한다.
+- epoch 도중 새 view가 도착하면 남은 queue에 즉시 추가한 뒤 다시 섞는다.
+- 시간순 인접성은 만들지 않고, evaluator view exclusion과 causal horizon은 유지한다.
+- default off이므로 기존 sampler 동작은 바뀌지 않는다.
+
+seed 0, 나머지 strict recipe 동일 조건으로 3회 실행했다.
+
+| shuffled epoch | run 1 | run 2 | run 3 |
+|---|---:|---:|---:|
+| fixed PSNR | 26.4022 | **26.6389** | 26.5279 |
+| fixed SSIM | 0.84442 | 0.84519 | **0.84559** |
+| fixed LPIPS | 0.29930 | **0.29707** | 0.29809 |
+| background update | 4,713 | 4,949 | 4,838 |
+| GS | 75,089 | 74,909 | 74,780 |
+| online wall | 97.275s | **97.240s** | 97.251s |
+
+fixed PSNR median/mean은 **26.528/26.523dB**로 independent RNG 두-run 평균
+26.428dB보다 **+0.095dB**다. 3회 중 2회가 independent 최고 26.441dB를
+넘었고, 최저 run도 −0.039dB에 그쳤다. run 2는 기존 비채택 birth2× 숫자
+26.535dB도 넘어 새 strict-disjoint 단일 최고 **26.639dB**다.
+
+세 run 모두 RGB+IMU only, MPS 0, fixed evaluator 252-view mapping exclusion,
+1.5× deadline, post-stream update 0을 통과했다. run 2의 temporal bins는
+26.616/28.833/28.991/27.618/26.709/23.102/19.854dB이고, run 3은
+26.776/28.332/28.998/27.132/26.753/23.313/19.404dB다.
+
+따라서 shuffled epoch를 새 recipe로 채택한다. 단 27dB에는 median 기준
+0.472dB, 단일 best 기준 0.361dB가 남았으므로 성공 판정은 아니며 hard
+carve/pruning은 계속 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

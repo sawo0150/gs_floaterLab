@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 shuffled dense epoch — median 26.528dB, best 26.639dB 채택)**:
+  독립 background RNG 위에서 매 causal dense view를 epoch당 한 번 무작위 순서로
+  쓰는 sampler를 3회 검증했다. fixed는 **26.402/26.639/26.528dB**,
+  median/mean **26.528/26.523dB**로 independent RNG 평균 26.428보다 +0.095dB다.
+  모두 97.65s/tail0 계약을 통과했고 3회 중 2회가 independent 최고를 넘었다.
+  shuffled epoch를 채택하며 strict-disjoint 단일 최고를 **26.639dB**로 정정한다.
+  27dB까지 0.361dB이고 hard carve/pruning은 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background 전용 RNG — fixed 26.414/26.441dB, 안정화 채택)**:
   background worker와 frontier mapper가 전역 Python RNG를 thread-race로 공유하던
   원인을 분리하고 `background_polish_seed=0` 전용 난수열을 사용했다. 두 strict
