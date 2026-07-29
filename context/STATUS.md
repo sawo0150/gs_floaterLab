@@ -45,6 +45,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 newborn appearance+opacity 1-step — fixed 26.421dB, 기각)**:
+  freeze 뒤 exact newborn의 geometry는 고정하고 RGBD birth view에서 color/SH/opacity만
+  1회 정착시켰다. strict-disjoint fixed 결과는 **26.421dB**, SSIM/LPIPS
+  0.84076/0.30292, 4,719 update, 74,991GS, **97.286s**, tail 0이었다.
+  paired refine=0 control보다 전체 −0.029dB이며, 직접 영향 52-view 평균도
+  **−0.132dB**였다(1000–1199 −0.299dB, 1200–1252 +0.423dB).
+  마지막 12장만 좋아지고 전체 후반 coverage는 개선되지 않았으므로 기각한다.
+  newborn RGBD 보정과 birth 밀도 축을 모두 종료하고, 1×/refine=0 recipe를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 PPM birth 2× — fixed 26.535dB, late 인과 기각)**:
   freeze 뒤 PPM 표본만 2배로 늘렸다. fixed는 **26.535dB**, LPIPS 0.28891,
   4,975 update, 89,337GS, **97.250s**, tail 0으로 숫자상 신기록이다. 그러나

@@ -2856,3 +2856,32 @@ appearance/opacity만 birth RGBD에서 정착시키는 좁은 ablation이다.
 산출물:
 
 - `results/experiments/exp57_disjoint_birth2x_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — newborn appearance+opacity 1-step도 paired control보다 낮아 기각
+
+full newborn RGBD refine에서 geometry까지 움직인 것이 실패 원인인지 분리하기 위해
+`mapping_freeze_birth_refine_scope=appearance_opacity`를 추가했다. freeze 뒤
+append된 exact newborn row만 fresh Adam으로 1회 갱신하되 xyz/scale/rotation은
+고정하고 color/SH/opacity만 자신을 만든 RGBD keyframe에 정착시켰다. 기능은
+opt-in이며 default refine=0 동작은 바뀌지 않는다.
+
+strict-disjoint fixed 252-view 결과는 **26.4212dB**, SSIM/LPIPS
+0.84076/0.30292, 4,719 background update, 74,991GS, **97.286s**, tail
+update 0이었다. RGB photo+IMU only, MPS 입력 0, fixed-eval mapping exclusion도
+모두 provenance로 확인했다.
+
+구간별 fixed PSNR은
+26.831/28.448/28.794/27.044/26.499/**22.975/19.547dB**다. paired
+refine=0 control 대비 전체는 **−0.029dB**이고, 직접 영향을 받는 마지막
+52-view 가중 평균도 **−0.132dB**다. 세부적으로 1000–1199는 −0.299dB,
+마지막 1200–1252의 12장만 +0.423dB였다. 끝 12장 개선은 확인했지만 전체 후반
+coverage 손실을 상쇄하지 못하므로 채택하지 않는다.
+
+따라서 newborn RGBD 보정은 full Gaussian과 appearance/opacity 두 범위 모두
+종료하고, post-freeze birth 밀도 2×도 앞서 기각했으므로 기존
+1×/refine=0 recipe를 유지한다. 계약상 유효한 단일 최고는 26.535dB지만
+개입 인과 best는 26.450dB control이며, strict 27dB 판정은 반복 재현을 요구한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_birthrefine1_appopacity_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
