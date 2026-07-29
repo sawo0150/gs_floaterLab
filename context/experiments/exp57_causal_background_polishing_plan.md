@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.099dB (2026-07-29)**
+- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.319dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -1767,3 +1767,40 @@ zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
 산출물:
 
 - `results/experiments/exp57_postpgba1188_gaussian_late1_strict15x`
+
+## 2026-07-29 추가 — late global PGBA cutoff1120, strict 신기록
+
+마지막 PGBA가 이미 누적된 Gaussian-full random replay의 좌표계와 optimizer 상태를
+종료 직전 다시 흔드는 효과를 직접 분리했다. `--pgba_disable_after_frame 1120`을
+추가해 frame1120 이전 online PGBA는 그대로 허용하고, 이후 global PGBA만 억제했다.
+local frontend BA와 tracking은 끝까지 계속 실행했으며 pose/depth 외부 입력은 쓰지
+않았다.
+
+| full strict 1.5× | 기존 late-iters2 | **PGBA cutoff1120** | 변화 |
+|---|---:|---:|---:|
+| held-out PSNR | 24.099 | **24.319** | **+0.220dB** |
+| keyframe PSNR | 24.202 | **24.385** | **+0.183dB** |
+| SSIM / LPIPS | 0.77781 / 0.45834 | **0.78868 / 0.44374** | 둘 다 개선 |
+| background update | 4,730 | **5,087** | +357 |
+| final Gaussian | 67,759 | **66,784** | −975 |
+| online wall | 97.274s | **97.264s** | −0.010s |
+| deadline margin | 0.376s | **0.386s** | 통과 |
+
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+`post_stream_refinement=false`이고 마지막 sensor frame 뒤 optimizer update는
+0회다. 따라서 새 deadline-valid strict best로 채택한다. 이는 PGBA 전체가 해롭다는
+결론이 아니라, 현재 스케줄에서 **마지막 global 좌표계 변경 뒤 재수렴할 입력 시간이
+부족하다**는 결과다.
+
+평가의 PSNR/SSIM/LPIPS 계산은 완료됐지만, 이후 render PNG와 `intrinsics.npy`를
+저장하던 중 디스크가 가득 차 프로세스가 exit 1로 끝났다. PLY, trajectory,
+config, input provenance와 stdout 지표는 보존됐고, 해당 부가 artifact는 부분
+저장으로 간주한다. 재현 가능한 탈락 실험의 render PNG 407MB만 정리했으며 원본
+데이터와 체크포인트는 삭제하지 않았다.
+
+27dB까지는 2.681dB가 남았다. 1차 목표는 계속 strict held-out 27dB이며, 달성 전
+hard carve/floater pruning은 품질 레버로 섞지 않는다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_pgbacut1120_strict15x`
