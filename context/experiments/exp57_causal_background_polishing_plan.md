@@ -3318,3 +3318,31 @@ RGB+IMU only, MPS 0, evaluator exclusion, deadline/tail0 계약을 통과했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_lateadaptive5100_iters2or3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — causal feedback target6500도 26.807dB, feedback 축 종료
+
+target5100이 `low`를 한 번도 고르지 못한 문제를 바로잡기 위해 최종
+background 목표를 6,500회로 높였다. 이번에는 현재 frame/완료 step만 사용하는
+동일 causal controller가 `adaptive_low=13`, `adaptive_high=25`를 선택해 실제로
+iters2/3을 전환했다.
+
+fixed 결과는 **26.8067dB**, SSIM/LPIPS **0.84511/0.29015**,
+5,310 background update, 77,468GS, **97.265s**, tail update 0이었다.
+bins는 26.953/29.190/29.257/27.537/27.081/22.959/19.685dB다.
+
+target5100의 26.7996dB보다 +0.007dB에 불과하고, static late3의 유효 단일 최고
+27.0039dB나 두 번째 26.9492dB에는 못 미쳤다. controller는 replay step 수를
+목표 주변으로 제어할 수 있었지만, 동일한 처리량만으로 map topology와 gradient
+품질의 run-to-run 변동을 해결하지는 못했다. 따라서 target5100/6500 feedback
+스캔을 종료하고 target6500도 기각한다.
+
+현재 1차 목표는 30dB가 아니라 **RGB photo+IMU only strict streaming에서
+held-out 27dB를 반복 달성**하는 것이다. hard carve/pruning과 strict 30dB는
+27dB 반복 검증 뒤로 유지한다.
+
+RGB+IMU only, MPS 입력 0개, fixed evaluator 252-view mapping exclusion,
+97.65초 deadline, post-stream update 0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_lateadaptive6500_iters2or3_pgbacut1120_len1253_strict15x`

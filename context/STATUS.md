@@ -13,6 +13,12 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 27dB 달성·반복 검증 전에는 hard carve/floater pruning을 품질 레버로 섞지
 않으며, carve 검증과 동일 strict 조건의 30dB+는 그 다음 단계로 둔다.
 
+> **2026-07-29 최신 목표 판정 정정:** 아래 과거 Best 표의 26.535dB는
+> 최신값이 아니다. strict-disjoint 단일 최고는 late-iters3의
+> **27.0039dB**이나 3회 중 1회만 27을 넘었고 평균은 **26.8419dB**라,
+> 현재 목표는 **strict 27dB 반복 달성** 상태다. adaptive6500도
+> 26.8067dB로 기각했다. MPS 후처리 입력은 계속 0개이며 30dB·carve는 후순위다.
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
@@ -45,6 +51,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 causal feedback target6500 — low13/high25, 26.807dB 기각)**:
+  target6500은 causal controller가 low 13회/high 25회로 실제 전환했고
+  5,310 background update를 확보했지만 fixed는 **26.8067dB**였다.
+  **97.265s/tail0/RGB+IMU only/MPS0** 계약은 통과했다. 처리량 feedback은
+  작동했으나 map topology·gradient 품질 변동을 해결하지 못해 feedback 축을
+  종료한다. 1차 목표는 30dB가 아니라 strict 27dB 반복 달성으로 유지하고,
+  hard carve/pruning은 그 뒤로 둔다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 causal feedback target5100 — low0/high38, 26.800dB)**:
   frame 진행률 대비 replay step 목표로 iters2/3을 고르는 feedback을 구현했다.
   target5100은 mapping 종료 시 목표선이 너무 낮아 low 선택 0회/high 38회로
