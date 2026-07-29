@@ -2794,3 +2794,38 @@ hard carve/pruning은 계속 보류한다.
 
 - smoke: `results/experiments/exp57_disjoint_birthrefine1_freeze250_appendbirths_smoke300`
 - full: `results/experiments/exp57_disjoint_birthrefine1_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 정정 — newborn RGBD 1-step은 paired control보다 낮아 기각
+
+동일 refine=1 반복은 fixed **26.3604dB**, SSIM/LPIPS
+0.84036/0.30014, 4,689 update, 75,164GS, **97.265s**, tail 0으로 첫
+26.3318dB를 수치상 재현했다. 그러나 두 run 모두 intervention 전 구간이 과거
+26.069 기준선보다 높아, 현재 코드/환경에서 `refine_iters=0` paired control을
+추가 실행했다.
+
+| 동일 시점 full | refine=1 원 run | refine=1 반복 | **paired refine=0** |
+|---|---:|---:|---:|
+| fixed PSNR | 26.3318 | 26.3604 | **26.4503** |
+| fixed SSIM | 0.83420 | 0.84036 | **0.84346** |
+| fixed LPIPS | 0.29921 | 0.30014 | **0.29784** |
+| background update | 4,998 | 4,689 | 4,830 |
+| GS | 75,068 | 75,164 | 75,003 |
+| online | 97.267s | 97.265s | 97.287s |
+
+refine=1은 paired control보다 각각 **−0.118/−0.090dB** 낮다. late bin도
+paired control의 1000–1199/1200–1252 **23.274/19.124dB**보다 두 refine
+run 평균이 낮았다. noisy online depth로 newborn geometry를 한 번 더 움직이는 것이
+도움되지 않았다는 증거다. 따라서 기능 코드는 opt-in/default 0 자산으로 남기되
+recipe에는 채택하지 않는다.
+
+paired control은 모든 strict-disjoint 계약을 통과한 유효 run이므로 같은 기존 recipe의
+새 단일 최고 **26.450dB**로 기록한다. 하지만 같은 recipe 분산 범위가
+26.069~26.450dB이므로 27dB 성공은 단일 favorable run이 아니라 반복에서
+재현되어야 한다. 현재 단일 최고 기준 갭은 0.550dB다.
+
+산출물:
+
+- refine repeat:
+  `results/experiments/exp57_disjoint_birthrefine1_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- paired control:
+  `results/experiments/exp57_disjoint_birthrefine0_paired_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

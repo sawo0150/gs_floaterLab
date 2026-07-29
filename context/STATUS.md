@@ -8,8 +8,8 @@
 판정 계약은 timestamp 순 Aria RGB photo+IMU only, MPS 후처리 입력 0개,
 fixed 1.5×(length1253 기준 97.65초 이내), 마지막 센서 frame 뒤 optimizer
 update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서도
-완전히 제외한다. 현재 단일-run best는 26.332dB로 0.668dB가 남았으며
-동일 설정 반복 검증 중이다.
+완전히 제외한다. 현재 단일-run best는 26.450dB로 0.550dB가 남았다.
+동일 recipe 분산이 26.069~26.450dB이므로 27dB는 반복 검증해야 한다.
 27dB 달성·반복 검증 전에는 hard carve/floater pruning을 품질 레버로 섞지
 않으며, carve 검증과 동일 strict 조건의 30dB+는 그 다음 단계로 둔다.
 
@@ -25,7 +25,7 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 | **Incremental 3DGS** | **exp51 축A+B (Photo-SLAM Replay, SLAM+PPM+depth λ=0.5+init dedup)** | **25.29dB** | **held-out 163뷰. D1-b(23.11) 대비 +2.42dB. 밀도(C)·예산(F) 둘 다 거의 무효과 — 시각진단으로 잔여 갭=depth-init 바늘형 floater 확정, 다음 축E(carve loss 이식)** |
 | **Incremental 3DGS** | **exp50 Phase A&B (DiskChunGS)** | **-** | **RTX 5070 Ti 빌드 완주 및 euroc_stereo_inertial 예제 구현 성공 (Phase C 실행 준비)** |
 | Incremental (자체) | exp48_v4 (PPM K=3 + RoMA + Selective Reset) | 18.23dB (median 18.27) | held-out 163뷰 평가, 리셋 차단으로 가우시안 116만 개 보존 |
-| **Strict streaming 1.5×** | **exp57 freeze1050/append birth + exact-newborn RGBD 1-step** | **strict-disjoint fixed 252-view 26.332dB (미재현)** | **SSIM/LPIPS 0.83420/0.29921, 4,998 update, 75,068GS, RGB+IMU only, MPS 없음, tail update 0, 97.267s < 97.65s. 기존 valid 기준선 26.069dB 대비 +0.263dB이나 intervention 이전 bin 상승이라 반복 검증 중. 27dB까지 0.668dB** |
+| **Strict streaming 1.5×** | **exp57 fixed-eval exclusion + freeze1050/append birth/offsets1+4** | **strict-disjoint fixed 252-view 26.450dB (단일 최고)** | **SSIM/LPIPS 0.84346/0.29784, 4,830 update, 75,003GS, RGB+IMU only, MPS 없음, tail update 0, 97.287s < 97.65s. exact-newborn RGBD 1-step은 26.332/26.360으로 paired control보다 낮아 기각. 같은 recipe 분산 26.069~26.450, 27dB까지 0.550dB** |
 | **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600 + n_global_views 2→6 + Camera 행렬 캐싱)로 갱신: 59.80s→45.79s(실시간 배수 0.92→0.70배, −23.4%), PSNR 22.61/22.95→23.49/23.88(mean +0.88dB, kf +0.93dB), map() 성사 +64% — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, `map_call` 로그 집계로 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 시간의 49%"를 발견해 init_itr_num으로 2차 개선, 회귀분석으로 "카메라 수(n_view)가 시간을 지배"함을 계수로 확정한 뒤 "프론티어 window는 그대로, 과거-뷰 곁눈질만 늘리기"로 3차 개선(Phase7), rasterizer batch 구현을 프로파일로 조사하다 발견한 "카메라 pose 불변인데 매 view마다 행렬 역산 재계산" 무위험 버그를 캐싱으로 고쳐 4차 개선(Phase8, 이 세션 최고 ROI) — 4단계 전부 시간·품질 동시 개선.
 **Phase 11(renderCUDA 커널 레벨 멀티카메라 batch화, opt-in `kernel_batch_render`)로 5차
 개선: 45.79s→44.00s(−3.9%), PSNR 23.49/23.88→23.46/23.98(무손실), rasterize
@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 newborn RGBD paired control — refine 기각, best 26.450dB)**:
+  exact-newborn RGBD 1-step 반복은 **26.360dB**로 첫 26.332를 반복했지만,
+  동일 시점 refine=0 control이 **26.450dB**, SSIM/LPIPS 0.84346/0.29784,
+  4,830 update, 75,003GS, **97.287s**, tail 0으로 더 높았다. refine은 control
+  대비 −0.09~−0.12dB이고 late bin도 낮아 noisy depth로 newborn을 더 움직이는
+  축을 기각한다. control은 유효한 새 단일 최고지만 동일 recipe 분산이
+  26.069~26.450이라 27dB는 반복 재현이 필수다. 남은 단일 최고 갭은 0.550dB다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 exact-newborn RGBD 1-step — fixed 26.332dB, 반복 필요)**:
   freeze 뒤 PPM birth가 생성만 되고 자신을 만든 RGBD keyframe을 한 번도 학습하지
   않는 구조를 발견했다. fresh Adam+exact row mask로 기존 map/topology를 고정하고
