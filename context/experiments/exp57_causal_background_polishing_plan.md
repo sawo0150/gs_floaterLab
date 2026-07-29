@@ -3932,3 +3932,44 @@ exclusion을 확인했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_late1000birth2x_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late newborn appearance+opacity 정착도 전체 무이득
+
+late birth2×가 unoptimized Gaussian만 늘린 문제를 분리하려고,
+`mapping_freeze_late_birth_refine_start_frame` /
+`mapping_freeze_late_birth_refine_iters`를 기본값 start=-1/iters=0인 opt-in으로
+추가했다. frame1000 이후 생성된 exact newborn 행만 fresh Adam으로
+appearance+opacity 1-step 최적화했다. xyz/scale/rotation, 기존 Gaussian,
+camera, topology는 고정했다.
+
+| strict fixed 252-view | freeze800 2-run 평균 | late1000 newborn app+opacity |
+|---|---:|---:|
+| PSNR | **27.8464** | 27.8391 (−0.0074) |
+| SSIM | 0.85989 | **0.86204** |
+| LPIPS | **0.25440** | 0.25680 |
+| background update | **5,943** | 5,615 |
+| Gaussian | 83,898 | 84,370 |
+| visible floater | 15,412.5 | **15,412** |
+| visible floater 비율 | 26.883% | **26.761%** |
+| online wall | 97.2530s | **97.2320s** |
+| post-stream update | 0 | 0 |
+
+temporal bin 변화는 −0.079/−0.162/−0.366/+0.061/+0.065/
+**+0.518/−0.280dB**였다. 1000–1199 개선이 final 1200–1252 악화와
+초반 손실로 상쇄됐다. floater 절대 수는 기준 평균과 사실상 동일하고 전체
+PSNR도 무이득이므로 기각한다.
+
+late density와 newborn-local appearance 정착이 모두 앞 late bin의 오차만 뒤로
+이동시킨 결과는, 마지막 병목이 Gaussian 수나 단일 keyframe RGB fit이 아니라
+**keyframe 사이의 late non-eval RGB view coverage/generalization**임을 더
+강하게 지지한다. 다음 구조는 evaluator frame을 제외한 dense late RGB를
+직접 공동 supervision하되 기존 map gradient를 보호해야 한다.
+
+run은 fixed **27.8391dB**, SSIM/LPIPS 0.86204/0.25680,
+84,370GS, 97.2320초(margin 0.4180초), tail update 0이었다.
+provenance는 RGB+IMU only, `mps_inputs=[]`, fixed evaluator mapping
+exclusion을 확인했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_late1000birthrefine1appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

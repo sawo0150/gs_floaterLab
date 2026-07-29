@@ -73,6 +73,13 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late1000 newborn appearance 정착 — 전체 무이득 기각)**:
+  frame1000 이후 PPM newborn 행만 appearance+opacity 1-step으로 자기 RGB에
+  정착시켰다. fixed는 **27.8391dB**로 freeze800 평균 대비 −0.0074dB,
+  floater는 **15,412개**로 기준 평균과 동일했다. 1000–1199는 +0.518dB지만
+  final bin은 −0.280dB로, keyframe-local 정착도 오차를 뒤로 이동시켰다.
+  97.232s/tail0/MPS0를 통과했지만 30dB 레버가 아니므로 기각한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late1000 PPM birth2× — tail 이동만, floater 증가로 기각)**:
   freeze800에서 frame1000 이후 append-only PPM birth만 2×로 늘렸다.
   Gaussian은 83.9k→103.6k(+23.5%)였지만 fixed는 **27.8335dB**로
