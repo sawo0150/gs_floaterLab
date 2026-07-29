@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 snapshot/dense foreground A/B 기각)**:
+  strict RGB+IMU-only 600-frame no-snapshot control은 held-out/keyframe
+  **22.402/22.388dB**. target-only snapshot full merge는 400-frame control 대비
+  −2.506dB, 약한 alpha 0.25도 −0.267dB였고, 공통 point ID만 섞는 evolving
+  overlap merge도 **21.640dB(−0.762)**라 snapshot merge 계열을 중단한다.
+  causal dense RGB 3장을 foreground global slot에 넣는 방법은 300-frame에서
+  +1.035dB였으나 600-frame에서 −0.535dB로 역전했고 lag150·weight0.25도
+  −0.362dB였다. update 양보다 보간 pose 신뢰도가 병목이므로 다음은 keyframe
+  endpoint 근처의 arrived RGB만 고르는 pose-confidence sampler다. strict 최고
+  **23.982dB**는 유지되며 27dB 전 hard carve pruning은 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (프로젝트 1차 목표 확정 — strict streaming held-out 27dB)**:
   사용자 결정으로 당장의 성공 기준을 30dB가 아니라 **pure-online strict streaming
   held-out 27dB**로 확정했다. strict는 timestamp 순 Aria RGB photo+IMU-only,

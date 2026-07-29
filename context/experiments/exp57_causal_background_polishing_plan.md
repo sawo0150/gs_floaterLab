@@ -1035,3 +1035,41 @@ pruning은 아직 실행하지 않았다.
 - `results/experiments/exp57_late1_start1000_lag0_denseall_fast_strict15x`
 - `results/experiments/exp57_trackstride2_{smoke300,start900_dense5k_strict15x}`
 - `results/experiments/exp57_temporalchunk700_fixedhorizon_strict15x`
+
+## 2026-07-29 추가 — snapshot merge 및 dense foreground 주입 A/B 기각
+
+strict 27dB를 위해 snapshot/chunk의 결합 손실을 줄이는 방법과, 이미 causal하게
+등록된 dense RGB를 foreground `map()`에서도 쓰는 방법을 600-frame smoke로
+분리 검증했다. 모든 run은 timestamp 순 Aria RGB+IMU-only이고 MPS 입력과
+post-stream optimizer update는 없다. 비교 기준은 같은 설정의 no-snapshot
+control이며 held-out/keyframe은 **22.402/22.388dB**다.
+
+| 조건 | held-out / kf PSNR | control 대비 | 판정 |
+|---|---:|---:|---|
+| target-only snapshot full merge, 400-frame | 16.959 / 16.150 | 400-frame control 19.465 대비 −2.506 | 기각 |
+| target-only merge alpha 0.25 | 22.135 / 22.125 | −0.267 | 기각 |
+| foreground global slot에 dense view 3개 | 21.867 / 21.698 | −0.535 | 기각 |
+| dense lag 150 + loss weight 0.25 | 22.040 / 21.965 | −0.362 | 기각 |
+| evolving snapshot overlap-only merge alpha 0.25 | 21.640 / 21.596 | −0.762 | 기각 |
+
+target-only 실패를 point ID 재사용으로 의심했으나 조사 결과 `_next_point_id`는
+reset 뒤에도 단조 증가하므로 ID 충돌은 없었다. full merge의 실패는 실제
+geometry/appearance 상태 불일치다. alpha를 0.25로 낮추거나 현재 frontier와
+공통 point ID만 섞어도 control을 이기지 못했으므로 snapshot merge 계열은
+strict 27dB 경로에서 중단한다.
+
+foreground dense-view 주입은 300-frame에서는 기존 all-interval smoke
+14.278→15.313dB로 +1.035dB였지만 600-frame에서 역전됐다. 안정화 lag와 약한
+loss weight로도 회복하지 못했다. 즉 online 보간 pose의 오차가 누적된 상태에서
+무작위 dense RGB를 geometry gradient에 직접 섞는 것은 update 수보다 supervision
+정확도를 악화시킨다. 다음 축은 dense frame을 무조건 더 넣는 것이 아니라,
+keyframe endpoint 근처처럼 pose 신뢰도가 높은 arrived frame만 causal하게
+선별하는 residual/pose-confidence sampler다.
+
+산출물:
+
+- `results/experiments/exp57_targetchunk_{smoke400,control_smoke400}`
+- `results/experiments/exp57_targetchunk_{alpha025_smoke600,control_smoke600}`
+- `results/experiments/exp57_mapdense3_{smoke300,smoke600}`
+- `results/experiments/exp57_mapdense3_lag150_w025_smoke600`
+- `results/experiments/exp57_snapshot_overlap_alpha025_smoke600`
