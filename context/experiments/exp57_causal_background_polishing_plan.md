@@ -3231,3 +3231,23 @@ RGB+IMU only, MPS 0, fixed evaluator mapping exclusion, deadline, tail0 계약�
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late4_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 정정 — late-iters3 세 번째 반복 26.572dB, 27 반복 미달
+
+late-iters3의 세 번째 strict 반복은 fixed **26.5725dB**,
+SSIM/LPIPS 0.84291/0.30195, 4,757 background update, 77,253GS,
+**97.216s**, tail update 0이었다. bins는
+26.840/28.778/28.780/27.289/26.503/23.418/19.326dB다.
+
+세 run은 **27.0039/26.9492/26.5725dB**, 평균 **26.8419dB**다. 첫 두 run의
+5,161 update가 세 번째에는 4,757회로 줄었고 품질도 함께 하락했다.
+따라서 최초 27.004dB는 유효한 single-run best지만, late-iters3 전체 구간 적용을
+“반복 검증된 27dB recipe”로 채택할 수 없다.
+
+다음은 late-iters2의 replay 처리량과 iters3의 frontier 보강을 함께 얻도록
+650부터 iters2, 더 늦은 두 번째 경계부터 iters3를 쓰는 단계형 스케줄이다.
+RGB+IMU only/MPS 0/deadline/tail0 계약은 세 번째 run도 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

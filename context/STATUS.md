@@ -45,6 +45,13 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late-iters3 세 번째 26.572dB — 반복 27 미달)**:
+  세 번째 run은 background update가 5,161→4,757회로 줄며 fixed
+  **26.572dB**였다. late3 3회는 27.004/26.949/26.572dB(평균 26.842)라
+  최초 27 초과는 유효한 single best지만 반복 달성은 아니다. 다음은 iters2의
+  replay 처리량을 보존하고 후반만 iters3로 올리는 2단계 스케줄이다.
+  97.216s/tail0/RGB+IMU only/MPS0 계약은 통과했다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late-iters4 — fixed 26.658dB 기각)**:
   frame650 이후 frontier 반복을 4로 늘리자 background update가
   5,161→4,362회(−799), GS는 78,566개로 늘었고 fixed는 **26.658dB**로
