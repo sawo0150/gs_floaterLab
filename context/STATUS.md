@@ -51,6 +51,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 frontier window8 — fixed 26.845dB, 유망하지만 미채택)**:
+  window 10→8로 frontier gradient 집중을 시도해 background 5,023 update,
+  fixed **26.8454dB**를 얻었다. quantized-window10 평균보다 +0.114dB이나
+  27에는 0.155dB 부족했고, raw scale이 달라 applied scale도 1.035로 이전
+  1.040 run들과 다른 bin이라 순수 window 효과를 확정할 수 없다.
+  **97.242s/tail0/RGB+IMU only/MPS0** 계약은 통과했다. 26.9 사전 반복
+  기준에도 못 미쳐 반복하지 않고 default window10을 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 IMU scale quantum0.005 — 분산 10× 감소, 평균 26.731dB)**:
   online metric scale을 0.005 간격으로 causal 반올림해 세 run 모두 1.040을
   적용했다. fixed는 **26.728/26.755/26.712dB**(평균 26.731, 범위 0.043)로

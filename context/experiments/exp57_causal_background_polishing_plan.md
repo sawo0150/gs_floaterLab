@@ -3486,3 +3486,38 @@ exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
 - `results/experiments/exp57_disjoint_imuquant005_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_imuquant005_repeat_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_imuquant005_repeat2_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — frontier window 10→8, 26.845dB로 미달
+
+Phase 6에서 window 10→15/20이 gradient를 더 많은 frontier view에 희석해
+품질을 크게 낮춘 결과의 반대편을 확인하려고 `--mapping_window_size`를
+추가했다. 기본값 −1은 기존 config의 window 10을 유지하며, 이번 run만 8로
+줄였다. 반복 분산을 줄이기 위해 `imu_rescale_quantum=0.005`도 함께 사용했고
+나머지는 static late-iters3/freeze1050 recipe와 동일하다.
+
+| 항목 | window 8 |
+|---|---:|
+| raw / applied IMU scale | 1.037085 / **1.035** |
+| **fixed 252-view PSNR** | **26.8454dB** |
+| fixed SSIM / LPIPS | 0.84851 / 0.29344 |
+| 전반 / 후반 fixed PSNR | 28.3017 / 25.3892dB |
+| background update | 5,023 |
+| GS | 75,252 |
+| online wall | **97.2415s** |
+| post-stream update | **0** |
+
+quantized window10 세-run 평균 26.7314dB보다 +0.114dB이고 background
+update도 4,826~4,890회에서 5,023회로 늘어 방향은 유망하다. 그러나 목표
+27dB에는 0.155dB 부족하다. 또한 이번 raw scale은 1.0371이라 이전 세 run의
+1.0398~1.0400과 다른 quantization bin인 1.035가 적용됐다. 따라서 단일-run
+상승분을 window 축의 순수 인과 효과로 확정할 수 없다. 사전 반복 기준
+26.9dB에도 못 미쳐 추가 GPU 반복은 중단하고, window8은 채택하지 않는다.
+`mapping_window_size`는 default-preserving opt-in 진단 스위치로만 보존한다.
+
+RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping exclusion,
+97.65초 deadline, 마지막 sensor frame 뒤 optimizer update 0 계약은 모두
+통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_imuquant005_window8_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
