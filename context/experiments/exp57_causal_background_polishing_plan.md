@@ -3211,3 +3211,23 @@ temporal bins는 run 1이
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late mapping iters4는 replay 799회 손실로 기각
+
+late-iters3의 두-run 평균 26.9765dB에서 남은 반복 갭을 메우기 위해 frame650
+이후 frontier 반복을 4로 늘렸다. fixed 결과는 **26.6584dB**,
+SSIM/LPIPS 0.84440/0.30263, 4,362 background update, 78,566GS,
+**97.248s**, tail update 0이었다. bins는
+26.624/28.474/29.109/27.380/27.180/23.277/19.678dB다.
+
+iters3 대비 frontier 반복 한 번이 늘면서 background replay가 정확히
+5,161→4,362회(−799) 줄었고 Gaussian도 증가했다. 추가 frontier gradient보다
+전역 dense replay 수렴 손실이 커져 iters4를 명확히 기각한다. optimum은
+late-iters3이며, 세 번째 반복으로 27dB 재현 비율을 확인한다.
+
+RGB+IMU only, MPS 0, fixed evaluator mapping exclusion, deadline, tail0 계약은
+통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late4_pgbacut1120_len1253_strict15x`

@@ -45,6 +45,12 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late-iters4 — fixed 26.658dB 기각)**:
+  frame650 이후 frontier 반복을 4로 늘리자 background update가
+  5,161→4,362회(−799), GS는 78,566개로 늘었고 fixed는 **26.658dB**로
+  악화했다. 97.248s/tail0 계약은 통과했지만 추가 frontier gradient보다 replay
+  수렴 손실이 커 기각한다. late-iters3를 유지하고 세 번째 반복으로 판정한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late-iters3 — 최초 27.004dB, 반복 26.949dB)**:
   frame650 이후 frontier mapping 반복을 2→3으로 늘려 fixed
   **27.0039/26.9492dB**(평균 26.9765)를 얻었다. late-iters2 3-run 평균보다
