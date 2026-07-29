@@ -3730,3 +3730,35 @@ batch 전체 backward를 다시 실행한다. forward launch를 한 번 줄인 �
 한 번의 backward에서 per-view Gaussian gradient tensor를 직접 반환하도록 CUDA
 API 자체를 바꿔야 한다. 단순 Python autograd 조합으로는 update 처리량을 늘릴 수
 없다.
+
+## 2026-07-29 추가 — batch 평균 gradient 반복 Adam도 smoke에서 기각
+
+view별 backward가 느린 결과를 우회하기 위해 batch2의 한 번 계산된 평균 gradient를
+Adam에 두 번 적용하는 opt-in `--background_batch_repeat_adam_steps`를 구현했다.
+추가 render/backward 없이 기존 batch2가 잃었던 optimizer step 수를 복구하는
+stale-gradient 근사다. default 1은 기존 동작을 보존한다.
+
+pre-IMU mapping gate까지 포함한 동일 600-frame causal paired smoke:
+
+| fixed 121-view | batch1 control | batch2 + repeat Adam×2 | 변화 |
+|---|---:|---:|---:|
+| PSNR | **27.4518** | 27.2989 | **−0.1529dB** |
+| SSIM | **0.85834** | 0.85348 | −0.00486 |
+| LPIPS | **0.29523** | 0.29642 | +0.00119 |
+| optimizer/view update | 2,714 | **3,100** | **+14.2%** |
+| Gaussian | 43,031 | 43,063 | 동급 |
+| online wall | 48.2674s | **48.2509s** | 동급 |
+| post-stream update | 0 | 0 | 통과 |
+
+batch2 repeat은 실제 update 수를 늘렸지만 모든 영상 지표가 paired control보다
+악화했다. 같은 평균 gradient를 parameter가 바뀐 뒤 다시 적용하는 stale step이
+서로 다른 view의 순차 stochastic Adam을 대체하지 못한다. 따라서 full 1,253
+replay로 승격하지 않고 기각한다.
+
+두 run 모두 timestamp 순 RGB+IMU only, MPS 0, fixed evaluator mapping
+exclusion, fixed 1.5×, tail optimizer update 0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_mapafterimu_batch1_paired_start300_late2_smoke600`
+- `results/experiments/exp57_mapafterimu_batch2_repeatadam2_start300_late2_smoke600`

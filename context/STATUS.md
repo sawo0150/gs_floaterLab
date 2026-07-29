@@ -58,6 +58,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 batch2 평균-gradient Adam×2 — update↑, 품질↓ 기각)**:
+  추가 render/backward 없이 batch 평균 gradient를 Adam에 두 번 적용했다.
+  pre-IMU gate 포함 paired 600 smoke에서 optimizer/view update는
+  **2,714→3,100(+14.2%)** 늘었지만 fixed는 **27.4518→27.2989dB
+  (−0.153)**, SSIM/LPIPS도 악화했다. 48.251s/tail0, RGB+IMU only/MPS0
+  계약은 통과했다. stale 평균 gradient 반복은 순차 stochastic Adam을 대체하지
+  못하므로 full 1,253에 승격하지 않고 기각한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 batch forward + sequential Adam — 54.5% 느려 조기 기각)**:
   batch2의 optimizer-step 감소를 막으려고 두 batched view loss의 gradient를 각각
   구해 Adam 두 step을 적용했다. 90,770GS/1024² microbenchmark에서 순차
