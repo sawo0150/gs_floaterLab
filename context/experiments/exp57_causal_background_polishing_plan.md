@@ -2445,3 +2445,92 @@ RGB+IMU-only/MPS 없음/fixed 1.5×/zero-tail 계약을 통과했다.
 
 - `results/experiments/exp57_dssim010_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_dssim030_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — grayscale geometry/RGB appearance 교대 기각
+
+사용자 제안대로 causal dense RGB supervision의 gradient 역할을 분리했다. 실시간
+예산을 유지하기 위해 한 render에서 두 번 backward하지 않고 background step을
+1:1로 교대했다.
+
+- geometry step: RGB를 luminance로 바꾸고 `xyz/scaling/rotation`만 갱신
+- appearance step: RGB loss로 `opacity/f_dc/f_rest`만 갱신
+- camera pose/exposure는 고정
+
+full strict 결과는 held-out **25.439dB**, keyframe **26.314dB**, SSIM
+0.81866, LPIPS 0.36650, 5,026 update, 70,225GS, **97.282s**였다. 동일한
+약 5k update를 수행했는데도 joint Gaussian gradient 최고 26.396dB보다
+−0.957dB였다. geometry와 opacity/color가 한 compositing residual에서 함께
+움직여야 하며, 역할 분리는 각 parameter group의 유효 update를 절반으로 줄이는
+손해를 상쇄하지 못했다. RGB+IMU-only/MPS 없음/fixed 1.5×/zero-tail 계약은
+통과했지만 품질 기준으로 기각한다.
+
+산출물:
+
+- `results/experiments/exp57_splitgraygeom2_rgbapp_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — per-view 진단과 post-freeze append-only PPM birth
+
+평균 PSNR만으로 남은 갭의 위치를 추측하지 않도록 evaluator JSON에 per-view
+frame/PSNR/SSIM/LPIPS/keyframe 여부를 추가했다. PNG를 저장하지 않는
+`eval_metrics_only`에서도 지표만 남으므로 online loop 시간과 map update는
+변하지 않는다. 채택 recipe를 다시 실행한 paired diagnostic control은
+26.122/26.976dB, 5,141 update, 70,324GS, 97.279s였다.
+
+| frame 구간 | paired control mean PSNR |
+|---|---:|
+| 0–199 | 26.353 |
+| 200–399 | 27.699 |
+| 400–599 | **28.474** |
+| 600–799 | 27.323 |
+| 800–999 | 26.444 |
+| 1000–1199 | **22.782** |
+| 1200–1252 | **18.884** |
+
+freeze1050 이전 구간은 이미 26.4~28.5dB인데, 이후 신규 시야 coverage가
+22.8→18.9dB로 무너지는 것이 전체 27dB의 직접 병목이었다. 이를 겨냥해
+`--mapping_freeze_allow_births`를 구현했다.
+
+- frame1050 이전 동작은 채택 recipe와 동일
+- 이후 regular map/densify/prune는 계속 정지
+- 새 tracked keyframe의 online depth에서 PPM-sampled Gaussian birth만 허용
+- PGBA 좌표 갱신과 도착 dense RGB background replay는 유지
+- MPS와 post-stream tail은 사용하지 않음
+
+| strict 1.5× | held-out / kf | update | GS | online | 판정 |
+|---|---:|---:|---:|---:|---|
+| paired control | 26.122 / **26.976** | 5,141 | 70,324 | 97.279s | 기준 |
+| append birth 1× | **26.312** / 26.106 | 4,969 | 92,043 | 97.277s | paired +0.190 |
+| append birth 0.5× budget | 26.269 / 26.098 | 5,072 | 79,781 | 97.293s | 1×보다 미달 |
+| append + recent 50% | 25.375 / 25.318 | 4,888 | 92,394 | 97.271s | 기각 |
+| append + recent 15% | 26.142 / 26.007 | 5,057 | 91,973 | 97.265s | 기각 |
+
+append 1×는 1000–1199 구간을 **22.782→23.386dB(+0.604)**로 올려 late
+birth 방향의 인과 효과를 확인했다. 그러나 1200–1252는 18.884→18.949dB로
+거의 변하지 않았다. 마지막 tracked keyframe 이후에는 online depth가 있는 신규
+birth source가 없기 때문이다. PPM birth 예산을 절반으로 낮추면 전체도
+−0.043dB라 과밀만이 병목은 아니었다.
+
+post-freeze RGB를 강제 표집하면 recent50에서 1000–1199가 24.465dB,
+1200–1252가 22.256dB로 크게 회복됐지만, 0–399와 800–999가 무너져 전체는
+25.375dB였다. 약한 recent15도 26.142dB로 uniform append보다 낮았다. 제한된
+step을 late view로 옮기는 방식은 신규 영역과 기존 영역의 전역 compositing 균형을
+깨므로 종료한다.
+
+append-only 1×는 paired control보다 낫지만 기존 단일 최고 26.396dB와 반복 범위
+26.083~26.396dB를 확실히 넘지 못했고 keyframe 지표도 낮다. 따라서 아직 새
+strict best로 채택하지 않는다. 다만 per-view 진단으로 남은 병목이 마지막
+200-frame coverage임을 확정했으며, 다음 후보는 final non-keyframe에도 RGB-only로
+online depth/birth evidence를 만드는 구조여야 한다. hard carve는 27dB 전까지
+계속 보류한다.
+
+산출물:
+
+- paired control:
+  `results/experiments/exp57_bestcontrol_perview_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- append:
+  `results/experiments/exp57_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- birth budget 절반:
+  `results/experiments/exp57_freeze1050_appendbirths_ds2_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- recent:
+  `results/experiments/exp57_freeze1050_appendbirths_recent050_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
+  `results/experiments/exp57_freeze1050_appendbirths_recent015_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

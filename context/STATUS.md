@@ -34,6 +34,21 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 per-view late coverage 진단 + append-only PPM birth)**:
+  채택 recipe의 per-view 지표를 새로 저장해 구간별로 분석했다. frame0–999는
+  26.35~28.47dB지만 freeze 뒤 1000–1199는 **22.782dB**, 1200–1252는
+  **18.884dB**로 무너져 남은 갭이 late coverage임을 확정했다. regular
+  map/densify/prune는 freeze한 채 새 tracked keyframe의 online depth에서
+  PPM Gaussian birth만 허용하자 paired control **26.122→26.312dB**,
+  1000–1199는 **+0.604dB** 개선됐다. 다만 22k GS가 늘고 kf는
+  26.976→26.106dB로 하락했으며 기존 최고 26.396을 넘지 못했다. birth 예산
+  절반은 26.269dB였다. late RGB 50% 강제 표집은 마지막 구간을
+  18.949→22.256dB로 회복했지만 초기 구간을 훼손해 전체 25.375dB, 약한
+  15%도 26.142dB로 기각했다. grayscale geometry/RGB appearance 1:1 교대도
+  **25.439dB**로 joint gradient보다 나빴다. 모든 run은 RGB+IMU-only,
+  MPS 없음, fixed 1.5×, zero-tail을 통과했다. strict 최고
+  26.396(반복 26.083)을 유지하고 27dB 전 hard carve는 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background DSSIM 0.1/0.3 — 기존 0.2 유지)**:
   held-out PSNR과 background loss를 더 맞추기 위해 DSSIM weight를 기존 0.2에서
   0.1/0.3으로 대칭 스캔했다. 0.1은 **26.003/26.884dB**, 0.3은
