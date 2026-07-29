@@ -1956,3 +1956,51 @@ carve/floater pruning은 실행하지 않았다.
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_lr200_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — background LR 초기-step 제한형도 full 기각
+
+무제한 LR×1.5가 600-frame prefix에서는 양성이지만 full에서 후반 불안정으로
+붕괴했으므로, `--background_polish_lr_multiplier_steps`를 추가했다. background
+optimizer의 성공한 step 수가 지정한 cap에 도달할 때까지만 1.5×를 적용하고 이후
+자동으로 1.0×로 돌아간다. frontier optimizer LR은 각 background step 직후
+계속 복원된다.
+
+| 600 start300/late-iters2 | LR×1.0 | **LR×1.5 cap2500** | **LR×1.5 cap1000** |
+|---|---:|---:|---:|
+| held-out PSNR | 24.859 | **25.181** | **24.990** |
+| keyframe PSNR | 24.679 | **25.252** | **24.932** |
+| SSIM / LPIPS | - | 0.80079 / 0.45913 | 0.79860 / 0.45500 |
+| background update | 3,284 | 3,358 | 3,325 |
+| final Gaussian | 38,241 | 38,266 | 38,181 |
+| online wall | 48.276s | 48.312s | 48.321s |
+
+cap2500은 held-out +0.322dB, cap1000은 +0.131dB로 둘 다 prefix 양성이어서
+full cutoff1120으로 승격했다.
+
+| full strict 1.5× | LR×1.0 | **cap2500** | **cap1000** |
+|---|---:|---:|---:|
+| held-out PSNR | **24.319** | 24.216 | 24.217 |
+| keyframe PSNR | **24.385** | 24.283 | 24.311 |
+| SSIM / LPIPS | 0.78868 / 0.44374 | 0.78641 / 0.44812 | 0.78725 / 0.44671 |
+| background update | 5,087 | 5,265 | 5,245 |
+| final Gaussian | 66,784 | 66,530 | 67,953 |
+| online wall | 97.264s | 97.267s | 97.282s |
+| deadline margin | 0.386s | 0.383s | 0.368s |
+
+제한형은 무제한안의 큰 붕괴는 막았지만 full held-out은 strict best보다 각각
+−0.103dB, −0.102dB였다. 짧은 prefix에서의 최적 LR 구간이 evolving full map의
+여러 성장 단계에 그대로 대응하지 않는다. cap을 더 줄이는 것은 결과가 이미
+1.0× 기준으로 수렴하는 방향이며 2.681dB의 목표 격차를 설명할 레버가 아니다.
+따라서 uniform all-parameter LR 배율 계열은 무제한·제한형 모두 종료한다.
+
+모든 run은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했고
+`--eval_metrics_only`로 optimizer update 없는 동일 held-out 평가를 수행했다.
+strict best 24.319dB와 1차 목표 27dB를 유지하며, 27dB 전 hard carve/floater
+pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150cap2500_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150cap2500_pgbacut1120_strict15x`
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150cap1000_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150cap1000_pgbacut1120_strict15x`

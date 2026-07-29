@@ -34,6 +34,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background LR×1.5 초기-step 제한 — prefix 양성, full 재기각)**:
+  무제한 LR×1.5의 full 붕괴를 막기 위해 background 첫 2,500회 또는 1,000회에만
+  배율을 적용하고 이후 자동으로 1.0으로 복귀시켰다. 600-frame에서는 cap2500이
+  **25.181/25.252dB(+0.322/+0.573)**, cap1000이
+  **24.990/24.932dB(+0.131/+0.253)**로 모두 기준보다 좋았다. 그러나 full
+  cutoff1120에서는 각각 **24.216/24.283dB**, **24.217/24.311dB**로 strict
+  best보다 held-out −0.103/−0.102dB였다. 둘 다 97.27~97.28s로 deadline을
+  통과했지만 full 일반화가 없으므로 초기-step 제한형을 포함한 uniform
+  all-parameter LR 압축 계열을 종료한다. strict best 24.319dB와 1차 목표 27dB,
+  그 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background LR×1.5 — prefix 양성, full 강한 기각)**:
   background step에만 LR multiplier를 적용하고 frontier LR은 즉시 복원하는 opt-in을
   구현했다. 600에서 1.5×는 **24.949/25.004dB**로 기준보다 +0.090/+0.325dB,
