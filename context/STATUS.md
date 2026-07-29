@@ -79,6 +79,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 strict27 acceptance audit — 보존 산출물 2/2 통과)**:
+  freeze800 채택 run 두 개의 저장된 `final_result.json`, provenance, config,
+  원본 로그와 PLY를 다시 대조했다. fixed는 **27.8568/27.8361dB**,
+  wall은 **97.2349/97.2710s**, evaluator 252장 mapping 제외, RGB+IMU-only,
+  MPS0, fixed1.5×, tail update0가 모두 2/2 확인됐다. PPM init과 regular
+  frontier carve λ0.05는 켜져 있고 실패한 background carve/pruning만 꺼져
+  있다. floater 하네스 재산출도 **15,252/15,573개**로 기존 기록과 일치한다.
+  strict27 1차 목표는 보존 산출물 기준으로 acceptance 완료다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 recent50% newborn-only — 26.574dB 강한 실패, family 종료)**:
   post-freeze recent dense step의 appearance+opacity gradient를 newborn 행에만
   적용하는 비중을 5%→50%로 높였다. fixed는 **26.5736dB**로 freeze800

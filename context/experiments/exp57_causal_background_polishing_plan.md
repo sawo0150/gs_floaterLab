@@ -4067,3 +4067,47 @@ tail update 0이었다. depth-anchor 하네스 재산출은 visible
 산출물:
 
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_recent050_newbornonly_appopacity_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 확정 — strict27 보존 산출물 acceptance audit
+
+현재 1차 목표가 30dB보다 strict streaming 27dB 우선으로 확정된 뒤,
+freeze800의 “달성” 판정을 문서 기억이 아니라 보존 산출물로 다시 감사했다.
+두 run 각각의 `final_result.json`, `input_provenance.json`, `config.yaml`,
+`run.log`, `3dgs_before_final.ply`를 직접 확인했다.
+
+| acceptance 항목 | run 1 | run 2 | 판정 |
+|---|---:|---:|---|
+| fixed held-out PSNR | **27.8568** | **27.8361** | 2/2 ≥27 |
+| fixed evaluator 수 | 252 | 252 | 일치 |
+| evaluator mapping 제외 | true | true | 통과 |
+| input policy | strict Aria RGB+IMU | strict Aria RGB+IMU | 통과 |
+| MPS inputs | 0 | 0 | 통과 |
+| replay scale | 1.5× | 1.5× | 통과 |
+| online wall | 97.2349s | 97.2710s | 2/2 ≤97.65s |
+| deadline margin | 0.4151s | 0.3790s | 양수 |
+| post-stream map update | 0 | 0 | zero-tail 통과 |
+| PPM init | on | on | 채택 설정 |
+| regular frontier carve | λ0.05 | λ0.05 | 채택 설정 |
+| background carve/pruning | off | off | 실패 축 비활성 |
+
+동일 depth-anchor floater 하네스를 PLY에 다시 실행한 결과도 기존 기록과
+일치했다.
+
+| floater proxy | run 1 | run 2 |
+|---|---:|---:|
+| Gaussian | 83,799 | 83,997 |
+| visible Gaussian | 57,071 | 57,590 |
+| visible floater | **15,252** | **15,573** |
+| visible floater 비율 | 26.7246% | 27.0412% |
+| mean score | 0.24301 | 0.24261 |
+
+따라서 **pure-online strict streaming held-out 27dB 1차 목표는 보존된 두
+독립 run으로 acceptance 완료**다. 이 판정은 물리 Aria 장치 라이브가 아니라
+1253-frame timestamp replay 계약에 대한 것이며, MPS 후처리 데이터는 사용하지
+않았다. background carve와 hard pruning은 strict27 map에서 품질/floater를
+동시에 악화한 기존 실측 때문에 acceptance recipe에 포함하지 않는다.
+
+감사 대상:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
