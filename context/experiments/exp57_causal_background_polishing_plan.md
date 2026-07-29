@@ -3150,3 +3150,27 @@ disjoint+append-birth+0ms 조건에서 freeze1040도 미세 스캔했다. 결과
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1040_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — background SSIM interval2, 처리량 무효·품질 악화로 기각
+
+SSIM 픽셀 loss 비용을 optimizer step으로 재투자할 수 있는지 확인하려고
+`--background_ssim_interval`을 추가했다. default 1은 매 step 기존 L1+SSIM을
+그대로 계산하고, interval2는 짝수 성공 step만 기존 loss, 홀수 step은 L1만 쓴다.
+frontier mapping과 evaluator loss는 바꾸지 않았다.
+
+0ms 채택 recipe에서 interval2 결과는 fixed **26.7025dB**,
+SSIM/LPIPS **0.83674/0.32105**, 5,253 update, 75,420GS, **97.227s**,
+tail update 0이었다. bins는
+26.780/28.654/29.155/27.445/26.841/23.569/19.273dB다.
+
+동일 0ms run들의 5,234~5,731 update 범위 안이며 처리량이 증가하지 않았다.
+현재 background step의 지배 비용은 SSIM이 아니라 render/backward/optimizer이고,
+SSIM gradient를 절반 없애면 perceptual 품질만 크게 나빠진다. interval2를
+기각하고 default interval1을 유지한다.
+
+RGB+IMU only, MPS 0, fixed 252-view mapping exclusion, 1.5× deadline,
+post-stream update 0 계약은 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_ssimint2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

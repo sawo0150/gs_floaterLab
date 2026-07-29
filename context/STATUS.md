@@ -45,6 +45,12 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background SSIM interval2 — fixed 26.703dB 기각)**:
+  background에서 SSIM을 매 2번째 step에만 계산했지만 update는 5,253회로
+  0ms 기존 범위에서 늘지 않았고 fixed는 **26.703dB**, SSIM/LPIPS는
+  0.83674/0.32105로 악화했다. SSIM은 처리량 병목이 아니며 gradient 생략 손해만
+  확인돼 default interval1을 유지한다. 97.227s, tail update 0 계약은 통과했다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 0ms 3회 평균 26.758dB, freeze1040 26.489dB 기각)**:
   0ms uniform shuffled 세 번째 반복은 fixed **26.628dB**, 5,242 update,
   **97.227s**, tail 0이었다. 세 run은 26.882/26.764/26.628dB로 평균
