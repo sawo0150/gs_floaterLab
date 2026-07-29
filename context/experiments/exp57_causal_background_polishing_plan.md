@@ -1073,3 +1073,38 @@ keyframe endpoint 근처처럼 pose 신뢰도가 높은 arrived frame만 causal�
 - `results/experiments/exp57_mapdense3_{smoke300,smoke600}`
 - `results/experiments/exp57_mapdense3_lag150_w025_smoke600`
 - `results/experiments/exp57_snapshot_overlap_alpha025_smoke600`
+
+## 2026-07-29 추가 — causal dense pose-confidence endpoint sampler
+
+직전 dense foreground 주입 실패가 모든 보간 pose를 같은 신뢰도로 취급한 탓인지
+분리했다. keyframe interval 내 보간 위치 `alpha`를 dense Camera에 보존하고,
+`min(alpha, 1-alpha)`가 임계값 이하인 endpoint 인접 frame만 foreground global
+후보로 쓰는 opt-in sampler를 구현했다. RGB/IMU 도착 뒤 양 endpoint keyframe이
+모두 존재할 때만 등록하므로 causal order와 strict 입력 계약은 그대로다.
+
+동일 600-frame no-dense control은 held-out/keyframe **22.402/22.388dB**,
+online 48.330s다.
+
+| foreground 조건 | eligible / total dense | held-out / kf | control 대비 | online |
+|---|---:|---:|---:|---:|
+| dense 3-slot, endpoint gate 없음 | 425 / 425 | 21.867 / 21.698 | −0.535 | 48.269s |
+| dense 3-slot, endpoint≤0.20 | 135 / 425 | 21.955 / 21.841 | −0.447 | 48.256s |
+| dense 1-slot, endpoint≤0.20 | 135 / 425 | **22.262 / 22.175** | **−0.140** | 48.287s |
+| dense 1-slot, endpoint≤0.10 | 46 / 425 | 22.250 / 22.205 | −0.152 | 48.293s |
+
+pose-confidence gate와 tracked-global 교체 3→1 축소는 held-out 손실을
+−0.535→−0.140dB로 단조 회복했다. 이는 보간 pose 오차와 tracked keyframe
+희석이 실제 원인이라는 증거다. 그러나 가장 좋은 0.20/1-slot도 control을 넘지
+못했고 0.10으로 더 엄격하게 해도 개선되지 않았다. 따라서 direct foreground
+replacement는 기각하고 전체 1.5× run으로 승격하지 않는다.
+
+다음 품질 축은 단순 sampler 미세조정이 아니라 (1) Gaussian을 고정한 짧은
+photometric pose alignment로 dense pose 자체를 개선한 뒤 supervision에 쓰거나,
+(2) final-map 5k가 보여준 +4dB gradient가 성장 map에서 사라지지 않도록
+overlap-aware spatial submap을 공동 렌더·merge하는 구조다. 둘 다 연산비가
+추가되므로 strict deadline 회복 축과 함께 검증해야 한다.
+
+산출물:
+
+- `results/experiments/exp57_mapdense3_endpoint020_smoke600`
+- `results/experiments/exp57_mapdense1_endpoint{020,010}_smoke600`

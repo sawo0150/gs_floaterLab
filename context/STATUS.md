@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 causal dense pose-confidence sampler — 손실 축소, 순이득 없음)**:
+  양쪽 keyframe이 도착한 dense frame의 interval alpha를 보존하고 endpoint까지의
+  정규화 거리를 pose-confidence로 쓰는 sampler를 구현했다. 600-frame control
+  **22.402/22.388dB** 대비 dense 3-slot 무필터는 21.867dB(−0.535),
+  endpoint≤0.20은 21.955(−0.447), 교체를 1-slot으로 줄이면
+  **22.262(−0.140)**까지 회복했다. endpoint≤0.10은 46개 후보로 줄어도
+  22.250이라 추가 개선이 없었다. 보간 pose 오차와 tracked-global 희석이 원인인
+  것은 확인했지만 control을 못 넘어 full strict run은 실행하지 않았다. 다음은
+  dense pose 자체의 photometric alignment 또는 update 소실을 막는 overlap-aware
+  spatial submap이며, strict 최고 **23.982dB**와 carve 보류 원칙은 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 snapshot/dense foreground A/B 기각)**:
   strict RGB+IMU-only 600-frame no-snapshot control은 held-out/keyframe
   **22.402/22.388dB**. target-only snapshot full merge는 400-frame control 대비
