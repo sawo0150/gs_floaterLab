@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.319dB (2026-07-29)**
+- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.483dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -2090,3 +2090,67 @@ carve/floater pruning은 실행하지 않았다. strict best 24.319dB를 유지�
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_freeze1000_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — causal optical dense pose와 PGBA residual 보존
+
+### 가설과 online 계약
+
+기존 dense RGB supervision은 양 끝 keyframe pose의 SE(3) interpolation만 사용했다.
+반면 VIGS의 `PoseTrajectoryFiller.fill`은 이미 도착한 왼쪽/오른쪽 keyframe 사이의
+과거 RGB frame을 optical correlation으로 refinement할 수 있다. 오른쪽 endpoint가
+도착한 뒤 완료 구간만 처리하면 미래 입력을 쓰지 않으므로 causal이다.
+
+`--background_dense_pose_source {interpolate,trajectory_filler}`를 opt-in으로
+추가했다. strict run은 frame 순서 RGB photo와 IMU만 사용했고
+`mps_inputs=[]`, fixed 1.5×, `post_stream_refinement=false`, 마지막 sensor frame 뒤
+optimizer update 0을 유지했다. trajectory-filler 입력도 현재까지 도착한 RGB와
+tracking state뿐이며 MPS postprocess pose/depth/point cloud는 사용하지 않았다.
+
+### 600-frame 선별과 최초 full 실패
+
+offset2, start300, late-iters1의 600-frame 선별은 optical dense view 107장,
+3,291 background update, 36,397GS, online 48.288s에서 held-out/keyframe
+**25.336/25.223dB**, SSIM 0.82074, LPIPS 0.38081이었다. 같은 late-iters2
+interpolation 대조군 24.859dB보다 held-out **+0.477dB**여서 full로 승격했다.
+
+하지만 최초 full late-iters1은 **24.115/24.141dB**(5,200 update, 47,268GS),
+late-iters2는 **23.929/23.992dB**(4,494 update, 62,807GS)로 실패했다. 원인을
+추적하자 PGBA 뒤 `_refresh_causal_dense_poses()`가 optical pose를 endpoint
+interpolation으로 무조건 덮어쓰고 있었다. 즉 prefix에서 확인한 보정이 full의
+global pose update 때 사라지는 구현 버그였다.
+
+### local SE(3) residual 보존과 strict 신기록
+
+각 optical pose를 `T_interp^-1 @ T_optical` local residual로 저장하고, PGBA 뒤에는
+갱신된 endpoint의 `T_interp_new @ residual`로 재합성하도록 수정했다. scale
+reinitialization 때 residual translation도 같은 배율로 조정한다.
+
+| full strict 1.5× | 기존 interpolation best | optical + residual 보존 | 변화 |
+|---|---:|---:|---:|
+| held-out PSNR | 24.319 | **24.483** | **+0.164dB** |
+| keyframe PSNR | 24.385 | **24.520** | **+0.135dB** |
+| SSIM / LPIPS | 0.78868 / 0.44374 | **0.80350 / 0.39884** | 둘 다 개선 |
+| background update | 5,087 | 4,581 | −506 |
+| final Gaussian | 66,784 | 62,069 | −4,715 |
+| online wall | 97.264s | **97.287s** | +0.023s |
+| deadline margin | 0.386s | **0.363s** | 둘 다 통과 |
+
+따라서 causal trajectory-filler pose와 PGBA residual 보존을 새 deadline-valid strict
+best로 채택한다. 이 결과는 더 많은 update가 아니라 비-keyframe supervision의
+pose 품질이 held-out 일반화에 실제 영향을 준다는 증거다. 다만 600-frame의
++0.477dB가 full에서는 +0.164dB로 축소됐고, 27dB까지 **2.517dB**가 남았다.
+따라서 단독으로 목표를 해결한 것은 아니며 late reset/coverage와 optical dense
+view의 수명 관리를 다음 병목으로 본다. 27dB 전 hard carve/floater pruning은
+계속 실행하지 않는다.
+
+산출물:
+
+- 구조 확인(품질 판정 제외):
+  `results/experiments/exp57_dense_trajfiller_start150_late2_smoke300`
+- 600-frame:
+  `results/experiments/exp57_dense_trajfiller_offset2_start300_late1_smoke600`
+- residual 보존 전 full 실패:
+  `results/experiments/exp57_dense_trajfiller_offset2_start650_late1_pgbacut1120_strict15x`,
+  `results/experiments/exp57_dense_trajfiller_offset2_start650_late2_pgbacut1120_strict15x`
+- 채택:
+  `results/experiments/exp57_dense_trajfiller_residual_offset2_start650_late2_pgbacut1120_strict15x`
