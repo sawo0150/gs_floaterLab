@@ -34,6 +34,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 Gaussian-full random late-iters1 — 경계 기각)**:
+  채택된 late-iters2보다 post-PGBA settle 예산을 더 확보하려고 600 start300에서
+  regular map 반복을 1로 낮췄다. update는 3,284→3,644로 늘었지만 결과는
+  **24.789/24.729dB**, 38,248GS, 48.278s로 iters2의 24.859/24.679 대비
+  held-out −0.070dB, kf +0.050dB의 혼재였다. 27dB 경로의 승격 기준인 held-out
+  순개선을 넘지 못해 full은 실행하지 않고 **late-iters2를 채택점으로 유지**한다.
+  strict best 24.099dB와 27dB 전 hard carve 보류는 변함없다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 PGBA xyz Adam moment 공변 변환 — 600에서 기각)**:
   PGBA의 `x'=C'+R(x-C)/s`에 맞춰 xyz Adam 1차 moment를 `Rm/s`, diagonal
   2차 moment를 `R²v/s²`로 변환하는 opt-in을 구현했다. 90도 회전/scale2 synthetic

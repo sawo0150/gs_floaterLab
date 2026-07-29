@@ -1718,3 +1718,24 @@ fixed 1.5×, zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_xyzmoment_smoke600`
+
+## 2026-07-29 추가 — Gaussian-full random late-iters1 경계 기각
+
+채택된 start300/late-iters2 600 조건에서 regular frontier 반복을 2→1로 더
+줄여 random Gaussian-full settle에 예산을 넘겼다.
+
+| 600 조건 | held-out / kf | update | GS | online |
+|---|---:|---:|---:|---:|
+| **late iters2** | **24.859 / 24.679** | 3,284 | 38,241 | 48.276s |
+| late iters1 | 24.789 / **24.729** | **3,644** | 38,248 | 48.278s |
+
+update는 +360회 늘었지만 held-out은 −0.070dB, keyframe은 +0.050dB로 혼재했다.
+held-out 27dB가 성공 지표이므로 full strict로 승격하지 않는다. 이 결과로
+frontier RGBD 반복과 Gaussian-full random replay의 현재 최적 경계는 **2회**다.
+
+strict best 24.099dB/97.274s를 유지한다. RGB+IMU-only, MPS 금지, fixed 1.5×,
+zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late1_smoke600`
