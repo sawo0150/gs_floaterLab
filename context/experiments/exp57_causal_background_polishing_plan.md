@@ -1389,3 +1389,58 @@ carve/floater pruning은 실행하지 않는다. 현재 strict 최고는 **23.98
 
 - `results/experiments/exp57_doublebuffer_s300_mf500_random_app_smoke600`
 - `results/experiments/exp57_doublebuffer_s650_mf1040_random_app_strict15x`
+
+## 2026-07-29 추가 — growing-map random replay full 일반화 실패
+
+stable-map 실험에서 temporal round-robin보다 +4dB였던 uniform random sampler를
+map을 freeze하지 않은 growing tensor에 적용했다. 600-frame start300에서는
+1,741 step을 흡수해 paired control **22.461/22.455dB** 대비
+**24.776/24.885dB(+2.315/+2.430)**, online 48.287s로 이 세션의 가장 강한
+prefix 양성 신호가 나왔다.
+
+그러나 같은 설정을 전체 1,253-frame으로 승격하자 4,427 step 뒤
+**22.404/22.599dB**, 67,411GS, online 98.879s로 품질·deadline 모두 실패했다.
+frame899로 늦춰 geometry를 포함한 random replay를 603회만 실행해도
+**22.777/22.951dB**, 72,550GS, 98.934s였다. 600 prefix에는 없는 후반
+PGBA가 Gaussian 좌표를 변환한 뒤 Adam geometry moment를 과거 좌표계에 남기는
+문제를 발견해 PGBA 직후 xyz/scale/rotation moment reset도 A/B했지만
+**22.226/22.405dB**로 더 악화되어 코드는 원복했다.
+
+old base와 late overlay의 regular gradient 간섭을 분리하기 위해 fixed origin
+cutoff를 지원하는 opt-in `--background_freeze_origin_cutoff`를 구현했다.
+cutoff899 이전 lineage만 별도 background Adam으로 random settle하고 900 이후
+21,963개 late Gaussian은 regular mapper가 계속 성장하게 했다. 구조는 최종
+frozen **40,630/62,593**, 486 step으로 의도대로 작동했지만 held-out/keyframe은
+**22.044/22.062dB**, online 98.944s였다. random sampler로 바꿔도 같은 tensor의
+completed lineage를 joint regular gradient에서 끊는 방식은 전역 visibility 결합을
+깨뜨린다는 기존 lineage-freeze 결론이 유지된다.
+
+마지막으로 geometry drift 없이 GPU 예산만 재배분했다. frame899 이후 regular
+map depth를 7→2 iterations로 줄이고 appearance-only random dense replay를
+2,056회 실행했다. online은 **97.435s**로 deadline을 0.215초 통과했고 mapper
+drain도 0.0065초였지만 품질은 **23.060/23.345dB**, 74,368GS에 그쳤다.
+
+| full strict 조건 | held-out / kf | replay step | GS | online |
+|---|---:|---:|---:|---:|
+| growing gaussian, start300 | 22.404 / 22.599 | 4,427 | 67,411 | 98.879s |
+| growing gaussian, start899 | 22.777 / 22.951 | 603 | 72,550 | 98.934s |
+| 위 + PGBA moment reset | 22.226 / 22.405 | 592 | 72,400 | 99.029s |
+| fixed lineage899 random | 22.044 / 22.062 | 486 | 62,593 | 98.944s |
+| **appearance random + late iters2** | **23.060 / 23.345** | **2,056** | **74,368** | **97.435s 통과** |
+
+모든 run은 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`다. 600-frame prefix 이득은 full stream 성공의
+근거가 될 수 없으며, same-global-tensor background family는 sampler, geometry
+scope, 시작 시점, fixed lineage, late iteration 재배분까지 소진했다. 다음 구조는
+PGBA에 흔들리지 않는 keyframe-local stable submap과 late overlay를 parameter
+merge 없이 render-time union하는 독립 dual-map이다. 현재 strict 최고
+23.982dB와 1차 목표 27dB는 유지하며, 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_start300_{smoke600,strict15x}`
+- `results/experiments/exp57_growing_random_start899_cap2500_strict15x`
+- `results/experiments/exp57_growing_random_start899_cap2500_pgbareset_strict15x`
+- `results/experiments/exp57_lineage899_random_fixedcutoff_strict15x`
+- `results/experiments/exp57_growing_random_app_start899_late2_strict15x`

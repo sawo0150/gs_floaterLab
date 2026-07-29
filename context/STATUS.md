@@ -33,6 +33,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 growing-map random — prefix +2.315dB, full 전부 기각)**:
+  freeze 없는 random dense replay는 600-frame에서 control 22.461 대비
+  **24.776dB(+2.315)**였지만 full start300은 4,427 step에도 **22.404dB**,
+  start899도 22.777로 일반화되지 않았다. PGBA geometry Adam moment reset은
+  22.226으로 역효과여서 원복. fixed cutoff899로 old base 40,630개를 background
+  Adam, late overlay 21,963개를 regular mapper에 맡겨도 22.044dB였다.
+  geometry를 막고 late map iters 7→2로 확보한 예산에 appearance random
+  2,056회를 넣으면 **23.060/23.345dB, 74,368GS, 97.435s**로 deadline은
+  통과했지만 최고 23.982 미달. same-global-tensor background 축은 소진했고
+  다음은 keyframe-local stable submap+late overlay의 render-time union이다.
+  27dB 전 hard carve 보류.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 spatial double-buffer — 600 양성, full strict 기각)**:
   stable snapshot을 random settle해 frame500에 appearance residual로 합치고 late
   overlay와 공동 렌더 reconciliation한 600-frame run은 paired control
