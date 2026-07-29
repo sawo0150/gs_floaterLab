@@ -2051,3 +2051,42 @@ family를 종료한다. opt-in scope 코드는 향후 진단 자산으로 남기
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_appopacity_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_geometry_smoke600`
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150_geometry_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — stable-map freeze1000은 keyframe만 개선, held-out 기각
+
+freeze899는 완료 구간을 강하게 정제했지만 899 이후 신규 surface를 잃어 held-out
+23.080dB에 그쳤다. 반면 trajectory 분석에서 frame1000 이후 keyframe의 96.2%가
+이전 궤적 0.5m 이내였으므로, 현재 best 레시피에
+`--mapping_freeze_after_frame 1000`만 추가했다. boundary 뒤에도 RGB+IMU
+tracking은 끝까지 계속했고, Gaussian birth/regular optimizer만 멈췄다.
+background view horizon은 frame999로 고정됐으며 마지막 sensor frame 뒤 update는
+0회다.
+
+| full strict 1.5× | 기존 best | **freeze1000** | 변화 |
+|---|---:|---:|---:|
+| held-out PSNR | **24.319** | 24.031 | **−0.288dB** |
+| keyframe PSNR | 24.385 | **26.015** | **+1.630dB** |
+| SSIM / LPIPS | 0.78868 / 0.44374 | 0.77372 / 0.45578 | held-out 악화 |
+| background update | 5,087 | **6,370** | +1,283 |
+| final Gaussian | 66,784 | 67,944 | +1,160 |
+| online wall | 97.264s | **97.264s** | 동일 |
+| deadline margin | 0.386s | **0.386s** | 둘 다 통과 |
+
+추가 fixed-map update는 keyframe fit을 1.63dB 올렸으므로 수렴 능력 자체는 명확히
+유효하다. 하지만 frame1000 이후 map growth를 닫자 held-out 신규 시점 일반화가
+악화됐다. “후반 keyframe이 기존 궤적 근처”라는 위치 통계만으로 신규 occlusion,
+view direction, 비-keyframe 표면 coverage를 대체할 수 없다. 따라서 freeze1000은
+채택하지 않는다.
+
+이 결과는 strict 27dB의 병목이 단순 optimizer step 부족만이 아님을 좁힌다.
+필요한 구조는 map을 고정해 수렴시키는 동시에 late surface와 non-keyframe
+coverage를 계속 공동 표현해야 한다. 앞선 snapshot/dual-map의 hard partition도
+실패했으므로, 다음 축은 분리된 map merge가 아니라 growing map 안에서 late
+coverage를 보존하는 supervision/parameterization이어야 한다.
+
+입력은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail이며 27dB 전 hard
+carve/floater pruning은 실행하지 않았다. strict best 24.319dB를 유지한다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_freeze1000_pgbacut1120_strict15x`

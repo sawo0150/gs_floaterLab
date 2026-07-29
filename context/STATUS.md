@@ -34,6 +34,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 stable-map freeze1000 — kf +1.63dB, held-out 기각)**:
+  기존 freeze899의 late coverage 손실을 줄이면서 마지막 약 20초를 fixed-map
+  수렴에 쓰기 위해 현재 best에 `mapping_freeze_after_frame=1000`을 결합했다.
+  update는 5,087→**6,370**, keyframe PSNR은 24.385→**26.015dB(+1.630)**로
+  크게 올랐고 **97.264s**로 deadline도 통과했다. 그러나 held-out은
+  **24.031dB(−0.288)**, SSIM 0.77372로 악화됐다. stable-map 수렴은 실제로
+  강하지만 late 신규 시점 coverage/일반화를 닫는 손해가 더 크므로 기각한다.
+  27dB 갭은 단순 update 수가 아니라 growing map과 late non-keyframe coverage를
+  함께 보존해야 풀린다. strict best 24.319dB와 27dB 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background LR parameter-group 분리 — full 기각)**:
   uniform LR 실패 원인을 분리하려고 SH+opacity와 xyz+scale+rotation 배율을
   독립 적용했다. 600-frame에서 appearance+opacity 1.5×는 **24.654dB
