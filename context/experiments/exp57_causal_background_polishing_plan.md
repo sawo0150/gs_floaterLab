@@ -3701,3 +3701,32 @@ fixed evaluator mapping exclusion, tail optimizer update 0이다.
 
 - `results/experiments/exp57_disjoint_mapafterimu_priority050_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_priorityepoch_backgroundrng0_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — batch forward + per-view sequential Adam 조기 기각
+
+기존 batch2는 두 view를 한 번에 render/backward한 뒤 gradient를 평균해 Adam
+한 step만 수행했기 때문에 view update는 늘어도 optimizer step이 줄어 품질이
+악화했다. optimizer step 수를 보존하면서 batch forward 이득만 얻을 수 있는지,
+두 batched loss의 Gaussian gradient를 각각 구한 뒤 순서대로 Adam 두 step을
+적용하는 feasibility microbenchmark를 수행했다.
+
+90,770 Gaussian, 1024² 두 view, L1 RGB+depth 조건:
+
+| 두 view / Adam 두 step | 순차 render+backward | batch forward + loss별 grad |
+|---|---:|---:|
+| 시간 | **7.7485ms** | **11.9746ms** |
+| 절감률 | 기준 | **−54.54% (역효과)** |
+
+첫 view는 동일 초기 parameter라 loss가 bit-identical했다. batch 경로의 두 번째
+loss는 첫 Adam step 전 parameter에서 계산되므로 순차 경로와 달랐고, 두 step 뒤
+상대 parameter 차이는 xyz 5.92e-7, f_dc 9.97e-6, opacity 1.52e-4,
+scaling 2.03e-6, rotation 1.99e-5였다. 즉 stale-gradient 근사 자체는 작지만
+현재 `render_kernel_batch()` custom autograd는 loss별 `autograd.grad()` 호출마다
+batch 전체 backward를 다시 실행한다. forward launch를 한 번 줄인 것보다
+두 camera batch backward를 두 번 수행하는 비용이 훨씬 컸다.
+
+성공 기준과 반대 방향이므로 VIGS runtime source 구현 및 causal smoke/full replay
+전에 중단했다. 이 방식이 유효하려면 renderer backward가 camera slice별 graph나
+한 번의 backward에서 per-view Gaussian gradient tensor를 직접 반환하도록 CUDA
+API 자체를 바꿔야 한다. 단순 Python autograd 조합으로는 update 처리량을 늘릴 수
+없다.

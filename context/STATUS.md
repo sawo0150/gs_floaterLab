@@ -58,6 +58,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 batch forward + sequential Adam — 54.5% 느려 조기 기각)**:
+  batch2의 optimizer-step 감소를 막으려고 두 batched view loss의 gradient를 각각
+  구해 Adam 두 step을 적용했다. 90,770GS/1024² microbenchmark에서 순차
+  **7.7485ms** 대비 batch-grad **11.9746ms**로 54.54% 느렸다. 현재 custom
+  autograd가 loss별 호출마다 batch 전체 backward를 재실행하기 때문이다.
+  수치적으로는 실행 가능했지만 속도 정지 조건을 만족해 runtime 구현과
+  smoke/full replay 전에 기각했다. 처리량을 늘리려면 Python 조합이 아니라
+  CUDA backward API가 한 번에 per-view Gaussian gradient를 반환해야 한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 loss-priority within-epoch — fixed 26.973dB, family 종료)**:
   priority50의 uniform coverage 손실을 분리하려고 모든 causal dense view를
   epoch당 정확히 한 번 쓰면서 loss EMA로 순서만 가중했다. fixed는
