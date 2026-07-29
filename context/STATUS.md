@@ -51,6 +51,13 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 반복 분산 원인 — background 전 pose가 이미 다름)**:
+  quota 두 run은 keyframe 116개의 timestamp가 완전히 같지만 최종 xyz 평균
+  절대차가 0.60/1.17/1.88cm, 최대 3.83cm였다. background 시작 전 kf17에서
+  이미 최대 1.03cm 차이가 났다. 따라서 background sampling이 아니라
+  tracker/PGBA 수치 변동 또는 regular GS GPU interleaving이 map topology와
+  PSNR 분산의 선행 원인이다. 다음 안정화 범위를 이 둘로 좁힌다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 causal quota5200 — 26.859/26.676dB, 분산 억제 실패)**:
   frame 진행률별 background 누적 step 상한을 causal하게 unlock하는 quota를
   구현했지만 두 run은 fixed **26.8585/26.6756dB**(평균 26.7671),

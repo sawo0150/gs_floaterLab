@@ -3405,3 +3405,17 @@ exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_quota5200_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_quota5200_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 진단 — 분산은 background 전 online pose에서 이미 시작
+
+quota5200 두 run의 `traj_kf_beforeBA.txt`를 직접 비교했다. keyframe은 둘 다
+116개이고 timestamp 열은 전부 동일했지만 pose 값은 같지 않았다. 최종
+trajectory의 xyz 성분별 평균 절대차는 약 **0.60/1.17/1.88cm**, 최대 절대차는
+**3.83cm**였다.
+
+중간 trajectory checkpoint 비교에서는 kf1이 bit-identical, kf11에서 xyz 최대
+0.062cm, kf17에서 이미 **1.03cm** 차이가 났다. background polish는 frame700
+이후에만 시작하므로 이 divergence는 background sampler/quota보다 앞선다.
+따라서 반복 PSNR 분산의 다음 조사 대상은 online tracker/PGBA의 수치 변동과
+regular GS worker의 GPU 실행 interleaving이다. 동일 timestamp keyframe 집합을
+유지하는 것만으로 동일 map topology를 보장하지 못한다.
