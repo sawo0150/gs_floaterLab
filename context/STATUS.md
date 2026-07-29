@@ -26,6 +26,14 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 > 통과했다. **strict pure-online 27dB 1차 목표는 완료**했으며, 다음은 이
 > 고품질 map 위에서 carve/floater 억제를 검증한 뒤 strict 30dB로 간다.
 
+> **2026-07-29 최신 best 정정:** pre-IMU gate에 append-only PPM birth와
+> post-freeze dense supervision을 유지한 채 freeze를 1050→850으로 앞당기자
+> fixed가 **27.5822/27.6958dB**로 2/2 재현됐다(평균 **27.6390dB**).
+> 97.282/97.200초, tail update 0, MPS 입력 0 계약을 모두 통과했다.
+> 따라서 strict 27dB 1차 목표의 현재 recipe는 freeze850이며, 남은 품질 병목은
+> frame1000–1199 **22.91–23.45dB**, 1200–1252 **19.38–19.51dB**인 후반
+> coverage다.
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
@@ -58,6 +66,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 freeze850 — strict fixed 27.639dB 평균으로 채택)**:
+  pre-IMU gate, append-only PPM birth, post-freeze dense supervision을 유지하고
+  freeze 경계를 1050→950→900→850으로 앞당겼다. freeze950은
+  **27.4717/27.4509dB**(평균 27.4613), freeze900은 27.4644, freeze850은
+  **27.5822/27.6958dB**(평균 **27.6390**)였다. freeze850 두 run 모두
+  97.282/97.200s, tail update 0, RGB+IMU only/MPS0를 통과했다. 기존
+  freeze1050 평균 27.0205 대비 **+0.6185dB**다. 다만 마지막 두 bin은
+  22.91–23.45/19.38–19.51dB여서 30dB의 다음 병목은 후반 coverage다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 batch2 평균-gradient Adam×2 — update↑, 품질↓ 기각)**:
   추가 render/backward 없이 batch 평균 gradient를 Adam에 두 번 적용했다.
   pre-IMU gate 포함 paired 600 smoke에서 optimizer/view update는

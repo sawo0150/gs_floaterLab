@@ -3762,3 +3762,60 @@ exclusion, fixed 1.5×, tail optimizer update 0 계약을 통과했다.
 
 - `results/experiments/exp57_mapafterimu_batch1_paired_start300_late2_smoke600`
 - `results/experiments/exp57_mapafterimu_batch2_repeatadam2_start300_late2_smoke600`
+
+## 2026-07-29 채택 — append-birth 조건 freeze850, strict fixed 27.639dB 평균
+
+기존 freeze899 실패는 cutoff 뒤 새 Gaussian coverage까지 잃던 구조에서 나온
+결론이었다. 현재 recipe는 freeze 뒤에도 causal dense view를 계속 등록하고
+`mapping_freeze_allow_births`로 PPM Gaussian 출생을 허용하므로, stable map
+수렴 시간을 늘리면서 late coverage를 유지할 수 있다. pre-IMU gate가 포함된
+strict27 recipe에서 freeze 경계를 다시 스캔했다.
+
+| freeze frame | fixed PSNR | SSIM / LPIPS | background update | Gaussian | online wall |
+|---:|---:|---:|---:|---:|---:|
+| 1050 control run 1 | 27.0039 | 0.85308 / 0.27834 | 4,831 | 76,343 | 97.2071s |
+| 1050 control run 2 | 27.0371 | 0.85007 / 0.28117 | 4,872 | 76,415 | 97.2413s |
+| 950 run 1 | 27.4717 | 0.85186 / 0.26638 | 5,656 | 76,363 | 97.2415s |
+| 950 run 2 | 27.4509 | 0.85516 / 0.26801 | 5,252 | 76,247 | 97.2419s |
+| 900 | 27.4644 | 0.85837 / 0.26362 | 5,469 | 84,046 | 97.2761s |
+| **850 run 1** | **27.5822** | **0.85831 / 0.26105** | **5,630** | **84,174** | **97.2815s** |
+| **850 run 2** | **27.6958** | **0.85533 / 0.26274** | **5,573** | **84,082** | **97.2004s** |
+
+freeze850 평균은 **27.6390dB**, run range는 0.1135dB다. freeze950 평균
+27.4613보다 +0.1777dB, 기존 freeze1050 평균 27.0205보다 **+0.6185dB**다.
+두 freeze850 run 모두 97.65초 deadline에 0.368/0.450초 여유가 있었고,
+마지막 sensor frame 뒤 optimizer update는 0회였다. 입력 provenance는
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`; fixed evaluator 252장은 Gaussian
+supervision에서 제외됐다.
+
+fixed evaluator 구간별 PSNR:
+
+| frame bin | freeze850 run 1 | freeze850 run 2 |
+|---|---:|---:|
+| 0–199 | 29.2715 | 29.3419 |
+| 200–399 | 30.0915 | 30.5326 |
+| 400–599 | 29.4064 | 29.5337 |
+| 600–799 | 27.9020 | 28.2602 |
+| 800–999 | 27.7940 | 28.0953 |
+| 1000–1199 | 23.4505 | 22.9069 |
+| 1200–1252 | 19.5075 | 19.3767 |
+
+따라서 freeze850을 새 strict27 recipe로 채택한다. 이 결과는 “freeze가 항상
+late coverage를 해친다”가 아니라 **post-freeze birth와 causal dense view가
+있을 때는 더 이른 stable-map 전환이 수렴 이득을 낸다**는 조건부 정정이다.
+30dB까지 남은 병목은 전체 update 수보다 frame1000 이후 coverage이며, 다음
+품질 실험은 이 late tail을 직접 보강해야 한다. hard carve/pruning은 이
+고품질 recipe의 floater 진단 전에는 섞지 않는다.
+
+재현 중 workspace 원본 RGB/IMU 경로를 잘못 넣은 두 시도는 IMU
+preintegration `Invalid dT=0`로 초기 중단돼 품질 판정에서 제외했다. 성공
+run의 저장된 `input_provenance.json`과 동일한 VIGS Aria photo+IMU stream
+사본을 사용하자 정상 재현됐다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze950_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze950_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze900_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze850_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_freeze850_repeat3_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
