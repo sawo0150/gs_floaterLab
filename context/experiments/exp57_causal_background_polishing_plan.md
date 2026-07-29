@@ -1,6 +1,6 @@
 # exp57 — 실시간 품질 도약: causal background polishing + 정보량 기반 global replay
 
-- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 23.982dB (2026-07-29)**
+- 상태: **strict photo+IMU-only 1.5× zero-tail held-out 27dB 진행 중 / 현재 최고 24.099dB (2026-07-29)**
 - 기준선: exp56 Phase 11, `kernel_batch_render=true`
   - 순수 온라인 held-out/keyframe PSNR: **23.46 / 23.98dB**
   - 온라인 루프: **44.00s / 녹화 65.1s = 실시간 배수 0.68배**
@@ -1638,3 +1638,54 @@ hard mining은 모두 종료하며 full run으로 승격하지 않는다.
 산출물:
 
 - `results/experiments/exp57_residualglobal050_smoke600`
+
+## 2026-07-29 추가 — Gaussian-full random + late-iters2 채택
+
+기존 growing-map random replay는 600 prefix에서 +2.315dB였지만 full에서
+실패했고, regular map 반복을 7→2로 줄여 update 예산을 확보한 full 대조군은
+appearance-only만 실행했다. 반면 fixed-map 5k가 +4.74dB를 낸 필수 조건은
+camera-fixed 상태에서 `xyz/scale/rotation/opacity/SH` 전체를 갱신하는
+Gaussian-full gradient였다. 이 빠진 조합을 검증했다.
+
+- regular frontier: start frame 이후 map iterations 7→2
+- background: 이미 도착한 tracked+dense RGB를 uniform random, camera pose/exposure
+  고정, Gaussian 전체 parameter update
+- dense: stride5 evaluator offset0을 제외한 offsets1/2/3/4
+- carve: 27dB 전 원칙에 따라 background hard/soft carve 모두 비활성
+
+600-frame start300은 3,284 update를 흡수했다.
+
+| 600 조건 | held-out / kf | update | GS | online |
+|---|---:|---:|---:|---:|
+| paired control | 22.461 / 22.455 | 0 | 34,517 | 48.311s |
+| 기존 Gaussian random, regular iters7 | 24.776 / 24.885 | 1,741 | - | 48.287s |
+| **Gaussian random + late iters2** | **24.859 / 24.679** | **3,284** | **38,241** | **48.276s** |
+
+control 대비 held-out **+2.398dB**, 기존 random 대비 +0.083dB로 명확한 양성이어서
+동일 상대 시작점인 frame650(전체의 51.9%)으로 full 승격했다.
+
+| full strict 1.5× | 결과 |
+|---|---:|
+| held-out / keyframe PSNR | **24.099 / 24.202dB** |
+| SSIM / LPIPS | **0.77781 / 0.45834** |
+| background update | **4,730** |
+| final Gaussian | **67,759** |
+| online wall | **97.274s** |
+| deadline | **97.65s 대비 0.376s 통과** |
+
+이 run은 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+`post_stream_refinement=false`이며 마지막 sensor frame 뒤 optimizer update는
+0회다. 기존 deadline-valid 최고 23.782dB보다 **+0.317dB**여서 새 strict best로
+채택한다. 전체 최고였지만 deadline을 놓친 23.982dB도 품질과 시간 모두 넘어섰다.
+
+27dB까지는 2.901dB가 남았다. 600의 큰 이득이 full에서는 작아진 원인은 frame1188
+부근 late PGBA가 864개 dense pose와 Gaussian 좌표계를 다시 바꾸고, 그 뒤 남은
+입력 시간이 짧아 random settle이 재수렴할 시간이 부족한 패턴이다. 다음 축은
+Gaussian-full gradient를 약화시키는 것이 아니라, late PGBA 직후 남은 update
+예산을 우선 배정하거나 PGBA 직전 update의 유효 상태를 좌표 변환에 맞게 보존하는
+방법이다. 27dB 전 hard carve/floater pruning은 계속 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_strict15x`
