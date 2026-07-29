@@ -58,6 +58,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp58 fixed-view pose-gradient skip — −1.96%, 조기 기각)**:
+  background view pose가 고정이라는 점을 이용해 `dL_dtau` SE3 계산만 생략하는
+  저위험 가지를 90,770GS/1024²에서 검증했다. forward는 bit-exact이고 Gaussian
+  gradient 상대오차는 8.76e-8~3.65e-6이었지만, full **3.0617ms** 대비 skip
+  **3.1216ms**로 오히려 1.96% 느렸다. 커널/launch 구조를 그대로 둔 산술 일부
+  생략은 ROI가 없어 1253 replay 전에 기각했다. 임시 CUDA/Python patch는 전부
+  원복하고 baseline extension 재빌드 및 실제 render+backward pose gradient까지
+  확인했다. strict 30dB 속도 축은 `BACKWARD::preprocess` 전체 batch 또는
+  update 효율 개선처럼 더 큰 구조 변화가 필요하다.
+  → [exp58](experiments/exp58_cuda_visibility_backward_plan.md)
 - **2026-07-29 (exp57 strict27 background carve — 품질·floater 동시 악화)**:
   depth-anchor diagnostic paired run에서 background carve off→λ0.05는 fixed
   **27.0124→26.8402dB**, visible floater **16,639→17,036**, 비율

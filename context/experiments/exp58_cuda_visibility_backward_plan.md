@@ -1,6 +1,6 @@
 # exp58 — CUDA 내부 visibility skip + `BACKWARD::preprocess` 최적화
 
-- 상태: **계획 (2026-07-28), 고위험**
+- 상태: **진행 중 (2026-07-29), 첫 저위험 가지 기각**
 - 이전 번호: exp56 Phase 9~11에서 `exp57` 후속으로 언급되던 구상을 **exp58로 이동**
 - 선행: [exp57](exp57_causal_background_polishing_plan.md)에서 품질을 올리는 update
   구조를 먼저 검증한다. exp58은 그 update를 더 싸게 만들어 실시간 budget을 확보하는 속도 축이다.
@@ -49,6 +49,33 @@ Phase 11은 `renderCUDA`만 `grid.z=camera`로 batch화해 rasterize를 52.1% �
   - `dL_dtau` 관련 구간
 - profiler wrapper의 중복 합산을 피하고 `torch.cuda.synchronize()` wall-clock으로 교차검증.
 - visibility 비율과 N을 함께 기록해 skip의 실측 상한을 계산.
+
+### Phase 0a — fixed background view의 pose-gradient 생략 (기각)
+
+strict exp57의 background polishing view는 pose를 optimizer로 갱신하지 않으므로,
+`dL_dtau` 계산만 생략하면 `BACKWARD::preprocess`를 싸게 만들 수 있는지 먼저
+마이크로벤치마크했다. rasterizer binding에 `compute_pose_grad` opt-in을 임시로
+추가하고 false일 때 `dL_dtau=nullptr`를 넘겨 SE3 pose-gradient 수식을 건너뛰었다.
+
+90,770 Gaussian, 1024² 고정 카메라에서 L1 RGB+depth backward를 비교한 결과:
+
+| 항목 | 결과 |
+|---|---:|
+| forward image/depth | bit-exact |
+| Gaussian grad 상대오차(xyz/fdc/opacity/scaling/rotation) | 1.82e-6 / 1.55e-7 / 8.76e-8 / 1.39e-6 / 3.65e-6 |
+| full pose-grad | 3.0617ms/step |
+| pose-grad 생략 | 3.1216ms/step |
+| 절감률 | **−1.96% (오히려 느림)** |
+
+즉 pose-gradient 계산만으로는 커널 구조/launch를 줄이지 못하고 분기만 추가되어
+측정 잡음 이상의 이득이 없었다. 성공 기준에 크게 못 미쳐 1253 full replay 전에
+중단했다. 임시 source patch를 전부 되돌리고 baseline extension을 재빌드했으며,
+90,770 Gaussian 실제 render+backward에서 finite Gaussian gradient와 카메라
+rotation/translation gradient가 다시 생성되는 것까지 확인했다.
+
+**판정:** fixed-camera pose-gradient skip 단독 축은 기각. Phase 2의 가치는
+여전히 카메라별 `BACKWARD::preprocess` 전체 launch/batch 구조를 바꾸는 데 있지,
+SE3 산술 몇 줄만 조건부 생략하는 데 있지 않다.
 
 ## Phase 1 — 커널 내부 coarse visibility skip
 
