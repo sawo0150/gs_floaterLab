@@ -1916,3 +1916,43 @@ best 24.319dB와 1차 목표 27dB를 유지하며 27dB 전 hard carve/floater pr
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start300_late2_batch2_smoke600`
+
+## 2026-07-29 추가 — background LR 압축, prefix 양성이나 full 기각
+
+같은 optimizer step 수에서 더 빨리 수렴시키기 위해 background step에만 모든
+Gaussian parameter-group LR을 곱하고, step 직후 regular frontier LR을 원래 값으로
+복원하는 `--background_polish_lr_multiplier`를 구현했다. 기본값 1.0은 기존
+동작이며 strict provenance에 배율을 기록한다.
+
+| 600 start300/late-iters2 | LR×1.0 | **LR×1.5** | LR×2.0 |
+|---|---:|---:|---:|
+| held-out PSNR | 24.859 | **24.949** | 24.706 |
+| keyframe PSNR | 24.679 | **25.004** | 24.731 |
+| background update | 3,284 | 3,436 | 3,378 |
+| online wall | 48.276s | 48.278s | 48.309s |
+
+1.5×가 +0.090/+0.325dB로 양성이어서 cutoff1120 full strict로 승격했다.
+
+| full strict 1.5× | LR×1.0 | **LR×1.5** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.319 / 24.385** | 23.749 / 23.840 | −0.571 / −0.546dB |
+| SSIM / LPIPS | **0.78868 / 0.44374** | 0.77625 / 0.46338 | 둘 다 악화 |
+| background update | 5,087 | 5,225 | +138 |
+| final Gaussian | 66,784 | 68,507 | +1,723 |
+| online wall | 97.264s | 97.272s | +0.008s |
+| deadline margin | 0.386s | 0.378s | 둘 다 통과 |
+
+prefix 양성이 full에서 일반화되지 않았고, evolving map에 높은 LR을 5k step 끝까지
+누적한 후반 불안정이 지배적이다. 따라서 무제한 고정 multiplier는 기각한다. 다음
+실험은 초기 background step에만 1.5×를 적용한 뒤 자동으로 1.0으로 복귀시켜
+prefix 양성 신호와 full 안정성을 동시에 보존하는 제한형이다.
+
+모든 run은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했고 지표-only
+평가를 사용했다. strict best 24.319dB와 1차 목표 27dB를 유지하며 27dB 전 hard
+carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr150_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start300_late2_lr200_smoke600`
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_lr150_pgbacut1120_strict15x`

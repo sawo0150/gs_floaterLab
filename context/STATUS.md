@@ -34,6 +34,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background LR×1.5 — prefix 양성, full 강한 기각)**:
+  background step에만 LR multiplier를 적용하고 frontier LR은 즉시 복원하는 opt-in을
+  구현했다. 600에서 1.5×는 **24.949/25.004dB**로 기준보다 +0.090/+0.325dB,
+  2.0×는 24.706dB로 내려가 1.5×를 full 승격했다. 그러나 cutoff1120 full은
+  5,225 update, 68,507GS, **97.272s(deadline 통과)**에도
+  **23.749/23.840dB**로 strict best보다 held-out −0.571dB였다. evolving map에
+  높은 LR을 끝까지 누적하면 후반을 불안정하게 하므로 고정 multiplier는 기각한다.
+  다음은 prefix 양성만 살리는 초기 step 제한형 LR이다. strict best 24.319dB,
+  1차 목표 27dB와 그 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 CUDA batch2 replay — view 처리량↑, 품질 기각)**:
   background batch2가 kernel-batch render를 사용하므로 600 start300에서 시험했다.
   1,995 optimizer step으로 3,990 view를 처리해 batch1의 3,284 view보다 +706
