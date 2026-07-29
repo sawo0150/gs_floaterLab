@@ -44,6 +44,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 non-eval endpoint frame1249 — tail 양성, 전체 기각)**:
+  마지막 미완료 causal interval을 닫으려고 평가 frame1252가 아닌 frame1249를
+  keyframe으로 강제했다. dense 등록은 약 448→454장, 1200–1252 PSNR은
+  20.334→**21.413dB(+1.078)**였지만 fixed 전체는 **25.144dB**, 4,621 update,
+  75,966GS, **97.298s**, tail 0이었다. intervention 전 구간까지 흔들린 것은
+  parallel scheduler 분산이며, 마지막 bin 12장의 가중 기대 이득도 약 +0.05dB라
+  0.931dB 갭의 주축이 될 수 없다. 유리한 run을 고르지 않고 기각하며, 다음은
+  freeze 뒤 PPM newborn의 online RGBD 정착을 검토한다. strict best는 26.069dB다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 topology-only freeze1050 — fixed 25.472dB, 기각)**:
   regular mapping은 계속하되 frame1050 이후 birth/densify/prune만 막았다.
   strict-disjoint fixed 252-view는 **25.472dB**, 4,630 update, 66,588GS,

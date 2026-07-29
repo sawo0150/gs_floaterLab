@@ -2717,3 +2717,40 @@ provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
 산출물:
 
 - `results/experiments/exp57_disjoint_topologyfreeze1050_perview_dense_trajfiller_offsets14_denseonly_residual_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — non-eval final endpoint frame1249 강제 keyframe 기각
+
+trajectory-filler가 오른쪽 tracked keyframe을 기다리기 때문에 마지막 미완료 구간의
+dense RGB가 등록되지 않는 문제를 겨냥했다. evaluator의 마지막 frame1252 대신
+고정 평가셋이 아닌 frame1249(`1249%5=4`)만 online keyframe으로 강제해 causal
+interval을 닫고 append-only PPM birth를 추가했다.
+
+frame1249는 실제 keyframe으로 승격됐고 causal dense 등록 수도 기준선 약 448장에서
+**454장**으로 늘었다. strict-disjoint fixed 252-view는 **25.1443dB**,
+SSIM/LPIPS 0.83141/0.32388, 4,621 update, 75,966GS, **97.298s**, tail update
+0이었다. 기준선보다 전체 −0.924dB다.
+
+| frame | 기준선 | force1249 | 변화 |
+|---|---:|---:|---:|
+| 0–199 | 26.033 | 25.198 | −0.834 |
+| 200–399 | 27.615 | 26.283 | −1.332 |
+| 400–599 | 27.743 | 26.173 | −1.570 |
+| 600–799 | 26.812 | 25.759 | −1.053 |
+| 800–999 | 26.206 | 24.990 | −1.216 |
+| 1000–1199 | 23.723 | 23.582 | −0.141 |
+| 1200–1252 | 20.334 | **21.413** | **+1.078** |
+
+frame1249 intervention 전에 형성된 0–999까지 달라진 것은 parallel tracking/mapping의
+run-to-run scheduler 분산이며 강제 endpoint의 인과 효과일 수 없다. 반면 마지막
+구간 +1.078dB와 dense view +6장은 의도한 tail 보강 신호와 일치한다. 그래도
+fixed eval 252장 중 마지막 bin은 12장뿐이라 좋은 baseline state에 결합해도 단순
+가중 기대 이득은 약 **+0.051dB**에 불과하다. 0.931dB 갭의 주축으로는 부족하므로
+recipe로 채택하거나 유리한 scheduler run을 골라내지 않는다.
+
+provenance는 RGB+IMU-only, MPS 입력 0, fixed-eval mapping exclusion, fixed 1.5×,
+zero-tail을 모두 통과했다. 다음은 endpoint 수보다 freeze 뒤 append된 PPM newborn을
+도착 시점의 RGBD frontier supervision으로 안정적으로 정착시키는 방법을 검토한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_forcekf1249_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
