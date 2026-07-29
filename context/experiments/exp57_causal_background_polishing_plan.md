@@ -1739,3 +1739,31 @@ zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start300_late1_smoke600`
+
+## 2026-07-29 추가 — post-PGBA1188 Gaussian burst 실행기회 0회
+
+full best에서 마지막 PGBA가 frame1188에 864개 dense pose와 Gaussian 좌표를
+갱신한 뒤 재수렴 시간이 짧았으므로, background start와 late-iters1을 모두
+1188로 설정해 남은 stream 시간만 fixed-map형 Gaussian-full random settle에
+쓰려 했다.
+
+| 조건 | background update | held-out / kf | GS | online |
+|---|---:|---:|---:|---:|
+| post-PGBA1188 burst | **0** | **22.997 / 23.307** | 86,469 | **97.867s** |
+
+frame1188 이후 tracking이 마지막 frame까지 연속 active였고, background worker의
+idle guard를 만족한 구간이 한 번도 없어 optimizer update가 0회였다. 마지막
+sensor frame 뒤 update는 금지되어 있으므로 종료 뒤 backlog를 처리하지 않았다.
+deadline 97.65s도 0.217초 초과했다.
+
+이는 구현 미배선이 아니라 fixed-rate streaming의 계산 인과성이다. 앞선 구간의
+GPU idle 시간을 “저축”해 마지막 PGBA 뒤 사용할 수는 없다. late burst family는
+종료하며, 다음 가능 경로는 마지막 PGBA를 더 이른 frame에서 끝내 그 이후의
+Gaussian-full update가 같은 최종 좌표계에 누적되게 하는 것이다.
+
+strict best 24.099dB/97.274s는 유지한다. RGB+IMU-only, MPS 금지, fixed 1.5×,
+zero-tail이며 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_postpgba1188_gaussian_late1_strict15x`

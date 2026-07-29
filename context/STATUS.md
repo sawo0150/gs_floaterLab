@@ -34,6 +34,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 post-PGBA1188 burst — 실행기회 0회로 기각)**:
+  마지막 PGBA 직후 남은 약 65 frame 동안만 Gaussian-full random settle을
+  집중하려고 background/late-iters1 시작을 frame1188로 맞췄다. 그러나 tracking이
+  종료까지 연속 active여서 idle scheduler가 **0 update**였고, 결과는
+  **22.997/23.307dB**, 86,469GS, **97.867s(deadline +0.217s)**였다. fixed
+  1.5× wall time의 앞선 idle compute는 나중으로 저장할 수 없으므로 late burst
+  가설은 구조적으로 기각한다. 다음은 마지막 PGBA 자체를 더 일찍 끝내 이전
+  Gaussian-full update가 최종 좌표계에서 누적되게 하는 축이다. strict best
+  24.099dB와 27dB 전 hard carve 보류를 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 Gaussian-full random late-iters1 — 경계 기각)**:
   채택된 late-iters2보다 post-PGBA settle 예산을 더 확보하려고 600 start300에서
   regular map 반복을 1로 낮췄다. update는 3,284→3,644로 늘었지만 결과는
