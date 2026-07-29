@@ -2829,3 +2829,30 @@ paired control은 모든 strict-disjoint 계약을 통과한 유효 run이므로
   `results/experiments/exp57_disjoint_birthrefine1_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - paired control:
   `results/experiments/exp57_disjoint_birthrefine0_paired_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — post-freeze PPM birth 2×, 숫자 신기록이나 인과 기각
+
+기존 `mapping_freeze_birth_downsample_multiplier`는 최소 1로 clamp되어 절반 budget만
+시험할 수 있었다. opt-in 최소값을 0.25로 확장하고 multiplier 0.5, 즉 freeze 뒤
+PPM birth만 2배로 늘렸다. pre-freeze 초기화와 모든 optimizer 설정은 동일하다.
+
+strict-disjoint fixed 결과는 **26.5348dB**, SSIM/LPIPS
+0.84302/**0.28891**, 4,975 update, 89,337GS, **97.250s**, tail 0이었다.
+paired 1× control보다 PSNR +0.0845dB, LPIPS −0.00893으로 숫자상 새 단일
+최고이며 모든 strict provenance를 통과했다.
+
+그러나 intervention은 1050 이후인데 구간별 PSNR은
+26.514/29.079/29.319/27.292/26.596/**22.742/18.757dB**다. 직접 영향을
+받는 마지막 두 구간은 paired control 23.274/19.124보다 각각
+**−0.532/−0.368dB** 낮다. 전체 +0.085dB는 pre-freeze scheduler state가 더
+좋았던 효과이며 birth 밀도 증가의 인과 이득이 아니다. Gaussian도 +14,334개
+증가했으므로 recipe는 1×를 유지하고 2× 축을 종료한다.
+
+26.535dB run 자체는 계약을 지킨 유효 단일 수치라 best 숫자에는 남기되,
+27dB 달성 증거나 채택 recipe로 사용하지 않는다. 남은 단일 최고 갭은
+0.465dB다. 다음은 PPM 위치를 움직이지 않고 exact newborn의
+appearance/opacity만 birth RGBD에서 정착시키는 좁은 ablation이다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_birth2x_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
