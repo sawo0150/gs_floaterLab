@@ -3649,3 +3649,39 @@ exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
 
 - `results/experiments/exp57_disjoint_mapafterimu_anchorcontrol_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_anchor_bgcarve005_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — causal loss-prioritized replay 50% 기각
+
+strict 27 control의 shuffled epoch는 모든 causal dense RGB view를 균등하게
+재방문한다. 같은 약 5k update를 어려운 view에 더 배분하면 수렴을 압축할 수
+있는지 확인하려고 opt-in `--background_polish_priority_fraction`을 구현했다.
+
+- 각 view가 실제 background supervision에 사용됐을 때의 RGBD loss만 저장한다.
+- detached CUDA scalar 32개를 한 번에 host로 옮겨 step당 동기화를 피한다.
+- loss EMA(0.8 old + 0.2 new)에 비례해 50%를 재표집하고, 나머지 50%는 기존
+  shuffled epoch를 그대로 유지한다.
+- 아직 도착하지 않은 RGB, evaluator view, MPS/postprocessed pose/depth는 쓰지 않는다.
+- 기본값 0은 기존 sampler와 동작이 같다.
+
+| strict fixed 252-view | uniform control 2-run | priority 50% | 변화 |
+|---|---:|---:|---:|
+| held-out PSNR | **27.0039 / 27.0371** | **26.9249** | control 평균 대비 **−0.0956dB** |
+| SSIM | 0.85308 / 0.85007 | **0.85448** | 소폭 개선 |
+| LPIPS | 0.27834 / 0.28117 | **0.27687** | 소폭 개선 |
+| background update | 4,831 / 4,872 | **4,927** | 동급 |
+| Gaussian | 76,343 / 76,415 | **76,002** | 동급 |
+| online wall | 97.207 / 97.241s | **97.2459s** | deadline 통과 |
+| post-stream update | 0 / 0 | **0** | 통과 |
+
+perceptual 지표는 소폭 좋아졌지만 목표 지표인 fixed PSNR이 27 아래로 내려갔다.
+어려운 view의 현재 residual을 반복하는 것이 전역 PSNR 균형에 필요한 uniform
+coverage를 절반 줄인 손해를 상쇄하지 못했다. 0.5에서 이미 방향이 음성이며
+더 낮은 fraction은 uniform control로 수렴하는 작은 축이므로 추가 sweep 없이
+기각하고 default 0을 유지한다.
+
+입력 provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+fixed evaluator mapping exclusion, tail optimizer update 0이다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_priority050_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

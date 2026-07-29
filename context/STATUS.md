@@ -58,6 +58,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 loss-prioritized replay 50% — fixed 26.925dB, 기각)**:
+  causal하게 관측한 per-view loss EMA에 background step 50%를 재배분하고 나머지
+  50%는 uniform shuffled coverage를 유지했다. fixed는 **26.9249dB**로 strict27
+  control 평균보다 −0.0956dB였다. SSIM/LPIPS는 0.85448/0.27687로 소폭
+  좋아졌지만 PSNR 목표를 깨뜨렸다. 4,927 update, 76,002GS,
+  **97.2459s/tail0**, RGB+IMU only/MPS0 계약은 통과했다. 어려운 view 반복이
+  uniform coverage 손실을 상쇄하지 못해 priority를 기각하고 default 0을 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp58 fixed-view pose-gradient skip — −1.96%, 조기 기각)**:
   background view pose가 고정이라는 점을 이용해 `dL_dtau` SE3 계산만 생략하는
   저위험 가지를 90,770GS/1024²에서 검증했다. forward는 bit-exact이고 Gaussian
