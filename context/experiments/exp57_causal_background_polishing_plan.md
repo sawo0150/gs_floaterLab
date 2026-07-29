@@ -3552,3 +3552,53 @@ RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping exclusion,
 산출물:
 
 - `results/experiments/exp57_disjoint_imuquant01_window8_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 채택 — pre-IMU GS gate로 strict 27dB 2/2 재현
+
+tracking-only 진단에서 GS 병렬 실행이 online IMU scale과 keyframe/pose 상태를
+바꾸는 것을 확인한 뒤, 코드 경로를 다시 추적했다. IMU metric 초기화 전에도
+GS mapping이 실행되지만 초기화 직후 `remove_all_gaussians()`로 그 map을 전부
+버리고 다시 만드는 구조였다. 품질에 남지 않는 초반 GS가 tracker와 GPU만
+경쟁하고 있었다.
+
+`--mapping_after_imu_init`을 추가해 `video.IMU_initialized`가 true가 될
+때까지 Gaussian mapping enqueue만 보류했다. 기본값 false는 기존 동작을
+보존한다. IMU 초기화 직후 첫 mapping에서 그 시점까지 도착한 causal dense
+interval을 모두 등록하므로 과거 RGB supervision은 유실되지 않는다. 미래
+frame이나 MPS 데이터는 사용하지 않는다.
+
+동일 static late-iters3/freeze1050 recipe를 두 번 실행했다.
+
+| pre-IMU GS gate | run 1 | run 2 |
+|---|---:|---:|
+| raw IMU scale | 0.973646 | 0.973722 |
+| keyframe | 118 | 118 |
+| **fixed 252-view PSNR** | **27.0039** | **27.0371** |
+| fixed SSIM | **0.85308** | 0.85007 |
+| fixed LPIPS | **0.27834** | 0.28117 |
+| background update | 4,831 | 4,872 |
+| GS | 76,343 | 76,415 |
+| online wall | **97.2071s** | **97.2413s** |
+| post-stream update | **0** | **0** |
+
+두-run PSNR 평균은 **27.0205dB**, 범위는 **0.0332dB**이며 2/2 모두
+27dB를 넘었다. keyframe 118개의 timestamp도 완전히 같다. trajectory xyz는
+두 run 사이 평균 절대차 2.37cm, 최대 6.61cm로 여전히 수치 변동이 있으므로
+pose bit-reproducibility를 달성한 것은 아니다. 그러나 과거 ungated late3의
+27.004/26.949/26.572dB(1/3 통과)와 달리 held-out 품질 판정은 반복 통과했다.
+
+또한 scale이 ungated mapping의 1.038~1.040이 아니라 tracking-only의
+0.9736대와 일치해, 삭제될 pre-IMU GS 경합이 IMU 초기화 상태를 바꾸던
+인과 경로가 독립적으로 확인됐다. 따라서 이 gate를 exp57 strict 27dB
+recipe로 채택한다.
+
+두 run 모두 timestamp 순 Aria RGB photo+IMU only, MPS 입력 0,
+fixed evaluator 252-view mapping exclusion, fixed 1.5×, 97.65초 deadline,
+마지막 sensor frame 뒤 optimizer update 0 계약을 통과했다. 이로써
+**strict pure-online held-out 27dB 반복 달성** 1차 목표를 완료한다.
+다음 단계는 이 고품질 strict map에 carve/floater 억제를 이식하는 것이다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_repeat_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

@@ -19,6 +19,13 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 > 현재 목표는 **strict 27dB 반복 달성** 상태다. adaptive6500도
 > 26.8067dB로 기각했다. MPS 후처리 입력은 계속 0개이며 30dB·carve는 후순위다.
 
+> **2026-07-29 최신 목표 달성 정정:** 삭제될 pre-IMU Gaussian mapping을
+> IMU metric 초기화 뒤로 미루자 strict-disjoint fixed가
+> **27.0039/27.0371dB**로 2/2 재현됐다(평균 27.0205). 두 run 모두
+> RGB+IMU only/MPS0/fixed 1.5×/97.65초 deadline/tail update 0 계약을
+> 통과했다. **strict pure-online 27dB 1차 목표는 완료**했으며, 다음은 이
+> 고품질 map 위에서 carve/floater 억제를 검증한 뒤 strict 30dB로 간다.
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
@@ -51,6 +58,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 pre-IMU GS gate — strict 27dB 2/2 재현, 채택)**:
+  IMU metric 초기화 직후 전부 삭제되던 초반 GS를 init 완료까지 보류했다.
+  fixed는 **27.0039/27.0371dB**(평균 27.0205, 범위 0.0332), online wall은
+  **97.207/97.241s**, tail0이었다. raw scale도 ungated 1.038~1.040에서
+  tracking-only와 같은 0.9736대로 돌아와 초반 GS 경합의 인과가 확인됐다.
+  두 run 모두 RGB+IMU only/MPS0/fixed evaluator exclusion 계약을 통과했다.
+  strict 27 반복 목표를 완료하고 gate를 채택하며, 다음은 고품질 strict map에
+  carve/floater 억제를 이식한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 window8 scale-bin 대조 — 26.703dB, 축 종료)**:
   첫 window8의 scale1.035 교란을 제거하려 quantum0.01을 써 raw
   1.03995→**1.040**을 적용했지만 fixed는 **26.7031dB**였다.
