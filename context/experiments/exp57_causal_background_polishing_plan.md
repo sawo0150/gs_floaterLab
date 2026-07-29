@@ -3251,3 +3251,24 @@ RGB+IMU only/MPS 0/deadline/tail0 계약은 세 번째 run도 통과했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat2_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late2→second850 iters3, frontier 보강 부족으로 기각
+
+late-iters3의 품질과 iters2의 replay 처리량을 결합하도록 opt-in 두 번째
+frontier schedule 경계를 구현했다. default −1은 기존 단일 경계를 보존한다.
+첫 검증은 frame650–849에서 iters2, 850–1049에서 iters3를 사용했다.
+
+fixed 결과는 **26.6925dB**, SSIM/LPIPS 0.84619/0.29644,
+4,988 background update, 78,284GS, **97.218s**, tail update 0이었다.
+bins는 26.531/28.762/28.891/27.613/26.977/23.452/19.791dB다.
+
+late3 세 번째 저처리량 run(4,757회)보다 replay는 늘었지만, iters3 적용 구간을
+절반으로 줄여 전체 frontier 보강 효과도 사라졌다. second850은 기각한다.
+다음은 second700으로, 650–699의 추가 반복만 제거하고 late3 품질 신호 대부분을
+보존하는 최소 절충이다.
+
+RGB+IMU only, MPS 0, fixed evaluator exclusion, deadline/tail0을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_second850iters3_pgbacut1120_len1253_strict15x`

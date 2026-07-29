@@ -45,6 +45,12 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late2→second850 iters3 — fixed 26.693dB 기각)**:
+  두 번째 frontier schedule을 구현해 650–849 iters2, 850–1049 iters3를
+  적용했다. 4,988 background update를 확보했지만 fixed는 **26.693dB**로,
+  iters3 적용 구간을 절반으로 줄인 frontier 보강 손실이 컸다. 97.218s/tail0
+  계약은 통과했다. 다음은 650–699만 iters2로 두는 second700 최소 절충이다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late-iters3 세 번째 26.572dB — 반복 27 미달)**:
   세 번째 run은 background update가 5,161→4,757회로 줄며 fixed
   **26.572dB**였다. late3 3회는 27.004/26.949/26.572dB(평균 26.842)라
