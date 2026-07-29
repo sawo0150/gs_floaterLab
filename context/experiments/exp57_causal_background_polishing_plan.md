@@ -1213,3 +1213,44 @@ mapping schedule을 보존하는 방향이다.
 - `results/experiments/exp57_jointcontext_delta_window150_cap400_{smoke600,strict15x}`
 - `results/experiments/exp57_jointcontext_delta_guard{,20}_window150_cap400_smoke600`
 - `results/experiments/exp57_jointcontext_paired_control_{smoke600,strict15x}`
+
+## 2026-07-29 추가 — regular `map()` 내 dense 전용 iteration 기각
+
+independent snapshot worker가 non-preemptive GPU work로 frontier packet timing과
+densify/prune schedule을 바꾸던 문제를 제거하기 위해, dense supervision을 regular
+`map()` 안에 결정론적으로 넣었다. 총 iteration 수, optimizer step 수,
+`iteration_count`, densify/prune 시점은 control과 같게 유지하고 마지막 1/7
+iteration만 causal dense RGB batch로 교체했다. dense 보간 pose의 오차가 새
+Gaussian을 만들지 않도록 해당 iteration의 densification statistics는 수집하지
+않았다. 모든 입력은 strict Aria RGB+IMU-only이고 MPS 입력과 post-stream
+optimizer update는 0회다.
+
+600-frame 결과:
+
+| 조건 | held-out / kf PSNR | control 대비 | Gaussian | online |
+|---|---:|---:|---:|---:|
+| paired no-snapshot control | **22.461 / 22.455** | - | 34,517 | 48.311s |
+| dense 전용 1회, batch 12, weight 1.0 | 22.012 / 21.928 | −0.449 / −0.528 | 33,669 | 48.287s |
+| dense 전용 1회, batch 12, weight 0.25 | **22.035 / 22.035** | **−0.426 / −0.421** | 33,878 | 48.281s |
+
+online 시간은 사실상 동일해 independent worker의 schedule jitter는 제거됐다.
+그러나 가능한 최소 교체 횟수인 1회에서도 control보다 크게 낮았고, dense RGB
+loss weight를 1/4로 낮춰도 held-out은 +0.023dB만 회복했다. 구현 확인 결과
+`_frontier_mapping_view_loss()`의 RGB-only branch에 weight가 실제 적용됐으므로
+dead flag 문제도 아니다. 주원인은 dense gradient 크기보다 regular RGBD
+frontier iteration 하나를 통째로 잃는 것이다. Gaussian 수가 639~848개 감소한
+것도 dense statistics 수집을 막았는데도 이후 예정된 prune/densify 상태가
+gradient 변화에 민감함을 보여준다.
+
+따라서 dense-only iteration replacement family는 종료하고 full 1,253-frame
+strict run으로 승격하지 않는다. 다음 후보는 regular RGBD loss/backward를
+보존한 상태에서 dense gradient를 별도로 계산해 충돌 성분만 투영하거나,
+tracked-gradient norm의 작은 비율로 제한하는 방식이다. 이는 추가 backward
+비용이 있으므로 600-frame에서 PSNR 순이득과 strict deadline 비용을 함께
+검증해야 한다. 현재 strict 최고는 **23.982dB**이며, 27dB 미달이므로 hard
+carve/floater pruning은 계속 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_denseiter1_batch12_smoke600`
+- `results/experiments/exp57_denseiter1_batch12_w025_smoke600`

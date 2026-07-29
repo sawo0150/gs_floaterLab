@@ -33,6 +33,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 regular-map dense 전용 iteration — 기각)**:
+  independent worker가 frontier packet timing을 바꾸는 문제를 피하려고 regular
+  `map()`의 총 iteration/optimizer-step/densify schedule은 고정한 채 마지막 1/7
+  iteration만 causal dense RGB 12장으로 교체했다. 동일 600-frame paired control
+  **22.461/22.455dB, 34,517GS, online 48.311s** 대비 dense weight 1.0은
+  **22.012/21.928dB, 33,669GS, 48.287s**, weight 0.25도
+  **22.035/22.035dB, 33,878GS, 48.281s**로 각각 held-out −0.449/−0.426dB였다.
+  시간은 보존됐지만 최소 1회 교체에서도 현재 frontier RGBD 제약 하나를 잃는
+  손해가 지배적이고, gradient를 1/4로 낮춰도 회복되지 않았다. 따라서
+  dense-only replacement family는 full strict로 승격하지 않는다. 다음 품질 축은
+  regular RGBD gradient를 보존한 채 dense gradient의 충돌 성분만 제한하는
+  gradient projection/norm budget이며, strict 최고 23.982dB와 27dB 전 hard
+  carve 보류 원칙은 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 overlap-aware joint-context/delta merge — full strict 기각)**:
   snapshot target을 현재 frontier complement와 공동 렌더해 overlap/occluder 문맥을
   보존했고, stale absolute overwrite를 막는 residual delta merge
