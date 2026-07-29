@@ -3676,8 +3676,23 @@ strict 27 control의 shuffled epoch는 모든 causal dense RGB view를 균등하
 perceptual 지표는 소폭 좋아졌지만 목표 지표인 fixed PSNR이 27 아래로 내려갔다.
 어려운 view의 현재 residual을 반복하는 것이 전역 PSNR 균형에 필요한 uniform
 coverage를 절반 줄인 손해를 상쇄하지 못했다. 0.5에서 이미 방향이 음성이며
-더 낮은 fraction은 uniform control로 수렴하는 작은 축이므로 추가 sweep 없이
-기각하고 default 0을 유지한다.
+이를 분리하기 위해 모든 view를 epoch당 정확히 한 번 쓰되 loss 비례
+weighted-without-replacement로 순서만 바꾸는 마지막 대조를 추가했다.
+
+| strict fixed 252-view | priority repeat 50% | priority within epoch |
+|---|---:|---:|
+| held-out PSNR | 26.9249 | **26.9726** |
+| SSIM / LPIPS | **0.85448 / 0.27687** | 0.85280 / 0.27847 |
+| background update | 4,927 | 4,876 |
+| Gaussian | 76,002 | 78,508 |
+| online wall / margin | 97.2459s / 0.4041s | **97.2382s / 0.4118s** |
+| post-stream update | 0 | 0 |
+
+coverage를 복구하자 손실은 control 평균 대비 −0.0956→**−0.0479dB**로
+절반가량 줄었지만 여전히 27dB에 못 미쳤고 uniform control을 이기지 못했다.
+따라서 손실의 주원인은 coverage 감소였으며, hard-view ordering 자체도 순이득이
+없다. fraction/within-epoch priority family를 종료하고 default 0의 uniform
+shuffled sampler를 유지한다.
 
 입력 provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
 fixed evaluator mapping exclusion, tail optimizer update 0이다.
@@ -3685,3 +3700,4 @@ fixed evaluator mapping exclusion, tail optimizer update 0이다.
 산출물:
 
 - `results/experiments/exp57_disjoint_mapafterimu_priority050_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_priorityepoch_backgroundrng0_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

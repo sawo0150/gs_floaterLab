@@ -58,6 +58,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 loss-priority within-epoch — fixed 26.973dB, family 종료)**:
+  priority50의 uniform coverage 손실을 분리하려고 모든 causal dense view를
+  epoch당 정확히 한 번 쓰면서 loss EMA로 순서만 가중했다. fixed는
+  **26.9726dB**로 priority50의 26.9249보다 회복했지만 uniform control 평균보다
+  여전히 −0.0479dB이고 27 미달이다. 4,876 update, 78,508GS,
+  **97.2382s/tail0**, RGB+IMU only/MPS0 계약은 통과했다. priority50 손실의
+  주원인은 coverage 감소였고 hard-view ordering도 순이득이 없어 family를 닫는다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 loss-prioritized replay 50% — fixed 26.925dB, 기각)**:
   causal하게 관측한 per-view loss EMA에 background step 50%를 재배분하고 나머지
   50%는 uniform shuffled coverage를 유지했다. fixed는 **26.9249dB**로 strict27
