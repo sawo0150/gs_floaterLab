@@ -1444,3 +1444,42 @@ merge 없이 render-time union하는 독립 dual-map이다. 현재 strict 최고
 - `results/experiments/exp57_growing_random_start899_cap2500_pgbareset_strict15x`
 - `results/experiments/exp57_lineage899_random_fixedcutoff_strict15x`
 - `results/experiments/exp57_growing_random_app_start899_late2_strict15x`
+
+## 2026-07-29 추가 — origin-partition dual-map render-time union 기각
+
+stable snapshot과 late overlay를 parameter copy/blend 없이 최종 공동 렌더하는
+독립 dual-map을 구현했다. 첫 구현은 snapshot에 없던 point ID를 late row로
+판정했기 때문에 snapshot 이전 Gaussian의 clone/split 자손 17,259개까지 overlay에
+중복 포함했고, 600-frame held-out이 20.990dB로 붕괴했다. 이를 point ID가 아니라
+`unique_kfIDs > snapshot_source_frame`인 실제 late-origin row만 append하도록
+정정했다. joint-context optimization도 동일 origin partition을 사용한다.
+
+정정한 600-frame run은 late overlay가 11,080개, 최종 union이 33,173개로
+정상화됐고 held-out/keyframe **22.665/22.368dB**, snapshot step 868,
+online 48.282s였다. paired control 22.461dB 대비 held-out **+0.204dB**라 전체
+strict run으로 승격했다.
+
+| 조건 | held-out / kf | snapshot step | late / union GS | online |
+|---|---:|---:|---:|---:|
+| 600, 잘못된 point-ID partition | 20.990 / 20.580 | 778 | 17,259 / 41,508 | 48.273s |
+| **600, origin partition** | **22.665 / 22.368** | **868** | **11,080 / 33,173** | **48.282s** |
+| **full 1,253, snapshot650** | **22.786 / 22.714** | **1,078** | **33,457 / 69,386** | **99.490s** |
+
+full run은 snapshot source frame 652에서 시작했지만 held-out은 strict 최고
+23.982dB보다 −1.196dB였고, 97.65s deadline도 1.840초 초과했다. 마지막 sensor
+frame 뒤에는 union materialization과 평가만 했으며 optimizer update는 0회였다.
+입력 provenance도 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`로 계약을 지켰다.
+
+즉 prefix의 작은 이득은 full 후반 PGBA/visibility 변화에 일반화되지 않았고,
+stable base와 late overlay를 단순 render-time union하는 것만으로는 둘의
+appearance/occlusion 경계를 reconcile하지 못한다. same-tensor, residual merge,
+spatial double-buffer, independent origin-partition union까지 모두 full strict에서
+기각됐으므로 submap/merge 계열은 종료한다. 현재 strict 최고 23.982dB와 1차 목표
+27dB는 유지하며, 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_snapshotunion_s300_random_joint_smoke600`
+- `results/experiments/exp57_snapshotunion_origin_s300_random_joint_smoke600`
+- `results/experiments/exp57_snapshotunion_origin_s650_random_joint_strict15x`

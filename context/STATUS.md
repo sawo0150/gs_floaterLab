@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 independent origin-partition dual-map union — full strict 기각)**:
+  stable snapshot과 late overlay를 parameter merge 없이 최종 render-time union했다.
+  point ID 기준 첫 구현은 pre-snapshot clone/split 자손까지 late row로 중복 포함해
+  600-frame 20.990dB로 붕괴했으며, `unique_kfIDs > snapshot_source_frame`인 실제
+  late-origin만 append하도록 수정하자 **22.665/22.368dB**, 868 step,
+  33,173GS, 48.282s로 control 22.461 대비 +0.204dB 회복했다. 그러나 snapshot650
+  full strict는 **22.786/22.714dB, 1,078 step, 69,386GS, 99.490s**로 strict 최고
+  대비 −1.196dB이고 deadline도 1.840초 초과해 기각했다. RGB+IMU-only,
+  MPS 금지, zero-tail은 준수했다. same-tensor와 submap merge/union 축은 종료하며
+  strict 최고 23.982dB, 1차 목표 27dB, 27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 growing-map random — prefix +2.315dB, full 전부 기각)**:
   freeze 없는 random dense replay는 600-frame에서 control 22.461 대비
   **24.776dB(+2.315)**였지만 full start300은 4,427 step에도 **22.404dB**,
