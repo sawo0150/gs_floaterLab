@@ -2534,3 +2534,34 @@ online depth/birth evidence를 만드는 구조여야 한다. hard carve는 27dB
 - recent:
   `results/experiments/exp57_freeze1050_appendbirths_recent050_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`,
   `results/experiments/exp57_freeze1050_appendbirths_recent015_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — final RGB 강제 keyframe, 단일 26.426dB·반복 미재현
+
+마지막 tracked keyframe 뒤 frame1200–1252 coverage가 18.9dB에 머문 원인을 직접
+겨냥했다. 기존 motion filter는 `is_last`여도 flow threshold를 넘지 않으면 마지막
+RGB를 keyframe으로 만들지 않았다. `--force_final_keyframe` opt-in을 추가해 마지막
+센서 프레임 도착 시 VIGS의 기존 online 경로인 Omnidata prior→frontend BA
+depth→append-only PPM birth를 반드시 실행했다. 외부/MPS depth는 사용하지 않았다.
+
+| strict 1.5× append birth | held-out / kf | update | GS | online |
+|---|---:|---:|---:|---:|
+| force-final 원 run | **26.426 / 26.304** | 5,395 | 92,201 | **97.370s** |
+| force-final 반복 | **26.321 / 26.203** | 4,996 | 92,038 | **97.392s** |
+| append-only 비교 | 26.312 / 26.106 | 4,969 | 92,043 | 97.277s |
+
+원 run은 기존 단일 최고 26.396dB를 **+0.030dB** 경신했다. frame1200–1252도
+append-only 18.949→**19.427dB**로 +0.478dB 개선됐고, 추가 keyframe 처리까지
+deadline 97.65s를 0.280초 남기고 통과했다. 그러나 동일 설정 반복은
+26.321dB로 append-only와 사실상 같은 범위였다. 개선폭이 실시간 scheduler와
+frontend keyframe 변동보다 작으므로 **단일 최고 숫자는 26.426dB로 기록하되
+recipe 개선으로 채택하지 않는다**.
+
+두 run 모두 timestamp 순 RGB+IMU-only, MPS 입력 0, fixed 1.5×,
+post-stream optimizer update 0을 지켰다. final keyframe 한 장은 마지막 endpoint
+근처만 보강할 뿐, 200-frame 구간 전체의 다양한 시점을 채우지 못한다. 27dB까지
+단일 최고 기준 0.574dB가 남았으며 hard carve는 계속 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_freeze1050_appendbirths_forcefinalkf_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_freeze1050_appendbirths_forcefinalkf_repeat_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
