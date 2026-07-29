@@ -73,6 +73,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late1000 PPM birth2× — tail 이동만, floater 증가로 기각)**:
+  freeze800에서 frame1000 이후 append-only PPM birth만 2×로 늘렸다.
+  Gaussian은 83.9k→103.6k(+23.5%)였지만 fixed는 **27.8335dB**로
+  freeze800 평균 대비 −0.0129dB였다. 1000–1199는 +0.499dB, 1200–1252는
+  −0.536dB로 오차를 뒤로 밀었고 visible floater 절대 수는 평균
+  15,412.5→**16,988(+10.2%)**로 늘었다. 97.218s/tail0/MPS0는 통과했다.
+  late density 단독은 종료하고 마지막 newborn 정착/coverage 구조를 다음 축으로 둔다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 freeze800 — strict 27.846dB 평균 + floater 동시 개선)**:
   append-birth 조건의 freeze 경계를 850→800→750으로 좁혔다. freeze800은
   fixed **27.8568/27.8361dB**(평균 **27.8464**, range 0.0207), freeze750은

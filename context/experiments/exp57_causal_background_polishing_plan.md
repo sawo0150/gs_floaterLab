@@ -3884,3 +3884,51 @@ mapping exclusion, fixed 1.5×, 97.65초 deadline, tail update 0을 통과했다
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_freeze800_anchor_repeat_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_freeze750_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — frame1000 이후 PPM birth2×는 tail 이동만, 기각
+
+freeze800의 마지막 253-frame coverage를 직접 보강하려고 post-freeze PPM birth
+downsample multiplier를 arrived frame에 따라 바꿀 수 있는 opt-in
+`mapping_freeze_late_birth_start_frame` /
+`mapping_freeze_late_birth_downsample_multiplier`를 추가했다. default
+start=-1/multiplier=1.0은 기존 동작을 보존한다. frame1000 이후에만
+multiplier=0.5, 즉 PPM birth를 2×로 늘렸다. evaluator RGB나 미래 frame은
+사용하지 않는 causal intervention이다.
+
+| strict fixed 252-view | freeze800 2-run 평균 | late1000 birth2× | 변화 |
+|---|---:|---:|---:|
+| PSNR | **27.8464** | 27.8335 | −0.0129dB |
+| SSIM | 0.85989 | **0.86147** | +0.00158 |
+| LPIPS | 0.25440 | **0.25241** | −0.00199 |
+| background update | **5,943** | 5,716 | −227 |
+| Gaussian | 83,898 | **103,600** | +19,702 (+23.5%) |
+| online wall | 97.2530s | **97.2184s** | 둘 다 deadline 통과 |
+| post-stream update | 0 | 0 | 통과 |
+
+구간 변화는 0–199 +0.174, 200–399 −0.279, 400–599 −0.260,
+600–799 +0.060, 800–999 −0.115, **1000–1199 +0.499**,
+**1200–1252 −0.536dB**였다. 추가 Gaussian이 앞 late bin을 채웠지만
+최종 bin 일반화는 더 나빠져 오차를 뒤로 이동시켰다.
+
+| floater proxy | freeze800 평균 | late1000 birth2× | 변화 |
+|---|---:|---:|---:|
+| visible Gaussian | 57,330.5 | 63,965 | +6,634.5 |
+| visible floater | **15,412.5** | 16,988 | **+1,575.5 (+10.2%)** |
+| visible floater 비율 | 26.883% | **26.558%** | −0.325%p |
+| mean score | **0.2428** | 0.2453 | 악화 |
+
+분모가 더 크게 늘어 비율만 낮아졌고 사용자가 요구한 절대 floater 수와 mean
+score는 악화했다. 따라서 late density 단독은 30dB나 floater 개선 레버가
+아니다. regular carve λ0.05와 원래 PPM birth 1×를 유지하고, late-only
+override는 실험용 opt-in으로만 남긴다. 다음 축은 더 많은 unoptimized
+newborn을 추가하는 것이 아니라 마지막 newborn/late coverage를 관측 RGB에
+안전하게 정착시키는 구조여야 한다.
+
+run은 fixed **27.8335dB**, SSIM/LPIPS 0.86147/0.25241,
+97.2184초(margin 0.4316초), tail update 0이었다. provenance는
+`strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed evaluator mapping
+exclusion을 확인했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_freeze800_late1000birth2x_anchor_appendbirths_backgroundrng0_shuffleepoch_guard0ms_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
