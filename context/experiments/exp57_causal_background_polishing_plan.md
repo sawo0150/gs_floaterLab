@@ -2885,3 +2885,30 @@ coverage 손실을 상쇄하지 못하므로 채택하지 않는다.
 산출물:
 
 - `results/experiments/exp57_disjoint_birthrefine1_appopacity_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — forced late keyframe 4장 보존은 late 양성·전체 기각
+
+기존 1102/1152/1202 강제 keyframe 실험에서는 frontend redundancy removal로 일부
+frame이 즉시 삭제됐다. 이를 분리하려고 opt-in `--preserve_forced_keyframes`를
+추가하고 evaluator와 겹치지 않는 1102/1152/1202/1249 네 장을 보존했다.
+모두 timestamp 순으로 도착한 RGB와 online Omnidata/BA depth만 사용하며 MPS와
+post-stream update는 없다.
+
+네 frame은 최종 evaluator JSON에서 모두 keyframe으로 남았다. strict-disjoint fixed
+결과는 **25.7199dB**, SSIM/LPIPS 0.83823/0.31247, 4,737 update,
+78,378GS, **97.264s**, tail 0이었다. 구간별 PSNR은
+25.588/27.535/27.795/26.525/24.861/**23.594/20.459dB**다.
+
+paired refine=0 control보다 직접 영향 late bins는 각각 **+0.320/+1.335dB**로,
+보존된 non-evaluator RGBD keyframe이 신규 coverage를 만드는 효과는 확인됐다.
+그러나 전체는 **−0.730dB**, 800–999도 −1.242dB로 무너졌다. frame1102는
+PGBA cutoff1120 이전이라 global pose/map transform을 촉발할 수 있고, 네 장을
+한꺼번에 유지한 frontend 상태 변화도 섞였다. 따라서 4장 recipe는 기각한다.
+
+late-bin 양성 신호까지 버리지는 않고, 다음 한 번은 PGBA cutoff 뒤
+1152/1202/1249만 보존해 global 교란을 제거한다. 여기서도 전체가 회복되지 않으면
+forced-keyframe 보존 축을 완전히 종료한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_preserveforced1102_1152_1202_1249_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

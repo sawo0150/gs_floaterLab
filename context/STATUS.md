@@ -45,6 +45,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 forced late keyframe 보존 4장 — fixed 25.720dB, 기각)**:
+  evaluator와 겹치지 않는 1102/1152/1202/1249를 강제 생성하고 frontend
+  redundancy removal에서도 보존했다. 네 장 모두 최종 keyframe에 남았고
+  1000–1199/1200–1252는 control보다 +0.320/+1.335dB 개선됐지만, fixed 전체는
+  **25.720dB**, 4,737 update, 78,378GS, **97.264s**, tail 0으로 −0.730dB
+  하락했다. 특히 800–999가 −1.242dB라 late coverage 이득이 전역 trajectory/map
+  상태 손실을 상쇄하지 못했다. 4장 보존 recipe는 기각하며, frame1102가 PGBA
+  cutoff1120 이전인 교란을 분리하려면 이후 frame만 쓰는 좁은 검증이 필요하다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 newborn appearance+opacity 1-step — fixed 26.421dB, 기각)**:
   freeze 뒤 exact newborn의 geometry는 고정하고 RGBD birth view에서 color/SH/opacity만
   1회 정착시켰다. strict-disjoint fixed 결과는 **26.421dB**, SSIM/LPIPS
