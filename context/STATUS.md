@@ -45,6 +45,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background idle guard 0ms — 26.882/26.764dB, 채택)**:
+  1ms 아래의 idle slot도 회수하되 queue-empty/tracking-inactive 조건을 유지해 두
+  strict run을 실행했다. fixed 252-view는 **26.882/26.764dB**(평균 26.823),
+  update 5,731/5,234회, online wall **97.233/97.252s**, tail update 0이었다.
+  두 run 모두 1ms 단일 최고 26.752를 넘었으므로 0ms를 채택하고 strict 단일
+  최고를 **26.882dB**로 정정한다. 27dB까지 0.118dB지만 두 run 모두 아직
+  27 미만이며 후반 bins도 23.039/19.968 및 23.383/19.197dB라 성공 판정과
+  hard carve/pruning은 계속 보류한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 background idle guard 1ms — 26.687/26.752dB, 채택)**:
   shuffled dense epoch에서 idle guard를 5→1ms로 낮춰 두 strict run을 실행했다.
   fixed 252-view는 **26.687/26.752dB**(평균 26.719), update는

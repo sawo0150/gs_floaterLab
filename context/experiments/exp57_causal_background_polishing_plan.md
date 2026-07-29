@@ -3060,3 +3060,36 @@ RGB photo+IMU only, MPS 입력 0개이며 두 run 모두 97.65초 deadline과
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard1ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard1ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — idle guard 0ms, strict 26.882dB로 추가 갱신
+
+1ms보다 더 회수할 수 있는 idle slot을 확인하려고 guard를 0ms로 낮춰 두 번
+반복했다. queue가 비고 tracking-active flag가 내려간 경우에만 background
+step을 시작하는 기존 상호배제 조건은 그대로이며, 나머지 strict recipe도 같다.
+
+| idle guard 0ms | run 1 | run 2 |
+|---|---:|---:|
+| **fixed 252-view PSNR** | **26.8821** | 26.7642 |
+| fixed SSIM | 0.84615 | **0.84736** |
+| fixed LPIPS | **0.28849** | 0.29297 |
+| background update | **5,731** | 5,234 |
+| GS | 74,788 | 74,931 |
+| online wall | **97.233s** | 97.252s |
+| post-stream update | 0 | 0 |
+
+두 run 평균은 **26.823dB**로 1ms 두-run 평균 26.719보다 +0.104dB이고,
+두 run 모두 1ms 단일 최고 26.752dB를 넘었다. 따라서 guard 0ms를 채택한다.
+새 strict-disjoint 단일 최고는 **26.882dB**, 27dB까지 **0.118dB**다.
+다만 run 간 차이가 0.118dB이고 두 번 모두 27dB 미만이므로 목표 달성으로
+판정하지 않는다.
+
+temporal bins는 run 1이
+26.670/29.019/29.315/27.962/27.362/23.039/19.968dB, run 2가
+26.876/28.903/29.125/27.461/27.107/23.383/19.197dB다. 후반 52-view
+절대 품질이 계속 병목이다. 두 run 모두 RGB+IMU only, MPS 0,
+fixed evaluator mapping exclusion, 97.65초 deadline, tail update 0을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
