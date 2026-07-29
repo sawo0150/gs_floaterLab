@@ -2422,3 +2422,26 @@ camera pose/exposure refinement 축을 종료하고 Gaussian-only dense random
 - `results/experiments/exp57_sh1_frest4_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_exposure_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_poseonly_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — background DSSIM weight 대칭 스캔, 0.2 유지
+
+평가 목표가 held-out PSNR이므로 추가 연산 없이 background RGB loss의
+`lambda_dssim`만 기존 0.2에서 0.1/0.3으로 바꿨다. frontier mapping과 evaluator는
+수정하지 않았다.
+
+| background `lambda_dssim` | held-out / kf | SSIM / LPIPS | update | GS | online |
+|---:|---:|---:|---:|---:|---:|
+| **0.2 원 run** | **26.396 / 27.299** | 0.83888 / 0.31609 | 5,112 | 70,320 | 97.290s |
+| 0.2 반복 | 26.083 / 27.077 | 0.82774 / 0.32015 | 5,415 | 70,347 | 97.285s |
+| 0.1 | 26.003 / 26.884 | 0.81913 / 0.34175 | 5,130 | 70,536 | **97.268s** |
+| 0.3 | 26.232 / 27.148 | **0.83896 / 0.30885** | 5,100 | 70,357 | **97.271s** |
+
+0.1은 모든 영상 지표가 나빠졌다. 0.3은 perceptual 지표는 좋았지만 목표 지표인
+held-out PSNR이 원 run보다 −0.164dB였고, 0.2 반복 범위 안이었다. 따라서
+background DSSIM weight는 기존 0.2를 유지하고 이 축을 닫는다. 두 run 모두 strict
+RGB+IMU-only/MPS 없음/fixed 1.5×/zero-tail 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_dssim010_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_dssim030_dense_trajfiller_offsets14_denseonly_residual_freeze1050_postviews_start700_late2_pgbacut1120_len1253_strict15x`

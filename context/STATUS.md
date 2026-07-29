@@ -34,6 +34,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background DSSIM 0.1/0.3 — 기존 0.2 유지)**:
+  held-out PSNR과 background loss를 더 맞추기 위해 DSSIM weight를 기존 0.2에서
+  0.1/0.3으로 대칭 스캔했다. 0.1은 **26.003/26.884dB**, 0.3은
+  **26.232/27.148dB**로 둘 다 최고 26.396dB를 넘지 못했다. 0.3의
+  SSIM/LPIPS는 0.83896/0.30885로 좋았지만 PSNR 채택 기준에는 미달했다.
+  두 run 모두 약 5.1k update, 97.27s, zero-tail로 strict 계약을 통과했다.
+  기존 0.2를 유지하고 loss-weight 축을 닫는다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 offset weighting·SH·camera 분해 — 전부 기각)**:
   strict 최고 recipe의 남은 갭을 phase 비율, view-dependent appearance, camera
   nuisance로 분리했다. offset1:4 sampling weight를 0.3:0.7로 바꿔도
