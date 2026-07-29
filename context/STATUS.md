@@ -44,6 +44,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 topology-only freeze1050 — fixed 25.472dB, 기각)**:
+  regular mapping은 계속하되 frame1050 이후 birth/densify/prune만 막았다.
+  strict-disjoint fixed 252-view는 **25.472dB**, 4,630 update, 66,588GS,
+  **97.266s**, tail 0으로 기준선보다 −0.597dB였다. 1000–1199/1200–1252도
+  22.458/18.165dB로 더 악화됐다. 600-frame topology-freeze450 실패를 full에서도
+  재확인했으므로 이 축을 종료하고 freeze1050+append-only PPM birth를 유지한다.
+  strict best 26.069dB와 27dB 전 hard-carve 보류도 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late appearance+opacity recent50 — 전체 −0.626dB, 기각)**:
   late recent-view step에만 xyz/scale/rotation을 동결하고 color/SH/opacity를
   갱신했다. strict-disjoint fixed 252-view는 **25.443dB**, 4,743 update,

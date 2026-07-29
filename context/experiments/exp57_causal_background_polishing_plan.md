@@ -2694,3 +2694,26 @@ strict-disjoint fixed 252-view 결과는 **25.4427dB**, SSIM/LPIPS
 산출물:
 
 - `results/experiments/exp57_disjoint_recent050_appopacity_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — topology-only freeze1050 full 재확인도 기각
+
+late view를 편향 표집하지 않고 regular mapping은 계속하되 frame1050부터
+Gaussian birth/densify/prune만 막는 `--mapping_topology_freeze_after_frame 1050`을
+full strict-disjoint로 실행했다. fixed 252-view 결과는 **25.4721dB**,
+SSIM/LPIPS 0.81788/0.35779, 4,630 update, 66,588GS, **97.266s**, tail update
+0이었다. 기준선 26.0686dB보다 **−0.597dB**다.
+
+구간별 PSNR은 0–199부터 순서대로 25.731, 26.454, 28.111, 26.635,
+25.637, **22.458**, **18.165dB**였다. frame1050 이후에도 기존 topology를
+계속 움직이는 것만으로는 late coverage를 만들지 못하고 마지막 두 구간이 기준선보다
+각각 −1.265/−2.169dB 악화됐다. 이는 앞서 600-frame에서 topology-freeze450이
+22.461→17.135dB로 실패한 결과를 full에서도 재확인한 것이다. 같은 축을 다시
+반복하지 않고, 채택 구조인 regular freeze1050 + append-only PPM birth를 유지한다.
+
+provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`fixed_eval_mapping_excluded=true`, `post_stream_refinement=false`를 모두
+확인했다. 27dB 전 hard carve/floater pruning은 계속 보류한다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_topologyfreeze1050_perview_dense_trajfiller_offsets14_denseonly_residual_start700_late2_pgbacut1120_len1253_strict15x`
