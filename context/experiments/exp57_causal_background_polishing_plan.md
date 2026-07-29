@@ -1582,3 +1582,31 @@ keyframe의 photometric/depth gradient만으로는 앞선 Gaussian topology가 �
 산출물:
 
 - `results/experiments/exp57_topologyfreeze450_smoke600`
+
+## 2026-07-29 추가 — least-used historical global balancing 기각
+
+regular mapper의 frontier window, global slot 수, iteration, optimizer step을
+그대로 유지하면서 historical tracked-keyframe global slot의 sampling 분산만
+줄이는 `--mapping_global_balanced_sampling`을 구현했다. 각 historical keyframe의
+global 선택 횟수를 누적하고, 매 iteration에 least-used view부터 선택하되 동률은
+seeded random으로 섞었다. 추가 render/backward와 dense 보간 pose는 없다.
+
+| 조건 | held-out / kf | GS | online |
+|---|---:|---:|---:|
+| 600 paired control, uniform random | 22.461 / 22.455 | 34,517 | 48.311s |
+| **least-used balanced** | **19.859 / 19.710** | **33,102** | **48.285s** |
+
+held-out이 **−2.602dB**로 크게 악화됐다. 짧은 update budget에서 historical
+coverage를 균일하게 만드는 것은 현재 성장 map과 맞지 않는 오래된
+view/geometry gradient까지 강제로 재방문시킨다. uniform random의 stochastic
+sampling이 단순 균등 coverage보다 훨씬 안전하므로 count-only balancing은
+full로 승격하지 않는다. 다음 sampler는 선택 횟수가 아니라 현재 map에서 측정한
+robust residual/유효성을 직접 반영해야 한다.
+
+실행은 RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했다. strict 최고
+23.982dB와 1차 목표 27dB를 유지하고, 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_balancedglobal_smoke600`

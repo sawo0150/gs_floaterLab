@@ -33,6 +33,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 least-used historical balancing — 600에서 기각)**:
+  추가 view-op 없이 regular mapper의 historical keyframe 6개 global slot만 uniform
+  random에서 least-used 우선(random tie-break)으로 바꿨다. 하지만 600-frame
+  결과는 **19.859/19.710dB**, 33,102GS, online 48.285s로 paired control
+  22.461/22.455보다 held-out **−2.602dB**였다. 모든 과거 view를 공평하게
+  강제하는 것은 성장 map에서 stale/conflicting gradient를 과대표집한다. 단순
+  coverage-count balancing은 종료하고, 다음 sampler는 현재 map의 residual처럼
+  유효성을 직접 반영해야 한다. strict 계약과 최고 23.982dB, 1차 목표 27dB,
+  27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 topology-only freeze — 600에서 강하게 기각)**:
   기존 freeze가 cutoff 뒤 optimizer까지 멈춰 late coverage를 잃은 효과를 분리하려고,
   새 Gaussian birth/densify/prune만 멈추고 tracked viewpoint 등록·PGBA·regular
