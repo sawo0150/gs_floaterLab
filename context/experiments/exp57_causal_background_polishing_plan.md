@@ -2938,3 +2938,41 @@ keyframe 수를 억지로 늘리는 방식이 아니라 동일 causal dense RGB 
 산출물:
 
 - `results/experiments/exp57_disjoint_preserveforced1152_1202_1249_postpgba_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — background 전용 RNG로 strict 반복 분산 제거
+
+같은 seed와 CLI인데 intervention 이전 bin까지 흔들리는 원인을 코드에서 다시
+추적했다. background worker의 `random.choice/sample`과 frontier mapper의 view
+sampling이 Python process-global `random` 상태를 공유했다. 두 thread의 실행
+순서는 wall scheduler에 따라 달라지므로 `random.seed(0)`을 해도 background
+step 한 번의 선후가 frontier 난수열까지 바꾸는 구조였다.
+
+opt-in `--background_polish_seed`를 추가해 background sampling만 독립
+`random.Random(seed)`를 사용하고, default −1은 기존 동작을 보존했다.
+strict-disjoint recipe에 seed 0을 넣어 두 번 실행했다.
+
+| background RNG 0 | run 1 | run 2 | 반복 차이 |
+|---|---:|---:|---:|
+| fixed PSNR | 26.4137 | 26.4413 | **0.0276dB** |
+| fixed SSIM | 0.84069 | 0.84187 | 0.00118 |
+| fixed LPIPS | 0.30249 | 0.29916 | 0.00333 |
+| legacy union PSNR | 26.40510 | 26.40489 | **0.00021dB** |
+| background update | 4,736 | 4,792 | 56 |
+| GS | 75,117 | 74,902 | 215 |
+| online wall | 97.268s | 97.265s | 0.003s |
+
+두 run 모두 RGB+IMU only, MPS 0, fixed-eval 252-view mapping exclusion,
+1.5× deadline, tail update 0을 통과했다. fixed temporal bins는 각각
+27.115/28.330/28.814/26.866/26.411/23.165/19.021과
+26.747/28.585/28.728/27.260/26.335/23.135/19.301dB였다.
+
+PSNR 평균은 약 26.428dB로 기존 paired control 최고 26.450과 같고 27dB를 직접
+올리지는 못했다. 그러나 전역 RNG 공유 recipe의 26.069~26.450dB 변동에 비해
+반복 차이가 0.028dB로 줄었으므로 이후 A/B의 인과 판정을 위한 안정화 기반으로
+채택한다. 다음은 이 독립 RNG 위에서 independent random의 중복 표집을 줄이되
+시간순 round-robin의 연속-frame 붕괴는 피하는 shuffled-uniform epoch sampler다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_backgroundrng0_repeat_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_pgbacut1120_len1253_strict15x`

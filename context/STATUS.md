@@ -45,6 +45,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 background 전용 RNG — fixed 26.414/26.441dB, 안정화 채택)**:
+  background worker와 frontier mapper가 전역 Python RNG를 thread-race로 공유하던
+  원인을 분리하고 `background_polish_seed=0` 전용 난수열을 사용했다. 두 strict
+  반복은 fixed **26.414/26.441dB**(차이 0.028dB), legacy union
+  26.40510/26.40489dB(차이 0.00021dB), 4,736/4,792 update,
+  **97.268/97.265s**, tail 0이었다. 27dB 향상 레버는 아니지만 기존 recipe의
+  26.069~26.450 변동을 크게 줄여 이후 A/B의 인과 판정 기반으로 채택한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 post-PGBA forced keyframe 3장 — fixed 25.776dB, 축 종료)**:
   global PGBA 교란을 분리하려고 cutoff1120 뒤 1152/1202/1249만 강제 보존했다.
   세 frame 모두 남고 **97.292s**, tail 0을 통과했지만 fixed는 **25.776dB**,
