@@ -45,6 +45,12 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 late2→second700 iters3 — fixed 26.792dB, 고정경계 종료)**:
+  650–699만 iters2, 이후 iters3인 최소 절충도 background 4,782 update,
+  fixed **26.792dB**에 그쳤다. 97.247s/tail0 계약은 통과했지만 static frame
+  경계가 wall scheduler 분산을 제어하지 못한다. second700/850을 종료하고,
+  현재 frame 대비 replay step 목표로 iters2/3을 고르는 causal feedback으로 간다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 late2→second850 iters3 — fixed 26.693dB 기각)**:
   두 번째 frontier schedule을 구현해 650–849 iters2, 850–1049 iters3를
   적용했다. 4,988 background update를 확보했지만 fixed는 **26.693dB**로,

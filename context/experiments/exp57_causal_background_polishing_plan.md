@@ -3272,3 +3272,25 @@ RGB+IMU only, MPS 0, fixed evaluator exclusion, deadline/tail0을 통과했다.
 산출물:
 
 - `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_second850iters3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — late2→second700 iters3도 26.792dB, 고정경계 축 종료
+
+650–699의 추가 frontier 반복만 제거하는 최소 절충 second700을 실행했다.
+fixed **26.7919dB**, SSIM/LPIPS 0.84669/0.29519,
+4,782 background update, 79,127GS, **97.247s**, tail update 0이었다.
+bins는 26.750/29.466/29.032/27.617/27.064/22.923/19.790dB다.
+
+second850의 26.693보다 낫지만 late3 첫 두 run 27.004/26.949에는 못 미치고,
+background update도 오히려 4,782회로 낮았다. 고정 frame 경계는 실시간 thread
+scheduler가 만든 replay 처리량 변동을 제어하지 못하므로 second700/850 축을
+종료한다.
+
+다음은 현재 arrived frame 대비 background step 목표를 causal하게 계산해,
+replay가 목표보다 뒤처지면 iters2, 앞서면 iters3를 쓰는 feedback scheduler다.
+미래 frame/정보는 쓰지 않고 고정된 최종 budget 선의 현재 시점 목표만 사용한다.
+
+RGB+IMU only, MPS 0, fixed evaluator exclusion, deadline/tail0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late2_second700iters3_pgbacut1120_len1253_strict15x`
