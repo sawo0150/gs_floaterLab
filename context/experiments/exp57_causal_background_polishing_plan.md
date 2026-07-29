@@ -1804,3 +1804,35 @@ hard carve/floater pruning은 품질 레버로 섞지 않는다.
 산출물:
 
 - `results/experiments/exp57_growing_random_gaussian_start650_late2_pgbacut1120_strict15x`
+
+## 2026-07-29 추가 — PGBA cutoff1070 과억제 기각
+
+cutoff1120은 frame1184의 마지막 PGBA 하나만 억제했다. 좌표계 안정 구간을 더 길게
+주면 random replay가 더 수렴하는지 확인하기 위해 cutoff1070으로 내려
+frame1077·1119·1184의 세 late PGBA를 모두 억제했다.
+
+| full strict 1.5× | cutoff1120 | **cutoff1070** | 변화 |
+|---|---:|---:|---:|
+| held-out / keyframe PSNR | **24.319 / 24.385** | 24.091 / 24.060 | −0.229 / −0.325dB |
+| SSIM / LPIPS | **0.78868 / 0.44374** | 0.77892 / 0.45609 | 둘 다 악화 |
+| background update | 5,087 | **6,489** | +1,402 |
+| final Gaussian | 66,784 | 55,997 | −10,787 |
+| online wall | 97.264s | 97.271s | +0.007s |
+| deadline margin | 0.386s | 0.379s | 둘 다 통과 |
+
+update 수 증가가 품질로 이어지지 않았고, 이전 PGBA가 제공하던 global geometry
+보정까지 잃은 손해가 더 컸다. 따라서 “PGBA를 일찍 끝낼수록 좋다”는 가설은
+기각하고, 종료 뒤 재수렴 시간이 없는 마지막 PGBA 하나만 막는 **cutoff1120을
+채택점으로 유지**한다.
+
+디스크 포화를 막기 위해 `--eval_metrics_only`를 추가했다. held-out/keyframe
+렌더링과 PSNR/SSIM/LPIPS 계산 및 JSON 저장은 동일하고 per-view render/depth
+이미지만 생략한다. strict provenance에도 이 선택을 기록했다.
+
+RGB+IMU-only, MPS 금지, fixed 1.5×, zero-tail을 준수했다. strict best
+24.319dB와 1차 목표 27dB를 유지하며, 27dB 전 hard carve/floater pruning은
+실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_growing_random_gaussian_start650_late2_pgbacut1070_strict15x`

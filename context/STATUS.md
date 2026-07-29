@@ -34,6 +34,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 PGBA cutoff1070 — 과도한 억제로 기각)**:
+  cutoff1120이 마지막 frame1184 PGBA만 막아 +0.220dB였으므로, 1077·1119·1184
+  세 late PGBA를 모두 막아 안정 구간을 늘렸다. update는 5,087→6,489로 늘고
+  **97.271s(deadline −0.379s)**를 통과했지만 결과는 **24.091/24.060dB**로
+  cutoff1120보다 held-out −0.229dB였다. 따라서 PGBA 자체를 줄이는 방향이 아니라
+  마지막 재수렴 불가능한 한 번만 억제하는 **cutoff1120을 유지**한다. 새
+  `eval_metrics_only`로 동일 지표 계산을 유지하며 per-view PNG 저장만 생략했다.
+  strict best 24.319dB, 1차 목표 27dB, 27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 PGBA cutoff1120 — strict 신기록 24.319dB)**:
   마지막 PGBA가 random replay의 누적 상태를 종료 직전 다시 흔드는 문제를 직접
   분리했다. frame1120 이전 online PGBA와 전체 local frontend BA는 유지하고 이후
