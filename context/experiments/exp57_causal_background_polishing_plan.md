@@ -3602,3 +3602,50 @@ fixed evaluator 252-view mapping exclusion, fixed 1.5×, 97.65초 deadline,
 
 - `results/experiments/exp57_disjoint_mapafterimu_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
 - `results/experiments/exp57_disjoint_mapafterimu_repeat_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+
+## 2026-07-29 추가 — strict27 map의 background soft carve 기각
+
+채택한 pre-IMU GS gate recipe는 PPM init과 regular frontier soft carve
+(`carve_lambda=0.05`)가 이미 켜져 있고, background polish에서만
+`--background_polish_disable_carve`로 carve를 생략한다. 고품질 27dB map에
+carve를 이식하는 다음 단계로, diagnostic depth anchor export를 켠 paired
+control과 background carve-on을 실행했다.
+
+anchor는 각 run의 VIGS가 online으로 추정한 BA-refined depth/pose에서만
+추출했으며 학습 입력이 아니라 종료 후 floater 평가에만 사용했다. MPS나
+미래 frame은 사용하지 않았다. `exp55_score_carve_vigs.py`의 기존
+opacity>0.3 ∩ carve score>0.3 기준으로 평가했다.
+
+| strict 1.5× | control: background carve off | background carve λ0.05 | 변화 |
+|---|---:|---:|---:|
+| **fixed 252-view PSNR** | **27.0124** | 26.8402 | **−0.1722dB** |
+| fixed SSIM | **0.85352** | 0.85077 | −0.00275 |
+| fixed LPIPS | **0.27919** | 0.28264 | +0.00346 |
+| Gaussian | 76,362 | 75,905 | −457 |
+| visible Gaussian | 57,423 | 57,381 | −42 |
+| **visible floater** | **16,639** | 17,036 | **+397 (+2.39%)** |
+| **visible floater 비율** | **28.976%** | 29.689% | **+0.713%p** |
+| mean carve score | **0.2473** | 0.2542 | 악화 |
+| background update | 4,827 | 4,825 | 동급 |
+| online wall | 97.2806s | **97.2286s** | 둘 다 통과 |
+| post-stream update | 0 | 0 | 통과 |
+
+background carve는 품질과 floater proxy를 동시에 악화했다. regular frontier
+mapping의 depth-violation carve는 새 geometry가 태어나는 과정에서 유효하지만,
+이미 공유 map을 수천 번 polishing하는 background 경로에서는 online depth/pose
+오차까지 반복 압박해 전역 균형을 깨는 것으로 해석한다. 따라서 regular
+carve λ0.05와 PPM은 유지하되 background carve는 계속 끈다.
+
+hard prune은 더 강한 비가역 개입이고 과거 high-quality 전 검증에서도
+PSNR 손실이 컸다. 이번 soft 단계부터 floater가 늘고 27dB도 깨졌으므로 같은
+evidence를 이용한 hard prune을 strict recipe에 확대하지 않는다. 이 장면에는
+사람 수동 region GT가 없어 floater 수는 기존 AUC 0.98 설계를 옮긴 proxy이며,
+이를 수동 라벨 재검증으로 과장하지 않는다.
+
+두 run 모두 RGB photo+IMU only, MPS 입력 0, fixed evaluator mapping
+exclusion, 97.65초 deadline, tail update 0 계약을 통과했다.
+
+산출물:
+
+- `results/experiments/exp57_disjoint_mapafterimu_anchorcontrol_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`
+- `results/experiments/exp57_disjoint_mapafterimu_anchor_bgcarve005_backgroundrng0_shuffleepoch_guard0ms_freeze1050_appendbirths_perview_dense_trajfiller_offsets14_denseonly_residual_postviews_start700_late3_pgbacut1120_len1253_strict15x`

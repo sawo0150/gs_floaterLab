@@ -58,6 +58,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 strict27 background carve — 품질·floater 동시 악화)**:
+  depth-anchor diagnostic paired run에서 background carve off→λ0.05는 fixed
+  **27.0124→26.8402dB**, visible floater **16,639→17,036**, 비율
+  **28.976→29.689%**로 둘 다 악화했다. online wall 97.281/97.229s와
+  tail0/RGB+IMU only/MPS0 계약은 통과했다. PPM과 regular frontier carve는
+  유지하되 background carve는 끄고, 같은 evidence의 hard prune 확대도
+  중단한다. 이 scene의 floater 수는 수동 region GT가 아닌 기존 carve proxy임을
+  명시한다. 다음 품질 축은 strict 30dB를 직접 겨냥한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 pre-IMU GS gate — strict 27dB 2/2 재현, 채택)**:
   IMU metric 초기화 직후 전부 삭제되던 초반 GS를 init 완료까지 보류했다.
   fixed는 **27.0039/27.0371dB**(평균 27.0205, 범위 0.0332), online wall은
