@@ -33,6 +33,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 topology-only freeze — 600에서 강하게 기각)**:
+  기존 freeze가 cutoff 뒤 optimizer까지 멈춰 late coverage를 잃은 효과를 분리하려고,
+  새 Gaussian birth/densify/prune만 멈추고 tracked viewpoint 등록·PGBA·regular
+  RGBD optimizer는 계속하는 opt-in을 구현했다. 600-frame cutoff450은
+  29,929GS, online 48.353s였으나 held-out/keyframe이
+  **17.135/17.345dB**로 paired control 22.461/22.455보다 held-out
+  **−5.326dB** 붕괴했다. topology 안정화보다 후반 신규 표면 표현 손실이 훨씬
+  크며, full 후보 cutoff899와 거의 같은 상대 시점(75% vs 72%)이므로 full로
+  승격하지 않는다. RGB+IMU-only, MPS 금지, zero-tail을 준수했다. strict 최고
+  23.982dB와 1차 목표 27dB, 27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 regular mapper target-row dense PCGrad — 600에서 즉시 기각)**:
   별도 background optimizer가 아니라 regular `map()`의 RGBD gradient를 그대로
   보존하면서, 추가 dense gradient만 `newest_frame - 150` 이전 출생 Gaussian

@@ -1548,3 +1548,37 @@ update는 0회였다. strict 최고 23.982dB와 1차 목표 **strict held-out 27
 산출물:
 
 - `results/experiments/exp57_densepcgrad1_batch12_targetlag150_smoke600`
+
+## 2026-07-29 추가 — topology-only freeze 기각
+
+기존 `--mapping_freeze_after_frame`은 cutoff 뒤 Gaussian birth뿐 아니라 regular
+optimizer update까지 모두 멈췄기 때문에, stable map polishing의 이득과 late
+coverage 손실을 분리할 수 없었다. 이를 위해
+`--mapping_topology_freeze_after_frame`을 추가했다.
+
+- cutoff 이후에도 새 tracked viewpoint를 저장하고 PGBA pose/scale update와 regular
+  RGBD `map()` optimizer step을 계속한다.
+- 새 keyframe의 Gaussian birth와 `densify_and_prune()`만 중단한다.
+- dense supervision 등록은 계속하며, 마지막 sensor frame 뒤 optimizer update는
+  0회다.
+
+600-frame에서 cutoff450을 사용했다. 이는 full 후보 cutoff899와 상대 진행률이
+비슷하다(75% vs 71.7%).
+
+| 조건 | held-out / kf | GS | online |
+|---|---:|---:|---:|
+| 600 paired control | 22.461 / 22.455 | 34,517 | 48.311s |
+| **topology freeze450** | **17.135 / 17.345** | **29,929** | **48.353s** |
+
+regular RGBD 업데이트를 보존했는데도 held-out이 **−5.326dB** 붕괴했다. 후반
+keyframe의 photometric/depth gradient만으로는 앞선 Gaussian topology가 새로
+드러난 표면과 occlusion을 표현할 수 없다. 따라서 stable topology를 일찍 만드는
+것 자체가 이 sequence에서는 잘못된 가정이며, full 1,253 run으로 승격하지 않는다.
+
+실행 provenance는 `strict_aria_rgb_imu_only`, `mps_inputs=[]`, fixed 1.5×,
+`post_stream_refinement=false`다. strict 최고 23.982dB와 1차 목표 27dB는
+유지하고, 27dB 전 hard carve/floater pruning은 실행하지 않았다.
+
+산출물:
+
+- `results/experiments/exp57_topologyfreeze450_smoke600`
