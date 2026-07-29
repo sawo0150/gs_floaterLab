@@ -33,6 +33,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-07-29 (exp57 stable-map random settle — 강한 국소 신호, 전체 27dB 미달)**:
+  regular RGBD gradient를 보존하고 dense gradient를 parameter-group별 PCGrad+norm
+  cap으로 더했지만 600-frame control 22.461dB 대비 최선
+  **22.405dB(appearance-only, −0.056)**로 순이득은 없었다. 다음으로 frame 899에서
+  GS birth/prune/map update를 멈추고 tracking+PGBA pose transform만 계속하며 남은
+  스트림에서 dense settle을 실행했다. 시간순 round-robin은 16.942dB로 붕괴했지만
+  fixed-map 성공 경로처럼 random view sampling으로 바꾸자 400-frame에서
+  **17.767→21.767(+4.000)dB**, full strict에서 cutoff 이전 시점은 약
+  **26.57dB**까지 회복했다. 그러나 cutoff 이후 새 관측을 지도에 넣지 못해 전체는
+  **23.080/26.097dB, 3,399 step, 55,172GS, 97.289s**로 deadline은 0.361초
+  통과했어도 27dB 미달. full completed-map snapshot을 random joint-context
+  settle하고 late births를 frontier에 보존하는 residual delta merge도 600-frame
+  all/appearance scope가 21.805/22.234dB로 control 미달이었다. random settle은
+  유효 레버로 보존하되 단일 freeze·snapshot merge는 종료한다. 다음은 late
+  overlay를 최종 공동 렌더 loss로 reconciliation하는 spatial double-buffer이며,
+  strict 최고 23.982dB와 27dB 전 hard carve 보류는 유지한다.
+  → [exp57](experiments/exp57_causal_background_polishing_plan.md)
 - **2026-07-29 (exp57 regular-map dense 전용 iteration — 기각)**:
   independent worker가 frontier packet timing을 바꾸는 문제를 피하려고 regular
   `map()`의 총 iteration/optimizer-step/densify schedule은 고정한 채 마지막 1/7

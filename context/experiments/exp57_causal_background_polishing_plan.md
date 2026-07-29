@@ -1254,3 +1254,102 @@ carve/floater pruning은 계속 보류한다.
 
 - `results/experiments/exp57_denseiter1_batch12_smoke600`
 - `results/experiments/exp57_denseiter1_batch12_w025_smoke600`
+
+## 2026-07-29 추가 — gradient projection 및 streaming stable-map boundary
+
+### Regular RGBD를 보존한 dense PCGrad
+
+dense-only iteration이 regular frontier RGBD 제약 하나를 잃어서 실패했으므로,
+regular backward를 그대로 수행한 뒤 dense RGB gradient를
+`torch.autograd.grad()`로 별도 계산했다. Adam parameter group마다 tracked
+gradient와 음의 내적 성분을 투영하고, dense norm을 tracked norm의 일정 비율로
+제한한 뒤 같은 optimizer step에 더했다. regular view의 densification statistics,
+iteration 수, optimizer step 및 prune/densify schedule은 control과 동일하다.
+
+600-frame paired control은 held-out/keyframe **22.461/22.455dB**, 34,517GS,
+online 48.311s다.
+
+| projected dense 조건 | held-out / kf | control 대비 held-out | Gaussian |
+|---|---:|---:|---:|
+| batch12, all group ratio 0.25 | 22.316 / 22.285 | −0.145 | 34,506 |
+| batch12, all group ratio 0.10 | 22.374 / 22.313 | −0.087 | 34,674 |
+| appearance 0.25, geometry 0 | **22.405 / 22.399** | **−0.056** | 34,324 |
+| 위 조건 + endpoint≤0.20 | 22.298 / 22.318 | −0.163 | 34,452 |
+
+dense-only replacement의 −0.449dB를 −0.056dB까지 회복했고 Gaussian 수도 control과
+가까워 gradient 보호가 작동한 것은 확인했다. 하지만 ratio를 0으로 줄일수록
+control로 수렴할 뿐 순이득은 없었고 endpoint gate도 역효과였다. 따라서 단일-map
+PCGrad family는 full run으로 승격하지 않는다.
+
+### 스트림 안에서 stable-map boundary 만들기
+
+full-map 5k가 약 20초에 27dB를 넘긴 조건을 스트림 종료 전에 만들기 위해 trajectory
+coverage를 분석했다. frame 1000 이후 keyframe의 96.2%가 이전 trajectory의 0.5m
+안이고 최대 거리도 0.504m였다. 이를 근거로 opt-in
+`--mapping_freeze_after_frame`을 구현했다.
+
+- cutoff 이후 새 Gaussian birth, prune, densification, regular optimizer update를
+  모두 중단한다.
+- RGB+IMU tracking은 끝까지 계속한다.
+- 이후 PGBA packet은 기존 Gaussian과 Camera의 pose/scale transform만 적용해
+  frozen map을 online SLAM 좌표계에 유지한다.
+- settle view는 cutoff 이전 RGB로 제한하고 마지막 sensor frame 뒤 update는 0회다.
+
+frame300→400 smoke에서 1,247 step을 남은 입력 시간 안에 실행해 구조와 zero-tail을
+검증했다. 그러나 시간순 round-robin view sampling은 동일 공간의 연속 구간을 Adam이
+차례로 덮어쓰며 catastrophic forgetting을 만들었다. carve를 꺼도 해결되지 않았고,
+offline fixed-map 성공 경로와 동일하게 uniform random sampling으로 바꾸자:
+
+| 400-frame smoke, freeze300 | held-out / kf | step |
+|---|---:|---:|
+| temporal round-robin + carve | 17.828 / 18.988 | 1,239 |
+| temporal round-robin, carve off | 17.767 / 18.901 | 1,247 |
+| **random sampling, carve off** | **21.767 / 24.113** | 1,249 |
+
+random sampling 하나로 held-out **+4.000dB**를 회복했고 같은 구간 no-freeze
+control 19.465dB도 +2.302dB 넘었다. stable-map dense settle 자체는 강하게
+유효하며, 이전 rolling 실험의 round-robin sampler가 숨은 실패 원인이었음을
+확정했다.
+
+authoritative 1,253-frame strict 1.5×, freeze899 결과:
+
+| 조건 | held-out / kf | settle step | GS | online / deadline |
+|---|---:|---:|---:|---:|
+| round-robin + carve | 16.942 / 18.187 | 3,248 | 55,193 | 97.273s / 통과 |
+| round-robin, carve off | 17.014 / 18.153 | 3,289 | 54,880 | 97.303s / 통과 |
+| **random, carve off** | **23.080 / 26.097** | **3,399** | **55,172** | **97.289s / 0.361s 여유** |
+
+저장 render의 JPEG 재계산 진단에서 random run은 frame 0~599 약 26.57dB,
+600~898 약 24.79dB였지만 899 이후는 약 15~16dB였다. 즉 random settle은 완료
+공간의 품질을 실제로 크게 올렸지만, 단일 map을 너무 일찍 freeze해 late view의
+새 surface/occlusion coverage를 잃은 것이 전체 평균을 제한했다.
+
+### Late births를 보존한 full-map snapshot 대조
+
+freeze의 late coverage 손실을 피하려고 frame313의 full completed-map snapshot을
+random sampling+carve off로 400 step joint-context settle했다. frontier는 계속
+성장시키고 stable point ID의 residual delta만 merge해 late births를 보존했다.
+
+| 600-frame 조건 | held-out / kf | control 대비 |
+|---|---:|---:|
+| full parameter delta merge | 21.805 / 21.703 | −0.656 |
+| SH+opacity appearance delta만 merge | **22.234 / 22.247** | **−0.227** |
+
+geometry delta를 막으면 회복됐지만 control 22.461dB를 넘지 못했다. snapshot에서
+좋아진 completed 공간과 이후 frontier overlay를 parameter 복사/더하기만으로
+reconcile할 수 없다는 뜻이다. 다음 구조는 stable base와 late overlay를 모두
+최종 공동 렌더한 loss로 짧게 reconciliation하는 spatial double-buffer다.
+
+모든 run은 `strict_aria_rgb_imu_only`, `mps_inputs=[]`,
+`post_stream_refinement=false`이고 MPS 후처리 데이터와 tail optimizer update는
+없다. 27dB 미달이므로 floater labeling/hard carve pruning은 실행하지 않았다.
+현재 strict 최고는 **23.982dB**다.
+
+산출물:
+
+- `results/experiments/exp57_densepcgrad1_batch12_{r025,r010}_smoke600`
+- `results/experiments/exp57_densepcgrad1_batch12_app025_geom0{,_endpoint020}_smoke600`
+- `results/experiments/exp57_freeze300_{poseonly_dense_settle,random_nocarve}_smoke400`
+- `results/experiments/exp57_freeze899_dense5k{,_nocarve}_strict15x`
+- `results/experiments/exp57_freeze899_random_nocarve_strict15x`
+- `results/experiments/exp57_fullsnapshot_random_jointdelta_{,app_}cap400_smoke600`
