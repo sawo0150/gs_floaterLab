@@ -16,6 +16,7 @@
 | `3dgs-custom` | `/home/wosas/Desktop/26-1_RPM/gsProjects/3dgs-custom` | main 3DGS repo. floater metric, sparse prior, renderer compatibility 수정이 들어간 곳 |
 | `OpenMAVIS` | `/home/wosas/Desktop/SLAM_custom/OpenMAVIS` | OpenMAVIS reference/output 확인용 |
 | `vggt` | `/home/wosas/Desktop/26-1_RPM/gsProjects/vggt` | VGGT camera/point cloud 비교용 |
+| `VIGS-SLAM-custom` | `/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM` | exp52–58 최적화 작업 원본. private remote: `github.com/sawo0150/VIGS-SLAM-custom`, snapshot `4c882dc` |
 
 ## Data (`gs_floaterLab/data/` — 2026-07-07 전면 재구축)
 
@@ -153,4 +154,3 @@ results/archive/evo_camparam_mps_vggt_openmavis_64_20260630/openmavis_orb_64.tum
 results/archive/evo_camparam_mps_vggt_openmavis_64_20260630/vggt64_colmap_cam.tum
 results/archive/evo_camparam_mps_vggt_openmavis_64_20260630/mps_rgb_64.tum
 ```
-

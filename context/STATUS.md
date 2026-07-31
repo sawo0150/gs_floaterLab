@@ -79,6 +79,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-08-01 (VIGS-SLAM 최적화 private snapshot 공개 준비 완료)**:
+  upstream 이력을 보존한 private repo `sawo0150/VIGS-SLAM-custom`을 만들고,
+  exp52–58 Python/CUDA 최적화·config·분석 도구·전체 실험 문서·strict27
+  metrics/provenance를 commit **`4c882dc`**로 push했다. `main`,
+  `research/exp52-58-strict27-snapshot`, tag
+  `strict27-snapshot-2026-07-29`가 같은 commit을 가리킨다. 6.3GB results,
+  데이터, PLY/log, TensorRT/ONNX, `.so`와 build 산출물은 제외했고 fresh private
+  clone에서 run script `bash -n`과 핵심 Python compile을 재검증했다.
+  저장소: `https://github.com/sawo0150/VIGS-SLAM-custom`
 - **2026-07-29 (exp57 strict27 acceptance audit — 보존 산출물 2/2 통과)**:
   freeze800 채택 run 두 개의 저장된 `final_result.json`, provenance, config,
   원본 로그와 PLY를 다시 대조했다. fixed는 **27.8568/27.8361dB**,
