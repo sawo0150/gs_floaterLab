@@ -47,6 +47,15 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 > (26.72/27.04%)**로, 과거 freeze1050 anchor control 16,639개(28.98%)보다
 > 평균 7.37% 적었다. MPS0, 97.65초 deadline, tail update 0은 모두 통과했다.
 
+> **2026-08-03 추가 — strict27 acceptance는 단일 장면(aria1253) 한정임을 확인.**
+> 같은 freeze800 recipe를 재튜닝 없이 다른 데이터에 적용한 결과 aria1253rot(같은 방,
+> 긴 궤적)은 26.00dB(−1.85dB), aria301_305(다른 장면)는 16.95dB로 재현에 실패했다.
+> 원인은 절대 프레임 번호로 하드코딩된 freeze/PGBA-cutoff 경계(시퀀스 길이가 다르면
+> 비율이 깨짐), 경계값을 비율로 재조정하면 재현되는 PGBA CUDA 크래시, 1.5× 데드라인
+> 자체가 다른 데이터에서 초과되는 문제 3가지로 좁혀졌다(→ [exp59](experiments/exp59_strict27_cross_scene_transfer.md)).
+> **strict 27dB "1차 목표 완료" 판정은 aria1253 단일 장면 기준으로만 유효하며, 교차 장면
+> 일반화는 아직 미해결 열린 문제다.**
+
 ## 현재 Best
 
 | 기준 | 실험 | PSNR@30k | 비고 |
@@ -79,6 +88,198 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-08-10 (exp63 축 A 완료 — frontend_radius=2만 채택, crash가 aria1253rot
+  전용이 아니었을 가능성 발견, 305 잔여 격차는 Gaussian 밀도 부족으로 추정)**:
+  축 B 위에서 트래킹 파라미터(`frontend_window`/`frontend_radius`/
+  `motion_filter.thresh`/`iters1`)를 개별 상향 스캔. `frontend_window`
+  18/22는 노이즈~경미(+0.01~+0.25dB), **`frontend_radius=2`는 12F +0.72dB로
+  aria1253 regression 통과해 채택**(commit `ebefa164`). `motion_filter.
+  thresh=3.0`은 305 +1.91dB였지만 aria1253이 -0.42dB 회귀해 기각(정확한 판단).
+  `iters1=2`는 예산 초과에 더해 **305에서도 `vectorized_gather_kernel` crash가
+  재현**됐다 — 지금까지 aria1253rot의 특정 경계 재조정 조합에서만 나는 줄
+  알았는데, 실제로는 "PGBA/background_polish GPU 동시 부하가 임계치를 넘으면"
+  더 넓은 조건에서 재현될 수 있다는 뜻으로, 근본 원인 규명 범위가 넓어졌다.
+  대화 중 사용자와 함께 Gaussian 최종 개수를 프레임 수로 정규화해 비교한 결과
+  **1253 66.4개/프레임 vs 305 29.7개/프레임(절반 이하) vs 12F 58.7개/프레임** —
+  305의 잔여 품질 격차는 트래킹 문제가 아니라 **freeze 지점이 1253과 같은
+  상대 비율(61.4%)로 고정돼 있어 넓은 공간을 가진 305엔 densify 구간이
+  절대적으로 부족**했을 가능성이 높다는 근거가 됐다. 이 가설 검증(freeze를
+  밀도-적응형으로)이 축 C의 최우선 항목으로 격상됨.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 축 B 완료·채택 — 305/12F 회복, 1.5× 예산 기준이 stale임을 발견해
+  재보정)**: 축 D 완료 직후 이어서 진행. `demo.py`에 4개 절대 프레임 경계 플래그의
+  비율(fraction) 버전을 구현해(mutually exclusive, `round(frac*total_frames)`) aria1253과
+  수학적으로 동일한 비율을 재튜닝 없이 305/12F에 적용한 결과 **305: 16.95→21.09dB(+4.14dB),
+  12F: 26.13→27.04dB(+0.91dB), crash 없음**. 세 장면 다 wall time이 예산을 3.4~3.5초
+  초과해 Codex는 규칙대로 `adopted:false`로 보고했지만, 직접 검증한 결과 **이 초과분은 축
+  B와 무관 — 같은 날 축 D의 순수 재현 run(경계값 무변경)도 똑같이 초과**했다. 원인을
+  추적하니 채택된 27.85dB/97.25초 기준(exp57, **2026-07-29**)이 background_polish_step에
+  `self.video.get_lock()`을 추가한 exp60 안전수정(**2026-08-03**, 그 이후 추가)의 비용을
+  반영 못 한 stale한 숫자였다 — 확정된 crash를 고치는 필수 수정이라 되돌릴 수 없는데,
+  예산만 안 갱신된 것. **따라서 축 B의 `adopted:false`를 뒤집어 채택**(`run_flags_current.sh`
+  신설, commit `54982b93`), 앞으로 예산은 ~101/~205/~168초(참조+3.5초)를 현실 기준으로
+  삼는다. "Codex 자체 보고를 믿지 말고 직접 검증" 원칙이 이번엔 Codex가 지나치게 엄격했던
+  케이스를 구제하는 방향으로도 작동한 사례.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 축 D 완료 — idle_guard는 crash 원인 아님, Codex 위임 검증 과정에서
+  인프라 문제 3건 발견·수정)**: 계획대로 Codex(`codex exec`)에 축 D(`background_polish_
+  idle_guard_ms` 0/5/20ms 스캔)를 위임하고 직접 검증했다. **결론: idle_guard는 exp59
+  crash(`vectorized_gather_kernel` index-out-of-bounds)의 원인이 아니다** — 세 값 모두
+  aria1253rot 경계 재조정 시나리오에서 동일하게 재현됐고(exp60의 GPU lock 수정이 있어도
+  불충분), guard=5로 aria1253 regression을 돌려도 PSNR은 통과(27.6301dB)하지만 wall time이
+  101.06초로 1.5× 예산(97.65초)을 3.41초 초과해 어차피 미채택. 원인 미해결 상태로 축 B(경계
+  비율화)에 넘어간다. **과정에서 위임 인프라 문제 3건 발견**: (1) 같은 축에 대한 Bash
+  백그라운드 태스크가 "killed"로 처리돼도 자식 프로세스(codex exec/python demo.py)가 고아로
+  살아남아 GPU/로그 파일을 놓고 재시도와 경합 — Monitor 도구 + 축별 락파일로 해결 (2)
+  `codex exec`가 `thirdparty/` 벤더 라이브러리를 광범위 grep하다 OpenAI 자체 보안 필터에
+  걸려 턴 전체 실패 — README에 검색 범위 제한 지침 추가 (3) **Codex가 리포트는 정직하게
+  썼지만 마지막 git commit을 빠뜨림 — 사용자가 직접 검증 후 대신 커밋**(commit `a9a2cbb1`).
+  "Codex 자체 보고를 믿지 말고 직접 검증" 원칙이 실제로 유효했던 사례.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 — VIGS-SLAM 매핑 재튜닝 계획 수립, 착수 전)**: exp57 freeze800(1253
+  27.85dB)이 exp59에서 305/16.95dB·12F/26.13dB(마지막 22%만 17.74dB)·rot/26.00dB로 전이
+  실패한 문제를, "OKVIS2 최적화를 VIGS에 이식"이 아니라 **VIGS-SLAM 자신의 매핑 레시피를
+  scene/GPU 무관하게 재설계**하는 방향으로 풀기로 했다. 코드 감사로 신규 확인:
+  (1) exp61 ATE 표 기준 **vanilla 트래킹이 exp53~56 속도튜닝 recipe보다 305/12F에서 오히려
+  정확**(20.1/40.6cm vs 90.9/134.8cm) (2) 실시간 `map()`/`background_polish_step()`엔
+  해상도 다운스케일이 전혀 배선 안 됨 — `_scaled_viewpoint`/`coarse_scale`은 strict 채점
+  제외 대상인 오프라인 `color_refinement()`에서만 쓰임, exp62가 OKVIS2 트랙에서 +4.03dB
+  얻은 256px 레버가 여기선 아직 미검증 (3) `adaptive_density_curve`가 aria1253 keyframe
+  113개로 fit한 파일을 파일명만으론 안 티나게 그대로 재사용 중 (4)
+  `background_polish_idle_guard_ms=0`(코드 기본값 5.0ms를 override)이 exp59/60에서 미해결로
+  남은 PGBA×background_polish CUDA race crash의 유력 원인 후보 (5) `init_itr_num` 등이
+  RTX 5070Ti 프로파일링(exp56) 고정 상수라 scene 일반화와 별개로 GPU 일반화 축도 필요.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 — 축 A "vanilla 트래킹 롤백"이 이미 실패로 확인된 접근임을 발견)**:
+  사용자 질문("vanilla vigs가 5070Ti에서 실시간이 됐었나?")을 계기로 실측 재확인.
+  **진짜 vanilla(exp53 baseline, iters1=4/iters2=2+frontend_window=25/radius=2)는 1253에서
+  98.94s(녹화 65.5s의 1.52배)로 1.5× 예산(97.65s)마저 초과 — 애초에 실시간이 아니었다.**
+  exp53~56 튜닝은 선택적 최적화가 아니라 실시간 진입의 전제조건이었던 것. 게다가 이미
+  부분 롤백(`config/exp62_freeze800_vanillatrack.yaml`, frontend_window/radius/
+  motion_filter.thresh만 되돌림)이 시도돼 있었고 로그를 직접 확인하니 305는 204.9s로
+  예산(201.57s) 초과+PSNR 18.74dB(여전히 27dB와 거리 멂), **12F는 CUDA OOM으로 크래시**
+  (frontend_window 확장이 correlation volume 메모리를 키워 background_polish의 GPU
+  사용과 충돌 추정). 축 A를 "단순 vanilla 롤백"에서 "개별 파라미터 스캔 + 메모리 계측이
+  필요한 더 큰 작업"으로 재정의하고 우선순위를 축 D→B→A→C/E→F/G로 조정했다.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp62 — M1~M5 전부 통과, 74분 만에 완료)**: 야간 자율 실행 결과 M1(라이브
+  Aria 소스, ATE 3.4/4.8cm)→M2(이벤트 큐, 일치율 93.9/94.4%)→M3(**트래킹↔매핑 동시 실행을
+  타임스탬프로 확정** — 이 프로젝트 최초로 실제 병렬 구조 증명)→M4(real-time 예산 준수 +
+  tail update 0, 1253/305)→M5(12F까지 확장, 467 keyframe을 배칭 없이도 예산 안에서 소화)
+  전부 통과. **North Star의 "흑백 정밀 위치 + RGB 실시간 고품질 지도" 중 트래킹‖매핑 동시
+  실행이라는 구조적 요건을 처음으로 충족**하는 파이프라인이 나왔다. 단 PSNR 품질은 아직
+  게이트에 없음 — 예산 제약 하 Gaussian 수가 예산 없는 M3 대비 크게 줄어(1253: 63만→5,382개)
+  다음 과제는 held-out PSNR 평가 추가 및 12F configurable batching(G=6부터) 실측.
+  → [exp62](experiments/exp62_live_okvis2_mapping_pipeline_plan.md)
+- **2026-08-10 (exp62 — 라이브 OKVIS2‖3dgs-custom 병렬 파이프라인, Codex 야간 자율 마일스톤 실행 착수)**:
+  exp61 §7에서 확인한 격차(OKVIS2 라이브 콜백은 있지만 incremental 브릿지·매퍼 폴링 루프
+  없음)를 실제로 메우는 구현에 착수. 설계 원칙: 파일 큐 기반 C++↔Python IPC(소켓/공유메모리
+  대신 원자적 파일쓰기+폴링), wall-clock 기반 단순 예산 스케줄러, 절대 프레임 번호 하드코딩
+  금지(exp59 교훈), 기존 검증된 배치 로직 재사용(트리거만 교체), 매 마일스톤 1253+305 둘 다
+  검증. M1(라이브 소스)→M2(이벤트 큐)→M3(학습 연결)→M4(예산 스케줄러)→M5(12F 확장) 5단계로
+  쪼개 Codex CLI(`codex exec`)에 위임, 마일스톤마다 exp61 오프라인 reference와 자동 비교하는
+  자체검증 리포트가 `pass`여야 다음 단계 진행하는 오케스트레이터
+  (`scripts/incremental/codex_milestone_loop.sh`) 작성. 이 머신에서 codex 자체 bwrap
+  샌드박스가 중첩 샌드박스와 충돌해 파일쓰기 실패(`Failed RTM_NEWADDR`)를 확인 →
+  `--dangerously-bypass-approvals-and-sandbox`로 우회하기로 사용자 명시적 승인 받음(개인
+  데스크톱 한정). `live_bridge/` 신규 repo에서 격리 작업, 팀원 벤치마크의 검증된 참조
+  스크립트는 세션 스크래치패드가 아닌 영구 경로로 복사해둠. 야간 자율 실행 시작, 실패 시
+  자동 재시도 없이 즉시 중단하도록 설계(강건성 원칙 — 실패를 덮지 않음).
+  → [exp62](experiments/exp62_live_okvis2_mapping_pipeline_plan.md)
+- **2026-08-09 (exp61 — 팀원 OKVIS2→3dgs-custom 벤치마크 RTX 5070 Ti 재현·비교)**:
+  팀원(martian35)의 별도 벤치마크(`aria-online-3dgs-bench`, OKVIS2/OpenMAVIS stereo+IMU
+  트래킹 → 우리 `3dgs-custom` incremental 확장 매퍼)에서 VIGS 재현치가 낮게 나온
+  (1253=24.38/305=27.14/12F=23.64dB) 원인을 규명 요청받아 조사. **데이터 준비가 아니라
+  GPU(3090, 우리 recipe의 target은 5090) + 305/12F에 1253 전용 스크립트를 오용한 것**이
+  원인 — 같은 raw VRS를 우리 RTX 5070 Ti로 재변환해 돌리면 27.7735dB로 baseline과
+  일치함을 확인. 이어서 OKVIS2를 우리 GPU에서 직접 빌드하고 stage1(트래킹, stereo+IMU,
+  49.3s)~stage6(chunk tree 49개·PPM init·view pool·refilter)까지 전부 재현, 팀원 3090
+  수치와 정합성 확인(kf interval 1364ms 등 정확히 일치). 실제 학습 진입점의 real-time
+  예산 스케줄러(`--mapper_budget_ms` 등)가 팀원 로컬 미푸시 커밋이라 정식 recipe
+  재현은 보류(사용자 결정: 팀원분께 파일 요청), 대신 예산 없이 직접 실행해 순수 학습
+  wall time **89초(49 events, 8,673 iter)**를 실측. OKVIS2(stereo) vs VIGS(mono) 트래킹
+  정확도 비교 결과 305/12F에서 OKVIS2가 3.6~26배 우세(VIGS의 단안 IMU 스케일 드리프트
+  문제가 스테레오엔 구조적으로 없음), 매핑 품질은 장면별로 갈림. 코드 레벨 감사로
+  "OKVIS2 라이브러리 자체엔 이미 라이브 콜백 인프라(`okvis_app_realsense.cpp`의
+  `setBlocking(false)`+콜백 스트리밍)가 있지만, incremental chunk 브릿지와
+  `train_incremental.py`의 매니페스트 폴링 루프는 전혀 없음"을 확인 — 진짜
+  tracking‖mapping 병렬 실행은 아직 신규 엔지니어링 필요.
+  → [exp61](experiments/exp61_okvis2_3dgs_custom_benchmark_repro.md)
+- **2026-08-07 (VIGS-SLAM-custom private repo에 exp59~62 push 완료)**:
+  8/1 스냅샷(`4c882dc`) 이후 이번 세션에서 나온 코드를 같은 private repo
+  `sawo0150/VIGS-SLAM-custom`의 `main`에 push했다(`9b1c075`). 포함 내용:
+  (1) `pgo_buffer.py::_pgba`의 `jj_inac` 하한 미검증 수정 (2)
+  `gs_backend.py::background_polish_step`이 PGBA와 `self.video.get_lock()`을
+  안 쓰던 GPU 동시성 버그 수정(exp60의 실제 크래시 해결책) (3)
+  `background_polish_novelty_fraction` sampler(기각, opt-in 보존) (4) 장면
+  무관하게 쓸 수 있는 `run_aria_strict27.sh`/`run_aria_strict27_scaled.sh`
+  (5) 305/12F calib (6) `frontend_window/radius`를 vanilla로 원복한
+  `exp62_freeze800_vanillatrack.yaml`과 그 tradeoff(정확도 회복 vs 12F에서
+  OOM) 문서화. `docs/experiments/exp59-62-cross-scene-and-fixes.md`에 전체
+  정리. 로컬 VIGS-SLAM 작업 디렉토리는 여전히 dirty worktree(uncommitted)이고,
+  push는 이번에도 별도 클론에 필요한 파일만 선별해 커밋하는 방식으로 했다.
+  → [exp59](experiments/exp59_strict27_cross_scene_transfer.md),
+  [exp60](experiments/exp60_viewpoint_novelty_sampler.md)
+- **2026-08-03 (exp60 — viewpoint-novelty sampler 기각, 그러나 pre-existing GPU 동시성
+  버그 2개 발견·수정으로 4장면 안정성 확보)**:
+  background dense view 선택을 loss 대신 "frontier window와의 camera_center 거리"로
+  바꾸는 sampler(`background_polish_novelty_fraction`)를 구현해 aria1253에서 A/B했다
+  (control 27.9499 vs treatment 27.6664, −0.284dB, exp57 loss-priority50과 같은 방향
+  악화). 사용자 요청으로 aria1253rot/aria301_305/aria301_12F에도 확장하자 aria1253rot에서
+  exp59 축 C의 미해결 PGBA 크래시가 다시 재현됐다. `CUDA_LAUNCH_BLOCKING=1` +
+  `VIGS_PGBA_DEBUG` 계측으로 근본 원인을 추적해 VIGS-SLAM의 **pre-existing 버그 2개**를
+  찾았다: (1) `factor_graph.py`의 다른 두 곳은 inactive factor를 쓸 때
+  `(ii_inac>=t0-5)&(jj_inac>=t0-5)`로 둘 다 필터링하는데 `update_pgba`는 `jj_inac`
+  하한 검증이 아예 없었음(수정했으나 단독으론 불충분) (2) **`background_polish_step`이
+  PGBA의 `self.video.get_lock()`을 전혀 획득하지 않아, `_gaussian_lock`으로 Python
+  객체는 안전해도 두 스레드의 CUDA 커널이 실제로는 동시 실행될 수 있었음** — 이 락을
+  `background_polish_step`에도 추가해 PGBA 실행 중엔 background polish가 대기하도록
+  직렬화하자 aria1253rot 크래시가 사라졌다. 수정 후 4장면(aria1253/rot/301_305/301_12F)
+  전부 크래시 없이 완주했고, novelty=0.5 자체는 4장면 평균 약 −0.23dB(1253 −0.46,
+  rot −0.35, 305 −0.17, 12F +0.08)로 기각하지만, **이 GPU 락 수정 자체가 exp59에서
+  미해결로 남았던 background-polish/PGBA 동시성 크래시의 일반적 해법일 가능성이 있어
+  다음 세션에서 exp59 축 A(경계값 rescale)에도 적용해 검증할 가치가 있다.**
+  → [exp60](experiments/exp60_viewpoint_novelty_sampler.md)
+- **2026-08-03 (exp59 축 C/D — 배경스레드 가설 기각, 305 붕괴는 freeze 경계 문제로 대부분 환원)**:
+  두 문제 축을 추가 검증했다. **축 C**: aria1253rot 크래시가 `background_polish_start_frame`
+  때문이라는 가설을 검증하려 700으로 원복하고 freeze956/pgba1339/late777은 유지해
+  재실행했지만 **동일한 PGBA gather-kernel 크래시가 3번째로 재현**돼 가설을 기각했다 —
+  원인은 freeze/pgba-cutoff/late-mapping 값 자체(또는 그 조합)로 범위가 좁혀졌다.
+  **축 D**: aria301_305에서 freeze/pgba-cutoff/시간제약을 전부 빼고 순수 온라인
+  전체 정규 매핑을 unpaced로 실행하니 fixed **22.9585dB**(as-is 16.95dB 대비 +6.0dB)로
+  회복됐고, wall time도 64.2초(녹화 134.4초의 0.48배)로 연산량 부족이 원인이 아니었다.
+  즉 **305의 catastrophic 붕괴 대부분은 freeze800/pgba1120이 이 장면(2688프레임)엔
+  너무 이른 지점(29.8%/41.7%)이었기 때문**이며, 별개의 트래킹 붕괴가 아니라 문제1
+  (프레임 경계 하드코딩)의 특히 심한 사례였다. 다만 22.96dB도 다른 세 장면의 strict
+  결과(26~28dB)보다 4~5dB 낮아, 305가 진짜로 더 어려운 장면이라는 잔여 효과(원인
+  미확정)는 남는다.
+  → [exp59](experiments/exp59_strict27_cross_scene_transfer.md)
+- **2026-08-03 (exp59 12F 추가 — 305는 이상치로 격리, "후반 coverage 붕괴" 패턴 재확인)**:
+  같은 freeze800 as-is 레시피를 `aria301_12F`(2201프레임, 110.00s)에도 적용했다.
+  fixed **26.1338dB**(SSIM 0.868, LPIPS 0.386), wall **168.28s/165.00s(+3.28s 초과)**,
+  keyframe 13.8%(304/2201, aria1253의 9.1%보다 오히려 높음). frame bin은 550–1650
+  구간(전체 25~75%)이 **28~29dB로 aria1253급**이었다가 마지막 22%(1925–2200)에서
+  17.74dB로 급락했다 — aria1253rot과 같은 "freeze 경계 비율 불일치→후반 붕괴" 계열의
+  세 번째 재현이다. 이로써 aria301_305의 "초반부터 전체 붕괴"(keyframe 5.5%로 유일하게
+  기준보다 낮음)는 freeze 스케일링과 무관한 305 장면 고유 이상치로 격리됐고, 확정 문제는
+  (1)프레임 경계 하드코딩 (2)1.5× 데드라인 초과(305/12F 모두 +3.27~3.28s로 거의 동일 —
+  시퀀스 길이 비례 가능성) (3)PGBA 동시성 크래시 3가지로 좁혀졌다.
+  → [exp59](experiments/exp59_strict27_cross_scene_transfer.md)
+- **2026-08-03 (exp59 strict27 타 데이터 전이 검증 — 재현 실패, 문제 3종 확정)**:
+  exp57 freeze800 recipe를 재튜닝 없이 aria1253rot(같은 방, 1498프레임, 같은 물리 기기라
+  Tcb/calib 재사용 가능)과 aria301_305(진짜 다른 장면, 2688프레임, VRS→VIGS 변환기
+  `build_vigs_aria_input.py` 신규 작성)에 그대로 적용했다. aria1253rot as-is는
+  **26.00dB**(기준 27.85dB 대비 −1.85dB, freeze/pgba-cutoff 경계가 절대 프레임이라
+  긴 시퀀스에서 비율이 깨져 후반부 coverage가 더 일찍·크게 무너짐), 경계값을 시퀀스
+  길이 비율로 재조정한 버전은 keyframe~116 부근에서 **PGBA CUDA gather kernel
+  index-out-of-bounds로 2/2 재현되는 크래시**(background polish 워커 스레드와의
+  GPU 동시성이 원인으로 의심되나 미확정)였다. aria301_305 as-is는 **16.95dB**로 초반
+  bin부터 붕괴해 freeze 경계 문제가 아니라 트래킹/scene-scale 가정 레벨의 더 근본적인
+  실패로 보인다. 1.5× 데드라인도 aria1253의 +0.4s 여유와 달리 두 데이터 모두 초과했다
+  (+1.50s/+3.27s). 첫 크래시는 예외가 메인 프로세스를 안 죽이고 GPU 13.4GB를 문 채
+  9시간 행(hang)되는 부수 버그도 드러냈다(이후 모든 재현에 `timeout` 래퍼 강제).
+  strict 27dB acceptance는 aria1253 단일 장면 기준으로 정정한다.
+  → [exp59](experiments/exp59_strict27_cross_scene_transfer.md)
 - **2026-08-01 (VIGS-SLAM 최적화 private snapshot 공개 준비 완료)**:
   upstream 이력을 보존한 private repo `sawo0150/VIGS-SLAM-custom`을 만들고,
   exp52–58 Python/CUDA 최적화·config·분석 도구·전체 실험 문서·strict27

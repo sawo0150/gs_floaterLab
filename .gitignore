@@ -32,4 +32,8 @@ context/reference/papers/merged_original.pdf
 **/point_cloud_*.ply
 floater_share/
 floater_share.zip
+
+# Locally retained experiment exports; do not add binary maps or archives to Git.
+improved_results.zip
+share/**/*.ply
 results/by_exp/
