@@ -66,7 +66,11 @@ cd "$VIGS_DIR"
 # of two prior "killed" events shortly after the heavy python subprocess
 # started. Run it in the background instead and keep emitting a heartbeat to
 # our own stdout every 60s so this tracked process never looks idle.
-timeout 10800 codex exec \
+# CODEX_HOME points at a second, separately-authenticated account
+# (~/.codex2, distinct auth.json, everything else symlinked back to
+# ~/.codex) per user request -- keeps this axis loop off the primary
+# account's usage/rate limits.
+timeout 10800 env CODEX_HOME=/home/wosas/.codex2 codex exec \
   --dangerously-bypass-approvals-and-sandbox \
   -C "$VIGS_DIR" \
   --skip-git-repo-check \

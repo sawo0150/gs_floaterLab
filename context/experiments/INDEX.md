@@ -138,7 +138,35 @@ wall time이 예산을 3.4초 초과해 미채택. crash 원인은 미해결로 
 안전수정(2026-07-29 baseline 측정 이후 추가) 비용을 반영 못 한 stale 값임을 확인해 축 B를
 채택으로 뒤집고 예산 기준을 ~101/205/168초로 재보정. **축 A(트래킹 파라미터 상향 스캔)**도
 완료: `frontend_radius=2`만 채택(12F +0.72dB), `thresh=3.0`은 305 +1.91dB지만 1253 회귀로
-기각, `iters1=2`는 예산 초과+**305에서도 crash 재현**(aria1253rot 전용이 아니었을 가능성).
-305 잔여 격차는 Gaussian 밀도 부족으로 추정(1253 66.4개/프레임 vs 305 29.7개/프레임) |
+기각, `iters1=2`는 예산 초과+305에서도 crash 재현. 305 잔여 격차는 Gaussian 밀도 부족으로
+추정(1253 66.4개/프레임 vs 305 29.7개/프레임). **이후 사용자 요청으로 Claude가 직접 crash
+근본 원인 규명·수정**: `update_pgba`의 TOCTOU 버그(`t1` 고정 vs `ii`/`ii_inac` 계속 갱신)
+확정, `[0,t1)` 필터링으로 수정 — 305가 오늘 처음 crash 없이 완주(22.82dB). **1253 회귀
+게이트도 사용자가 명시적으로 폐지**, 앞으로 305 품질/강건성만 기준. **축 A2 완료·채택**:
+`motion_filter.thresh=2.6`+`iters1=2` 스택으로 305 **29.8154dB**(+7.00dB) — 병목이
+매핑이 아니라 프론트엔드 트래킹 keyframe 밀도였음을 확인. **축 C/C2 완료·기각**:
+"map()/PGBA 끝까지 켜두기" 스펙트럼 양극단(전혀 freeze 안 함 / 초기화 직후 즉시
+freeze) 테스트 — 둘 다 A2보다 나쁨(각각 305 -4.92dB·12F OOM, 305 -10.46dB·12F는
+완주). 12F OOM은 Claude가 직접 근본원인 규명(freeze가 유일한 학습-비용 상한선이라
+없으면 `map()`의 매 keyframe 렌더+역전파 호출이 끝까지 계속되며 메모리 하이워터마크가
+계속 커짐) — A2의 61% freeze 지점이 이미 세 지점 중 최선이라 freeze-시점 축 종결.
+**축 PF 완료·기각**: background_polish가 `dense_only` 필터로 rgb_dense(별도 sparse
+raw 프레임)만 보고 birth를 만든 keyframe 자체는 영원히 폴리시 안 받는다는 갭을
+발견해 후보 자격을 넓혀봤으나(opt-in 플래그), 선택이 여전히 균등 랜덤이라 오히려
+소폭 악화(즉시freeze -0.58dB, 기존스케줄 -0.28dB) — 후보 풀 확대보다 "폴리시가
+보는 후보를 작은 trailing window로 제한"이 다음 유망 방향으로 식별됨. **A2가 12F에서
+미검증 상태로 -4.84dB 회귀 중이었음을 발견**(23.15dB, 원인: `background_polish` step이
+6,586→772로 88% 감소). `VIGS_TIMING_LOG` 계측을 처음 켜고 `background_polish_step`에
+신규 타이밍 계측 추가해 4개 런 실측: frontend가 프레임 단계 시간의 64~73%로 압도적
+지배(map() 디스패치는 1~4%뿐), polish는 call당 비용(3.9~6.4ms)이 아니라 실행 **횟수**
+(772~9,866, 최대 13배)가 dB를 갈랐음을 확정. 결과 시각화: `context/ppt/ppt0812/`. **이어서
+`replay_time_scale` 스윕(1.5/2.0/3.0, `--strict_aria_online` 제외)으로 인과관계를 직접
+검증**: scale 2.0(+33% 예산)에서 12F가 23.84→**28.10dB(+4.26)**로 A2 이전 baseline을
+넘어 거의 완전 회복(polish 806→5,681회)했지만, scale 3.0은 polish가 10,000-step 캡에
+도달했음에도 **25.97dB로 역행(-2.13)** — 역-U자형이며 좁은 후보 풀 과적합 가설(미검증)만
+있음. `gs_worker_dispatch`/`background_polish_call`에 epoch 타임스탬프를 추가해 polish
+횟수의 "계단식" 양상을 gap 단위로 재구성: 총 횟수는 `Σ floor(gap/step비용 4~6ms)`라는
+정수 나눗셈의 합이며, gap의 43~57%는 step 1개도 못 낄 만큼 짧아 zero-polish로 버려짐을
+확정. 결과 시각화: `context/ppt/ppt0812/`(15슬라이드로 확장) |
 [exp63](exp63_vigs_slam_robust_general_mapping_tuning.md) |
 | **exp61 OKVIS2→3dgs-custom 벤치마크 재현** | 팀원(martian35) 벤치마크 `aria-online-3dgs-bench`(OKVIS2/OpenMAVIS stereo+IMU → 3dgs-custom incremental)를 RTX 5070 Ti에서 재현. 팀원 VIGS 재현치가 낮았던 원인은 데이터가 아니라 **GPU(3090, target은 5090)+305/12F 스크립트 오용**임을 확정(자체 재현 27.7735dB로 baseline 일치). OKVIS2 빌드+stage1~6(트래킹 49.3s·chunk 49개·PPM/pool/refilter)이 팀원 3090 수치와 정합적으로 일치. 실제 학습 진입점의 real-time 예산 스케줄러가 팀원 로컬 미푸시 커밋이라 정식 recipe는 보류, 대신 예산 없이 직접 실행해 **순수 학습 wall time 89초(49 events)** 실측. 트래킹 정확도는 OKVIS2(stereo)가 VIGS(mono)보다 305/12F에서 3.6~26배 우세, 매핑 품질은 장면별로 갈림(1253=VIGS 승, 305=OKVIS2 압승, 12F=동률). 코드 감사로 "OKVIS2 자체엔 이미 라이브 콜백 인프라(`okvis_app_realsense.cpp`)가 있지만 incremental 브릿지·매퍼 폴링 루프는 전혀 없음" 확인 | **재현 성공(트래킹~stage6), 정식 학습은 팀원 파일 대기 중** | [exp61](exp61_okvis2_3dgs_custom_benchmark_repro.md) |

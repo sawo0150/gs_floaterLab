@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-07-29. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-08-12. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -88,6 +88,80 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-08-12 (exp63 — `replay_time_scale` 스윕으로 12F 회귀의 인과관계 직접 확인, polish
+  "양자화" 메커니즘 규명)**: 직전 타이밍 계측이 밝힌 "12F는 예산 부족으로 polish가 굶었다"는
+  상관관계를, 예산 자체를 조작해(`--replay_time_scale` 1.5→2.0→3.0, `--strict_aria_online`은
+  scale==1.5 강제라 이번엔 제외) 인과관계로 직접 검증했다. **scale 2.0(예산 +33%)에서 12F가
+  23.84→28.10dB(+4.26dB)로 A2 이전 baseline(27.99dB)을 넘어 거의 완전히 회복**(polish
+  806→5,681회). 그러나 **scale 3.0에서는 polish가 10,000-step 캡까지 도달했음에도 오히려
+  25.97dB로 하락(-2.13dB)** — 예산을 늘릴수록 좋아지는 단조 관계가 아니라 **역-U자형**이며,
+  가장 유력한 가설은 좁은 후보 풀(`--background_dense_stride 5`로 샘플된 `rgb_dense`)에 10,000
+  step을 반복하며 과적합한 것(미검증). 이어서 사용자 요청으로 `gs_worker_dispatch`/
+  `background_polish_call`에 epoch 타임스탬프를 추가해 "polish 횟수가 왜 계단식으로 보이는지"를
+  gap 단위로 재구성: 총 polish 횟수는 각 디스패치-사이-gap 길이를 step당 비용(4~6ms)으로 나눈
+  **정수 몫의 합**(`Σ floor(gap/step_cost)`)이라 본질적으로 이산적이며, 실측 gap의 **43~57%는
+  step 1개(4~6ms)도 못 낄 만큼 짧아** zero-polish로 버려진다 — "느려짐"이 아니라 나눗셈의 구조.
+  결과를 exp카드 + `context/ppt/ppt0812/vigs_budget_briefing_0812.pptx`(15슬라이드로 확장)에 반영.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-12 (exp63 — A2의 12F 미검증 회귀 발견 + 타이밍 계측으로 근본원인 확정)**:
+  A2(305 채택 파라미터)를 HEAD에서 12F로 처음 실측하니 **23.15dB**(A2 이전 27.99dB
+  대비 -4.84dB) — 오늘까지 검증 없이 방치돼 있었음. 기존에 있었지만 이번 세션 내내
+  한 번도 안 켰던 `VIGS_TIMING_LOG`를 켜고 `background_polish_step`에 신규 타이밍
+  계측을 추가해 4개 런(12F pre-A2/A2×2, 305 A2) 실측: **frontend(트래킹 BA)가 프레임
+  단계 시간의 64~73%로 압도적 지배**(map() 디스패치는 1~4%뿐), **background_polish는
+  call당 비용(3.9~6.4ms, gaussian 수 무관하게 거의 고정)이 아니라 실행 횟수(772~9,866,
+  최대 13배)가 dB를 갈랐음이 확정**됨(12F는 frontend가 바빠서 polish가 돌 idle 시간
+  자체가 사라짐). map() 내부 구성(loss_compute+backward ~90%)은 두 씬 모두 동일 — 문제는
+  map() 안이 아니라 그 앞 단계에 있음. 사용자가 지정한 4방향(freeze 기준·carve loss·
+  tracking/mapping 예산 robust화·freeze 스케줄)의 공통 근거 데이터 확보. 결과 시각화
+  `context/ppt/ppt0812/vigs_budget_briefing_0812.pptx`(13슬라이드).
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+
+- **2026-08-10 (exp63 축 PF 완료·기각 — 폴리시 후보 확대는 오히려 소폭 악화, 다음은
+  "폴리시 trailing window" 제안)**: `background_polish_step`이 `dense_only` 필터로
+  `sensor_type=="rgb_dense"`(별도 stride-5 raw 프레임)만 보고, birth를 만든 keyframe
+  자체(`self.viewpoints`, `sensor_type="rgb"`)는 window에서 밀려나도 절대 폴리시 대상이
+  안 된다는 걸 코드 추적으로 확인(Claude 직접). opt-in 플래그로 후보 자격을 넓혀
+  즉시freeze/기존스케줄 둘 다 테스트했으나 **둘 다 소폭 악화**(18.775dB, -0.579dB vs
+  C2; 29.539dB, -0.276dB vs A2) — 선택이 여전히 균등 랜덤이라 늘어난 후보 풀에
+  기존 효과가 희석된 것으로 해석. **기각**, 플래그는 opt-in으로만 보존. 다음 유망
+  방향으로 사용자가 제안한 "폴리시 후보를 작은 trailing window로 제한"(균등 랜덤이어도
+  풀이 작으면 새 후보가 자주 뽑힘, priority_fraction보다 단순)이 식별됨.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 축 A2 완료·채택 — 305 29.82dB(+7.00dB); 축 C/C2 완료·기각 —
+  freeze 스펙트럼 양극단 모두 A2보다 나쁨)**: 1253 게이트 폐지 후 `motion_filter.
+  thresh`/`iters1` 재스캔. `thresh=2.6`+`iters1=2`(window15/radius2 유지) 스택이
+  305 **29.8154dB** — crash-fix 직후(22.82dB) 대비 +7.00dB, 최초 시작점(16.95dB)
+  대비 +12.87dB. **채택**. 병목이 매핑 알고리즘이 아니라 프론트엔드 트래킹
+  keyframe 밀도였음이 확인됨. 이어서 사용자 제안으로 "map()/PGBA를 끝까지 켜두기"
+  방향을 양극단에서 테스트: **축 C**(map() 절대 freeze 안 함+PGBA 항상 켬)는 305
+  -4.92dB에 **12F CUDA OOM**. Claude가 직접 근본원인 추적(Codex 위임 안 함) —
+  freeze가 유일한 학습-비용 상한선이었고, 없으면 `map()`의 매 keyframe 렌더+역전파
+  호출이 시퀀스 끝까지 계속되며 순간 최대 메모리가 가우시안 개수와 함께 계속
+  늘어나 PyTorch reserved 하이워터마크가 15.46GiB를 넘김. **축 C2**(freeze를
+  초기화 직후로 최대한 당김, 첫 `map()` init 실측 프레임=297)는 12F OOM은
+  고쳤지만(24.996dB, 완주) 305가 **-10.46dB**(19.35dB)로 더 심하게 무너짐 —
+  background_polish를 frame 0부터 10000 step 풀가동해도 구조적 학습 중단을
+  보완 못함. **freeze 시점 3지점 확보**: 즉시(19.35dB) < 안함(24.90dB) < **A2의
+  61%(29.82dB, 현재 채택)** — A2가 이미 근처 최적이며 두 극단 모두 A2보다 나쁨.
+  12F OOM은 "절대 freeze 안 함" 극단 전용이라 이미 채택된 A2 레시피에는 존재하지
+  않음(축A 12F 실측 7.97GiB, no OOM). freeze-시점 축은 여기서 종결.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
+- **2026-08-10 (exp63 — crash 근본 원인 규명·수정을 Claude가 직접 수행, 305 첫 완주,
+  1253 회귀 게이트 폐지)**: 오늘 축 D/A/E가 반복 겪은 305 crash(`vectorized_gather_kernel`)를
+  사용자 요청("Codex 말고 네가 직접 해봐")으로 직접 조사. env var로 가드된 bounds-check
+  프로브를 코드에 심어 비동기 CUDA assert 대신 동기 예외로 정확한 인덱스 값을 확보,
+  **근본 원인 확정**: `factor_graph.py::update_pgba`가 `t1`을 6-step 루프 시작 전 한 번만
+  고정하는데 `self.ii`/`self.ii_inac`는 트래킹 프론트엔드가 루프 도중 계속 갱신 — 새
+  keyframe이 끼어들면 `t1`보다 큰 인덱스가 생겨 `cuda_pgba`의 `t1`-슬라이스 gather가
+  out-of-bounds. exp60이 고친 PGBA↔background_polish 동시성과는 별개의 PGBA↔프론트엔드
+  TOCTOU 버그. **수정**: `cuda_pgba` 호출 전 `ii`/`jj`를 `[0,t1)`로 필터링(정보 손실
+  없음, 다음 라운드에 자연 반영). 직접 재현·검증 결과 **305가 오늘 처음으로 crash 없이
+  완주(22.82dB, 205초)**, 1253도 무손상(27.80dB, -0.24dB, 게이트 이내). commit `cdc699d0`.
+  이어서 **사용자가 1253 회귀 게이트를 명시적으로 폐지** — 앞으로는 305 품질/강건성과
+  트래킹 강건성만 본다. 이로 인해 축A에서 1253 회귀만으로 기각됐던 `motion_filter.
+  thresh=3.0`(305 +1.91dB)이 부활, 축 A2로 재검토 착수.
+  → [exp63](experiments/exp63_vigs_slam_robust_general_mapping_tuning.md)
 - **2026-08-10 (exp63 축 A 완료 — frontend_radius=2만 채택, crash가 aria1253rot
   전용이 아니었을 가능성 발견, 305 잔여 격차는 Gaussian 밀도 부족으로 추정)**:
   축 B 위에서 트래킹 파라미터(`frontend_window`/`frontend_radius`/

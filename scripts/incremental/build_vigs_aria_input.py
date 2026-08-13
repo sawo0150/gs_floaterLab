@@ -27,6 +27,25 @@ def main() -> None:
     p.add_argument("--height", type=int, default=1024)
     p.add_argument("--focal", type=float, default=500.0)
     p.add_argument("--jpeg-quality", type=int, default=95)
+    p.add_argument(
+        "--skip-head",
+        type=int,
+        default=0,
+        help=(
+            "drop this many leading RGB frames from the export (IMU stream is "
+            "always exported in full, untrimmed -- VIGS-SLAM windows IMU "
+            "samples around whatever RGB frames it receives, so there is no "
+            "need to trim it to match). Verified against our existing "
+            "data/*/rgb by comparing first/last frame timestamps to a fresh "
+            "full export of the same source VRS: data/aria1253 used "
+            "--skip-head 8 (first-frame timestamp differs from a full export "
+            "by exactly 8 * 1/20fps, last frame identical), while "
+            "data/aria301_305 and data/aria301_12F used --skip-head 0 (exact "
+            "full export, every frame count/timestamp matches). Do not assume "
+            "8 applies to a new scene -- always diff against a fresh full "
+            "export first."
+        ),
+    )
     args = p.parse_args()
 
     provider = data_provider.create_vrs_data_provider(str(args.vrs))
@@ -55,9 +74,17 @@ def main() -> None:
     rgb_dir.mkdir(parents=True, exist_ok=True)
 
     rgb_stream_id = provider.get_stream_id_from_label(args.rgb_label)
-    n_rgb = provider.get_num_data(rgb_stream_id)
-    print(f"[rgb] exporting {n_rgb} frames from {args.rgb_label}...")
-    for i in range(n_rgb):
+    n_rgb_total = provider.get_num_data(rgb_stream_id)
+    if args.skip_head < 0 or args.skip_head >= n_rgb_total:
+        raise ValueError(
+            f"--skip-head {args.skip_head} out of range for {n_rgb_total} native frames"
+        )
+    n_rgb = n_rgb_total - args.skip_head
+    print(
+        f"[rgb] exporting {n_rgb} of {n_rgb_total} native frames from "
+        f"{args.rgb_label} (skipping first {args.skip_head})..."
+    )
+    for out_i, i in enumerate(range(args.skip_head, n_rgb_total)):
         image_data, record = provider.get_image_data_by_index(rgb_stream_id, i)
         ts_ns = int(record.capture_timestamp_ns)
         undistorted = calibration.distort_by_calibration(
@@ -66,8 +93,8 @@ def main() -> None:
         Image.fromarray(np.ascontiguousarray(undistorted)).save(
             rgb_dir / f"{ts_ns}.jpg", quality=args.jpeg_quality
         )
-        if (i + 1) % 200 == 0 or i + 1 == n_rgb:
-            print(f"  {i + 1}/{n_rgb}")
+        if (out_i + 1) % 200 == 0 or out_i + 1 == n_rgb:
+            print(f"  {out_i + 1}/{n_rgb}")
 
     imu_stream_id = provider.get_stream_id_from_label(args.imu_label)
     n_imu = provider.get_num_data(imu_stream_id)
