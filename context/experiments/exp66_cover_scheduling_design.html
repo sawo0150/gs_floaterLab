@@ -1,0 +1,379 @@
+<title>COVER 이식 설계 노트 — VIGS-SLAM 뷰 스케줄링</title>
+<style>
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14120E;
+      --panel: #1C1913;
+      --ink: #ECE6D8;
+      --ink-soft: #9C9384;
+      --line: #332D24;
+      --accent: #E89257;
+      --good: #7FB88A;
+      --bad: #D97373;
+      --pending: #9C9384;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14120E;
+    --panel: #1C1913;
+    --ink: #ECE6D8;
+    --ink-soft: #9C9384;
+    --line: #332D24;
+    --accent: #E89257;
+    --good: #7FB88A;
+    --bad: #D97373;
+    --pending: #9C9384;
+  }
+
+  :root {
+    --paper: #F6F3EC;
+    --panel: #FCFAF5;
+    --ink: #211D17;
+    --ink-soft: #736B5C;
+    --line: #E1D8C6;
+    --accent: #BC5A26;
+    --good: #336B4E;
+    --bad: #A5432F;
+    --pending: #8A8071;
+
+    --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    margin: 0;
+    padding: 56px 24px 80px;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 26px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .dek { font-size: 15.5px; color: var(--ink-soft); max-width: 64ch; }
+
+  .updated {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  section { display: flex; flex-direction: column; gap: 16px; }
+  h2 { font-family: var(--serif); font-size: 21px; font-weight: 600; margin: 0; }
+  .prose { max-width: 68ch; font-size: 15px; }
+  .prose + .prose { margin-top: 2px; }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; }
+
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    padding: 2px 9px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .status-pill.decided { color: var(--good); border-color: var(--good); }
+  .status-pill.open { color: var(--accent); border-color: var(--accent); }
+  .status-pill.pending { color: var(--pending); border-color: var(--line); }
+
+  .problem-list { display: flex; flex-direction: column; gap: 10px; }
+  .problem-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px 16px;
+  }
+  .problem-row .id { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); min-width: 20px; }
+  .problem-row .title { font-weight: 600; font-size: 14.5px; flex: 1; }
+
+  .subsection { display: flex; flex-direction: column; gap: 14px; }
+  .subsection-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .subsection-head h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--ink); margin: 0; }
+
+  .decision-box {
+    background: var(--panel);
+    border: 1px solid var(--good);
+    border-left: 3px solid var(--good);
+    border-radius: 3px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .decision-box .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--good); }
+  .decision-box p { margin: 0; font-size: 14.5px; max-width: 66ch; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td.win { color: var(--good); font-weight: 600; }
+  td.lose { color: var(--bad); }
+
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-step .num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 22px;
+    font-weight: 700;
+  }
+  .flow-step .body { display: flex; flex-direction: column; gap: 3px; }
+  .flow-step .body b { font-size: 14px; }
+  .flow-step .body span { font-size: 13.5px; color: var(--ink-soft); }
+
+  ul.notes { margin: 0; padding-left: 20px; font-size: 14.5px; display: flex; flex-direction: column; gap: 10px; list-style: disc; }
+  ol.qlist { margin: 0; padding-left: 20px; font-size: 14.5px; display: flex; flex-direction: column; gap: 10px; }
+  .qlist li b { display: block; margin-bottom: 2px; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 18px; font-size: 12px; color: var(--ink-soft); font-family: var(--mono); }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">exp66 부속 · 살아있는 설계 노트 (계속 갱신됨)</span>
+    <h1>COVER를 VIGS-SLAM에 이식하려면 뭘 다시 설계해야 하는가</h1>
+    <p class="dek">
+      nbv_gym(COVER 공식 구현)을 aria1253에서 그대로 돌려본 벤치마크에서, step 기준으론
+      이겼지만(28.54 vs 27.47dB) wall-clock 기준으론 2.9배 느렸다. 원인을 파고들면서
+      "레퍼런스 구현이 그냥 비효율적으로 짜인 부분"과 "VIGS의 온라인 incremental 구조와
+      근본적으로 안 맞는 부분"이 섞여 있다는 걸 확인했다. 이 문서는 그 두 문제를 어떻게
+      다시 설계할지 논의하면서 계속 업데이트하는 노트.
+    </p>
+    <div class="updated">v3 · 문제 A: 희소 셀 할당 확정, 셀 크기는 미정</div>
+  </header>
+
+  <section>
+    <h2>정리해야 할 두 문제</h2>
+    <div class="problem-list">
+      <div class="problem-row">
+        <span class="id">A</span>
+        <span class="title">Gaussian 단위 장부가 densify/prune에 취약함</span>
+        <span class="status-pill open">설계 진행 중</span>
+      </div>
+      <div class="problem-row">
+        <span class="id">B</span>
+        <span class="title">"active set을 넓혀가는" 스케줄링 구조 자체가 VIGS 온라인 스트림과 안 맞음</span>
+        <span class="status-pill pending">다음 차례</span>
+      </div>
+    </div>
+    <p class="prose">
+      채점 공식(방향 벡터 vs 관측 이력의 코사인 유사도)은 두 문제와 무관하게 그대로
+      차용 가능하다고 이미 확인됨 — 여기서 다시 논의하지 않는다.
+    </p>
+  </section>
+
+  <section class="subsection">
+    <div class="subsection-head">
+      <h3>문제 A — 장부를 Gaussian이 아니라 공간 셀 단위로 저장</h3>
+      <span class="status-pill open">제안됨, 세부 설계 중</span>
+    </div>
+
+    <p class="prose">
+      원본 구현은 <code>coverage_counts[gaussian_id, direction_bin]</code> — Gaussian 하나하나마다
+      독립된 방향 관측 이력을 저장한다. 문제는 3DGS가 학습 중 계속 Gaussian을 분裂/복제/삭제한다는
+      것: Gaussian 번호가 바뀌거나 없어지면 그 행(row)의 이력이 통째로 무효화된다. nbv_gym은
+      이걸 "매번 전체를 다시 렌더링해서 처음부터 다시 쓴다"는 제일 비싼 방식으로 회피했다.
+    </p>
+
+    <div class="decision-box">
+      <span class="label">제안된 방향</span>
+      <p>
+        Gaussian 번호 대신 <b>3D 공간을 성긴 셀(voxel)로 나눠서 "이 셀이 어느 방향에서
+        관측됐는가"만 저장</b>한다. Gaussian 개수는 장부에 넣지 않고, <b>후보 뷰를 채점하는
+        순간에만</b> "그 셀에 지금 Gaussian이 몇 개 있는가"를 가중치로 곱해서 점수를 합산한다.
+        Update(장부에 기록)와 score(가중 평균)를 분리하는 게 핵심.
+      </p>
+    </div>
+
+    <p class="prose">
+      이 분리가 좋은 이유: update 시점엔 Gaussian 개수를 몰라도/추적 안 해도 된다 — "이 셀,
+      이 방향, 봤음/안 봤음" 이진 플래그 하나면 끝. 개수 가중치는 필요할 때(=채점할 때)
+      그 순간의 최신 Gaussian 분포에서 즉석으로 계산하면 되니, 장부 자체는 densify/prune이
+      아무리 일어나도 전혀 건드릴 필요가 없다.
+    </p>
+
+    <h3 style="font-family:var(--serif); font-size:16px; margin:4px 0 0;">Gaussian 단위 vs 셀 단위</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>기준</th>
+            <th>Gaussian 단위 (원본)</th>
+            <th>셀 단위 (제안)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>장부 크기</td>
+            <td class="lose">Gaussian 수에 비례 (~59만행, 계속 변함)</td>
+            <td class="win">셀 수에 비례 (씬 스케일로 고정, 훨씬 작음)</td>
+          </tr>
+          <tr>
+            <td>densify/prune 시 영향</td>
+            <td class="lose">관련 행 전부 무효화 → 재구축 필요</td>
+            <td class="win">셀 자체는 안 바뀜 → 장부 그대로 유지</td>
+          </tr>
+          <tr>
+            <td>update 연산</td>
+            <td class="lose">Gaussian마다 개별 기록</td>
+            <td class="win">터치된 (셀, 방향) 쌍에 이진 플래그만</td>
+          </tr>
+          <tr>
+            <td>score 연산에 필요한 것</td>
+            <td>Gaussian 위치 → 방향 벡터</td>
+            <td>셀 중심 → 방향 벡터 + 셀별 Gaussian 개수(즉석 계산)</td>
+          </tr>
+          <tr>
+            <td>정밀도</td>
+            <td class="win">점 단위, 정밀함</td>
+            <td>셀 크기에 따라 손실 있음 — 크기 선정이 관건</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-family:var(--serif); font-size:16px; margin:8px 0 0;">동작 순서</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="num">01</span>
+        <div class="body">
+          <b>뷰 V가 실제로 학습될 때 (update)</b>
+          <span>V에서 보이는 Gaussian들 (VIGS <code>render()</code>의 <code>radii&gt;0</code>로 이미 앎) →
+          각 Gaussian의 현재 3D 위치를 셀 id로 양자화 → V의 관측 방향에 해당하는 bin 계산(뷰당 1회) →
+          이번 스텝에서 새로 터치된 (셀, bin) 쌍에 이진 플래그 set.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="num">02</span>
+        <div class="body">
+          <b>후보 C를 채점할 때 (score)</b>
+          <span>C가 볼 것으로 예상되는 셀들 파악(셀 중심점만 절두체 테스트 — Gaussian 전체를
+          투영하는 것보다 훨씬 쌈) → 각 셀마다 "C의 방향 vs 그 셀의 기존 관측 방향들" 코사인
+          유사도 계산(기존 공식 그대로, 대상만 셀로 바뀜) → 셀별 점수를 그 셀의 현재 Gaussian
+          개수로 가중 평균 → C의 최종 novelty 점수.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="decision-box">
+      <span class="label">확정 — 희소(sparse) 셀 할당</span>
+      <p>
+        씬 bounding box 전체를 미리 통짜 격자로 쪼개두지 않는다. Gaussian이 실제로 있는 셀만
+        그때그때 장부에 등록한다(hash 기반, 처음 등장하는 셀 좌표면 그 순간 새 행 추가).
+        이유 두 가지: (1) 실제 씬은 표면 근처에만 Gaussian이 있고 나머지는 빈 공간이라 통짜
+        격자는 대부분 낭비된다. (2) 더 근본적으로, VIGS는 카메라가 계속 새 공간으로 이동하며
+        지도가 실시간으로 넓어지므로 "씬 전체 범위"가 학습 시작 시점엔 존재하지도 않는다 —
+        미리 격자를 깔 기준 자체가 없다. GPU 구현은 Python dict 대신
+        <code>torch.unique</code>로 현재 점유 셀 좌표 집합을 뽑고
+        <code>torch.searchsorted</code>로 행 인덱스를 찾는 방식이 자연스럽다. 아직 Gaussian이
+        없는 미탐험 영역은 장부에 아무 정보가 없는 게 맞는 동작 — "어디를 새로 볼지"는 이 점수의
+        역할이 아니라 VIGS의 keyframe/dense view 등록 로직이 이미 처리하는 별개 문제.
+      </p>
+    </div>
+
+    <h3 style="font-family:var(--serif); font-size:16px; margin:8px 0 0;">아직 정해야 할 것 (열린 질문)</h3>
+    <ol class="qlist">
+      <li>
+        <b>셀 크기를 얼마로 잡을까.</b>
+        (희소 할당이라 "격자가 너무 커진다"는 걱정은 해소됐고, 이제 순수하게 셀 하나의
+        물리적 크기 문제.) 너무 크면 한 셀 안에 서로 다른 방향이 필요한 표면(예: 방 모서리의
+        앞벽/옆벽)이 섞여서 방향 판별력이 떨어진다. 너무 작으면 사실상 Gaussian 단위와 다를 게
+        없어져서 이 설계의 이점(장부 크기가 densify/prune에 안정적이라는 점)이 옅어진다. 씬
+        스케일 기반 휴리스틱(예: Gaussian 평균 최근접 거리의 K배)으로 시작하거나, VIGS가 이미
+        갖고 있는 다른 공간 자료구조가 있다면 거기에 맞추는 게 자연스러워 보이는데 — VIGS
+        코드에 재사용할 만한 기존 grid/voxel 구조가 있는지 아직 확인 안 함.
+      </li>
+      <li>
+        <b>Gaussian이 최적화 중 이동하면서 셀이 바뀌는 문제.</b>
+        분裂/삭제뿐 아니라 gradient step으로 위치 자체가 계속 조금씩 바뀐다. 이건 셀 id를
+        캐싱하지 않고 매번 현재 위치에서 즉석 계산하면 자연히 해결된다(양자화 연산 자체가 매우
+        쌈) — 다만 "절대 캐싱하지 말 것"을 설계 규칙으로 명시해둬야 나중에 누가 최적화한답시고
+        캐싱했다가 조용히 버그 나는 걸 막을 수 있다.
+      </li>
+      <li>
+        <b>셀별 Gaussian 개수는 언제 갱신하나.</b>
+        이것도 카메라/렌더링이 필요 없는 순수 위치 연산이라(전체 Gaussian 위치 → 셀 id 한 번
+        해싱) 사실상 매 스텝이든 몇 스텝마다든 거의 무료로 갱신 가능해 보인다. densify 이벤트에
+        맞출 필요 없이 그냥 score 계산 직전에 매번 다시 뽑아도 될 듯 — 검증 필요.
+      </li>
+      <li>
+        <b>방향 계산의 기준점 — 셀 중심 vs 셀 안 Gaussian들의 실제 무게중심.</b>
+        후자가 더 정확하지만 매번 다시 계산해야 한다. 셀 중심으로 시작해서 오차가 실제로
+        문제가 되는지 보고 필요하면 무게중심으로 바꾸는 순서가 나을 듯.
+      </li>
+      <li>
+        <b>저장 방식 — 이진 플래그 vs 카운트.</b>
+        원본 nbv_gym도 최종 점수 산식에서는 <code>coverage_counts == 0</code> 여부만 쓰고
+        실제 카운트 크기는 안 쓴다(코드에서 확인함). 그러면 셀 단위에서도 이진(bool) 저장으로
+        충분해 보이고, 메모리도 더 아낄 수 있다.
+      </li>
+    </ol>
+  </section>
+
+  <section class="subsection">
+    <div class="subsection-head">
+      <h3>문제 B — active-set 확장 스케줄 vs 매 스텝 샘플링</h3>
+      <span class="status-pill pending">다음 논의</span>
+    </div>
+    <p class="prose">
+      nbv_gym은 "닫힌 데이터셋을 200 step마다 1장씩 unlock"하는 구조라 재점수화가 드물게(전체
+      26,000 step 중 130번) 일어나도 됐다. VIGS는 등록된 뷰가 등록 즉시 학습 가능하고, 매 스텝
+      "이미 가능한 후보들 중 뭘 뽑을까"를 결정해야 하는 데다 후보 풀 자체가 라이브 스트림으로
+      계속 열려 있다 — nbv_gym의 "확장 스케줄" 개념이 대응점이 없다. 대신 이미 만들어둔
+      <code>weighted_mix</code>의 뷰별 가중치 자리에, 위에서 설계한 상시 버퍼에서 뽑은 점수를
+      실시간으로 꽂는 방향으로 갈 것 같은데 — 아직 구체적으로 설계 전. 다음 세션에서 이어서.
+    </p>
+  </section>
+
+  <footer>
+    참고: <code>context/experiments/exp66_cover_benchmark_report.html</code> (coverage vs
+    random 실측 벤치마크) · 이 문서는 설계 결정이 날 때마다 갱신됨, 현재 v2
+  </footer>
+</main>

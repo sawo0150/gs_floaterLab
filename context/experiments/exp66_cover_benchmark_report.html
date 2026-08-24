@@ -1,0 +1,370 @@
+<title>COVER 벤치마크 — coverage vs random 뷰 선택</title>
+<style>
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14120E;
+      --panel: #1C1913;
+      --ink: #ECE6D8;
+      --ink-soft: #9C9384;
+      --line: #332D24;
+      --c-coverage: #E89257;
+      --c-random: #85AAD0;
+      --bad: #D97373;
+      --good: #7FB88A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14120E;
+    --panel: #1C1913;
+    --ink: #ECE6D8;
+    --ink-soft: #9C9384;
+    --line: #332D24;
+    --c-coverage: #E89257;
+    --c-random: #85AAD0;
+    --bad: #D97373;
+    --good: #7FB88A;
+  }
+
+  :root {
+    --paper: #F6F3EC;
+    --panel: #FCFAF5;
+    --ink: #211D17;
+    --ink-soft: #736B5C;
+    --line: #E1D8C6;
+    --c-coverage: #BC5A26;
+    --c-random: #3F5F7F;
+    --bad: #A5432F;
+    --good: #336B4E;
+
+    --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    margin: 0;
+    padding: 56px 24px 80px;
+    line-height: 1.55;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 38px);
+    margin: 0;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .dek {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  .finding {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .finding.warn { border-left: 3px solid var(--bad); }
+  .finding .label {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-coverage);
+  }
+  .finding.warn .label { color: var(--bad); }
+  .finding p { margin: 0; font-size: 16px; max-width: 66ch; }
+  .finding b { font-weight: 700; }
+
+  section { display: flex; flex-direction: column; gap: 16px; }
+  h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin: 0 0 4px;
+    color: var(--ink-soft);
+  }
+  p { margin: 0; }
+  .prose { max-width: 68ch; font-size: 15px; }
+  .prose + .prose { margin-top: 4px; }
+
+  .chart-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 20px 22px 14px;
+  }
+  svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .gridline { stroke: var(--line); stroke-width: 1; }
+  .axislabel { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-soft); }
+  .series { fill: none; stroke-width: 2.4; }
+  .series.dashed { stroke-dasharray: 6,4; opacity: 0.55; }
+  .dot { r: 3; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px 22px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+  .swatch { width: 14px; height: 3px; border-radius: 2px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  tr:last-child td { border-bottom: none; }
+  .tag { font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--line); }
+  .tag.bad { color: var(--bad); border-color: var(--bad); }
+  .tag.good { color: var(--good); border-color: var(--good); }
+
+  .table-wrap { overflow-x: auto; }
+
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; }
+
+  ol.steps, ul.notes { margin: 0; padding-left: 20px; font-size: 14.5px; color: var(--ink); display: flex; flex-direction: column; gap: 8px; }
+  ul.notes { list-style: disc; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 20px; font-size: 12.5px; color: var(--ink-soft); font-family: var(--mono); }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">exp66 부속 — COVER (CVPR 2026) 레퍼런스 구현 벤치마크</span>
+    <h1>COVER의 뷰 선택이 실제로 수렴을 빠르게 하는가</h1>
+    <p class="dek">
+      Chen et al., "Coverage Optimization for Camera View Selection" (CVPR 2026)의 공식 구현
+      <code>chengine/nbv_gym</code>을 그대로 클론해 aria1253 씬에서 README 예시 커맨드로
+      학습을 돌렸다. <code>coverage</code> 지표 기반 뷰 선택 vs <code>random</code> 뷰 선택을
+      동일한 progressive 스케줄로 26,000 step 학습해 비교.
+    </p>
+  </header>
+
+  <div class="finding warn">
+    <span class="label">결론</span>
+    <p>
+      <b>step 기준으로는 COVER가 이긴다 (28.54dB vs 27.47dB, +1.07dB)</b> — 하지만
+      <b>같은 결과를 얻기까지 실제 시계(wall-clock)로는 2.9배 느리다</b> (52분 vs 18분).
+      random이 26,000 step을 다 마친 시점(18분)에 coverage는 겨우 8,000 step, 22.46dB에
+      머물러 있었다 — <b>같은 시간 예산이면 random이 5dB 가까이 앞선다.</b>
+      우리 프로젝트의 실시간 제약을 그대로 적용하면, 이 레퍼런스 구현 형태로는
+      COVER를 incremental 파이프라인에 이식할 이유가 없다.
+    </p>
+  </div>
+
+  <section>
+    <h2>왜 이렇게 느린가</h2>
+    <p class="prose">
+      원인은 알고리즘이 아니라 구현이다. <code>nbv_gym/view_selector.py</code>가 뷰를 한 장
+      추가할 때마다 <code>model.update_view_attributes(training_cameras)</code>를 호출하는데,
+      이 함수는 <b>그동안 활성화된 모든 뷰를 처음부터 다시 렌더링</b>해서 coverage histogram을
+      통째로 재계산한다 (<code>reset_view_attributes=True</code>가 기본값 — 새로 추가된 뷰
+      하나만 반영하는 증분 업데이트가 아니다). 비용은 O(활성 뷰 수 × Gaussian 수)이고, 학습이
+      진행될수록 활성 뷰도 Gaussian도 계속 늘어나므로 재계산 비용이 계속 불어난다.
+    </p>
+    <p class="prose">
+      처음엔 <code>--pipeline.add-every-n-steps 20</code>으로 돌렸다가(후보 pool 1042장을
+      26,000 step 안에 다 훑게 하려고 임의로 낮춘 값) coverage의 ETA가 5~7시간대로 치솟는
+      것을 보고서야 문제를 발견했다. nbv_gym 파이프라인 기본값은 1000, README 예시는 200 —
+      README 기본값(200)으로 되돌리자 정상 페이스로 돌아왔다. 이 리포트의 수치는 모두
+      <b>재시작한 200-step 스케줄</b> 기준이다. 재계산 빈도가 10배 줄어든 뒤에도 coverage는
+      random보다 여전히 2.9배 느렸다 — <code>add_every_n_steps</code> 설정 문제가 아니라
+      전량 재계산이라는 구조 자체의 비용이라는 뜻이다.
+    </p>
+  </section>
+
+  <section>
+    <h2>수렴 곡선</h2>
+
+    <div class="chart-card">
+      <h3>PSNR vs 학습 step (같은 step에서 누가 더 좋은가)</h3>
+      <svg class="chart" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg">
+        <line class="gridline" x1="52" y1="330" x2="624" y2="330"></line>
+        <line class="gridline" x1="52" y1="272" x2="624" y2="272"></line>
+        <line class="gridline" x1="52" y1="214" x2="624" y2="214"></line>
+        <line class="gridline" x1="52" y1="156" x2="624" y2="156"></line>
+        <line class="gridline" x1="52" y1="98" x2="624" y2="98"></line>
+        <line class="gridline" x1="52" y1="40" x2="624" y2="40"></line>
+        <text class="axislabel" x="8" y="333">15</text>
+        <text class="axislabel" x="8" y="275">18</text>
+        <text class="axislabel" x="8" y="217">21</text>
+        <text class="axislabel" x="8" y="159">24</text>
+        <text class="axislabel" x="8" y="101">27</text>
+        <text class="axislabel" x="8" y="43">30</text>
+        <text class="axislabel" x="52" y="352">0</text>
+        <text class="axislabel" x="152" y="352">5,000</text>
+        <text class="axislabel" x="262" y="352">10,000</text>
+        <text class="axislabel" x="372" y="352">15,000</text>
+        <text class="axislabel" x="482" y="352">20,000</text>
+        <text class="axislabel" x="592" y="352">26,000</text>
+        <text class="axislabel" x="330" y="370" text-anchor="middle">gradient step</text>
+        <polyline class="series" stroke="var(--c-random)"
+          points="52.00,290.39 74.00,227.69 96.00,220.45 118.00,211.01 140.00,192.50 162.00,199.13 184.00,183.48 206.00,177.29 228.00,176.67 250.00,164.69 272.00,155.48 294.00,157.57 316.00,146.79 338.00,140.96 360.00,148.18 382.00,139.72 404.00,130.11 426.00,122.49 448.00,119.04 470.00,116.07 492.00,110.39 514.00,107.76 536.00,101.61 558.00,98.16 580.00,93.45 602.00,91.22 624.00,88.84"></polyline>
+        <polyline class="series" stroke="var(--c-coverage)"
+          points="52.00,290.39 74.00,225.16 96.00,229.27 118.00,220.03 140.00,201.56 162.00,202.47 184.00,191.76 206.00,182.97 228.00,185.83 250.00,174.31 272.00,164.21 294.00,167.40 316.00,152.92 338.00,139.63 360.00,147.60 382.00,135.05 404.00,127.20 426.00,119.67 448.00,110.46 470.00,105.68 492.00,97.96 514.00,92.35 536.00,85.39 558.00,80.09 580.00,77.78 602.00,72.98 624.00,68.17"></polyline>
+      </svg>
+      <div class="legend">
+        <span class="legend-item"><span class="swatch" style="background:var(--c-coverage)"></span>coverage (28.54dB @ 26,000 step)</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--c-random)"></span>random (27.47dB @ 26,000 step)</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>PSNR vs 실제 소요 시간 (같은 시계에서 누가 더 좋은가) — 이게 우리한테 중요한 축</h3>
+      <svg class="chart" viewBox="0 0 640 380" xmlns="http://www.w3.org/2000/svg">
+        <line class="gridline" x1="52" y1="330" x2="624" y2="330"></line>
+        <line class="gridline" x1="52" y1="272" x2="624" y2="272"></line>
+        <line class="gridline" x1="52" y1="214" x2="624" y2="214"></line>
+        <line class="gridline" x1="52" y1="156" x2="624" y2="156"></line>
+        <line class="gridline" x1="52" y1="98" x2="624" y2="98"></line>
+        <line class="gridline" x1="52" y1="40" x2="624" y2="40"></line>
+        <text class="axislabel" x="8" y="333">15</text>
+        <text class="axislabel" x="8" y="275">18</text>
+        <text class="axislabel" x="8" y="217">21</text>
+        <text class="axislabel" x="8" y="159">24</text>
+        <text class="axislabel" x="8" y="101">27</text>
+        <text class="axislabel" x="8" y="43">30</text>
+        <text class="axislabel" x="52" y="352">0분</text>
+        <text class="axislabel" x="152" y="352">10분</text>
+        <text class="axislabel" x="262" y="352">20분</text>
+        <text class="axislabel" x="372" y="352">30분</text>
+        <text class="axislabel" x="482" y="352">40분</text>
+        <text class="axislabel" x="600" y="352">52분</text>
+        <text class="axislabel" x="330" y="370" text-anchor="middle">wall-clock time</text>
+        <line class="gridline" x1="248.86" y1="40" x2="248.86" y2="330" stroke-dasharray="3,3"></line>
+        <text class="axislabel" x="252" y="52" fill="var(--c-random)">random 완주 (18분)</text>
+        <polyline class="series" stroke="var(--c-random)"
+          points="52.00,290.39 56.51,227.69 60.78,220.45 66.17,211.01 71.40,192.50 77.29,199.13 83.65,183.48 91.03,177.29 98.50,176.67 106.61,164.69 114.05,155.48 121.90,157.57 130.15,146.79 138.28,140.96 146.41,148.18 154.71,139.72 162.81,130.11 170.48,122.49 178.71,119.04 187.25,116.07 195.78,110.39 204.14,107.76 212.77,101.61 221.69,98.16 230.53,93.45 239.62,91.22 248.86,88.84"></polyline>
+        <polyline class="series" stroke="var(--c-coverage)"
+          points="52.00,290.39 66.16,225.16 83.61,229.27 110.94,220.03 139.27,201.56 168.49,202.47 197.34,191.76 228.18,182.97 255.04,185.83 274.41,174.31 294.08,164.21 313.76,167.40 333.76,152.92 353.97,139.63 374.17,147.60 394.65,135.05 414.85,127.20 435.18,119.67 455.68,110.46 476.34,105.68 497.01,97.96 517.82,92.35 538.79,85.39 559.88,80.09 581.13,77.78 602.50,72.98 624.00,68.17"></polyline>
+      </svg>
+      <div class="legend">
+        <span class="legend-item"><span class="swatch" style="background:var(--c-coverage)"></span>coverage — 52분 걸려 28.54dB</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--c-random)"></span>random — 18분 만에 27.47dB, 이후 정지(완주)</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>최종 수치</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>run</th>
+            <th class="num">최종 PSNR (26,000 step)</th>
+            <th class="num">총 소요시간</th>
+            <th class="num">step당 평균</th>
+            <th class="num">최종 Gaussian 수</th>
+            <th class="num">노출된 뷰 수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>coverage <span class="tag">view-metric=coverage</span></td>
+            <td class="num">28.54 dB</td>
+            <td class="num">3,117 s (52.0분)</td>
+            <td class="num">120 ms</td>
+            <td class="num">592,783</td>
+            <td class="num">140 / 1,042</td>
+          </tr>
+          <tr>
+            <td>random <span class="tag">view-selector=random</span></td>
+            <td class="num">27.47 dB</td>
+            <td class="num">1,073 s (17.9분)</td>
+            <td class="num">41 ms</td>
+            <td class="num">627,543</td>
+            <td class="num">140 / 1,042</td>
+          </tr>
+          <tr>
+            <td>같은 시간 예산 (18분)에서 coverage</td>
+            <td class="num">≈22.46 dB <span class="tag bad">−5.01dB</span></td>
+            <td class="num">1,107 s (step 8,000)</td>
+            <td class="num">—</td>
+            <td class="num">—</td>
+            <td class="num">≈50</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>읽는 법</h2>
+    <ul class="notes">
+      <li>
+        <b>step 곡선의 역전 구간</b> — coverage는 step 0~12,000 구간에서는 오히려 random보다
+        낮다(최대 −0.5dB). step ≈13,000 부근에서 역전해 이후 격차가 계속 벌어져 26,000
+        step에서 +1.07dB로 마감한다. COVER가 초반엔 공간적으로 흩어진(덜 겹치는) 뷰를
+        우선 선택하느라 손해를 보다가, 그 다양성이 나중에 갚아지는 패턴으로 보인다 —
+        COVER 논문이 주장하는 메커니즘과 방향은 일치한다.
+      </li>
+      <li>
+        <b>시간 곡선은 완전히 다른 이야기를 한다</b> — coverage의 step당 이득은 실제로 있지만,
+        selection 이벤트마다 발생하는 O(활성 뷰 × Gaussian) 전체 재계산 비용이 그 이득을
+        압도한다. 같은 wall-clock 예산에서는 random이 압승.
+      </li>
+      <li>
+        <b>후보 pool 노출은 두 run 모두 140/1,042(13%)</b> — <code>add_every_n_steps=200</code>
+        (README 기본값)으로는 26,000 step 동안 전체 pool을 다 훑지 못한다. 두 run이 같은
+        스케줄을 쓰므로 비교 자체는 공정하지만, "COVER가 대규모 후보 pool에서 얼마나
+        잘 걸러내는가"까지는 이 설정으로 충분히 스트레스 테스트하지 못했다는 뜻이다.
+      </li>
+      <li>
+        <b>Gaussian 수는 비슷한 자릿수(59만 vs 63만)</b>라 이번엔 exp66 raw-init
+        비교에서 봤던 것 같은 "모델 용량 차이가 결과를 왜곡"하는 confound는 아니다.
+      </li>
+      <li>
+        <b>다음 결정 지점</b> — 이 레퍼런스 구현 그대로는 incremental VIGS 파이프라인에
+        이식할 근거가 약하다. 이식을 계속 고려한다면 핵심은 알고리즘이 아니라
+        "전량 재계산을 증분 업데이트로 바꿀 수 있는가"이고, VIGS 자체 <code>render()</code>가
+        돌려주는 <code>radii</code>(visibility mask)를 활용해 매 selection마다 새로 추가된
+        뷰의 coverage 기여분만 누적하는 방식이면 이 비용 구조를 근본적으로 피할 수 있어
+        보인다 — 다만 이건 아직 설계만 된 상태고 구현/검증 전.
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    코드: <code>chengine/nbv_gym</code> (CVPR 2026, 원본 그대로, 수정 없음) · 데이터: aria1253,
+    VIGS-SLAM <code>traj_filler</code>로 뽑은 전체 1,303프레임 포즈를 Nerfstudio
+    <code>transforms.json</code>으로 변환 (held-out: idx%5==0) · env: torch 2.11+cu128,
+    gsplat 1.5.3, nerfstudio 1.1.5 (소스 설치) · 스케줄:
+    start_num_views=10, add_num_views=1, add_every_n_steps=200 (README 기본값) ·
+    max_num_iterations=26,001, single seed, single GPU (RTX 5070 Ti)
+  </footer>
+</main>

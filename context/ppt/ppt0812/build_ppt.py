@@ -202,14 +202,32 @@ def build():
 
     # ── Slide 3: 아키텍처 — 스레드/자원 경쟁 구조 ────────────────
     s = blank(prs); set_bg(s)
-    eyebrow_title(s, "ARCHITECTURE", "두 스레드가 하나의 GPU를 나눠 쓰는 구조")
-    add_image_fit(s, IMG / "fig_thread_arch.png", MARGIN, Inches(1.4), BODY_W, Inches(4.55))
-    add_text(s, MARGIN, Inches(6.15), BODY_W, Inches(1.0),
-              "tracking 스레드(motion_filter→frontend→PGBA)는 동기·고정 반복(iters1)으로 돈다 — "
-              "시간 예산 캡이 코드 어디에도 없다. gs_worker 스레드(map()/background_polish)는 "
-              "큐가 빌 때만 polish를 시도하는 idle-gated 구조라, tracking이 바빠질수록 polish 몫이 "
-              "일방적으로 줄어든다. 이 비대칭이 오늘 발견한 회귀의 근본 구조다.",
-              12.5, MUTED, line_spacing=1.25)
+    eyebrow_title(s, "ARCHITECTURE", "세 스레드가 하나의 GPU를 나눠 쓰는 구조")
+    add_image_fit(s, IMG / "fig_thread_arch.png", MARGIN, Inches(1.35), BODY_W, Inches(5.15))
+    add_text(s, MARGIN, Inches(6.62), BODY_W, Inches(0.75),
+              "tracking 스레드는 동기·고정 반복(iters1)으로 돈다 — 시간 예산 캡이 코드 어디에도 없다. "
+              "PGBA는 매 프레임 값싼 큐 확인만 하고, 실제 pose-graph BA는 별도 loop-closure 검출 "
+              "스레드가 후보를 큐잉했을 때만 실행된다(상시 실행 아님). get_lock() 직렬화는 PGBA↔"
+              "background_polish_step에만 적용되며 map()은 이 락을 쓰지 않는다.",
+              11.5, MUTED, line_spacing=1.2)
+
+    # ── Slide 3b: 프레임 1개 주기 — 코드 레벨 이벤트 (신규) ────────
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "MECHANISM · MICRO", "프레임 1개 주기 안에서 무슨 일이 일어나는가")
+    add_image_fit(s, IMG / "fig_frame_cycle.png", MARGIN, Inches(1.3), BODY_W, Inches(5.9))
+    add_text(s, MARGIN, Inches(7.15), BODY_W, Inches(0.3),
+              "track(t)는 프레임마다 정확히 1번 — busy(추적 계산)와 idle(다음 프레임 예정시각까지 대기) "
+              "구간을 오가며, idle 구간에만 background_polish_step이 낄 수 있다.",
+              11.5, MUTED, line_spacing=1.2)
+
+    # ── Slide 3c: 매크로 타임라인 — map()이 기회를 통째로 삼킨다 (신규) ──
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "MECHANISM · MACRO", "map()이 주기적으로 폴리시 기회를 통째로 삼킨다")
+    add_image_fit(s, IMG / "fig_macro_timeline.png", MARGIN, Inches(1.3), BODY_W, Inches(5.9))
+    add_text(s, MARGIN, Inches(7.15), BODY_W, Inches(0.3),
+              "polish 횟수를 결정하는 건 \"프레임당 idle\"과 \"map()이 전체 시간의 몇 %를 먹는지\" "
+              "두 가지 — scale을 올리면 이 둘이 같은 방향으로 움직여 폴리시 기회가 넓어진다.",
+              11.5, MUTED, line_spacing=1.2)
 
     # ── Slide 4: 실측 증거 — A2가 12F를 몰래 죽였다 ──────────────
     s = blank(prs); set_bg(s)
@@ -304,6 +322,25 @@ def build():
               "3.0의 역행은 이 메커니즘만으론 설명 안 됨 — 좁은 후보 풀(stride-5 rgb_dense) 과적합 "
               "가설 필요(미검증).",
               12, MUTED, line_spacing=1.25)
+
+    # ── Slide 7g: freeze 시점 스펙트럼 실측 (신규) ─────────────────
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "MEASURED · FREEZE", "map() freeze 시점 3지점 실측 — 두 극단 모두 기각")
+    add_image_fit(s, IMG / "fig_freeze_spectrum.png", MARGIN, Inches(1.35), BODY_W, Inches(4.7))
+    add_text(s, MARGIN, Inches(6.25), BODY_W, Inches(0.85),
+              "즉시 freeze(19.35dB)와 never freeze(24.90dB, 12F OOM) 둘 다 A2가 채택한 61% 지점"
+              "(29.82dB)보다 나쁘다 — A2의 freeze 시점은 이미 근처 최적이며, 12F OOM은 \"절대 freeze "
+              "안 함\" 극단에서만 발생해 이미 기각된 조합이라 현재 채택 레시피엔 존재하지 않는다.",
+              11.5, MUTED, line_spacing=1.25)
+
+    # ── Slide 7h: freeze 메커니즘 (신규) ────────────────────────────
+    s = blank(prs); set_bg(s)
+    eyebrow_title(s, "MEASURED · FREEZE", "freeze가 실제로 막는 것 — 메모리 폭주, 그리고 예산 분배")
+    add_image_fit(s, IMG / "fig_freeze_mechanism.png", MARGIN, Inches(1.35), BODY_W, Inches(5.75))
+    add_text(s, MARGIN, Inches(7.15), BODY_W, Inches(0.3),
+              "지금 freeze 지점(`mapping_freeze_after_frac`)은 1253/305 튜닝값(0.6140) 고정 비율일 "
+              "뿐 원리적 근거는 없다 — 다음 방향 ①/④(freeze 기준 재정립)가 이걸 대체할 신호를 찾는 일.",
+              11, MUTED, line_spacing=1.2)
 
     # ── Slide 8: 4개 방향 ─────────────────────────────────────────
     s = blank(prs); set_bg(s)

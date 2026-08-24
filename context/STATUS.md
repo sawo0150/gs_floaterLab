@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-08-12. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-08-19. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -88,6 +88,366 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-08-22 (exp66 축 4·5 — LM-RS를 VIGS-SLAM에 실제로 이식 시도, 부분 완료)**:
+  사용자 제안("map()은 기존 optimizer, backpolish만 LM-RS")을 조사. **축 4
+  (스케줄링만): NO-GO** — backpolish는 map()과 완전히 같은 단일 스레드에서 도는
+  협조적 구조(exp60 CUDA 동시성 크래시 전례로 lock 직렬화)라 진짜 병렬 스레드는
+  위험하고, "LM-RS를 잘게 쪼개서 맞추기"는 batch/CG 축소 스윕 6개 조합이 전부
+  발산(원래 발산 시점 2430~5500 → 축소판 1000~3000, 오히려 더 일찍 무너짐)해서
+  기각. **이후 latency 허용치를 "몇 초까지 허용 가능"으로 확인하면서 축 4의
+  전제 자체가 무효화** → 축 5로 전환: VIGS-SLAM 브랜치 `exp66-lmrs-polish-preempt`
+  에서 (1) `_gs_worker`에 opt-in burst 스케줄링 추가·smoke test로 회귀 없음 확인
+  (단 기존 설계가 이미 자연 발생적으로 평균 90회 연속 호출을 하고 있어서 이
+  코드 자체는 불필요했을 가능성 발견), (2) LM-RS의 rasterizer를
+  `diff_gaussian_rasterization_cg`로 이름 바꿔 VIGS-SLAM 자체 conda env
+  (vigs-slam-5090, PyTorch 2.8.0+cu128, sm_120 네이티브 지원)에서 빌드 —
+  기존 rasterizer와 충돌 없이 공존 확인, (3) 실제 aria1253 600프레임 라이브
+  세션에서 `background_polish_step`을 이 rasterizer로 렌더하도록 배선해
+  크래시 없이 완주(PSNR 27.66dB, control 27.76dB와 노이즈 범위 안 동일) — "그릇이
+  맞는다"는 것까지 실측 확인. **CG solve 로직 자체 이식은 미착수**: 타일링
+  차원(`CGSolverState`)·배치 상태(`BatchState`)·pixel/camera sampler가 CUDA
+  커널 내부 관례에 강결합돼 있어 잘못하면 크래시가 아니라 조용한 오류 위험,
+  최소 여러 시간~세션 하나 규모로 판단해 사용자와 합의 하에 여기서 중단. git
+  변경사항은 uncommitted 상태로 보존(전부 opt-in, 기본 동작 불변, smoke test로
+  회귀 없음 확인 완료).
+  → [exp66 status report](experiments/exp66_status_report.md)
+- **2026-08-20 (exp66 신설 — GS-SLAM 2차 최적화 논문 서베이, CaRtGS 축 완료)**:
+  사용자가 exp65 전체 기각 이후 외부 조사한 4편(3DGS², LM-RS, CaRtGS, FSGS) 중
+  코드 공개된 LM-RS·CaRtGS를 codex/codex2로 병렬 실행 시작. **CaRtGS: 재현 불가**
+  — 논문 문제가 아니라 이 머신 GPU(RTX 5070 Ti, sm_120/Blackwell)가 CaRtGS 고정
+  버전(PyTorch 2.3.1+cu121, sm_90까지만 지원)과 근본적으로 안 맞음. `torch.ones(1,
+  device="cuda")`조차 "no kernel image is available"로 실패함을 직접 로그로 확인.
+  헤드리스 렌더링은 문제 없었음(`DISPLAY=:1` 정상, `no_viewer` 옵션 존재).
+  "기각"이 아니라 "이 GPU/툴체인에서 검증 불가"로 판정, Replica 재현 없이 종료
+  (참고용 논문 수치만 확보: room0 29.38±3.70dB).
+  **LM-RS: 이 세션 전체에서 첫 확실한 순이득, 그러나 채택은 아직 불가.** 같은
+  scene(`03_rgb_3dgs_full`)·같은 저장소 안에서 vanilla Adam vs LM-RS optimizer
+  비교 — wall-clock 매칭 기준으로도 LM-RS가 vanilla보다 +1.9dB 높음(iter
+  1000/84s=27.53dB vs vanilla 7000iter/88s=25.65dB), 노이즈 폭(±0.24~0.33dB)을
+  확실히 넘는 첫 실측 이득. 그러나 iter 5500~6000 사이 PSNR이 27.4→9.8dB로
+  치명적 붕괴, 원인은 `cgOptimizer.py`의 `lr=1/color_update.max()` 0-나눗셈
+  가드 부재로 추정해 가드를 추가하고 1회 재검증했으나 **가설 기각** — lr 자체는
+  가드로 finite 유지됐는데도 붕괴가 그대로(오히려 더 일찍) 재현됨. 로그로 확인한
+  진짜 원인은 CG 선형 solve 자체가 optim_iter 2430부터 non-finite 해를 내놓는
+  더 깊은 문제. 이게 scene 자체의 취약성인지 이 GPU(sm_120/Blackwell) 때문에
+  강제로 쓴 비권장 툴체인(CUDA 12.8+PyTorch 2.7.1, 저자 권장은 CUDA 11.8+
+  PyTorch 1.13인데 이 GPU에서 애초에 안 돌아감) 탓인지는 미구분. 채택하려면
+  CG solver 내부 수준의 추가 디버깅 필요 — 다음 단계는 사용자 결정 대기.
+  **축 3 Taming-3DGS(추가, 2026-08-22) 완료**: CaRtGS가 "backward parallelism"
+  출처로 인용한 저장소를 같은 scene(`03_rgb_3dgs_full`="1253호", `0416_301-1253`
+  Aria 캡처)·같은 방법론으로 실측. PSNR은 vanilla가 계속 앞섬(iter7000: vanilla
+  29.04 vs Taming 28.45dB, wall-clock 매칭해도 동일) — LM-RS와 달리 순이득 없음.
+  **그러나 Gaussian 개수는 vanilla 727,213개 vs Taming 102,428개로 7.1배 절감**되면서
+  손해가 -0.59dB뿐 — score-based budget-constrained densification(`budget=20,
+  mode=multiplier`)이 실제로 통제 가능한 예산으로 동작함을 확인. CaRtGS는 이
+  메커니즘을 안 쓰고(속도 기법만 차용, Gaussian 개수는 opacity regularization이라는
+  더 약한 방식) 별도로 관리한다는 것도 논문 직접 확인으로 정정. Taming은 오프라인
+  정적 학습용(목표 개수 하나 고정)이라 온라인 incremental mapping에 쓰려면 롤링
+  예산 재분배 설계가 필요 — 단순 이식 불가.
+  **축 4(추가, 2026-08-22) LM-RS→backpolish 통합 NO-GO**: 사용자 제안(map()은
+  기존 optimizer, backpolish만 LM-RS)을 조사 → backpolish는 map()과 완전히
+  같은 단일 스레드에서 도는 협조적 스케줄링(exp60에서 PGBA 동시 CUDA 커널
+  실행이 실제 크래시 냈던 전례로 lock 공유·직렬화됨), 호출당 3.9~6.4ms인
+  극세립 구조. "진짜 병렬 스레드" 옵션은 그 크래시 재현 위험 커서 기각,
+  "LM-RS를 잘게 쪼개서 맞추기" 방향으로 batch∈{1,2,4,8}×CG∈{1,2,4} 6개 조합
+  스윕 → **전부 발산**(batch1_cg1만 진짜 NaN, 나머지도 3dB+ 급락 패턴 동일),
+  vanilla 수준 iter당 시간(4.96ms)에 가장 가까운 batch4_cg2도 iter500부터
+  이득 미미(+0.47dB)했다가 iter1000 역전(-1.67dB), iter1500 완전 붕괴 —
+  `run.log` 직접 재확인. **잘게 쪼갤수록 이득은 사라지고 발산은 더 빨라지는
+  반비례 관계**(원래 발산 시점 2430~5500 → 축소판 1000~3000) — 이 통합
+  방향은 근본적으로 성립 안 함, exp66의 "VIGS-SLAM에 optimizer 이식" 시도
+  종결.
+  → [exp66 status report](experiments/exp66_status_report.md)
+- **2026-08-19 (exp65 — M4(carve loss 재평가) 기각, M1~M4 전체 트랙 종결)**:
+  기존 carve loss(exp38~44d2 prune/gate/force)를 "floater 제거"가 아니라
+  "동일 iteration 예산에서 수렴 가속"으로 재평가. 계획서 accept 기준: B3(force,
+  삭제 대신 이동해 학습된 color/scale 재활용)가 B1(prune, 순수 삭제)보다 같은
+  예산에서 이겨야 함. `03_rgb_3dgs_full`에서 control/b1only/b3only 각 7000 iter
+  순차 실행(모두 exit_code 0). **최종 checkpoint(7000) 결과: control(carve
+  없음) 28.93 > b1only 28.86 > b3only 28.65dB — B3가 B1을 이기지 못하고, carve
+  자체가 없는 baseline이 가장 높음**(`b3_beats_b1_at_7000: false`). wall-clock도
+  b3only가 가장 느림(211s vs control 137s)에도 최종 PSNR은 가장 낮아 추가
+  비용을 정당화 못함. trajectory 전체를 보면 checkpoint마다 순위가 뒤집혀
+  (1000·3000·4000은 b3 우세, 2000·5000·7000은 control 우세) 이 프로젝트
+  기존 실측 run-to-run 노이즈(±0.24~0.33dB, exp30/43)와 같은 크기 — "수렴
+  가속 효과"로 보기 어려움. 단일 seed라 단정은 아니지만 계획서가 요구하는
+  "동일 예산 우위"를 뒷받침하는 증거는 전무. **이로써 이 세션의 M1/M3/M3′/
+  M2/M4 다섯 축 전부 기각** — "예산 수요 자체를 줄인다"는 exp65 원래 접근
+  전체를 이 형태로는 더 밀어붙일 근거 없음. 다음은 축 재설계 또는 exp65
+  종결 후 CLAUDE.md 최우선순위(strict streaming 27dB)로 복귀 중 선택 필요.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — M2(closed-form 색) 기각, 정확한 원인 규명 후 M4로 이동)**:
+  기하 고정 시 색상이 거의 선형이라는 아이디어로 Jacobi 정규방정식 시도. rasterizer가
+  픽셀별 blending weight를 노출 안 해서(CUDA 수정은 범위 밖, exp56 전례로 고위험)
+  `b_j`는 실제 backward gradient(정확), `A_j`는 `n_touched`로 근사(부정확 명시)해서
+  구현. **1차 결과부터 명확히 기각**: closed-form 3 step 합쳐도(12.81→13.00) Adam
+  단 1 iteration(13.06)보다 낮음. damping(λ=1.0)이 원인인지 1회 진단(n_touched
+  실측 분포 평균 380·중앙값 113로 충분히 커서 damping은 무관 확인) 후 재실행 없이
+  기각 확정. **진짜 원인**: n_touched가 Σw_ij²(정규방정식 대각항) 근사로 부적합 —
+  낮은 기여 가장자리 픽셀까지 다 세어 대각항을 과대평가, 스텝을 필요량보다 훨씬
+  작게 만듦. 계획서 kill criterion("occlusion 비선형성")보다 더 구체적인 원인
+  규명. 다음은 M4(carve loss 재평가)로 이동.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — ⚠ 정정: M3(mesh) 속도 실측·init-only 재시도 둘 다 순이득
+  없음으로 재판정, M1/M3/M3′ 트랙 종결)**: 사용자가 "속도 측면에서 이득이 있었냐"고
+  묻자 재확인 — 직전 "유망하다" 판정은 속도를 안 재고 파라미터 수·품질만 본
+  성급한 결론이었음. **실측 결과: mesh를 최적화 내내 유지하면 iter당 4.52ms로
+  free(1.01ms)보다 4.46배 느림**(매 iter마다 face normal·quaternion을 2,976개
+  face 전체에 대해 재계산하는 오버헤드가 파라미터 39% 절감분을 완전히 상쇄).
+  사용자 제안으로 "mesh+2D-fit은 초기화 한 번에만 쓰고 이후 free로 굽기(bake)"
+  재시도: 속도는 1.04ms/iter로 정상 회복했지만, **품질은 거의 전 구간(iter
+  0~3000)에서 단순 baseline(항등회전+등방+단순색)이 정교한 mesh 기하 init과
+  같거나 나음** — 3000 iter 시점 차이 0.2~0.3dB로 수렴. M1a에서부터 반복
+  확인된 패턴(방향이 어긋난 얇은 Gaussian이 등방 Gaussian보다 불리)이 이번이
+  세 번째 재현. **최종 판정: mesh 기반 접근(제약이든 init이든) 둘 다 이 구현으로는
+  순이득 없음** — M3′(기각)에 이어 M3-mesh도 사실상 기각. 이번 세션 exp65
+  M1/M3/M3′ 트랙 전체가 여기서 일단락, 다음은 M2(closed-form 색)/M4(carve loss)
+  전환이 유력.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — M3(mesh, A2) 구현 성공, M3′와 대조적으로 긍정적 결과 —
+  사용자가 원래 의도한 핵심 실험이 실제로 작동함을 확인)**: 사용자가 "원래 하려던
+  핵심 실험은 dense correspondence로 mesh를 만들어 그걸로 init·최적화해서 연산
+  부담을 줄이는 것"이라고 재확인 — 계획서 §3 M3(topology anchor)의 A2안, M3′와는
+  완전히 다른 축(M3′는 개별 Gaussian 자유도만 축소, M3-mesh는 **여러 Gaussian이
+  mesh 정점을 공유**해 진짜 파라미터 수를 줄임). SuGaR를 clone해서 실제
+  mesh-binding 공식(위치=barycentric 보간, scale=삼각형 변 길이 유도, 회전=mesh
+  face normal 고정+면내 회전 1개 학습)을 확인·포팅. Sobel+normal변화량(곡률
+  대리신호) 결합한 밀도기반 샘플링(1,500 정점)→`scipy.spatial.Delaunay`→2,976
+  삼각형 mesh 구성(밀도가중치 작동 확인, 고텍스처 영역 3배 촘촘). **SuGaR 포팅
+  중 실제 버그 발견·수정**: SuGaR의 절대 두께 상수(1e-4)가 미터 단위 실제 장면에서
+  in-plane scale 대비 500배 얇아 렌더러에서 수치 붕괴(그래디언트 완전히 죽음,
+  20 iter부터 PSNR 완전 동일값 반복) — M1a/M3′에서 이미 검증된 상대적
+  flatten_ratio(0.2) 방식으로 교체해 해결(이후 12.9→25.9dB 매끄러운 단조 상승).
+  **mesh-bound vs free(완전 독립) Gaussian을 동일 시작점에서 비교(3000 iter)**:
+  파라미터 수 25,332 vs 41,664(**39% 절감**), PSNR 격차가 10~3000 iter 내내
+  1.5~3.4dB의 좁은 범위에서 안정적(M3′의 8.58dB·계속 벌어지는 추세와 극명히 대조).
+  **판정: M3(mesh)는 유망 — "자유도를 줄이는 방법"보다 "무엇을 공유시켜 줄이는가"가
+  관건이었음을 확인.** 아직 안 한 것: 색상 2D-fit 투영 초기화, n_gaussians_per_triangle
+  스윕, 다른 keyframe 재현, 실제 온라인 파이프라인 통합.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — M3′(ray+normal 제약, DoF 14→6) 구현·측정 완료, ceiling
+  acceptance 기준 실패로 기각)**: 사용자 지시로 M1b 재설계 대신 M3′로 직행.
+  `exp65_axes/m3prime/constrained_opt.py` 신규 — `GaussianModel`의 `_xyz`/`_scaling`/
+  `_rotation`이 단순 속성 읽기(leaf Parameter일 필요 없음)라는 점을 이용해, CONSTRAINED
+  모드는 진짜 leaf 파라미터(ray 위 거리 `t`, in-plane scale 스칼라, opacity, color)만
+  옵티마이저에 넣고 매 forward마다 `_xyz=camera_center+t·ray_dir` 등을 미분 가능하게
+  재계산하는 방식으로 구현(회전은 normal 또는 identity로 영구 고정, 절대 안 건드림) —
+  실제 production CUDA rasterizer 그대로 재사용. 착수 전 ray 파라미터화가 기존
+  depth 기반 unprojection과 일치하는지 20개 실픽셀로 자체검증(최대 오차 9.5e-7 통과).
+  같은 frame 114 keyframe, 1,500픽셀 고정 샘플로 4조건(free/constrained ×
+  normal/identity-고정) × iteration 스윕(0~3000) 실행. **발견 1**: constrained
+  모드의 normal-vs-identity 격차가 50 iter에 -0.744dB로 벌어졌다가 3000 iter까지도
+  -0.66dB로 유지되는 반면, free 모드는 항상 잡음 수준(±0.2dB)에 머묾 — "제약된
+  최적화는 초기화 차이를 못 지운다"는 핵심 가설 방향 confirm(단 normal이 identity보다
+  계속 나쁨, M1a와 같은 방향). **발견 2(결정적)**: constrained 모드가 iter
+  1000→3000 사이 거의 정체(+0.31dB)인데 free는 계속 상승 — **3000 iter 시점 격차
+  8.58dB로, 계획서 자체 acceptance 기준("6000 iter에서 -2dB 이내")을 크게 실패**.
+  계획서가 이미 예견한 리스크("DoF 축소는 상한을 낮출 수 있음 → R3 해제 단계
+  필수")가 그대로 재현됨. **판정: R1+R2만으로는 M3′ 기각, R3(잔차 기반 선택적
+  해제) 없이는 불가** — R3는 아직 미구현. 이번 세션 exp65 M1/M3′ 트랙 전체가
+  일단락됨(요약은 status report 참고), 다음은 R3 구현 여부 또는 M2/M4로 전환.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — flat_lift 대조실험으로 M1b Δ_lift의 92%가 기하 오차가 아니라
+  렌더러 불일치였음을 규명)**: 직전 M1b 결과(Δ_lift=19.39dB, kill criterion 6배
+  초과)에 대해 "depth/normal lift 자체가 문제인지, 2D fit에 쓴 GaussianImage식
+  렌더러(정렬없는 블렌딩)와 실제 3D 렌더러(occlusion 고려 alpha-compositing)가
+  애초에 다른 알고리즘이라 생기는 불일치인지"를 분리하는 대조실험 추가:
+  depth/normal 정보를 전혀 안 쓰고 고정 depth(중앙값)+항등회전+isotropic scale로만
+  3D 배치해도 실제 3D rasterizer로 렌더링(`--flat_lift`). **결과: 이 flat_lift도
+  이미 17.85dB 손실(원래 Δ_lift 19.39dB의 92%)** — 즉 **진짜 depth/normal 기하가
+  기여하는 손실은 ~1.5dB뿐으로, 계획서 kill criterion(≤3dB)을 사실 통과하는
+  수준**. 진짜 문제는 GaussianImage식 2D 렌더러로 완벽히 맞춘 파라미터가 같은
+  공간배치라도 실제 3D 렌더러에 넘기면 기하와 무관하게 이미 크게 어긋난다는
+  렌더링 알고리즘 자체의 근본적 불일치. **판정이 두 갈래로 갈림**: 계획서 문구
+  그대로면 여전히 kill(Δ_lift 19.39dB>3dB), 더 정밀한 진단 기준으로는 "M1b를
+  3D-렌더러-기반 2D fit으로 재설계하면 승산 있다"는 근거. 다음 결정 필요:
+  M1b 재설계 시도 vs 계획서대로 M3′(ray 제약)로 전진.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — M1b 구현·측정 완료, 계획서 자체 kill criterion(Δ_lift≤3dB)을
+  6배 이상 초과해 폐기 판정)**: M1.5(prior 감사)는 MPS를 GT로 쓰는 게 부담스럽다는
+  사용자 판단으로 보류하고 M1b(2D Gaussian fit 후 depth/normal로 3D lift)로 직행.
+  순수 PyTorch 2D Gaussian 렌더러(GaussianImage식 정렬없는 가중평균 블렌딩) 구현 후
+  **gradcheck 2회 통과**(codex+Claude 독립 재검증), 실제 keyframe(frame 114) 데이터를
+  opt-in env-var 덤프로 추출(기존 동작 불변, `VIGS_M1B_DUMP_FRAME`), fit→lift→실제
+  3D rasterizer 렌더 파이프라인 구현 — `Camera`/`GaussianModel` 생성과 좌표/normal
+  변환·quaternion 공식은 전부 기존 검증된 코드(`init_from_tracking`/M1a) 그대로
+  재사용(추측 안 함), 코드 라인 단위 직접 검토 완료. 첫 실행은 원본 해상도(464²)에서
+  순수 PyTorch dense 텐서가 OOM(중간 텐서 하나가 3.21GB 요구, GPU 15.46GB) — fit은
+  128×128 저해상도로 하고 lift/최종렌더는 원본 해상도로 되돌리는 방식으로 수정 후
+  재실행 성공. **결과: 2D fit 36.95dB → 3D lift 후(동일 해상도 기준) 17.56dB,
+  Δ_lift=19.39dB** — 계획서 자체가 정한 kill criterion(≤3dB)의 6배 이상. depth
+  커버리지(99.8% 유효)는 원인에서 배제, 가장 유력한 원인은 2D fit에 쓴 렌더링
+  방식(정렬없는 블렌딩)과 3D lift 후 실제 렌더(occlusion 고려 alpha-compositing)가
+  근본적으로 다른 알고리즘이라는 점으로 진단(추가 검증은 안 함). **계획서 kill
+  criteria 규칙을 그대로 적용하면 M1b 폐기 → M1c도 자동 보류, 남는 전진 경로는
+  M1a(완료)+M3′(ray 제약, 아직 미착수)** — 다만 렌더링 알고리즘 불일치를 통제한
+  재측정을 한 번 더 해볼지는 사용자 판단 대기.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — `late_mapping_iters` 스로틀이 backpolish-off 조건에서는
+  공짜로 벗겨도 되는 군더더기였음을 발견, +1.3dB 무비용 개선)**: map() iters가
+  프레임에 따라 다르냐는 질문에 답하다가 실측 재확인 — "54→7→3" 3단계가 아니라
+  **PGBA 루프클로저 보정 패킷이 들어올 때마다(프레임 위치 무관) iters=20으로 튀는
+  4번째 경우**를 놓쳤던 걸 정정. 이어서 사용자 요청으로 `late_mapping_start_frac`/
+  `late_mapping_iters`(frame 650 이후 map() iters를 7→3으로 줄이는 장치, 원래
+  exp57/63 시절 backpolish에게 GPU 시간을 양보하려고 만든 것)를 완전히 꺼서
+  M1a control/normalorient를 재실행. **결과: wall time이 140.6~140.8s로
+  사실상 전혀 안 늘었고(1.5배속 예산 안에서 GPU 시간이 남아돌고 있었다는 뜻),
+  CUDA 메모리도 16GB 중 10.3GB(64%)로 여유 충분, OOM/traceback 없음, 그런데
+  PSNR은 +1.3dB 공짜로 개선**(control 22.94→24.29dB, normalorient
+  22.88→24.19dB). 즉 **지금 레시피(backpolish off)에서는 이 스로틀이 아무 실익
+  없이 품질만 깎고 있었음** — 단 backpolish가 켜진 원래(S0) 조건에서도 마찬가지인지는
+  별개 확인 필요(아직 안 함, 다음 후보로 등록). control-normalorient 갭은 이
+  조건에서도 -0.06~-0.10dB로 작게 유지(0-iter 때 -0.61dB 대비). 상세 표/근거는
+  `exp65_status_report.md`(사용자 요청으로 신설한 상시 갱신용 축-리포트 문서) §7에.
+  → [exp65 status report](experiments/exp65_status_report.md)
+- **2026-08-19 (exp65 — M1a-nofreeze 재실행: 0-iter 갭이 1/10로 줄어듦 + map() 호출당
+  시간 추세 확인 + 신규 상시 상태 리포트 문서)**: 사용자가 "계획만 세웠지 구현
+  세부는 못 따라간다"며 exp65 진행 상황을 축 구조+용어설명으로 정리해달라고
+  요청 → `context/experiments/exp65_status_report.md`(가벼운 상시 갱신용 현황
+  문서, 매 사이클 갱신 예정)를 신설. 이어서 "M1a도 freeze confound 없이
+  다시 해봐야 하지 않냐"는 지적에 따라 M1a control/normalorient를
+  **nofreeze**(S1-nofreeze와 같은 패턴, map()이 실제로 정상 작동)로 재실행:
+  **결과 -0.060dB(mean)/-0.067dB(fixed-eval)로, 원래 0-iter 조건의 -0.607dB
+  대비 갭이 약 1/10로 줄어듦** — 초기 배치(정체성 vs normal 정렬) 차이는 진짜
+  map() 최적화가 몇 번만 붙어도 대부분 지워짐. gaussian 수는 normalorient가
+  +15% 더 많이 생성(68,887→79,093, 신규 관찰). 같은 실행에 `VIGS_TIMING_LOG`
+  (기존 계측 스위치, 코드 수정 없음)를 켜서 map() 호출 84회 전부 로깅 →
+  **"호출당 시간이 프레임 진행에 따라 느려지는가"에 답: 반복횟수(iters)가
+  여전히 압도적 지배 요인(iters=54→3로 줄면 gaussian 수가 4배 늘어도 전체
+  호출시간은 오히려 감소)이지만, 같은 iters 안에서만 보면 gaussian 수 2배당
+  +35~40% 완만하게 증가(상관관계는 약함, r=0.22~0.31, GPU 경합 잡음 큼)** —
+  exp56의 옛 "iters×n_view 지배적" 결론을 재확인하면서 정밀화. 시퀀스 맨 끝
+  2회 호출에서 대형 prune로 추정되는 시간 스파이크(600~1,060ms)도 발견,
+  별도 현상으로 기록. 다음 후보: M3′/M3″ 검증 시 iteration 예산을 촘촘히
+  스윕해 "몇 iter부터 정체성/normal 차이가 사라지는지" 확인.
+  → [exp65 status report](experiments/exp65_status_report.md) ·
+  [exp65 메인 카드](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-19 (exp65 — ⚠ 중대 정정: E6 S1의 -10.369dB는 freeze confound 포함값,
+  진짜 backpolish 기여도는 -4.77dB)**: 사용자가 "옛날 vanilla VIGS pure online이
+  22~23dB였는데 왜 지금 S1은 17dB로 낮냐"고 재확인 요청. 서브에이전트로 exp52~56
+  카드 전수조사한 결과 **그 시기(vanilla pure_online 22.73→23.98dB)엔
+  `mapping_freeze` 메커니즘 자체가 코드에 없었음**(map()이 1303프레임 전체에서 끝까지
+  정상 작동) — `mapping_freeze_after_frame`과 `background_polish`는 **exp57에서 함께
+  도입**됐고, freeze의 설계 전제 자체가 "map()을 특정 지점(현재 레시피 61.4%)에서
+  멈추는 대신 그 시간을 backpolish가 대신 채운다"였음을 확인. 즉 원래 S1(freeze는
+  그대로 두고 backpolish만 끔)은 뒤쪽 약 40%(500프레임)가 map()도 backpolish도 없이
+  **완전히 방치**된 상태를 잰 것 — 인위적으로 나쁜 수치였음. freeze 관련 플래그
+  3개만 제거한 **S1-nofreeze로 재실행: 23.037dB(fixed-eval 22.819dB)** — 사용자가
+  기억한 옛 vanilla 수치(22.73dB)와 거의 정확히 일치, keyframe/gaussian 수·exit
+  code·traceback 전부 정상 확인. **backpolish의 순수 기여도를 27.806−23.037≈-4.77dB로
+  정정**(원래 -10.369dB 중 약 5.6dB는 freeze confound였음). M1a(control/normalorient)는
+  애초에 즉시freeze를 의도적으로 써서 측정한 것이라 이 문제와 무관, 정정 불필요.
+  향후 E6/backpolish 기여도 논의는 S1-nofreeze(-4.77dB) 기준으로 함. wall time
+  이상치(+39%, S1 계열 전부 공통)는 freeze 유무와 무관하게 재현돼 원인 여전히 미확인.
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-19 (exp65 — M1a 구현·측정 완료: normal 기반 배치가 오히려 -0.61dB 더 나쁨,
+  48시간 우선순위 2건 모두 소진)**: `viewpoint.normal`(motion_filter의 omnidata prior)이
+  이미 매 keyframe 채워져 정상 loss에 쓰이는데, raw Gaussian birth 경로
+  (`create_pcd_from_image_and_depth`)만 이걸 무시하고 항등회전·등방 scale로 짓는다는 걸
+  확인 후, opt-in 플래그(`Dataset.exp65_m1a_normal_orient`, 기본 false로 회귀 없음)로
+  normal 기반 quaternion(half-way-vector 공식)+anisotropic surfel scale을 구현. 착수 전
+  이 코드베이스의 실제 `build_rotation()` 컨벤션과 500개 랜덤 벡터로 대조해 최대오차
+  3.4e-7로 수식 정합성 확인, git diff도 전량 byte-for-byte 검토(신규 코드라 사용자 지시대로
+  구현→검증→실행 엄격 분리 유지). 실행은 S1b가 밟았던 `map()` 크래시 경로를 피해 exp63
+  검증된 `mapping_freeze_after_frac=0.0+allow_births`(즉시 freeze, `map()` 자체가
+  호출 안 됨) 사용 — 스크립트 독립검증 중 `--mapping_freeze_after_frac` 중복 삽입 실수를
+  발견해 직접 수정 후 실행. **결과: control(identity rotation) 16.446dB vs
+  normalorient(신규) 15.839dB(-0.607dB, SSIM도 동일 방향) — normal 기반 orientation이
+  오히려 더 나쁨**(단 LPIPS는 반대로 normalorient가 우세, 지표 불일치라 과잉해석 자제).
+  둘 다 M1a kill criterion(iter-0 PSNR≥15dB) 통과 — DROID depth 자체는 병목 아님.
+  가설(미검증): flatten_ratio=0.2로 만든 얇은 surfel이 normal 오차에 훨씬 취약(iter-0라
+  보정 기회 없음) — 계획서 자체가 예견한 "DoF 축소=prior로의 위임, prior가 틀리면 제약이
+  곧 오차"를 실측으로 뒷받침, M1.5(prior 감사) 없이 M3″(confidence-adaptive DoF)로 바로
+  가면 안 된다는 근거. **exp65의 48시간 최우선 2건(E6 S1, M1a)이 모두 1차 측정 완료** —
+  다음 방향(M1.5 prior 감사 vs flatten_ratio sweep)은 사용자 확인 대기.
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-19 (exp65 — S1b "birth-only" probe 시도·중단, `map()`의 실제 잠재 버그
+  발견)**: S1(backpolish OFF)의 -10.37dB 갭 중 map()의 소소한 기여분을 가늠하려고
+  "map()도 0-iter로" probe를 기존 플래그만으로(새 코드 0줄) 재보려 했으나 실행 중
+  2가지를 발견: (1) `--late_mapping_iters 0`은 `demo.py`가 `ValueError`로 명시 차단 —
+  진짜 0-iter는 이 코드베이스가 지원하지 않는 설정. (2) 최솟값 1로 낮춰도 `map()`의
+  `first_mapping` 분기(`init_itr_num//len(window)`, `init_itr_num=0`이면 여기도
+  `iters=0`이 되는데 이 경로엔 위와 같은 사전 검증이 없음)에서 **실제 크래시** 발견:
+  `frozen_mask`가 `for mapping_iteration in range(iters):` 루프 안에서만 대입되는데
+  루프 뒤(`gs_backend.py:3993` 근방, freeze 상태에서 항상 실행되는 "enforce scale"
+  블록)에서 조건 없이 참조돼 `iters=0`이면 `UnboundLocalError`. 이 예외가 백그라운드
+  `_gs_worker` 스레드 안에서 터져 스레드만 조용히 죽고 메인 프로세스는 안 죽어
+  20분간 멈춘 것처럼 보임(codex가 타임아웃으로 SIGINT). **이 probe는 중단**(고치려면
+  새 코드가 필요해 "공짜 측정"이라는 전제가 깨짐) — 버그 자체는 기록해두고 지금은
+  수정하지 않음(exp65 우선순위 아님). 다음은 원래 계획대로 M1a(normal 기반 Gaussian
+  배치, 진짜 신규 구현) 착수.
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-19 (exp65 운영 루프 가동 — E6 S1 1차 실측: backpolish 제거 시 -10.37dB)**:
+  VIGS-SLAM `main`의 exp63/64 미커밋 변경을 체크포인트 커밋(`ca851173`)으로 정리하고
+  `exp65-backpolish-free` 브랜치로 분기, "방향설계=Claude·구현/실행=codex(2) 위임·매
+  단계 독립 재검증"이라는 사용자 지정 운영 루프를 실제로 가동. `background_polish_step()`이
+  코드 전체에서 호출부 1곳(`vigs/vigs.py:406`)·게이트 1개(`config.Training.background_polish`,
+  기본 False)뿐임을 직접 확인해 **소스 수정 없이 config 1줄만으로 S1(backpolish OFF)을
+  만들 수 있음**을 설계 단계에서 확정. codex 구현 1차 시도는 300초간 무출력 SIGTERM으로
+  완전 실패(원인 미상), codex2(별도 계정)로 탐색 없는 프롬프트(파일 내용 전부 프롬프트에
+  박음)로 재시도해 50초 만에 성공 — 단 codex 자신의 JSON 리포트는 `status: "error"`라는
+  **오탐**을 냈고, 직접 `diff`로 재검증해서야 실제로는 정상(1줄만 다름)임을 확인. 실행도
+  1차는 출력 디렉터리가 스크립트 내부 `mkdir -p`보다 먼저 필요하다는 선후관계 버그로
+  즉시 실패, 디렉터리를 직접 만들고 재시도해 140.8초 만에 성공. **결과: aria1253에서
+  backpolish를 완전히 끄면 27.805869dB→17.436971dB(-10.369dB)** — keyframe 수(123)와
+  최종 gaussian 수(95,954→95,426)가 두 run에서 거의 동일해 init/map() 파이프라인 자체는
+  정상 작동했음을 확인(파이프라인 버그 아님, 진짜 측정값). `ONLINE_FINAL_EVAL
+  map_updates=0` 로그는 실제 카운터가 아니라 `demo.py:2255`의 하드코딩 리터럴임을 소스로
+  확인해 red herring 배제. **단일 run·단일 장면(aria1253)이라 잠정치** — 다음은
+  M1a(naive lift iter-0 PSNR 상한 측정)로 이 10dB 갭을 "init 품질 문제"와 "수렴 속도
+  문제"로 분리하는 것, 그리고 aria301_305에서의 재현.
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-18 (exp65 ADDENDUM — 목표를 "iter 효율화"에서 "backpolish 완전 제거(C0)"로
+  재프레이밍, 실행 전)**: 등록 직후 사용자가 두 차례 ADDENDUM으로 계획을 대폭 수정.
+  핵심 변경은 새 최상위 주장 **C0**(backpolish를 아예 끈 상태에서 기존 backpolish-포함
+  파이프라인 품질에 준하는 PSNR 달성) 추가 — 기존 C1(iter당 효율)은 C0 실패 시의
+  fallback으로 강등. 논리: "DoF를 줄인다는 건 그 자유도를 prior가 대신 채운다는 뜻"이므로
+  prior 품질부터 감사해야 한다는 원칙(M1.5)이 새로 들어왔고, M1이 M1a(naive lift, iter-0
+  PSNR, 게이트 15dB)→M1.5(prior 감사, confidence↔실제오차 상관 |r|<0.3이면 설계 변경)
+  →M1b(2D Gaussian fit 후 depth/normal로 3D lift, GaussianImage/Augmented Radiance
+  Field 이식, Δ_lift≤3dB 게이트)→M1c(multi-view 누적 열화, -5dB 이내)로 4단계 분해됐다.
+  신규 축 M3′(Gaussian을 `p=o+t·d`의 ray 위 1-DoF로 제약, PAGaS가 청사진, DoF 14→6)와
+  M3″(제약 강도를 prior confidence로 연속 조절하는 penalty 항 — "confidence로 얼마나
+  믿을지"가 아니라 "무엇을 학습할지"를 정하는 게 핵심 novelty, ConfidentSplat/VarSplat/
+  MCGS-SLAM 등 기존 confidence-aware 연구와 차별화 지점으로 명시)가 추가됐다. 메인 결과
+  표는 신규 **E6**(S0 baseline~S5 "M1b init+M3′ DoF, backpolish ON" 6개 설정 비교) —
+  `PSNR(S4)-PSNR(S0)`이 0에 가까우면 C0 성립. RGS-SLAM(dense correspondence init으로
+  densification 대체)과 PAGaS(ray-constrained 1-DoF GS)를 **직접 경쟁자/scoop 위험
+  🔴 높음**으로 명시하고 차별화 문장까지 준비. **VIGS-SLAM 저장소가 현재 exp63/64의
+  미커밋 dirty 상태임을 확인**, 이 계획(init 경로·map() 파라미터화 구조 변경)이 그
+  변경분과 섞이지 않도록 **새 git branch로 분기 후 진행하기로 결정**(착수 전 exp63/64
+  dirty 변경 우선 커밋/정리). **아직 코드 실행 없음** — 48시간 최우선 순서는 E6의
+  S1(지금 코드에서 backpolish만 끈 갭 실측)과 M1a(iter-0 PSNR).
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-18 (exp65 신설 — Budget-Constrained GS-SLAM 논문 트랙 계획 등록, 실행 전)**:
+  사용자가 작성한 논문급 실행 계획서를 그대로 exp 카드로 등록. 핵심 재프레이밍:
+  exp63/64가 다룬 "map()↔polish GPU 시간 경쟁으로 scene마다 available iteration이
+  달라지는" 문제를, "그 예산을 어떻게 배분할까"가 아니라 **"예산 수요 자체를 줄이는"**
+  방향으로 뒤집는다 — (A) DROID dense correspondence 위상에 Gaussian을 anchor로 묶어
+  DoF 축소, (B) carve loss를 "floater 제거"가 아니라 "잘못 놓인 Gaussian을 지우지 않고
+  이동시켜 iter 절약"으로 재해석, (C) appearance(색)를 gradient descent 대신
+  visibility-weighted closed-form solve로 풀기. M0(파라미터 그룹별 이동량 계측, 신규)
+  →M1(DROID dense init만으로 iter-0 PSNR 측정, ≥18dB면 (A) 진행/<15dB면 (A) 폐기 —
+  **최우선 실행 항목**)→M2(closed-form appearance, ADAM 500iter와 solve 1회 비교)
+  →M3(Scaffold-GS류 anchor-offset)→M4(carve loss 재평가, 코드는 exp38~44d2/exp55
+  Phase3 대부분 재사용 가능·지표만 교체)로 이어지는 4단계, E0~E5 실험축, dev/test 분리
+  일반화 주장(exp59의 4장면 실패 데이터를 dev/test 시드로 재사용 가능)까지 상세 스펙.
+  **아직 코드 실행 없음** — 48시간 액션(refs clone, M0 로깅, M1 측정)이 다음 착수 대상.
+  → [exp65](experiments/exp65_budget_constrained_gs_slam_plan.md)
+- **2026-08-17 (exp64 신설 — map()↔background_polish 적응형 시간-비율 거버너, 1차 결과
+  긍정적)**: exp63에서 확정된 두 문제(우선순위 기반이라 tracking이 바빠지면 polish가
+  우연히 굶는 것; freeze가 영구·비가역이라 즉시freeze 시 이후 구간이 `densify_and_prune`을
+  영원히 못 받는 것)를 동시에 겨냥한 사용자 제안 설계를 구현. `VIGS_TIMING_LOG`와 무관한
+  상시 벽시계 타이머로 최근 5초 map()/polish 실측 시간-비율을 추적하다가, polish 몫이
+  목표(`--polish_share_target_frac`) 밑이면 다음 map() 호출의 `iters`를 부족분에 비례해
+  줄인다(`--polish_share_min_map_iters`로 바닥 보장 — 축C2처럼 0으로는 안 감, OOM 문제는
+  이번 축에서 의도적으로 범위 밖으로 미룸, 5090 타깃). 코드 감사로 뷰 선택의 staleness
+  회피는 기존 `--background_polish_shuffle_epoch`가 이미 담당 중임을 확인(재구현 안 함),
+  비슷한 이름의 기존 미사용 메커니즘(`--late_mapping_adaptive_background_target_steps`)은
+  인과 방향이 반대라 재사용하지 않음. **1차 실행(12F scale=1.5, target=0.15): PSNR
+  23.84→26.13dB(+2.29), polish 806→2,928회(3.6배), OOM 없음** — 예산(replay_time_scale)을
+  전혀 안 늘리고 재배분만으로 얻은 개선. 아직 27dB 미달, 1253/305 교차검증 전이라 미채택.
+  → [exp64](experiments/exp64_map_polish_time_share_governor.md)
 - **2026-08-12 (exp63 — `replay_time_scale` 스윕으로 12F 회귀의 인과관계 직접 확인, polish
   "양자화" 메커니즘 규명)**: 직전 타이밍 계측이 밝힌 "12F는 예산 부족으로 polish가 굶었다"는
   상관관계를, 예산 자체를 조작해(`--replay_time_scale` 1.5→2.0→3.0, `--strict_aria_online`은

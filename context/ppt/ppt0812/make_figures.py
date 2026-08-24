@@ -66,11 +66,11 @@ def _ax(figsize=(10, 5.6)):
 
 # ── fig_thread_arch ──────────────────────────────────────────────
 def fig_thread_arch():
-    fig, ax = plt.subplots(figsize=(11, 6.2))
+    fig, ax = plt.subplots(figsize=(13.2, 8.6))
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(BG)
-    ax.set_xlim(0, 11)
-    ax.set_ylim(0, 6.2)
+    ax.set_xlim(0, 13.2)
+    ax.set_ylim(0, 8.6)
     ax.axis("off")
 
     def box(x, y, w, h, text, color, fontsize=12.5, sub=None):
@@ -81,37 +81,68 @@ def fig_thread_arch():
                  color=TEXT, fontsize=fontsize, fontweight="bold")
         if sub:
             ax.text(x + w / 2, y + h / 2 - 0.22, sub, ha="center", va="center",
-                     color=MUTED, fontsize=9.5)
+                     color=MUTED, fontsize=8.8)
 
-    # Tracking thread lane
-    ax.text(0.15, 5.75, "TRACKING 스레드 (메인, 동기)", color=BLUE, fontsize=13, fontweight="bold")
-    box(0.2, 4.8, 2.0, 0.75, "motion_filter", BLUE)
-    box(2.5, 4.8, 2.35, 0.75, "frontend BA", BLUE, sub="for itr in range(iters1): 시간체크 없음")
-    box(5.15, 4.8, 2.1, 0.75, "PGBA", BLUE, sub="loop closure")
+    # ── 실제로는 스레드가 3개다 (이전 버전 그림엔 loop-closure 스레드가 통째로 빠져있었음) ──
+    # Row A: tracking thread (동기, 메인)
+    ax.text(0.15, 8.3, "TRACKING 스레드 (메인, 동기)", color=BLUE, fontsize=13, fontweight="bold")
+    box(0.2, 7.25, 2.0, 0.75, "motion_filter", BLUE)
+    box(2.5, 7.25, 2.35, 0.75, "frontend BA", BLUE, sub="for itr in range(iters1): 시간체크 없음")
+    box(5.15, 7.25, 2.1, 0.75, "PGBA", BLUE, sub="매 프레임 큐 확인(~1ms) 뿐")
     for x0, x1 in [(2.2, 2.5), (4.85, 5.15)]:
-        ax.add_patch(FancyArrowPatch((x0, 5.175), (x1, 5.175), color=MUTED,
+        ax.add_patch(FancyArrowPatch((x0, 7.625), (x1, 7.625), color=MUTED,
                                        arrowstyle="-|>", mutation_scale=14))
+    ax.text(9.7, 8.15, "실선 화살표 = 순차 실행\n(A 끝나야 B 시작)", color=MUTED, fontsize=9.5,
+             ha="left", va="top", style="italic")
+    ax.text(9.7, 7.35, "tracking엔 시간예산 캡\n없음(iters1 루프에 타임체크 X)", color=BLUE,
+             fontsize=9.5, ha="left", va="top")
 
-    # gs_worker thread lane
-    ax.text(0.15, 3.55, "GS_WORKER 스레드 (별도, 큐 기반)", color=CORAL, fontsize=13, fontweight="bold")
-    box(0.2, 2.6, 2.7, 0.75, "map()", CORAL, sub="키프레임 도착시 디스패치")
-    box(3.2, 2.6, 3.4, 0.75, "background_polish_step", CORAL, sub="_gs_queue 비었을 때만 (idle-gated)")
-    ax.add_patch(FancyArrowPatch((7.3, 4.15), (3.2, 3.35), color=MUTED, arrowstyle="-|>",
-                                   mutation_scale=13, connectionstyle="arc3,rad=-0.25", linestyle=":"))
-    ax.text(7.45, 3.9, "큐 비어있는지 확인", color=MUTED, fontsize=9, style="italic")
-
-    # shared GPU
-    box(2.0, 0.9, 5.5, 1.0, "공유 RTX GPU\nself.video.get_lock()으로 직렬화", BUDGET, fontsize=12.5)
-    for x in [1.3, 4.75]:
-        ax.add_patch(FancyArrowPatch((x, 2.55), (x, 1.9), color=BUDGET,
-                                       arrowstyle="-|>", mutation_scale=13, linestyle="--", alpha=0.85))
-    ax.add_patch(FancyArrowPatch((6.2, 4.75), (5.3, 3.75), color=BUDGET, arrowstyle="-|>",
-                                   mutation_scale=13, linestyle="--", alpha=0.6,
-                                   connectionstyle="arc3,rad=0.2"))
-
-    ax.text(8.7, 4.0, "tracking이 바빠질수록\n→ polish 기회 감소", color=CORAL, fontsize=10.5,
+    # Row B: loop-closure 검출 스레드 (제3의 스레드 — 이전 버전 그림에서 통째로 누락됐던 부분)
+    ax.text(0.15, 6.75, "LOOP CLOSURE 검출 스레드 (별도, 0.1s 폴링)", color=GREEN, fontsize=12,
+             fontweight="bold")
+    box(0.2, 5.55, 4.4, 0.75, "pgobuf.spin()", GREEN,
+        sub="keyframe≥60부터 후보 탐색 · 24쌍 모이면(or 타임아웃) 큐잉")
+    ax.add_patch(FancyArrowPatch((4.5, 6.15), (5.5, 7.25), color=GREEN, arrowstyle="-|>",
+                                   mutation_scale=14, connectionstyle="arc3,rad=-0.25"))
+    ax.text(5.75, 6.55, "후보가 큐에 있을 때만\n다음 프레임에서 소비", color=GREEN, fontsize=9.5,
              ha="left", va="center")
-    ax.text(8.7, 5.2, "tracking엔\n시간예산 캡 없음", color=BLUE, fontsize=10.5, ha="left", va="center")
+    ax.text(0.35, 5.15,
+             "(이전 버전 그림엔 이 스레드 자체가 없어서, PGBA가 매 프레임 실제 BA를\n"
+             "도는 것처럼 보였음 — 실제 무거운 계산은 이 스레드가 후보를 큐잉할 때만)",
+             color=MUTED, fontsize=9, ha="left", va="top", style="italic", linespacing=1.4)
+
+    # Row C: gs_worker thread lane
+    ax.text(0.15, 4.15, "GS_WORKER 스레드 (별도, 큐 기반)", color=CORAL, fontsize=13, fontweight="bold")
+    box(0.2, 3.05, 2.7, 0.75, "map()", CORAL, sub="키프레임 도착시 디스패치")
+    box(3.2, 3.05, 3.4, 0.75, "background_polish_step", CORAL,
+        sub="자기 큐 빌 때만(idle-gated)·PGBA 무관")
+    ax.text(9.7, 3.4, "tracking이 바빠질수록\n→ polish 기회 감소", color=CORAL, fontsize=10.5,
+             ha="left", va="center")
+
+    # ── GPU 락 상호배제 (방향 화살표 아님 — PGBA <-> background_polish_step 만 해당) ──
+    lock_x, lock_y, lock_w, lock_h = 9.6, 4.75, 3.0, 0.95
+    r = FancyBboxPatch((lock_x, lock_y), lock_w, lock_h, boxstyle="round,pad=0.02,rounding_size=0.1",
+                        linewidth=1.6, edgecolor=BUDGET, facecolor=PANEL, linestyle="--")
+    ax.add_patch(r)
+    ax.text(lock_x + lock_w / 2, lock_y + lock_h / 2 + 0.18, "LOCK  self.video.get_lock()",
+             ha="center", va="center", color=BUDGET, fontsize=11.5, fontweight="bold")
+    ax.text(lock_x + lock_w / 2, lock_y + lock_h / 2 - 0.22, "둘 중 하나만 동시 보유 → 직렬화",
+             ha="center", va="center", color=MUTED, fontsize=9)
+    # 연결선(화살촉 없이 점선+원형 마커) — "먼저 온 쪽이 이긴다"는 상호배제 관계이지 호출 순서가 아님
+    for (px, py) in [(7.25, 7.25), (6.6, 3.8)]:
+        ax.plot([px, lock_x], [py, lock_y + lock_h / 2], color=BUDGET, linestyle=":",
+                 linewidth=1.6, alpha=0.85, zorder=1)
+        ax.add_patch(Circle((px, py), 0.045, color=BUDGET, zorder=2))
+    ax.add_patch(Circle((lock_x, lock_y + lock_h / 2), 0.05, color=BUDGET, zorder=2))
+    ax.text(lock_x + lock_w / 2, lock_y - 0.18,
+             "exp60에서 background_polish_step에만 추가된 락 —\nmap()은 이 락을 쓰지 않음(_gaussian_lock만 사용)",
+             ha="center", va="top", color=MUTED, fontsize=8.6, linespacing=1.35)
+
+    # shared GPU (물리 자원 — map()도 여기엔 연결되지만 위 lock과는 별개 개념)
+    box(2.0, 0.9, 5.5, 1.0, "공유 RTX GPU (물리 자원)", BUDGET, fontsize=12.5)
+    for x in [1.55, 4.9]:
+        ax.add_patch(FancyArrowPatch((x, 3.0), (x, 1.95), color=BUDGET,
+                                       arrowstyle="-|>", mutation_scale=13, linestyle="--", alpha=0.85))
 
     fig.savefig(IMG / "fig_thread_arch.png", facecolor=BG)
     plt.close(fig)
@@ -451,6 +482,280 @@ def fig_gap_quantization():
     plt.close(fig)
 
 
+# ── fig_frame_cycle (신규, 실측 기반) ─────────────────────────────
+def fig_frame_cycle():
+    fig, ax = plt.subplots(figsize=(13.5, 9.4))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    ax.set_xlim(0, 13.5)
+    ax.set_ylim(0, 9.4)
+    ax.axis("off")
+
+    ax.text(0.2, 9.1, "프레임 1개 처리 주기 — 코드 레벨 이벤트 (unit=10ms, scale=2.0 실측 기준)",
+             color=TEXT, fontsize=14, fontweight="bold")
+
+    # ── Row A: TRACKING 스레드, to-scale (busy 53.3ms / idle 46.7ms / period 100ms) ──
+    ax.text(0.2, 8.55, "TRACKING 스레드", color=BLUE, fontsize=12.5, fontweight="bold")
+    y0 = 7.7
+    x0 = 0.6
+    busy_w, idle_w = 5.33, 4.67
+    ax.broken_barh([(x0, busy_w)], (y0, 0.75), facecolors=BLUE, edgecolors=BLUE)
+    ax.broken_barh([(x0 + busy_w, idle_w)], (y0, 0.75), facecolors=PANEL,
+                     edgecolors=MUTED, hatch="///", linewidth=1.2)
+    ax.text(x0 + busy_w / 2, y0 + 0.375, "motion_filter+frontend BA+PGBA체크\n(~53ms 실측)",
+             ha="center", va="center", color="white", fontsize=9.5, fontweight="bold")
+    ax.text(x0 + busy_w + idle_w / 2, y0 + 0.375, "다음 frame 예정시각까지 대기\n(~47ms, pacing wait)",
+             ha="center", va="center", color=MUTED, fontsize=9.5)
+
+    for x, label, color in [
+        (x0, "track(t) 시작\n_tracking_active.set()", BLUE),
+        (x0 + busy_w, "_track_impl 끝\n_tracking_active.clear()\n_tracking_idle_since=now", GREEN),
+        (x0 + busy_w + idle_w, "다음 frame 예정시각\n(=50ms×replay_time_scale)", MUTED),
+    ]:
+        ax.plot([x, x], [y0 - 0.05, y0 + 0.85], color=color, linewidth=1.2, linestyle=":")
+        ax.text(x, y0 - 0.15, label, ha="center", va="top", color=color, fontsize=8.6, linespacing=1.3)
+
+    # ── Row B: GS_WORKER 폴링 (idle 구간에만 존재) ──
+    ax.text(0.2, 6.05, "GS_WORKER 스레드 (poll, 0.2~2ms 주기)", color=CORAL, fontsize=12.5,
+             fontweight="bold")
+    y1 = 5.15
+    poll_x = x0 + busy_w
+    step_w = 0.49  # ~4.9ms
+    n_steps = int(idle_w // step_w)
+    for i in range(n_steps):
+        xs = poll_x + i * step_w
+        ax.broken_barh([(xs, step_w * 0.86)], (y1, 0.6), facecolors=CORAL, edgecolors=CORAL, alpha=0.9)
+    ax.text(poll_x + idle_w / 2, y1 - 0.35,
+             f"idle 47ms 안에 background_polish_step(~4.9ms) {n_steps}회 낌",
+             ha="center", va="top", color=CORAL, fontsize=9.5)
+    ax.text(11.7, y1 + 0.85,
+             "매 poll마다 4개 조건 AND 확인:\n① self._background_polish\n"
+             "② idle_long_enough (tracking 지금 idle?)\n③ under_budget (max_steps 안 넘음?)\n"
+             "④ map_mature_enough (frame≥polish 시작점?)\n→ 전부 True일 때만 1회 실행 후 즉시 재확인",
+             color=MUTED, fontsize=9, ha="left", va="top", linespacing=1.5)
+
+    # ── Row C: scale별 busy/idle 비율 비교 (상대폭, 실측) ──
+    ax.text(0.2, 3.85, "scale이 커지면 idle 구간(=폴리시 슬롯)이 늘어난다 (실측, 상대폭 75:100:150ms)",
+             color=TEXT, fontsize=12, fontweight="bold")
+    rows = [
+        ("scale=1.5", 75, 52.8, 22.2, 4.5, "23.84dB · polish 806회"),
+        ("scale=2.0", 100, 53.3, 46.7, 6.0, "28.10dB · polish 5,681회"),
+        ("scale=3.0", 150, 49.1, 100.9, 9.0, "25.97dB · polish 10,000회(캡)"),
+    ]
+    ry = 3.1
+    for label, total_ms, busy_ms, idle_ms, w, tail in rows:
+        bw = w * busy_ms / total_ms
+        iw = w * idle_ms / total_ms
+        ax.broken_barh([(0.6, bw)], (ry, 0.5), facecolors=BLUE, edgecolors=BLUE)
+        ax.broken_barh([(0.6 + bw, iw)], (ry, 0.5), facecolors=PANEL, edgecolors=MUTED,
+                         hatch="///", linewidth=1.0)
+        ax.text(0.6 + bw + iw + 0.25, ry + 0.25,
+                 f"{label}: busy {busy_ms:.0f}ms / idle {idle_ms:.0f}ms  —  {tail}",
+                 ha="left", va="center", color=TEXT, fontsize=10)
+        ry -= 0.75
+
+    ax.text(0.2, 0.7,
+             "실제 총 횟수는 위 \"프레임당 슬롯\" 추정보다 훨씬 적다 — ① map() 실행 중엔 이 poll 루프 자체가 "
+             "안 돎(같은 스레드) ② background_polish_start_frame 이전(전체 프레임의 53.7%)엔 애초에 "
+             "비활성(map_mature_enough=False) — 다음 그림(매크로 타임라인)에서 설명",
+             color=MUTED, fontsize=10, va="top", linespacing=1.4)
+
+    fig.savefig(IMG / "fig_frame_cycle.png", facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+
+
+# ── fig_macro_timeline (신규, 실측 기반) ──────────────────────────
+def fig_macro_timeline():
+    fig, ax = plt.subplots(figsize=(18.2, 8.4))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    ax.set_xlim(0, 18.2)
+    ax.set_ylim(0, 8.4)
+    ax.axis("off")
+
+    ax.text(0.2, 8.1, "매크로 타임라인 — map()이 주기적으로 폴리시 기회를 통째로 삼킨다 (스케마틱, 실측 비율 반영)",
+             color=TEXT, fontsize=13.5, fontweight="bold")
+
+    # TRACKING 스레드: 끊임없이 프레임 틱 (map()과 무관하게 계속 돔)
+    ax.text(0.2, 7.4, "TRACKING 스레드 — map()과 무관하게 계속 프레임 처리", color=BLUE, fontsize=11.5,
+             fontweight="bold")
+    ty = 6.75
+    x = 0.5
+    tick_w = 0.42
+    kf_positions = []
+    for i in range(38):
+        is_kf = (i % 7 == 6)
+        ax.broken_barh([(x, tick_w * 0.62)], (ty, 0.5), facecolors=BLUE, edgecolors=BLUE)
+        ax.broken_barh([(x + tick_w * 0.62, tick_w * 0.38)], (ty, 0.5), facecolors=PANEL,
+                         edgecolors=MUTED, linewidth=0.6)
+        if is_kf:
+            kf_positions.append(x + tick_w / 2)
+            ax.plot(x + tick_w / 2, ty + 0.75, marker="v", color=GREEN, markersize=9)
+        x += tick_w
+    ax.text(x + 0.3, ty + 0.25, "... (평균 6.6프레임마다 keyframe 1개)", color=MUTED, fontsize=9.5,
+             va="center")
+
+    # GS_WORKER 스레드: idle-poll 티크 구간 + map() 블록 번갈아
+    ax.text(0.2, 5.65, "GS_WORKER 스레드 — idle-poll 틱 구간 ↔ map() 블록이 번갈아 나온다", color=CORAL,
+             fontsize=11.5, fontweight="bold")
+    ax.text(0.2, 5.2,
+             "map() 실행 중엔 같은 스레드의 poll 루프가 통째로 정지 — idle-poll 구간 폭은 직전 gap의 "
+             "실제 idle 시간에 따라 매번 달라짐(실측)",
+             color=MUTED, fontsize=9.3, va="top")
+    gy = 4.0
+    gx = 0.5
+    segs = [("poll", 1.7), ("map", 3.3), ("poll", 1.1), ("map", 3.3), ("poll", 2.2), ("map", 3.3),
+            ("poll", 1.4)]
+    map_starts = []
+    for kind, w in segs:
+        if kind == "poll":
+            n_ticks = max(1, int(w / 0.42))
+            for i in range(n_ticks):
+                ax.broken_barh([(gx + i * 0.42, 0.32)], (gy, 0.55), facecolors=CORAL, alpha=0.85,
+                                 edgecolors=CORAL)
+        else:
+            map_starts.append(gx)
+            r = FancyBboxPatch((gx, gy - 0.05), w, 0.65, boxstyle="round,pad=0.01,rounding_size=0.05",
+                                 linewidth=1.6, edgecolor=BUDGET, facecolor=PANEL)
+            ax.add_patch(r)
+            ax.text(gx + w / 2, gy + 0.275, "map()\n(~270~305ms)", ha="center", va="center",
+                     color=BUDGET, fontsize=9, fontweight="bold")
+        gx += w
+    # keyframe -> map() 트리거 연결선 (대표 1개만)
+    if kf_positions and map_starts:
+        kfx = kf_positions[2]
+        mstart = map_starts[1]
+        ax.add_patch(FancyArrowPatch((kfx, ty), (mstart + 0.1, gy + 0.65), color=GREEN,
+                                       arrowstyle="-|>", mutation_scale=13,
+                                       connectionstyle="arc3,rad=0.15", linestyle="--"))
+        ax.text((kfx + mstart) / 2 + 0.3, (ty + gy) / 2 + 0.3,
+                 "motion_filter가 이 프레임을\nkeyframe으로 선택\n→ _gs_queue.put()",
+                 color=GREEN, fontsize=9, ha="left", va="center", linespacing=1.3)
+
+    # 하단: map() 총 점유 비율 (실측) + GPU 오버랩 실측
+    py = 2.2
+    stats = [
+        ("scale=1.5", "map() 점유 57.5%\n(89.65s / 155.99s)"),
+        ("scale=2.0", "map() 점유 49.5%\n(102.15s / 206.44s)"),
+        ("scale=3.0", "map() 점유 30.9%\n(94.85s / 306.55s)"),
+    ]
+    sx = 0.6
+    for label, txt in stats:
+        card = FancyBboxPatch((sx, py), 3.5, 1.05, boxstyle="round,pad=0.02,rounding_size=0.08",
+                                linewidth=1.3, edgecolor=BUDGET, facecolor=PANEL)
+        ax.add_patch(card)
+        ax.text(sx + 1.75, py + 0.75, label, ha="center", color=TEXT, fontsize=10.5, fontweight="bold")
+        ax.text(sx + 1.75, py + 0.32, txt, ha="center", va="center", color=MUTED, fontsize=9.3,
+                 linespacing=1.3)
+        sx += 3.85
+
+    ax.text(0.2, 1.35,
+             "scale을 키우면 (1) 프레임당 idle 시간이 늘고 (2) map() 총 점유 비율도 같이 줄어든다 — "
+             "두 효과가 겹쳐 idle-poll 구간이 넓어지는 게 polish 급증(806→5,681)의 실제 원인.",
+             color=TEXT, fontsize=10.5, va="top", linespacing=1.35)
+    ax.text(0.2, 0.75,
+             "GPU 실행 자체는 이 CPU 스레드 경계와 정확히 안 맞는다 — 실측: 세 스레드 총 busy 시간 합이 "
+             "실제 벽시계 구간의 81~135%(scale별) → 부분적으로 겹쳐 실행됨(완전 직렬 아님, 공유 legacy "
+             "default stream이라도).",
+             color=MUTED, fontsize=9.5, va="top", linespacing=1.35)
+
+    fig.savefig(IMG / "fig_macro_timeline.png", facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+
+
+# ── fig_freeze_spectrum (신규, 실측 기반) ─────────────────────────
+def fig_freeze_spectrum():
+    fig, ax1 = plt.subplots(figsize=(10.5, 6.2))
+    fig.patch.set_facecolor(BG)
+    ax1.set_facecolor(BG)
+    for spine in ax1.spines.values():
+        spine.set_color(GRID)
+    ax1.tick_params(colors=MUTED)
+
+    labels = ["즉시 freeze\n(frame 700)", "never freeze\n(끝까지 안 함)", "A2 채택 지점\n(61% 지점)"]
+    vals_305 = [19.35, 24.896, 29.815]
+    colors = [CORAL, BUDGET, GREEN]
+    x = range(3)
+    bars = ax1.bar(x, vals_305, width=0.5, color=colors, alpha=0.9)
+    for b, v in zip(bars, vals_305):
+        ax1.text(b.get_x() + b.get_width() / 2, v + 0.9, f"{v:.2f}dB", ha="center",
+                  color=TEXT, fontsize=13, fontweight="bold")
+    ax1.set_xticks(list(x))
+    ax1.set_xticklabels(labels, color=TEXT, fontsize=11.5)
+    ax1.set_ylabel("aria301_305 Fixed held-out PSNR (dB)")
+    ax1.set_ylim(0, 40)
+    ax1.axhline(29.815, color=GREEN, linestyle=":", linewidth=1, alpha=0.6)
+    ax1.set_title("freeze 시점 스펙트럼 3지점(305) — 두 극단 모두 A2 채택 지점보다 나쁘다",
+                   fontsize=12.5, color=TEXT)
+
+    # OOM 배지 (12F, never-freeze 지점 전용)
+    oom_x = 1
+    ax1.annotate("12F는 이 지점에서\nCUDA OOM (14.11GiB)",
+                  xy=(oom_x + 0.22, vals_305[oom_x] + 0.5), xytext=(oom_x + 0.62, 20.5),
+                  color=CORAL, fontsize=10.5, ha="center",
+                  arrowprops=dict(arrowstyle="-|>", color=CORAL, lw=1.6))
+    ax1.text(0, 24.5, "12F는 완주\n(24.996dB)", ha="center", color=MUTED, fontsize=9.5)
+    ax1.text(2, 34.7, "12F는 완주,\nOOM 없음(7.97GiB)", ha="center", color=MUTED, fontsize=9.5)
+
+    fig.savefig(IMG / "fig_freeze_spectrum.png", facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+
+
+# ── fig_freeze_mechanism (신규) ────────────────────────────────────
+def fig_freeze_mechanism():
+    fig, ax = plt.subplots(figsize=(13, 6.6))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    ax.set_xlim(0, 13)
+    ax.set_ylim(0, 6.6)
+    ax.axis("off")
+
+    ax.text(0.2, 6.3, "\"freeze\"가 실제로 하는 일 — map()의 유일한 학습-비용 상한선",
+             color=TEXT, fontsize=14, fontweight="bold")
+
+    def box(x, y, w, h, text, color, sub=None, fontsize=11.5):
+        r = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.08",
+                             linewidth=1.5, edgecolor=color, facecolor=PANEL)
+        ax.add_patch(r)
+        ax.text(x + w / 2, y + h / 2 + (0.18 if sub else 0), text, ha="center", va="center",
+                 color=TEXT, fontsize=fontsize, fontweight="bold", linespacing=1.3)
+        if sub:
+            ax.text(x + w / 2, y + h / 2 - 0.28, sub, ha="center", va="center",
+                     color=MUTED, fontsize=9.5, linespacing=1.3)
+
+    # Row: freeze 없음 (위)
+    ax.text(0.2, 5.55, "freeze 없음 (축 C)", color=CORAL, fontsize=12, fontweight="bold")
+    box(0.3, 4.35, 3.6, 1.0, "map()이 매 keyframe마다\nrasterizer forward+backward",
+        CORAL, sub="시퀀스 끝까지(2201프레임) 계속")
+    ax.add_patch(FancyArrowPatch((3.9, 4.85), (5.4, 4.85), color=CORAL, arrowstyle="-|>", mutation_scale=15))
+    box(5.5, 4.35, 3.4, 1.0, "가우시안 수 계속 증가\n+ 순간 최대메모리 계속 증가", CORAL)
+    ax.add_patch(FancyArrowPatch((9.0, 4.85), (10.5, 4.85), color=CORAL, arrowstyle="-|>", mutation_scale=15))
+    box(10.6, 4.35, 2.15, 1.0, "reserved 하이워터마크\n15.46GiB 초과", CORAL, fontsize=10.5)
+    ax.text(12.68, 4.85, "→ OOM", color=CORAL, fontsize=13, fontweight="bold", ha="left", va="center")
+
+    # Row: freeze 있음 (아래, A2)
+    ax.text(0.2, 3.35, "freeze 있음 — A2 채택 지점 (61%)", color=GREEN, fontsize=12, fontweight="bold")
+    box(0.3, 2.15, 3.6, 1.0, "map()이 61% 지점에서\n완전히 멈춤", GREEN,
+        sub="같은 가우시안 수(~127k)에서도")
+    ax.add_patch(FancyArrowPatch((3.9, 2.65), (5.4, 2.65), color=GREEN, arrowstyle="-|>", mutation_scale=15))
+    box(5.5, 2.15, 3.4, 1.0, "메모리 성장 정지\n(rasterizer 호출 자체가 없음)", GREEN)
+    ax.add_patch(FancyArrowPatch((9.0, 2.65), (10.5, 2.65), color=GREEN, arrowstyle="-|>", mutation_scale=15))
+    box(10.6, 2.15, 2.15, 1.0, "7.97GiB에서\n안정", GREEN, fontsize=10.5)
+    ax.text(12.68, 2.65, "→ 완주", color=GREEN, fontsize=13, fontweight="bold", ha="left", va="center")
+
+    ax.text(0.2, 1.35,
+             "핵심: 원인은 \"가우시안 개수 자체\"가 아니라 \"freeze 없이 이 무거운 호출이 시퀀스 끝까지\n"
+             "반복된다\"는 것 — 같은 가우시안 수(~127k)에서도 freeze 유무에 따라 7.97GiB ↔ 15.46GiB+ 로 갈렸다(12F 실측).",
+             color=TEXT, fontsize=11, va="top", linespacing=1.4)
+    ax.text(0.2, 0.55,
+             "부가 효과: freeze 이후엔 map()이 GPU를 안 쓰니 background_polish가 그 시간을 넘겨받는다 —\n"
+             "즉 freeze 시점은 \"메모리 안전판\"이자 \"구조생성↔정제 예산 분배선\" 둘 다다.",
+             color=MUTED, fontsize=10, va="top", linespacing=1.4)
+
+    fig.savefig(IMG / "fig_freeze_mechanism.png", facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     fig_thread_arch()
     fig_a2_scene_flip()
@@ -463,4 +768,8 @@ if __name__ == "__main__":
     fig_map_breakdown()
     fig_scale_sweep()
     fig_gap_quantization()
+    fig_frame_cycle()
+    fig_macro_timeline()
+    fig_freeze_spectrum()
+    fig_freeze_mechanism()
     print("done ->", IMG)
