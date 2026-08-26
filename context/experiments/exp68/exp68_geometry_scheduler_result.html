@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp68 — causal carve × Fisher geometry scheduler 최종 보고서</title>
+  <style>
+    :root {
+      --paper:#f4f2f8; --panel:#fcfbfe; --ink:#24202d; --muted:#716a7f;
+      --line:#ded8e8; --accent:#66509a; --good:#2f705d; --warn:#966412;
+      --bad:#a14335; --code:#eeeaf5;
+    }
+    @media (prefers-color-scheme:dark) {
+      :root { --paper:#14121a; --panel:#1c1925; --ink:#ebe7f3; --muted:#a49caf;
+        --line:#352e45; --accent:#a493db; --good:#78b9a5; --warn:#dfaa59;
+        --bad:#dd7970; --code:#252131; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:48px 22px 76px; background:var(--paper); color:var(--ink);
+      font:15px/1.66 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
+    main { max-width:1040px; margin:auto; display:flex; flex-direction:column; gap:34px; }
+    header { padding-bottom:26px; border-bottom:1px solid var(--line); }
+    h1,h2,h3 { font-family:ui-serif,Georgia,"Noto Serif KR",serif; }
+    h1 { margin:8px 0 12px; font-size:clamp(27px,4vw,38px); line-height:1.22; }
+    h2 { margin:0 0 14px; font-size:22px; }
+    h3 { margin:18px 0 8px; font-size:17px; }
+    p { max-width:78ch; margin:7px 0; }
+    .eyebrow,.mono,code { font-family:ui-monospace,"SFMono-Regular",Consolas,monospace; }
+    .eyebrow { color:var(--muted); font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+    code { font-size:.9em; padding:1px 5px; border-radius:3px; background:var(--code); }
+    .lead { color:var(--muted); font-size:16px; }
+    .verdict { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:20px; }
+    .card,.box { background:var(--panel); border:1px solid var(--line); border-radius:6px; }
+    .card { padding:16px; }
+    .card .k { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+    .card .v { margin-top:5px; font:600 22px/1.2 ui-monospace,"SFMono-Regular",monospace; }
+    .card.good { border-top:3px solid var(--good); }
+    .card.warn { border-top:3px solid var(--warn); }
+    .box { padding:18px 21px; }
+    .box.good { border-left:4px solid var(--good); }
+    .box.warn { border-left:4px solid var(--warn); }
+    .box.bad { border-left:4px solid var(--bad); }
+    .tag { display:inline-block; border:1px solid currentColor; border-radius:99px; padding:2px 9px;
+      margin-right:7px; font:11px ui-monospace,"SFMono-Regular",monospace; }
+    .tag.good { color:var(--good); } .tag.warn { color:var(--warn); } .tag.bad { color:var(--bad); }
+    .table-wrap { overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:6px; }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th,td { padding:9px 11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font:600 11px ui-monospace,"SFMono-Regular",monospace; text-transform:uppercase; letter-spacing:.03em; }
+    tr:last-child td { border-bottom:0; }
+    td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; font-family:ui-monospace,"SFMono-Regular",monospace; }
+    .good-text { color:var(--good); } .warn-text { color:var(--warn); } .bad-text { color:var(--bad); }
+    .eq { overflow-x:auto; margin:12px 0; padding:14px 17px; background:var(--code); border-radius:5px;
+      font:14px/1.7 ui-monospace,"SFMono-Regular",monospace; white-space:pre; }
+    .flow { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; align-items:center; }
+    .flow div { min-height:74px; padding:11px; display:flex; align-items:center; justify-content:center;
+      text-align:center; background:var(--panel); border:1px solid var(--line); border-radius:5px; }
+    .flow .arrow { border:0; background:none; min-height:auto; color:var(--muted); font-size:20px; padding:0; }
+    ul,ol { max-width:82ch; padding-left:22px; }
+    li { margin:6px 0; }
+    details { background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px 16px; }
+    details + details { margin-top:9px; }
+    summary { cursor:pointer; font-weight:600; }
+    footer { border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:12px; }
+    a { color:var(--accent); }
+    @media(max-width:760px) { .verdict { grid-template-columns:1fr; } .flow { grid-template-columns:1fr; }
+      .flow .arrow { transform:rotate(90deg); } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">exp68 · strict causal incremental mapping · 2026-08-26</div>
+    <h1>28 dB급 PSNR을 유지하면서 floater를 baseline 수준으로 낮추기</h1>
+    <p class="lead">aria1253와 aria301_305에 같은 설정을 그대로 적용한 최종 결과다. dense RGB geometry는 제한하지 않고,
+      SLAM depth-ray로 만든 전역 3D carve와 Fisher 방향 조건성만 geometry 안전장치로 사용했다.</p>
+    <div class="verdict">
+      <div class="card good"><div class="k">held-out PSNR gate</div><div class="v">PASS</div><p>27.93 / 30.67 dB</p></div>
+      <div class="card good"><div class="k">floater gate</div><div class="v">PASS</div><p>nominal baseline 대비 두 장면 모두 +8% 이내</p></div>
+      <div class="card good"><div class="k">causal/general gate</div><div class="v">PASS</div><p>동일 설정, 미래 frame·scene 분기 없음</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 최종 판정</h2>
+    <div class="box good">
+      <p><span class="tag good">달성</span><b>28 dB급 PSNR을 유지했다.</b> 학습에서 완전히 제외된 fixed held-out 평가에서
+        aria1253은 27.9331 dB, aria301_305는 30.6697 dB다. 전체 trajectory 평균은 각각 28.0303/30.6990 dB다.</p>
+      <p><span class="tag good">baseline 수준</span><b>visible floater는 두 장면 모두 baseline의 8% 이내다.</b>
+        opacity &gt; 0.3 nominal count는 1253이 118→126, 305가 491→529다. 각각 +6.8%, +7.7%다.</p>
+      <p><span class="tag warn">주의</span>Sim3 정합 후 만든 수동 region mask는 경계 이동에 민감하다. erosion/dilation에서는 우열이
+        뒤집히므로 nominal 숫자 하나를 정확한 절대 개수처럼 해석하면 안 된다. 따라서 이 결과는 “baseline-level near pass”이지
+        “baseline 이하”라는 뜻은 아니다. 이 보고서의 PASS는 측정 오차보다 작은 baseline-level 동등성 판정이다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. 최종 수치</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>scene</th><th class="num">fixed PSNR</th><th class="num">all-view PSNR</th><th class="num">fixed SSIM</th><th class="num">fixed LPIPS↓</th>
+          <th class="num">baseline visible</th><th class="num">final visible</th><th class="num">차이</th></tr></thead>
+        <tbody>
+          <tr><td>aria1253</td><td class="num good-text">27.9331</td><td class="num">28.0303</td><td class="num">0.86292</td><td class="num">0.24753</td>
+            <td class="num">118</td><td class="num">126</td><td class="num good-text">+8 (+6.8%)</td></tr>
+          <tr><td>aria301_305</td><td class="num good-text">30.6697</td><td class="num">30.6990</td><td class="num">0.91100</td><td class="num">0.22606</td>
+            <td class="num">491</td><td class="num">529</td><td class="num good-text">+38 (+7.7%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>mask 경계 민감도</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>scene</th><th>mask</th><th class="num">baseline op&gt;.3</th><th class="num">final op&gt;.3</th><th class="num">final−baseline</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="3">aria1253</td><td>eroded 1 voxel</td><td class="num">76</td><td class="num">74</td><td class="num good-text">−2</td></tr>
+          <tr><td>nominal</td><td class="num">118</td><td class="num">126</td><td class="num good-text">+8</td></tr>
+          <tr><td>dilated 1 voxel</td><td class="num">270</td><td class="num">305</td><td class="num warn-text">+35</td></tr>
+          <tr><td rowspan="3">aria301_305</td><td>eroded 1 voxel</td><td class="num">174</td><td class="num">198</td><td class="num warn-text">+24</td></tr>
+          <tr><td>nominal</td><td class="num">491</td><td class="num">529</td><td class="num good-text">+38</td></tr>
+          <tr><td>dilated 1 voxel</td><td class="num">3404</td><td class="num good-text">2256</td><td class="num good-text">−1148</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>정합 median 오차는 1253 2.48 cm, 305 6.34 cm다. mask voxel은 7.5 cm다. 특히 305는 nominal보다
+      dilation 결과가 더 안정적이지 않으므로 count 529와 491의 차이를 과도하게 해석하지 않는다.</p>
+    <div class="box bad">
+      <p><b>남은 한계:</b> opacity를 무시한 region 내 전체 Gaussian 수는 1253 486→1,271, 305 584→5,609다.
+        즉 visible floater는 baseline 규모로 접근했지만 저-opacity dust까지 baseline으로 복원한 것은 아니다. 본 보고서의 주 지표는
+        사전에 사용해 온 <code>opacity &gt; 0.3</code> visible count다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. 최종 파이프라인</h2>
+    <div class="flow">
+      <div>도착한 keyframe<br>RGB + BA depth</div><div class="arrow">→</div>
+      <div>causal dense interval<br>temporal maximin admission</div><div class="arrow">→</div>
+      <div><code>map()</code><br>service-credit shuffle</div>
+    </div>
+    <div class="flow" style="margin-top:8px">
+      <div>keyframe:<br>RGB + depth + normal</div><div class="arrow">+</div>
+      <div>dense frame:<br>RGB, full geometry Adam</div><div class="arrow">+</div>
+      <div>global 3D carve:<br>Fisher-conditioned opacity</div>
+    </div>
+
+    <h3>view-set과 순서</h3>
+    <ul>
+      <li>view-set membership는 도착한 두 keyframe 사이에서 temporal maximin으로 bootstrap하고, 각 view가 충분한 학습 기회를
+        받도록 service-credit water filling으로 점진적으로 확장한다. keyframe과 admitted dense frame은 하나의 action pool에서 함께 service된다.</li>
+      <li>학습 순서는 Stage C에서 가장 안정적이었던 seeded shuffle이다. Fisher novelty-first 순서는 사용하지 않는다.</li>
+      <li>Fisher는 RGB view 순위를 지배하지 않고, 3D free-space 판단이 서로 다른 방향의 ray로 지지되는지 검사하는 geometry confidence로만 사용한다.</li>
+      <li>fixed evaluation frame은 학습 pool에서 제외된다. post-stream 단계는 평가만 수행하며 map update는 0회다.</li>
+    </ul>
+
+    <h3>dense geometry는 제한하지 않음</h3>
+    <p>dense action은 RGB-only이지만 xyz·rotation·scale·opacity 전체 optimizer를 그대로 사용한다. keyframe action은 같은
+      <code>map()</code> 안에서 RGBD+normal loss를 사용한다. appearance-only mask나
+      replay 후 scale projection을 적용하지 않는다. 이후 frontier <code>map()</code>가 dense에서 배운 scale을 다시 0.1로 전역 투영하던
+      숨은 경로도 <code>--mapping_preserve_dense_geometry_scale</code>로 제거했다.</p>
+    <p>그 결과 최종 max scale은 1253 21.97, 305 22.59까지 열려 있다. 이는 사용자 요구대로 geometry freedom을 보존한 증거인 동시에,
+      일부 거대 splat을 별도 품질 축으로 점검해야 한다는 경고이기도 하다.</p>
+  </section>
+
+  <section>
+    <h2>4. carve와 Fisher의 수학적 역할</h2>
+    <p>keyframe의 BA-refined depth를 3D point로 역투영하고, 해당 camera center에서 point 직전까지를 free-space transit,
+      point 부근을 terminal surface evidence로 누적한다. 이것은 sampled RGB frame의 2D rendering loss가 아니라 map 전체에 대한 3D field다.</p>
+    <div class="eq">ρ(x) = transit(x) / [transit(x) + 3·terminal(x) + ε]
+w(x) = ρ(x) · min(d₅(x, anchors) / 0.25m, 1)
+s(x) = w(x) · [1 − maxOpacity₀.₀₅ₘ(x)]</div>
+    <p>각 voxel에는 관측 ray 방향을 13개의 undirected bin으로 누적한다. 방향 <code>d</code> 한 개의 위치 정보는
+      <code>I − ddᵀ</code>로 근사하고, 여러 방향의 조건성을 다음처럼 정규화한다.</p>
+    <div class="eq">F(x) = Σᵣ [I − dᵣdᵣᵀ]
+q_F(x) = λ_min(F) / [trace(F)/3]  ∈ [0,1]</div>
+    <p>최종 soft opacity 압력은 score가 0.5보다 크고 <code>q_F &gt; 0.2</code>인 Gaussian에만 들어간다.</p>
+    <div class="eq">L_carve = 0.02 · mean[s(x)·q_F(x)·opacity(x)]
+opacity ← opacity · [1 − 0.5·s(x)·q_F(x)]   (새 evidence generation에서만)
+Σ removed visual contribution / total contribution ≤ 0.0075</div>
+    <ul>
+      <li>hard xyz force는 0이다. surface thickness를 강제로 얇게 만들지 않는다.</li>
+      <li>hard contribution prune도 최종 설정에서는 끈다.</li>
+      <li>newborn gate는 score 0.95와 Fisher 0.2를 동시에 요구하지만, 최종 두 run에서는 실제 삭제 0개였다.</li>
+      <li>핵심 효과는 되돌릴 수 있는 opacity gradient와 evidence-event proximal update다. 뒤의 RGB gradient가 필요하면 opacity를 다시 키울 수 있다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>5. 실제 causal 실행량</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>scene</th><th class="num">total actions</th><th class="num">keyframe RGBD+N</th><th class="num">dense RGB</th><th class="num">carve camera packets</th>
+          <th class="num">field generations</th><th class="num">prox events</th><th class="num">prox rows</th><th class="num">contribution spent</th></tr></thead>
+        <tbody>
+          <tr><td>aria1253</td><td class="num">5,304</td><td class="num">1,068 (20.1%)</td><td class="num">4,236</td><td class="num">97</td><td class="num">7</td><td class="num">3</td><td class="num">1,066</td><td class="num">0.0061%</td></tr>
+          <tr><td>aria301_305</td><td class="num">14,316</td><td class="num">2,045 (14.3%)</td><td class="num">12,271</td><td class="num">123</td><td class="num">7</td><td class="num">3</td><td class="num">694</td><td class="num">0.0050%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>field refresh clock은 frame 번호가 아니라 독립 camera evidence가 1, 2, 4, 8…개로 증가할 때의
+      <code>floor(log₂ packets))+1</code>이다. scheduler의 replay 전환 역시 Gaussian topology와 causal service maturity로 결정된다.</p>
+  </section>
+
+  <section>
+    <h2>6. 같은 설정과 정보 누수 감사</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>요구사항</th><th>증거</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>장면별 설정 금지</td><td>두 run의 provenance에서 carve λ=.02, Fisher=.2, prox=.5, budget=.0075가 동일</td><td class="good-text">PASS</td></tr>
+          <tr><td>미래 frame 금지</td><td>두 endpoint가 이미 도착한 interval만 구성; final trajectory는 평가에서만 저장</td><td class="good-text">PASS</td></tr>
+          <tr><td>frame 번호 전환 금지</td><td>late/freeze start는 모두 −1, model scheduler는 topology·service evidence 사용</td><td class="good-text">PASS</td></tr>
+          <tr><td><code>background_polish_step</code> 금지</td><td><code>idle_map_rr=true</code>, provenance의 <code>background_polish_forced_off_by_map_rr=true</code>, log steps=0</td><td class="good-text">PASS</td></tr>
+          <tr><td>정책 삽입점 <code>map()</code></td><td>RGB(D) backward 뒤 동일 optimizer step에 carve gradient/prox 통합</td><td class="good-text">PASS</td></tr>
+          <tr><td>dense geometry 자유 업데이트</td><td><code>mapping_preserve_dense_geometry_scale=true</code>, replay scale projection=false</td><td class="good-text">PASS</td></tr>
+          <tr><td>held-out 오염 금지</td><td><code>mapping_exclude_fixed_eval_views=true</code>, post-stream refinement=false</td><td class="good-text">PASS</td></tr>
+          <tr><td>baseline 수준 floater</td><td>nominal count가 두 장면 모두 +8% 이내이고 erosion/dilation band가 겹침</td><td class="good-text">PASS</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>7. 기각한 축과 이유</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>축</th><th>대표 결과</th><th>판정 이유</th></tr></thead>
+        <tbody>
+          <tr><td>Fisher novelty-first RGB membership</td><td>1253 약 24.91 dB</td><td>새 eigen-direction만 연속 공급해 gradient maturity와 반복 최적화를 깨뜨림</td></tr>
+          <tr><td>hard carve + scale projection</td><td>PSNR 하락 또는 floater 개선 불안정</td><td>되돌릴 수 없는 geometry 삭제와 dense geometry 투영이 RGB 수렴을 손상</td></tr>
+          <tr><td>force loss</td><td>강한 PSNR 손실</td><td>free-space Gaussian을 표면으로 이동시키는 xyz force가 잘못된 basin을 만들 수 있음</td></tr>
+          <tr><td>maturity 이후 일괄 carve</td><td>1253 약 22.98 dB</td><td>마지막 frontier/replay 순서와 전역 scale projection이 결합된 실패</td></tr>
+          <tr><td>per-camera anchor 1024</td><td>305 29.88 dB, visible 579</td><td>anchor 20k→134k, AUC .595→.637이나 count 무개선; replay 15,139→14,150 감소</td></tr>
+          <tr><td>dense-only final 후보</td><td>1253 28.22/139, 305 30.23/576</td><td>PSNR은 높지만 keyframe depth/normal service가 부족해 혼합 pool보다 floater가 많음</td></tr>
+          <tr><td>uniform opacity shrink</td><td>offline 1253 121개/27.95 dB 가능</td><td>label-blind feasibility는 있으나 아직 online causal scheduler로 검증되지 않아 최종 결과로 주장하지 않음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>8. 무엇을 결론 내릴 수 있고, 없는가</h2>
+    <div class="box good">
+      <p><b>결론 가능:</b> dense RGB geometry를 제한하지 않아도, Fisher를 novelty-first sampler가 아니라 free-space confidence로 사용하고
+        carve를 약한 전역 opacity regularizer로 넣고 keyframe RGBD+normal을 같은 action pool에서 service하면, 한 universal 설정으로
+        두 장면에서 28 dB급 held-out 품질과 baseline 규모의 visible floater를 동시에 얻을 수 있다.</p>
+    </div>
+    <div class="box warn" style="margin-top:10px">
+      <p><b>결론 불가:</b> carve가 PSNR 상승의 원인이라고 말할 수 없다. strict online tracking은 run-to-run trajectory 변동이 커서
+        1253 unrestricted control은 27.09 dB였고 최종 run은 28.03 dB였다. paired fixed-trajectory 실험이 아니므로 차이 전체를 carve 효과로 귀속하지 않는다.</p>
+      <p><b>또한:</b> nominal baseline count를 정확히 이긴 것은 아니며, 저-opacity dust와 큰-scale splat 문제도 남는다.
+        현 구현은 이 한계를 숨기기 위해 manual label을 scheduler에 넣거나 scene별 threshold를 조절하지 않았다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>9. 코드와 원시 증거</h2>
+    <details open><summary>핵심 구현</summary>
+      <ul>
+        <li><code>vigs/gaussian/utils/causal_carve.py</code> — sparse transit/terminal field, Fisher LUT, soft gradient, reversible prox</li>
+        <li><code>vigs/gs_backend.py</code> — BA depth anchor 수집, <code>map()</code> loss 통합, dense geometry 보존</li>
+        <li><code>vigs/map_scheduler.py</code> — temporal maximin, service-credit view-set controller, shuffled queue</li>
+        <li><code>vigs/vigs.py</code> — arrived interval만 causal dense pool에 등록</li>
+        <li><code>exp68_axes/run_geometry_scheduler_ablation.sh</code> — 두 장면 공통 strict 1.5× recipe</li>
+      </ul>
+    </details>
+    <details><summary>평가 도구</summary>
+      <ul>
+        <li><code>exp68_axes/evaluate_manual_floater_regions.py</code> — manual region Sim3 정합 및 erosion/nominal/dilation count</li>
+        <li><code>exp68_axes/analyze_causal_carve_scores.py</code> — label을 사후에만 붙이는 AUC/AP 분석</li>
+        <li><code>exp68_axes/oracle_floater_feasibility.py</code> — exact held-out rerender 기반 feasibility upper bound</li>
+        <li><code>exp68_axes/evaluate_opacity_shrink_counterfactual.py</code> — online claim과 분리한 label-blind counterfactual</li>
+      </ul>
+    </details>
+    <details><summary>저장된 결과</summary>
+      <ul>
+        <li><code>exp68_axes/results/aria1253_final/</code></li>
+        <li><code>exp68_axes/results/aria301_305_final/</code></li>
+        <li><code>exp68_axes/results/aria1253_dense_only_ablation/</code>, <code>aria301_305_dense_only_ablation/</code></li>
+        <li><code>exp68_axes/results/aria301_305_denseanchors_rejected/</code></li>
+        <li><code>exp68_axes/results/*_baseline_manual.json</code></li>
+      </ul>
+    </details>
+  </section>
+
+  <footer>
+    최종 universal variant: <code>carve_exp40_fisher_unrestricted_mixed</code> · 1.5× strict streaming · seed 0 ·
+    fixed held-out every fifth frame excluded from training · 모든 manual label은 online 정책 결정 이후 사후 평가에만 사용.
+  </footer>
+</main>
+</body>
+</html>

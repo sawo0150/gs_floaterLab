@@ -1,0 +1,185 @@
+{
+  "candidate_manifest": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp66_axes/viewset_density/manifests/seed0/Dmax.json",
+  "candidate_manifest_sha256": "17754199e7e637d85a8ecd793a441e99261b19a897fe0e0ed450c63571633387",
+  "checkpoint": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp66_axes/viewset_density/snapshots/phase1_seed0.pt",
+  "checkpoint_sha256": "65d65c9e281bffd01cf4f680c1b9fecd04b30fb995e76da2bea4aeabd30665e1",
+  "manifests": {
+    "arms": {
+      "combined": {
+        "exchanged_vs_temporal": 160,
+        "jaccard_vs_temporal": 0.6610169491525424,
+        "selected_count": 784
+      },
+      "exposure": {
+        "exchanged_vs_temporal": 176,
+        "jaccard_vs_temporal": 0.6333333333333333,
+        "selected_count": 784
+      },
+      "randomdrop_combined_seed0": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 160,
+        "jaccard_vs_temporal": 0.6610169491525424,
+        "matched_target": "combined",
+        "selected_count": 784
+      },
+      "randomdrop_combined_seed1": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 160,
+        "jaccard_vs_temporal": 0.6610169491525424,
+        "matched_target": "combined",
+        "selected_count": 784
+      },
+      "randomdrop_combined_seed2": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 160,
+        "jaccard_vs_temporal": 0.6610169491525424,
+        "matched_target": "combined",
+        "selected_count": 784
+      },
+      "randomdrop_exposure_seed0": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 176,
+        "jaccard_vs_temporal": 0.6333333333333333,
+        "matched_target": "exposure",
+        "selected_count": 784
+      },
+      "randomdrop_exposure_seed1": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 176,
+        "jaccard_vs_temporal": 0.6333333333333333,
+        "matched_target": "exposure",
+        "selected_count": 784
+      },
+      "randomdrop_exposure_seed2": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 176,
+        "jaccard_vs_temporal": 0.6333333333333333,
+        "matched_target": "exposure",
+        "selected_count": 784
+      },
+      "randomdrop_sharp_seed0": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 185,
+        "jaccard_vs_temporal": 0.6181630546955624,
+        "matched_target": "sharp",
+        "selected_count": 784
+      },
+      "randomdrop_sharp_seed1": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 185,
+        "jaccard_vs_temporal": 0.6181630546955624,
+        "matched_target": "sharp",
+        "selected_count": 784
+      },
+      "randomdrop_sharp_seed2": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 185,
+        "jaccard_vs_temporal": 0.6181630546955624,
+        "matched_target": "sharp",
+        "selected_count": 784
+      },
+      "randomdrop_worst_seed0": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 187,
+        "jaccard_vs_temporal": 0.6148300720906282,
+        "matched_target": "worst",
+        "selected_count": 784
+      },
+      "randomdrop_worst_seed1": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 187,
+        "jaccard_vs_temporal": 0.6148300720906282,
+        "matched_target": "worst",
+        "selected_count": 784
+      },
+      "randomdrop_worst_seed2": {
+        "exchange_matches_target": true,
+        "exchanged_vs_temporal": 187,
+        "jaccard_vs_temporal": 0.6148300720906282,
+        "matched_target": "worst",
+        "selected_count": 784
+      },
+      "sharp": {
+        "exchanged_vs_temporal": 185,
+        "jaccard_vs_temporal": 0.6181630546955624,
+        "selected_count": 784
+      },
+      "worst": {
+        "exchanged_vs_temporal": 187,
+        "jaccard_vs_temporal": 0.6148300720906282,
+        "selected_count": 784
+      }
+    },
+    "candidate_count": 1041,
+    "pose_arm": "skipped_no_calibrated_pose_confidence",
+    "reference_count": 784
+  },
+  "natural_contact_sheets": [
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_sharp_temporal_log_ratio_bottom.png",
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_sharp_temporal_log_ratio_top.png",
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_exposure_quality_bottom.png",
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_exposure_quality_top.png",
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_combined_quality_bottom.png",
+    "exp66_axes/viewset_density/stage_f/contact_sheets/contact_combined_quality_top.png"
+  ],
+  "natural_gate": "manual_review_required",
+  "profile_count": 1041,
+  "profile_path": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp66_axes/viewset_density/stage_f/quality_profiles.jsonl",
+  "profile_version": 1,
+  "reference_manifest": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp66_axes/viewset_density/manifests/seed0/D12.json",
+  "reference_manifest_sha256": "f7e1d3d558232b847157b4a7f204e4eb1c3777cb33ea7f2989d0caff331c277a",
+  "stage": "F0_manifest_build",
+  "synthetic": {
+    "exposure_gate_passed": true,
+    "metrics": {
+      "defocus_blur": {
+        "mean_monotonic_pair_fraction": 1.0,
+        "median_spearman": -0.9999999999999999,
+        "n": 24
+      },
+      "motion_blur": {
+        "mean_monotonic_pair_fraction": 1.0,
+        "median_spearman": -0.9999999999999999,
+        "n": 48
+      },
+      "over_exposure": {
+        "mean_monotonic_pair_fraction": 0.9895833333333334,
+        "median_spearman": -0.9999999999999999,
+        "n": 24
+      },
+      "under_exposure": {
+        "mean_monotonic_pair_fraction": 0.8958333333333334,
+        "median_spearman": -0.9999999999999999,
+        "n": 24
+      }
+    },
+    "pose_gate": "not_tested_no_calibrated_pose_confidence",
+    "sample_uids": [
+      29,
+      248,
+      474,
+      501,
+      504,
+      538,
+      546,
+      571,
+      574,
+      578,
+      627,
+      631,
+      683,
+      687,
+      911,
+      914,
+      918,
+      1069,
+      1074,
+      1078,
+      1183,
+      1187,
+      1191,
+      1239
+    ],
+    "sharpness_gate_passed": true
+  }
+}

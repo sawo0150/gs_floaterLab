@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>exp67 · 단일 공통 map()-only causal scheduler 검증</title>
+<style>
+:root{--paper:#f5f3f9;--panel:#fff;--ink:#221e2c;--soft:#6f6880;--line:#ddd7e8;--accent:#684d9b;--ok:#2f6e59;--warn:#95610e;--bad:#a33e35;--code:#f0edf5}
+@media(prefers-color-scheme:dark){:root{--paper:#14121a;--panel:#1d1926;--ink:#ebe7f2;--soft:#a49daf;--line:#393148;--accent:#a996df;--ok:#7fc0aa;--warn:#e0ad62;--bad:#df7f75;--code:#24202e}}
+*{box-sizing:border-box}body{margin:0;padding:50px 22px 78px;background:var(--paper);color:var(--ink);font:15px/1.65 system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif}main{max-width:1080px;margin:auto;display:grid;gap:34px}header{border-bottom:1px solid var(--line);padding-bottom:24px}.eye,code,.mono{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace}.eye{font-size:12px;letter-spacing:.08em;color:var(--soft)}h1,h2,h3{font-family:Georgia,"Noto Serif KR",serif}h1{font-size:clamp(27px,4vw,36px);line-height:1.25;margin:8px 0 10px}h2{font-size:22px;margin:0 0 13px}h3{font-size:17px;margin:18px 0 8px}p{margin:7px 0}.dek{max-width:76ch;color:var(--soft)}code{font-size:.9em;background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 5px}.lead,.box,.okbox,.warnbox{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:17px 20px}.lead{border-left:4px solid var(--ok)}.okbox{border-left:4px solid var(--ok)}.warnbox{border-left:4px solid var(--warn)}.ok{color:var(--ok)}.warn{color:var(--warn)}.soft{color:var(--soft)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.card{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:16px}.card b{display:block;font-size:13px;color:var(--soft);margin-bottom:5px}.big{font:600 24px/1.2 ui-monospace,monospace}.table{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:7px}table{border-collapse:collapse;width:100%;min-width:820px}th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{font:600 10.5px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.04em;color:var(--soft)}td.num{text-align:right;font:13px ui-monospace,monospace;white-space:nowrap}tr:last-child td{border-bottom:0}.gain{color:var(--ok);font-weight:650}.flow{display:flex;align-items:stretch;gap:7px;flex-wrap:wrap}.node{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}.arrow{align-self:center;color:var(--soft);font-size:18px}.formula{overflow:auto;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:13px 16px;font:13px/1.7 ui-monospace,monospace;white-space:pre}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 9px;font:11px ui-monospace,monospace;color:var(--soft)}ul,ol{margin:8px 0;padding-left:22px}li+li{margin-top:7px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.metric-note{font-size:13px;color:var(--soft)}details{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px}details+details{margin-top:8px}summary{cursor:pointer;font-weight:650}footer{border-top:1px solid var(--line);padding-top:17px;color:var(--soft);font-size:12px}@media(max-width:760px){.grid,.two{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}body{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="eye">EXP67 · UNIVERSAL MAP SCHEDULER · STRICT CAUSAL STREAM · 2026-08-26</div>
+  <h1>scene별 튜닝 없이 하나의 <code>map()</code>-only scheduler로 세 장면 검증</h1>
+  <p class="dek">Stage B–F의 view-set·순서·batch 실험을 실제 VIGS tracking→mapping 경로에 통합했다. 최종 정책은 scene 이름, fps, 절대 frame 경계, 최종 길이, validation gradient를 보지 않는다. <code>background_polish_step()</code>은 금지하고 모든 최적화를 <code>GSBackEnd.map()</code> 안에서 수행한다.</p>
+</header>
+
+<section class="lead">
+  <b>결론 — 현재 실험 범위에서 채택할 공통안이다.</b>
+  동일한 설정으로 aria1253, aria301_305, aria301_12F 모두 fixed-eval에서 PSNR·SSIM이 상승하고 LPIPS가 감소했다. fixed-eval PSNR 변화는 각각 <b class="ok">+3.09 dB</b>, <b class="ok">+3.97 dB</b>, <b class="ok">+0.62 dB</b>다. 12F의 PSNR 이득은 작고 반복 분산이 있으므로 “모든 장면에서 큰 폭 향상”이라고 말할 수는 없지만, perceptual 지표까지 포함한 개선 방향은 세 장면에서 일관된다. 이 설정은 절대적 전역 최적값이 아니라 <b>지금 비교한 정책 중 다중-scene 증거를 통과한 가장 강한 단일 정책</b>이다.
+</section>
+
+<section>
+  <h2>1. 절대 불변조건: scene에 따라 바뀌는 것은 입력뿐</h2>
+  <div class="two">
+    <div class="okbox"><b class="ok">공통으로 고정</b><ul><li>tracking: window 15, radius 2, motion filter 2.6, frontend iteration 2/0</li><li>replay: RGB-only, B1, batch 1, seed 0, shuffle-without-replacement</li><li>view-set: temporal maximin + service-credit water filling</li><li>phase: topology·capacity·실제 service pressure 기반 상태전이</li><li>PGBA recovery, deadline guard, fixed-eval 분리 규칙</li></ul></div>
+    <div class="warnbox"><b class="warn">scene별로 허용되는 차이</b><ul><li>RGB/IMU/calibration 입력 경로</li><li>평가할 입력 span(<code>--length</code>)</li><li>그 입력에서 자연스럽게 관측되는 keyframe·PGBA·idle 시간</li></ul><p>실행 스크립트는 <code>--length N</code> 외 추가 인자를 거부한다. 따라서 scene별 learning rate, frame gate, stride, iteration override를 넣을 수 없다.</p></div>
+  </div>
+  <p class="metric-note">aria1253은 기존 exp66과 직접 비교하기 위해 첫 1,253 frame span을 사용했다. 이것은 scheduler phase 경계가 아니라 평가 입력 범위다.</p>
+</section>
+
+<section>
+  <h2>2. 최종 pipeline</h2>
+  <div class="flow">
+    <div class="node"><b>1 · causal 입력</b><br>RGB/IMU와 tracked KF 도착</div><span class="arrow">→</span>
+    <div class="node"><b>2 · view-set membership</b><br>KF 사이 후보를 maximin 순으로 두고 service가 지불한 만큼 편입</div><span class="arrow">→</span>
+    <div class="node"><b>3 · optimizer order</b><br>성숙한 causal pool을 동적 shuffled epoch로 1회씩 기회 부여</div><span class="arrow">→</span>
+    <div class="node"><b>4 · budget allocation</b><br>frontier / balanced / replay와 실제 worker pressure로 iteration 대체</div><span class="arrow">→</span>
+    <div class="node"><b>5 · <code>map()</code></b><br>dense RGB B1 Adam, topology cadence 분리</div>
+  </div>
+  <p>핵심은 <b>view-set 선택과 학습 순서를 분리</b>한 것이다. novelty는 “어떤 view를 pool에 넣을지”에만 쓰고, optimizer 순서는 novelty/residual 우선이 아니라 shuffle이다. 이 분리가 Fisher novelty-first 실패와 Stage C의 shuffle 우세를 동시에 반영한다.</p>
+</section>
+
+<section>
+  <h2>3. 수학적 모델</h2>
+  <h3>3.1 view-set: coverage 후보를 budget이 감당할 만큼만</h3>
+  <p>두 tracked keyframe 사이 interval을 <span class="mono">j</span>, 이미 고른 endpoint와 dense view 집합을 <span class="mono">A_j</span>라 한다. 후보의 편입 우선순위는 1차원 farthest-point cover다.</p>
+  <div class="formula">v* = arg max[v in interval j]  min[a in A_j] |frame(v) - frame(a)|
+
+r = 2                                      # 새 view가 받아야 할 최소 반복 기회
+q_t = floor(service_credit_t / r)          # 현재 추가 가능한 view 수
+j* = arg min[j with pending views] m_j     # 가장 덜 채워진 interval부터 water-fill</div>
+  <ul><li>각 새 KF interval은 deadlock을 막기 위해 가장 novel한 view 하나를 bootstrap한다.</li><li>나머지는 기존 active pool이 성숙했고 실제 replay step이 쌓인 경우에만 편입한다.</li><li>credit 2는 “한 번 봄”과 “같은 view의 다음 관측에서 progress를 확인할 최소 반복”을 구분하는 evidence count다. fps나 scene scale이 아니다.</li><li>interval별 편입 수 <span class="mono">m_j</span>가 작은 곳부터 채워, 한 구간에 dense view가 몰리지 않게 한다.</li></ul>
+
+  <h3>3.2 순서: 동적으로 자라는 shuffle-without-replacement</h3>
+  <div class="formula">π_e = UniformPermutation(active causal views at epoch e)
+new arrival v  →  insert v at a uniformly random unfinished-epoch position
+each active view receives at most one draw before the next refill</div>
+  <p>“가장 novel/residual이 큰 view를 계속 먼저” 주지 않는다. 새 view도 곧 기회를 받지만 매번 앞을 가로채지 못한다. 이것이 coverage와 gradient 상쇄/정렬을 함께 만족시키는 가장 단순하고 실측상 강한 기본값이었다.</p>
+
+  <h3>3.3 topology와 replay의 phase certificate</h3>
+  <div class="formula">FRONTIER
+  └─ topology event ≥ 2 and current Gaussian count ≥ latest pre-prune capacity
+       → BALANCED
+          normal frontier iters = min(requested, round(sqrt(window size)))
+          └─ two complete shuffled opportunity passes
+               → REPLAY (ordinary frontier optimizer iters = 0)</div>
+  <p>절대 frame에서 “이제 replay”라고 전환하지 않는다. 두 번의 독립 topology 관측, 마지막 prune 이전 capacity 회복, 두 번의 causal pool pass라는 상태 증거만 사용한다.</p>
+
+  <h3>3.4 idle이 사라지는 고-KF stream: service-pressure feedback</h3>
+  <div class="formula">z_t = 1  if no replay update was actually serviced since previous dispatch
+             or another mapping packet is pending
+
+if z_t is repeated twice and topology evidence exists:
+    (frontier iters, replay iters) = (0, requested iters)
+else:
+    use the normal phase allocation</div>
+  <p>여기서 중요한 단어는 <b>대체</b>다. replay iteration을 기존 작업 위에 더하지 않고, packet이 이미 갖고 있던 optimizer budget을 동일 개수의 one-view B1 replay로 바꾼다. aria301_12F에서 “queue가 비었으니 idle”이라고 판단하면 tracking이 GPU를 계속 점유하는 상황을 놓쳐 replay가 0회가 됐다. 실제 service 유무를 피드백하자 이 실패가 해소됐다.</p>
+
+  <h3>3.5 PGBA와 deadline</h3>
+  <ul><li>PGBA pose revision 뒤에는 topology를 다시 열지 않고 <span class="mono">min(requested, round(sqrt(window)))</span>의 bounded RGB recovery만 수행한다.</li><li>이전 revision 이후 causal pool이 두 pass 성숙하기 전에는 다음 PGBA를 back-pressure한다.</li><li>다음 RGB 도착 전 남은 시간이 최근 관측된 replay step의 보수적 최대 비용보다 작으면 새 replay step을 시작하지 않는다.</li></ul>
+</section>
+
+<section>
+  <h2>4. Fisher/gradient 신호를 최종 online score로 쓰지 않은 이유</h2>
+  <div class="box"><b>Fisher novelty는 view-set coverage의 동기지만 optimizer 순서의 충분조건은 아니다.</b> 새로운 eigen-direction을 계속 보강하면 최소 고유값이나 식별 가능성은 좋아질 수 있지만, 현재 eval objective가 원하는 gradient와 정렬되지 않으면 초반 loss 감소는 느려질 수 있다. 실제 Stage C에서 novelty-first와 residual-first가 shuffle보다 나빴다.</div>
+  <ul><li>reference gradient는 후보마다 정렬을 probe하려면 반복 render/backward가 필요하고, incremental 환경에서 미래 validation을 정의하기도 어렵다.</li><li>Stage D/E의 counterfactual probe는 분석용으로 유용했지만, 그것을 online 의사결정 비용으로 지불할 근거는 충분하지 않았다.</li><li>따라서 최종 controller는 validation/reference gradient를 전혀 보지 않고, <b>coverage는 membership</b>, <b>상쇄 가능한 반복 기회는 shuffle</b>, <b>계산 배분은 causal service evidence</b>로 분리했다.</li><li>Stage F의 blur/exposure/combined filter도 temporal baseline보다 AUC가 일관되게 낫지 않았다. 그래서 품질 gate를 추가해 scene 의존 threshold를 만드는 대신 제외했다.</li></ul>
+</section>
+
+<section>
+  <h2>5. 코드 구조와 정책 삽입점</h2>
+  <div class="table"><table><thead><tr><th>모듈</th><th>역할</th><th>불변조건</th></tr></thead><tbody>
+    <tr><td><code>vigs/map_scheduler.py</code></td><td><code>AdaptiveViewsetController</code>, <code>CausalShuffleQueue</code>, <code>ReplayProgressTracker</code>, <code>TopologyReplayController</code></td><td>CUDA-free이며 scene/fps/frame/eval 정보를 받지 않음</td></tr>
+    <tr><td><code>vigs/vigs.py</code></td><td>KF interval 생성, trajectory filler pose, actual-service pressure 관측, idle/deadline gate</td><td>adaptive mode에서 fixed stride 금지; 실제 replay가 수행돼야 idle service로 인정</td></tr>
+    <tr><td><code>vigs/gs_backend.py</code></td><td><code>map(replay_only=True)</code>, phase allocation, B1 RGB Adam, PGBA recovery, telemetry</td><td>replay는 densify/prune/opacity cadence를 진행하지 않음</td></tr>
+    <tr><td><code>vigs/pgo_buffer.py</code></td><td>oldest-unseen causal PGBA 처리와 revision back-pressure</td><td>pose revision을 새 topology 증거로 오해하지 않음</td></tr>
+    <tr><td><code>demo.py</code></td><td>상호 배타 flag 검증, provenance, first-RGB timing marker, 결과 summary</td><td>model scheduler에서 frame/count phase gate를 parser 단계에서 거부</td></tr>
+    <tr><td><code>exp67_axes/run_map_rr_adaptive_universal.sh</code></td><td>세 scene 공통 실행 recipe</td><td><code>--length</code> 외 override를 거부</td></tr>
+  </tbody></table></div>
+  <div class="okbox"><b><code>background_polish_step()</code> 금지 확인</b><p><code>idle_map_rr</code>가 활성화되면 background polish flag를 강제로 끈다. 다섯 scheduler run의 <code>MAP_RR_DONE</code>이 모두 <code>background_steps=0</code>을 기록했다. dense update는 전부 <code>GSBackEnd.map()</code>을 통과했다.</p></div>
+</section>
+
+<section>
+  <h2>6. 평가 protocol</h2>
+  <div class="grid">
+    <div class="card"><b>aria1253</b><span class="big">1,253</span><br>sensor 62.6000 s<br>1.5× budget 93.9000 s</div>
+    <div class="card"><b>aria301_305</b><span class="big">2,688</span><br>sensor 134.3500 s<br>1.5× budget 201.5250 s</div>
+    <div class="card"><b>aria301_12F</b><span class="big">2,201</span><br>sensor 110.0000 s<br>1.5× budget 165.0000 s</div>
+  </div>
+  <ul><li>baseline은 같은 tracking/config에서 adaptive dense admission과 replay만 끈 native tracked-KF <code>map()</code>다.</li><li>scheduler와 baseline 모두 30 fps RGB/IMU를 strict causal replay로 받고, stream 뒤 최적화는 0회다. 최종 evaluation만 stream 종료 뒤 수행한다.</li><li>고정 평가 UID(<span class="mono">uid % 5 == 0</span>)는 dense training 후보에서 제외했다. 단 tracking이 자연히 그 frame을 keyframe으로 선택한 overlap은 남으므로 완전한 lockbox라고 부르지 않는다. overlap은 아래에 함께 공개한다.</li><li>aria1253과 12F scheduler는 2회, 305는 1회 실행했다. 반복 수가 균일하지 않으므로 통계적 유의성을 주장하지 않는다.</li></ul>
+</section>
+
+<section>
+  <h2>7. 주 결과 — fixed-eval 평균</h2>
+  <div class="table"><table><thead><tr><th>scene</th><th class="num">views / KF overlap</th><th class="num">baseline PSNR</th><th class="num">scheduler PSNR</th><th class="num">Δ PSNR</th><th class="num">baseline → scheduler SSIM</th><th class="num">baseline → scheduler LPIPS</th></tr></thead><tbody>
+    <tr><td><b>aria1253</b><br><span class="soft">2회 평균</span></td><td class="num">252 / 23</td><td class="num">24.7205</td><td class="num">27.8123</td><td class="num gain">+3.0918</td><td class="num gain">.7993 → .8721</td><td class="num gain">.3847 → .2313</td></tr>
+    <tr><td><b>aria301_305</b><br><span class="soft">1회</span></td><td class="num">539 / 54</td><td class="num">25.8145</td><td class="num">29.7826</td><td class="num gain">+3.9680</td><td class="num gain">.8414 → .9107</td><td class="num gain">.4080 → .2228</td></tr>
+    <tr><td><b>aria301_12F</b><br><span class="soft">scheduler 2회 평균</span></td><td class="num">441 / 73–75</td><td class="num">25.7931</td><td class="num">26.4112</td><td class="num gain">+0.6181</td><td class="num gain">.8518 → .8738</td><td class="num gain">.4809 → .3990</td></tr>
+  </tbody></table></div>
+  <p class="metric-note">PSNR/SSIM은 클수록, LPIPS는 작을수록 좋다. 반복이 있는 경우 run별 metric을 먼저 계산한 뒤 산술평균했다.</p>
+</section>
+
+<section>
+  <h2>8. 전체-view 결과와 반복 범위</h2>
+  <div class="table"><table><thead><tr><th>scene</th><th class="num">baseline PSNR</th><th class="num">scheduler PSNR</th><th class="num">Δ</th><th class="num">SSIM Δ</th><th class="num">LPIPS Δ</th><th>scheduler run별 PSNR</th></tr></thead><tbody>
+    <tr><td>aria1253</td><td class="num">24.8911</td><td class="num">27.7547</td><td class="num gain">+2.8636</td><td class="num gain">+.0706</td><td class="num gain">−.1508</td><td class="mono">27.9358, 27.5736</td></tr>
+    <tr><td>aria301_305</td><td class="num">25.9532</td><td class="num">29.7937</td><td class="num gain">+3.8405</td><td class="num gain">+.0677</td><td class="num gain">−.1824</td><td class="mono">29.7937</td></tr>
+    <tr><td>aria301_12F</td><td class="num">26.1545</td><td class="num">26.4379</td><td class="num gain">+0.2834</td><td class="num gain">+.0198</td><td class="num gain">−.0810</td><td class="mono">26.6456, 26.2302</td></tr>
+  </tbody></table></div>
+  <p>12F repeat 간 0.42 dB 차이는 같은 seed라도 background PGBA thread의 발생 횟수(2회 대 0회)가 달랐던 비동기 실행 분산과 함께 나타났다. 두 run을 모두 남겼으며 좋은 run만 선택하지 않았다.</p>
+  <div class="okbox"><b>12F의 절대 숫자에 대한 historical audit</b><p>원격에 보존된 기존 strict-streaming 12F 결과 중 이전 최고 all-view PSNR은 exp60 novelty05의 26.1259 dB였다. 이번 단일 공통 정책은 반복 평균 26.4379 dB, 최고 run 26.6456 dB다. 따라서 12F가 29 dB reference를 놓친 것으로 해석할 근거는 없고, 현재 저장된 12F 결과에서는 PSNR 기준 최고다. 장면 간 절대 PSNR을 같은 난이도의 목표처럼 대응시키지 않는다.</p></div>
+</section>
+
+<section>
+  <h2>9. 평균 하나가 아니라 frame별로도 좋아졌는가</h2>
+  <div class="table"><table><thead><tr><th>scene</th><th class="num">PSNR win</th><th class="num">SSIM win</th><th class="num">LPIPS win</th><th class="num">paired PSNR Δ median</th><th>해석</th></tr></thead><tbody>
+    <tr><td>aria1253</td><td class="num gain">81.3%</td><td class="num gain">88.9%</td><td class="num gain">98.8%</td><td class="num gain">+3.519 dB</td><td>대부분의 fixed frame에서 세 지표가 함께 개선</td></tr>
+    <tr><td>aria301_305</td><td class="num gain">88.9%</td><td class="num gain">91.8%</td><td class="num gain">100.0%</td><td class="num gain">+4.411 dB</td><td>개선이 특정 frame 소수에만 몰리지 않음</td></tr>
+    <tr><td>aria301_12F</td><td class="num gain">62.4%</td><td class="num gain">78.9%</td><td class="num gain">76.2%</td><td class="num gain">+1.033 dB</td><td>약한 장면이지만 과반 frame과 perceptual 지표에서 개선</td></tr>
+  </tbody></table></div>
+  <p class="metric-note">반복이 두 개인 scene은 동일 frame의 run 평균을 만든 뒤 baseline과 paired 비교했다. LPIPS win은 값이 감소한 frame 비율이다.</p>
+</section>
+
+<section>
+  <h2>10. strict 1.5× timing — 두 경계를 분리해 공개</h2>
+  <p><code>ONLINE_LOOP_START</code>는 reader process cold-start 약 3.4초를 포함한다. 실제 stream latency는 첫 RGB packet이 consumer에 도착한 시점부터 <code>ONLINE_LOOP_DONE</code>까지다.</p>
+  <div class="table"><table><thead><tr><th>run</th><th class="num">1.5× budget</th><th class="num">stream completion</th><th class="num">budget 뒤 tail</th><th class="num">process-spawn completion</th></tr></thead><tbody>
+    <tr><td>aria1253 scheduler r1</td><td class="num">93.9000</td><td class="num">93.9073</td><td class="num">+7.3 ms</td><td class="num">97.2664</td></tr>
+    <tr><td>aria1253 scheduler r2</td><td class="num">93.9000</td><td class="num">93.9049</td><td class="num">+4.9 ms</td><td class="num">97.3316</td></tr>
+    <tr><td>aria301_305 scheduler</td><td class="num">201.5250</td><td class="num">201.5290</td><td class="num">+4.1 ms</td><td class="num">204.9209</td></tr>
+    <tr><td>aria301_12F scheduler r2</td><td class="num">165.0000</td><td class="num">165.0151</td><td class="num">+15.1 ms</td><td class="num">168.4572</td></tr>
+  </tbody></table></div>
+  <div class="warnbox"><b>정확한 부등식은 과장하지 않는다.</b><p>입력 arrival은 sensor timestamp의 정확한 1.5×로 pace된다. 마지막 frame은 budget 끝에 도착하므로 그 packet을 소비하는 4–15 ms tail이 남았다(최대 약 0.009%). 따라서 “수학적으로 <span class="mono">completion ≤ 1.5×</span>”라고 쓰지 않고, <b>1.5× causal pacing + 한 final-packet tail</b>로 보고한다. eval 시간은 이 표에 포함하지 않으며 eval 중 map update는 0이다.</p></div>
+</section>
+
+<section>
+  <h2>11. 같은 규칙이 장면에 따라 어떻게 스스로 달라졌는가</h2>
+  <div class="table"><table><thead><tr><th>run</th><th class="num">active views</th><th class="num">replay steps</th><th class="num">epochs</th><th class="num">pressure obs / allocation</th><th class="num">PGBA revision</th><th class="num">background</th></tr></thead><tbody>
+    <tr><td>aria1253 r1</td><td class="num">553</td><td class="num">5,974</td><td class="num">19</td><td class="num">48 / 22</td><td class="num">1</td><td class="num">0</td></tr>
+    <tr><td>aria1253 r2</td><td class="num">450</td><td class="num">6,505</td><td class="num">22</td><td class="num">46 / 21</td><td class="num">1</td><td class="num">0</td></tr>
+    <tr><td>aria301_305</td><td class="num">725</td><td class="num">18,795</td><td class="num">40</td><td class="num">42 / 12</td><td class="num">4</td><td class="num">0</td></tr>
+    <tr><td>aria301_12F r1</td><td class="num">630</td><td class="num">5,026</td><td class="num">15</td><td class="num">256 / 227</td><td class="num">2</td><td class="num">0</td></tr>
+    <tr><td>aria301_12F r2</td><td class="num">613</td><td class="num">5,587</td><td class="num">16</td><td class="num">206 / 173</td><td class="num">0</td><td class="num">0</td></tr>
+  </tbody></table></div>
+  <p>이는 scene별 preset이 아니라 같은 feedback law의 결과다. 305는 idle service가 많아 pressure 대체가 적고 40 epoch를 돌았다. 12F는 keyframe/worker pressure가 높아 packet budget을 replay로 바꾼 횟수가 훨씬 많았다.</p>
+</section>
+
+<section>
+  <h2>12. 실패에서 최종식으로 바뀐 이유</h2>
+  <div class="table"><table><thead><tr><th>시도</th><th class="num">대표 PSNR</th><th>실패 원인 / 결정</th></tr></thead><tbody>
+    <tr><td>고정 boundary reference</td><td class="num">≈27.20</td><td>mechanism은 성립했지만 frame 700/800 같은 aria1253 전용 경계라 최종안에서 금지</td></tr>
+    <tr><td>unknown-horizon v1, 12F</td><td class="num">25.49</td><td>idle이 전혀 없어 replay 0회; controller가 replay epoch를 기다리며 deadlock</td></tr>
+    <tr><td>queue-empty를 idle로 간주</td><td class="num">중단</td><td>tracking이 GPU를 점유해도 queue가 잠시 비어 오판; actual serviced update 신호로 교체</td></tr>
+    <tr><td>adaptive pool cap / drained variant, 1253</td><td class="num">23.53 / 22.68</td><td>view 수를 임의 제한하거나 pool을 소진시키는 규칙은 최적화 opportunity를 파괴</td></tr>
+    <tr><td><b>service-pressure substitution</b></td><td class="num gain">27.75 / 29.79 / 26.44</td><td>추가 budget 없이 기존 packet iteration을 causal B1 replay로 대체; 세 scene 공통 채택</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>13. 해석과 현재 한계</h2>
+  <div class="two">
+    <div class="okbox"><b class="ok">지금 말할 수 있는 것</b><ul><li>scene별 frame gate 없이 실제 incremental pipeline에서 작동한다.</li><li>세 scene 모두 fixed-eval PSNR/SSIM/LPIPS 방향이 개선됐다.</li><li>1253·305에서는 개선 폭과 paired win이 크다.</li><li>같은 feedback이 stream의 idle/pressure 차이에 적응한다.</li></ul></div>
+    <div class="warnbox"><b class="warn">아직 말할 수 없는 것</b><ul><li>세 scene·한 GPU 결과만으로 모든 scene의 전역 최적 설정이라 할 수 없다.</li><li>12F의 PSNR 개선은 작고 PGBA 비동기 분산이 있다.</li><li>fixed set에 tracked-KF overlap이 있어 완전한 held-out validation은 아니다.</li><li><code>eval_metrics_only</code>였으므로 사람의 side-by-side render 판독은 하지 않았다. 품질 개선 판단은 PSNR/SSIM/LPIPS와 paired frame 통계다.</li><li>마지막-frame tail까지 포함한 exact hard deadline은 4–15 ms 초과했다.</li></ul></div>
+  </div>
+  <p>따라서 다음 개선도 scene별 숫자 조정이 아니라 공통 rule이어야 한다. 우선순위는 PGBA 결정성/동기화, 마지막 packet deadline 정의, 그리고 새로운 scene을 사전 등록한 leave-one-scene-out 검증이다.</p>
+</section>
+
+<section>
+  <h2>14. 재현·검증</h2>
+  <details open><summary>공통 scheduler 실행</summary><div class="formula">bash exp67_axes/run_map_rr_adaptive_universal.sh \
+  &lt;dataset-dir-name&gt; &lt;output-dir&gt; [--length N]</div><p>세 scene에서 dataset과 output 경로, 입력 span만 달랐다. 임의 scheduler override는 exit 2로 거부된다.</p></details>
+  <details><summary>공통 baseline 실행</summary><div class="formula">bash exp67_axes/run_map_only_universal_baseline.sh \
+  &lt;dataset-dir-name&gt; &lt;output-dir&gt; [--length N]</div></details>
+  <details><summary>코드 검증</summary><div class="formula">conda run -n 3dgs python -m unittest discover \
+  -s exp66_axes/viewset_density -p 'test_*.py'
+
+38 tests passed
+python compile: pass
+shell syntax: pass
+git diff --check: pass
+local ↔ remote universal runner SHA-256: identical</div></details>
+  <p>machine-readable 수치는 <code>exp67_axes/exp67_universal_scheduler_results.json</code>에 저장했다. 원격 raw result는 각 run의 <code>results/experiments/exp67_universal_*</code> 아래 <code>psnr/online_final/final_result.json</code>과 실행 log에 남아 있다.</p>
+</section>
+
+<footer>exp67 universal scheduler result · RTX 5070 Ti · post-stream optimization 0 · background_polish_step 0 · scene-specific scheduler tuning 0 · report generated 2026-08-26</footer>
+</main></body></html>

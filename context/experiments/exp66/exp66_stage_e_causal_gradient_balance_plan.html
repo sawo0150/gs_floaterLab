@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exp66 Stage E — Causal Gradient-Balanced Update 실험계획</title>
+<style>
+  :root{--paper:#f5f3ef;--panel:#fffdfa;--ink:#24211e;--soft:#706960;--line:#ddd6cb;--accent:#5d4c8d;--good:#306b56;--bad:#a34a3c;--warn:#946719;--code:#eee9e1;--sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;--serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;--mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace}
+  @media(prefers-color-scheme:dark){:root{--paper:#141319;--panel:#1c1a22;--ink:#ece8f1;--soft:#a39cac;--line:#393241;--accent:#ae9be5;--good:#78bea4;--bad:#e28b80;--warn:#e1b967;--code:#27222d}}
+  *{box-sizing:border-box}body{margin:0;padding:52px 22px 80px;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65}main{max-width:980px;margin:auto}header{border-bottom:1px solid var(--line);padding-bottom:25px;margin-bottom:36px}.eyebrow{font:12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}h1,h2,h3{font-family:var(--serif);font-weight:600}h1{font-size:clamp(27px,4vw,39px);line-height:1.25;margin:9px 0 12px;letter-spacing:-.02em}h2{font-size:23px;margin:42px 0 14px;padding-top:9px;border-top:1px solid var(--line)}h3{font-size:18px;margin:26px 0 8px}p{max-width:78ch;margin:8px 0 13px}.dek,.small{color:var(--soft)}.dek{font-size:16px}.small{font-size:13px}code,pre{font-family:var(--mono);font-size:.9em}code{background:var(--code);padding:1px 5px;border-radius:3px}pre{background:var(--code);border:1px solid var(--line);padding:15px;overflow:auto;line-height:1.55}.lead,.box{background:var(--panel);border:1px solid var(--line);padding:17px 20px;margin:16px 0}.lead{border-color:var(--accent);border-left:4px solid var(--accent)}.good{border-left:4px solid var(--good)}.bad{border-left:4px solid var(--bad)}.warn{border-left:4px solid var(--warn)}.tag{display:inline-block;font:10.5px var(--mono);letter-spacing:.04em;color:var(--accent);border:1px solid currentColor;border-radius:12px;padding:2px 8px;margin-right:6px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin:16px 0}.card{background:var(--panel);border:1px solid var(--line);padding:15px 17px}.card b{display:block;margin-bottom:5px}.equation{font:15px var(--mono);background:var(--panel);border:1px solid var(--line);padding:13px 16px;overflow-x:auto;margin:12px 0}.table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--panel);margin:14px 0 7px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font:10.5px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}tr:last-child td{border-bottom:0}ul,ol{max-width:80ch;padding-left:22px}li{margin:6px 0}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:9px;align-items:center;margin:18px 0}.node{background:var(--panel);border:1px solid var(--line);padding:13px;text-align:center}.arrow{color:var(--accent);font-size:20px}.status{font:12px var(--mono);color:var(--warn)}details{border:1px solid var(--line);background:var(--panel);padding:10px 14px;margin:10px 0}summary{cursor:pointer;font-weight:600}footer{border-top:1px solid var(--line);margin-top:45px;padding-top:16px;color:var(--soft);font:12px var(--mono)}a{color:var(--accent)}@media(max-width:680px){body{padding:30px 13px 60px}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}th,td{padding:8px}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="eyebrow">exp66 후속 · Stage E 설계노트 · 2026-08-25</div>
+  <h1>Causal Gradient-Balanced Update가 incremental mapping을 더 빠르게 하는가</h1>
+  <p class="dek">Stage C의 random reshuffling 우세와 Stage D의 optimizer-aware alignment 결과를 실제 incremental mapping으로 연결하기 위한 후속 실험계획. 아직 검증되지 않았으며, 결과를 미리 결론으로 서술하지 않는다.</p>
+  <div class="status">STATUS: PLANNED / NOT STARTED / LOCKBOX UNOPENED</div>
+</header>
+
+<div class="lead"><b>검증할 핵심 가설:</b> 미래 frame 전체를 미리 정렬하는 것이 아니라, 현재까지 도착한 frame을 대표하는 causal training anchor를 만들고, 짧은 microbatch의 평균 gradient가 그 anchor gradient를 근사하게 하면 batch-1 shuffle보다 동일 계산시간에서 더 안정적으로 수렴할 수 있다.</div>
+
+<section>
+<h2>1. 이전 결과에서 무엇이 확인됐고 무엇이 아직 가설인가</h2>
+<div class="grid">
+  <div class="card"><b>확인됨 · Stage B</b>전역 pure coverage membership은 temporal baseline보다 느렸다. 시간 quota 안의 representative 선택은 약한 AUC 이득만 보였다.</div>
+  <div class="card"><b>확인됨 · Stage C</b>동일 view set에서 shuffle-without-replacement가 novelty-first, residual-first, alternating, replacement보다 빨랐다.</div>
+  <div class="card"><b>확인됨 · Stage D</b>작은 held-out reference에 대한 <code>−gRᵀΔθAdam</code>은 현재 후보들의 one-step 개선 순위를 잘 예측했다.</div>
+  <div class="card"><b>아직 미확인</b>여러 frame의 gradient를 섞거나 causal anchor에 matching한 microbatch가 실제 end-to-end AUC를 개선하는지는 실험하지 않았다.</div>
+</div>
+<p>따라서 Stage E는 “gradient alignment가 중요하다”를 반복 주장하는 실험이 아니라, 그 신호를 사용하지 않더라도 microbatch averaging 자체가 이득인지, 그리고 추가적인 gradient matching이 비용을 감수할 만큼 더 나은지를 단계적으로 분리한다.</p>
+<p class="small">기존 결과: <a href="exp66_viewset_stage_bcd_result.html">exp66_viewset_stage_bcd_result.html</a></p>
+<p class="small">독립된 view-quality admission 축: <a href="exp66_stage_f_view_quality_admission_plan.html">exp66_stage_f_view_quality_admission_plan.html</a></p>
+</section>
+
+<section>
+<h2>2. 중요한 개념 정정 — gradient를 0으로 만드는 실험이 아니다</h2>
+<p>좋은 상쇄는 frame마다 다른 노이즈·편향 성분을 제거하면서 공통 descent 성분을 남기는 것이다.</p>
+<div class="equation">g₁=(1,+5), g₂=(1,−5)  ⇒  (g₁+g₂)/2=(1,0)</div>
+<p>반대로 아래처럼 useful signal까지 상쇄하면 update가 사라진다.</p>
+<div class="equation">g₁=(1,0), g₂=(−1,0)  ⇒  (g₁+g₂)/2=(0,0)</div>
+<div class="box warn"><b>따라서 목표:</b> microbatch gradient norm을 최소화하는 것이 아니라, causal anchor가 가리키는 공통 방향을 보존하면서 개별 frame의 분산을 줄이는 것.</div>
+</section>
+
+<section>
+<h2>3. Causal 수학 모델</h2>
+<p>시점 <code>t</code>까지 도착해 scheduler가 합법적으로 사용할 수 있는 frame 집합을 다음처럼 둔다.</p>
+<div class="equation">Aₜ = { frame i | arrival_time(i) ≤ t }</div>
+<p><code>Aₜ</code>에서 시간적으로 균형 잡힌 training anchor/replay buffer <code>Rₜ</code>를 유지한다. 최종 validation/lockbox와 미래 frame은 절대 포함하지 않는다.</p>
+<div class="equation">g*ₜ = (1/|Rₜ|) Σᵣ∈Rₜ ∇θLᵣ(θₜ)</div>
+<p>선택한 microbatch <code>Bₜ</code>의 평균 gradient는:</p>
+<div class="equation">ḡ(Bₜ) = (1/|Bₜ|) Σᵥ∈Bₜ ∇θLᵥ(θₜ)</div>
+<p>이상적인 gradient-matching 목적은 다음과 같다.</p>
+<div class="equation">B*ₜ = argmin_B ‖ḡ(B) − g*ₜ‖² / measured_cost(B)</div>
+<p>실제 Adam에서는 gradient 자체보다 현재 moment/preconditioner를 통과한 batch update의 anchor 방향 정렬도 함께 기록한다.</p>
+<div class="equation">utility(B,t) = −g*ₜᵀΔθAdam(B) / cost(B)</div>
+<div class="box"><b>해석:</b> 하나의 anchor가 미래 전체 순서를 미리 정하는 것이 아니다. 현재 상태의 짧은 window 또는 microbatch만 평가하고, update 후 상태가 변하면 anchor와 score를 주기적으로 갱신하는 receding-horizon 문제다.</div>
+</section>
+
+<section>
+<h2>4. 전체 실험 구조</h2>
+<div class="flow">
+  <div class="node"><b>E0 · 비용 calibration</b><br>update/probe 비용만 측정<br>품질 결론 금지</div><div class="arrow">→</div>
+  <div class="node"><b>E1 · One-step screen</b><br>B1/B2/B4의 실제 개선과<br>harmful-update 비율 측정</div><div class="arrow">→</div>
+  <div class="node"><b>E2 · Causal end-to-end</b><br>30fps arrival에서<br>시간대비 AUC 검증</div>
+</div>
+<p>E1이 실패하면 expensive causal scheduler를 구현하지 않는다. E1이 성공해도 E2에서 선택비용을 포함한 end-to-end 이득이 없으면 실용적인 개선으로 채택하지 않는다.</p>
+</section>
+
+<section>
+<h2>5. Stage E0 — 비용 calibration</h2>
+<p class="status">PILOT ONLY · SCORED RESULTS와 분리</p>
+<ul>
+  <li>대상 GPU에서 RGB render+backward, Adam step, anchor refresh, candidate probe, gradient sketch의 CUDA/wall 시간을 각각 측정한다.</li>
+  <li>30fps arrival과 tracking workload가 사용할 headroom을 침범하지 않는 mapping budget rate를 시스템 제약으로 정한 뒤 main experiment 전에 고정한다.</li>
+  <li>batch size별 동일 LR과 보수적인 scaling 후보의 발산 여부만 확인한다. 품질이 좋은 설정을 반복 탐색해 main seed에 과적합하지 않는다.</li>
+  <li>이 단계에서 final curve split이나 lockbox로 hyperparameter를 고르지 않는다.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>측정 항목</th><th>기록 단위</th><th>budget 포함 여부</th></tr></thead>
+<tbody><tr><td>frame render+loss+backward</td><td>CUDA ms / frame</td><td>포함</td></tr><tr><td>Adam step</td><td>CUDA ms / update</td><td>포함</td></tr><tr><td>anchor gradient refresh</td><td>CUDA ms / refresh</td><td>adaptive arm에서 포함</td></tr><tr><td>탈락 candidate probe</td><td>CUDA ms / candidate</td><td>포함</td></tr><tr><td>저장·scored evaluation</td><td>wall/CUDA ms</td><td>학습 budget에서는 제외, 별도 보고</td></tr></tbody>
+</table></div>
+</section>
+
+<section>
+<h2>6. Stage E1 — One-step microbatch mechanism screen</h2>
+<p>기존과 비교 가능한 <code>θ₀</code>, 40초, 100초 snapshot에서 parameter와 Adam state를 저장하고, 각 arm의 microbatch로 실제 한 번 update한 뒤 별도의 curve-only audit loss 변화를 측정하고 정확히 원복한다.</p>
+<p><b>중요:</b> batch 선택에 쓰는 anchor는 training frame만 사용한다. curve-only audit은 결과 측정에만 사용한다.</p>
+
+<h3>고정 조건</h3>
+<ul>
+  <li>동일 Phase-1 checkpoint와 동일 representative candidate pool</li>
+  <li>RGB-only objective, densification/pruning 없음, 동일 parameter scope</li>
+  <li>후보 UID 및 anchor UID/hash 고정·기록</li>
+  <li>시점별·seed별 동일한 candidate group에서 paired counterfactual</li>
+  <li>최소 3 seeds; 초기 개발은 aria1253, 일반화 결론은 추가 장면 전까지 금지</li>
+</ul>
+
+<h3>비교 arm</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Arm</th><th>Microbatch 구성</th><th>검증 질문</th><th>추가 선택비용</th></tr></thead>
+<tbody>
+<tr><td><b>E1-B1-RR</b></td><td>shuffle에서 1장</td><td>현재 single-frame 기준</td><td>없음</td></tr>
+<tr><td><b>E1-B2-RR</b></td><td>shuffle 연속 2장 평균</td><td>작은 accumulation만으로 harmful step이 줄어드는가</td><td>없음</td></tr>
+<tr><td><b>E1-B4-RR</b></td><td>shuffle 연속 4장 평균</td><td>variance reduction이 더 강해지는가</td><td>없음</td></tr>
+<tr><td><b>E1-B4-Strat</b></td><td>서로 다른 temporal/spatial strata에서 4장</td><td>짧은 batch의 분포 균형이 random보다 좋은가</td><td>매우 작음</td></tr>
+<tr><td><b>E1-B4-Match</b></td><td>작은 candidate window에서 anchor gradient matching한 4장</td><td>oracle에 가까운 matching이 random B4 위에 추가 이득을 주는가</td><td>큼, 반드시 기록</td></tr>
+<tr><td><b>E1-B4-Novel</b></td><td>coverage 다양성을 최대화한 4장</td><td>gradient matching과 geometric novelty를 분리하는 control</td><td>작음</td></tr>
+</tbody></table></div>
+
+<h3>측정값</h3>
+<ul>
+  <li><code>actual_delta_audit_rgb_objective</code>: 양수면 audit 일반화 개선</li>
+  <li><code>harmful_update</code>: 실제 delta가 음수인 counterfactual 비율</li>
+  <li><code>anchor_alignment</code>, <code>optimizer_aware_alignment</code></li>
+  <li>batch gradient norm, frame 간 cosine Gram/effective rank</li>
+  <li>render/backward/selection/Adam 비용과 품질 개선량 per ms</li>
+  <li>batch 안의 temporal span, spatial span, novelty 분포</li>
+</ul>
+
+<h3>사전 진행 gate</h3>
+<div class="box warn"><b>E2로 진행할 최소 조건:</b> B4-RR이 B1-RR보다 harmful-update 비율과 실제 audit 감소량 중 적어도 하나를 두 seed·복수 시점에서 일관되게 개선하고, B4-Match가 선택비용을 무시한 oracle 분석에서 B4-RR보다 추가 상한을 보여야 한다. 방향이 흔들리거나 이득이 측정 노이즈 수준이면 E2 adaptive arm 구현을 보류한다.</div>
+</section>
+
+<section>
+<h2>7. Stage E2 — 실제 causal end-to-end 실험</h2>
+<p>recorded 30fps RGB trajectory를 timestamp 순서로 release한다. 시점 <code>t</code> 이전에 도착한 frame만 admission, anchor, candidate, replay에 사용할 수 있다. 미래 UID를 manifest에서 미리 읽어 quota나 score에 사용하는 것을 hard gate로 금지한다.</p>
+<pre>30fps causal arrival
+        ↓
+admission: temporal quota + representative replay
+        ↓
+현재까지 도착한 training anchor 갱신
+        ↓
+RR-B1 / RR-B4 / Strat-B4 / Match-B4
+        ↓
+동일한 measured compute credit 소모
+        ↓
+offline scorer가 curve-only/future quality 평가</pre>
+
+<h3>Primary arms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Arm</th><th>Update 정책</th><th>Fairness</th><th>목적</th></tr></thead>
+<tbody>
+<tr><td><b>E2-RR-B1</b></td><td>causal replay의 random reshuffle, frame 1장/Adam</td><td>epoch당 거의 동일 opportunity</td><td>강한 baseline</td></tr>
+<tr><td><b>E2-RR-B4</b></td><td>reshuffle 4장 gradient 평균/Adam</td><td>각 frame 1회/epoch</td><td>순수 variance reduction</td></tr>
+<tr><td><b>E2-Strat-B4</b></td><td>temporal/spatial strata에서 4장</td><td>stratum debt로 starvation 금지</td><td>짧은 batch 분포 균형</td></tr>
+<tr><td><b>E2-Match-B4</b></td><td>local window에서 causal anchor matching</td><td>max-age/debt + epoch coverage</td><td>optimizer-aware adaptive upper bound의 실용 근사</td></tr>
+</tbody></table></div>
+
+<h3>Admission과 order를 다시 섞지 않는 hard rule</h3>
+<ul>
+  <li>모든 E2 arm은 동일한 causal view-set admission 결과를 공유한다.</li>
+  <li>novelty/coverage는 admission에서만 사용할 수 있고, primary order score로 재사용하지 않는다.</li>
+  <li>order/microbatch 정책만 바꾸며 buffer 크기, frame UID, loss type을 동일하게 유지한다.</li>
+  <li>adaptive arm이 anchor refresh 때문에 처리 frame 수가 줄어드는 효과도 결과의 일부로 포함한다.</li>
+</ul>
+</section>
+
+<section>
+<h2>8. Budget과 공정 비교</h2>
+<p>두 개의 budget 관점을 함께 기록한다.</p>
+<div class="grid">
+  <div class="card"><b>Mechanism budget</b>render+backward+Adam의 누적 CUDA update time. 기존 Stage B/C와 직접 비교하기 위한 보조 지표.</div>
+  <div class="card"><b>Primary system budget</b>anchor refresh, candidate probe, sorting/sketch를 포함한 selection+training 총 GPU/wall time. 실제 incremental mapping 판단 기준.</div>
+</div>
+<div class="equation">total_cost = admission + anchor_refresh + rejected_probes + chosen_update</div>
+<p>한 번 계산한 선택 후보의 gradient가 실제 선택되면 Adam update에 재사용한다. 탈락 후보 backward는 추가비용으로 그대로 계산한다. Adam step 수뿐 아니라 processed frame-backward 수를 함께 기록한다.</p>
+<p>30fps 스트림의 mapping compute rate는 E0에서 tracking deadline/headroom으로 정하고 main experiment 전에 고정한다. 품질 결과를 본 뒤 budget rate를 바꾸지 않는다.</p>
+</section>
+
+<section>
+<h2>9. 평가 지표와 통계</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>우선순위</th><th>지표</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td>Primary</td><td>end-to-end time-normalized curve MSE AUC</td><td>선택비용까지 포함해 실제로 얼마나 빨리 일반화되는가</td></tr>
+<tr><td>Secondary</td><td>fixed-budget final PSNR/MSE</td><td>동일 system budget 끝의 품질</td></tr>
+<tr><td>Secondary</td><td>harmful-update rate / predicted-vs-actual delta</td><td>mechanism이 end-to-end에서도 유지되는가</td></tr>
+<tr><td>Secondary</td><td>past-anchor forgetting / recent-frame adaptation</td><td>stability–plasticity trade-off</td></tr>
+<tr><td>System</td><td>queue length, deadline miss, mapping duty cycle</td><td>incremental 조건을 실제로 지키는가</td></tr>
+<tr><td>Fairness</td><td>selection count spread, max age, processed frames</td><td>특정 frame/stratum starvation 여부</td></tr>
+</tbody></table></div>
+<ul>
+  <li>동일 checkpoint를 사용하는 paired comparison, 최소 3 seeds.</li>
+  <li>aria1253는 개발 장면으로 사용하고, 일반적 결론에는 최소 2개 추가 trajectory/scene가 필요하다.</li>
+  <li>Primary AUC와 모든 실패 run을 함께 보고한다. 최종 PSNR만 골라 보고하지 않는다.</li>
+  <li>lockbox는 정책·LR·batch size를 고정하기 전까지 열지 않는다.</li>
+</ul>
+</section>
+
+<section>
+<h2>10. 결과별 의사결정 해석</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>관측 결과</th><th>해석</th><th>다음 행동</th></tr></thead>
+<tbody>
+<tr><td>RR-B4 &gt; RR-B1</td><td>single-frame gradient variance/충돌이 실제 병목</td><td>복잡한 selector 전에 accumulation을 기본값 후보로 채택</td></tr>
+<tr><td>Strat-B4 &gt; RR-B4</td><td>짧은 batch 안의 temporal/spatial 분포 균형이 중요</td><td>cheap stratified sampler 우선</td></tr>
+<tr><td>Match-B4 oracle만 승리</td><td>좋은 방향은 있으나 정확한 계산이 비쌈</td><td>gradient sketch/cache 근사 연구 여부 판단</td></tr>
+<tr><td>Match-B4 cost-aware 패배</td><td>예측력보다 selection overhead가 큼</td><td>실용 scheduler로 채택하지 않음</td></tr>
+<tr><td>One-step 승리, end-to-end 패배</td><td>greedy myopia 또는 anchor overfitting</td><td>refresh 주기/anchor 독립성 검토, 결론 확대 금지</td></tr>
+<tr><td>모든 B4가 패배</td><td>더 적은 Adam step, LR/momentum mismatch가 이득을 상쇄</td><td>순서보다 optimizer/LR ablation으로 이동</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>11. 필수 로그와 leakage hard gate</h2>
+<ul>
+  <li>각 frame의 UID, timestamp, arrival time, admission time과 source hash</li>
+  <li>각 시점의 available UID set hash와 미래 UID 접근 여부 assert</li>
+  <li>anchor UID/hash, candidate window UID, chosen/rejected UID</li>
+  <li>batch 구성, frame별 loss/gradient norm, pairwise cosine 또는 sketch</li>
+  <li>anchor refresh 비용, rejected probe 비용, chosen backward 재사용 여부</li>
+  <li>Adam step norm, LR/moment summary, non-finite 수</li>
+  <li>selection count, max age, stratum debt, causal queue 상태</li>
+  <li>E1 parameter/optimizer rollback 최대 오차와 checksum</li>
+</ul>
+<div class="box bad"><b>즉시 실패 처리:</b> scheduler가 curve-only/lockbox gradient를 사용함, 미래 frame metadata를 admission/order에 사용함, arm별 membership이 달라짐, adaptive 선택비용이 budget에서 누락됨, rollback 오차가 0이 아님.</div>
+</section>
+
+<section>
+<h2>12. 권장 구현 순서</h2>
+<ol>
+  <li>E1용 multi-view gradient accumulation과 exact rollback부터 구현한다.</li>
+  <li>B1/B2/B4 random counterfactual로 batch averaging의 효과만 확인한다.</li>
+  <li>효과가 있을 때 temporal/spatial stratified B4를 추가한다.</li>
+  <li>그 후에만 training-anchor gradient matching oracle을 추가한다.</li>
+  <li>E1 gate 통과 후 causal arrival/replay simulator와 budget credit ledger를 구현한다.</li>
+  <li>E2-RR-B1/B4를 먼저 완료하고, adaptive Match-B4는 마지막에 추가한다.</li>
+</ol>
+<div class="lead"><b>최종 판단 원칙:</b> Stage E의 목적은 복잡한 scheduler를 정당화하는 것이 아니다. 가장 싼 RR-B4 또는 stratified-B4가 충분하면 그것을 선택하고, gradient matching은 selection overhead를 포함해서도 명확한 AUC 이득이 있을 때만 채택한다.</div>
+</section>
+
+<section>
+<h2>13. 결과 기입란</h2>
+<p class="status">아직 실험 전. 아래 항목은 결과 생성 후 raw artifact에서 자동 채우고 수동 추정값을 쓰지 않는다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>완료 여부</th><th>Primary 결과</th><th>Gate 판정</th><th>Artifact</th></tr></thead>
+<tbody><tr><td>E0</td><td>미착수</td><td>—</td><td>—</td><td>—</td></tr><tr><td>E1</td><td>미착수</td><td>—</td><td>—</td><td>—</td></tr><tr><td>E2</td><td>미착수</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+</table></div>
+</section>
+
+<footer>exp66 Stage E plan · causal-only training data · lockbox unopened · hypothesis and protocol, not a result</footer>
+</main></body></html>

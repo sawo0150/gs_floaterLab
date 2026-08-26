@@ -1,0 +1,405 @@
+<title>exp66 후속 결과 — Dense view-set 크기 효과, 통제된 재현</title>
+<style>
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14121a; --panel: #1c1926; --panel-2: #242030;
+      --ink: #ece8f4; --ink-soft: #aaa2ba; --line: #3b344b;
+      --accent: #aa97e1; --obs: #7fb8a8; --warn: #e1ad63;
+      --plan: #91abe8; --stop: #dc8078; --code: #17141f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14121a; --panel: #1c1926; --panel-2: #242030;
+    --ink: #ece8f4; --ink-soft: #aaa2ba; --line: #3b344b;
+    --accent: #aa97e1; --obs: #7fb8a8; --warn: #e1ad63;
+    --plan: #91abe8; --stop: #dc8078; --code: #17141f;
+  }
+  :root {
+    --paper: #f6f4f9; --panel: #fdfbff; --panel-2: #f0edf6;
+    --ink: #24202e; --ink-soft: #6e687b; --line: #dfd9e9;
+    --accent: #674a9e; --obs: #326b5c; --warn: #95610e;
+    --plan: #345eaa; --stop: #a54132; --code: #f1eef6;
+    --go: #1c7a4d; --go-bg: #e5f3ec;
+    --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --go: #6fcf9a; --go-bg: #14261e; }
+  }
+  :root[data-theme="dark"] { --go: #6fcf9a; --go-bg: #14261e; }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; padding: 52px 24px 84px; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.66; }
+  main { width: min(1080px, 100%); margin: 0 auto; display: flex; flex-direction: column; gap: 42px; }
+  header { display: flex; flex-direction: column; gap: 11px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+  .eyebrow { color: var(--ink-soft); font-family: var(--mono); font-size: 12px; letter-spacing: .075em; text-transform: uppercase; }
+  h1, h2, h3, h4 { font-family: var(--serif); }
+  h1 { margin: 0; max-width: 32ch; font-size: clamp(28px, 4.5vw, 39px); font-weight: 630; line-height: 1.27; letter-spacing: -.018em; text-wrap: balance; }
+  h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 23px; font-weight: 630; line-height: 1.4; }
+  h3 { margin: 5px 0 0; font-size: 18px; font-weight: 630; }
+  h4 { margin: 3px 0 0; font-size: 15.5px; font-weight: 650; }
+  p { margin: 0; }
+  a { color: var(--accent); text-underline-offset: 3px; }
+  strong { font-weight: 690; }
+  code { padding: 1px 5px; border: 1px solid var(--line); border-radius: 3px; background: var(--code); font-family: var(--mono); font-size: .9em; }
+  section { display: flex; flex-direction: column; gap: 17px; }
+  .dek { max-width: 78ch; color: var(--ink-soft); font-size: 15.5px; }
+  .prose { max-width: 80ch; font-size: 14.8px; }
+  .small { color: var(--ink-soft); font-size: 12.5px; }
+  .pill { flex: 0 0 auto; padding: 2px 9px; border: 1px solid currentColor; border-radius: 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .045em; white-space: nowrap; }
+  .pill.obs { color: var(--obs); } .pill.warn { color: var(--warn); }
+  .pill.plan { color: var(--plan); } .pill.stop { color: var(--stop); }
+  .pill.go { color: var(--go); }
+
+  .callout { display: flex; flex-direction: column; gap: 9px; padding: 17px 20px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 4px; background: var(--panel); font-size: 14.5px; }
+  .callout.obs { border-left-color: var(--obs); } .callout.warn { border-left-color: var(--warn); }
+  .callout.plan { border-left-color: var(--plan); } .callout.stop { border-left-color: var(--stop); }
+  .callout.go { border-left-color: var(--go); background: var(--go-bg); }
+  .label { color: var(--ink-soft); font-family: var(--mono); font-size: 10.7px; letter-spacing: .06em; text-transform: uppercase; }
+  .callout.obs .label { color: var(--obs); } .callout.warn .label { color: var(--warn); }
+  .callout.plan .label { color: var(--plan); } .callout.stop .label { color: var(--stop); }
+  .callout.go .label { color: var(--go); }
+
+  .grid-2, .grid-3, .grid-4 { display: grid; gap: 14px; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .card { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); font-size: 14px; }
+  .card .num { color: var(--accent); font-family: var(--mono); font-size: 12px; letter-spacing: .05em; }
+  .stat { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+  .stat .v { font-family: var(--mono); font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .stat .k { color: var(--ink-soft); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; font-family: var(--mono); }
+  .stat .d { font-size: 12.5px; color: var(--ink-soft); }
+
+  .equation { overflow-x: auto; padding: 15px 18px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-2); font-family: var(--mono); font-size: 13.5px; line-height: 1.85; text-align: center; white-space: nowrap; }
+  .equation .explain { color: var(--ink-soft); font-size: 12px; }
+  pre { overflow-x: auto; margin: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 4px; background: var(--code); font: 12.5px/1.65 var(--mono); white-space: pre; }
+  pre code { padding: 0; border: 0; background: transparent; font-size: inherit; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.4px; }
+  th, td { padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; font-variant-numeric: tabular-nums; }
+  th { color: var(--ink-soft); font-family: var(--mono); font-size: 10.5px; font-weight: 650; letter-spacing: .045em; text-transform: uppercase; }
+  tr:last-child td { border-bottom: 0; }
+  tr.highlight td { background: var(--panel-2); font-weight: 650; }
+  td.yes { color: var(--obs); font-weight: 680; } td.no { color: var(--stop); font-weight: 680; }
+  td.mono { font-family: var(--mono); font-size: 12px; }
+  td.num { text-align: right; }
+  th.num { text-align: right; }
+
+  ul, ol { margin: 0; padding-left: 21px; } li + li { margin-top: 7px; }
+  .checklist { columns: 2; column-gap: 34px; padding: 17px 20px 17px 41px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); font-size: 13.5px; }
+  .checklist li { break-inside: avoid; margin-bottom: 7px; }
+  footer { display: flex; flex-direction: column; gap: 7px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--ink-soft); font: 11.8px/1.6 var(--mono); }
+
+  .timeline { border-left: 2px solid var(--line); margin: 4px 0 4px 6px; padding-left: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .tl-item { position: relative; font-size: 13.5px; }
+  .tl-item::before { content: ""; position: absolute; left: -27.5px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--paper); }
+  .tl-item.warn::before { background: var(--warn); }
+  .tl-item.stop::before { background: var(--stop); }
+  .tl-item .tl-label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); margin-bottom: 2px; display: block; }
+
+  @media (max-width: 760px) {
+    body { padding: 34px 16px 64px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .checklist { columns: 1; }
+    h2 { align-items: flex-start; }
+  }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">exp66 후속 · controlled identification result · 2026-08-25</div>
+    <h1>Dense view-set 크기 효과, RGB-only 통제하에서 재현됨</h1>
+    <p class="dek">
+      <a href="exp66_viewset_density_controlled_experiment_plan.html">실험계획</a>이 요구한 Stage A0(회귀 확인) ·
+      A1(loss confound 분리) · A2(6-arm × 3-seed K-sweep, 총 27 real refinement run)를 전부 실행했다.
+      결론: <strong>view-set 크기 효과는 depth/normal loss confound를 제거한 뒤에도 그대로 남고, paired
+      bootstrap으로 유의미하며, budget이 커질수록 유리한 K도 커지는 명확한 교차 패턴을 보인다.</strong>
+      Stage B(구성법)·C(순서)·D(진단 proxy)는 이번 실행 범위 밖 — 계획서 자체가 A의 결과를 먼저 소화한 뒤에만
+      진행하도록 규정했다.
+    </p>
+    <p class="small">
+      코드 기준: private VIGS-SLAM-custom <code>exp66-lmrs-polish-preempt</code>, 계획서 감사 시점과 동일 commit
+      <code>b05e981d</code> (신규 커밋 없음, working-tree 변경만). 실행: codex/codex2 CLI 위임 + 사용자 세션 직접 실행 혼합
+      (아래 "실행 로그" 참조).
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="pill go">판정</span> Go — budget-dependent K를 admission한다</h2>
+    <div class="callout go">
+      <span class="label">핵심 수치</span>
+      <p>
+        RGB-only, 동일 θ<sub>0</sub>, 동일 Adam-reset, 동일 fixed-trajectory pose, 동일 epoch-shuffle sampler에서
+        (D02 vs D12) AUC@100s paired 차이 = <strong>−0.000216 MSE, 95% CI [−0.000236, −0.000175]</strong> —
+        완전히 0 아래, 유의미하게 D12가 우수. (D12 vs Dmax) 차이 = <strong>+0.0000031, CI [−0.0000067, +0.0000185]</strong>
+        — 0을 포함, 통계적으로 구별 불가(포화). 계획서 판정표의 <em>"초반 작은 K 우세, 후반 큰 K 역전"</em> 행과 정확히 일치한다.
+      </p>
+    </div>
+    <div class="grid-4">
+      <div class="stat">
+        <span class="k">τ (D02→D12)</span>
+        <span class="v">2.3s → 3.5s</span>
+        <span class="d">느려짐 — 작은 set이 초반에 더 빠르게 수렴</span>
+      </div>
+      <div class="stat">
+        <span class="k">E∞ (D02→D12)</span>
+        <span class="v">0.00103 → 0.00058</span>
+        <span class="d">MSE 하한 거의 반토막 — 큰 set이 천장을 높임</span>
+      </div>
+      <div class="stat">
+        <span class="k">budget 60s+ 최적</span>
+        <span class="v">K=16</span>
+        <span class="d">D16이 mean MSE 최저로 선택됨</span>
+      </div>
+      <div class="stat">
+        <span class="k">budget 20s 최적</span>
+        <span class="v">K=2</span>
+        <span class="d">짧은 budget에선 작은 set이 유리</span>
+      </div>
+    </div>
+    <p class="prose">
+      즉 "12fps가 정답"처럼 고정된 fps 하나를 admission 정책으로 굳히면 안 된다는 계획서의 사전 경고가
+      실측으로도 확인됐다 — 최적 K는 실제로 budget에 따라 2에서 16까지 이동한다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill obs">Stage A0</span> 회귀 확인 — 새 계측이 기존 곡선을 바꾸지 않았다</h2>
+    <p class="prose">
+      기존 <code>keyframe</code>/<code>dense_geom</code> legacy 명령을 새 Preflight 인프라 설치 후 seed 0,
+      3000-step 프리픽스로 재실행. 새 계측(checkpoint hash, hard-gate 로깅 등)은 legacy 코드 경로를 건드리지
+      않았으므로 이건 인프라 자체의 무결성 확인이지 새로운 과학적 주장은 아니다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Step</th><th class="num">Keyframe PSNR</th><th class="num">Dense-geom PSNR</th></tr></thead>
+        <tbody>
+          <tr><td>300</td><td class="num">24.678</td><td class="num">25.345</td></tr>
+          <tr><td>1000</td><td class="num">25.407</td><td class="num">26.488</td></tr>
+          <tr><td>2000</td><td class="num">25.998</td><td class="num">27.432</td></tr>
+          <tr><td>3000</td><td class="num">26.349</td><td class="num">27.998</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">
+      기존 기록값(작업 프롬프트에 남아있던 근사치 24.44dB@300)과 +0.24dB 차이 — run-to-run 노이즈 범위 내로 판단.
+      두 곡선 모두 단조 증가, nonfinite 없음. Go/Stop 판정에는 사용하지 않는다(loss가 다른 legacy arm이므로).
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill obs">Stage A1</span> Loss confound 분리 — 3 seed × 3 arm, 100초 budget</h2>
+    <p class="prose">
+      같은 KF manifest(88 keyframe, seed당 실제 체크포인트에서 재추출), 같은 θ<sub>0</sub>, 같은 sampler/budget에서
+      RGB-only(KF-RGB) vs RGB+depth+normal(KF-RGBDN)을 분리하고, 같은 조건에서 더 큰 temporal RGB set(D12-RGB)을
+      대조했다. Curve-only 평가(lockbox 미접촉).
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Seed</th><th class="num">KF-RGB</th><th class="num">KF-RGBDN</th><th class="num">D12-RGB</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td class="num">28.2315</td><td class="num">27.9536</td><td class="num">31.3659</td></tr>
+          <tr><td>1</td><td class="num">28.3234</td><td class="num">27.7420</td><td class="num">31.0960</td></tr>
+          <tr><td>2</td><td class="num">28.2265</td><td class="num">27.6983</td><td class="num">31.2323</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <span class="num">KF-RGB &gt; KF-RGBDN</span>
+        <h3>depth/normal 제거가 여전히 도움됨</h3>
+        <p>3 seed 전부에서 RGB-only가 RGB+depth+normal보다 100초 시점 PSNR이 높다(+0.28~0.58dB) —
+        이전 세션에서 legacy 경로로 확인한 "관측사실 1"이 이 새 통제계에서도 재현된다.</p>
+      </article>
+      <article class="card">
+        <span class="num">D12-RGB ≫ KF-RGB</span>
+        <h3>loss confound 제거 후에도 density 이득 생존</h3>
+        <p>같은 RGB-only loss인데 D12-RGB가 KF-RGB보다 +3dB 이상 높다 — "기존 dense 우위는 사실 loss
+        regularization 차이였다"는 Stop 조건이 <strong>기각</strong>됨. 이게 A2로 진행할 근거였다.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill go">Stage A2</span> K-sweep 본 실험 — 6 arm × 3 seed = 18 run, 162 milestone row</h2>
+    <p class="prose">
+      Phase-1은 seed당 1회만(3개 실제 full-length 1303-frame 체크포인트, 재사용), D02/D04/D08/D12/D16/Dmax
+      manifest는 seed별 실제 checkpoint의 timestamp에서 nested low-discrepancy 방식으로 재생성. 전부 RGB-only,
+      Adam reset, fixed-trajectory pose, epoch-shuffle, 100초 budget, curve-only 평가.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Arm</th><th class="num">frames</th><th class="num">eff. fps</th>
+              <th class="num">seed0 PSNR</th><th class="num">seed1 PSNR</th><th class="num">seed2 PSNR</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>D02</td><td class="num">132</td><td class="num">2.03</td><td class="num">29.891</td><td class="num">29.520</td><td class="num">29.420</td></tr>
+          <tr><td>D04</td><td class="num">264</td><td class="num">4.06</td><td class="num">31.076</td><td class="num">30.871</td><td class="num">30.944</td></tr>
+          <tr><td>D08</td><td class="num">524</td><td class="num">8.05</td><td class="num">31.314</td><td class="num">31.040</td><td class="num">31.101</td></tr>
+          <tr class="highlight"><td>D12</td><td class="num">784</td><td class="num">12.04</td><td class="num">31.344</td><td class="num">31.124</td><td class="num">31.130</td></tr>
+          <tr><td>D16</td><td class="num">1,041</td><td class="num">15.99</td><td class="num">31.359</td><td class="num">31.116</td><td class="num">31.131</td></tr>
+          <tr><td>Dmax</td><td class="num">1,041</td><td class="num">15.99</td><td class="num">31.278</td><td class="num">31.161</td><td class="num">31.161</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">
+      D16과 Dmax는 이 장면의 실제 admissible 상한(15.99fps, mod-5 eval 제외 후)에서 동일한 후보 집합이다 —
+      manifest 생성기 자체의 assertion이 이를 확인했고, 버그가 아니라 이 20Hz 소스의 측정된 천장이다.
+      독립적으로 시간을 재는 두 run이라 최종 step/PSNR은 미세하게 다르다(replicate로 취급).
+    </p>
+    <div class="callout obs">
+      <span class="label">교차검증</span>
+      <p>
+        A1의 D12-RGB(31.366/31.096/31.232)와 A2의 D12(31.344/31.124/31.130)는 서로 다른 dispatch(A1은 codex2,
+        A2는 codex2+직접실행 혼합)에서 독립적으로 나온 같은 실험 조건인데 차이가 0.02~0.10dB — run-to-run
+        노이즈 범위 내에서 재현됨.
+      </p>
+    </div>
+
+    <h3>Budget-optimal K envelope</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="num">Budget (s)</th><th>선택된 arm</th><th class="num">K</th><th class="num">mean MSE</th></tr></thead>
+        <tbody>
+          <tr><td class="num">0–10</td><td colspan="3">1 epoch도 못 채운 arm 다수 — 선택 불가</td></tr>
+          <tr><td class="num">20</td><td>D02</td><td class="num">2</td><td class="num">0.0014966</td></tr>
+          <tr><td class="num">40</td><td>D12</td><td class="num">12</td><td class="num">0.0010154</td></tr>
+          <tr class="highlight"><td class="num">60</td><td>D16</td><td class="num">16</td><td class="num">0.0008642</td></tr>
+          <tr><td class="num">80</td><td>D16</td><td class="num">16</td><td class="num">0.0007964</td></tr>
+          <tr><td class="num">100</td><td>D16</td><td class="num">16</td><td class="num">0.0007586</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Stretched-exponential fit (모든 18 arm×seed 조합, R² 게이트 통과)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Arm</th><th class="num">τ (s, mean of 3 seed)</th><th class="num">E∞ (MSE, mean)</th></tr></thead>
+        <tbody>
+          <tr><td>D02</td><td class="num">2.27</td><td class="num">0.001030</td></tr>
+          <tr><td>D04</td><td class="num">3.04</td><td class="num">0.000646</td></tr>
+          <tr><td>D08</td><td class="num">3.25</td><td class="num">0.000613</td></tr>
+          <tr class="highlight"><td>D12</td><td class="num">3.55</td><td class="num">0.000577</td></tr>
+          <tr><td>D16</td><td class="num">3.42</td><td class="num">0.000602</td></tr>
+          <tr><td>Dmax</td><td class="num">3.38</td><td class="num">0.000618</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose">
+      τ가 K와 함께 단조 증가(작은 set일수록 빠르게 초기 수렴)하고 E∞는 D02에서 D08/D12까지 뚜렷이 감소한 뒤
+      D12 이후 평평해진다 — "coverage가 ceiling을 올리지만 무한정은 아니다"라는 계획서의 수학 모델이 그대로
+      들어맞는다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">판정표 매핑</span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>계획서 판정표 행</th><th>이번 실측과 일치?</th></tr></thead>
+        <tbody>
+          <tr><td>K가 커질수록 τ↓, E∞↓</td><td class="no">부분 불일치 — τ는 오히려 ↑</td></tr>
+          <tr class="highlight"><td>초반 작은 K 우세, 후반 큰 K 역전 (repeat maturation vs coverage ceiling)</td><td class="yes">일치 — 20s에서 D02, 60s+에서 D16</td></tr>
+          <tr><td>RGB-only에서 K 효과 소멸</td><td class="no">기각 — A1에서 D12-RGB가 KF-RGB를 여전히 크게 앞섬</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose">
+      가장 가까운 행은 "초반 작은 K 우세, 후반 큰 K 역전"이지만, 계획서가 이 행에 붙인 메커니즘 설명("τ 비슷,
+      E∞만 개선")과는 다르다 — 실제로는 τ 자체도 K에 따라 변한다. 정책 결론("짧은 idle budget은 작은 K, 긴
+      budget은 큰 K; 고정 fps 금지")은 그대로 유효하다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill warn">실행 로그</span> 인프라·버그·자원 이슈</h2>
+    <p class="prose">
+      계획서 자체가 요구한 "실험 전 패치"(체크포인트 스냅샷, RGB-only/RGBDN 분리, epoch-shuffle sampler,
+      hard-gate 로깅, curve/lockbox 분리)는 이번 세션에서 처음부터 구현됐다. 그 과정에서 발견되고 고쳐진
+      실제 이슈들:
+    </p>
+    <div class="timeline">
+      <div class="tl-item">
+        <span class="tl-label">Preflight</span>
+        체크포인트 저장/복원, manifest 검증, epoch-shuffle sampler, hard-gate JSON 로깅 구현·자체 검증(결정성:
+        동일 seed 두 run의 checkpoint/manifest checksum 완전 일치 직접 재확인).
+      </div>
+      <div class="tl-item warn">
+        <span class="tl-label">발견 1</span>
+        추적된 keyframe UID가 eval UID(mod-5)와 우연히 겹치는 경우가 실재 — <code>keyframe_uids</code>를
+        eval-제외 집합으로 재정의해서 해결.
+      </div>
+      <div class="tl-item warn">
+        <span class="tl-label">발견 2</span>
+        스트림 마지막 근처에서 accept된 keyframe(UID 141/1279 등)이 backend camera inventory에 아예 없는
+        경우 — tracker buffer에서 직접 복원하도록 체크포인트 직렬화를 일반화.
+      </div>
+      <div class="tl-item warn">
+        <span class="tl-label">발견 3 (방법론)</span>
+        milestone evaluation이 원래 lockbox UID까지 포함해서 채점하고 있었음 — "lockbox는 마지막에 한 번만
+        연다"는 계획서 원칙이 깨져 있던 것을 발견, <code>--polish_eval_split curve</code>로 고정.
+      </div>
+      <div class="tl-item stop">
+        <span class="tl-label">자원 이슈 1</span>
+        디스크 100% 만실(무관한 다른 프로젝트가 296GB 점유) — 사용자 승인 받아 정리, 303GB 확보.
+      </div>
+      <div class="tl-item stop">
+        <span class="tl-label">자원 이슈 2</span>
+        codex/codex2 두 CLI identity 모두 workspace spend cap에 순차적으로 도달 — A2의 마지막 12개 run(seed1
+        전체, seed2 전체)은 동일한 커맨드 패턴으로 사용자 세션에서 직접 실행해 완주.
+      </div>
+    </div>
+    <ul class="checklist">
+      <li>eval/train UID intersection = 0 (전 27 run)</li>
+      <li>nested manifest subset assert 통과 (seed×3)</li>
+      <li>동일 seed 내 6 arm 전부 checkpoint/config 필드 완전 일치 확인</li>
+      <li>RGB-only loss assert (A2 전체)</li>
+      <li>densify/prune call = 0 (Phase 2 전체)</li>
+      <li>selection count max−min ≤ 1 (전 run)</li>
+      <li>nonfinite = 0 (전 run)</li>
+      <li>lockbox overlap = 0 (전 run, curve-split 강제)</li>
+      <li>actual effective fps 기록됨 (manifest 메타데이터)</li>
+      <li>commit 없음, working-tree만 변경</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="pill stop">이번에 하지 않은 것</span> Stage B/C/D는 별도 게이트</h2>
+    <p class="prose">
+      계획서의 "최종 권고"는 Stage A의 RGB-only paired 결과를 먼저 확보한 뒤에만 Stage B(선택법)와 C(순서)로
+      넘어가라고 명시한다. 이번 실행은 그 A 결과(Go)까지다. Stage B는 A2에서 성숙 가능한 중간 K를 사전 규칙으로
+      골라(예: 60초에서 D12/D16 차이 포화 시작 → D12) selector 5종을 비교해야 하고, Stage C는 그 고정된 set에서
+      순서 5종을 비교해야 한다. Stage D(Fisher/λmin 진단)는 B/C 실측 곡선이 있어야 의미가 있다. 셋 다 이번
+      세션에서 실행되지 않았다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">산출물</span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">snapshots/phase1_seed{0,1,2}.pt(+.frames.json)</td><td>실제 full-length(1303 frame) Phase-1 체크포인트, depth/normal payload 포함</td></tr>
+          <tr><td class="mono">manifests/seed{0,1,2}/{D02..Dmax,KF}.json</td><td>seed별 실제 checkpoint에서 재생성한 nested manifest, eval_split.json과 겹침 0</td></tr>
+          <tr><td class="mono">stage_a1_summary.csv</td><td>81행 — 3 seed × 3 arm × 9 milestone</td></tr>
+          <tr><td class="mono">stage_a2_summary.csv</td><td>162행 — 3 seed × 6 arm × 9 milestone</td></tr>
+          <tr><td class="mono">analysis_a2/{curve_summary,paired_comparisons,frame_opportunity,k_star_pareto}.json</td><td>fit/AUC/bootstrap/opportunity/Pareto 실측 분석 (analyze_curves.py 출력)</td></tr>
+          <tr><td class="mono">codex_stageA01_log.md</td><td>A0/A1/A2 전체 실행 커맨드·exit code·시간·checksum 로그</td></tr>
+          <tr><td class="mono">vigs/polish_infra.py, build_kf_manifest.py, build_viewset_manifests.py, analyze_curves.py</td><td>신규 인프라 코드 (working-tree, uncommitted)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div>문서 상태: Stage A0/A1/A2 완료·실측 결과. B/C/D 미실행 — 별도 세션에서 이어서 진행 가능.</div>
+    <div>연결 문서: <a href="exp66_viewset_density_controlled_experiment_plan.html">원 실험계획</a></div>
+    <div>코드 provenance: sawo0150/VIGS-SLAM-custom · exp66-lmrs-polish-preempt · b05e981d (uncommitted working-tree changes only).</div>
+  </footer>
+</main>

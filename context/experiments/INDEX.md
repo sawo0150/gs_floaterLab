@@ -2,6 +2,8 @@
 
 전 실험 목록. 상세는 각 카드 참조. baseline 대비 Δ는 PSNR@30k 기준.
 
+> **HTML 보고서 모음:** [브라우저 인덱스](index.html) · [exp66](exp66/) · [exp67](exp67/) · [exp68](exp68/)
+
 ## Full 30k, MPS init 1311장 (메인 트랙)
 
 | Exp | 날짜 | 한 줄 설정 | PSNR@30k | vs exp08 | Verdict | 카드 |

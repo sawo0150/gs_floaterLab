@@ -1,0 +1,296 @@
+<title>수렴 속도의 두 축 — 관측사실과 가설 (미검증)</title>
+<style>
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14121A;
+      --panel: #1C1926;
+      --ink: #E9E5F2;
+      --ink-soft: #9C94AD;
+      --line: #332C44;
+      --accent: #9E8CD8;
+      --obs: #7FB8A8;
+      --hyp: #E0A85E;
+      --open: #D97373;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14121A;
+    --panel: #1C1926;
+    --ink: #E9E5F2;
+    --ink-soft: #9C94AD;
+    --line: #332C44;
+    --accent: #9E8CD8;
+    --obs: #7FB8A8;
+    --hyp: #E0A85E;
+    --open: #D97373;
+  }
+
+  :root {
+    --paper: #F5F3F9;
+    --panel: #FCFAFF;
+    --ink: #221E2C;
+    --ink-soft: #6F6880;
+    --line: #DFD9EC;
+    --accent: #6B4FA0;
+    --obs: #336B5C;
+    --hyp: #97620F;
+    --open: #A5432F;
+
+    --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    margin: 0;
+    padding: 56px 24px 80px;
+    line-height: 1.62;
+  }
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 38px;
+  }
+
+  header { display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+  .eyebrow { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(26px, 4vw, 34px); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+  .dek { font-size: 15.5px; color: var(--ink-soft); max-width: 66ch; }
+
+  section { display: flex; flex-direction: column; gap: 16px; }
+  h2 { font-family: var(--serif); font-size: 21px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px; }
+  h3 { font-family: var(--serif); font-size: 16.5px; font-weight: 600; margin: 4px 0 0; }
+  .prose { max-width: 70ch; font-size: 15px; }
+  code { font-family: var(--mono); font-size: 0.9em; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; }
+
+  .pill { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; padding: 2px 9px; border-radius: 10px; border: 1px solid var(--line); white-space: nowrap; }
+  .pill.obs { color: var(--obs); border-color: var(--obs); }
+  .pill.hyp { color: var(--hyp); border-color: var(--hyp); }
+  .pill.open { color: var(--open); border-color: var(--open); }
+
+  .obs-box { background: var(--panel); border: 1px solid var(--obs); border-left: 3px solid var(--obs); border-radius: 3px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .obs-box .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--obs); }
+  .obs-box p { margin: 0; font-size: 14.5px; max-width: 68ch; }
+
+  .hyp-box { background: var(--panel); border: 1px solid var(--hyp); border-left: 3px solid var(--hyp); border-radius: 3px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .hyp-box .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--hyp); }
+  .hyp-box p { margin: 0; font-size: 14.5px; max-width: 68ch; }
+
+  .open-box { background: var(--panel); border: 1px solid var(--open); border-left: 3px solid var(--open); border-radius: 3px; padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .open-box .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--open); }
+  .open-box p { margin: 0; font-size: 14.5px; max-width: 68ch; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  tr:last-child td { border-bottom: none; }
+
+  .diagram {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 20px 24px;
+  }
+  .diagram-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .diagram-col svg { width: 100%; max-width: 220px; height: auto; }
+  .diagram-col .cap { font-size: 13px; color: var(--ink-soft); text-align: center; max-width: 26ch; }
+  .diagram-col .cap b { color: var(--ink); }
+
+  ol.qlist { margin: 0; padding-left: 20px; font-size: 14.5px; display: flex; flex-direction: column; gap: 10px; }
+  .qlist li b { display: block; margin-bottom: 2px; }
+
+  .next-step {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--panel);
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 14px 18px;
+  }
+  .next-step b { color: var(--ink); }
+
+  footer { border-top: 1px solid var(--line); padding-top: 18px; font-size: 12px; color: var(--ink-soft); font-family: var(--mono); }
+</style>
+
+<main>
+  <header>
+    <span class="eyebrow">exp66 부속 · 가설 워킹노트 (미검증) · 2026-08-25</span>
+    <h1>수렴 속도에 영향을 주는 두 축 — 관측사실과 제안된 설명</h1>
+    <p class="dek">
+      exp66 실측에서 나온 두 개의 독립적인 관측사실을 정리하고, 각각에 대해 제안된
+      메커니즘을 <b>검증되지 않은 가설</b>로 명시적으로 문서화한다. 목적은 결론을 내리는
+      게 아니라, 나중에 수학적으로 모델링하고 논문 수준으로 방어하기 전에 지금 아는 것과
+      모르는 것의 경계를 분명히 그어두는 것.
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="pill obs">관측사실 1</span> depth/normal regularization이 강할수록 수렴이 느려진다</h2>
+    <div class="obs-box">
+      <span class="label">데이터 — keyframe arm, depth/normal loss on/off, 동일 seed·동일 milestone</span>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>step</th><th class="num">원본 (depth+normal 포함)</th><th class="num">depth+normal 제거</th><th class="num">차이</th></tr></thead>
+          <tbody>
+            <tr><td>300</td><td class="num">24.44</td><td class="num">25.09</td><td class="num">+0.65</td></tr>
+            <tr><td>2,000</td><td class="num">25.74</td><td class="num">26.69</td><td class="num">+0.95</td></tr>
+            <tr><td>7,000</td><td class="num">27.15</td><td class="num">28.30</td><td class="num">+1.15</td></tr>
+            <tr><td>26,000</td><td class="num">28.38</td><td class="num">29.19</td><td class="num">+0.81</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>13개 milestone(300~26,000) <b>전부</b>에서 제거 쪽이 앞선다 — 노이즈 폭(±0.3dB 안팎)보다
+      뚜렷이 큰 차이. VIGS-SLAM <code>gs_backend.py</code> <code>color_refinement()</code>,
+      <code>--polish_disable_depth_normal</code> 플래그로 <code>get_loss_mapping_rgbd</code>/
+      <code>get_loss_normal</code> 두 항을 껐다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill hyp">가설 (미검증)</span> 왜 depth/normal이 강하면 느려지는가</h2>
+    <div class="hyp-box">
+      <span class="label">제안된 메커니즘 — ray당 유효 참여 Gaussian 수</span>
+      <p>
+        <b>중요한 정정부터</b>: <code>color_refinement()</code>는 <code>densify_and_prune</code>을
+        호출하지 않는다 — Gaussian <b>개수</b>는 Phase 1에서 고정되고, 위 두 arm 사이에 완전히
+        동일하다. 그러니 "파라미터 개수가 늘어서"라는 원래 표현은 문자 그대로는 성립하지 않는다.
+      </p>
+      <p>
+        실제 메커니즘은 개수가 아니라 <b>분포</b>다. depth/normal 제약이 강하면 Gaussian들이
+        surface에 딱 달라붙어 얇은 shell을 이룬다 — 카메라에서 나가는 ray 하나가 그 shell을
+        스치는 지점 근처의 <b>적은 수</b>의 Gaussian만 통과한다. 제약을 풀면 Gaussian들이
+        surface 주변으로 voxel처럼 부풀어(puffy) 퍼지고, 같은 ray가 그 부푼 영역을 지나가면서
+        <b>더 많은</b> Gaussian을 통과한다. 즉 <b>한 픽셀을 업데이트할 때 그 gradient가 닿는
+        Gaussian 수 자체가 늘어난다</b> — 이게 "param 증가"의 진짜 의미: raw count가 아니라
+        <b>스텝당 실제로 갱신되는 유효 자유도(effective DOF)</b>.
+      </p>
+      <p>
+        이 effective DOF가 늘어나면, 고차원 비볼록 최적화 landscape에서 국소 최솟값처럼
+        보이던 지점들이 saddle point로 바뀔 확률이 높아진다는 일반적인 직관과 연결된다 —
+        saddle point는 gradient descent가 국소 최솟값보다 훨씬 쉽게 빠져나오므로, 결과적으로
+        더 빠르게 수렴할 수 있다.
+      </p>
+    </div>
+    <div class="diagram">
+      <div class="diagram-col">
+        <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="20" x2="100" y2="120" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+          <path d="M 60 10 Q 100 70 60 130" fill="none" stroke="var(--hyp)" stroke-width="3"></path>
+          <circle cx="63" cy="40" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="65" cy="60" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="63" cy="80" r="3.5" fill="var(--hyp)"></circle>
+        </svg>
+        <div class="cap"><b>depth/normal 강함</b> — surface에 붙은 얇은 shell, ray당 소수 Gaussian</div>
+      </div>
+      <div class="diagram-col">
+        <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="20" x2="100" y2="120" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+          <path d="M 40 5 Q 100 70 40 135" fill="none" stroke="var(--hyp)" stroke-width="14" opacity="0.18"></path>
+          <path d="M 60 10 Q 100 70 60 130" fill="none" stroke="var(--hyp)" stroke-width="3"></path>
+          <circle cx="55" cy="35" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="70" cy="42" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="58" cy="55" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="72" cy="65" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="55" cy="75" r="3.5" fill="var(--hyp)"></circle>
+          <circle cx="68" cy="90" r="3.5" fill="var(--hyp)"></circle>
+        </svg>
+        <div class="cap"><b>depth/normal 약함</b> — surface 주변으로 부푼 분포, 같은 ray가 더 많은 Gaussian을 통과</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill obs">관측사실 2</span> GT frame이 dense할수록 수렴이 빨라진다</h2>
+    <div class="obs-box">
+      <span class="label">데이터 — 26,000 step, fixed_eval held-out PSNR, dense:keyframe 비율을 바꾼 7개 arm</span>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>arm</th><th>dense:keyframe 성격</th><th class="num">PSNR</th></tr></thead>
+          <tbody>
+            <tr><td>dense_geom</td><td>dense만</td><td class="num">31.68</td></tr>
+            <tr><td>weighted_mix W=1</td><td>frame수 비율 (dense 압도적 다수)</td><td class="num">31.00</td></tr>
+            <tr><td>weighted_mix W=2</td><td>keyframe 가중 2배</td><td class="num">30.66</td></tr>
+            <tr><td>weighted_mix W=3</td><td>keyframe 가중 3배</td><td class="num">30.18</td></tr>
+            <tr><td>mixed</td><td>population 50:50 (keyframe 과대표집)</td><td class="num">30.03</td></tr>
+            <tr><td>keyframe</td><td>keyframe만</td><td class="num">28.38</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>keyframe 비중이 늘어날수록(dense_geom → W1 → W2 → W3 → mixed → keyframe) <b>단조
+      하락</b>한다. dense_geom vs keyframe 비교에서는 이 격차가 학습 초반부터 이미 벌어져
+      있다 — 끝에서만 벌어지는 게 아니라 곡선 전체에서 dense가 앞선다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill hyp">가설 (미검증)</span> 왜 dense할수록 빨라지는가</h2>
+    <div class="hyp-box">
+      <span class="label">제안된 메커니즘 — manifold의 조각별 선형 근사 해상도</span>
+      <p>
+        장면(radiance field/geometry)을 하나의 manifold로 보면, 유한한 수의 Gaussian은 그
+        manifold를 국소적으로 이어붙인 선형 조각들로 근사하는 것에 가깝다. GT로 쓸 수 있는
+        frame(fitting data point)이 늘어날수록 그 조각별 근사가 manifold를 더 촘촘한
+        해상도로 따라갈 수 있어서, 도달 가능한 <b>품질 천장(ceiling)</b> 자체가 올라간다는
+        설명.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill open">열린 질문</span></h2>
+    <ol class="qlist">
+      <li>
+        <b>"천장이 높으면 속도도 빠른가"는 당연하지 않다 — 우리 데이터가 엇갈린다.</b>
+        dense_geom vs keyframe은 <b>학습 초반부터</b> dense가 앞선다(천장과 속도가 같은
+        방향). 반면 같은 세션에서 돌린 COVER vs random 벤치마크(aria1253, ns-train
+        nbv-splat)는 <b>초반엔 coverage(다양성 우선)가 오히려 뒤처지다가</b> 학습 후반에야
+        역전했다(더 높은 최종 천장에도 불구하고). "다양성/밀도 증가"가 항상 초반 속도까지
+        같이 올려주는 게 아니라는 뜻 — 두 경우가 왜 다른 패턴을 보이는지(예: dense_geom의
+        dense 뷰는 이미 학습된 map 위에 겹쳐 얹는 것이고, COVER는 완전히 처음부터 능동적으로
+        고르는 것이라는 차이?)가 진짜로 풀어야 할 질문.
+      </li>
+      <li>
+        <b>가설 1(ray당 유효 참여 Gaussian 수)은 이미 있는 값으로 직접 실측 가능하다.</b>
+        VIGS <code>render()</code>가 <code>n_touched</code>를 그대로 반환한다(픽셀당 실제로
+        기여한 Gaussian 수와 직결) — depth/normal on/off 조건에서 이 값의 분포를 비교하면
+        가설을 간접 추론이 아니라 직접 검증할 수 있다. 아직 안 했음.
+      </li>
+      <li>
+        <b>관측사실 1과 2가 독립된 두 축인지, 아니면 같은 메커니즘의 다른 표현인지.</b>
+        관측사실 1은 "ray 하나당 참여하는 Gaussian 수"(깊이 방향), 관측사실 2는 "학습에
+        쓰이는 서로 다른 ray/시점의 수"(폭 방향)를 늘리는 것 — 방향은 다르지만 둘 다
+        "스텝당 유효하게 갱신되는 자유도를 늘린다"는 점에서 상위 개념으로 묶일 수도 있어
+        보인다. 지금은 추측일 뿐, 검증 안 됨.
+      </li>
+      <li>
+        <b>관측사실 1의 "geometry가 좋아진다"는 아직 측정한 적이 없다.</b>
+        depth/normal loss는 기하학적 정규화항이니 그럴 것이라는 가정이지, 이 세션에서
+        floater/region-GT 같은 실제 geometry 지표로 확인한 적은 없다. PSNR만으로는 안 보임.
+      </li>
+    </ol>
+  </section>
+
+  <div class="next-step">
+    <b>다음 단계 (아직 착수 안 함)</b> — 이 문서는 관측사실 정리 + 가설 명시 + 열린 질문까지만
+    다룬다. 통합 스케줄러(dense:depth/normal budget 배분) 설계는 위 열린 질문들, 특히
+    geometry 실측과 n_touched 기반 가설 1 직접 검증이 끝난 뒤 별도로 다룬다.
+  </div>
+
+  <footer>
+    exp66 · aria1253 · 2026-08-25 · 소스: <code>context/experiments/exp66/exp66_convergence_report.html</code>
+    (관측사실 1,2 원본 데이터), COVER 벤치마크(<code>exp66_cover_benchmark_report.html</code>) ·
+    이 문서의 모든 설명 섹션은 검증되지 않은 가설이며, 사실로 서술되지 않도록 주의해서 씀
+  </footer>
+</main>
