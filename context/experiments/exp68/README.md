@@ -2,6 +2,12 @@
 
 이 디렉터리의 Google Drive 복제본은 `gs_floaterLab/exp68_geometry_scheduler/`에 있다.
 
+> **2026-08-26 사후 감사 정정:** 기존 floater PASS는 manual region의
+> `opacity > 0.3` Gaussian 중심 count에만 해당한다. 저-opacity dust, covariance
+> footprint, 큰-scale splat까지 포함한 broad geometry baseline 동등성은 성립하지
+> 않는다. 전체 감사, 실제 `map()` 구현, 1253/305 partial pass와 12F blind 실패는
+> `exp68_geometry_postmortem_audit.html`을 우선 참조한다.
+
 ## 비교 순서
 
 각 장면에 대해 네 PLY를 비교한다.
@@ -31,11 +37,13 @@ manual floater region 안에서 `opacity > 0.3`인 Gaussian의 nominal count다.
 - Floater mask는 trajectory Sim3로 정합한 상대 진단이다. 정합 median 오차는 2.48 cm / 6.34 cm이고
   mask voxel은 7.5 cm이므로 작은 절대 count 차이를 과도하게 해석하지 않는다.
 - exp68 final은 exp67 scheduler보다 visible floater가 34.7% / 19.8% 적다.
-- native baseline과 비교하면 6.8% / 7.7% 많아, 결론은 “baseline 수준”이지 “baseline 이하”가 아니다.
+- native baseline과 비교하면 6.8% / 7.7% 많다. 이는 좁은 visible 지표에서만 baseline에
+  접근했다는 뜻이며, 전체 geometry가 baseline 수준이라는 뜻은 아니다.
 - 저-opacity dust를 포함한 region 전체 Gaussian 수는 아직 native baseline보다 많다.
 
 ## 문서
 
+- `exp68_geometry_postmortem_audit.html`: PLY 재감사, 기존 PASS 정정, 증분 carve 구현, dust pruning 실패와 12F PSNR 하락 원인, 기존 exp68 대비 최종 판정
 - `exp68_scheduler_method_explainer.html`: scheduler 구조·수식·파라미터·근거
 - `exp68_geometry_scheduler_result.html`: 최종 정량 결과와 label 감사
 

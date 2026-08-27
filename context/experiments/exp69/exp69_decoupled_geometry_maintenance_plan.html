@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp69 계획 — Photometric service를 보존하는 분리형 geometry maintenance</title>
+  <style>
+    :root{--paper:#f4f3f8;--panel:#fcfbfe;--ink:#24202d;--muted:#70697e;--line:#ddd8e7;--accent:#654d98;--good:#2e725d;--warn:#96630f;--bad:#a34335;--info:#356d92;--code:#ece9f3}
+    @media(prefers-color-scheme:dark){:root{--paper:#141219;--panel:#1c1924;--ink:#ece8f3;--muted:#a69eaf;--line:#373043;--accent:#aa97db;--good:#78bba5;--warn:#dfaa59;--bad:#df7b70;--info:#7cafcf;--code:#272230}}
+    *{box-sizing:border-box}body{margin:0;padding:48px 22px 80px;background:var(--paper);color:var(--ink);font:15px/1.67 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+    main{max-width:1080px;margin:auto;display:flex;flex-direction:column;gap:34px}header{padding-bottom:27px;border-bottom:1px solid var(--line)}h1,h2,h3{font-family:ui-serif,Georgia,"Noto Serif KR",serif}h1{margin:8px 0 12px;font-size:clamp(28px,4vw,40px);line-height:1.2}h2{margin:0 0 14px;font-size:22px}h3{margin:20px 0 8px;font-size:17px}p{max-width:85ch;margin:7px 0}ul,ol{max-width:90ch;padding-left:23px}li{margin:6px 0}.eyebrow,code,.mono{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace}.eyebrow{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}.lead{color:var(--muted);font-size:16px}code{font-size:.9em;padding:1px 5px;border-radius:3px;background:var(--code)}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-top:20px}.card,.box{background:var(--panel);border:1px solid var(--line);border-radius:6px}.card{padding:15px}.card .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}.card .v{margin:5px 0 3px;font:650 19px/1.25 ui-monospace,"SFMono-Regular",monospace}.card.good{border-top:3px solid var(--good)}.card.warn{border-top:3px solid var(--warn)}.card.bad{border-top:3px solid var(--bad)}.card.info{border-top:3px solid var(--info)}
+    .box{padding:17px 20px}.box.good{border-left:4px solid var(--good)}.box.warn{border-left:4px solid var(--warn)}.box.bad{border-left:4px solid var(--bad)}.box.info{border-left:4px solid var(--info)}.tag{display:inline-block;border:1px solid currentColor;border-radius:99px;padding:2px 9px;margin-right:7px;font:11px ui-monospace,"SFMono-Regular",monospace}.tag.good{color:var(--good)}.tag.warn{color:var(--warn)}.tag.bad{color:var(--bad)}
+    .table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted);font:600 11px ui-monospace,"SFMono-Regular",monospace;text-transform:uppercase;letter-spacing:.03em}tr:last-child td{border-bottom:0}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,"SFMono-Regular",monospace}.keep{color:var(--good);font-weight:650}.hold{color:var(--warn);font-weight:650}.drop{color:var(--bad);font-weight:650}
+    .eq{overflow-x:auto;margin:12px 0;padding:14px 17px;background:var(--code);border-radius:5px;font:14px/1.75 ui-monospace,"SFMono-Regular",monospace;white-space:pre}.flow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;align-items:center}.flow .node{min-height:82px;padding:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:5px;font-size:13px}.flow .arrow{color:var(--muted);text-align:center;font-size:19px}.stage{display:grid;grid-template-columns:58px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}.stage:last-child{border-bottom:0}.stage .n{width:48px;height:48px;border:1px solid var(--accent);color:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 12px ui-monospace,"SFMono-Regular",monospace}.stage b{display:block;margin-bottom:3px}.stage p{color:var(--muted);margin:0}a{color:var(--accent)}footer{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}@media(max-width:820px){.cards{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr}.flow .arrow{transform:rotate(90deg)}}@media(max-width:520px){.cards{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <div class="eyebrow">exp69 · pre-registered experiment plan · 2026-08-27</div>
+    <h1>Photometric service를 보존하는 분리형 geometry maintenance</h1>
+    <p class="lead">exp68은 큰-splat detector와 bounded 자료구조를 만들었지만, carve maintenance·action·viewset 변경을 함께 넣어
+      12F의 photometric update를 절반 이하로 줄였고 broad geometry도 통과하지 못했다. exp69는 검증된 exp67 dense scheduler를
+      기준선으로 되돌린 뒤, generic dust garbage collection과 free-space carve를 분리해 하나씩 검증한다.</p>
+    <div class="cards">
+      <div class="card good"><div class="k">고정 기준선</div><div class="v">exp67</div><p>검증된 dense shuffle과 photometric service</p></div>
+      <div class="card info"><div class="k">첫 구현</div><div class="v">DUST GC</div><p>densify와 독립된 mature low-contribution pruning</p></div>
+      <div class="card warn"><div class="k">Carve 시작점</div><div class="v">TELEMETRY</div><p>처음에는 action 없이 detector만 측정</p></div>
+      <div class="card bad"><div class="k">금지</div><div class="v">BUNDLED TUNE</div><p>scene/frame별 설정과 여러 축 동시 변경 금지</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. exp68에서 확정된 사실과 아직 미해결인 것</h2>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>exp68에서 확인된 사실</th><th>exp69의 대응</th></tr></thead><tbody>
+      <tr><td>Dense RGB</td><td>exp67에서 세 장면 photometric 수렴을 개선했다.</td><td class="keep">서비스 수와 순서를 기준선으로 고정</td></tr>
+      <tr><td>Geometry PASS</td><td><code>opacity&gt;.3</code> center count만으로는 dust·scale·footprint를 놓쳤다.</td><td class="keep">opacity band·support·area·render contribution 동시 측정</td></tr>
+      <tr><td>Dust</td><td>opacity를 낮추는 prox는 동작했지만 hard GC가 없어 PLY에 남았다.</td><td class="keep">generic mature dust GC를 별도 action으로 구현</td></tr>
+      <tr><td>Native topology</td><td>replay는 <code>densify_and_prune()</code> clock을 진행하지 않아 cleanup 기회가 적었다.</td><td class="keep">full topology 빈도는 유지하고 prune-only clock 추가</td></tr>
+      <tr><td>Carve prune</td><td>score·persistence가 성숙하지 않아 <code>budget_pruned=0</code>이었다.</td><td class="hold">detector telemetry와 action을 분리</td></tr>
+      <tr><td>12F</td><td>5,026–5,587 photometric step이 2,156으로 줄고 PSNR 26.41→21.08 dB.</td><td class="keep">step-matched와 deadline-matched 실험을 따로 수행</td></tr>
+      <tr><td>Bounded archive</td><td>무한 epoch 문제는 구조적으로 해결하지만 최종 품질과 함께 검증되지 못했다.</td><td class="hold">geometry 성공 뒤 독립 축으로 재검증</td></tr>
+    </tbody></table></div>
+    <div class="box bad"><p><b>exp69가 반복하지 않을 실수:</b> detector 정확도, geometry action, scheduler membership,
+      optimizer service 수, maintenance 구현을 한 run에서 동시에 바꾸지 않는다. 결과가 좋아도 원인을 설명할 수 없는 실험은 채택하지 않는다.</p></div>
+  </section>
+
+  <section>
+    <h2>2. 목표와 비목표</h2>
+    <div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+      <tr><td class="keep">목표 1</td><td>exp67 수준의 dense photometric update 기회를 보존한다.</td></tr>
+      <tr><td class="keep">목표 2</td><td>저-opacity·저-contribution dust를 실제 PLY와 optimizer에서 삭제한다.</td></tr>
+      <tr><td class="keep">목표 3</td><td>큰-scale/high-opacity free-space floater는 별도의 carve evidence로 처리한다.</td></tr>
+      <tr><td class="keep">목표 4</td><td>1253·305·12F에 같은 설정을 사용하고 strict 1.5× 비용을 공개한다.</td></tr>
+      <tr><td class="drop">비목표</td><td>PSNR 최고점 재튜닝, manual label을 이용한 threshold 선택, frame 번호 기반 phase 전환.</td></tr>
+      <tr><td class="drop">비목표</td><td>exp69 첫 단계에서 Fisher novelty, bounded archive, carve force를 동시에 재도입하는 것.</td></tr>
+    </tbody></table></div>
+    <div class="box info"><p><b>정책 삽입점:</b> 모든 학습과 maintenance는 <code>GSBackEnd.map()</code> 내부다.
+      <code>background_polish_step()</code>과 post-stream refinement는 계속 금지한다.</p></div>
+  </section>
+
+  <section>
+    <h2>3. 핵심 분해 — 세 종류의 topology action</h2>
+    <div class="flow"><div class="node">검증된 exp67<br>RGB/RGBD update</div><div class="arrow">→</div><div class="node">Native topology<br>저빈도 유지</div><div class="arrow">→</div><div class="node">Generic dust GC<br>가볍고 독립적</div><div class="arrow">→</div><div class="node">Carve action<br>검증 뒤 선택적</div></div>
+    <div class="table-wrap"><table><thead><tr><th>Action</th><th>대상</th><th>증거</th><th>clock</th><th>exp69 초기 상태</th></tr></thead><tbody>
+      <tr><td>Native densify+prune</td><td>고-gradient 세분화, native opacity/size cleanup</td><td>render gradient와 기존 config</td><td>기존 frontier topology cadence</td><td class="keep">변경하지 않음</td></tr>
+      <tr><td>Generic dust GC</td><td>오래되고 투명하며 실제 기여가 작은 Gaussian</td><td>opacity history + render contribution + age</td><td>candidate debt와 measured maintenance budget</td><td class="keep">첫 구현 대상</td></tr>
+      <tr><td>Free-space carve</td><td>보이지만 빈 공간을 침범하는 floater</td><td>독립 keyframe transit/terminal evidence</td><td>evidence maturity와 action budget</td><td class="hold">telemetry-only부터</td></tr>
+    </tbody></table></div>
+    <p>Generic dust와 free-space floater는 같은 문제가 아니다. 전자는 carve ray가 닿지 않아도 낮은 기여도로 제거할 수 있고,
+      후자는 opacity가 높아도 반복된 3D 모순이 있으면 제거해야 한다.</p>
+  </section>
+
+  <section>
+    <h2>4. Generic mature dust GC의 수학적 정의</h2>
+    <p>Gaussian <span class="mono">g</span>마다 전체 frame 나이가 아니라 실제 optimizer service 기준 상태를 유지한다.</p>
+    <div class="eq">a_g(t) = g가 생성된 뒤 받은 optimizer opportunity 수
+
+alpha_bar_g(t) = EMA(opacity_g)
+c_bar_g(t) = EMA(actual render contribution_g)
+k_g(t) = low-opacity AND low-contribution가 연속 유지된 audit 횟수</div>
+    <p>기본 candidate는 다음과 같다.</p>
+    <div class="eq">Q_t = { g |
+  a_g ≥ a_min
+  AND alpha_bar_g ≤ tau_alpha
+  AND c_bar_g ≤ tau_contrib
+  AND k_g ≥ k_min
+  AND NOT quarantined_newborn(g) }</div>
+    <ul>
+      <li><b>Age:</b> 새 Gaussian이 몇 번 보기도 전에 삭제되는 것을 막는다.</li>
+      <li><b>Opacity EMA:</b> 한 step의 순간적인 감소가 아니라 지속적 투명화를 본다.</li>
+      <li><b>Contribution EMA:</b> 낮은 opacity Gaussian 여러 개가 실제 이미지를 함께 설명하는 경우를 보호한다.</li>
+      <li><b>Persistence:</b> frame 번호가 아니라 독립 audit/service 기회 수로 성숙도를 표현한다.</li>
+    </ul>
+    <p>삭제 순서는 예상 시각 손실이 작은 후보부터이며, 한 event에서 제거할 수 있는 총 기여량을 제한한다.</p>
+    <div class="eq">h_g = c_bar_g + lambda_s · terminal_support_g
+
+P_t = smallest-harm prefix of Q_t
+subject to:
+  sum_(g in P_t) c_bar_g ≤ B_visual(t)
+  estimated_prune_ms(P_t) ≤ B_time(t)</div>
+    <div class="box warn"><p><b><code>opacity&lt;.1</code> 즉시 삭제는 금지한다.</b> exp68의 .1은 분석 band이지 안전한 hard-prune threshold가 아니다.
+      threshold와 persistence는 baseline telemetry 분포를 먼저 보고, method 결과를 보기 전에 공통값으로 pre-register한다.</p></div>
+  </section>
+
+  <section>
+    <h2>5. Render contribution은 어떻게 측정할 것인가</h2>
+    <p>가장 좋은 신호는 각 Gaussian이 최종 pixel color에 실제로 남긴 alpha-transmittance mass다.</p>
+    <div class="eq">c_g(v) = sum_p T_{g,p}(v) · alpha_{g,p}(v)
+
+c_bar_g ← (1-rho)c_bar_g + rho · c_g(v)</div>
+    <div class="table-wrap"><table><thead><tr><th>후보 신호</th><th>장점</th><th>한계</th><th>판정</th></tr></thead><tbody>
+      <tr><td>Raster alpha×transmittance mass</td><td>실제 pixel 기여와 가장 직접적</td><td>kernel 계측 추가 필요</td><td class="keep">우선 목표</td></tr>
+      <tr><td>Opacity×projected area×visibility</td><td>기존 tensor로 근사 가능</td><td>occlusion과 중복 설명을 과대평가</td><td class="hold">초기 proxy</td></tr>
+      <tr><td>Gradient norm</td><td>현재 loss 민감도 반영</td><td>이미 잘 맞은 유효 Gaussian도 작을 수 있음</td><td class="hold">단독 사용 금지</td></tr>
+      <tr><td><code>n_touched</code></td><td>raster 접촉량을 싸게 관측</td><td>Fisher/Hessian이나 per-Gaussian 기여가 아님</td><td class="drop">hard-prune 근거로 해석 금지</td></tr>
+    </tbody></table></div>
+    <p>Kernel 계측 전에는 proxy를 바로 action에 쓰지 않고, 저장된 view buffer에서 offline exact contribution과의 rank correlation을 먼저 측정한다.</p>
+  </section>
+
+  <section>
+    <h2>6. O(N²)을 피하는 증분 candidate 관리</h2>
+    <p>매 map step 전체 Gaussian의 opacity와 contribution을 CPU로 가져오면 긴 stream에서 다시 누적 O(N²)이 된다.
+      stable ID 기반의 변경 집합과 회전 audit를 사용한다.</p>
+    <div class="flow"><div class="node">현재 render에서<br>visible/touched IDs</div><div class="arrow">→</div><div class="node">EMA·age 갱신</div><div class="arrow">→</div><div class="node">threshold crossing<br>candidate queue</div><div class="arrow">→</div><div class="node">bounded batch<br>prune_points()</div></div>
+    <ul>
+      <li>매 step 갱신 대상은 현재 view에서 실제로 touched된 ID와 carve/opacity action을 받은 ID의 합집합이다.</li>
+      <li>오래 보이지 않은 row가 영원히 누락되지 않도록 stable-ID ring cursor로 작은 audit chunk를 순회한다.</li>
+      <li>Candidate queue는 array index가 아니라 stable ID를 저장한다. Prune compaction 뒤 ID→row mapping만 갱신한다.</li>
+      <li>동일 ID 중복 enqueue를 막고, opacity가 회복되면 queue에서 lazy invalidation한다.</li>
+      <li>한 event의 mask 생성과 optimizer compaction 비용을 실측하여 batch capacity를 조절한다.</li>
+    </ul>
+    <div class="eq">per-step cost ≈ O(|visible IDs| + |action IDs| + audit_chunk)
+
+full audit cycle = O(N), amortized across many service events</div>
+  </section>
+
+  <section>
+    <h2>7. “더 자주 prune”의 정확한 실행 clock</h2>
+    <p>Full <code>densify_and_prune()</code>를 더 자주 호출하지 않는다. Native densification 통계와 topology cadence는 그대로 두고,
+      <code>maybe_mature_dust_gc()</code>를 optimizer step 뒤 <code>torch.no_grad()</code> 구간에 별도로 둔다.</p>
+    <div class="eq">run_gc(t) =
+  candidate_debt(t) &gt; 0
+  AND estimated_gc_ms ≤ available_maintenance_ms(t)
+  AND no topology/pose-revision transaction is active</div>
+    <p>고정 frame interval 대신 두 budget을 동시에 사용한다.</p>
+    <ol>
+      <li><b>Visual budget:</b> 한 event와 전체 stream에서 제거 가능한 누적 render contribution 상한.</li>
+      <li><b>Time budget:</b> 최근 prune batch의 ms/row EMA로 strict service horizon 안에서 처리 가능한 row 수 계산.</li>
+    </ol>
+    <div class="eq">K_gc(t) = floor(B_time(t) / EMA(ms_per_pruned_row))</div>
+    <div class="box info"><p><b>두 가지 평가를 분리한다.</b> service-matched 실험은 exp67과 photometric step 수를 같게 하고 GC의 순수 품질 영향을 본다.
+      deadline-matched 실험은 strict 1.5× 안에서 실제 배포 가능성을 본다. 둘을 한 숫자로 섞지 않는다.</p></div>
+  </section>
+
+  <section>
+    <h2>8. 안전장치 — suppress, quarantine, hard prune</h2>
+    <p>Hard deletion은 복구할 수 없으므로 증거 강도에 따라 세 단계로 나눈다.</p>
+    <div class="flow"><div class="node">Candidate<br>telemetry</div><div class="arrow">→</div><div class="node">Reversible<br>opacity suppression</div><div class="arrow">→</div><div class="node">Quarantine<br>추가 기회 관찰</div><div class="arrow">→</div><div class="node">Mature GC<br>hard prune</div></div>
+    <ul>
+      <li>이미 충분히 낮은-opacity/low-contribution dust는 suppression을 생략하고 quarantine부터 시작할 수 있다.</li>
+      <li>Quarantine 중 RGB contribution이 회복되면 후보를 취소한다.</li>
+      <li>Hard prune 뒤 causal carve support index, optimizer moments, stable-ID row map을 한 transaction으로 갱신한다.</li>
+      <li>Newest lineage 보호는 frame ID가 아니라 최소 service opportunity로 대체한다.</li>
+      <li>한 번의 큰 delete burst 대신 작은 contribution-sorted batch로 나눈다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>9. Carve는 detector와 action을 완전히 분리한다</h2>
+    <div class="table-wrap"><table><thead><tr><th>단계</th><th>계산</th><th>Map mutation</th><th>통과해야 다음 단계로 이동</th></tr></thead><tbody>
+      <tr><td>C0 telemetry</td><td>transit/terminal score, Fisher quality, support overlap</td><td class="keep">없음</td><td>사후 label AUC/recall과 비용</td></tr>
+      <tr><td>C1 counterfactual</td><td>후보를 offline PLY/render에서 가상 제거</td><td class="keep">온라인 없음</td><td>PSNR harm와 geometry proxy 개선</td></tr>
+      <tr><td>C2 reversible</td><td>작은 opacity suppression</td><td class="hold">복구 가능</td><td>동일 step paired non-inferiority</td></tr>
+      <tr><td>C3 hard action</td><td>persistent free-space prune</td><td class="drop">비가역</td><td>세 장면/반복 통과 뒤에만</td></tr>
+    </tbody></table></div>
+    <ul>
+      <li>Fisher는 low ray-quality를 hard reject하지 않고 action confidence 또는 요구 persistence에만 사용한다.</li>
+      <li>Optimizer view 순서는 exp67 shuffle을 유지한다. novelty-first로 되돌리지 않는다.</li>
+      <li>Carve xyz force는 generic dust GC가 성공한 뒤 별도 축으로만 평가한다.</li>
+      <li>Detector refresh가 photometric step을 줄이면, detector가 정확해도 online method로는 실패다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>10. Scheduler 축은 먼저 고정한다</h2>
+    <p>exp68의 bounded active/archive는 구조적으로 타당하지만, carve와 함께 바뀌어 최종 인과가 분리되지 않았다.
+      exp69 geometry 실험은 먼저 exp67 membership·shuffle·pressure law를 그대로 쓴다.</p>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>Geometry Stage A–E</th><th>후속 Scheduler Stage F</th></tr></thead><tbody>
+      <tr><td>View membership</td><td>exp67 temporal maximin + service-credit</td><td>bounded active/archive</td></tr>
+      <tr><td>Active order</td><td>shuffle-without-replacement</td><td>동일</td></tr>
+      <tr><td>Keyframe/dense mix</td><td>exp67 공통 설정</td><td>동일</td></tr>
+      <tr><td>Geometry action</td><td>검증 중인 GC 하나만</td><td>Stage E champion으로 고정</td></tr>
+      <tr><td>목적</td><td>geometry action 인과 확인</td><td>pool-size 구조의 독립 효과 확인</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>11. 실험 순서</h2>
+    <div class="stage"><div class="n">P0</div><div><b>exp67 기준선 무결성 재현</b><p>세 장면의 PSNR·step 수·strict time·PLY opacity band를 다시 고정한다. 이후 threshold를 바꾸지 않는다.</p></div></div>
+    <div class="stage"><div class="n">A</div><div><b>GC telemetry-only</b><p>opacity/contribution/age 분포와 candidate queue 성장, 예상 삭제량, ms/row를 측정한다. 실제 Gaussian은 삭제하지 않는다.</p></div></div>
+    <div class="stage"><div class="n">B</div><div><b>Offline counterfactual prune</b><p>저장된 PLY에서 후보를 가상 삭제한 뒤 동일 trajectory를 render하여 PSNR harm, vertex/memory 절감, footprint 변화를 측정한다.</p></div></div>
+    <div class="stage"><div class="n">C</div><div><b>Online GC · service-matched</b><p>exp67과 photometric update 수를 동일하게 맞추고 wall time은 별도 기록한다. GC 자체의 품질 인과만 검증한다.</p></div></div>
+    <div class="stage"><div class="n">D</div><div><b>Online GC · strict deadline-matched</b><p>동일 공통 설정으로 strict 1.5×에 넣어 유지 가능한 batch capacity와 장기 dust debt를 확인한다.</p></div></div>
+    <div class="stage"><div class="n">E</div><div><b>Carve telemetry → reversible action</b><p>GC champion을 고정하고 detector-only, counterfactual, soft action을 순서대로 한 축씩 추가한다.</p></div></div>
+    <div class="stage"><div class="n">F</div><div><b>Bounded archive 독립 재검증</b><p>Geometry champion을 고정한 뒤 exp67 membership과 bounded archive만 비교한다.</p></div></div>
+    <div class="stage"><div class="n">G</div><div><b>최종 blind universal validation</b><p>1253·305·12F, 동일 설정, 반복 run. 1253/305 label은 설정 선택이 끝난 뒤에만 연다.</p></div></div>
+  </section>
+
+  <section>
+    <h2>12. 최소 ablation matrix</h2>
+    <div class="table-wrap"><table><thead><tr><th>Arm</th><th>Scheduler</th><th>Generic GC</th><th>Carve detector</th><th>Carve action</th><th>질문</th></tr></thead><tbody>
+      <tr><td>B0</td><td>exp67</td><td>off</td><td>off</td><td>off</td><td>재현 기준선</td></tr>
+      <tr><td>T</td><td>exp67</td><td>telemetry</td><td>off</td><td>off</td><td>계측 자체 비용은 얼마인가</td></tr>
+      <tr><td>G</td><td>exp67</td><td>on</td><td>off</td><td>off</td><td>dust GC만의 인과 효과</td></tr>
+      <tr><td>CT</td><td>exp67</td><td>champion</td><td>telemetry</td><td>off</td><td>carve detector의 추가 비용과 recall</td></tr>
+      <tr><td>CS</td><td>exp67</td><td>champion</td><td>on</td><td>soft only</td><td>reversible carve action의 순효과</td></tr>
+      <tr><td>BA</td><td>bounded archive</td><td>champion</td><td>고정</td><td>고정</td><td>membership 구조의 독립 효과</td></tr>
+    </tbody></table></div>
+    <p>Hard carve prune과 xyz force는 이 최소 matrix가 통과한 뒤에만 추가한다. 모든 arm을 처음부터 세 장면에 돌리지 않고,
+      instrumentation 오류는 작은 causal snippet에서 제거하되 설정 선택은 full 1253/305 결과로 과적합하지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>13. 평가 지표와 PASS 규칙</h2>
+    <h3>13.1 Photometric</h3>
+    <ul>
+      <li>Fixed held-out PSNR/SSIM/LPIPS와 convergence AUC.</li>
+      <li>Service-matched에서는 photometric optimizer step 수와 source mix를 정확히 맞춘다.</li>
+      <li>1253/305의 27 dB는 충분한 절대 floor이지만, 그것만으로 큰 하락을 허용하지 않는다.</li>
+      <li>Non-inferiority margin <span class="mono">delta_P</span>는 exp67 반복 분산만으로 method 실행 전에 고정하며, 세 장면에 같은 규칙을 쓴다.</li>
+      <li>12F는 절대 27 dB가 아니라 exp67 약 26.41 dB 기준의 scene-relative non-inferiority를 쓴다.</li>
+    </ul>
+    <h3>13.2 Geometry와 resource</h3>
+    <div class="table-wrap"><table><thead><tr><th>축</th><th>필수 지표</th><th>실패 조건</th></tr></thead><tbody>
+      <tr><td>Opacity</td><td>≤.005, .005–.1, .1–.3, &gt;.3 global/region count</td><td>dust band만 옮기고 총 contribution이 유지됨</td></tr>
+      <tr><td>Scale/footprint</td><td>scale tail, covariance-aware support, opacity-area</td><td>low-opacity count 감소 대신 giant splat 증가</td></tr>
+      <tr><td>Actual contribution</td><td>pruned contribution, remaining low-contribution mass</td><td>시각 기여가 큰 Gaussian 삭제</td></tr>
+      <tr><td>Visual</td><td>동일 viewer 설정 PLY와 fixed-view render</td><td>지표 개선인데 육안 floater/holes 악화</td></tr>
+      <tr><td>Memory/runtime</td><td>vertex, allocated/reserved GPU, render/map/GC ms</td><td>GC가 절약한 비용보다 maintenance가 큼</td></tr>
+      <tr><td>Streaming</td><td>sensor budget, final tail, post-stream update=0</td><td>strict service를 구조적으로 초과</td></tr>
+    </tbody></table></div>
+    <div class="box good"><p><b>최종 universal PASS:</b> 같은 설정에서 photometric non-inferiority,
+      geometry의 일관된 개선, strict 비용을 모두 만족해야 한다. 1253/305 manual label은 posthoc 확인만 하며,
+      한 장면의 큰 개선으로 다른 장면의 악화를 평균내지 않는다.</p></div>
+  </section>
+
+  <section>
+    <h2>14. 예상 코드 구조와 telemetry contract</h2>
+    <div class="table-wrap"><table><thead><tr><th>모듈</th><th>책임</th><th>필수 로그</th></tr></thead><tbody>
+      <tr><td><code>mature_dust_gc.py</code></td><td>stable-ID 상태, EMA, age, candidate queue, batch selection</td><td>candidate/eligible/quarantine/pruned/recovered</td></tr>
+      <tr><td><code>gaussian_model.py</code></td><td>stable-ID batch prune와 optimizer compaction</td><td>before/after vertices, compaction ms</td></tr>
+      <tr><td><code>gs_backend.py::map()</code></td><td>visible-ID update, measured budget, safe prune transaction</td><td>photometric steps, GC service/debt/ms</td></tr>
+      <tr><td>rasterizer instrumentation</td><td>per-Gaussian contribution 또는 검증용 proxy</td><td>mass total/quantile, proxy correlation</td></tr>
+      <tr><td><code>causal_carve.py</code></td><td>Stage E까지 telemetry-only</td><td>refresh cost, stale ratio, score/persistence</td></tr>
+    </tbody></table></div>
+    <div class="eq">EXP69_GC_DONE
+enabled=... telemetry_only=...
+candidates=... eligible=... quarantined=...
+pruned=... recovered=...
+visual_spent=... cumulative_visual_spent=...
+gc_ms=... debt=...
+photometric_steps=... poststream_updates=0</div>
+  </section>
+
+  <section>
+    <h2>15. 실패 모드와 중단 조건</h2>
+    <ol>
+      <li><b>Holes/PSNR 급락:</b> contribution proxy가 실제 중요도를 대변하지 못한 것. Action을 중단하고 telemetry/offline correlation으로 복귀.</li>
+      <li><b>Dust count만 감소하고 area 유지:</b> 작은 dust 대신 giant splat이 남거나 커진 것. scale/footprint gate 재검토.</li>
+      <li><b>12F step 감소:</b> GC maintenance가 photometric service를 침범한 것. batch를 숫자로 튜닝하기 전에 계측/자료구조를 수정.</li>
+      <li><b>Candidate debt 무한 증가:</b> strict budget에서 방법 자체가 감당 불가. offline 후처리로 숨기지 않고 online FAIL 처리.</li>
+      <li><b>Newest surface 삭제:</b> age/service clock 또는 stable-ID reconciliation 버그. 즉시 중단하고 unit test 보강.</li>
+      <li><b>한 scene만 성공:</b> scene별 threshold를 만들지 않는다. 신호 정의 또는 proxy를 다시 설계.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>16. 현재 결정과 열린 질문</h2>
+    <div class="table-wrap"><table><thead><tr><th>결정</th><th>상태</th><th>이유</th></tr></thead><tbody>
+      <tr><td>exp67을 photometric 기준선으로 사용</td><td class="keep">확정</td><td>세 장면에서 검증된 현재 champion</td></tr>
+      <tr><td>Full densify+prune 빈도 증가</td><td class="drop">기각</td><td>densification과 aggressive prune을 동시에 바꿔 인과·안전성 악화</td></tr>
+      <tr><td>독립 mature dust GC</td><td class="keep">우선 구현</td><td>exp68에서 빠진 최종 garbage collection</td></tr>
+      <tr><td>Carve action 즉시 재도입</td><td class="drop">보류</td><td>12F gradient/비용 반례</td></tr>
+      <tr><td>Bounded archive 즉시 기본화</td><td class="hold">Stage F</td><td>geometry와 독립 paired 검증 필요</td></tr>
+    </tbody></table></div>
+    <h3>열린 질문</h3>
+    <ul>
+      <li>현재 rasterizer에서 per-Gaussian alpha-transmittance mass를 얼마의 비용으로 노출할 수 있는가?</li>
+      <li>Contribution EMA를 view frequency로 편향되지 않게 opportunity-normalize하려면 어떤 분모가 적절한가?</li>
+      <li>Quarantine이 필요한 opacity 영역과 즉시 GC 가능한 극저-opacity 영역을 label 없이 어떻게 pre-register할 것인가?</li>
+      <li>Pruning으로 절약되는 미래 render 비용이 GC 비용을 상쇄하는 break-even point는 어디인가?</li>
+      <li>Pose revision 뒤 contribution/age state를 유지할지 일부 무효화할지?</li>
+    </ul>
+    <div class="box info"><p><b>첫 실질 작업:</b> 코드를 바꾸기 전에 exp67 저장 run에서 opacity band별 실제 render contribution 분포를 측정하고,
+      telemetry-only candidate가 PSNR을 거의 해치지 않는지 offline counterfactual로 확인한다. 그 다음에만 online prune을 연다.</p></div>
+  </section>
+
+  <section>
+    <h2>17. 관련 근거 문서</h2>
+    <ul>
+      <li><a href="../exp67/exp67_universal_scheduler_result.html">exp67_universal_scheduler_result.html</a> — 고정할 photometric champion과 strict timing.</li>
+      <li><a href="../exp67/exp67_scheduler_explainer.html">exp67_scheduler_explainer.html</a> — viewset, shuffle, service-pressure 구조.</li>
+      <li><a href="../exp68/exp68_geometry_postmortem_audit.html">exp68_geometry_postmortem_audit.html</a> — false geometry PASS, dust GC 부재, 12F 실패의 전체 감사.</li>
+      <li><a href="../exp68/exp68_geometry_scheduler_result.html">exp68_geometry_scheduler_result.html</a> — 최초 causal carve/Fisher 결과.</li>
+    </ul>
+  </section>
+
+  <footer>exp69 · decoupled geometry maintenance plan · 2026-08-27 · 계획서이며 아직 구현/실험하지 않음 · scene별 설정, frame hardcoding, background polish, post-stream optimization 금지.</footer>
+</main></body>
+</html>

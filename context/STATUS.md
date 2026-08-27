@@ -88,6 +88,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-08-27 (exp69 추가 — pose-balanced active + unbounded archive 구현·기각)**:
+  FIFO forgetting 없이 무한 causal view pool을 보존하면서 frontier replay 주기만
+  분리하기 위해, <code>map()</code> 내부에 pose-farthest active set과 unbounded
+  archive를 구현했다. active는 live keyframe interval당 1개 대표 view이며 위치·회전은
+  현재 keyframe median motion으로 정규화하고 Fisher cosine novelty는 membership tie-break와
+  bounded service demand에만 사용했다. 두 pool 내부는 shuffle-without-replacement이고
+  demand=0이면 full-pool random sampling의 population fraction으로 정확히 복귀한다.
+  strict 1.5× 공통 설정 결과 1253 27.778→27.868dB, 305 27.923→28.273dB였지만,
+  current-code paired 12F는 26.678→25.760dB(−0.918), replay 4,979→4,065로 실패했다.
+  candidate별 Fisher GPU sync를 batch화한 수학적으로 동일한 v4도 25.069dB라 회복되지 않았다.
+  floater는 1253 nominal high-opacity 176→142로 줄었지만 305는 676→726,
+  opacity-area support 6.979→7.313으로 소폭 악화했다. 따라서 catastrophic giant-splat
+  실패는 아니지만 geometry non-inferiority도 성립하지 않는다. 구현은 opt-in
+  <code>--mapping_pose_active_archive</code>로 보존하고 production 기본은 기존 full-pool
+  <code>terminal_gc_sparse_moments</code> shuffle로 유지한다. scene별 튜닝은 하지 않았다.
+  → [exp69 result](experiments/exp69/exp69_result.html)
+
 - **2026-08-22 (exp66 축 4·5 — LM-RS를 VIGS-SLAM에 실제로 이식 시도, 부분 완료)**:
   사용자 제안("map()은 기존 optimizer, backpolish만 LM-RS")을 조사. **축 4
   (스케줄링만): NO-GO** — backpolish는 map()과 완전히 같은 단일 스레드에서 도는

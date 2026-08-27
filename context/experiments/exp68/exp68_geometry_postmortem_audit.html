@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp68 geometry 사후 감사 — floater 지표 재해석, 증분 carve 구현과 범용성 판정</title>
+  <style>
+    :root{--paper:#f5f3f8;--panel:#fcfbfe;--ink:#24202d;--muted:#716a7f;--line:#ded9e8;--accent:#66509a;--good:#2f705d;--warn:#966412;--bad:#a14335;--info:#356b91;--code:#eeeaf5}
+    @media(prefers-color-scheme:dark){:root{--paper:#14121a;--panel:#1c1925;--ink:#ebe7f3;--muted:#a49caf;--line:#352e45;--accent:#a493db;--good:#78b9a5;--warn:#dfaa59;--bad:#dd7970;--info:#78add2;--code:#252131}}
+    *{box-sizing:border-box}body{margin:0;padding:48px 22px 76px;background:var(--paper);color:var(--ink);font:15px/1.67 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+    main{max-width:1060px;margin:auto;display:flex;flex-direction:column;gap:34px}header{padding-bottom:26px;border-bottom:1px solid var(--line)}h1,h2,h3{font-family:ui-serif,Georgia,"Noto Serif KR",serif}h1{margin:8px 0 12px;font-size:clamp(28px,4vw,39px);line-height:1.22}h2{margin:0 0 14px;font-size:22px}h3{margin:19px 0 8px;font-size:17px}p{max-width:82ch;margin:7px 0}ul,ol{max-width:86ch;padding-left:22px}li{margin:6px 0}.eyebrow,.mono,code{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace}.eyebrow{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}.lead{color:var(--muted);font-size:16px}code{font-size:.9em;padding:1px 5px;border-radius:3px;background:var(--code)}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}.card,.box{background:var(--panel);border:1px solid var(--line);border-radius:6px}.card{padding:16px}.card .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}.card .v{margin:5px 0 4px;font:650 21px/1.2 ui-monospace,"SFMono-Regular",monospace}.card.good{border-top:3px solid var(--good)}.card.warn{border-top:3px solid var(--warn)}.card.bad{border-top:3px solid var(--bad)}.box{padding:17px 20px}.box.good{border-left:4px solid var(--good)}.box.warn{border-left:4px solid var(--warn)}.box.bad{border-left:4px solid var(--bad)}.box.info{border-left:4px solid var(--info)}.tag{display:inline-block;border:1px solid currentColor;border-radius:99px;padding:2px 9px;margin-right:7px;font:11px ui-monospace,"SFMono-Regular",monospace}.tag.good{color:var(--good)}.tag.warn{color:var(--warn)}.tag.bad{color:var(--bad)}
+    .table-wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted);font:600 11px ui-monospace,"SFMono-Regular",monospace;text-transform:uppercase;letter-spacing:.03em}tr:last-child td{border-bottom:0}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-family:ui-monospace,"SFMono-Regular",monospace}.good-text{color:var(--good)}.warn-text{color:var(--warn)}.bad-text{color:var(--bad)}.eq{overflow-x:auto;margin:12px 0;padding:14px 17px;background:var(--code);border-radius:5px;font:14px/1.75 ui-monospace,"SFMono-Regular",monospace;white-space:pre}.flow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;align-items:center}.flow .node{min-height:82px;padding:10px;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:5px;font-size:13px}.flow .arrow{color:var(--muted);text-align:center;font-size:19px}.keep{color:var(--good);font-weight:650}.limit{color:var(--warn);font-weight:650}.drop{color:var(--bad);font-weight:650}a{color:var(--accent)}footer{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}@media(max-width:780px){.cards{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow .arrow{transform:rotate(90deg)}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <div class="eyebrow">exp68 · geometry postmortem / correction note · 2026-08-26</div>
+    <h1>Floater 지표 재감사와 causal carve의 구현·검증</h1>
+    <p class="lead">exp67/68 goal 작업 뒤 PLY 육안 검토에서 제기된 반례를 출발점으로, 기존 floater PASS의 측정 범위,
+      저-opacity dust와 큰-scale splat, carve 검출 recall, field refresh 비용, Fisher의 역할을 다시 감사했다.
+      기존 결과를 삭제하지 않고 어떤 결론이 유지되고 철회되는지 기록한다. 이어서 재설계안을 실제
+      <code>map()</code> 경로에 구현하고, 동일 설정을 1253·305·12F에 적용한 closed-loop 결과까지 덧붙였다.</p>
+    <div class="cards">
+      <div class="card good"><div class="k">Photometric · 1253 / 305</div><div class="v">27.06 / 30.30</div><p>완화한 27 dB floor를 동일 설정으로 통과</p></div>
+      <div class="card warn"><div class="k">Geometry · v1w</div><div class="v">MIXED</div><p>전역 opacity-area는 감소했지만 1253 visible high-opacity는 악화</p></div>
+      <div class="card bad"><div class="k">Blind generalization · 12F</div><div class="v">21.08 dB</div><p>strict 예산도 약 10% 초과; 범용 채택 실패</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 판정 정정</h2>
+    <div class="box bad"><p><span class="tag bad">정정</span>기존 결과 보고서의 floater PASS는 manual region 안에서
+      <code>opacity &gt; 0.3</code>인 <b>Gaussian 중심 개수</b>에만 해당한다. PLY 전체 geometry, 저-opacity dust,
+      covariance footprint, 큰-scale Gaussian까지 baseline과 동등하다는 의미로 읽으면 안 된다.</p></div>
+    <div class="table-wrap"><table><thead><tr><th>주장</th><th>현재 상태</th><th>근거</th></tr></thead><tbody>
+      <tr><td>dense scheduler가 strict streaming PSNR을 높였다</td><td class="keep">유지</td><td>exp67 다중 scene 및 exp68 fixed held-out 결과</td></tr>
+      <tr><td>exp68이 exp67보다 visible floater를 줄였다</td><td class="keep">좁은 정의에서 유지</td><td>manual mask, opacity&gt;.3, center-only count</td></tr>
+      <tr><td>exp68 geometry가 native baseline 수준이다</td><td class="drop">광의의 주장 철회</td><td>all-opacity·scale-aware·PLY 감사가 반박</td></tr>
+      <tr><td>carve가 PSNR 상승의 원인이다</td><td class="limit">미검증</td><td>paired fixed-trajectory 인과 실험이 아님</td></tr>
+      <tr><td>Fisher-conditioned carve가 geometry 개선의 원인이다</td><td class="limit">미검증</td><td>mixed service와 trajectory 변동이 함께 바뀜</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>2. 출발점 — dense 수렴과 geometry supervision</h2>
+    <p>exp67 scheduler는 dense RGB replay로 photometric 수렴을 크게 높였다. Dense action은 RGB-only지만
+      xyz·rotation·scale·opacity·color를 제한하지 않는다. Keyframe action은 RGBD+normal로 같은 전체 파라미터를 갱신한다.
+      dense 비율이 높아지면서 depth/normal의 상대 서비스 빈도가 줄었고 native keyframe baseline보다 floater가 증가했다.</p>
+    <div class="table-wrap"><table><thead><tr><th>scene</th><th class="num">baseline PSNR</th><th class="num">exp67 PSNR</th><th class="num">baseline visible</th><th class="num">exp67 visible</th></tr></thead><tbody>
+      <tr><td>aria1253</td><td class="num">24.7205</td><td class="num">27.8123</td><td class="num">118</td><td class="num">193</td></tr>
+      <tr><td>aria301_305</td><td class="num">25.8145</td><td class="num">29.7826</td><td class="num">491</td><td class="num">660</td></tr>
+    </tbody></table></div>
+    <div class="box info"><p><b>설계 원칙:</b> dense RGB의 일반 geometry update를 막지 않는다. 빠른 수렴을 만든 자유도를 보존하고,
+      keyframe RGBD+normal과 global 3D free-space constraint로 잘못된 geometry만 억제한다.</p></div>
+  </section>
+
+  <section>
+    <h2>3. exp68 geometry 경로</h2>
+    <div class="flow"><div class="node">도착한<br>keyframe depth</div><div class="arrow">→</div><div class="node">sparse unprojection<br>SLAM anchors</div><div class="arrow">→</div><div class="node">transit / terminal<br>voxel field</div><div class="arrow">→</div><div class="node">Gaussian score<br>+ Fisher confidence</div></div>
+    <p>Carve는 선택된 RGB frame의 2D loss가 아니라, 도착한 keyframe의 BA-refined tracking depth를 누적한 global 3D regularizer다.
+      카메라에서 endpoint 직전까지는 free-space transit, endpoint 주변은 surface terminal로 기록했다.</p>
+    <div class="eq">rho_g = T_g / (T_g + w_s S_g + epsilon)
+s_raw(g) = rho_g * min(d_anchor(g) / tau, 1)
+q_F(g) = lambda_min(F_g) / (trace(F_g) / 3)
+s_used(g) = s_raw(g) * (1 - local_max_opacity(g))</div>
+    <ul>
+      <li>voxel 0.10m, ray step 0.06m, 기본 40-pixel stride depth sampling.</li>
+      <li>Fisher는 view 선택/optimizer order가 아니라 ray 방향 조건성으로만 사용.</li>
+      <li>soft score&gt;.50, Fisher&gt;.20, lambda 0.02; prox strength .50, contribution 상한 .75%.</li>
+      <li>dense geometry freedom은 유지했고 xyz force와 hard budget prune은 꺼져 있었다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. 최초 결과 — 좁은 visible 지표에서는 개선</h2>
+    <div class="table-wrap"><table><thead><tr><th>scene</th><th class="num">exp67</th><th class="num">exp68 dense-only</th><th class="num">exp68 mixed final</th><th class="num">exp67→final</th><th class="num">baseline→final</th></tr></thead><tbody>
+      <tr><td>aria1253</td><td class="num">193</td><td class="num">139</td><td class="num">126</td><td class="num good-text">−34.7%</td><td class="num warn-text">+6.8%</td></tr>
+      <tr><td>aria301_305</td><td class="num">660</td><td class="num">576</td><td class="num">529</td><td class="num good-text">−19.8%</td><td class="num warn-text">+7.7%</td></tr>
+    </tbody></table></div>
+    <p>Mixed가 dense-only보다 139→126, 576→529로 낮았다는 점은 keyframe RGBD+normal을 계속 service하는 것이 visible geometry에 도움 된다는 간접 증거다.
+      최종 fixed held-out PSNR은 27.9331 / 30.6697 dB였지만, trajectory가 고정된 paired 실험은 아니므로 PSNR 상승 전체를 carve에 귀속할 수 없다.</p>
+  </section>
+
+  <section>
+    <h2>5. PLY 재감사 — 기존 지표가 놓친 것</h2>
+    <ul>
+      <li>부분적 manual label을 과거 batch/OpenMAVIS PLY에서 VIGS 좌표로 Sim3 전송했다.</li>
+      <li>정합 median 오차는 2.48cm / 6.34cm, mask voxel은 7.5cm다.</li>
+      <li>Gaussian 중심만 검사하여 covariance, scale, screen footprint를 무시했다.</li>
+      <li>opacity&gt;.3만 세어 PLY의 저-opacity dust가 지표에 들어가지 않았다.</li>
+    </ul>
+    <div class="table-wrap"><table><thead><tr><th>감사 지표</th><th class="num">aria1253</th><th class="num">aria301_305</th></tr></thead><tbody>
+      <tr><td>region 전체 Gaussian, baseline→final</td><td class="num bad-text">486→1,271</td><td class="num bad-text">584→5,609</td></tr>
+      <tr><td>전역 opacity≤.3, exp67→final</td><td class="num bad-text">31,409→33,127</td><td class="num bad-text">32,727→36,752</td></tr>
+      <tr><td>final max scale</td><td class="num bad-text">21.97</td><td class="num bad-text">22.59</td></tr>
+      <tr><td>final scale&gt;.1</td><td class="num">12,433</td><td class="num">20,215</td></tr>
+      <tr><td>opacity&gt;.3 and scale&gt;1m</td><td class="num">347</td><td class="num">339</td></tr>
+      <tr><td>region scale-aware mass, final / baseline</td><td class="num">1.42×</td><td class="num">2.58×</td></tr>
+      <tr><td>전역 opacity-area proxy mass, final / baseline</td><td class="num">17.4×</td><td class="num">6.4×</td></tr>
+      <tr><td>상위 1% proxy mass 비중</td><td class="num">92.0%</td><td class="num">78.5%</td></tr>
+    </tbody></table></div>
+    <div class="box bad"><p><b>해석:</b> PLY에서 보인 큰 가시 floater와 저-opacity 먼지는 실제 현상이다.
+      기존 center/op&gt;.3 count가 이를 대표하지 못했으므로 broad geometry PASS는 철회한다.</p></div>
+  </section>
+
+  <section>
+    <h2>6. Ray carve detector 감사</h2>
+    <p>학습에는 label을 사용하지 않고 저장된 <code>causal_carve_final.npz</code> score에 사후 label만 정합했다.
+      Raw field에는 저-opacity floater 신호가 있지만 protection과 Fisher gate를 거치며 크게 약해진다.</p>
+    <div class="table-wrap"><table><thead><tr><th>scene / opacity</th><th class="num">raw&gt;.5</th><th class="num">protected&gt;.5</th><th class="num">soft/prox eligible</th><th class="num">newborn gate</th></tr></thead><tbody>
+      <tr><td>1253 ≤.1</td><td class="num">74.95%</td><td class="num">74.39%</td><td class="num warn-text">59.81%</td><td class="num">29.81%</td></tr>
+      <tr><td>1253 .1–.3</td><td class="num">24.00%</td><td class="num">21.33%</td><td class="num bad-text">10.67%</td><td class="num">0%</td></tr>
+      <tr><td>1253 &gt;.3</td><td class="num">4.76%</td><td class="num">1.59%</td><td class="num bad-text">0%</td><td class="num">0%</td></tr>
+      <tr><td>305 ≤.1</td><td class="num">57.33%</td><td class="num">56.28%</td><td class="num warn-text">38.45%</td><td class="num">17.19%</td></tr>
+      <tr><td>305 .1–.3</td><td class="num">37.85%</td><td class="num">30.95%</td><td class="num bad-text">10.74%</td><td class="num">0%</td></tr>
+      <tr><td>305 &gt;.3</td><td class="num">20.98%</td><td class="num">1.51%</td><td class="num bad-text">0.38%</td><td class="num">0%</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>scale band</th><th class="num">1253 eligible / total</th><th class="num">305 eligible / total</th></tr></thead><tbody>
+      <tr><td>&gt;.1</td><td class="num">249 / 12,433</td><td class="num">552 / 20,215</td></tr>
+      <tr><td>&gt;.2</td><td class="num">35 / 4,411</td><td class="num">115 / 6,897</td></tr>
+      <tr><td>&gt;.5</td><td class="num">0 / 1,319</td><td class="num">13 / 1,855</td></tr>
+      <tr><td>&gt;1</td><td class="num bad-text">0 / 648</td><td class="num bad-text">0 / 923</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>7. 신호가 action까지 가지 못한 원인</h2>
+    <ol>
+      <li><b>Self max-opacity protection:</b> 주변 최대 opacity 계산에 자기 자신이 포함되어 opacity≥.5 Gaussian은 strict score&gt;.5를 구조적으로 통과하기 어렵다.</li>
+      <li><b>Fisher hard gate:</b> 단방향 trajectory의 유효 free-space 후보도 제거했다. low-opacity 후보에서 156 / 836개가 추가 탈락했다.</li>
+      <li><b>Center-only score:</b> 중심 밖의 큰 covariance free-space 침범을 검출하지 못했다.</li>
+      <li><b>Newborn cache zero:</b> 같은 evidence generation에서 태어난 Gaussian은 다음 refresh까지 score 0이었다.</li>
+      <li><b>약한 실제 action:</b> 최종 selected 약 601/624개, prox 3회, hard/gate prune 0개였다.</li>
+      <li><b>후반 garbage collection 부재:</b> replay가 native densify/prune clock을 진행하지 않아 opacity가 낮아져도 PLY에서 삭제되지 않았다.</li>
+    </ol>
+    <div class="table-wrap"><table><thead><tr><th>scene</th><th class="num">packets</th><th class="num">generation</th><th class="num">prox</th><th class="num">rows</th><th class="num">실제 contribution 감소</th><th class="num">hard/gate prune</th></tr></thead><tbody>
+      <tr><td>aria1253</td><td class="num">97</td><td class="num">7</td><td class="num">3</td><td class="num">1,066</td><td class="num">0.0061%</td><td class="num">0</td></tr>
+      <tr><td>aria301_305</td><td class="num">123</td><td class="num">7</td><td class="num">3</td><td class="num">694</td><td class="num">0.0050%</td><td class="num">0</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section>
+    <h2>8. Power-of-two refresh의 이유와 한계</h2>
+    <p>Score가 지수함수인 것이 아니라 전체 재계산 시점을 2,4,8,… packet에 둔 것이다. 매 keyframe 전체 Gaussian을 재계산하면:</p>
+    <div class="eq">1 + 2 + 3 + ... + n = O(n^2)</div>
+    <p>Power-of-two rebuild의 누적 비용은:</p>
+    <div class="eq">1 + 2 + 4 + ... + n &lt; 2n = O(n)</div>
+    <p>하지만 최신 evidence latency가 커졌다. 97/123 packet run에서 generation 7, refresh 6회였고 64 이후 ray는 raw dictionary에 저장돼도
+      128 generation 전까지 Gaussian score에 반영되지 않았다. 후반 full refresh 한 번은 약 379–579ms였다.</p>
+    <p>305에서 anchor를 약 21,090→134,290으로 6.4배 늘린 variant도 raw AUC만 일부 개선했고 visible floater는 576→579,
+      replay step은 15,139→14,150이었다. 더 많은 ray만으로는 해결되지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>9. 추가 감사 — viewset maturity가 실제로 budget을 제어했는가</h2>
+    <p>후속 코드·로그 감사에서 <code>MAP_VIEWSET_ADMISSION</code>이 계속 출력된다는 사실을
+      “큰 pool이 keyframe 사이에 두 epoch씩 재성숙했다”로 해석하면 안 된다는 점을 확인했다.
+      현재 controller에는 서로 다른 두 admission 경로가 있다.</p>
+    <ol>
+      <li><b>Bootstrap admission:</b> 새 keyframe interval마다 대표 dense view 1장을
+        <code>mature=False</code>여도 무조건 추가한다.</li>
+      <li><b>Budget admission:</b> 기존 active dense view의 누적 selection count 최솟값이
+        <code>required_opportunities=2</code> 이상일 때만 pending view를 추가한다.</li>
+    </ol>
+    <p>따라서 후반의 <code>added=1/2</code> 로그는 대부분 budget이 아니라 새 interval의
+      bootstrap이었다. 로그 줄 간격은 replay draw 수나 epoch 완료를 나타내지 않는다.</p>
+    <div class="table-wrap"><table><thead><tr><th>scene</th><th class="num">admission 로그</th><th class="num">mature=True</th><th class="num">bootstrap 누계</th><th class="num">budget 누계</th><th class="num">마지막 pending</th><th class="num">종료 min count</th></tr></thead><tbody>
+      <tr><td>aria1253</td><td class="num">105</td><td class="num bad-text">1</td><td class="num">217</td><td class="num">207</td><td class="num bad-text">772</td><td class="num warn-text">1</td></tr>
+      <tr><td>aria301_305</td><td class="num">153</td><td class="num bad-text">4</td><td class="num">312</td><td class="num">673</td><td class="num bad-text">1,642</td><td class="num bad-text">0</td></tr>
+    </tbody></table></div>
+    <p>aria1253의 budget admission은 active 83개가 mature했던 한 이벤트에서 <b>207장을 한꺼번에</b>
+      추가한 뒤 끝까지 멈췄다. 305도 +90, +168, +193, +222장의 네 burst로 발생했다.
+      즉 현재 동작은 부드러운 water-filling이 아니라 <b>unconditional bootstrap + rare large burst + long stall</b>에 가깝다.</p>
+    <div class="box warn"><p><b>추가 정정:</b> 새 view가 count 2에 도달하는 데 정확히
+      <code>2 × pool</code> draw가 “최소”로 필요한 것은 아니다. 과거 view의 count와 현재 queue 위치에 따라 달라진다.
+      그러나 큰 신규 cohort가 shuffle-without-replacement에서 모두 두 번 선택되기까지 필요한 시간이
+      pool 크기에 대해 <b>선형으로 증가</b>한다는 구조적 우려는 맞다.</p></div>
+
+    <h3>9.1 기존 endpoint/stability 설정은 pool-size 안전장치가 아니다</h3>
+    <ul>
+      <li><code>causal_endpoint_distance=min(alpha,1-alpha)</code>의 범위는 [0,.5]이고 threshold가 .5라 모든 dense view가 통과한다.</li>
+      <li>Threshold를 낮춰도 매 interval의 endpoint 근처 view가 계속 누적되므로 장기 pool을 유한하게 만들지는 못한다.</li>
+      <li><code>stability_lag=0</code>은 지연도 없고, 양수로 바꿔도 최근 view를 늦출 뿐 과거 pool을 줄이지 않는다.</li>
+      <li>최종 run의 <code>background_polish_max_pool_size=null</code>이므로 hard capacity도 없었다.</li>
+      <li>Mixed replay의 실제 shuffle queue에는 dense뿐 아니라 keyframe도 들어가지만 maturity snapshot의 minimum은 dense만 검사한다.</li>
+    </ul>
+
+    <h3>9.2 수정안 — pending, bounded active, archive를 분리</h3>
+    <div class="flow"><div class="node">Pending<br>아직 미admit 후보</div><div class="arrow">→</div><div class="node">Bounded Active<br>현재 shuffle epoch</div><div class="arrow">→</div><div class="node">Archive<br>성숙·중복 view</div><div class="arrow">↺</div><div class="node">작은 quota만<br>rehearsal 복귀</div></div>
+    <p>Archive는 영구 폐기 장소가 아니라 <b>현재 epoch에서 빠져 있는 성숙 view 저장소</b>다.
+      Archive 전체를 다시 epoch에 넣으면 원래의 무한 pool 문제가 재발하므로, 매 epoch에는 제한된 rehearsal quota만 active로 복귀시킨다.</p>
+    <div class="eq">Active_(e+1)
+= UnderServed_new
+  ∪ Geometry_keyframes
+  ∪ SmallSample(Archive)
+
+|Active_t| ≤ P_capacity(t)</div>
+    <p><code>P_capacity(t)</code>는 장면별 고정 fps나 frame 번호가 아니라 측정된 replay 처리량과 허용 service latency로 정한다.
+      replay 처리량을 μ<sub>t</sub> draws/s, service horizon을 H<sub>t</sub>, 필요한 반복을 r이라 하면 기본 제약은 다음과 같다.</p>
+    <div class="eq">r · |Active_t| ≤ mu_t · H_t</div>
+    <ul>
+      <li>새 interval의 bootstrap도 active capacity가 있을 때만 넣고, 없으면 pending에 두거나 성숙·중복 view와 교체한다.</li>
+      <li><code>required_opportunities=2</code>는 학습 완료가 아니라 최소 노출 조건이다. 두 번 봤다는 이유만으로 영구 archive하지 않는다.</li>
+      <li>새 view, geometry keyframe, archive rehearsal의 membership을 정한 뒤 <b>active 내부 optimizer 순서는 계속 shuffle</b>한다.</li>
+      <li>Global minimum 하나보다 admission 이후 부족 기회량을 합친 service debt를 추적한다.</li>
+    </ul>
+    <div class="eq">D_t = sum_(v in Active_t) max(0, r - c_v_since_admission)</div>
+    <p>이 분리는 view membership/coverage와 optimizer order를 다시 섞지 않으면서 epoch 길이를 처리 가능한 범위로 유지한다.
+      또한 증분 carve가 추가되며 replay step 비용이 변해도 실제 처리량 μ<sub>t</sub>를 통해 active capacity에 반영할 수 있다.</p>
+
+    <h3>9.3 Archive를 추가한다는 말의 정확한 의미</h3>
+    <p><b>맞다. 핵심 목적은 shuffle epoch가 돌아야 하는 working active pool의 크기를 유한하게 유지하는 것</b>이다.
+      다만 전체 view를 단순히 active/archive 두 덩어리로 한 번 나누고 고정하는 구조는 아니다. 새 view가 들어오면
+      아직 최소 기회를 받지 못한 view를 active에 우선 배치하고, 이미 기회를 받은 view는 archive로 내린다.
+      이후 archive에서도 작은 rehearsal 표본을 매 epoch 다시 뽑아 망각을 막는다. 따라서 전체 학습 데이터는 계속
+      보존되지만, 한 epoch의 길이만 처리 가능한 크기로 제한된다.</p>
+    <div class="eq">All arrived views = Pending ∪ Active ∪ Archive
+
+epoch length = |Active| ≤ P_capacity(t)
+
+Active_(e+1) = under-served/new views
+             ∪ required geometry keyframes
+             ∪ bounded rehearsal sample from Archive</div>
+    <p>이 구조가 해결하는 것은 <b>스트림 길이가 늘수록 한 epoch가 무한히 길어지고 새 view의 두 번째 기회가 늦어지는 문제</b>다.
+      반대로 archive 자체가 view의 학습 완료를 보장하거나, 어떤 view가 좋은지를 판정하거나, optimizer 순서를
+      novelty-first로 바꾸지는 않는다. Membership은 capacity·최소 service·rehearsal로 정하고, 선택된 active 내부 순서는
+      Stage C 결과대로 shuffle-without-replacement를 유지한다.</p>
+    <div class="box warn"><p><b>실측과 구조적 위험을 구분해야 한다.</b> exp66–68의 수백-view, strict 1.5× 구간에서는
+      keyframe 사이 GPU replay 처리량이 충분해 admission 간격 증가가 겉으로 드러나지 않았다. 그러나 endpoint threshold=.5와
+      stability_lag=0은 실제 pool 제한이 아니므로, 수천 view의 긴 스트림·비싼 carve/Fisher·더 빡빡한 pacing에서는
+      같은 구조가 다시 병목이 될 수 있다. 따라서 “지금 로그에서 stall이 작았다”는 사실은 bounded pool이 불필요하다는
+      근거가 아니라, 아직 처리량 한계를 넘지 않았다는 뜻이다.</p></div>
+    <p>Capacity는 scene별 fps나 frame index로 하드코딩하지 않고, 실제 ordinary replay step 시간
+      <code>ĉ<sub>step</sub></code>과 다음 keyframe까지의 sensor-time horizon <code>Ĥ</code>로 계산한다.</p>
+    <div class="eq">P_capacity(t) = floor(H_hat / (r · c_hat_step))
+
+r = required_opportunities</div>
+    <p>희귀한 전체 carve refresh는 실제 deadline budget에는 포함되지만 ordinary replay 단가 추정에서는 분리한다.
+      그렇지 않으면 한 번의 O(N) maintenance가 이후의 모든 짧은 RGB replay를 과도하게 막기 때문이다. 다만 maintenance가
+      자주 발생한다면 별도의 maintenance reserve를 두어야 하며, 이 항목은 장기 스트레스 테스트 대상이다.</p>
+  </section>
+
+  <section>
+    <h2>10. 다음 설계 — support-aware incremental carve</h2>
+    <div class="flow"><div class="node">새 KF depth ray</div><div class="arrow">→</div><div class="node">dirty transit /<br>terminal voxel</div><div class="arrow">→</div><div class="node">voxel→Gaussian<br>역인덱스</div><div class="arrow">→</div><div class="node">affected rows만<br>scatter update</div></div>
+    <div class="eq">cost ≈ O(new ray voxels + affected Gaussian-support intersections)</div>
+    <ol>
+      <li>모든 신뢰 가능한 training keyframe depth ray를 즉시 누적한다. Fisher가 낮다고 field 입력 자체를 버리지 않는다.</li>
+      <li>변경된 transit/terminal/direction voxel 목록만 반환한다.</li>
+      <li>voxel→Gaussian 역인덱스는 중심이 아니라 2–3σ ellipsoid support 기준으로 유지한다.</li>
+      <li>큰 Gaussian은 BVH 또는 별도 large-splat list로 관리하여 모든 voxel에 복제하지 않는다.</li>
+      <li>affected Gaussian cache row만 GPU에서 scatter-update한다.</li>
+      <li>newborn은 생성 즉시 기존 field로 채점한다.</li>
+      <li>keyframe별 contribution을 보관하여 pose/depth revision 시 old evidence를 빼고 new evidence를 넣는다.</li>
+      <li>전체 sweep은 frame 번호가 아니라 dirty ratio·index drift·maintenance budget으로만 실행한다.</li>
+    </ol>
+    <p>Score도 중심값이 아니라 Gaussian support가 free space와 겹치는 질량을 사용해야 한다.</p>
+    <div class="eq">s_g ≈ ∫ N(x; mu_g, Sigma_g) P_free(x) dx</div>
+    <p>중심과 covariance 주축상의 소수 표본으로 근사할 수 있다. 정상 surface 보호는 local Gaussian opacity가 아니라 depth endpoint의 terminal evidence로 한다.</p>
+  </section>
+
+  <section>
+    <h2>11. Fisher의 수정된 역할</h2>
+    <div class="table-wrap"><table><thead><tr><th>용도</th><th>판정</th><th>이유</th></tr></thead><tbody>
+      <tr><td>optimizer novelty-first 순서</td><td class="drop">사용하지 않음</td><td>Stage C에서 shuffle보다 느렸음</td></tr>
+      <tr><td>field 입력 ray hard gate</td><td class="drop">사용하지 않음</td><td>단방향 trajectory의 유효 evidence를 버림</td></tr>
+      <tr><td>soft carve confidence</td><td class="keep">유지 후보</td><td>방향 다양성에 따라 penalty를 점진적으로 강화</td></tr>
+      <tr><td>irreversible prune 확인</td><td class="keep">유지 후보</td><td>여러 독립 시점의 반복 모순 확인</td></tr>
+    </tbody></table></div>
+    <p>Fisher는 “낮으면 무시”가 아니라 “높을수록 강하고 비가역적인 action을 더 신뢰”하는 soft/hysteresis 신호로 바꾼다.</p>
+  </section>
+
+  <section>
+    <h2>12. Floater 제거 — opacity와 pruning의 역할</h2>
+    <p>Opacity 억제만으로는 PLY에 dust가 남고 memory/render 비용도 줄지 않는다. 반대로 carve score만으로 즉시 삭제하면 tracking noise로 정상 surface를 훼손할 수 있다.</p>
+    <div class="flow"><div class="node">초기 evidence<br>soft logit penalty</div><div class="arrow">→</div><div class="node">반복 free-space<br>opacity prox</div><div class="arrow">→</div><div class="node">성숙한 지속 모순<br>event prune</div><div class="arrow">→</div><div class="node">PLY / memory<br>garbage collection</div></div>
+    <div class="eq">z_g ← z_g - eta_c q_g
+
+prune(g) = persistent_high_carve
+           AND weak_terminal_surface
+           AND mature_evidence
+           AND (low_opacity OR low_render_contribution)</div>
+    <ul>
+      <li>Opacity logit 감소는 이후 RGB evidence로 회복 가능한 reversible 완충 단계다.</li>
+      <li>여러 independent keyframe에서 모순이 반복되고 terminal evidence가 약할 때 hard prune한다.</li>
+      <li>성숙한 free-space field 안의 newborn은 높은 confidence에서 즉시 gate할 수 있다.</li>
+      <li>후반 native topology clock과 무관한 mature garbage-collection event가 필요하다.</li>
+    </ul>
+    <div class="box info"><p><b>요약:</b> carve는 삭제 후보와 confidence를 결정하고 opacity는 완충 장치로 사용한다.
+      충분히 확실해진 dust는 최종적으로 반드시 pruning한다.</p></div>
+  </section>
+
+  <section>
+    <h2>13. 수정된 PASS와 과적합 방지 규칙</h2>
+    <div class="table-wrap"><table><thead><tr><th>축</th><th>필수 측정</th></tr></thead><tbody>
+      <tr><td>Photometric</td><td>fixed held-out PSNR/SSIM/LPIPS, convergence AUC</td></tr>
+      <tr><td>Opacity bands</td><td>≤.1, .1–.3, &gt;.3 각각의 region/global count</td></tr>
+      <tr><td>Scale / footprint</td><td>scale tail, covariance-aware overlap, opacity-area/free-space mass</td></tr>
+      <tr><td>Visual</td><td>동일 viewer/opacity 조건의 PLY와 rendering 확인</td></tr>
+      <tr><td>Streaming</td><td>1.5× strict deadline, post-stream update 0, maintenance 포함 wall time</td></tr>
+      <tr><td>Generalization</td><td>1253/305/12F 동일 설정, scene별 threshold 금지, 가능하면 3 seeds</td></tr>
+    </tbody></table></div>
+    <h3>13.1 이번 loop에서 고정한 판정법</h3>
+    <ul>
+      <li><b>1253·305 photometric floor:</b> fixed held-out PSNR 27 dB 이상이면 충분한 것으로 판정한다. 최고 PSNR을 다시 맞추기 위한 파라미터 탐색은 하지 않는다.</li>
+      <li><b>12F:</b> 기존 exp67 ceiling이 약 26.4–26.6 dB였으므로 절대 27 dB를 강제하지 않고, 기존 범용 scheduler 대비 품질·시간의 상대 보존으로 판정한다.</li>
+      <li><b>Geometry label:</b> 학습과 설정 선택에 사용하지 않고 run이 끝난 뒤에만 평가한다. 1253/305 manual mask에 맞춘 threshold sweep을 금지한다.</li>
+      <li><b>설정 동결:</b> 장면 이름·frame index·특정 시점을 조건으로 한 분기를 두지 않는다. 같은 CLI와 같은 controller가 세 장면을 처리해야 한다.</li>
+      <li><b>Streaming:</b> 모든 update는 <code>GSBackEnd.map()</code> 안에서만 수행하며 <code>background_polish_step</code>과 post-stream refinement는 금지한다.</li>
+    </ul>
+    <div class="box good"><p><b>유지:</b> dense RGB unrestricted geometry, keyframe RGBD+normal, shuffled order,
+      global 3D carve 문제 분해, Fisher를 geometry confidence로 쓰는 방향.</p></div>
+    <div class="box bad"><p><b>폐기·수정:</b> opacity&gt;.3 center-only PASS, self max-opacity protection, Fisher hard gate,
+      power-of-two-only refresh, newborn zero cache, center-only score, 후반 prune 부재.</p></div>
+    <div class="box info"><p><b>구현 목표:</b> pending/bounded-active/archive로 replay epoch를 처리 가능한 크기로 유지하면서,
+      모든 도착 keyframe의 depth ray를 causal하게 누적하고 변경 voxel과 겹치는 Gaussian support만 증분 재채점한다.
+      그 뒤 soft opacity → reversible prox → mature pruning으로 dust와 큰-scale floater를 실제 제거한다. 이 설계는 아래 §14에서 구현·검증했다.</p></div>
+  </section>
+
+  <section>
+    <h2>14. Closed-loop 구현과 범용성 검증 결과</h2>
+    <h3>14.1 실제로 넣은 구조</h3>
+    <p>설계안을 별도 simulator가 아니라 VIGS-SLAM의 실제 tracking+mapping pipeline에 넣었다. 핵심 숫자는 장면별로 바꾸지 않았다.</p>
+    <div class="table-wrap"><table><thead><tr><th>모듈</th><th>구현</th><th>고정 설정 / 이유</th></tr></thead><tbody>
+      <tr><td>View membership</td><td>pending → bounded active → archive, archive 소량 rehearsal</td><td>required opportunities 5; 전체 누적 pool이 epoch 길이를 늘리지 않게 함</td></tr>
+      <tr><td>Capacity</td><td>실측 replay step EMA와 causal service credit으로 단계적 확장·수축</td><td>frame 번호·scene fps가 아니라 처리량으로 결정</td></tr>
+      <tr><td>Order</td><td>bounded active 내부 shuffle-without-replacement</td><td>Stage C에서 novelty/residual-first보다 안정적</td></tr>
+      <tr><td>Source mix</td><td>keyframe reserve 20%, dense RGB geometry unrestricted</td><td>dense 수렴 이득을 보존하며 RGBD+normal service 유지</td></tr>
+      <tr><td>3D evidence</td><td>도착 keyframe depth의 transit/terminal/direction sparse field</td><td>causal anchor budget 128; Fisher hard gate 없음</td></tr>
+      <tr><td>Support score</td><td>stable Gaussian ID, dirty voxel→ellipsoid support 역인덱스, 큰 splat 별도 BVH/list</td><td>row budget 2,048; dirty fraction .25; large list 512</td></tr>
+      <tr><td>Geometry action</td><td>newborn gate + reversible opacity/position action + persistent prune</td><td>score .5; soft .02; force .05; opacity/prune total budget 각각 .005; persistence 2</td></tr>
+      <tr><td>Pressure control</td><td>foreground saturation 때 refresh row budget을 √2,048≈46으로 축소하고 미처리 ID를 이월</td><td>새 scene threshold 없이 기존 scheduler pressure 신호 재사용</td></tr>
+    </tbody></table></div>
+    <p>일반 dense frame도 xyz·rotation·scale·opacity·color를 계속 갱신한다. Carve는 특정 RGB frame loss가 아니라
+      keyframe depth에서 생성된 global 3D constraint다. Fisher/coverage는 optimizer 순서를 정하지 않으며,
+      hard gate도 하지 않는다.</p>
+
+    <h3>14.2 구현 반복 — 숫자를 맞추는 대신 실패 원인을 구조적으로 제거</h3>
+    <div class="table-wrap"><table><thead><tr><th>반복</th><th>핵심 변경</th><th class="num">1253 PSNR</th><th class="num">305 PSNR</th><th class="num">12F PSNR</th><th>판정</th></tr></thead><tbody>
+      <tr><td>v1t</td><td>bounded archive + 최초 증분 support/action</td><td class="num">27.5706</td><td class="num">–</td><td class="num">–</td><td>1253 photometric 통과, geometry 불충분</td></tr>
+      <tr><td>v1u</td><td>증분 geometry action 보강</td><td class="num">27.2205</td><td class="num">–</td><td class="num">–</td><td>PSNR floor 유지, broad geometry 미통과</td></tr>
+      <tr><td>v1v</td><td>exp40 근거의 force/gate, exact support 전 단계</td><td class="num">27.1253</td><td class="num">30.0733</td><td class="num">–</td><td>두 label scene photometric 통과</td></tr>
+      <tr><td>v1w</td><td>evidence BVH와 ellipsoid 교차로 큰 splat 검출</td><td class="num">27.0631</td><td class="num">30.2968</td><td class="num bad-text">22.3047</td><td>1253/305 partial pass, 12F blind fail</td></tr>
+      <tr><td>v1x</td><td>large-splat exact query를 √K round-robin으로 분할</td><td class="num">–</td><td class="num">–</td><td class="num bad-text">23.2482</td><td>품질 일부 회복, 약 203초 병목 유지</td></tr>
+      <tr><td>v1y</td><td>direct sparse-hash score + √generation BVH rebuild</td><td class="num">–</td><td class="num">–</td><td class="num">OOM</td><td>약 181초까지 단축했으나 98% 지점 allocator fragmentation</td></tr>
+      <tr><td>v1z</td><td>expandable allocator + pressure-aware deferred refresh</td><td class="num">–</td><td class="num">–</td><td class="num bad-text">21.0849</td><td class="bad-text">완주했지만 범용 품질 실패</td></tr>
+    </tbody></table></div>
+    <p>v1w의 12F 반례가 나온 뒤에는 1253/305 값을 높이기 위한 재탐색을 중단하고, 계산 복잡도와 memory 구조만 수정했다.
+      따라서 v1x–v1z는 label이나 scene별 숫자를 이용한 tuning이 아니다.</p>
+
+    <h3>14.3 v1w의 1253·305 geometry — 개선과 악화가 동시에 존재</h3>
+    <div class="table-wrap"><table><thead><tr><th>scene</th><th class="num">PSNR</th><th class="num">manual low / mid / high</th><th class="num">region support mass</th><th class="num">region opacity-area</th><th class="num">global opacity-area</th><th>v1v 대비</th></tr></thead><tbody>
+      <tr><td>aria1253</td><td class="num good-text">27.0631</td><td class="num bad-text">768 / 117 / 584</td><td class="num">1,521.0</td><td class="num">1.0967</td><td class="num good-text">2,298.10</td><td>global mass −44.3%, high-opacity 281→584 악화</td></tr>
+      <tr><td>aria301_305</td><td class="num good-text">30.2968</td><td class="num good-text">4,914 / 276 / 409</td><td class="num good-text">5,865.25</td><td class="num good-text">6.4787</td><td class="num good-text">2,785.02</td><td>global mass −34.0%, high-opacity 490→409 개선</td></tr>
+    </tbody></table></div>
+    <div class="box warn"><p><b>부분 판정만 가능하다.</b> exact support 검출은 전역 큰-splat proxy를 두 scene 모두 줄였지만,
+      1253의 manual high-opacity count는 악화됐다. 더구나 305 mask의 trajectory Sim3 median 정합 오차가 22.2cm라
+      label count 자체도 절대 ground truth로 과신할 수 없다. 따라서 “geometry PASS”는 다시 선언하지 않는다.</p></div>
+
+    <h3>14.4 12F blind counterexample와 최종 판정</h3>
+    <div class="table-wrap"><table><thead><tr><th>방법</th><th class="num">PSNR</th><th class="num">tracking loop</th><th>해석</th></tr></thead><tbody>
+      <tr><td>기존 exp67 universal scheduler</td><td class="num">약 26.41</td><td class="num">strict budget 약 165s</td><td>비교 기준</td></tr>
+      <tr><td>postmortem v1w</td><td class="num bad-text">22.30</td><td class="num bad-text">약 203s</td><td>exact support maintenance가 긴/큰 scene에서 과부하</td></tr>
+      <tr><td>postmortem v1x</td><td class="num bad-text">23.25</td><td class="num bad-text">약 203s</td><td>exact large-query 수만 줄여서는 cumulative field 병목이 남음</td></tr>
+      <tr><td>postmortem v1y</td><td class="num">미평가</td><td class="num warn-text">약 181s까지 진행</td><td>속도 개선, 98% OOM으로 완주 실패</td></tr>
+      <tr><td>postmortem v1z</td><td class="num bad-text">21.0849</td><td class="num bad-text">약 181s</td><td>완주·OOM 해결, 품질과 deadline 모두 실패</td></tr>
+    </tbody></table></div>
+    <p>v1z는 2,201 frame을 끝까지 처리했고 post-stream map update는 0이었다. 2,156 map step 중 keyframe 438,
+      dense 1,718이었다. Carve는 275 camera packet을 누적했고 pressure refresh 283회, incremental refresh 약 28.7초를 사용했다.
+      처리 시간은 v1w보다 약 22초 줄었지만 strict service budget을 약 16초 초과했고, 품질은 기존 exp67보다 약 5.33 dB 낮았다.</p>
+    <div class="box bad"><p><b>최종 결론:</b> 이번 postmortem scheduler는 <b>범용 PASS가 아니다.</b>
+      bounded active/archive와 O(N²) 회피 기법은 코드 구조상 유효하고 테스트로 보존할 가치가 있지만,
+      현재 causal carve action은 긴 12F stream에서 dense photometric 학습을 과도하게 교란한다.
+      1253/305의 27 dB 통과를 이유로 이 반례를 숨기거나 scene별 강도로 보정하지 않는다.</p></div>
+    <div class="box info"><p><b>다음 연구 단위:</b> scheduler membership/order는 exp67의 검증된 bounded shuffle을 기준선으로 고정하고,
+      carve는 먼저 <em>action 없이 detector telemetry만</em> 켠 동일-trajectory paired run으로 분리한다.
+      그 다음 detector recall, action dose, photometric gradient 충돌을 각각 독립적으로 검증해야 한다.
+      이번 loop에서 추가 숫자 tuning을 하지 않은 이유도 이 분해가 선행돼야 하기 때문이다.</p></div>
+
+    <h3>14.5 검증과 보존 상태</h3>
+    <ul>
+      <li>로컬·원격 unit test: <b>60개 통과</b> — bounded epoch/archive, capacity certificate, support/BVH, newborn/persistence, pressure deferral 포함.</li>
+      <li>세 장면 모두 strict Aria RGB+IMU replay 1.5×, post-stream refinement off, eval-only rendering으로 실행.</li>
+      <li>v1w 1253/305와 v1w/v1x/v1y/v1z 12F PLY·trajectory·<code>causal_carve_final.npz</code>를 로컬 결과 폴더에 보존.</li>
+      <li>환경 변수 <code>PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True</code>를 모든 장면에 동일 적용해 allocator fragmentation만 완화.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>15. 후속 감사 — 왜 low-opacity dust는 삭제되지 않았나</h2>
+    <div class="box bad"><p><b>결론:</b> opacity를 낮추는 경로는 작동했지만, 낮아진 Gaussian을
+      최종 회수하는 garbage collection clock이 사실상 작동하지 않았다. 현재 구조에서
+      <code>low opacity</code>는 prune의 충분조건이 아니다.</p></div>
+
+    <h3>15.1 Native prune은 조건보다 실행 기회가 부족했다</h3>
+    <p>사후 지표의 dust는 <code>opacity ≤ .1</code>이다. 저장된 mapping config의
+      <code>gaussian_th=.7</code>보다 낮으므로 opacity 항만 보면 native prune 대상이다. 그러나
+      <code>densify_and_prune()</code>은 frontier의 topology event에서만 호출된다.</p>
+    <div class="eq">update_gaussian
+= advance_iteration_count
+  AND NOT replay_iteration
+  AND iteration_count mod 150 = 50</div>
+    <ul>
+      <li>수천 번의 dense/keyframe replay는 의도적으로 native topology cadence를 진행하지 않는다.</li>
+      <li>postmortem run의 native topology event는 2회뿐이었다. 마지막 event 뒤 opacity가 낮아진 row는 삭제 기회를 받지 못했다.</li>
+      <li>Native mask는 최신 keyframe lineage를 일시적으로 제외한다: <code>unique_kfIDs != max(unique_kfIDs)</code>.</li>
+      <li><code>gaussian_reset=2,000,000,001</code>이므로 주기적 opacity reset/cleanup도 사실상 비활성이다.</li>
+    </ul>
+
+    <h3>15.2 Causal carve prune은 일반적인 low-opacity GC가 아니다</h3>
+    <p>Carve hard prune은 opacity가 낮다는 이유만으로 실행되지 않는다. 다음 조건을 동시에 요구한다.</p>
+    <div class="eq">eligible(g)
+= [carve_score(g) &gt; .5]
+  AND [persistence(g) ≥ ceil(2 · (2 - FisherQuality(g)))]
+  AND [opacity(g) ≤ .1 OR contribution(g) ≤ .1 · median]
+  AND [cumulative contribution budget ≤ .005]</div>
+    <p>즉 동일 Gaussian이 여러 독립 field generation에서 다시 score되어야 한다. 12F pressure mode에서는
+      한 refresh의 row budget이 2,048에서 약 46으로 줄었고, 많은 row가 재채점 대기 상태로 남아 persistence가 성숙하지 못했다.</p>
+    <div class="table-wrap"><table><thead><tr><th>run</th><th class="num">opacity≤.1</th><th class="num">그중 score&gt;.5</th><th class="num">그중 persistence 통과</th><th class="num">실행 중 budget prune</th></tr></thead><tbody>
+      <tr><td>1253 v1w</td><td class="num">21,318</td><td class="num">2,638</td><td class="num warn-text">9</td><td class="num bad-text">0</td></tr>
+      <tr><td>305 v1w</td><td class="num">30,846</td><td class="num">4,994</td><td class="num warn-text">5</td><td class="num bad-text">0</td></tr>
+      <tr><td>12F v1z</td><td class="num">33,434</td><td class="num">5,599</td><td class="num bad-text">0</td><td class="num bad-text">0</td></tr>
+    </tbody></table></div>
+    <p>표의 persistence 통과 9/5개는 저장 직전 마지막 diagnostic snapshot의 값이다. 해당 row가 성숙했을 때
+      새로운 prune action generation이 다시 열렸다는 뜻은 아니므로, 실행 로그의 <code>budget_pruned=0</code>과 모순되지 않는다.</p>
+
+    <h3>15.3 Opacity prox는 dust를 약하게 만들지만 PLY에서 제거하지 않는다</h3>
+    <p>Reversible prox와 soft gradient는 opacity logit만 낮춘다. RGB evidence가 돌아오면 회복할 수 있다는 장점이 있지만,
+      xyz·scale·rotation과 optimizer state는 그대로 남는다. 따라서 큰 가시 floater를 흐리게 만드는 동시에
+      <code>opacity≤.1</code> dust band의 개수를 유지하거나 늘릴 수 있다.</p>
+    <div class="flow"><div class="node">carve contradiction</div><div class="arrow">→</div><div class="node">opacity 감소</div><div class="arrow">→</div><div class="node">가시성 약화</div><div class="arrow">→</div><div class="node bad-text">GC event 없음</div></div>
+    <div class="box info"><p><b>필요한 수정:</b> densification과 분리된 mature GC event가 필요하다.
+      단순 <code>opacity&lt;threshold</code> 즉시 삭제가 아니라 <b>충분한 나이 + 낮은 opacity + 낮은 실제 render contribution</b>을
+      만족한 row를 measured maintenance budget 안에서 회수해야 한다. Carve persistence는 free-space 확신을 더하는 보조 조건으로 쓴다.</p></div>
+  </section>
+
+  <section>
+    <h2>16. 후속 감사 — 12F PSNR은 왜 21.08 dB까지 떨어졌나</h2>
+    <div class="box bad"><p><b>주원인은 hard pruning이 아니다.</b> 12F의 <code>budget_pruned=0</code>이었다.
+      병목은 carve maintenance가 photometric update budget을 대체한 것과, 충분히 갱신되지 않은 carve cache로
+      opacity/xyz gradient를 반복 적용한 것이다.</p></div>
+
+    <h3>16.1 가장 강한 증거 — photometric update가 절반 이하로 감소</h3>
+    <div class="table-wrap"><table><thead><tr><th>12F run</th><th class="num">fixed-eval PSNR</th><th class="num">map/replay step</th><th class="num">strict stream</th><th>상태</th></tr></thead><tbody>
+      <tr><td>exp67 universal r1</td><td class="num">반복 평균에 포함</td><td class="num">5,026</td><td class="num">약 165s</td><td>검증된 dense baseline</td></tr>
+      <tr><td>exp67 universal r2</td><td class="num">평균 26.4112</td><td class="num">5,587</td><td class="num">165.015s</td><td>검증된 dense baseline</td></tr>
+      <tr><td>postmortem v1z</td><td class="num bad-text">21.0849</td><td class="num bad-text">2,156</td><td class="num bad-text">약 181s</td><td>범용 실패</td></tr>
+    </tbody></table></div>
+    <p>v1z는 keyframe 438회, dense RGB 1,718회만 갱신했다. exp67보다 전체 photometric update가
+      약 57–61% 감소했다. “dense view가 많을수록 빨리 수렴한다”는 exp66/67의 가장 강한 이득을 carve 계산이 다시 빼앗은 셈이다.</p>
+
+    <h3>16.2 12F는 원래 idle 여유가 거의 없는 포화 장면이다</h3>
+    <p>exp67에서 12F는 worker-pressure 관측 256회 중 227회, 약 89%에서 기존 frontier budget을 replay로
+      교체해야 했다. 305처럼 idle GPU 시간이 넉넉한 장면이 아니다. 여기에 v1z는 다음 비용을 추가했다.</p>
+    <ul>
+      <li>275개 keyframe-depth packet의 누적 3D field.</li>
+      <li>incremental score refresh 약 28.7초.</li>
+      <li>152,517 support ID와 35,439 dirty key.</li>
+      <li>strict sensor budget 165초 대비 tracking loop 약 181초.</li>
+    </ul>
+    <p>따라서 carve는 “남는 시간에 수행된 무료 regularization”이 아니라, 12F에서는 photometric replay를 직접 대체하고
+      tracking/mapping deadline까지 밀어낸 작업이다.</p>
+
+    <h3>16.3 계산을 줄인 v1z에서는 score 신선도도 함께 나빠졌다</h3>
+    <p>pressure-aware refresh는 12F 시간을 v1w의 약 203초에서 181초로 줄였다. 하지만 종료 시
+      <code>pending_score_ids=142,300</code>으로 support ID의 약 93.3%가 재채점을 기다렸다.
+      pending은 반드시 score 0이라는 뜻은 아니지만, 최신 field/topology에 대해 stale할 수 있다는 뜻이다.</p>
+    <ul>
+      <li>최종 score&gt;.5 row는 17,106개, 마지막 selected row는 15,055개였다.</li>
+      <li>soft opacity gradient와 <code>lambda_force=.05</code> xyz attraction은 map step마다 현재 cache에 반복 적용됐다.</li>
+      <li>newborn gate 2,461개, opacity prox 6,365 row가 적용됐지만 일반 hard prune은 0개였다.</li>
+    </ul>
+    <p>즉 v1z는 계산량은 줄였지만, 일부 row에만 새 evidence가 반영되는 비대칭·비정상적인 regularizer가 됐다.
+      이 gradient가 RGB가 원하는 방향과 충돌했을 가능성이 높다. 다만 정확한 기여도는 carve telemetry-only / action-only
+      paired 실험 전에는 분리할 수 없으므로, 단독 인과로 단정하지 않는다.</p>
+    <div class="eq">28.7s carve maintenance
+→ photometric steps 5,026–5,587 → 2,156
++ stale / partial carve gradient
++ 16s deadline overrun
+→ fixed-eval PSNR 26.41 → 21.08 dB</div>
+  </section>
+
+  <section>
+    <h2>17. 기존 exp68보다 실제로 좋아진 것은 무엇인가</h2>
+    <div class="box bad"><p><b>최종 map 품질 전체로는 좋아졌다고 말할 수 없다.</b>
+      postmortem branch는 기존 exp68 champion을 대체하지 않으며, 12F 반례 때문에 범용 scheduler로도 채택하지 않는다.</p></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>기존 exp68 mixed final</th><th>postmortem</th><th>정직한 판정</th></tr></thead><tbody>
+      <tr><td>1253 fixed PSNR</td><td class="num">27.9331</td><td class="num">27.0631</td><td class="bad-text">하락</td></tr>
+      <tr><td>305 fixed PSNR</td><td class="num">30.6697</td><td class="num">30.2968</td><td class="bad-text">하락</td></tr>
+      <tr><td>12F</td><td>exp68에서 blind 검증 안 함</td><td class="num">21.0849</td><td class="bad-text">exp67 26.41 대비 실패</td></tr>
+      <tr><td>저-opacity dust</td><td>많이 남았지만 옛 PASS에서 누락</td><td>여전히 많이 남음</td><td class="bad-text">해결 안 됨</td></tr>
+      <tr><td>광의의 geometry</td><td>center/op&gt;.3 지표로 잘못 PASS</td><td>support/scale/area로 FAIL 확인</td><td>품질 향상이 아니라 판정 정확도 향상</td></tr>
+    </tbody></table></div>
+    <p>기존 visible count 126/529와 postmortem high-opacity count 584/409는 trajectory와 Sim3 정합 오차가 달라
+      완전히 동일한 paired 척도로 직접 비교하면 안 된다. 특히 postmortem 305의 정합 median 오차는 22.2cm다.</p>
+
+    <h3>17.1 결과물에서 확인된 제한적 개선</h3>
+    <ul>
+      <li>v1v→v1w의 전역 opacity-area proxy가 1253에서 44.3%, 305에서 34.0% 감소했다. 큰 footprint splat 억제 신호다.</li>
+      <li>305의 manual high-opacity floater는 490→409로 16.5% 감소했다.</li>
+      <li>반대로 1253 high-opacity는 281→584로 악화했고, low-opacity dust는 두 장면 모두 줄지 않았다.</li>
+      <li>12F maintenance 시간은 구조 최적화로 약 203→181초가 됐지만 여전히 deadline과 품질을 통과하지 못했다.</li>
+    </ul>
+
+    <h3>17.2 실제로 남길 가치가 있는 것은 진단과 기반 구조</h3>
+    <div class="table-wrap"><table><thead><tr><th>남길 것</th><th>가치</th><th>현재 제한</th></tr></thead><tbody>
+      <tr><td>bounded active/archive</td><td>stream 길이에 따라 epoch가 무한히 커지는 문제 방지</td><td>carve를 끈 상태에서 exp67과 paired 재검증 필요</td></tr>
+      <tr><td>stable ID + support 역인덱스/BVH</td><td>큰 Gaussian의 free-space 침범을 center-only보다 잘 검출</td><td>긴 scene에서 maintenance 비용 큼</td></tr>
+      <tr><td>opacity-band/scale/footprint 지표</td><td>기존 false geometry PASS를 방지</td><td>manual label 정합 정밀도 제한</td></tr>
+      <tr><td>12F blind counterexample</td><td>1253/305 과적합을 조기에 발견</td><td>현재 action의 개선책은 아직 미검증</td></tr>
+      <tr><td>60개 회귀 테스트</td><td>scheduler와 carve 자료구조의 구조적 회귀 방지</td><td>최종 품질을 보장하는 테스트는 아님</td></tr>
+    </tbody></table></div>
+    <div class="box info"><p><b>현재 champion:</b> photometric/streaming 관점에서는 여전히
+      <b>exp67 universal dense scheduler</b>다. 기존 exp68도 broad geometry 지표가 반박됐으므로 geometry champion은 아니다.
+      다음 단계는 exp67 scheduler를 고정하고 <b>carve detector telemetry-only</b>부터 같은 trajectory·같은 photometric step 수로 비교하는 것이다.</p></div>
+  </section>
+
+  <section>
+    <h2>18. 관련 문서와 코드</h2>
+    <ul>
+      <li><a href="exp68_geometry_scheduler_result.html">exp68_geometry_scheduler_result.html</a> — 당시 결과. Geometry PASS는 본 정정과 함께 읽는다.</li>
+      <li><a href="exp68_scheduler_method_explainer.html">exp68_scheduler_method_explainer.html</a> — 당시 구조·수식·파라미터.</li>
+      <li><a href="../exp67/exp67_universal_scheduler_result.html">exp67_universal_scheduler_result.html</a> — dense universal scheduler.</li>
+      <li><code>VIGS-SLAM-stagebcd/vigs/gaussian/utils/causal_carve.py</code> — field, Fisher, cache, soft/prox/prune.</li>
+      <li><code>VIGS-SLAM-stagebcd/vigs/gs_backend.py</code> — keyframe depth 입력과 map() geometry action.</li>
+      <li><code>VIGS-SLAM-stagebcd/vigs/map_scheduler.py</code> — adaptive admission과 causal shuffle queue.</li>
+      <li><code>VIGS-SLAM-stagebcd/vigs/vigs.py</code> — interval bootstrap/budget admission orchestration.</li>
+      <li><code>VIGS-SLAM-stagebcd/exp68_axes/run_geometry_scheduler_ablation.sh</code> — 세 장면 공통 <code>postmortem_v1</code> frozen CLI.</li>
+      <li><code>VIGS-SLAM-stagebcd/exp67_axes/test_causal_carve.py</code> — causal field/support/action 회귀 테스트.</li>
+      <li><code>VIGS-SLAM-stagebcd/exp66_axes/viewset_density/test_map_scheduler.py</code> — bounded archive/capacity/order 회귀 테스트.</li>
+      <li><code>VIGS-SLAM-stagebcd/exp68_axes/evaluate_manual_floater_regions.py</code> — 기존 region evaluator.</li>
+      <li><code>VIGS-SLAM-stagebcd/exp68_axes/analyze_causal_carve_scores.py</code> — 사후 score 감사.</li>
+    </ul>
+  </section>
+  <footer>exp68 geometry postmortem · aria1253 / aria301_305 / aria301_12F · 2026-08-26 · strict causal 1.5× · 설계, 실제 map() 구현, closed-loop 반복, blind generalization 실패까지 보존한 최종 감사.</footer>
+</main></body></html>

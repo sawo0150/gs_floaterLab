@@ -1,0 +1,358 @@
+{
+  "schema": "exp68.manual-floater-region.v2",
+  "scene": "aria1253",
+  "mask_voxel_m": 0.075,
+  "registration_warning": "Counts are relative diagnostics: the manual mask and VIGS map are joined by trajectory Sim3, so erosion/dilation stability must be reported. Support metrics use center + covariance-axis +/-2 sigma points with weights [1/4, 1/8 x 6].",
+  "runs": [
+    {
+      "label": "exp67_r1",
+      "run_dir": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/results/experiments/exp67_universal_v3_service_pressure_aria1253_strict15x_seed0",
+      "gaussians": 96657,
+      "visible_opacity_gt_0_3": 65248,
+      "max_scale": 24.597008715901303,
+      "scale_gt_0_1": 16606,
+      "scale_gt_0_5": 519,
+      "scale_gt_1_0": 281,
+      "scale_p95": 0.14902450538007864,
+      "scale_p99": 0.28353804732358795,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 18427,
+        "opacity_0_1_to_0_3": 12982,
+        "opacity_gt_0_3": 65248
+      },
+      "opacity_area_global": 2343.6453642030583,
+      "opacity_area_p99": 0.03490683000564158,
+      "sim3_scale": 1.0757066797403199,
+      "alignment_pairs": 51,
+      "alignment_median_m": 0.024026319084320017,
+      "alignment_p90_m": 0.036052675236314335,
+      "counts": {
+        "eroded_1": {
+          "all": 867,
+          "opacity_gt_0_1": 215,
+          "opacity_gt_0_3": 89,
+          "opacity_gt_0_5": 66,
+          "opacity_bands": {
+            "opacity_le_0_1": 652,
+            "opacity_0_1_to_0_3": 126,
+            "opacity_gt_0_3": 89
+          },
+          "support_any_count": 1492,
+          "support_mass": 905.625,
+          "opacity_support_mass": 121.61473426107679,
+          "opacity_area_support_mass": 0.8480239904075721
+        },
+        "nominal": {
+          "all": 1373,
+          "opacity_gt_0_1": 415,
+          "opacity_gt_0_3": 193,
+          "opacity_gt_0_5": 140,
+          "opacity_bands": {
+            "opacity_le_0_1": 958,
+            "opacity_0_1_to_0_3": 222,
+            "opacity_gt_0_3": 193
+          },
+          "support_any_count": 2589,
+          "support_mass": 1440.375,
+          "opacity_support_mass": 232.67608320668285,
+          "opacity_area_support_mass": 1.4211903704781919
+        },
+        "dilated_1": {
+          "all": 2413,
+          "opacity_gt_0_1": 914,
+          "opacity_gt_0_3": 478,
+          "opacity_gt_0_5": 353,
+          "opacity_bands": {
+            "opacity_le_0_1": 1499,
+            "opacity_0_1_to_0_3": 436,
+            "opacity_gt_0_3": 478
+          },
+          "support_any_count": 4859,
+          "support_mass": 2594.625,
+          "opacity_support_mass": 560.4544950092326,
+          "opacity_area_support_mass": 2.636885351104665
+        }
+      }
+    },
+    {
+      "label": "exp67_r2",
+      "run_dir": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/results/experiments/exp67_universal_v3_service_pressure_aria1253_strict15x_seed0_repeat2",
+      "gaussians": 96343,
+      "visible_opacity_gt_0_3": 65134,
+      "max_scale": 23.37247828897939,
+      "scale_gt_0_1": 16653,
+      "scale_gt_0_5": 521,
+      "scale_gt_1_0": 280,
+      "scale_p95": 0.15126243790356952,
+      "scale_p99": 0.28432553018873774,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 18164,
+        "opacity_0_1_to_0_3": 13045,
+        "opacity_gt_0_3": 65134
+      },
+      "opacity_area_global": 3027.404739181169,
+      "opacity_area_p99": 0.03596869572373415,
+      "sim3_scale": 1.0758236716520884,
+      "alignment_pairs": 51,
+      "alignment_median_m": 0.023750624824839375,
+      "alignment_p90_m": 0.03641783785492532,
+      "counts": {
+        "eroded_1": {
+          "all": 918,
+          "opacity_gt_0_1": 240,
+          "opacity_gt_0_3": 108,
+          "opacity_gt_0_5": 72,
+          "opacity_bands": {
+            "opacity_le_0_1": 678,
+            "opacity_0_1_to_0_3": 132,
+            "opacity_gt_0_3": 108
+          },
+          "support_any_count": 1572,
+          "support_mass": 946.625,
+          "opacity_support_mass": 131.72056785448203,
+          "opacity_area_support_mass": 0.8870942582750996
+        },
+        "nominal": {
+          "all": 1402,
+          "opacity_gt_0_1": 413,
+          "opacity_gt_0_3": 186,
+          "opacity_gt_0_5": 132,
+          "opacity_bands": {
+            "opacity_le_0_1": 989,
+            "opacity_0_1_to_0_3": 227,
+            "opacity_gt_0_3": 186
+          },
+          "support_any_count": 2610,
+          "support_mass": 1476.5,
+          "opacity_support_mass": 237.7737738379132,
+          "opacity_area_support_mass": 1.4799682438147872
+        },
+        "dilated_1": {
+          "all": 2477,
+          "opacity_gt_0_1": 936,
+          "opacity_gt_0_3": 500,
+          "opacity_gt_0_5": 359,
+          "opacity_bands": {
+            "opacity_le_0_1": 1541,
+            "opacity_0_1_to_0_3": 436,
+            "opacity_gt_0_3": 500
+          },
+          "support_any_count": 4855,
+          "support_mass": 2638.0,
+          "opacity_support_mass": 584.730173574494,
+          "opacity_area_support_mass": 2.7457658047216884
+        }
+      }
+    },
+    {
+      "label": "b25_sparse",
+      "run_dir": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp69_axes/results/exp69_b25_terminal_gc_sparse_aria1253_strict15x_seed0",
+      "gaussians": 96534,
+      "visible_opacity_gt_0_3": 66095,
+      "max_scale": 0.3604332756316821,
+      "scale_gt_0_1": 17773,
+      "scale_gt_0_5": 0,
+      "scale_gt_1_0": 0,
+      "scale_p95": 0.12350762727542385,
+      "scale_p99": 0.14707697617898485,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 17920,
+        "opacity_0_1_to_0_3": 12519,
+        "opacity_gt_0_3": 66095
+      },
+      "opacity_area_global": 209.4222011551501,
+      "opacity_area_p99": 0.017932480017194777,
+      "sim3_scale": 1.0670612811089148,
+      "alignment_pairs": 54,
+      "alignment_median_m": 0.01931645189182401,
+      "alignment_p90_m": 0.04774181671078309,
+      "counts": {
+        "eroded_1": {
+          "all": 814,
+          "opacity_gt_0_1": 127,
+          "opacity_gt_0_3": 86,
+          "opacity_gt_0_5": 69,
+          "opacity_bands": {
+            "opacity_le_0_1": 687,
+            "opacity_0_1_to_0_3": 41,
+            "opacity_gt_0_3": 86
+          },
+          "support_any_count": 1344,
+          "support_mass": 841.125,
+          "opacity_support_mass": 97.68257751180467,
+          "opacity_area_support_mass": 0.38263125946975474
+        },
+        "nominal": {
+          "all": 1276,
+          "opacity_gt_0_1": 270,
+          "opacity_gt_0_3": 165,
+          "opacity_gt_0_5": 126,
+          "opacity_bands": {
+            "opacity_le_0_1": 1006,
+            "opacity_0_1_to_0_3": 105,
+            "opacity_gt_0_3": 165
+          },
+          "support_any_count": 2352,
+          "support_mass": 1339.0,
+          "opacity_support_mass": 191.32985981344143,
+          "opacity_area_support_mass": 0.824021781871102
+        },
+        "dilated_1": {
+          "all": 2221,
+          "opacity_gt_0_1": 658,
+          "opacity_gt_0_3": 391,
+          "opacity_gt_0_5": 287,
+          "opacity_bands": {
+            "opacity_le_0_1": 1563,
+            "opacity_0_1_to_0_3": 267,
+            "opacity_gt_0_3": 391
+          },
+          "support_any_count": 4463,
+          "support_mass": 2387.5,
+          "opacity_support_mass": 457.14685116227804,
+          "opacity_area_support_mass": 1.7444819826645221
+        }
+      }
+    },
+    {
+      "label": "b27_moments",
+      "run_dir": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp69_axes/results/exp69_b27_terminal_gc_sparse_moments_aria1253_len1253_strict15x_seed0",
+      "gaussians": 96694,
+      "visible_opacity_gt_0_3": 65528,
+      "max_scale": 26.541542876400325,
+      "scale_gt_0_1": 17355,
+      "scale_gt_0_5": 107,
+      "scale_gt_1_0": 67,
+      "scale_p95": 0.13635465850343387,
+      "scale_p99": 0.18327749808644647,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 18534,
+        "opacity_0_1_to_0_3": 12632,
+        "opacity_gt_0_3": 65528
+      },
+      "opacity_area_global": 2147.93460820722,
+      "opacity_area_p99": 0.022790888800961678,
+      "sim3_scale": 1.0733331647522977,
+      "alignment_pairs": 51,
+      "alignment_median_m": 0.021844981759768053,
+      "alignment_p90_m": 0.03519684916618421,
+      "counts": {
+        "eroded_1": {
+          "all": 833,
+          "opacity_gt_0_1": 164,
+          "opacity_gt_0_3": 87,
+          "opacity_gt_0_5": 67,
+          "opacity_bands": {
+            "opacity_le_0_1": 669,
+            "opacity_0_1_to_0_3": 77,
+            "opacity_gt_0_3": 87
+          },
+          "support_any_count": 1420,
+          "support_mass": 874.375,
+          "opacity_support_mass": 109.11598948480304,
+          "opacity_area_support_mass": 0.5595400253266555
+        },
+        "nominal": {
+          "all": 1333,
+          "opacity_gt_0_1": 326,
+          "opacity_gt_0_3": 176,
+          "opacity_gt_0_5": 130,
+          "opacity_bands": {
+            "opacity_le_0_1": 1007,
+            "opacity_0_1_to_0_3": 150,
+            "opacity_gt_0_3": 176
+          },
+          "support_any_count": 2424,
+          "support_mass": 1386.75,
+          "opacity_support_mass": 204.69704592648407,
+          "opacity_area_support_mass": 1.0454647804521728
+        },
+        "dilated_1": {
+          "all": 2302,
+          "opacity_gt_0_1": 763,
+          "opacity_gt_0_3": 428,
+          "opacity_gt_0_5": 310,
+          "opacity_bands": {
+            "opacity_le_0_1": 1539,
+            "opacity_0_1_to_0_3": 335,
+            "opacity_gt_0_3": 428
+          },
+          "support_any_count": 4708,
+          "support_mass": 2474.625,
+          "opacity_support_mass": 510.2661791740493,
+          "opacity_area_support_mass": 2.091856794934286
+        }
+      }
+    },
+    {
+      "label": "b28_moments",
+      "run_dir": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp69_axes/results/exp69_b28_terminal_gc_sparse_moments_aria1253_len1253_strict15x_seed0_repeat",
+      "gaussians": 96403,
+      "visible_opacity_gt_0_3": 65812,
+      "max_scale": 29.0257526815243,
+      "scale_gt_0_1": 17479,
+      "scale_gt_0_5": 74,
+      "scale_gt_1_0": 39,
+      "scale_p95": 0.11803929344865682,
+      "scale_p99": 0.14023220683290338,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 17569,
+        "opacity_0_1_to_0_3": 13022,
+        "opacity_gt_0_3": 65812
+      },
+      "opacity_area_global": 2246.3077135723083,
+      "opacity_area_p99": 0.01596680177270782,
+      "sim3_scale": 1.0741226631683163,
+      "alignment_pairs": 51,
+      "alignment_median_m": 0.01983869172072425,
+      "alignment_p90_m": 0.03242079184779675,
+      "counts": {
+        "eroded_1": {
+          "all": 828,
+          "opacity_gt_0_1": 162,
+          "opacity_gt_0_3": 71,
+          "opacity_gt_0_5": 54,
+          "opacity_bands": {
+            "opacity_le_0_1": 666,
+            "opacity_0_1_to_0_3": 91,
+            "opacity_gt_0_3": 71
+          },
+          "support_any_count": 1353,
+          "support_mass": 852.625,
+          "opacity_support_mass": 94.45041521167623,
+          "opacity_area_support_mass": 0.44076596149201236
+        },
+        "nominal": {
+          "all": 1266,
+          "opacity_gt_0_1": 303,
+          "opacity_gt_0_3": 145,
+          "opacity_gt_0_5": 106,
+          "opacity_bands": {
+            "opacity_le_0_1": 963,
+            "opacity_0_1_to_0_3": 158,
+            "opacity_gt_0_3": 145
+          },
+          "support_any_count": 2412,
+          "support_mass": 1344.625,
+          "opacity_support_mass": 183.5306427255442,
+          "opacity_area_support_mass": 0.8570657180807835
+        },
+        "dilated_1": {
+          "all": 2288,
+          "opacity_gt_0_1": 755,
+          "opacity_gt_0_3": 377,
+          "opacity_gt_0_5": 285,
+          "opacity_bands": {
+            "opacity_le_0_1": 1533,
+            "opacity_0_1_to_0_3": 378,
+            "opacity_gt_0_3": 377
+          },
+          "support_any_count": 4613,
+          "support_mass": 2452.625,
+          "opacity_support_mass": 474.50927560993904,
+          "opacity_area_support_mass": 1.7767683409625705
+        }
+      }
+    }
+  ]
+}

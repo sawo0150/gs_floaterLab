@@ -2,7 +2,7 @@
 
 전 실험 목록. 상세는 각 카드 참조. baseline 대비 Δ는 PSNR@30k 기준.
 
-> **HTML 보고서 모음:** [브라우저 인덱스](index.html) · [exp66](exp66/) · [exp67](exp67/) · [exp68](exp68/)
+> **HTML 보고서 모음:** [브라우저 인덱스](index.html) · [exp66](exp66/) · [exp67](exp67/) · [exp68](exp68/) · [exp69](exp69/)
 
 ## Full 30k, MPS init 1311장 (메인 트랙)
 
@@ -91,6 +91,7 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 
 | Exp | 내용 | 상태 | 카드 |
 |---|---|---|---|
+| **exp69** | mature dust GC, FIFO epoch, pose-balanced active+unbounded archive를 strict 1.5× 세 장면에서 분리 검증; active/archive는 1253/305 photo 통과에도 paired 12F −0.92dB·305 geometry 소폭 악화로 기각 | **완료(범용 후보 기각)** | [결과](exp69/exp69_result.html) |
 | exp43 | 교차 장면 완주: rot 점수 AUC 0.98·pseudo-label 정밀도 100% / 305 **depth-anchor carve 재현 성공**(먼지 -83%·PSNR 동급) / 실패 5건 정직 기록 — 결론: carve 성패=앵커 품질 | **완료** | [exp43](exp43_cross_scene_plan.md) |
 | exp45 | 채택 큐 4종: 45a 노출 기각(-6dB)·45b dynamic 조건부(깨끗한 init 전제)·44e3 보류(먼지 ×4)·45c progressive resolution 진행 중 | 진행 | [exp44 카드 참조](exp44_fast_geometry_plan.md) |
 | exp46 | basin 재프레임: floater=photo loss의 정당한 숏컷 분지 → 압력 대신 '올바른 geometry를 가까운 basin으로'. (a)도달불가=init/(b)환원불가=appearance 이분법 + 다음 실험 7축(원거리 photometric 감쇠 포함) | **완료** | [exp46](exp46_basin_reframe_plan.md) |

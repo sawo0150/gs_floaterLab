@@ -25,6 +25,9 @@ results/**
 !results/logs/
 !results/logs/**
 
+# exp69 axes: raw per-run outputs (PLY/checkpoints/logs), keep analysis/reports
+exp69_axes/results/
+
 # Large generated experiment assets. These exceed GitHub's normal Git limits
 # and should be stored externally or with Git LFS if needed later.
 context/reference/papers/merged_original.pdf
