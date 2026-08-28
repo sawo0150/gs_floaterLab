@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>최종 VIGS-SLAM — 실시간 incremental 3DGS mapping의 재설계</title>
+  <style>
+    :root{
+      --paper:#f3f5f8;--panel:#fff;--ink:#18212c;--muted:#657283;--line:#d9e0e8;
+      --navy:#173f73;--blue:#2c6acb;--cyan:#1687a7;--green:#18794e;--amber:#986700;
+      --red:#b42318;--violet:#6b4db2;--soft-blue:#edf4ff;--soft-green:#edf9f2;
+      --soft-amber:#fff8e6;--soft-red:#fff1ef;--code:#101722;--code-ink:#e7edf5;
+      --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+      --serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;
+      --mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace;
+    }
+    @media(prefers-color-scheme:dark){:root{
+      --paper:#0f1318;--panel:#171d24;--ink:#edf2f7;--muted:#a6b1bf;--line:#303a47;
+      --navy:#9dc4ff;--blue:#8bb6ff;--cyan:#69d0e9;--green:#69d69d;--amber:#efc75e;
+      --red:#ff8b82;--violet:#c4a8ff;--soft-blue:#17243a;--soft-green:#142820;
+      --soft-amber:#2a2415;--soft-red:#301a19;--code:#080c11;--code-ink:#e7edf5}}
+    *{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:var(--paper);color:var(--ink);
+      font-family:var(--sans);line-height:1.68;padding:52px 22px 90px}
+    main{max-width:1100px;margin:auto}header{padding-bottom:30px;border-bottom:1px solid var(--line)}
+    .eyebrow{font:12px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--blue)}
+    h1{font:600 clamp(31px,5vw,52px)/1.16 var(--serif);letter-spacing:-.035em;margin:10px 0 15px;max-width:19ch}
+    .dek{max-width:77ch;color:var(--muted);font-size:17px}.meta{margin-top:17px;font:12px var(--mono);color:var(--muted)}
+    section{margin-top:54px}h2{font:600 27px/1.3 var(--serif);letter-spacing:-.02em;margin:0 0 17px}
+    h3{font-size:18px;margin:27px 0 10px}h4{font-size:15px;margin:0 0 7px}p{margin:9px 0}
+    .num{font:12px var(--mono);color:var(--blue);margin-right:9px}.lead{font-size:16px;max-width:83ch}
+    .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .card,.box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+    .card p{font-size:14px;color:var(--muted)}.box.info{border-left:4px solid var(--blue)}
+    .box.good{border-left:4px solid var(--green)}.box.warn{border-left:4px solid var(--amber)}
+    .box.bad{border-left:4px solid var(--red)}.tag{display:inline-block;font:10px var(--mono);letter-spacing:.05em;
+      text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:2px 8px;margin-bottom:8px}
+    .tag.blue{color:var(--blue)}.tag.green{color:var(--green)}.tag.amber{color:var(--amber)}
+    .equation{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 20px;
+      margin:14px 0;text-align:center;font:15px/1.7 var(--mono);overflow:auto}
+    .flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:5px 0 9px;margin:17px 0}
+    .node{min-width:155px;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+      padding:14px;text-align:center;font-size:13px}.node b{display:block;font-size:14px;margin-bottom:4px}
+    .arrow{align-self:center;color:var(--blue);font-size:22px;font-weight:700}.node.track{border-top:4px solid var(--cyan)}
+    .node.map{border-top:4px solid var(--blue)}.node.geo{border-top:4px solid var(--green)}
+    .node.out{border-top:4px solid var(--violet)}
+    .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:18px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+    .phase{padding:18px;background:var(--panel);border-right:1px solid var(--line)}.phase:last-child{border-right:0}
+    .phase .name{font:12px var(--mono);color:var(--blue)}.phase b{display:block;margin:5px 0}
+    .phase p{font-size:13px;color:var(--muted)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
+    table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{font:11px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}tr:last-child td{border-bottom:0}
+    td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}.good-t{color:var(--green)}.warn-t{color:var(--amber)}.bad-t{color:var(--red)}
+    pre{background:var(--code);color:var(--code-ink);padding:16px 18px;border-radius:8px;overflow:auto;font:13px/1.55 var(--mono)}
+    code{font-family:var(--mono);font-size:.9em;background:color-mix(in srgb,var(--panel),var(--line) 35%);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+    ul,ol{padding-left:22px}li{margin:7px 0}.small{font-size:13px;color:var(--muted)}
+    .compare{display:grid;grid-template-columns:1fr auto 1fr;gap:13px;align-items:stretch;margin:17px 0}
+    .compare .mid{align-self:center;font:700 23px var(--mono);color:var(--blue)}
+    .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:8px 0}
+    .dot{width:9px;height:9px;display:inline-block;border-radius:50%;margin-right:5px}
+    .kicker{font:11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+    .caption{font-size:12px;color:var(--muted);margin:-4px 0 14px;text-align:center}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
+    .metric{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px 15px}
+    .metric .k{font:10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .metric .v{font:600 22px/1.25 var(--mono);color:var(--blue);margin:7px 0 4px}.metric p{font-size:12px;color:var(--muted);margin:0}
+    .three-axis{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:18px 0}
+    .axis-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 18px 16px}
+    .axis-card:after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:4px;border-radius:4px 4px 0 0;background:var(--blue)}
+    .axis-card:nth-child(2):after{background:var(--violet)}.axis-card:nth-child(3):after{background:var(--green)}
+    .axis-card .q{font:12px var(--mono);color:var(--muted)}.axis-card b{display:block;margin:6px 0}.axis-card p{font-size:13px;color:var(--muted)}
+    .steps{counter-reset:step;display:grid;gap:9px;margin:15px 0}.step{counter-increment:step;display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px 15px}
+    .step:before{content:counter(step);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--soft-blue);color:var(--blue);font:700 12px var(--mono)}
+    .step b{display:block}.step span{font-size:13px;color:var(--muted)}
+    .claim{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:start;padding:13px 0;border-bottom:1px solid var(--line)}.claim:last-child{border-bottom:0}
+    .claim .label{font:11px var(--mono);color:var(--blue);text-transform:uppercase}.claim p{margin:0;font-size:14px}
+    .bars{display:grid;gap:8px;margin:14px 0}.barrow{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:12px}.bartrack{height:12px;background:color-mix(in srgb,var(--line),transparent 28%);border-radius:99px;overflow:hidden}.barfill{height:100%;border-radius:99px;background:var(--blue)}.barfill.green{background:var(--green)}.barfill.amber{background:var(--amber)}
+    .toc{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.toc a{color:var(--muted);text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 10px;font:11px var(--mono)}.toc a:hover{color:var(--blue);border-color:var(--blue)}
+    svg{width:100%;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:12px 0}
+    footer{margin-top:58px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}
+    @media(max-width:800px){.grid2,.grid3,.compare,.metric-grid,.three-axis{grid-template-columns:1fr}.compare .mid{display:none}.timeline{grid-template-columns:1fr}.phase{border-right:0;border-bottom:1px solid var(--line)}.claim{grid-template-columns:1fr}.barrow{grid-template-columns:110px 1fr 55px}body{padding:30px 14px 65px}}
+    @media print{body{background:#fff;padding:12px}.card,.box,.table-wrap,.equation,svg{break-inside:avoid}section{break-before:auto}.flow{overflow:visible}.node{min-width:0}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <div class="eyebrow">Research briefing · incremental 3D Gaussian Splatting · exp66–69</div>
+    <h1>최종 VIGS-SLAM은 어떻게 실시간 지도를 학습하는가</h1>
+    <p class="dek">Tracking은 검증된 VIGS/DROID 경로를 거의 유지하고, mapping을
+      <b>keyframe 중심의 짧은 최적화</b>에서 <b>causal dense-view replay + 계산량 기반 제어 + 독립 geometry maintenance</b>로 재설계했다.
+      이 문서는 코드를 모르는 연구자도 설계의 필요성, 수학적 구조, 실험적 근거와 남은 한계를 설명할 수 있도록 정리한 것이다.</p>
+    <div class="meta">final main: 2a3eeeb5 · v7 · RTX 5070 Ti / 5090 · Aria Gen1/Gen2 bridge · 2026-08-28</div>
+    <nav class="toc" aria-label="문서 바로가기"><a href="#system">전체 구조</a><a href="#viewset">View set</a><a href="#order">Training order</a><a href="#carve">Carve loss</a><a href="#results">최종 결과</a></nav>
+  </header>
+
+  <section id="summary">
+    <h2><span class="num">00</span>한 문장 요약</h2>
+    <div class="box info"><b>새 시스템은 지금까지 도착한 RGB/IMU만 사용하면서, GPU가 실제로 처리할 수 있는 만큼 dense view를 받아들이고,
+      선택된 view를 novelty 순서가 아니라 균형 잡힌 random shuffle로 반복 학습하며, keyframe geometry·3D free-space carve·종료 시 dust cleanup으로 지도의 형태를 보호한다.</b></div>
+    <div class="grid3">
+      <div class="card"><span class="tag blue">Photometric</span><h4>더 많은 서로 다른 ray</h4><p>2 FPS 수준 keyframe만 반복하지 않고 causal RGB stream의 dense view를 supervision으로 사용한다.</p></div>
+      <div class="card"><span class="tag green">Geometry</span><h4>표면과 자유공간을 분리</h4><p>keyframe depth/normal은 표면을 지지하고, 여러 view가 확인한 ray는 빈 공간 opacity를 약하게 억제한다.</p></div>
+      <div class="card"><span class="tag amber">Realtime</span><h4>시간을 step이 아니라 비용으로 관리</h4><p>tracking deadline, 실제 replay 처리량, PGBA 비용을 보고 mapping service를 배분한다.</p></div>
+    </div>
+  </section>
+
+  <section id="motivation">
+    <h2><span class="num">01</span>왜 기존 mapping만으로 부족했는가</h2>
+    <div class="compare">
+      <div class="card"><span class="tag amber">기존</span><h3>Keyframe 중심 학습</h3>
+        <ul><li>tracking이 선택한 드문 keyframe에 학습이 집중된다.</li><li>같은 시점을 반복해 이미 큰 gradient 방향을 다시 강화한다.</li><li>depth/normal supervision은 풍부하지만 photometric convergence가 느리다.</li></ul></div>
+      <div class="mid">→</div>
+      <div class="card"><span class="tag blue">변경</span><h3>Dense causal replay</h3>
+        <ul><li>keyframe 사이의 RGB도 pose를 채워 training candidate가 된다.</li><li>새 occlusion, ray, surface patch가 반복 편향을 줄인다.</li><li>단, geometry supervision 빈도와 GPU budget을 별도로 복원해야 한다.</li></ul></div>
+    </div>
+    <h3>1.1 출발점이 된 두 관측</h3>
+    <p>exp66은 서로 다른 두 축을 보여줬다. 첫째, keyframe의 depth/normal을 끄면 RGB PSNR은 모든 milestone에서
+      0.65–1.15 dB 빨리 올라갔다. 둘째, loss를 RGB-only로 통제한 뒤에도 2 FPS 수준의 keyframe set보다
+      12–16 FPS의 dense set이 훨씬 높은 held-out 품질에 도달했다. 아래 그림은 당시 워킹노트의 설명을 다시 그린 것이다.
+      <b>왼쪽 메커니즘은 아직 가설</b>이고, <b>오른쪽 dense-view 효과는 통제 실험으로 재현된 사실</b>이다.</p>
+    <svg viewBox="0 0 1000 370" role="img" aria-label="Gaussian depth axis and camera view width axis">
+      <rect x="25" y="25" width="455" height="300" rx="16" fill="none" stroke="currentColor" opacity=".15"/>
+      <rect x="520" y="25" width="455" height="300" rx="16" fill="none" stroke="currentColor" opacity=".15"/>
+      <text x="52" y="62" fill="#986700" font-size="18" font-weight="700">깊이 방향 · 가설</text>
+      <text x="548" y="62" fill="#2c6acb" font-size="18" font-weight="700">시점 방향 · 관측사실</text>
+      <path d="M96 292 Q230 145 410 88" fill="none" stroke="#8794a4" stroke-width="3"/>
+      <line x1="67" y1="91" x2="257" y2="204" stroke="#986700" stroke-width="3"/>
+      <circle cx="221" cy="177" r="8" fill="#986700"/><circle cx="237" cy="185" r="8" fill="#986700"/><circle cx="252" cy="194" r="8" fill="#986700"/>
+      <text x="52" y="318" fill="currentColor" font-size="14">얇은 surface shell: ray당 참여 Gaussian이 적음</text>
+      <line x1="552" y1="278" x2="755" y2="169" stroke="#9aa7b7" stroke-width="2"/>
+      <line x1="618" y1="299" x2="755" y2="169" stroke="#9aa7b7" stroke-width="2"/>
+      <line x1="681" y1="306" x2="755" y2="169" stroke="#2c6acb" stroke-width="3"/>
+      <line x1="756" y1="303" x2="755" y2="169" stroke="#2c6acb" stroke-width="3"/>
+      <line x1="835" y1="294" x2="755" y2="169" stroke="#2c6acb" stroke-width="3"/>
+      <line x1="918" y1="269" x2="755" y2="169" stroke="#2c6acb" stroke-width="3"/>
+      <path d="M708 146 Q757 116 806 146 Q793 189 755 204 Q722 185 708 146" fill="#2c6acb" opacity=".16" stroke="#2c6acb" stroke-width="2"/>
+      <g fill="#2c6acb"><circle cx="552" cy="278" r="7"/><circle cx="618" cy="299" r="7"/><circle cx="681" cy="306" r="7"/><circle cx="756" cy="303" r="7"/><circle cx="835" cy="294" r="7"/><circle cx="918" cy="269" r="7"/></g>
+      <text x="548" y="318" fill="currentColor" font-size="14">dense camera rays: trajectory 사이 supervision gap을 줄임</text>
+    </svg>
+    <p class="caption">깊이 방향의 “effective DOF” 설명은 검증 대기 중이며, 최종 scheduler의 근거로 직접 사용하지 않는다.</p>
+
+    <h3>1.2 “2차원 curve에 점을 더 찍는 것”과 어디까지 같은가</h3>
+    <p>각 camera pose를 연속 변수 <i>v</i>, 그 pose에서의 rendering loss를 ℓ(θ;<i>v</i>)라 하면 우리가 줄이고 싶은 것은
+      연속 궤적 분포의 위험도 <i>R</i>(θ)다. 유한 view set은 이를 표본 평균으로 근사한다.</p>
+    <div class="equation">
+      R(θ)=E<sub>v∼p(v)</sub>[ℓ(θ;v)], &nbsp;&nbsp;
+      R<sub>S</sub>(θ)=1/|S| Σ<sub>v∈S</sub>ℓ(θ;v)
+    </div>
+    <p>keyframe만 쓰면 궤적의 빈 구간이 커서 <i>R<sub>S</sub></i>가 실제 연속 궤적 <i>R</i>을 거칠게 근사한다.
+      dense view는 curve 위의 표본점을 촘촘히 놓듯 이 <b>분포 근사 오차</b>를 줄이고, 인접 view의 중복된 gradient는
+      초기에는 낮은 분산의 일관된 방향을 줄 수 있다. 하지만 점이 많다고 optimizer의 한 step이 자동으로 좋아지는 것은 아니다.
+      같은 시간 안에 각 점이 받는 재방문 기회가 줄 수 있기 때문이다.</p>
+    <svg viewBox="0 0 1000 290" role="img" aria-label="sparse and dense samples fitting a continuous trajectory risk">
+      <path d="M55 214 C165 34 280 254 440 88" fill="none" stroke="#8d99a7" stroke-width="4"/>
+      <path d="M555 214 C665 34 780 254 945 88" fill="none" stroke="#8d99a7" stroke-width="4"/>
+      <g fill="#986700"><circle cx="88" cy="169" r="8"/><circle cx="247" cy="169" r="8"/><circle cx="421" cy="105" r="8"/></g>
+      <g fill="#2c6acb"><circle cx="574" cy="188" r="7"/><circle cx="620" cy="114" r="7"/><circle cx="667" cy="83" r="7"/><circle cx="714" cy="111" r="7"/><circle cx="760" cy="174" r="7"/><circle cx="808" cy="190" r="7"/><circle cx="857" cy="151" r="7"/><circle cx="908" cy="105" r="7"/></g>
+      <text x="55" y="255" fill="currentColor" font-size="15">sparse KF: 빠른 반복, 큰 trajectory gap</text>
+      <text x="555" y="255" fill="currentColor" font-size="15">dense set: 더 정확한 risk 근사, 더 많은 제약</text>
+    </svg>
+
+    <h3>1.3 그래서 세 결정을 분리했다</h3>
+    <div class="three-axis">
+      <div class="axis-card"><span class="q">얼마나 많이?</span><b>Compute allocation / quota</b><p>GPU가 실제 완료한 replay 양으로 새 view 수를 정한다.</p></div>
+      <div class="axis-card"><span class="q">어떤 것을 남길까?</span><b>View-set membership</b><p>시간·pose 대표성을 먼저 지키고 novelty는 보조 신호로 쓴다.</p></div>
+      <div class="axis-card"><span class="q">어떤 순서로?</span><b>Optimizer order</b><p>novelty-first가 아니라 pool 내부 shuffle로 평균 gradient를 근사한다.</p></div>
+    </div>
+    <div class="equation">compute allocation ≠ view-set membership ≠ optimizer order</div>
+  </section>
+
+  <section id="system">
+    <h2><span class="num">02</span>전체 시스템</h2>
+    <div class="flow">
+      <div class="node track"><b>Aria RGB + IMU</b>timestamp 순 입력</div><div class="arrow">→</div>
+      <div class="node track"><b>DROID/VIGS Tracking</b>pose · metric depth · keyframe</div><div class="arrow">→</div>
+      <div class="node map"><b>Causal View Admission</b>dense 후보 · work credit</div><div class="arrow">→</div>
+      <div class="node map"><b>Adaptive map()</b>frontier + shuffled replay</div><div class="arrow">→</div>
+      <div class="node geo"><b>Geometry Protection</b>RGBD/N · carve · dust GC</div><div class="arrow">→</div>
+      <div class="node out"><b>Incremental 3DGS</b>PLY · trajectory · diagnostics</div>
+    </div>
+    <div class="box good"><b>Causal contract.</b> 어떤 시점에도 미래 keyframe, MPS 후처리 trajectory/depth, held-out evaluator를 mapping 입력으로 쓰지 않는다.
+      <code>background_polish_step</code>도 사용하지 않고 모든 학습 action을 <code>map()</code> 경로 안에서 실행한다.</div>
+  </section>
+
+  <section id="tracking">
+    <h2><span class="num">03</span>Tracking: 거의 유지한 부분</h2>
+    <p class="lead">Tracking은 연구의 주된 변경축이 아니다. 기존 DROID 계열의 correlation/ConvGRU와 local BA,
+      IMU metric initialization, PGBA를 유지하고 mapping과 안전하게 연결하는 부분만 보강했다.</p>
+    <div class="grid2">
+      <div class="card"><h4>Local tracking</h4><p>최근 15 frame window, radius 2, motion threshold 2.6을 사용한다. RGB correlation과 recurrent update가 optical flow·confidence를 만들고 BA가 pose/depth를 갱신한다.</p></div>
+      <div class="card"><h4>Metric initialization</h4><p>초기 20 frame의 visual–inertial agreement로 metric scale을 초기화한다. 삭제될 pre-IMU Gaussian을 만들지 않도록 mapping은 이 단계 뒤에 시작한다.</p></div>
+      <div class="card"><h4>Dense pose filling</h4><p>keyframe 사이 RGB pose는 단순 시간 보간이 아니라 trajectory filler의 optical refinement로 얻는다. 최대 16장을 묶어 처리한다.</p></div>
+      <div class="card"><h4>PGBA</h4><p>긴 궤적의 pose graph revision을 허용한다. revision 뒤 Gaussian과 optimizer state가 같은 좌표변환을 받도록 mapping 측을 수정했다.</p></div>
+    </div>
+  </section>
+
+  <section id="objective">
+    <h2><span class="num">04</span>Mapping이 최소화하는 것</h2>
+    <p>시점 <i>t</i>까지 도착한 training set을 <i>S<sub>t</sub></i>, Gaussian parameter를 θ라 하면 최종 목적은 다음처럼 볼 수 있다.</p>
+    <div class="equation">
+      L<sub>t</sub>(θ) = E<sub>v∼π<sub>t</sub></sub>[L<sub>RGB</sub>(v; θ,T<sub>v</sub>)]
+      + 𝟙[v is keyframe](λ<sub>D</sub>L<sub>depth</sub> + λ<sub>N</sub>L<sub>normal</sub>)
+      + λ<sub>C</sub>L<sub>carve</sub>
+    </div>
+    <ul>
+      <li><b>Dense view:</b> RGB loss를 제공하며 Gaussian의 위치·크기·색·opacity update를 제한하지 않는다.</li>
+      <li><b>Keyframe:</b> 기존 RGBD+normal loss로 실제 surface geometry를 지지한다.</li>
+      <li><b>Global carve:</b> 특정 frame의 2D loss가 아니라, 도착한 keyframe ray가 누적한 3D free-space constraint다.</li>
+    </ul>
+    <p>중요한 점은 π<sub>t</sub>, 즉 학습 view 분포가 고정 uniform도 novelty-first도 아니라는 것이다.
+      다음 절의 admission, active/archive mixture, shuffle가 이 분포를 만든다.</p>
+  </section>
+
+  <section id="viewset">
+    <h2><span class="num">05</span>View set: 계산량·대표성·기억을 함께 관리한다</h2>
+    <h3>5.1 왜 고정 FPS가 아니라 budget-dependent quota인가</h3>
+    <p>exp66의 RGB-only K-sweep은 “dense할수록 무조건 빠르다”보다 더 정확한 모양을 보여줬다.
+      작은 set은 한 바퀴를 빨리 돌아 초기에 유리하지만 일찍 포화되고, 큰 set은 한 바퀴가 느린 대신 더 낮은 오차 하한에 도달했다.</p>
+    <div class="equation">
+      E<sub>K</sub>(B)=E<sub>∞,K</sub>+A<sub>K</sub> exp[−(B/τ<sub>K</sub>)<sup>β<sub>K</sub></sup>]
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><div class="k">20 s budget</div><div class="v">K=2 FPS</div><p>작은 set의 빠른 재방문이 우세</p></div>
+      <div class="metric"><div class="k">40 s budget</div><div class="v">K=12 FPS</div><p>더 넓은 view 분포가 역전</p></div>
+      <div class="metric"><div class="k">60–100 s</div><div class="v">K=16 FPS</div><p>실측 admissible 상한에서 최적</p></div>
+      <div class="metric"><div class="k">D02 → D12</div><div class="v">E∞ ×0.56</div><p>0.00103 → 0.000577 MSE</p></div>
+    </div>
+    <p>따라서 “항상 12 FPS를 넣는다” 같은 장면·GPU 종속 상수는 피했다. streaming에서는 앞으로 남은 idle budget을
+      미리 알 수 없으므로, <b>실제로 소화한 optimizer work</b>를 view-set 확장의 관측 가능한 대리변수로 삼는다.</p>
+
+    <h3>5.2 Work-credit admission: GPU service가 quota를 만든다</h3>
+    <p>30 FPS 전체를 무조건 training set에 넣으면 pool 증가 속도가 GPU service보다 빨라질 수 있다.
+      반대로 fps를 4나 8로 고정하면 장면 속도와 GPU에 과적합된다. 그래서 실제로 완료된 replay를 화폐처럼 쓴다.</p>
+    <div class="equation">
+      credit<sub>t+1</sub> = credit<sub>t</sub> + completed replay steps,
+      &nbsp;&nbsp;new-view quota = ⌊credit / r⌋,&nbsp;&nbsp;r = 2
+    </div>
+    <p>새 keyframe interval마다 deadlock 방지용 대표 view 한 장은 bootstrap으로 먼저 받는다.
+      이후 view는 기존 pool이 최소 학습 기회를 받은 뒤, 완료된 replay 두 step당 한 장의 비율로 추가된다.
+      <b>quota는 wall-clock이나 frame ID가 아니라 완료된 gradient service로 생긴다.</b> 따라서 빠른 GPU에는 더 많은
+      dense supervision이 들어가고, 느린 GPU에는 pool 증가가 자연히 억제된다.</p>
+
+    <div class="flow">
+      <div class="node map"><b>GPU가 replay 완료</b>실제 처리량 계측</div><div class="arrow">→</div>
+      <div class="node map"><b>work credit 적립</b>2 update = 1 credit unit</div><div class="arrow">→</div>
+      <div class="node map"><b>interval quota 생성</b>받을 view 수 결정</div><div class="arrow">→</div>
+      <div class="node map"><b>대표 view admission</b>pose/novelty로 구성</div>
+    </div>
+
+    <h3>5.3 Membership: temporal/pose coverage가 먼저, novelty는 그 안의 보조항</h3>
+    <p>quota가 정해진 뒤에야 “어떤 view를 넣을지”를 결정한다. exp66 Stage B에서 전역 coverage만 극대화한 set은
+      temporal-uniform보다 AUC MSE가 3.88% 나빴다. 반면 <b>시간 quota 안에서</b> coverage가 좋은 view를 고른
+      representative set은 3/3 seed에서 이겼지만 개선은 0.35%로 작았다. 즉 novelty는 유용할 수 있지만
+      시간·pose 분포를 깨뜨릴 만큼 강한 목적함수는 아니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>같은 784-view membership</th><th>구성 규칙</th><th class="r">AUC MSE</th><th class="r">temporal 대비</th></tr></thead>
+      <tbody>
+        <tr><td>temporal uniform</td><td>trajectory에 고르게 배치</td><td class="r">0.00117752</td><td class="r">기준</td></tr>
+        <tr><td class="good-t"><b>representative</b></td><td>시간 quota 안에서 coverage 최적화</td><td class="r good-t"><b>0.00117337</b></td><td class="r good-t">−0.35%</td></tr>
+        <tr><td>global coverage</td><td>시간 quota 없이 novelty 극대화</td><td class="r bad-t">0.00122309</td><td class="r bad-t">+3.88%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">AUC는 0–100초 held-out MSE의 시간 평균이며 낮을수록 좋다. 이 결과 때문에 최종 시스템의 Fisher cosine은 전역 선택기가 아니라 제한된 tie-break/수요 신호다.</p>
+
+    <h3>5.4 Active + unbounded archive: frontier와 장기 기억을 분리</h3>
+    <p>과거 view를 FIFO로 삭제하면 긴 궤적에서 forgetting이 생긴다. 최종 구조는 모든 causal view를 archive에 보존하면서,
+      현재 frontier와 맞닿은 interval의 pose 대표 view만 active로 표시한다.</p>
+    <svg viewBox="0 0 1000 250" role="img" aria-label="trajectory active archive diagram">
+      <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2c6acb"/></marker></defs>
+      <path d="M70 178 C180 55, 290 210, 410 100 S650 60, 780 145 S900 170, 950 65" fill="none" stroke="#8997a8" stroke-width="4" marker-end="url(#arr)"/>
+      <g fill="#9aa7b7">
+        <circle cx="96" cy="151" r="7"/><circle cx="145" cy="105" r="7"/><circle cx="210" cy="91" r="7"/><circle cx="270" cy="148" r="7"/>
+        <circle cx="337" cy="157" r="7"/><circle cx="398" cy="110" r="7"/><circle cx="465" cy="70" r="7"/><circle cx="532" cy="77" r="7"/>
+        <circle cx="590" cy="105" r="7"/><circle cx="650" cy="132" r="7"/><circle cx="720" cy="146" r="7"/>
+      </g>
+      <g fill="#2c6acb" stroke="#fff" stroke-width="3"><circle cx="785" cy="145" r="12"/><circle cx="845" cy="154" r="12"/><circle cx="905" cy="126" r="12"/><circle cx="946" cy="74" r="12"/></g>
+      <text x="95" y="218" fill="currentColor" font-size="16">archive: 과거 causal view를 삭제하지 않음</text>
+      <text x="735" y="35" fill="#2c6acb" font-size="16">active: 현재 frontier pose 대표</text>
+    </svg>
+    <div class="equation">
+      d(i,j)=√[(‖t<sub>i</sub>−t<sub>j</sub>‖/median Δt<sub>KF</sub>)²
+      +(d<sub>SO(3)</sub>(R<sub>i</sub>,R<sub>j</sub>)/median ΔR<sub>KF</sub>)²]
+    </div>
+    <p>거리 threshold를 장면별로 지정하지 않고 현재 keyframe motion의 median으로 translation과 rotation을 정규화한다.
+      active 안에서는 farthest-point 대표를 뽑기 때문에 정지 구간의 중복 frame과 빠른 이동 구간의 sparse coverage를 pose 공간에서 함께 다룬다.
+      archive는 무한히 보존되지만 active와 archive가 <b>각자 독립 shuffle queue</b>를 가지므로, 전체 history 한 바퀴가 끝나야
+      frontier를 다시 보는 무한-epoch 병목은 피한다.</p>
+
+    <h3>5.5 Active service demand</h3>
+    <div class="equation">
+      D<sub>A</sub> = m/(1+m) · (1 + mean Fisher-cosine novelty),
+      &nbsp;m=median(d<sub>active→archive</sub>)
+      <br>P(active)=odds/(1+odds), &nbsp;odds=|A|/|H|·(1+D<sub>A</sub>)
+    </div>
+    <p>Fisher cosine은 여기서 <b>다음 optimizer target의 순위를 정하지 않는다.</b> active membership의 tie-break와
+      bounded service demand에만 쓰인다. D<sub>A</sub>=0이면 population fraction으로 돌아가 full-pool random sampling의 주변분포를 복원한다.
+      demand가 커져도 active odds는 최대 3배라 최신 interval이 optimizer를 독점하지 못한다.</p>
+  </section>
+
+  <section id="order">
+    <h2><span class="num">06</span>Training order: 왜 novelty-first가 아니라 shuffle인가</h2>
+    <h3>6.1 같은 view set이어도 순서만 바꾸면 결과가 달라졌다</h3>
+    <p>Stage C는 membership을 동일한 784장으로 고정하고 순서만 바꿨다. <b>shuffle-without-replacement</b>가 가장 빨랐고,
+      novelty-first와 residual-first는 각각 AUC MSE가 10.64%, 11.06% 나빴다. novelty-first는 2–100초의 모든
+      nonzero milestone, 3/3 seed에서 shuffle보다 뒤였다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>순서 정책</th><th>정의</th><th class="r">AUC MSE</th><th class="r">shuffle 대비</th><th class="r">선택횟수 spread</th></tr></thead>
+      <tbody>
+        <tr><td class="good-t"><b>shuffle epoch</b></td><td>각 view를 epoch마다 정확히 1회</td><td class="r good-t"><b>0.00117337</b></td><td class="r">—</td><td class="r">1 / 1 / 1</td></tr>
+        <tr><td>with replacement</td><td>매 step 독립 random</td><td class="r">0.00119316</td><td class="r bad-t">+1.68%</td><td class="r bad-t">32 / 30 / 33</td></tr>
+        <tr><td>novelty first</td><td>coverage 내림차순 반복</td><td class="r">0.00129813</td><td class="r bad-t">+10.64%</td><td class="r">1 / 1 / 1</td></tr>
+        <tr><td>residual first</td><td>현재 residual 내림차순</td><td class="r">0.00130340</td><td class="r bad-t">+11.06%</td><td class="r">1 / 1 / 1</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.2 Fisher 정보량과 “지금 내려가야 할 gradient”는 같은 질문이 아니다</h3>
+    <p>새로운 방향을 계속 고르면 Fisher/coverage의 약한 eigen-direction은 보강할 수 있다. 하지만 optimizer의 단기 목적은
+      현재 θ와 Adam state에서 전체 trajectory risk를 줄이는 것이다. 한 candidate update의 2차 Taylor 근사는 다음과 같다.</p>
+    <div class="equation">
+      θ<sup>+</sup>=θ−ηg<sub>v</sub>, &nbsp;&nbsp;ΔR≈ηg<sub>R</sub><sup>T</sup>g<sub>v</sub>−(η²/2)g<sub>v</sub><sup>T</sup>H<sub>R</sub>g<sub>v</sub>
+    </div>
+    <p>novel view의 gradient g<sub>v</sub>가 reference 평균 gradient g<sub>R</sub>와 정렬되지 않으면 coverage는 늘어도
+      단기 risk는 오를 수 있다. 실제 192개의 one-step counterfactual에서 coverage score의 순위상관은 거의 0이었지만,
+      Adam이 실제 만드는 이동을 반영한 <code>−g<sub>R</sub><sup>T</sup>Δθ<sub>Adam</sub></code>은 매우 강하게 맞았다.</p>
+    <div class="metric-grid">
+      <div class="metric"><div class="k">coverage ρ @ 0 s</div><div class="v">0.005</div><p>one-step 이득을 거의 못 예측</p></div>
+      <div class="metric"><div class="k">Adam alignment @ 0 s</div><div class="v">0.994</div><p>Spearman rank correlation</p></div>
+      <div class="metric"><div class="k">Adam alignment @ 40 s</div><div class="v">0.993</div><p>optimizer state가 바뀌어도 유지</p></div>
+      <div class="metric"><div class="k">Adam alignment @ 100 s</div><div class="v">0.877</div><p>후반에도 강한 예측력</p></div>
+    </div>
+
+    <h3>6.3 왜 비싼 gradient oracle 대신 shuffle이 실용적인가</h3>
+    <p>reference gradient를 매번 만들고 모든 candidate의 Adam counterfactual을 계산하면, 선택 비용이 실제 학습 비용과 비슷해진다.
+      대신 set의 population gradient를</p>
+    <div class="equation">
+      g<sub>S</sub>(θ)=1/N Σ<sub>i=1</sub><sup>N</sup>g<sub>i</sub>(θ), &nbsp;&nbsp;
+      E[ĝ<sub>B</sub>]=g<sub>S</sub>, &nbsp;&nbsp;
+      Var(ĝ<sub>B</sub>)∝(1/B)(1−(B−1)/(N−1))
+    </div>
+    <p>로 보면, without-replacement shuffle은 각 view에 같은 기회를 주면서 유한 population 평균의 편향 없는 근사를 만든다.
+      특히 가까운 frontier view의 상관된 gradient를 연속으로 반복하는 대신, 과거·현재·다른 pose의 gradient를 섞어
+      한쪽 방향으로 오래 끌려가는 것을 줄인다.</p>
+    <svg viewBox="0 0 1000 330" role="img" aria-label="correlated novelty-first gradients versus shuffled gradient averaging">
+      <defs><marker id="vg1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#b42318"/></marker><marker id="vg2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#2c6acb"/></marker><marker id="vg3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#18794e"/></marker></defs>
+      <line x1="60" y1="268" x2="455" y2="268" stroke="currentColor" opacity=".2"/><line x1="60" y1="268" x2="60" y2="45" stroke="currentColor" opacity=".2"/>
+      <g stroke="#b42318" stroke-width="4" marker-end="url(#vg1)"><line x1="120" y1="250" x2="243" y2="104"/><line x1="151" y1="267" x2="277" y2="119"/><line x1="188" y1="264" x2="313" y2="116"/></g>
+      <line x1="120" y1="250" x2="381" y2="206" stroke="#18794e" stroke-width="5" stroke-dasharray="9 7" marker-end="url(#vg3)"/>
+      <text x="76" y="306" fill="#b42318" font-size="15">novelty-first: 비슷한 어려운 gradient를 연속 배치</text>
+      <line x1="545" y1="268" x2="940" y2="268" stroke="currentColor" opacity=".2"/><line x1="545" y1="268" x2="545" y2="45" stroke="currentColor" opacity=".2"/>
+      <g stroke="#2c6acb" stroke-width="4" marker-end="url(#vg2)"><line x1="650" y1="242" x2="713" y2="96"/><line x1="650" y1="242" x2="830" y2="171"/><line x1="650" y1="242" x2="598" y2="129"/><line x1="650" y1="242" x2="783" y2="76"/></g>
+      <line x1="650" y1="242" x2="780" y2="135" stroke="#18794e" stroke-width="6" stroke-dasharray="9 7" marker-end="url(#vg3)"/>
+      <text x="567" y="306" fill="#2c6acb" font-size="15">shuffle: 방향을 섞어 population 평균에 접근</text>
+      <text x="338" y="197" fill="#18794e" font-size="13">reference 방향</text><text x="789" y="126" fill="#18794e" font-size="13">평균 gradient</text>
+    </svg>
+    <div class="box good"><b>최종 규칙.</b> novelty는 set을 고르는 단계에서만 약하게 사용하고, 실제 optimizer order는
+      active/archive 각 pool 내부의 random permutation으로 만든다. 따라서 같은 view의 독점과 starvation을 동시에 막는다.</div>
+  </section>
+
+  <section id="schedule">
+    <h2><span class="num">07</span>언제 topology를 만들고 언제 replay할 것인가</h2>
+    <div class="timeline">
+      <div class="phase"><span class="name">FRONTIER</span><b>표현 용량 만들기</b><p>최근 mapping window에서 birth, densify, prune를 수행해 새 영역을 지도에 편입한다.</p></div>
+      <div class="phase"><span class="name">BALANCED</span><b>겹쳐서 넘기기</b><p>frontier 반복을 √window 정도로 줄이고 dense replay를 함께 시작한다.</p></div>
+      <div class="phase"><span class="name">REPLAY</span><b>분포를 다듬기</b><p>topology를 불필요하게 흔들지 않고 shuffled dense RGB Adam이 photometric budget을 담당한다.</p></div>
+    </div>
+    <p>전환은 frame 800 같은 절대 시점을 보지 않는다. densify/prune의 독립 관측, 직전 prune 이후 Gaussian capacity 회복,
+      shuffled pool의 full-pass completion을 본다. tracking이 포화되어 idle replay가 두 packet 연속 막히면 새 시간을 추가하지 않고,
+      원래 frontier budget 일부를 같은 수의 replay step으로 대체한다.</p>
+    <div class="equation">
+      execute next replay iff &nbsp;t<sub>now</sub> + k·ĉ<sub>B1</sub> + reserve &lt; t<sub>next RGB</sub>
+    </div>
+    <p>ĉ<sub>B1</sub>은 최근 완료된 GPU work에서 측정한다. RTX 5090 profile은 입력/이미지 cache, 전용 GS stream,
+      tracking overlap과 40 ms reserve를 사용하며 한 호출에서 B1 iteration 네 개를 묶는다. RTX 5070 Ti profile은 품질 재현을 위해
+      기존 asynchronous admission과 한 iteration을 유지한다.</p>
+  </section>
+
+  <section id="carve">
+    <h2><span class="num">08</span>Dense RGB가 늘어도 geometry를 지키는 방법</h2>
+    <h3>8.1 Motivation: RGB loss에게 floater는 반드시 “오류”가 아니다</h3>
+    <p>dense RGB는 PSNR 수렴을 크게 개선했지만, keyframe RGBD+normal action의 상대 빈도는 줄어든다.
+      일반 dense frame도 Gaussian의 xyz·rotation·scale·opacity·color를 모두 갱신하므로 geometry update를 막은 것은 아니다.
+      문제는 supervision의 종류다. RGB loss만 보면 빈 공간의 반투명 Gaussian이 glare·노출·pose 오차 같은 잔차를
+      대신 흡수해 loss를 낮출 수 있다. 이때 floater는 optimizer 입장에서 <b>유용한 photometric shortcut</b>이다.</p>
+    <div class="grid2">
+      <div class="card"><span class="tag amber">historical diagnosis</span><h4>RGB가 오히려 floater를 붙잡았다</h4>
+        <p>수동 라벨 2,817개 분석에서 floater는 표면보다 RGB gradient를 2.23배 많이 받았지만, 기존 plateau geometry gradient는 0.58배만 받았다. “안 보여서 남은 점”뿐 아니라 RGB 잔차를 적극 흡수하며 살아남는 점이 있었다.</p></div>
+      <div class="card"><span class="tag green">actionable leverage</span><h4>대부분은 한계 opacity 생존자였다</h4>
+        <p>라벨 floater opacity 중앙값은 0.044, 표면은 0.194였다. 강제로 위치를 크게 옮기기보다, 빈 공간 증거가 강한 Gaussian의 opacity에 작고 일관된 압력을 주면 pruning 가능한 영역으로 보낼 수 있다.</p></div>
+    </div>
+    <p>그래서 최종 구조는 dense RGB 자체의 geometry update를 제한하지 않는다. keyframe의 기존 depth/normal로 surface를 계속 지지하고,
+      별도의 3D free-space evidence로 RGB가 합법화한 허공 Gaussian만 약하게 반박한다.</p>
+
+    <h3>8.2 Carve의 물리적 명제: “표면까지 ray가 지나온 구간은 비어 있어야 한다”</h3>
+    <svg viewBox="0 0 1000 370" role="img" aria-label="multi-view free-space carve ray diagram">
+      <defs><marker id="rayarr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#2c6acb"/></marker></defs>
+      <path d="M706 52 Q760 177 718 324" fill="none" stroke="#18794e" stroke-width="10" opacity=".32"/>
+      <path d="M706 52 Q760 177 718 324" fill="none" stroke="#18794e" stroke-width="3"/>
+      <circle cx="708" cy="184" r="13" fill="#18794e"/><text x="744" y="188" fill="#18794e" font-size="16">terminal surface evidence</text>
+      <g fill="#2c6acb"><circle cx="76" cy="83" r="14"/><circle cx="83" cy="282" r="14"/><circle cx="270" cy="324" r="14"/></g>
+      <g stroke="#2c6acb" stroke-width="4" marker-end="url(#rayarr)"><line x1="91" y1="88" x2="695" y2="178"/><line x1="97" y1="278" x2="694" y2="190"/><line x1="283" y1="316" x2="698" y2="196"/></g>
+      <circle cx="432" cy="181" r="25" fill="#b42318" opacity=".35" stroke="#b42318" stroke-width="4"/><circle cx="432" cy="181" r="7" fill="#b42318"/>
+      <text x="345" y="145" fill="#b42318" font-size="16" font-weight="700">floater Gaussian</text>
+      <path d="M142 118 L614 174" stroke="#986700" stroke-width="10" opacity=".22"/><path d="M151 251 L614 196" stroke="#986700" stroke-width="10" opacity=".22"/>
+      <text x="257" y="236" fill="#986700" font-size="16">transit: 여러 ray가 통과한 free space</text>
+      <path d="M613 161 L693 177" stroke="#18794e" stroke-width="16" opacity=".18"/>
+      <text x="530" y="116" fill="#18794e" font-size="14">surface margin: 끝점 근처 보호</text>
+      <text x="45" y="345" fill="currentColor" font-size="14">서로 다른 keyframe의 검증된 depth ray가 같은 허공을 통과할수록, 그 안 Gaussian의 carve confidence가 커진다.</text>
+    </svg>
+    <p>카메라에서 신뢰 가능한 surface endpoint까지의 ray를 따라 voxel을 누적한다. endpoint 앞은 <i>transit</i>,
+      endpoint 주변은 <i>terminal</i>이다. 어떤 위치가 허공이라는 점수는 다음 증거비다.</p>
+    <div class="equation">
+      ρ(x)=transit(x)/[transit(x)+3·terminal(x)+ε]
+    </div>
+    <p>terminal에 3배 가중치를 주어 surface evidence 하나가 약한 transit 여러 개보다 쉽게 보호되게 한다.
+      이는 특정 replay frame의 2D rendering loss가 아니라, <b>현재까지 도착한 keyframe ray 전체가 공유하는 sparse 3D field</b>다.</p>
+
+    <h3>8.3 v7은 어떤 ray를 field에 넣는가</h3>
+    <div class="steps">
+      <div class="step"><div><b>Tracking이 이미 계산한 depth를 재사용</b><span>ConvGRU와 BA가 갱신한 metric keyframe depth를 쓰므로 dense frame마다 별도 depth network를 돌리지 않는다.</span></div></div>
+      <div class="step"><div><b>기존 depth_filter로 causal multi-view 확인</b><span>도착한 이웃 keyframe에 reprojection해 depth가 일치하는 pixel만 남긴다. 미래 frame은 보지 않으며 support 2 이상이 필요하다.</span></div></div>
+      <div class="step"><div><b>공간적으로 균형 잡힌 64 ray를 선택</b><span>image grid마다 support가 가장 강한 pixel을 우선해 한 영역에 ray가 몰리지 않게 한다. 64는 네 장면에 공통으로 사용한 계산 상한이다.</span></div></div>
+      <div class="step"><div><b>support에 따라 surface margin을 조절</b><span>두 view만 확인한 endpoint는 0.10 m를 보호하고, 세 view 이상이면 더 확실하므로 0.05 m까지 free-space를 좁혀 본다.</span></div></div>
+      <div class="step"><div><b>voxel에 transit·terminal·direction bit-mask 누적</b><span>0.10 m voxel, 0.06 m ray step으로 sparse hash field만 갱신한다. 반대 방향을 같은 선으로 본 13개 방향 bin을 uint16 mask에 저장한다.</span></div></div>
+    </div>
+    <div class="box warn"><b>왜 64개인가.</b> 1253 sweep에서 64/128/256 ray의 PSNR은 27.016/26.674/25.466 dB였고,
+      replay는 4,392/4,144/2,094회였다. 더 많은 ray는 field를 촘촘하게 하지만 strict 시간 안의 RGB replay를 빼앗았다.
+      즉 geometry evidence도 GPU opportunity cost를 지불한다.</div>
+
+    <h3>8.4 Gaussian 점수와 실제 update</h3>
+    <p>Gaussian 중심만 한 점으로 검사하면 큰 anisotropic splat을 놓칠 수 있어, 기본적으로 중심과 covariance support를 함께 샘플한다.
+      footprint가 큰 후보 일부는 별도 exact support 검사로 보강한다. 방향 품질 q<sub>F</sub>는 여러 ray 방향이 만든
+      근사 Fisher matrix의 최소 eigenvalue를 평균 eigenvalue로 정규화한 값이다.</p>
+    <div class="equation">
+      F(x)=Σ<sub>k∈directions(x)</sub>[I−d<sub>k</sub>d<sub>k</sub><sup>T</sup>],
+      &nbsp;q<sub>F</sub>(x)=λ<sub>min</sub>(F)/(tr(F)/3)∈[0,1]
+      <br>c<sub>F</sub>(x)=0.25+0.75q<sub>F</sub>(x)
+      <br>L<sub>carve</sub>=0.01/|G<sup>+</sup>| Σ<sub>g∈G<sup>+</sup></sub> ρ<sub>g</sub>c<sub>F,g</sub>α<sub>g</sub>,
+      &nbsp;G<sup>+</sup>={g:ρ<sub>g</sub>&gt;0.5}
+    </div>
+    <p>여기서 Fisher는 “다음 RGB view를 먼저 학습”시키는 novelty 점수가 아니다. <b>같은 free-space 주장이
+      여러 방향에서 잘 조건화됐는지</b>를 나타내는 geometry confidence다. 한 방향 증거도 완전히 버리지는 않고 0.25 floor를 둔다.
+      gradient는 opacity logit에만 더하며 λ=0.01이다. 또한 새 evidence generation마다 누적 시각기여 budget 0.005 안에서
+      reversible opacity prox를 쓸 수 있다. RGB가 그 Gaussian을 필요로 하면 이후 opacity를 다시 키울 수 있다.</p>
+
+    <h3>8.5 어떻게 O(N²)·stale-score 문제를 피했는가</h3>
+    <div class="flow">
+      <div class="node map"><b>새 ray 도착</b>dirty voxel만 기록</div><div class="arrow">→</div>
+      <div class="node map"><b>stable-ID reverse support</b>영향받을 row 후보</div><div class="arrow">→</div>
+      <div class="node map"><b>map() render visibility</b>이번에 보인 stale row</div><div class="arrow">→</div>
+      <div class="node geo"><b>bounded refresh</b>최대 2,048 row</div><div class="arrow">→</div>
+      <div class="node geo"><b>fresh weight만 적용</b>나머지는 0</div>
+    </div>
+    <ul>
+      <li>매 keyframe마다 누적 history와 모든 Gaussian을 다시 비교하지 않는다. dirty voxel의 reverse index로 대상 후보를 제한한다.</li>
+      <li>한 refresh는 2,048 row, broad splat exact 검사는 512 row로 제한한다.</li>
+      <li><code>map()</code> rasterizer가 이미 만든 visibility mask를 재사용한다. 현재 보이는 stale row를 먼저 갱신한다.</li>
+      <li>field가 바뀌었지만 아직 재계산되지 않은 row는 carve weight를 0으로 둔다. 오래된 score가 반복 gradient를 주던 exp68 실패를 막는다.</li>
+      <li>verification은 keyframe 8개씩 batch 처리하고, PGBA 후 field 복원은 호출당 512 ray만 진행해 history-size spike를 막는다.</li>
+      <li>최종 v7은 xyz force, newborn gate, online hard carve prune를 쓰지 않는다. 강한 비가역 action이 RGB 수렴을 흔든 과거 실패를 반영했다.</li>
+    </ul>
+
+    <h3>8.6 Terminal mature-dust GC: opacity를 낮추는 것과 row 삭제는 다르다</h3>
+    <p>soft carve가 opacity를 낮춰도 xyz·scale·rotation과 PLY row는 남는다. 반대로 <code>opacity&lt;0.1</code>만 보고 즉시
+      자르면 아직 덜 학습된 surface를 지울 수 있다. 그래서 strict stream이 끝난 뒤 다음 certificate를 모두 만족하는 row만 한 번 삭제한다.</p>
+    <div class="equation">
+      observed ∧ opportunities≥3 ∧ opacity≤0.03
+      ∧ touch-EMA≤3×10<sup>−5</sup> ∧ footprint-EMA≤3×10<sup>−5</sup>
+      <br>Σ selected contribution / full render alpha ≤ 0.003
+    </div>
+    <p>즉 “낮은 opacity”에 더해 여러 view에서 충분히 기회를 받았고, 실제 compositing 기여와 footprint가 계속 작았다는 조건을 요구한다.
+      후보는 importance가 낮은 순서로 골라 전체 render alpha의 0.3% budget에서 멈춘다.</p>
+
+    <h3>8.7 Floater는 실제로 얼마나 줄었는가</h3>
+    <p>과거 배치 실험은 carve 신호의 <b>검출 가능성과 최대 효과</b>를 보여주고, 최종 v7 실험은
+      <b>strict incremental budget에서 달성한 보수적 효과</b>를 보여준다. 두 결과를 같은 주장으로 섞지 않는다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>검증 층</th><th>비교</th><th>floater / dust 변화</th><th>photometric 비용</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>배치 ORB · exp40b</td><td>baseline→carve champion</td><td class="good-t">region 3,749→498 (−86.7%)<br>carve-visible 860→12 (−98.6%)</td><td>train 32.579→32.576 dB<br>별도 held-out은 약 −0.44 dB</td><td>신호의 강한 가능성; 최종 online recipe와는 다름</td></tr>
+        <tr><td>배치 MPS · exp39b</td><td>baseline→softlite+force</td><td class="good-t">visible 96→0<br>기여 6.42%→0.21%</td><td>PSNR −0.10 dB</td><td>다른 anchor track으로 전이</td></tr>
+        <tr><td>online v6 terminal</td><td>prune 직전→직후</td><td class="good-t">1253 low-op −18.6%<br>305 low-op −44.9%</td><td>predicted visual spend 0.125% / 0.174%</td><td>low-opacity row를 실제 PLY에서 삭제</td></tr>
+        <tr><td>online v7 · 4 scenes</td><td>paired v6→v7</td><td class="good-t">low-op 추가 −10.9%, −14.0%, −4.3%, −1.1%</td><td>PSNR Δ −0.252, +0.914, +0.759, +0.040 dB</td><td>low-opacity dust는 4/4 개선</td></tr>
+      </tbody>
+    </table></div>
+    <div class="grid2">
+      <div class="box good"><b>최종 online에서 확인된 개선</b>
+        <ul><li>v6 terminal cleanup은 1253에서 3,257개, 305에서 12,460개 row를 실제 삭제했다.</li><li>v7의 paired 비교에서 low-opacity dust는 네 장면 모두 추가 감소했다.</li><li>carve detector의 manual-region AUC는 1253 0.931, 305 0.869였다.</li><li>305 dilated region의 opacity&gt;0.3은 2,871→2,608(−9.2%), opacity-area는 18.53→16.45(−11.2%)였다.</li></ul>
+      </div>
+      <div class="box warn"><b>아직 해결됐다고 말할 수 없는 부분</b>
+        <ul><li>1253 manual opacity&gt;0.3은 196→191로 2.6% 감소했지만 &gt;0.5는 132→133으로 같았다.</li><li>global high-opacity count는 1253과 1253_rot에서 오히려 4.6%/1.0% 늘었다.</li><li>305 manual mask는 trajectory Sim3 오차 때문에 경계별 결과가 흔들린다.</li><li>따라서 강한 visible floater의 보편적 제거가 아니라, low-opacity dust의 일관된 감소가 현재의 방어 가능한 결론이다.</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="pgba">
+    <h2><span class="num">09</span>PGBA 뒤 지도가 무너지지 않게 한 수정</h2>
+    <p>PGBA가 camera pose를 바꾸면 Gaussian 중심만 움직여서는 충분하지 않다. anisotropic covariance orientation과 Adam momentum이
+      옛 좌표계에 남으면 같은 optimizer step도 잘못된 방향으로 작용한다.</p>
+    <div class="equation">
+      x′=C<sub>now</sub>+R<sub>Δ</sub>(x−C<sub>prev</sub>)/s,
+      &nbsp;&nbsp;q′=q<sub>wxyz</sub>(R<sub>Δ</sub>)⊗q
+    </div>
+    <ul>
+      <li>xyz에 실제 적용된 world Jacobian R<sub>Δ</sub>를 orientation에도 동일하게 사용한다.</li>
+      <li>lietorch의 <code>xyzw</code>와 Gaussian renderer의 <code>wxyz</code> 순서 차이를 명시적으로 변환한다.</li>
+      <li>xyz와 raw quaternion의 Adam 1차 moment를 같은 Jacobian으로 운반하고, diagonal 2차 moment는 원소별 제곱 근사를 사용한다.</li>
+      <li>PGBA 뒤 topology를 전부 다시 열지 않고 bounded local recovery와 replay rematuration을 수행한다.</li>
+    </ul>
+    <p>이 수정은 aria1253_rot 격리 실험에서 strict stream 직후 legacy 대비 +1.233 dB였고,
+      Gaussian 수 M에 대해 O(M)으로 동작한다.</p>
+  </section>
+
+  <section id="finalization">
+    <h2><span class="num">10</span>Stream 종료는 두 단계다</h2>
+    <div class="grid2">
+      <div class="card"><span class="tag blue">online</span><h4>입력이 들어오는 동안</h4><p>deadline guard 안에서만 tracking과 replay를 실행한다. 미래 frame, held-out loss, 장면 ID를 보지 않는다.</p></div>
+      <div class="card"><span class="tag amber">finalization</span><h4>입력이 끝난 뒤</h4><p>마지막 PGBA revision이 충분한 shuffled opportunity를 못 받았으면 origin+3 epoch certificate까지만 채운 뒤 terminal dust GC를 한 번 실행한다.</p></div>
+    </div>
+    <div class="box warn"><b>평가 계약 구분.</b> EOS pose rematuration은 PSNR이나 validation을 보지 않는 일반 규칙이지만 optimizer update이므로
+      zero-tail strict 시간에는 포함되지 않는다. 논문에서 pure strict 수치를 보고할 때는 끄고, 최종 사용 가능한 map 품질을 보고할 때는 별도 finalization cost로 기록한다.</div>
+  </section>
+
+  <section id="results">
+    <h2><span class="num">11</span>최종 성능과 해석</h2>
+    <h3>11.1 최종 hardware profile, recorded 1.5× + EOS finalization</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>GPU</th><th>scene</th><th class="r">PSNR</th><th class="r">SSIM</th><th class="r">LPIPS↓</th><th class="r">replay</th><th class="r">EOS cost</th></tr></thead>
+      <tbody>
+        <tr><td>RTX 5070 Ti</td><td>aria1253</td><td class="r">27.156</td><td class="r">0.8630</td><td class="r">0.2500</td><td class="r">4,504</td><td class="r">0.76 s</td></tr>
+        <tr><td>RTX 5070 Ti</td><td>aria301_305</td><td class="r">28.590</td><td class="r">0.8987</td><td class="r">0.2645</td><td class="r">14,583</td><td class="r">7.23 s</td></tr>
+        <tr><td>RTX 5090</td><td>aria1253</td><td class="r good-t"><b>29.013</b></td><td class="r">0.8960</td><td class="r">0.1849</td><td class="r">12,175</td><td class="r">8.43 s</td></tr>
+        <tr><td>RTX 5090</td><td>aria301_305</td><td class="r good-t"><b>30.965</b></td><td class="r">0.9181</td><td class="r">0.2165</td><td class="r">30,585</td><td class="r">17.73 s</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">1.5×는 20 FPS 기록의 timestamp 간격을 1.5배 벌려 약 13.3 FPS로 공급한 조건이다. EOS cost는 strict streaming budget 밖의 finalization이다.</p>
+
+    <h3>11.2 5090 원래 1× pacing</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="r">PSNR</th><th class="r">online replay</th><th class="r">PGBA</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="r warn-t">26.403</td><td class="r">2,695</td><td class="r">5</td><td>이전 4-PGBA run의 27.187보다 낮음</td></tr>
+        <tr><td>aria301_305</td><td class="r good-t">29.427</td><td class="r">12,124</td><td class="r">5</td><td>완주·고품질, EOS 포함 total replay 14,232</td></tr>
+      </tbody>
+    </table></div>
+    <p>1×에서는 고정된 약 65/134초 안에 PGBA가 한 번 더 실행되면 idle replay가 직접 줄어든다.
+      따라서 현재 1×는 실행 가능하지만 tight quality floor가 보장된 조건은 아니다.</p>
+
+    <h3>11.3 Geometry claim의 정확한 범위</h3>
+    <div class="grid2">
+      <div class="box good"><b>말할 수 있는 것</b><ul><li>v7은 v6보다 네 장면의 PSNR robustness를 개선했다.</li><li>terminal policy는 네 장면 모두 low-opacity dust를 줄였다.</li><li>verified carve detector는 manual label AUC가 높고, 305에서 큰 floater volume 감소 신호가 있었다.</li></ul></div>
+      <div class="box warn"><b>아직 말할 수 없는 것</b><ul><li>high-opacity visible floater가 모든 장면에서 일관되게 감소했다는 주장.</li><li>carve가 PSNR 상승의 단독 인과 원인이라는 주장.</li><li>빠른-motion 12F까지 같은 품질 하한을 보장한다는 주장.</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">12</span>기존 VIGS-SLAM 대비 무엇이 바뀌었나</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>축</th><th>기존</th><th>최종 시스템</th><th>의도</th></tr></thead>
+      <tbody>
+        <tr><td>Tracking</td><td>DROID/VIGS local BA + IMU + PGBA</td><td>대부분 유지, live bridge와 metric-init gate</td><td>검증된 localization 보존</td></tr>
+        <tr><td>Supervision</td><td>짧은 keyframe window 중심</td><td>keyframe geometry + causal dense RGB replay</td><td>photometric convergence와 coverage</td></tr>
+        <tr><td>View membership</td><td>고정 window/heuristic</td><td>bootstrap + completed-work credit</td><td>GPU 처리량에 맞춘 pool 성장</td></tr>
+        <tr><td>Order</td><td>window 내부 반복</td><td>active/archive 내부 shuffle</td><td>novelty-first 편향과 starvation 방지</td></tr>
+        <tr><td>Budget</td><td>iteration 수 중심</td><td>deadline·완료 GPU 비용·tracking reserve</td><td>실시간 pacing 유지</td></tr>
+        <tr><td>Geometry</td><td>keyframe depth/normal</td><td>기존 항 + verified 3D carve + terminal dust GC</td><td>dense RGB 사용 시 floater 억제</td></tr>
+        <tr><td>PGBA transport</td><td>중심과 orientation/state 불일치 가능</td><td>exact world Jacobian으로 Gaussian+Adam 일관 이동</td><td>pose revision 후 품질 급락 완화</td></tr>
+        <tr><td>Deployment</td><td>recorded 중심</td><td>5070/5090 profile + Aria Gen1/Gen2 source bridge</td><td>동일 방법론의 실제 streaming</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2><span class="num">13</span>동료에게 설명할 때의 90초 버전</h2>
+    <div class="box info">
+      <ol>
+        <li>기존 VIGS는 tracking은 좋지만 mapping supervision이 keyframe에 치우쳐 photometric convergence가 느렸습니다.</li>
+        <li>그래서 keyframe 사이 dense RGB도 causal하게 pose를 채워 학습에 사용했습니다. 다만 모든 frame을 무조건 넣지 않고, GPU가 실제 완료한 replay만큼 work credit을 주어 view set을 확장합니다.</li>
+        <li>view 선택과 순서를 분리했습니다. pose 공간을 고르게 덮는 active와 과거를 보존하는 archive를 만들되, 실제 optimizer 순서는 novelty-first가 아니라 random shuffle입니다.</li>
+        <li>dense RGB 때문에 약해질 수 있는 geometry는 keyframe depth/normal, 여러 view가 확인한 3D free-space carve, 마지막 low-importance dust cleanup으로 보완했습니다.</li>
+        <li>PGBA 뒤에는 Gaussian 중심뿐 아니라 anisotropic orientation과 Adam momentum도 같은 world Jacobian으로 옮깁니다.</li>
+        <li>결과적으로 5090 1.5× recorded 조건에서 1253 29.0 dB, 305 31.0 dB까지 도달했습니다. low-opacity dust는 줄었지만 모든 장면의 high-opacity floater 해결은 아직 남아 있습니다.</li>
+      </ol>
+    </div>
+  </section>
+
+  <details class="box" style="margin-top:42px">
+    <summary><b>이 설명의 직접 근거 문서</b></summary>
+    <ul class="small">
+      <li><a href="../../experiments/exp66/exp66_convergence_theory_notes.html">exp66 convergence theory notes</a> — dense-view 관측과 깊이/시점 두 축의 가설.</li>
+      <li><a href="../../experiments/exp66/exp66_viewset_density_result.html">exp66 view-set density result</a> — budget-dependent K와 수렴곡선.</li>
+      <li><a href="../../experiments/exp66/exp66_viewset_stage_bcd_result.html">exp66 Stage B/C/D result</a> — membership, shuffle order, Adam-gradient alignment 통제 실험.</li>
+      <li><a href="../../rounds/round8_carve_loss_design.md">Round 8 carve-loss design</a> — free-space score, 수동 2,817-label AUC, 안전 action 설계.</li>
+      <li><a href="../../experiments/exp38_40_carve_track.md">exp38–40 carve track</a> — batch ORB/MPS floater 감소와 PSNR trade-off.</li>
+      <li><a href="../../experiments/exp68/exp68_geometry_postmortem_audit.html">exp68 geometry postmortem</a> — stale score, replay 잠식, low-opacity GC 누락의 실패 분석.</li>
+      <li><a href="../../experiments/exp69/exp69_result.html">exp69 v5–v7 result</a> — visible-lazy verified carve, terminal cleanup, 네 장면 최종 범위.</li>
+    </ul>
+  </details>
+
+  <footer>
+    근거: exp66 view-set density / stage B–F, exp67 universal scheduler, exp68 geometry audit,
+    exp69 v5–v7 result, final hardware-profile validation. 이 문서는 발표용 설명 자료이며 PPT 파일이 아닌 standalone HTML이다.
+  </footer>
+</main></body></html>
