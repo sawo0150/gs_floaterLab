@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIGS-SLAM Mission Brief — Carve · KF Rate · Viewset</title>
+  <style>
+    :root {
+      --ink: #162026;
+      --muted: #59666d;
+      --paper: #f7f5ef;
+      --panel: #fffdf8;
+      --line: #d9d5c9;
+      --navy: #153f52;
+      --cyan: #148c9a;
+      --green: #2f7d5b;
+      --amber: #bc6b1e;
+      --red: #a73f35;
+      --violet: #6654a6;
+      --soft-cyan: #e7f5f5;
+      --soft-green: #eaf4ed;
+      --soft-amber: #fff2df;
+      --soft-red: #fbe9e5;
+      --soft-violet: #f0ecfa;
+      --shadow: 0 14px 40px rgba(23, 39, 46, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 3%, rgba(20,140,154,.12), transparent 22rem),
+        radial-gradient(circle at 8% 25%, rgba(188,107,30,.08), transparent 25rem),
+        var(--paper);
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
+      line-height: 1.68;
+    }
+    a { color: #086e7b; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    code { padding: .1em .34em; border-radius: 5px; background: #eeeae0; font-size: .92em; }
+    .shell {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 30px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(247,245,239,.88);
+      backdrop-filter: blur(12px);
+      overflow-y: auto;
+    }
+    nav .brand { font-weight: 850; color: var(--navy); letter-spacing: -.03em; }
+    nav .brand small { display: block; margin-top: 3px; color: var(--muted); font-weight: 550; letter-spacing: 0; }
+    nav ol { margin: 26px 0 0; padding: 0; list-style: none; counter-reset: item; }
+    nav li { counter-increment: item; margin: 7px 0; }
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #3f5058;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    nav a::before { content: counter(item) ". "; color: var(--cyan); font-weight: 800; }
+    nav a:hover { background: var(--soft-cyan); color: var(--navy); }
+    main { min-width: 0; padding: 42px clamp(24px, 5vw, 78px) 100px; }
+    .hero {
+      position: relative;
+      padding: clamp(30px, 5vw, 66px);
+      color: white;
+      background: linear-gradient(130deg, #123d4d 0%, #175d67 58%, #3e6f64 100%);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -90px;
+      top: -125px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50%;
+      box-shadow: 0 0 0 46px rgba(255,255,255,.04), 0 0 0 92px rgba(255,255,255,.03);
+    }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; opacity: .75; }
+    h1 { max-width: 920px; margin: 12px 0 16px; font-size: clamp(34px, 5vw, 68px); line-height: 1.03; letter-spacing: -.055em; }
+    .hero .lead { max-width: 900px; margin: 0; font-size: clamp(16px, 2vw, 21px); color: rgba(255,255,255,.88); }
+    .hero .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+    .pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; background: rgba(255,255,255,.08); font-size: 12px; }
+    section { scroll-margin-top: 24px; margin-top: 58px; }
+    h2 { margin: 0 0 18px; color: var(--navy); font-size: clamp(25px, 3vw, 38px); line-height: 1.15; letter-spacing: -.035em; }
+    h3 { margin: 32px 0 12px; color: #285266; font-size: 21px; letter-spacing: -.02em; }
+    h4 { margin: 24px 0 8px; color: #40535b; font-size: 16px; }
+    p { margin: 10px 0; }
+    .lede { max-width: 1000px; color: var(--muted); font-size: 17px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card, .callout, .formula, .table-wrap, details {
+      border: 1px solid var(--line);
+      background: rgba(255,253,248,.93);
+      border-radius: 14px;
+      box-shadow: 0 7px 25px rgba(23,39,46,.04);
+    }
+    .card { padding: 22px; }
+    .card .num { display: block; margin-bottom: 6px; color: var(--cyan); font-size: 31px; font-weight: 900; letter-spacing: -.04em; }
+    .card .label { color: var(--navy); font-weight: 800; }
+    .card p { color: var(--muted); font-size: 14px; }
+    .callout { margin: 18px 0; padding: 18px 20px; border-left-width: 5px; }
+    .callout.good { border-left-color: var(--green); background: var(--soft-green); }
+    .callout.warn { border-left-color: var(--amber); background: var(--soft-amber); }
+    .callout.bad { border-left-color: var(--red); background: var(--soft-red); }
+    .callout.info { border-left-color: var(--cyan); background: var(--soft-cyan); }
+    .callout.violet { border-left-color: var(--violet); background: var(--soft-violet); }
+    .verdict { font-size: 18px; }
+    .formula { margin: 18px 0; padding: 20px 24px; overflow-x: auto; background: #17272e; color: #eef8f8; }
+    .formula .caption { margin-top: 9px; color: #a7c4ca; font-family: inherit; font-size: 13px; }
+    .flow { display: grid; grid-template-columns: repeat(7, auto); align-items: stretch; gap: 8px; margin: 22px 0; overflow-x: auto; padding-bottom: 4px; }
+    .flow .node { min-width: 130px; padding: 16px 14px; border: 1px solid #b9d4d5; border-radius: 12px; background: var(--panel); text-align: center; font-size: 13px; font-weight: 750; }
+    .flow .node.accent { background: var(--soft-cyan); border-color: #62b5bb; }
+    .flow .node.risk { background: var(--soft-red); border-color: #d89c93; }
+    .flow .arrow { display: grid; place-items: center; color: var(--cyan); font-weight: 900; }
+    .table-wrap { margin: 16px 0; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { padding: 12px 14px; color: #f4fbfb; background: var(--navy); text-align: left; white-space: nowrap; }
+    td { padding: 11px 14px; border-top: 1px solid #e3dfd5; vertical-align: top; }
+    tbody tr:nth-child(even) td { background: rgba(236,241,238,.45); }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .yes { color: var(--green); font-weight: 800; }
+    .no { color: var(--red); font-weight: 800; }
+    .maybe { color: var(--amber); font-weight: 800; }
+    ul, ol { padding-left: 23px; }
+    li { margin: 7px 0; }
+    .ranked { list-style: none; padding: 0; counter-reset: rank; }
+    .ranked > li { counter-increment: rank; position: relative; padding: 15px 16px 15px 55px; border-bottom: 1px solid var(--line); }
+    .ranked > li::before { content: counter(rank); position: absolute; left: 10px; top: 13px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: white; font-weight: 850; }
+    .ranked > li:last-child { border-bottom: 0; }
+    .lanes { display: grid; gap: 9px; margin: 18px 0; }
+    .lane { display: grid; grid-template-columns: 190px 1fr 80px; align-items: center; gap: 12px; }
+    .lane .bar { height: 13px; overflow: hidden; border-radius: 999px; background: #e3e1d9; }
+    .lane .fill { height: 100%; border-radius: inherit; }
+    .lane small { color: var(--muted); text-align: right; }
+    .timeline { position: relative; margin: 24px 0; padding-left: 28px; }
+    .timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: #acd0d2; }
+    .timeline .step { position: relative; margin: 0 0 22px; padding: 1px 0 1px 18px; }
+    .timeline .step::before { content: ""; position: absolute; left: -27px; top: 7px; width: 13px; height: 13px; border: 3px solid var(--paper); border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+    .timeline strong { color: var(--navy); }
+    details { margin: 12px 0; padding: 14px 18px; }
+    summary { cursor: pointer; color: var(--navy); font-weight: 800; }
+    .small { color: var(--muted); font-size: 13px; }
+    .source-list { columns: 2; column-gap: 34px; }
+    .source-list li { break-inside: avoid; margin-bottom: 10px; }
+    footer { margin-top: 70px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    @media (max-width: 1050px) {
+      .shell { display: block; }
+      nav { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      nav ol { display: flex; gap: 4px; overflow-x: auto; }
+      nav li { flex: 0 0 auto; }
+      .grid.three { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      main { padding: 18px 14px 70px; }
+      .hero { border-radius: 16px; }
+      .grid.two { grid-template-columns: 1fr; }
+      .lane { grid-template-columns: 1fr; gap: 4px; }
+      .lane small { text-align: left; }
+      .source-list { columns: 1; }
+    }
+    @media print {
+      nav { display: none; }
+      .shell { display: block; }
+      main { padding: 0; }
+      .hero { color: #111; background: white; border: 2px solid #333; box-shadow: none; }
+      .hero .lead { color: #333; }
+      section { break-inside: avoid; }
+      a { color: #111; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <nav aria-label="문서 목차">
+    <div class="brand">MISSION BRIEF<small>VIGS-SLAM · 2026-09-01</small></div>
+    <ol>
+      <li><a href="#verdict">결론</a></li>
+      <li><a href="#evidence">현재 근거</a></li>
+      <li><a href="#mission1">Mission 1 · Carve</a></li>
+      <li><a href="#mission2">Mission 2 · KF rate</a></li>
+      <li><a href="#mission3">Mission 3 · Viewset</a></li>
+      <li><a href="#method">통합 방법론</a></li>
+      <li><a href="#experiments">실험 설계</a></li>
+      <li><a href="#paper">논문화 전략</a></li>
+      <li><a href="#roadmap">실행 순서</a></li>
+      <li><a href="#sources">근거와 문헌</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Research &amp; Engineering Roadmap</div>
+      <h1>Carve loss, KF rate, viewset을 하나의 문제로 다시 정의하기</h1>
+      <p class="lead">핵심은 더 강한 regularizer가 아니다. 도착 속도가 달라도 같은 계산 예산 안에서
+        필요한 view와 free-space evidence가 제때 서비스되도록 만드는 <b>causal, rate-invariant optimization policy</b>다.</p>
+      <div class="meta">
+        <span class="pill">strict streaming</span>
+        <span class="pill">zero-tail</span>
+        <span class="pill">held-out quality</span>
+        <span class="pill">floater geometry</span>
+        <span class="pill">wall-time matched</span>
+      </div>
+    </header>
+
+    <section id="verdict">
+      <h2>1. 결론</h2>
+      <div class="grid three">
+        <article class="card">
+          <span class="num">AUC ≠ action</span>
+          <div class="label">Carve score에는 신호가 있다</div>
+          <p>1253의 final score AUC는 0.958, Fisher 결합은 0.970이다. 그러나 visible high-opacity 영역의 precision은 hard prune을 정당화하지 못한다.</p>
+        </article>
+        <article class="card">
+          <span class="num">96–99%</span>
+          <div class="label">online score가 늦는다</div>
+          <p>최근 strict run의 종료 직전 support row 중 stale/pending 비율이다. final diagnostic은 강제 full refresh여서 이 runtime 병목을 숨긴다.</p>
+        </article>
+        <article class="card">
+          <span class="num">2 queues</span>
+          <div class="label">live에는 두 번의 drop 지점이 있다</div>
+          <p>live RGB queue와 GS mapping packet queue가 각각 독립적으로 drop한다. file replay는 첫 queue에서 backpressure하므로 같은 알고리즘 경로가 아니다.</p>
+        </article>
+      </div>
+
+      <div class="callout bad verdict"><b>지금 하면 안 되는 것:</b> carve 성능을 올린다고 <code>λ</code>, ray/KF,
+        hard-prune 비율부터 올리는 것. 1253에서 verified ray를 64→256으로 늘리자 replay step은 4,392→2,094,
+        PSNR은 27.016→25.466 dB로 무너졌다.</div>
+      <div class="callout good verdict"><b>가장 큰 개선 가능성:</b> (1) action-time freshness를 먼저 확보하고,
+        (2) Gaussian 중심이 아니라 anisotropic footprint의 free-space mass를 평가하며, (3) opacity만 누르는 대신
+        opacity–scale 보상을 막는 contribution-aware action을 쓰고, (4) carve가 RGB replay 예산을 침범하지 않도록 별도 work credit을 준다.</div>
+
+      <div class="formula">
+        current effect ≈ detector quality × fresh-score coverage × action efficacy × available compute
+        <div class="caption">어느 한 항이 거의 0이면 final AUC가 높아도 실제 floater는 줄지 않는다.</div>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <h2>2. 현재 코드와 결과가 이미 말해주는 것</h2>
+      <p class="lede">아래는 새로운 가설이 아니라, 현재 repository의 코드·로그·exp53/56/69에서 직접 확인되는 사실이다.</p>
+
+      <h3>2.1 Carve: detector와 online actuator가 분리돼 있다</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>관측</th><th class="n">aria1253</th><th class="n">aria301_305</th><th>해석</th></tr></thead>
+          <tbody>
+            <tr><td>final raw score ROC-AUC</td><td class="n">0.958</td><td class="n">0.901</td><td class="yes">후보 순위 신호는 존재</td></tr>
+            <tr><td>score×√Fisher ROC-AUC</td><td class="n">0.970</td><td class="n">—</td><td>지원도 결합은 ranking을 개선</td></tr>
+            <tr><td>opacity&gt;0.3 raw precision@K</td><td class="n">3.97%</td><td class="n">18.75%*</td><td class="no">hard deletion precision으로 부족</td></tr>
+            <tr><td>score&gt;0.5 high-opacity recall</td><td class="n">49.0%</td><td class="n">34.9%*</td><td>보수 threshold는 false negative가 큼</td></tr>
+            <tr><td>종료 직전 stale/pending rows</td><td class="n">98.5%</td><td class="n">96.3%</td><td class="no">runtime action coverage가 핵심 병목</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">* 305의 과거 manual region은 trajectory-to-label Sim3 정합 오차가 커 Gaussian 단위 정밀 해석에는 제한이 있다.</p>
+
+      <div class="flow" aria-label="현재 carve 경로">
+        <div class="node">ConvGRU + BA<br>depth/pose</div><div class="arrow">→</div>
+        <div class="node">verified rays<br>≤64/KF</div><div class="arrow">→</div>
+        <div class="node accent">causal field<br>transit/terminal</div><div class="arrow">→</div>
+        <div class="node risk">visible-lazy<br>대부분 stale</div><div class="arrow">→</div>
+        <div class="node">opacity gradient<br>+ bounded prox</div>
+      </div>
+
+      <h3>2.2 exp40과 현재 VIGS는 같은 score가 아니다</h3>
+      <div class="grid two">
+        <article class="card">
+          <div class="label">exp40 batch score</div>
+          <p><span class="mono">transit ratio × 5NN SLAM-anchor distance × (1 − local max opacity)</span></p>
+          <p>전체 SLAM anchor field와 이웃 표면 지지를 사용했다. 수동 삭제 label에서 AUC 0.976–0.980을 기록했다.</p>
+        </article>
+        <article class="card">
+          <div class="label">현재 VIGS incremental score</div>
+          <p><span class="mono">direct transit / terminal ratio</span>가 핵심이며 runtime direct 경로에는 5NN anchor distance가 없다.</p>
+          <p>현재 v7 설정은 local max-opacity protection도 끈 상태다. final diagnostic에서도 <code>score == raw_score</code>다.</p>
+        </article>
+      </div>
+
+      <h3>2.3 KF/view 수와 품질은 단조 관계가 아니다</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>실험</th><th>변경</th><th class="n">PSNR 변화</th><th>결론</th></tr></thead>
+          <tbody>
+            <tr><td>exp53</td><td>motion filter 2.4→3.6, KF 수 감소</td><td class="n yes">+0.47 dB 수준</td><td>KF를 줄여 tracking·mapping 혼잡을 함께 낮춤</td></tr>
+            <tr><td>exp56 P1</td><td>map iters 10→7</td><td class="n yes">+0.21 dB</td><td>호출당 일을 줄이자 map 성공 횟수 22→26</td></tr>
+            <tr><td>exp56 P6</td><td>window 10→15→19, 총 view-op 유사</td><td class="n no">−1.1→−3.5 dB</td><td>과거 뷰가 frontier gradient를 희석</td></tr>
+            <tr><td>exp56 P7</td><td>frontier 유지, global view 2→6</td><td class="n yes">+0.22~0.24 dB</td><td>local convergence를 보존한 global replay는 도움</td></tr>
+            <tr><td>exp69 v7</td><td>carve ray 64→256</td><td class="n no">−1.55 dB</td><td>geometry evidence가 RGB replay를 잠식</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout info"><b>핵심 해석:</b> “KF가 많다/뷰가 많다”가 중요한 게 아니라, wall time 안에서
+        새로 태어난 frontier Gaussian이 충분히 학습되고 과거가 잊히지 않으며 carve evidence가 fresh한가가 중요하다.</div>
+
+      <h3>2.4 offline replay와 Gen1 live는 현재 공정한 A/B가 아니다</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>항목</th><th>paced file replay</th><th>Aria live socket</th><th>영향</th></tr></thead>
+          <tbody>
+            <tr><td>모델 prewarm</td><td>첫 replay frame 전에 VIGS 생성</td><td>첫 live frame을 받은 뒤 image size를 알고 생성</td><td>cold-start queue 압력 차이</td></tr>
+            <tr><td>입력 queue</td><td>multiprocessing queue 8, full이면 producer 대기</td><td>queue 256, full이면 oldest RGB drop + IMU 병합</td><td>보는 영상 자체가 달라질 수 있음</td></tr>
+            <tr><td>GS packet queue</td><td colspan="2">둘 다 queue size 2 성격의 latest-only drop 가능</td><td>KF가 빨리 오면 mapping event 소실</td></tr>
+            <tr><td>평가 view exclusion</td><td>strict run은 evaluator 252장 mapping에서 제외</td><td>확인한 live 결과는 <code>fixed_eval_mapping_excluded=false</code></td><td class="no">PSNR 직접 비교 불가</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>실제 Gen1 로그에서는 run별로 <b>mapping packet 16, 20, 43, 54개</b>가 drop됐다. 한 run은 RGB도 82개 drop됐다.
+        반면 최신 strict file run은 1253에서 mapping packet 3개, 305에서 1개 drop이었다. 서로 다른 capture라 품질의 인과 비교는 아니지만,
+        live가 훨씬 다른 queue regime에서 동작한다는 직접 증거다.</p>
+    </section>
+
+    <section id="mission1">
+      <h2>3. Mission 1 — Carve 성능을 크게 올리는 방법</h2>
+      <p class="lede">목표를 “opacity를 더 세게 낮추기”가 아니라, <b>실제 free-space를 침범하는 렌더 질량을 검출하고 제한하기</b>로 바꾼다.</p>
+
+      <h3>3.1 현재 실패를 네 층으로 분해한다</h3>
+      <div class="grid two">
+        <article class="card"><div class="label">Evidence</div><p>BA depth가 틀리거나 sparse하고, 고정 5/10cm margin은 depth·pose·scene scale 불확실성을 표현하지 못한다.</p></article>
+        <article class="card"><div class="label">Detector</div><p>Gaussian 중심의 transit/terminal 비율은 큰 anisotropic splat의 꼬리가 free-space에 들어오는 경우를 놓친다.</p></article>
+        <article class="card"><div class="label">Freshness</div><p>field generation이 변할 때 대부분 row가 stale가 되고, fresh score가 없는 Gaussian에는 loss가 0이다.</p></article>
+        <article class="card"><div class="label">Action</div><p>opacity만 낮추면 photometric loss가 scale을 키워 보상할 수 있다. 305의 giant-splat 증가가 이 반례다.</p></article>
+      </div>
+
+      <h3>3.2 제안 A — uncertainty-calibrated evidence</h3>
+      <div class="formula">
+        m(r) = k · sqrt( σ_depth²(r) + J_pose(r) Σ_pose J_pose(r)ᵀ + σ_repr² )
+        <div class="caption">고정 0.05/0.10m 대신 depth confidence, reprojection residual, pose uncertainty에 따라 surface protection margin을 정한다.</div>
+      </div>
+      <ul>
+        <li>support=2/3이라는 정수만 쓰지 말고, reprojection residual과 depth variance를 evidence weight로 보존한다.</li>
+        <li>PGBA 뒤 global voxel을 통째로 재구축하지 않도록 ray를 keyframe-local 좌표로 저장하고 query 때 최신 pose를 적용한다.</li>
+        <li>free-space evidence와 terminal/surface evidence를 별도 sufficient statistic으로 유지한다. 음의 증거가 없는 transit count만 커지는 것을 막는다.</li>
+        <li>score는 단순 ratio보다 Beta-Binomial posterior 또는 log-odds로 두어 관측 횟수가 적은 후보의 과신을 막는다.</li>
+      </ul>
+
+      <h3>3.3 제안 B — center score에서 Gaussian free-space mass로</h3>
+      <div class="formula">
+        Cᵢ = Σᵣ qᵣ ∫₀^(dᵣ−mᵣ) αᵢ · exp[−½(xᵣ(s)−μᵢ)ᵀΣᵢ⁻¹(xᵣ(s)−μᵢ)] ds
+        <div class="caption">각 verified ray의 surface 앞 구간과 Gaussian ellipsoid가 겹치는 질량을 직접 penalize한다. 중심이 ray 밖이어도 큰 covariance가 침범하면 잡힌다.</div>
+      </div>
+      <p>정확 적분이 비싸면 ray–ellipsoid Mahalanobis 최소거리와 구간 내 chord length의 닫힌형 근사를 쓸 수 있다.
+        현재 large-splat exact budget 512의 연장선이라 구현 가능성이 높다. 이것이 exp40의 anchor distance보다도 일반적인 형태다.</p>
+
+      <h3>3.4 제안 C — opacity–scale 보상을 원천 차단</h3>
+      <ol>
+        <li><b>Carve target을 opacity가 아니라 free-space contribution으로 정규화:</b> <span class="mono">opacity × projected footprint × overlap</span>.</li>
+        <li><b>carve-active row에만 covariance trust region:</b> free-space score가 높을 때 scale 증가를 금지하거나, free-space 방향의 principal scale을 줄인다.</li>
+        <li><b>dual state:</b> StableGS처럼 geometry occupancy와 appearance opacity를 분리하는 ablation을 둔다. carve는 geometry occupancy에, RGB는 appearance에 주로 작용시킨다.</li>
+        <li><b>normal/surface support와 결합:</b> terminal 지지가 충분한 thin surface는 scale shrink만 허용하고 삭제하지 않는다.</li>
+      </ol>
+      <div class="callout warn"><b>주의:</b> 전역 isotropic/scale regularizer는 exp65의 normal-oriented 초기화 실패처럼 정상 geometry도 해칠 수 있다.
+        반드시 carve-active subset과 uncertainty certificate 안에서만 적용해야 한다.</div>
+
+      <h3>3.5 제안 D — action-time coverage를 목적함수로</h3>
+      <p>visible-first만으로는 보이는 Gaussian이 매번 바뀌어 오래된 row가 영원히 굶을 수 있다. refresh 우선순위를 다음처럼 둔다.</p>
+      <div class="formula">
+        priorityᵢ = stale_ageᵢ × visibility_probᵢ × contributionᵢ × uncertaintyᵢ + exploration_floor
+        <div class="caption">현재 visible row를 우선하되, contribution이 크고 오래 stale인 후보와 작은 random exploration quota를 보장한다.</div>
+      </div>
+      <p>최종 AUC가 아니라 <b>labeled floater 중 action 전에 fresh score를 받은 비율</b>, <b>nonzero carve gradient를 받은 횟수</b>,
+        <b>score age p95</b>를 핵심 지표로 삼는다.</p>
+
+      <h3>3.6 안전한 action ladder</h3>
+      <div class="flow" aria-label="carve action ladder">
+        <div class="node accent">telemetry only</div><div class="arrow">→</div>
+        <div class="node">contribution-aware<br>soft loss</div><div class="arrow">→</div>
+        <div class="node">opacity + scale<br>trust region</div><div class="arrow">→</div>
+        <div class="node">delayed newborn<br>quarantine</div><div class="arrow">→</div>
+        <div class="node risk">persistent + low-risk<br>hard prune</div>
+      </div>
+      <p>각 단계는 이전 단계보다 강한 certificate가 있어야 한다. 최종 prune은 free-space posterior, distinct-view persistence,
+        contribution harm budget, fresh score를 모두 통과한 경우에만 허용한다.</p>
+    </section>
+
+    <section id="mission2">
+      <h2>4. Mission 2 — KF 생성 속도에 덜 민감하게 만들기</h2>
+      <p class="lede">현재는 KF가 단지 tracking 표본이 아니다. Gaussian birth, map 호출, dense interval admission,
+        verified ray 생성, PGBA poll의 clock 역할까지 한다. 그래서 KF rate가 바뀌면 전체 optimizer의 시간축이 바뀐다.</p>
+
+      <h3>4.1 먼저 같은 입력으로 harness parity를 증명해야 한다</h3>
+      <div class="callout bad"><b>현재 live PSNR은 strict held-out 수치와 직접 비교하면 안 된다.</b>
+        확인한 Gen1 결과의 <code>fixed_eval_mapping_excluded</code>가 false이고 evaluator와 keyframe overlap도 31–53장 있었다.
+        먼저 동일한 평가 exclusion을 적용해야 한다.</div>
+      <ol class="ranked">
+        <li><b>같은 recorded packet trace</b>를 (A) file reader와 (B) Unix live adapter로 각각 재생한다.</li>
+        <li>resize 후 image tensor hash, intrinsics, IMU interval, timestamp, KF UID를 프레임별 비교한다.</li>
+        <li>GS packet enqueue/process/drop, PGBA event, replay step 수를 비교한다.</li>
+        <li>동일 fixed held-out evaluator를 양쪽 mapping supervision에서 완전히 제외한다.</li>
+        <li>이 parity가 통과한 뒤에만 실제 wireless capture 차이를 알고리즘 문제로 해석한다.</li>
+      </ol>
+
+      <h3>4.2 tracking KF와 mapping service clock을 분리한다</h3>
+      <div class="formula">
+        credit(t+Δt) = min(Cmax, credit(t) + GPU_rate · Δt) − Σ action_cost
+        <div class="caption">KF가 왔기 때문에 7 iter를 주는 대신, 센서 시간 Δt 동안 실제로 생긴 계산 credit으로 map action을 산다.</div>
+      </div>
+      <ul>
+        <li><b>KF admission:</b> tracking 안정성을 위한 motion/covisibility 판단. DROID frontend의 고유 책임.</li>
+        <li><b>Birth coalescing:</b> 너무 가까운 KF는 tracking graph에는 남겨도 Gaussian birth는 overlap/novel coverage에 따라 합친다.</li>
+        <li><b>Mapping dispatch:</b> KF packet은 절대 silent drop하지 않고 상태 update와 birth를 분리한다. 최신 pose update는 coalesce할 수 있지만 새 geometry event는 보존한다.</li>
+        <li><b>Iteration depth:</b> KF arrival rate가 높을수록 per-KF iter를 낮추되, frontier가 최소 service 횟수를 받도록 debt를 유지한다.</li>
+        <li><b>Dense supervision:</b> non-KF RGB는 유실시키지 않고 저비용 view metadata로 archive하며, 실제 tensor는 bounded cache/재로딩 정책을 둔다.</li>
+      </ul>
+
+      <h3>4.3 세 개의 queue를 명시적으로 구분한다</h3>
+      <div class="grid three">
+        <article class="card"><div class="label">Sensor queue</div><p>RGB/IMU transport. 과부하 시 기록·재생 가능해야 하며 drop은 metric으로 노출한다.</p></article>
+        <article class="card"><div class="label">State queue</div><p>pose/depth/KF/PGBA revision. 최신 상태로 coalesce 가능하지만 topology birth event는 보존한다.</p></article>
+        <article class="card"><div class="label">Optimization queue</div><p>frontier/replay/carve action. wall-time credit과 deadline으로 선택한다.</p></article>
+      </div>
+      <p>현재는 이 세 의미가 부분적으로 한 packet과 queue size 2에 묶여 있다. 이를 분리하면 live rate가 빨라져도 “중간 KF map 호출이 통째로 사라지는” 문제가 줄어든다.</p>
+
+      <h3>4.4 rate sensitivity를 숫자로 정의한다</h3>
+      <div class="formula">
+        S_rate(Q) = maxₚ Q(p) − minₚ Q(p),  p ∈ {0.75×, 1.0×, 1.5×, 2.0×}
+        <div class="caption">동일 sensor trace의 재생 속도만 바꿔 측정한다. 다른 capture 간 PSNR 차이는 rate sensitivity가 아니다.</div>
+      </div>
+      <p>목표 예시는 held-out PSNR range ≤0.30 dB, trajectory ATE 변화 ≤10%, geometry metric 악화 없음,
+        sensor RGB drop 0, topology event drop 0이다. 0.75×가 compute capacity를 넘는 경우에는 graceful degradation 곡선을 별도 보고한다.</p>
+    </section>
+
+    <section id="mission3">
+      <h2>5. Mission 3 — Carve와 viewset을 논문 핵심으로 만들기</h2>
+      <p class="lede">현재 viewset은 “좋아 보이는 heuristic”이 아니라, 제한된 시간에 어떤 gradient와 geometry evidence를 서비스할지 결정하는
+        <b>online resource allocation</b> 문제로 정식화할 수 있다.</p>
+
+      <h3>5.1 working formulation</h3>
+      <div class="formula">
+        choose Aₜ ⊆ arrived actions to maximize Σₐ∈Aₜ U(a | Gₜ, V≤ₜ, E≤ₜ)
+        <br>subject to Σ cost(a) ≤ creditₜ, &nbsp; causal(a), &nbsp; risk(Aₜ) ≤ β
+        <div class="caption">action은 frontier RGBD update, historical RGB replay, carve refresh, PGBA recovery, prune certificate 검사다.</div>
+      </div>
+      <p>이 정식화의 장점은 KF threshold, camera FPS, scene length를 목적함수에서 제거한다는 점이다.
+        사용 가능한 정보는 도착한 view/evidence와 측정된 compute cost뿐이다.</p>
+
+      <h3>5.2 view utility는 하나의 score가 아니라 제약 있는 조합이다</h3>
+      <div class="formula">
+        U(v) = wF · frontier_debt(v) + wG · global_forgetting(v)
+             + wI · Δlogdet(F + Fᵥ) + wR · residual(v)
+             + wC · carve_freshness_debt(v) − wD · redundancy(v)
+        <div class="caption">Fisher/EIG는 유용하지만 primary ordering으로 쓰지 않는다. exp69의 novelty-first 계열 반례 때문에 coverage와 frontier debt가 먼저다.</div>
+      </div>
+      <p>실제 구현은 lexicographic 또는 constrained form이 안전하다: 먼저 frontier 최소 service와 global replay floor를 만족하고,
+        남는 슬롯에서 Fisher novelty와 residual을 tie-break로 쓴다. 이 방식은 FisherRF의 정보이득 원리와 현재 시스템의 안정성 근거를 함께 살린다.</p>
+
+      <h3>5.3 geometry evidence도 scheduler의 action이다</h3>
+      <p>현재 carve maintenance는 map iteration 안에 숨어 RGB replay와 시간을 경쟁한다. 논문 방법에서는 이를 독립 lane으로 승격한다.</p>
+      <div class="lanes" aria-label="예시 scheduler lanes">
+        <div class="lane"><b>Frontier RGBD</b><div class="bar"><div class="fill" style="width:55%;background:#148c9a"></div></div><small>hard floor</small></div>
+        <div class="lane"><b>Global/dense replay</b><div class="bar"><div class="fill" style="width:32%;background:#2f7d5b"></div></div><small>forgetting floor</small></div>
+        <div class="lane"><b>Carve refresh</b><div class="bar"><div class="fill" style="width:10%;background:#bc6b1e"></div></div><small>freshness debt</small></div>
+        <div class="lane"><b>PGBA reserve</b><div class="bar"><div class="fill" style="width:6%;background:#6654a6"></div></div><small>event reserve</small></div>
+      </div>
+      <p class="small">막대 비율은 설명용이며 최종 hyperparameter가 아니다. 실제 비율은 measured action cost와 service debt로 정해져야 한다.</p>
+
+      <h3>5.4 가능한 논문 contribution</h3>
+      <div class="grid three">
+        <article class="card"><span class="num">C1</span><div class="label">Rate-invariant causal scheduling</div><p>camera/KF rate가 아니라 sensor time과 measured cost로 frontier, replay, geometry service를 배분한다.</p></article>
+        <article class="card"><span class="num">C2</span><div class="label">Footprint-aware free-space evidence</div><p>online BA depth의 uncertainty를 반영해 anisotropic Gaussian의 free-space mass를 직접 제한한다.</p></article>
+        <article class="card"><span class="num">C3</span><div class="label">Risk-bounded action</div><p>render contribution 예산과 persistence certificate로 reversible suppression에서 hard prune까지 단계화한다.</p></article>
+      </div>
+      <div class="callout warn"><b>novelty 표현 주의:</b> Fisher view selection, free-space/SDF loss, contribution pruning,
+        cross-view depth consistency는 각각 선행연구가 있다. 논문 novelty 후보는 이들을 나열하는 것이 아니라,
+        <b>strict causal streaming에서 rate와 compute를 명시적으로 제약하며 한 scheduler로 결합하고 action-time certificate를 제시하는 것</b>이다.
+        최종 claim 전에는 더 넓은 systematic literature review가 필요하다.</div>
+    </section>
+
+    <section id="method">
+      <h2>6. 통합 방법론 제안: Causal Evidence-Constrained View Scheduling</h2>
+      <p class="lede">작업명 <b>CEVS</b>. 이름은 바꿔도 되지만, 아래 세 상태와 네 action lane을 분리하는 구조는 유지할 가치가 있다.</p>
+
+      <div class="flow" aria-label="제안 시스템 전체 흐름">
+        <div class="node">RGB + IMU<br>arrived only</div><div class="arrow">→</div>
+        <div class="node">DROID/BA<br>KF + depth + pose</div><div class="arrow">→</div>
+        <div class="node accent">state store<br>views / evidence / debt</div><div class="arrow">→</div>
+        <div class="node accent">credit scheduler<br>utility / cost / risk</div><div class="arrow">→</div>
+        <div class="node">3DGS update<br>frontier/replay/carve</div>
+      </div>
+
+      <h3>6.1 최소 상태</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상태</th><th>필수 필드</th><th>왜 필요한가</th></tr></thead>
+          <tbody>
+            <tr><td>View state</td><td>UID, timestamp, pose version, coverage, residual EMA, service count, last-service time</td><td>rate와 무관한 replay debt</td></tr>
+            <tr><td>Evidence state</td><td>ray owner KF, local ray, depth variance, support, pose version, field generation</td><td>PGBA-safe free-space evidence</td></tr>
+            <tr><td>Gaussian state</td><td>stable ID, birth UID, score posterior, score age, fresh count, contribution EMA, scale history</td><td>action-time certificate와 opacity–scale 감사</td></tr>
+            <tr><td>Compute state</td><td>action별 wall-time EMA/p95, available credit, queue debt, next sensor deadline</td><td>wall-time constraint</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>6.2 한 scheduling tick</h3>
+      <ol>
+        <li>도착한 KF/pose revision/evidence를 state store에 반영한다. 이 단계는 optimizer action과 분리한다.</li>
+        <li>sensor time만큼 credit을 적립하고 다음 RGB deadline 이전 안전 budget을 계산한다.</li>
+        <li>frontier 최소 service debt를 먼저 갚는다.</li>
+        <li>global forgetting debt와 carve freshness debt 중 utility/cost가 높은 action을 고른다.</li>
+        <li>PGBA가 오면 fixed reserve로 pose transport와 evidence version update를 처리한다.</li>
+        <li>각 action의 실제 비용과 utility proxy를 업데이트한다. 마지막 frame 이후 optimizer action은 0회다.</li>
+      </ol>
+
+      <h3>6.3 이 구조가 세 mission을 동시에 푸는 이유</h3>
+      <ul>
+        <li>KF가 빨라져도 credit 생성률은 sensor time 기준이므로 총 optimizer pressure가 폭발하지 않는다.</li>
+        <li>carve refresh에 최소 service가 보장돼 score stale가 전체 map으로 퍼지는 현상을 줄인다.</li>
+        <li>frontier hard floor가 있어 view diversity가 새 Gaussian의 수렴을 희석하지 않는다.</li>
+        <li>view selection과 carve를 동일 utility/cost/risk 언어로 설명할 수 있어 논문 방법론이 하나로 묶인다.</li>
+      </ul>
+    </section>
+
+    <section id="experiments">
+      <h2>7. 주장 가능한 결과를 만드는 실험 설계</h2>
+      <p class="lede">한 번에 모든 것을 켜는 대신 detector, availability, action, scheduler를 분리한다. 모든 비교는 같은 sensor trace·seed·wall-time budget을 사용한다.</p>
+
+      <h3>7.1 Phase 0 — harness parity (가장 먼저)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>A/B</th><th>고정</th><th>통과 조건</th></tr></thead>
+          <tbody>
+            <tr><td>H0</td><td>file reader vs live socket replay</td><td>동일 packet trace, pacing, config</td><td>image/intrinsics/IMU/KF UID 일치</td></tr>
+            <tr><td>H1</td><td>offline prewarm vs calibration-first live prewarm</td><td>같은 trace</td><td>cold-start RGB drop 0</td></tr>
+            <tr><td>H2</td><td>strict evaluator exclusion on/off</td><td>map checkpoint</td><td>live strict harness에서 overlap 0</td></tr>
+            <tr><td>H3</td><td>state/topology queue split 전후</td><td>KF sequence 강제 고정</td><td>topology event drop 0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.2 Phase 1 — KF/rate causal isolation</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>축</th><th>수준</th><th>무엇을 분리하는가</th></tr></thead>
+          <tbody>
+            <tr><td>Replay pace</td><td>0.75× / 1.0× / 1.5× / 2.0×</td><td>같은 내용에서 compute pressure만 변경</td></tr>
+            <tr><td>KF schedule</td><td>saved fixed / threshold 2.4 / 3.6 / 5.4</td><td>frontend admission과 mapping service 분리</td></tr>
+            <tr><td>Dispatch</td><td>KF-coupled / work-credit</td><td>제안 scheduler main effect</td></tr>
+            <tr><td>Packet policy</td><td>latest-drop / state-coalesce+birth-preserve</td><td>queue loss의 영향</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Phase 2 — carve factorization</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Arm</th><th>Detector</th><th>Refresh</th><th>Action</th><th>답하는 질문</th></tr></thead>
+          <tbody>
+            <tr><td>C0</td><td>현 score</td><td>final full</td><td>off</td><td>static separability</td></tr>
+            <tr><td>C1</td><td>현 score</td><td>현 visible-lazy</td><td>off</td><td>action-time availability</td></tr>
+            <tr><td>C2</td><td>footprint + uncertainty</td><td>현 visible-lazy</td><td>off</td><td>detector main effect</td></tr>
+            <tr><td>C3</td><td>footprint + uncertainty</td><td>debt-priority</td><td>off</td><td>freshness main effect</td></tr>
+            <tr><td>C4</td><td>C3</td><td>C3</td><td>opacity-only</td><td>현 action과의 비교</td></tr>
+            <tr><td>C5</td><td>C3</td><td>C3</td><td>contribution + scale trust</td><td>opacity–scale 보상 제거</td></tr>
+            <tr><td>C6</td><td>C3</td><td>C3</td><td>persistent risk-bounded prune</td><td>최종 floater removal</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.4 Baselines</h3>
+      <ul>
+        <li>VIGS v5: carve off scheduler baseline.</li>
+        <li>VIGS v7-64: 현재 가장 좋은 carve 후보.</li>
+        <li>Random full-pool replay와 FIFO/time-maximin replay.</li>
+        <li>MonoGS-style local covisibility window + random historical views.</li>
+        <li>View selector ablation: frontier only, +random global, +residual, +Fisher tie-break, full CEVS.</li>
+        <li>Geometry action ablation: opacity-only, footprint loss, footprint+scale trust, terminal prune.</li>
+      </ul>
+
+      <h3>7.5 필수 지표</h3>
+      <div class="grid three">
+        <article class="card"><div class="label">Appearance</div><p>strict held-out PSNR/SSIM/LPIPS, late temporal bins, run-to-run mean±std. Train/KF PSNR만으로 판정하지 않는다.</p></article>
+        <article class="card"><div class="label">Geometry</div><p>SuperSplat direct label의 ROC-AUC/AP, precision@visual budget, recall, opacity-area, scale&gt;0.5m, oracle prune.</p></article>
+        <article class="card"><div class="label">System</div><p>p50/p95 latency, sensor/state/topology drop, replay step/s, KF rate, score-age p95, fresh floater coverage, zero-tail.</p></article>
+      </div>
+
+      <h3>7.6 최소 acceptance gate</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Claim</th><th>Gate</th><th>실패 시 해석</th></tr></thead>
+          <tbody>
+            <tr><td>Rate-invariant</td><td>동일 trace pace sweep PSNR range ≤0.30 dB, topology drop 0</td><td>scheduler/queue 문제</td></tr>
+            <tr><td>Detector</td><td>두 direct-label scene에서 AUC ≥0.95, AP가 prevalence 대비 명확히 우세</td><td>evidence/score 문제</td></tr>
+            <tr><td>Availability</td><td>visible floater fresh-before-action recall ≥90%, score-age p95 제한</td><td>refresh 문제</td></tr>
+            <tr><td>Action</td><td>≤0.75% visual budget에서 floater recall ≥50%, significant surface precision ≥95%</td><td>action/certificate 문제</td></tr>
+            <tr><td>Joint quality</td><td>strict held-out ΔPSNR ≥−0.2 dB, region geometry 일관 개선</td><td>geometry–appearance coupling 문제</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">수치는 시작 acceptance proposal이다. label prevalence와 기존 exp40 ROC/region 결과를 본 뒤 사전 등록해 고정해야 한다.</p>
+    </section>
+
+    <section id="paper">
+      <h2>8. Academic positioning과 논문 서사</h2>
+      <h3>8.1 선행연구와의 정확한 관계</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>연구 흐름</th><th>가져오는 원리</th><th>우리의 차별화 후보</th></tr></thead>
+          <tbody>
+            <tr><td>MonoGS / Gaussian SLAM</td><td>covisibility local window + random past replay, recent Gaussian stability pruning</td><td>KF heuristic가 아닌 measured compute-credit scheduler</td></tr>
+            <tr><td>FisherRF</td><td>Fisher information으로 view information gain</td><td>active capture가 아니라 arrived-only streaming replay; frontier/risk constraint</td></tr>
+            <tr><td>Continual Neural Mapping / Co-SLAM</td><td>replay로 forgetting 완화, global ray sampling</td><td>explicit evolving topology와 KF-rate invariance</td></tr>
+            <tr><td>DS-NeRF / Co-SLAM / SLAIM</td><td>ray termination과 free-space supervision</td><td>online BA depth uncertainty + anisotropic Gaussian footprint mass</td></tr>
+            <tr><td>TrimGS</td><td>render contribution 기반 trimming</td><td>streaming action-time risk budget과 persistent certificate</td></tr>
+            <tr><td>StableGS</td><td>cross-view depth consistency, dual opacity</td><td>strict causal evidence와 rate-limited online 적용</td></tr>
+            <tr><td>2DGS / GOF</td><td>surface-aware primitive/opacity-field geometry regularization</td><td>3DGS SLAM을 유지하면서 free-space intrusion만 선택적으로 제한</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 권장 paper claim</h3>
+      <div class="callout violet"><b>가장 강한 중심 문장 후보:</b><br>
+        “We formulate online Gaussian mapping as causal utility maximization under measured compute and visual-risk budgets,
+        decoupling keyframe arrival from map optimization while jointly scheduling photometric replay and uncertainty-aware free-space evidence.”</div>
+      <p>carve 하나를 독립 loss contribution으로 내세우기보다, <b>rate-invariant scheduler 안의 geometry action</b>으로 두는 편이 현재 실험의 강점과 실패를 모두 설명한다.
+        또한 offline batch clean-up이 아닌 actual live/strict stream을 다룬다는 차별점이 생긴다.</p>
+
+      <h3>8.3 반드시 포함할 figure</h3>
+      <ol>
+        <li><b>System figure:</b> KF arrival와 compute credit이 분리되고 네 action lane이 경쟁하는 구조.</li>
+        <li><b>Rate curve:</b> 같은 trace의 0.75×–2.0×에서 baseline과 제안법 PSNR/geometry/queue drop.</li>
+        <li><b>Detector–availability plot:</b> final AUC와 action-time fresh recall을 나란히 보여 “좋은 score ≠ 작동”을 입증.</li>
+        <li><b>Opacity–scale phase plot:</b> opacity-only와 contribution+scale trust에서 carve-active Gaussian의 이동.</li>
+        <li><b>Budget Pareto:</b> wall time 또는 visual-risk budget 대비 held-out PSNR과 floater recall.</li>
+      </ol>
+
+      <h3>8.4 주장하면 안 되는 것</h3>
+      <ul>
+        <li>현재 v7이 “floater-free”라는 주장 — high-opacity count가 1253/rot에서 증가했다.</li>
+        <li>live Gen1 PSNR과 strict file PSNR의 직접 비교 — capture와 evaluator exclusion이 다르다.</li>
+        <li>AUC만으로 hard prune 안전성을 주장 — rare-positive AP/precision과 contribution risk가 필요하다.</li>
+        <li>단일 scene에서 고른 KF threshold나 frame boundary를 universal policy로 주장.</li>
+        <li>더 많은 ray/view가 더 좋은 geometry를 만든다는 단조 가정.</li>
+      </ul>
+    </section>
+
+    <section id="roadmap">
+      <h2>9. 실행 우선순위</h2>
+      <div class="timeline">
+        <div class="step"><strong>P0 · Harness parity와 평가 수정</strong><br>
+          live strict evaluator exclusion, calibration-first prewarm, packet trace dual replay, queue/drop telemetry를 먼저 맞춘다.</div>
+        <div class="step"><strong>P1 · KF-rate isolation</strong><br>
+          같은 trace pace sweep과 saved-KF schedule로 “입력 속도”와 “KF membership”의 영향을 분리한다.</div>
+        <div class="step"><strong>P2 · Action-time carve telemetry</strong><br>
+          stable point ID별 score age, fresh count, max online score, applied gradient, opacity/scale history를 저장한다.</div>
+        <div class="step"><strong>P3 · Work-credit scheduler skeleton</strong><br>
+          frontier/global/carve/PGBA lanes와 topology-event-preserving queue를 구현하고 carve off 상태에서 rate invariance를 먼저 통과시킨다.</div>
+        <div class="step"><strong>P4 · Footprint-aware carve</strong><br>
+          uncertainty margin과 ray–ellipsoid free-space mass를 telemetry-only로 비교한 뒤 contribution+scale action을 켠다.</div>
+        <div class="step"><strong>P5 · SuperSplat direct labels</strong><br>
+          방법을 동결한 development scene과 blind validation scene을 직접 라벨링해 detector/action claim을 확정한다.</div>
+        <div class="step"><strong>P6 · Cross-scene/live paper matrix</strong><br>
+          1253, 305, 12F, rot, Gen1 live trace에서 동일 policy와 wall-time budget으로 반복한다.</div>
+      </div>
+
+      <div class="callout good"><b>가장 먼저 구현할 두 가지:</b> (1) live/file strict parity harness,
+        (2) per-Gaussian action-time carve telemetry. 둘 다 새 loss를 넣지 않고도 현재 성능 저하가 scheduler인지 detector인지 확정한다.</div>
+      <div class="callout info"><b>SuperSplat 라벨링 시점:</b> 지금 바로 전체를 청소할 필요는 없다.
+        P2/P4에서 exact VIGS PLY와 stable-ID 대응이 준비된 뒤 development scene 하나를 직접 라벨링하면 된다.
+        그 전까지는 label-independent geometry와 action-time coverage로 설계를 좁히는 것이 효율적이다.</div>
+    </section>
+
+    <section id="sources">
+      <h2>10. Repository 근거와 학술 문헌</h2>
+      <h3>10.1 Local evidence</h3>
+      <ul>
+        <li><a href="../STATUS.md">현재 단일 진실 소스 — context/STATUS.md</a></li>
+        <li><a href="../experiments/exp69/exp69_result.html">exp69 v5/v6/v7 scheduler·carve·geometry 결과</a></li>
+        <li><a href="../experiments/exp53_frontend_realtime_plan.md">exp53 frontend/KF 속도 실험</a></li>
+        <li><a href="../experiments/exp56_mapping_fixedcost_reduction.md">exp56 map iteration/window/global-view ablation</a></li>
+        <li><span class="mono">VIGS/vigs/gaussian/utils/causal_carve.py</span> — incremental direct score, stale zeroing, final diagnostic full refresh.</li>
+        <li><span class="mono">VIGS/vigs/live_aria_stream.py</span> — live queue의 oldest RGB drop과 IMU successor merge.</li>
+        <li><span class="mono">VIGS/vigs/vigs.py</span> — GS mapping packet latest-drop, KF-coupled dispatch, dense interval queue.</li>
+      </ul>
+
+      <h3>10.2 Primary literature</h3>
+      <ul class="source-list">
+        <li><a href="https://papers.neurips.cc/paper_files/paper/2021/file/89fcd07f20b6785b92134bd6c1d0fa42-Paper.pdf">DROID-SLAM</a> — asynchronous frontend/backend, learned BA and KF graph.</li>
+        <li><a href="https://openaccess.thecvf.com/content/CVPR2024/papers/Matsuki_Gaussian_Splatting_SLAM_CVPR_2024_paper.pdf">Gaussian Splatting SLAM (MonoGS)</a> — covisibility KF window, random historical replay, recent-Gaussian stability pruning.</li>
+        <li><a href="https://arxiv.org/abs/2312.02126">SplaTAM</a> — online Gaussian tracking/mapping and silhouette-based map expansion.</li>
+        <li><a href="https://arxiv.org/abs/2311.17874">FisherRF</a> — Fisher information/EIG active view selection.</li>
+        <li><a href="https://arxiv.org/abs/2108.05851">Continual Neural Mapping</a> — sequential mapping과 experience replay.</li>
+        <li><a href="https://arxiv.org/abs/2304.14377">Co-SLAM</a> — global keyframe ray sampling and SDF free-space loss.</li>
+        <li><a href="https://arxiv.org/abs/2107.02791">DS-NeRF</a> — uncertain depth로 ray termination을 제약.</li>
+        <li><a href="https://openaccess.thecvf.com/content/CVPR2024W/NRI/html/Cartillier_SLAIM_Robust_Dense_Neural_SLAM_for_Online_Tracking_and_Mapping_CVPRW_2024_paper.html">SLAIM</a> — empty-space/opaque-surface termination distribution regularization.</li>
+        <li><a href="https://arxiv.org/abs/2303.13582">SCADE</a> — ambiguity-aware depth hypothesis와 space carving.</li>
+        <li><a href="https://arxiv.org/abs/2406.07499">TrimGS</a> — Gaussian render contribution 기반 trimming.</li>
+        <li><a href="https://arxiv.org/abs/2503.18458">StableGS</a> — cross-view depth consistency와 dual opacity.</li>
+        <li><a href="https://arxiv.org/abs/2403.17888">2D Gaussian Splatting</a> — depth distortion와 normal consistency를 통한 surface geometry.</li>
+        <li><a href="https://arxiv.org/abs/2404.10772">Gaussian Opacity Fields</a> — opacity-field level set과 geometry regularization.</li>
+        <li><a href="https://arxiv.org/abs/2411.10722">DGS-SLAM</a> — loop-aware window selection과 dynamic filtering.</li>
+      </ul>
+
+      <details>
+        <summary>문서의 증거 수준</summary>
+        <p><b>직접 확인:</b> local code path, exp53/56/69 수치, Gen1 queue/drop·PSNR 로그.</p>
+        <p><b>강한 가설:</b> stale coverage와 opacity–scale compensation이 현재 carve 효과를 제한한다는 해석.</p>
+        <p><b>제안:</b> CEVS formulation, uncertainty margin, footprint mass loss, lane scheduler, acceptance thresholds.
+          이 항목들은 구현·paired experiment 전에는 성능 claim이 아니다.</p>
+      </details>
+    </section>
+
+    <footer>
+      작성일 2026-09-01 · 대상 repository: /home/intern/VIGS-SLAM-main-integration-20260828 ·
+      본 문서는 실험 결과 카드가 아니라 다음 실험을 위한 연구/설계 문서다. 기존 STATUS 결론은 수정하지 않았다.
+    </footer>
+  </main>
+</div>
+</body>
+</html>
