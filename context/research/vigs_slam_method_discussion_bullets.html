@@ -421,9 +421,75 @@ p_t(i)\propto\exp(-\beta n_i)
 </section>
 <p>인 단순한 Gibbs distribution이다.</p>
 <h3>Count imbalance potential에서 분포 유도</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(t\)</td>
+<td>현재 online mapping 또는 replay 선택 시점</td>
+</tr>
+<tr>
+<td>\(i,j\)</td>
+<td>admitted view index. \(i\)는 선택 후보이고 \(j\)는 정규화 합의 index</td>
+</tr>
+<tr>
+<td>\(\mathcal A_t\), (N=</td>
+<td>\mathcal A_t</td>
+</tr>
+<tr>
+<td>\(n_i\), \(\mathbf n\)</td>
+<td>view \(i\)의 실제 누적 optimizer-update 횟수와 전체 count vector</td>
+</tr>
+<tr>
+<td>\(\bar n=N^{-1}\sum_i n_i\)</td>
+<td>현재 pool의 view당 평균 학습 횟수</td>
+</tr>
+<tr>
+<td>\(\mathbf e_i\)</td>
+<td>\(i\)번째 성분만 1인 단위 vector. \(\mathbf n+\mathbf e_i\)는 view \(i\)를 한 번 더 선택한 상태</td>
+</tr>
+<tr>
+<td>\(\Phi(\mathbf n)\), \(\Delta_i\Phi\)</td>
+<td>count 불균형 potential과 view \(i\)를 한 번 선택했을 때의 증가량</td>
+</tr>
+<tr>
+<td>\(p_i\), \(p_t(i)\)</td>
+<td>view \(i\)를 다음 optimizer target으로 선택할 확률</td>
+</tr>
+<tr>
+<td>\(\Delta_N\)</td>
+<td>\(p_i\ge0\), \(\sum_i p_i=1\)을 만족하는 \(N\)-차원 probability simplex</td>
+</tr>
+<tr>
+<td>\(H(p)\)</td>
+<td>선택분포의 Shannon entropy. 클수록 uniform selection에 가까움</td>
+</tr>
+<tr>
+<td>\(\tau>0\), \(\beta=1/\tau\)</td>
+<td>entropy temperature와 inverse temperature. \(\beta\)가 클수록 low-count view 선호가 강함</td>
+</tr>
+<tr>
+<td>\(\lambda\)</td>
+<td>\(\sum_i p_i=1\) 제약에 대응하는 Lagrange multiplier</td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li>현재 pool 크기를 \(N\), view \(i\)의 누적 학습 횟수를 \(n_i\), 평균을
-\(\bar n=N^{-1}\sum_i n_i\)라 두고</li>
+<li>
+<p>모든 \(\log\)는 natural logarithm을 사용한다.</p>
+</li>
+<li>
+<p>\(n_i\)는 frame의 age가 아니라 실제 mapping loss와 optimizer update에 사용된 횟수다.</p>
+</li>
+<li>
+<p>현재 pool 크기를 \(N\), view \(i\)의 누적 학습 횟수를 \(n_i\), 평균을
+\(\bar n=N^{-1}\sum_i n_i\)라 두고</p>
+</li>
 </ul>
 <section>
 \[
@@ -541,6 +607,44 @@ p_t(i)
 </section>
 <p>가 된다.</p>
 <h3>\(K\)-view statistical block</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(K\)</td>
+<td>한 block에서 중복 없이 미리 뽑아 둘 최대 view 수</td>
+</tr>
+<tr>
+<td>\(b\)</td>
+<td>statistical block index</td>
+</tr>
+<tr>
+<td>\(k\)</td>
+<td>block \(b\) 내부의 sequential draw index, \(k=0,\ldots,K-1\)</td>
+</tr>
+<tr>
+<td>\(t_b\)</td>
+<td>block \(b\)를 생성하는 online 시점</td>
+</tr>
+<tr>
+<td>\(n_i^{(b)}\)</td>
+<td>block 생성 시 고정한 view \(i\)의 count snapshot</td>
+</tr>
+<tr>
+<td>\(\mathcal W_b^{(k)}\)</td>
+<td>\(k\)번째 draw 직전에 아직 선택되지 않은 remaining view set</td>
+</tr>
+<tr>
+<td>\(p_{b,k}(i)\), \(I_{b,k}\)</td>
+<td>remaining set에서 view \(i\)를 뽑는 conditional probability와 실제 추출 결과</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>One-step categorical sampling은 같은 view를 연속 선택할 수 있어 full-pool coverage가
 쉽게 깨진다.</li>
@@ -549,7 +653,7 @@ p_t(i)
 </ul>
 <section>
 \[
-\mathcal W_b^{(0)}=\mathcal A_{\tau_b},
+\mathcal W_b^{(0)}=\mathcal A_{t_b},
 \]
 </section>
 <section>
@@ -603,6 +707,28 @@ I_{b,k}\sim p_{b,k},
 돌아간다.</li>
 </ul>
 <h3>Entropy 측정</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(</td>
+<td>\mathcal W_b^{(k)}</td>
+</tr>
+<tr>
+<td>\(H(p_{b,k})\)</td>
+<td>해당 draw의 conditional Shannon entropy</td>
+</tr>
+<tr>
+<td>\(\rho_H\)</td>
+<td>모든 draw의 entropy 합을 동일 support에서 가능한 uniform maximum으로 정규화한 값</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>각 draw의 uniform maximum은 \(\log|\mathcal W_b^{(k)}|\)이다.</li>
 <li>Run-level normalized conditional entropy를</li>

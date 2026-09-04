@@ -323,6 +323,24 @@ $$
 
 ### Count imbalance potential에서 분포 유도
 
+| 기호 | 이 소절에서의 역할 |
+|---|---|
+| \(t\) | 현재 online mapping 또는 replay 선택 시점 |
+| \(i,j\) | admitted view index. \(i\)는 선택 후보이고 \(j\)는 정규화 합의 index |
+| \(\mathcal A_t\), \(N=|\mathcal A_t|\) | 시점 \(t\)의 admitted view pool과 그 크기 |
+| \(n_i\), \(\mathbf n\) | view \(i\)의 실제 누적 optimizer-update 횟수와 전체 count vector |
+| \(\bar n=N^{-1}\sum_i n_i\) | 현재 pool의 view당 평균 학습 횟수 |
+| \(\mathbf e_i\) | \(i\)번째 성분만 1인 단위 vector. \(\mathbf n+\mathbf e_i\)는 view \(i\)를 한 번 더 선택한 상태 |
+| \(\Phi(\mathbf n)\), \(\Delta_i\Phi\) | count 불균형 potential과 view \(i\)를 한 번 선택했을 때의 증가량 |
+| \(p_i\), \(p_t(i)\) | view \(i\)를 다음 optimizer target으로 선택할 확률 |
+| \(\Delta_N\) | \(p_i\ge0\), \(\sum_i p_i=1\)을 만족하는 \(N\)-차원 probability simplex |
+| \(H(p)\) | 선택분포의 Shannon entropy. 클수록 uniform selection에 가까움 |
+| \(\tau>0\), \(\beta=1/\tau\) | entropy temperature와 inverse temperature. \(\beta\)가 클수록 low-count view 선호가 강함 |
+| \(\lambda\) | \(\sum_i p_i=1\) 제약에 대응하는 Lagrange multiplier |
+
+- 모든 \(\log\)는 natural logarithm을 사용한다.
+- \(n_i\)는 frame의 age가 아니라 실제 mapping loss와 optimizer update에 사용된 횟수다.
+
 - 현재 pool 크기를 \(N\), view \(i\)의 누적 학습 횟수를 \(n_i\), 평균을
   \(\bar n=N^{-1}\sum_i n_i\)라 두고
 
@@ -431,13 +449,23 @@ $$
 
 ### \(K\)-view statistical block
 
+| 기호 | 이 소절에서의 역할 |
+|---|---|
+| \(K\) | 한 block에서 중복 없이 미리 뽑아 둘 최대 view 수 |
+| \(b\) | statistical block index |
+| \(k\) | block \(b\) 내부의 sequential draw index, \(k=0,\ldots,K-1\) |
+| \(t_b\) | block \(b\)를 생성하는 online 시점 |
+| \(n_i^{(b)}\) | block 생성 시 고정한 view \(i\)의 count snapshot |
+| \(\mathcal W_b^{(k)}\) | \(k\)번째 draw 직전에 아직 선택되지 않은 remaining view set |
+| \(p_{b,k}(i)\), \(I_{b,k}\) | remaining set에서 view \(i\)를 뽑는 conditional probability와 실제 추출 결과 |
+
 - One-step categorical sampling은 같은 view를 연속 선택할 수 있어 full-pool coverage가
   쉽게 깨진다.
 - 이를 막기 위해 block 시작 시 count를 \(n_i^{(b)}\)로 고정하고, current pool에서
   최대 \(K\)개를 sequential weighted sampling without replacement로 뽑는다.
 
 $$
-\mathcal W_b^{(0)}=\mathcal A_{\tau_b},
+\mathcal W_b^{(0)}=\mathcal A_{t_b},
 $$
 
 $$
@@ -479,6 +507,12 @@ $$
   돌아간다.
 
 ### Entropy 측정
+
+| 기호 | 이 소절에서의 역할 |
+|---|---|
+| \(|\mathcal W_b^{(k)}|\) | 현재 draw에서 선택 가능한 remaining view 수 |
+| \(H(p_{b,k})\) | 해당 draw의 conditional Shannon entropy |
+| \(\rho_H\) | 모든 draw의 entropy 합을 동일 support에서 가능한 uniform maximum으로 정규화한 값 |
 
 - 각 draw의 uniform maximum은 \(\log|\mathcal W_b^{(k)}|\)이다.
 - Run-level normalized conditional entropy를
