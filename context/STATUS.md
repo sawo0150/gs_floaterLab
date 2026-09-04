@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-08-19. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-04. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -87,6 +87,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 - 표준 지표: region GT(`floater_metric_region.py`) + ray-density 상호보완. 오프라인 청소: `extract_floaters_rulebase.py`(예산 top-K) + 3D 삭제 영역(`build_floater_region.py`).
 
 ## 최근 흐름 (최신순)
+
+- **2026-09-04 (exp72 — count-Gibbs statistical-block scheduler 실제 A/B)**:
+  final-v7 replay draw만 opt-in ERCB로 바꿔
+  \\(p(i\mid\mathcal R)\propto\exp(-\beta n_i)\\)를 K-view 비복원 block에 적용했다.
+  최선 \\(K=128,\beta=0.02\\)는 aria1253 27.708→27.624dB(−0.084),
+  aria1253rot 24.814→25.177dB(+0.362), online wall 차이 0.04% 미만,
+  conditional entropy ≥99.84%로 품질 보존 후보를 통과했다. 그러나 rot middle/first
+  lifetime count가 0.758→0.520으로 악화했고 기존 minimum-count maturity gate도 남아
+  lifetime 균등화와 pool-independent admission은 실패했다. 따라서 production default와
+  논문 방법론 채택은 보류하고 `block128_beta002` opt-in만 유지한다. 60 scheduler tests와
+  12개 full-run audit를 통과했다.
+  → [exp72 카드](experiments/exp72/exp72_entropy_count_scheduler_real_ablation.md),
+  [연구 해석](research/view_scheduler_long_horizon_sim_report.md)
 
 - **2026-08-27 (exp69 추가 — pose-balanced active + unbounded archive 구현·기각)**:
   FIFO forgetting 없이 무한 causal view pool을 보존하면서 frontier replay 주기만

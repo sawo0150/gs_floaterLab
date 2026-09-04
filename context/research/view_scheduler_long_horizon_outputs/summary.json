@@ -1,0 +1,120 @@
+{
+  "configuration": {
+    "steps": 12000,
+    "seeds": 48,
+    "gradient_dim": 8,
+    "window": 256,
+    "base_seed": 690704,
+    "patterns": [
+      {
+        "name": "static_256",
+        "final_views": 256
+      },
+      {
+        "name": "steady_growth",
+        "final_views": 1031
+      },
+      {
+        "name": "bursty_growth",
+        "final_views": 704
+      },
+      {
+        "name": "accelerating_growth",
+        "final_views": 1299
+      },
+      {
+        "name": "near_saturation",
+        "final_views": 6031
+      }
+    ],
+    "algorithms": [
+      "uniform_iid",
+      "production_causal_shuffle",
+      "active_archive_D0",
+      "exp69_active_archive_D1",
+      "exp69_active_archive_D2",
+      "raw_least_count",
+      "me_qarr",
+      "me_bds_C2",
+      "me_bds_C3",
+      "me_bds_C4"
+    ]
+  },
+  "ranking": [
+    {
+      "algorithm": "me_qarr",
+      "mean_rank_lower_better": 2.56,
+      "median_ratio_to_uniform": 0.22428542100986493,
+      "worst_ratio_to_uniform": 3.6043663272116393,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "me_bds_C2",
+      "mean_rank_lower_better": 2.96,
+      "median_ratio_to_uniform": 0.4079258323369357,
+      "worst_ratio_to_uniform": 2.109661583280882,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "me_bds_C3",
+      "mean_rank_lower_better": 3.84,
+      "median_ratio_to_uniform": 0.4826081655427223,
+      "worst_ratio_to_uniform": 1.7605137176937056,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "me_bds_C4",
+      "mean_rank_lower_better": 4.52,
+      "median_ratio_to_uniform": 0.5666034499741057,
+      "worst_ratio_to_uniform": 2.293081908721525,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "production_causal_shuffle",
+      "mean_rank_lower_better": 4.74,
+      "median_ratio_to_uniform": 0.8473203145952863,
+      "worst_ratio_to_uniform": 22.62394714772122,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "active_archive_D0",
+      "mean_rank_lower_better": 5.86,
+      "median_ratio_to_uniform": 0.8316107552438525,
+      "worst_ratio_to_uniform": 23.915896172069743,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "uniform_iid",
+      "mean_rank_lower_better": 6.04,
+      "median_ratio_to_uniform": 1.0,
+      "worst_ratio_to_uniform": 1.0,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "exp69_active_archive_D1",
+      "mean_rank_lower_better": 7.5,
+      "median_ratio_to_uniform": 1.955065627986924,
+      "worst_ratio_to_uniform": 22.15165493427652,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "raw_least_count",
+      "mean_rank_lower_better": 8.44,
+      "median_ratio_to_uniform": 4.049052512575558,
+      "worst_ratio_to_uniform": 92.08021900158624,
+      "cases_ranked": 50
+    },
+    {
+      "algorithm": "exp69_active_archive_D2",
+      "mean_rank_lower_better": 8.54,
+      "median_ratio_to_uniform": 2.6851524250424377,
+      "worst_ratio_to_uniform": 24.3509244887242,
+      "cases_ranked": 50
+    }
+  ],
+  "winner_by_mean_rank": "me_qarr",
+  "me_qarr_hard_invariant": "max_i |n_i(T)-q_i(T)| < 1",
+  "me_qarr_entropy_claim": "At each step, uniform choice among equal maximum deficits maximizes conditional Shannon entropy over all actions preserving the hard discrepancy invariant; for a static pool it is exact uniform random reshuffling over all permutations.",
+  "me_bds_entropy_claim": "ME-BDS(C) samples uniformly from every next action preserving tag-span <= C, hence maximizes one-step conditional Shannon entropy subject to the deterministic exposure-discrepancy cap.",
+  "scope": "Scheduler-only synthetic-gradient simulation; this is not a 3DGS quality or convergence claim."
+}
