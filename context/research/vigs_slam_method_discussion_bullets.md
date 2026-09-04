@@ -364,7 +364,45 @@ $$
 H(p)=-\sum_i p_i\log p_i
 $$
 
-로 두면 해는
+- 정규화 제약 \(\sum_i p_i=1\)에 대한 Lagrange multiplier \(\lambda\)를 도입한다.
+  \(-\tau H(p)=\tau\sum_i p_i\log p_i\)이므로 Lagrangian은
+
+$$
+\mathcal L(p,\lambda)
+=
+\sum_i p_i(n_i-\bar n)
++
+\tau\sum_i p_i\log p_i
++
+\lambda\left(\sum_i p_i-1\right)
+$$
+
+이다.
+
+- 각 \(p_i\)에 대한 stationary condition은
+
+$$
+\frac{\partial\mathcal L}{\partial p_i}
+=
+n_i-\bar n
++
+\tau(\log p_i+1)
++
+\lambda
+=0
+$$
+
+이므로
+
+$$
+p_i
+=
+\exp\!\left[-\frac{n_i-\bar n}{\tau}\right]
+\exp\!\left[-1-\frac{\lambda}{\tau}\right]
+$$
+
+가 된다. 두 번째 지수항은 모든 view에 공통인 정규화 상수이므로
+\(\sum_i p_i=1\)을 적용하면
 
 $$
 p_t(i)
@@ -378,6 +416,8 @@ p_t(i)
 \beta=\frac1\tau.
 $$
 
+- \(\tau>0\)이면 entropy 항이 strictly convex이므로 위 stationary point는 simplex 내부의
+  유일한 minimizer다.
 - \(\bar n\)은 공통항이므로 구현식은
 
 $$
