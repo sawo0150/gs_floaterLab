@@ -40,3 +40,23 @@ floater_share.zip
 improved_results.zip
 share/**/*.ply
 results/by_exp/
+
+# --- paper/ ---
+# LaTeX 빌드 산출물
+paper/latex/**/*.aux
+paper/latex/**/*.log
+paper/latex/**/*.out
+paper/latex/**/*.bbl
+paper/latex/**/*.blg
+paper/latex/**/*.synctex.gz
+paper/latex/**/*.fdb_latexmk
+paper/latex/**/*.fls
+paper/latex/main.pdf
+paper/latex/rebuttal.pdf
+# tab/ 은 make_tables.py 생성물 — CSV가 원본이다
+paper/latex/tab/*.tex
+# run 원자료는 원격 머신에. manifest/metrics 만 커밋한다
+paper/results/runs/**
+!paper/results/runs/*/
+!paper/results/runs/*/manifest.json
+!paper/results/runs/*/metrics.csv

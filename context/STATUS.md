@@ -103,6 +103,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   보류한다.
   → [exp73 카드](experiments/exp73/exp73_gate_free_token_admission_real_ablation.md),
   [evidence](experiments/exp73/evidence/exp73_gate_free_token_admission_summary.json)
+- **2026-09-05 (논문 착수 — `paper/` 워크스페이스 개설)**:
+  CVPR 2027(마감 2026-11-13 추정) 목표로 main 브랜치에 `paper/`를 만들었다. 세 contribution은
+  GPU-token admission(C1)·ERCB(C2)·carve loss(C3, 팀원)이다. 착수 전 정리에서
+  **어느 브랜치에도 커밋되지 않은 파일 4개**를 발견해 백업 커밋했다(`eee3e8b`):
+  exp70 카드, `vigs_slam_chapter3_4_working_draft.md`(§3 본문 초안),
+  `vigs_slam_method_three_contributions_notion_draft.md`, exp69 evidence json 1개.
+  `exp72-entropy-count-scheduler`는 main으로 fast-forward 했다.
+  ⚠ **C1은 미구현이고 exp72는 이 controller 없이 돌았다.** 그래서 exp72의
+  pool-independence·lifetime 균등화 실패 판정은 아직 유효하며,
+  **P01(C1 구현) → P02(rate invariance) → P03(ERCB 재검증)** 이 논문의 크리티컬 패스다.
+  → [paper/PAPER_STATUS.md](../paper/PAPER_STATUS.md),
+  [실험 테이블](../paper/plan/experiment_table/CURRENT.md),
+  [claim 원장](../paper/plan/claims/CURRENT.md)
 
 - **2026-09-04 (exp72 — count-Gibbs statistical-block scheduler 실제 A/B)**:
   final-v7 replay draw만 opt-in ERCB로 바꿔
@@ -116,6 +129,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   12개 full-run audit를 통과했다.
   → [exp72 카드](experiments/exp72/exp72_entropy_count_scheduler_real_ablation.md),
   [연구 해석](research/view_scheduler_long_horizon_sim_report.md)
+
+- **2026-09-04 (exp70 — growing-pool maximum-entropy scheduler 합성 검증)**:
+  exp69 v7 maturity gate의 장기 pool-growth 문제를 age-adjusted uniform quota
+  \(q_i(T)=\sum_{t=a_i}^T1/N_t\)로 재정의하고, 12,000 optimizer update×48 seed×
+  5개 growth pattern×4개 synthetic gradient field에서 10개 scheduler를 비교했다.
+  ME-QARR(C=1)는 임의 growing pool에서 \(\max_i|n_i-q_i|<1\)을 보장하고 고정 pool에서
+  exact uniform random reshuffling이 되며, 전체 50-case 평균 rank 1위(2.56), quota
+  RMSE 0.306, final gradient RMSE 0.324%였다. ME-BDS(C=2)는 discrepancy worst 1.875회로
+  제한하면서 256-step mixing 5.300%로 IID uniform 5.144%에 근접해 두 목표의 Pareto
+  knee였다. 논문용 주안은 C=2, 이론적 특수형은 C=1로 분석 단계 채택한다. 단 실제 3DGS
+  품질 실험이 아니며 production VIGS 코드는 미수정 상태다.
+  → [exp70 카드](experiments/exp70/exp70_max_entropy_view_scheduler_sim.md),
+  [전체 보고서](research/view_scheduler_long_horizon_sim_report.md)
 
 - **2026-08-27 (exp69 추가 — pose-balanced active + unbounded archive 구현·기각)**:
   FIFO forgetting 없이 무한 causal view pool을 보존하면서 frontier replay 주기만

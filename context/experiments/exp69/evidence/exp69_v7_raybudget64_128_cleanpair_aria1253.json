@@ -1,0 +1,61 @@
+{
+  "schema": "exp69.v7-ray-budget-clean-pair.v1",
+  "date": "2026-08-27",
+  "scene": "aria1253",
+  "shared_conditions": {
+    "scheduler": "v7 visible-lazy verified carve",
+    "strict_streaming": "1.5x",
+    "seed": 0,
+    "depth_consistency_tolerance": 0.05,
+    "verified_min_views": 2,
+    "verified_strong_views": 3,
+    "verified_margin_m": 0.1,
+    "strong_margin_m": 0.05
+  },
+  "runs": [
+    {
+      "ray_budget_per_keyframe": 64,
+      "remote_run_dir": "exp69_axes/results/exp69_v7_raybudget64_cleanpair_aria1253_strict15x_seed0",
+      "psnr_db": 27.256713734732735,
+      "ssim": 0.8643092529641258,
+      "lpips": 0.24928029825290043,
+      "replay_draws": 4560,
+      "mapping_wall_ms_ema": 4.067023476014107,
+      "pgba_field_rebuilds": 2,
+      "pgba_rebuild_service_ms": 192.7527126390487,
+      "carve_maintenance_ms": 816.0228517372161,
+      "final_gaussians": 93014,
+      "global_opacity_le_0_1": 13454,
+      "global_opacity_gt_0_3": 66586,
+      "label_nominal_opacity_gt_0_3": 200,
+      "label_nominal_opacity_area_support_mass": 1.3507911119785274,
+      "label_dilated_opacity_gt_0_3": 513,
+      "label_dilated_opacity_area_support_mass": 2.548002232958234
+    },
+    {
+      "ray_budget_per_keyframe": 128,
+      "remote_run_dir": "exp69_axes/results/exp69_v7_raybudget128_cleanpair_aria1253_strict15x_seed0",
+      "psnr_db": 23.800234238306682,
+      "ssim": 0.8121879511409336,
+      "lpips": 0.32545205483006107,
+      "replay_draws": 3555,
+      "mapping_wall_ms_ema": 4.558936986799534,
+      "pgba_field_rebuilds": 3,
+      "pgba_rebuild_pending_rays": 73,
+      "pgba_rebuild_service_ms": 391.4802586659789,
+      "carve_maintenance_ms": 967.9982736706734,
+      "final_gaussians": 93985,
+      "global_opacity_le_0_1": 14663,
+      "global_opacity_gt_0_3": 66915,
+      "label_nominal_opacity_gt_0_3": 186,
+      "label_nominal_opacity_area_support_mass": 0.7338890344160711,
+      "label_dilated_opacity_gt_0_3": 488,
+      "label_dilated_opacity_area_support_mass": 1.5624609026675604
+    }
+  ],
+  "interpretation": {
+    "geometry": "128 rays reduced labelled high-opacity floater count and support-weighted area mass, so the additional verified evidence was not useless.",
+    "online_cost": "The 128-ray run increased mapping-step EMA by 12.1 percent and triggered a third PGBA. It completed 22.0 percent fewer replay draws and ended with an unfinished 73-ray PGBA field rebuild backlog.",
+    "decision": "Keep 64 as the strict-streaming champion. Do not conclude that 128-ray evidence is inaccurate; the present 128 result is a system-level timing/PGBA failure rather than a geometry-only ablation."
+  }
+}

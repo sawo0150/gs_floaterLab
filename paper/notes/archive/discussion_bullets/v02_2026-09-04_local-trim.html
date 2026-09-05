@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIGS-SLAM 연구 방향 논의용 메모</title>
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']]},
+  svg: {fontCache: 'global'}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root { color-scheme:light; --ink:#1f2937; --line:#d8dee8; --accent:#185adb; --paper:#fff; --quote:#f5f8fd; }
+* { box-sizing:border-box; }
+body { margin:0; background:#f3f5f8; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif; line-height:1.72; }
+main { max-width:980px; margin:36px auto; padding:48px 64px 80px; background:var(--paper); box-shadow:0 2px 18px rgba(31,41,55,.08); }
+h1 { margin-top:0; font-size:2rem; }
+h2 { margin-top:2.4rem; padding-bottom:.38rem; border-bottom:1px solid var(--line); font-size:1.45rem; }
+h3 { margin-top:1.8rem; font-size:1.12rem; color:#263b63; }
+p, li { font-size:1rem; }
+li + li { margin-top:.25rem; }
+blockquote { margin:1.2rem 0; padding:.75rem 1.1rem; border-left:4px solid var(--accent); background:var(--quote); color:#26364d; }
+blockquote p { margin:.25rem 0; }
+table { width:100%; border-collapse:collapse; margin:1.25rem 0; font-variant-numeric:tabular-nums; }
+th, td { border:1px solid var(--line); padding:.55rem .7rem; text-align:left; }
+th { background:#f7f9fc; }
+code { padding:.1em .3em; border-radius:4px; background:#f1f3f7; }
+section { overflow-x:auto; overflow-y:hidden; text-align:center; margin:1rem 0; }
+@media (max-width:760px) { main { margin:0; padding:28px 20px 56px; } table { display:block; overflow-x:auto; } }
+@media print { body { background:#fff; } main { margin:0; max-width:none; box-shadow:none; padding:20mm 18mm; } }
+</style>
+</head>
+<body><main>
+<h1>VIGS-SLAM 연구 방향 논의용 메모</h1>
+<blockquote>
+<p>목적: 확정된 논문 Method를 보고하는 문서가 아니라, 현재 contribution 후보와
+검증 경계를 사수님과 논의하기 위한 발표용 bullet note.</p>
+<p>2026-09-04 업데이트: 기존 maturity-gated work-credit와 pose-active/archive allocation을
+중심 contribution으로 두는 구성을 철회하고, <strong>GPU-token admission + trajectory-balanced
+membership + entropy-regularized block reshuffling</strong>의 세 단계로 다시 정리한다.</p>
+<p>현재 상태: 세 번째 단계의 ERCB는 실제 final-v7 A/B까지 완료했지만, 첫 번째 단계의
+gate-free GPU-token admission은 아직 구현·실측 전이다.</p>
+</blockquote>
+<h2>0. 먼저 전달할 한 문장</h2>
+<ul>
+<li>제한된 online mapping service를 다음 세 결정으로 분리하려고 한다.
+<ul>
+<li><strong>Cardinality:</strong> 지금까지 실제로 완료된 GPU work로 몇 장을 admit할 수 있는가?</li>
+<li><strong>Membership:</strong> 허용된 수 안에서 trajectory의 어떤 frame을 admit할 것인가?</li>
+<li><strong>Ordering:</strong> admitted pool을 어떤 확률분포와 비복원 순서로 학습할 것인가?</li>
+</ul>
+</li>
+</ul>
+<section>
+\[
+\underbrace{S(t)\longmapsto(B_t,Q_t)}_{\text{GPU-token cardinality}}
+\;\longrightarrow\;
+\underbrace{(Q_t,\mathcal C_t)\longmapsto\mathcal A_t}_{\text{trajectory membership}}
+\;\longrightarrow\;
+\underbrace{(\mathcal A_t,\mathbf n_t)
+\longmapsto(\mathcal W_t,p_t,H_t)}_{\text{entropy-regularized ordering}}
+\]
+</section>
+<ul>
+<li>
+<p>한 문장 안의 기호는 다음 뜻이다.</p>
+<ul>
+<li>\(S(t)\): 시각 \(t\)까지 <strong>실제로 완료된</strong> dense-view optimizer update의 누적량</li>
+<li>\(B_t\): 완료된 GPU work로부터 남아 있는 admission token</li>
+<li>\(Q_t\): 이번 시점에 새로 admit할 수 있는 view 수</li>
+<li>\(\mathcal C_t\): 이미 도착했지만 아직 admit되지 않은 causal inter-keyframe candidate</li>
+<li>\(\mathcal A_t\): 현재까지 admit되어 replay 가능한 dense-view pool</li>
+<li>\(\mathbf n_t=(n_i(t))\): admitted view별 실제 누적 학습 횟수</li>
+<li>\(\mathcal W_t\): 현재 statistical block에서 아직 선택되지 않은 without-replacement
+remaining set</li>
+<li>\(p_t\): \(\mathcal W_t\)에서 다음 view를 고르는 확률분포</li>
+<li>\(H_t=H(p_t)\): 그 분포의 conditional Shannon entropy</li>
+</ul>
+</li>
+<li>
+<p>말로 풀면 다음과 같다.</p>
+<ul>
+<li>GPU가 실제로 끝낸 update만 token으로 바꾼다.</li>
+<li>그 token으로 허용된 수만큼 trajectory를 고르게 대표하는 frame을 pool에 넣는다.</li>
+<li>pool 안에서는 count가 적은 view에 soft preference를 주되, \(K\)-view block 안에서는
+비복원 추출하여 random reshuffling의 coverage를 유지한다.</li>
+</ul>
+</li>
+</ul>
+<h2>1. 문제를 이렇게 보고 있음</h2>
+<ul>
+<li>
+<p>Dense correspondence 기반 GS-SLAM은 Gaussian을 어디서 초기화할지는 상당 부분 해결했다.</p>
+</li>
+<li>
+<p>아직 남은 문제는 제한된 mapping update를 <strong>어떤 supervision에 배분할지</strong>다.</p>
+<ul>
+<li>Tracker keyframe은 tracking을 위해 선택된다.</li>
+<li>Photometric map optimization에 좋은 supervision 집합과 tracking에 좋은 keyframe 집합이
+같아야 할 이유는 없다.</li>
+</ul>
+</li>
+<li>
+<p>Keyframe 사이 RGB는 이미 도착한 causal observation이다.</p>
+<ul>
+<li>전부 버리면 trajectory coverage를 잃는다.</li>
+<li>전부 즉시 넣으면 growing pool에 update가 희석된다.</li>
+<li>고정 dense FPS는 GPU가 실제로 감당한 service를 반영하지 않는다.</li>
+</ul>
+</li>
+<li>
+<p>따라서 핵심 질문은 다음과 같다.</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>이미 도착한 RGB stream에서, 현재까지 실제로 확보한 GPU mapping service만으로
+감당할 수 있는 supervision set을 만들고, 그 안의 view를 충분히 random하면서도
+장기적으로 편향되지 않게 학습할 수 있는가?</strong></p>
+</blockquote>
+<h2>2. 하나의 수학적 모델로 묶기</h2>
+<h3>이상적인 전체 문제</h3>
+<ul>
+<li>Admission은 resource feasibility를 나타내는 hard constraint로 둔다.</li>
+<li>Scheduler는 최종 exposure 불균형과 random shuffle에서 벗어나는 정도를 함께 줄인다.</li>
+</ul>
+<section>
+\[
+\min_{\pi}
+\quad
+\underbrace{\Phi(\mathbf n_T)}_{\text{final exposure imbalance}}
++
+\tau\,
+\underbrace{
+D_{\mathrm{KL}}\!\left(P_\pi\,\|\,P_{\mathrm{shuffle}}\right)
+}_{\text{departure from random reshuffling}}
+\]
+</section>
+<p>subject to</p>
+<section>
+\[
+\kappa\,[A(t)-A_0]_+\le B_0+\gamma S(t),
+\qquad \forall t.
+\]
+</section>
+<ul>
+<li>\(A(t)\)는 시각 \(t\)까지 admit된 누적 view 수다.</li>
+<li>\(\kappa\)는 view 한 장을 admit하는 데 요구하는 service-token 가격이다.</li>
+<li>\(\gamma\)는 완료된 optimizer update 한 회를 token으로 바꾸는 환산 계수다.</li>
+<li>\(B_0\)는 초기 service-token allowance이고, \(A_0\)는 token 과금에서 제외하는 초기
+bootstrap view 수다. \(A_0=0\)이면 모든 admission을 같은 token law로 과금한다.</li>
+<li>\(\tau\)는 exposure balance와 randomness의 trade-off이고
+\(\beta=1/\tau\)로 다시 쓸 수 있다.</li>
+</ul>
+<h3>이 식을 과장하지 않을 범위</h3>
+<ul>
+<li>위 문제는 설계 원리를 보여주는 이상화된 trajectory-level objective다.</li>
+<li>실제 구현이 전역 \(P_\pi\)에 대한 KL을 직접 계산하거나 전역 최적해를 푸는 것은 아니다.</li>
+<li>구현은 다음 두 부분으로 분해한다.
+<ul>
+<li>Admission hard constraint는 deterministic GPU-token controller로 정확히 만족</li>
+<li>Ordering objective는 한 step의 count-variance 증가량에 대한 entropy-regularized
+surrogate로 풀어 closed-form Gibbs distribution을 사용</li>
+</ul>
+</li>
+</ul>
+<h2>3. Contribution 후보 1 — Pool-Independent GPU-Token Admission</h2>
+<h3>전달할 핵심</h3>
+<ul>
+<li>기존 exp69의 “모든 현재 view의 lifetime count가 2 이상인가?”라는 maturity gate를
+admission 조건에서 제거한다.</li>
+<li>새 view는 pool 전체가 한 epoch를 끝냈는지와 무관하게, <strong>완료된 GPU service token</strong>만으로
+admit한다.</li>
+<li>Candidate가 충분하면 정확히 \(\kappa/\gamma\)개의 완료 update마다 한 장이 들어온다.</li>
+</ul>
+<h3>Deterministic token law</h3>
+<ul>
+<li>시각 \(t\)까지 실제로 완료된 dense-view Adam update 수를</li>
+</ul>
+<section>
+\[
+S(t)=\sum_{s\le t} b_s
+\]
+</section>
+<p>로 둔다. B1 profile에서는 성공한 replay step마다 \(b_s=1\)이다.</p>
+<ul>
+<li>지금까지 resource constraint가 허용하는 누적 admission 상한은</li>
+</ul>
+<section>
+\[
+A^\star(t)
+=
+\min\!\left(
+M(t),\;
+A_0+
+\left\lfloor
+\frac{B_0+\gamma S(t)}{\kappa}
+\right\rfloor
+\right)
+\]
+</section>
+<p>이다. \(M(t)\)는 시각 \(t\)까지 인과적으로 도착해 candidate가 될 수 있는 전체 view 수다.</p>
+<ul>
+<li>실제 admitted set 크기가 \(|\mathcal A_{t^-}|\)라면 이번에 열리는 quota는</li>
+</ul>
+<section>
+\[
+Q_t
+=
+\min\!\left(
+|\mathcal C_t|,\;
+\left[A^\star(t)-|\mathcal A_{t^-}|\right]_+
+\right).
+\]
+</section>
+<ul>
+<li>같은 식을 남은 token으로 쓰면</li>
+</ul>
+<section>
+\[
+B_t
+=
+B_0+\gamma S(t)
+-\kappa\bigl(|\mathcal A_t|-A_0\bigr),
+\qquad B_t\ge0.
+\]
+</section>
+<ul>
+<li>Admission 한 장마다 \(B_t\leftarrow B_t-\kappa\)로 차감한다.</li>
+<li>완료되지 않은 queued CUDA work, 미래 frame, 최종 sequence length는 사용하지 않는다.</li>
+</ul>
+<h3>이 방식이 정의상 만족하는 것</h3>
+<ul>
+<li><strong>Pool-size independence</strong>
+<ul>
+<li>Admission 간격은 \(|\mathcal A_t|\)가 아니라 \(\kappa/\gamma\)로 결정된다.</li>
+</ul>
+</li>
+<li><strong>Hardware adaptation</strong>
+<ul>
+<li>동일 wall time에 완료되는 \(S(t)\)가 두 배면 admission 속도도 두 배다.</li>
+</ul>
+</li>
+<li><strong>Causality</strong>
+<ul>
+<li>완료된 update와 이미 도착한 \(\mathcal C_t\)만 사용한다.</li>
+</ul>
+</li>
+<li><strong>No maturity gate</strong>
+<ul>
+<li>\(\min_i n_i\), full-pool epoch 완료, “모든 view 두 번” 조건이 없다.</li>
+</ul>
+</li>
+<li><strong>Resource feasibility</strong>
+<ul>
+<li>모든 prefix에서 \(\kappa[A(t)-A_0]_+\le B_0+\gamma S(t)\)를 유지한다.</li>
+</ul>
+</li>
+</ul>
+<h3>구현 시 명시할 정책</h3>
+<ul>
+<li>Pending candidate가 없을 때 token을 무한히 쌓아 두면 다음 interval 도착 시 burst admission이
+생길 수 있다.</li>
+<li>두 정책 중 하나를 논문에서 고정해야 한다.
+<ul>
+<li><strong>Carry:</strong> 이미 완료한 service는 미래 candidate에도 사용할 수 있음</li>
+<li><strong>No-prepurchase:</strong> \(\mathcal C_t=\varnothing\)이면 \(B_t<\kappa\)가 되도록 초과 token 폐기</li>
+</ul>
+</li>
+<li>“미래 compute를 당겨 쓰지 않는다”는 두 정책 모두 만족하지만, admission burst 특성은
+다르므로 실험에서는 구분해야 한다.</li>
+<li>현재 제안은 더 보수적인 no-prepurchase를 기본 후보로 둔다.</li>
+</ul>
+<h3>기존 maturity gate와의 차이</h3>
+<ul>
+<li>기존 exp69/exp72 동작
+<ul>
+<li>새 view의 count가 0이면 \(\min_i n_i\ge2\) 조건이 깨져 gate가 닫힌다.</li>
+<li>Pool이 커질수록 한 pass가 길어지고 admission과 ordering이 서로 결합한다.</li>
+</ul>
+</li>
+<li>새 token 동작
+<ul>
+<li>어느 view가 몇 번 선택됐는지는 ordering 문제에서만 사용한다.</li>
+<li>Admission은 완료된 총 service \(S(t)\)만 본다.</li>
+<li>따라서 scheduler를 바꿔도 동일 \(S(t)\)라면 동일 cardinality를 얻을 수 있다.</li>
+</ul>
+</li>
+</ul>
+<h3>현재 증거와 claim boundary</h3>
+<ul>
+<li>View-set density의 최적점이 compute budget에 따라 달라진다는 기존 실험은
+fixed FPS보다 service-aware cardinality가 필요하다는 동기를 뒷받침한다.</li>
+<li>그러나 exp72는 이 token controller를 구현하지 않았다.
+<ul>
+<li>기존 minimum-count maturity gate를 그대로 유지했다.</li>
+<li>Candidate arm과 baseline의 최종 pool이 달라졌다.</li>
+</ul>
+</li>
+<li>따라서 현재 안전한 표현은 <strong>제안된 contribution</strong>이지 <strong>실증 완료된 contribution</strong>이 아니다.</li>
+<li>필요한 다음 실험은 GPU slowdown/속도 변화에서
+\(A(t)\)가 이론식과 일치하는지, pool 크기가 달라도 같은 service당 admission을 주는지
+확인하는 것이다.</li>
+</ul>
+<h2>4. Contribution 후보 2 — Trajectory-Balanced View Membership</h2>
+<h3>전달할 핵심</h3>
+<ul>
+<li>Token controller가 허용한 \(Q_t\)장을 global novelty 순서로 고르지 않는다.</li>
+<li>먼저 trajectory interval을 고르게 대표하고, information signal은 같은 interval 안의
+중복을 줄이는 보조 기준으로 제한한다.</li>
+<li>이 단계는 training-set membership만 결정하며 다음 optimizer target을 정하지 않는다.</li>
+</ul>
+<h3>Causal interval</h3>
+<ul>
+<li>연속한 두 keyframe을 \(k_{j-1},k_j\)라 두면</li>
+</ul>
+<section>
+\[
+\mathcal I_j=(k_{j-1},k_j)
+\]
+</section>
+<ul>
+<li>오른쪽 endpoint \(k_j\)까지 실제로 도착한 뒤에만 후보를 만든다.</li>
+</ul>
+<section>
+\[
+\mathcal C_j
+=
+\left\{
+v\mid k_{j-1}<v<k_j,\;
+v\notin\mathcal K_t,\;
+v\notin\mathcal E
+\right\}
+\]
+</section>
+<ul>
+<li>\(\mathcal K_t\)는 tracking keyframe, \(\mathcal E\)는 held-out evaluation frame이다.</li>
+</ul>
+<h3>Interval 내부: temporal maximin</h3>
+<section>
+\[
+v_j^\star
+=
+\arg\max_{v\in\mathcal C_j\setminus\mathcal A_j}
+\min_{u\in\{k_{j-1},k_j\}\cup\mathcal A_j}
+|\tau(v)-\tau(u)|.
+\]
+</section>
+<ul>
+<li>첫 view는 interval 중앙 부근에 놓인다.</li>
+<li>이후 가장 큰 temporal gap을 반복적으로 나눈다.</li>
+<li>거의 같은 timestamp의 frame이 quota를 독점하는 것을 막는다.</li>
+</ul>
+<h3>Interval 사이: water filling</h3>
+<section>
+\[
+j^\star
+=
+\arg\min_{
+j:\mathcal C_j\setminus\mathcal A_j\ne\varnothing
+}
+|\mathcal A_j|.
+\]
+</section>
+<ul>
+<li>Pending candidate가 있는 interval 중 현재 admitted count가 가장 작은 곳을 먼저 채운다.</li>
+<li>긴 interval 하나나 고밀도 구간 하나가 전체 \(Q_t\)를 독점하지 못하게 한다.</li>
+</ul>
+<h3>Non-keyframe pose</h3>
+<ul>
+<li>Endpoint pose 사이의 SE(3) 보간으로 초기화한다.</li>
+</ul>
+<section>
+\[
+\alpha_v
+=
+\frac{\tau_v-\tau_{k_{j-1}}}
+{\tau_{k_j}-\tau_{k_{j-1}}},
+\]
+</section>
+<section>
+\[
+T_v^{(0)}
+=
+\operatorname{Exp}\!\left(
+\alpha_v
+\operatorname{Log}
+\left(T_{k_j}T_{k_{j-1}}^{-1}\right)
+\right)
+T_{k_{j-1}}.
+\]
+</section>
+<ul>
+<li>이후 DROID 계열 dense correspondence의 trajectory filling으로 보정한다.</li>
+<li>오른쪽 endpoint가 도착한 과거 interval만 처리하므로 causal하다.</li>
+<li>Dense view는 RGB supervision만 사용하고 keyframe depth를 억지로 복제하지 않는다.</li>
+</ul>
+<h3>현재 실험이 말해 주는 것</h3>
+<ul>
+<li>동일 784-view cardinality에서 global coverage-only selection은 temporal baseline보다
+AUC가 약 3.88% 나빴다.</li>
+<li>Residual-based membership도 약 1.64% 나빴다.</li>
+<li>Interval quota 안의 representative selection 이득은 약 0.35%로 작았다.</li>
+<li>따라서 강한 claim은 “novel frame을 잘 찾는다”가 아니다.</li>
+<li>더 안전한 claim은 <strong>cardinality와 ordering 사이에 trajectory representation을 독립된
+문제로 두고 temporal support를 우선 보존한다</strong>는 것이다.</li>
+</ul>
+<h2>5. Contribution 후보 3 — Entropy-Regularized Count-Balanced Block Reshuffling</h2>
+<h3>전달할 핵심</h3>
+<ul>
+<li>Admitted pool의 view를 priority score로 정렬하지 않는다.</li>
+<li>최종 exposure count variance를 줄이는 방향과 random shuffle에 가까운 방향을 하나의 entropy-regularized local optimization으로 묶는다.</li>
+<li>그 해는 추가 heuristic 없이</li>
+</ul>
+<section>
+\[
+p_t(i)\propto\exp(-\beta n_i)
+\]
+</section>
+<p>인 단순한 Gibbs distribution이다.</p>
+<h3>Count imbalance potential에서 분포 유도</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(t\)</td>
+<td>현재 online mapping 또는 replay 선택 시점</td>
+</tr>
+<tr>
+<td>\(i,j\)</td>
+<td>admitted view index. \(i\)는 선택 후보이고 \(j\)는 정규화 합의 index</td>
+</tr>
+<tr>
+<td>\(\mathcal A_t\), (N=</td>
+<td>\mathcal A_t</td>
+</tr>
+<tr>
+<td>\(n_i\), \(\mathbf n\)</td>
+<td>view \(i\)의 실제 누적 optimizer-update 횟수와 전체 count vector</td>
+</tr>
+<tr>
+<td>\(\bar n=N^{-1}\sum_i n_i\)</td>
+<td>현재 pool의 view당 평균 학습 횟수</td>
+</tr>
+<tr>
+<td>\(\mathbf e_i\)</td>
+<td>\(i\)번째 성분만 1인 단위 vector. \(\mathbf n+\mathbf e_i\)는 view \(i\)를 한 번 더 선택한 상태</td>
+</tr>
+<tr>
+<td>\(\Phi(\mathbf n)\), \(\Delta_i\Phi\)</td>
+<td>count 불균형 potential과 view \(i\)를 한 번 선택했을 때의 증가량</td>
+</tr>
+<tr>
+<td>\(p_i\), \(p_t(i)\)</td>
+<td>view \(i\)를 다음 optimizer target으로 선택할 확률</td>
+</tr>
+<tr>
+<td>\(\Delta_N\)</td>
+<td>\(p_i\ge0\), \(\sum_i p_i=1\)을 만족하는 \(N\)-차원 probability simplex</td>
+</tr>
+<tr>
+<td>\(H(p)\)</td>
+<td>선택분포의 Shannon entropy. 클수록 uniform selection에 가까움</td>
+</tr>
+<tr>
+<td>\(\tau>0\), \(\beta=1/\tau\)</td>
+<td>entropy temperature와 inverse temperature. \(\beta\)가 클수록 low-count view 선호가 강함</td>
+</tr>
+<tr>
+<td>\(\lambda\)</td>
+<td>\(\sum_i p_i=1\) 제약에 대응하는 Lagrange multiplier</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>모든 \(\log\)는 natural logarithm을 사용한다.</p>
+</li>
+<li>
+<p>\(n_i\)는 frame의 age가 아니라 실제 mapping loss와 optimizer update에 사용된 횟수다.</p>
+</li>
+<li>
+<p>현재 pool 크기를 \(N\), view \(i\)의 누적 학습 횟수를 \(n_i\), 평균을
+\(\bar n=N^{-1}\sum_i n_i\)라 두고</p>
+</li>
+</ul>
+<section>
+\[
+\Phi(\mathbf n)
+=
+\frac12\sum_{i=1}^{N}(n_i-\bar n)^2
+\]
+</section>
+<p>로 정의한다.</p>
+<ul>
+<li>View \(i\)를 한 번 더 학습했을 때의 정확한 증가량은</li>
+</ul>
+<section>
+\[
+\Delta_i\Phi
+=
+\Phi(\mathbf n+\mathbf e_i)-\Phi(\mathbf n)
+=
+n_i-\bar n
++\frac12\left(1-\frac1N\right).
+\]
+</section>
+<ul>
+<li>
+<p>마지막 항은 모든 \(i\)에 공통이므로, count가 작은 view를 고를수록 다음-step
+imbalance 증가가 작다.</p>
+</li>
+<li>
+<p>다음 선택분포를 simplex \(\Delta_N\) 위에서</p>
+</li>
+</ul>
+<section>
+\[
+p_t
+=
+\arg\min_{p\in\Delta_N}
+\left[
+\sum_i p_i(n_i-\bar n)
+-\tau H(p)
+\right],
+\]
+</section>
+<section>
+\[
+H(p)=-\sum_i p_i\log p_i
+\]
+</section>
+<ul>
+<li>정규화 제약 \(\sum_i p_i=1\)에 대한 Lagrange multiplier \(\lambda\)를 도입한다.
+\(-\tau H(p)=\tau\sum_i p_i\log p_i\)이므로 Lagrangian은</li>
+</ul>
+<section>
+\[
+\mathcal L(p,\lambda)
+=
+\sum_i p_i(n_i-\bar n)
++
+\tau\sum_i p_i\log p_i
++
+\lambda\left(\sum_i p_i-1\right)
+\]
+</section>
+<p>이다.</p>
+<ul>
+<li>각 \(p_i\)에 대한 stationary condition은</li>
+</ul>
+<section>
+\[
+\frac{\partial\mathcal L}{\partial p_i}
+=
+n_i-\bar n
++
+\tau(\log p_i+1)
++
+\lambda
+=0
+\]
+</section>
+<p>이므로</p>
+<section>
+\[
+p_i
+=
+\exp\!\left[-\frac{n_i-\bar n}{\tau}\right]
+\exp\!\left[-1-\frac{\lambda}{\tau}\right]
+\]
+</section>
+<p>가 된다. 두 번째 지수항은 모든 view에 공통인 정규화 상수이므로
+\(\sum_i p_i=1\)을 적용하면</p>
+<section>
+\[
+p_t(i)
+=
+\frac{
+\exp[-\beta(n_i-\bar n)]
+}{
+\sum_j\exp[-\beta(n_j-\bar n)]
+},
+\qquad
+\beta=\frac1\tau.
+\]
+</section>
+<ul>
+<li>\(\tau>0\)이면 entropy 항이 strictly convex이므로 위 stationary point는 simplex 내부의
+유일한 minimizer다.</li>
+<li>\(\bar n\)은 공통항이므로 구현식은</li>
+</ul>
+<section>
+\[
+p_t(i)
+=
+\frac{\exp(-\beta n_i)}
+{\sum_j\exp(-\beta n_j)}
+\]
+</section>
+<p>가 된다.</p>
+<h3>\(K\)-view statistical block</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\(K\)</td>
+<td>한 block에서 중복 없이 미리 뽑아 둘 최대 view 수</td>
+</tr>
+<tr>
+<td>\(b\)</td>
+<td>statistical block index</td>
+</tr>
+<tr>
+<td>\(k\)</td>
+<td>block \(b\) 내부의 sequential draw index, \(k=0,\ldots,K-1\)</td>
+</tr>
+<tr>
+<td>\(t_b\)</td>
+<td>block \(b\)를 생성하는 online 시점</td>
+</tr>
+<tr>
+<td>\(n_i^{(b)}\)</td>
+<td>block 생성 시 고정한 view \(i\)의 count snapshot</td>
+</tr>
+<tr>
+<td>\(\mathcal W_b^{(k)}\)</td>
+<td>\(k\)번째 draw 직전에 아직 선택되지 않은 remaining view set</td>
+</tr>
+<tr>
+<td>\(p_{b,k}(i)\), \(I_{b,k}\)</td>
+<td>remaining set에서 view \(i\)를 뽑는 conditional probability와 실제 추출 결과</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>One-step categorical sampling은 같은 view를 연속 선택할 수 있어 full-pool coverage가
+쉽게 깨진다.</li>
+<li>이를 막기 위해 block 시작 시 count를 \(n_i^{(b)}\)로 고정하고, current pool에서
+최대 \(K\)개를 sequential weighted sampling without replacement로 뽑는다.</li>
+</ul>
+<section>
+\[
+\mathcal W_b^{(0)}=\mathcal A_{t_b},
+\]
+</section>
+<section>
+\[
+p_{b,k}(i)
+=
+\frac{
+\exp(-\beta n_i^{(b)})
+}{
+\sum_{j\in\mathcal W_b^{(k)}}
+\exp(-\beta n_j^{(b)})
+},
+\qquad i\in\mathcal W_b^{(k)},
+\]
+</section>
+<section>
+\[
+I_{b,k}\sim p_{b,k},
+\qquad
+\mathcal W_b^{(k+1)}
+=
+\mathcal W_b^{(k)}\setminus\{I_{b,k}\}.
+\]
+</section>
+<ul>
+<li>\(K\)개를 뽑거나 remaining set이 빌 때 block을 닫는다.</li>
+<li>다음 block은 그 시점의 growing pool로 \(\mathcal W\)를 다시 만든다.</li>
+<li>실제 renderer batch는 B1이며, 미리 만든 block order를 한 view씩 소비한다.</li>
+<li>Block 중간에 도착한 view는 다음 block부터 참여한다.</li>
+</ul>
+<h3>두 극단과 정확한 random-shuffle claim</h3>
+<ul>
+<li>\(\beta=0\)
+<ul>
+<li>현재 block에서 가능한 모든 ordered \(K\)-subset에 균등하다.</li>
+<li>\(K\ge N_t\)일 때에만 전체 pool의 \(N_t!\)개 permutation에 정확히 균등한
+<strong>full-pool random reshuffling</strong>이 된다.</li>
+</ul>
+</li>
+<li>\(\beta\rightarrow\infty\)
+<ul>
+<li>현재 minimum-count view부터 선택하는 randomized least-count에 접근한다.</li>
+</ul>
+</li>
+<li>유한 \(\beta>0\)
+<ul>
+<li>덜 학습된 view에 soft preference를 주되 모든 remaining view에 non-zero support를 둔다.</li>
+</ul>
+</li>
+<li>Count가 비슷해지면 weight가 자동으로 같아져 uniform without-replacement block으로
+돌아간다.</li>
+</ul>
+<h3>Entropy 측정</h3>
+<table>
+<thead>
+<tr>
+<th>기호</th>
+<th>이 소절에서의 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(</td>
+<td>\mathcal W_b^{(k)}</td>
+</tr>
+<tr>
+<td>\(H(p_{b,k})\)</td>
+<td>해당 draw의 conditional Shannon entropy</td>
+</tr>
+<tr>
+<td>\(\rho_H\)</td>
+<td>모든 draw의 entropy 합을 동일 support에서 가능한 uniform maximum으로 정규화한 값</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>각 draw의 uniform maximum은 \(\log|\mathcal W_b^{(k)}|\)이다.</li>
+<li>Run-level normalized conditional entropy를</li>
+</ul>
+<section>
+\[
+\rho_H
+=
+\frac{
+\sum_{b,k}H(p_{b,k})
+}{
+\sum_{b,k}\log|\mathcal W_b^{(k)}|
+}
+\]
+</section>
+<p>로 보고한다.</p>
+<ul>
+<li>\(\rho_H=1\)이면 같은 remaining support에서 uniform draw와 동일한 entropy다.</li>
+</ul>
+<h3>exp72 실제 final-v7 A/B</h3>
+<ul>
+<li>실제 변경
+<ul>
+<li>replay draw distribution만 opt-in ERCB로 교체</li>
+<li>admission rule, mapping loss, optimizer, PGBA, Gaussian budget, terminal dust-GC,
+EOS rematuration은 control과 동일</li>
+<li>기본값 \(\beta=-1\)은 기존 final-v7 queue를 그대로 사용</li>
+</ul>
+</li>
+<li>최선 설정</li>
+</ul>
+<section>
+\[
+K=128,\qquad\beta=0.02.
+\]
+</section>
+<table>
+<thead>
+<tr>
+<th>Scene</th>
+<th style="text-align:right">baseline PSNR</th>
+<th style="text-align:right">ERCB PSNR</th>
+<th style="text-align:right">ΔPSNR</th>
+<th style="text-align:right">online wall 변화</th>
+<th style="text-align:right">\(\rho_H\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aria1253</td>
+<td style="text-align:right">27.708</td>
+<td style="text-align:right">27.624</td>
+<td style="text-align:right">−0.084 dB</td>
+<td style="text-align:right">+0.033%</td>
+<td style="text-align:right">0.99869</td>
+</tr>
+<tr>
+<td>aria1253rot</td>
+<td style="text-align:right">24.814</td>
+<td style="text-align:right">25.177</td>
+<td style="text-align:right">+0.362 dB</td>
+<td style="text-align:right">+0.014%</td>
+<td style="text-align:right">0.99842</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>확인된 것
+<ul>
+<li>두 trajectory 모두 사전 정의한 −0.2dB quality non-regression 기준 통과</li>
+<li>online wall-time 차이 0.04% 미만</li>
+<li>uniform maximum conditional entropy의 99.84% 이상 유지</li>
+<li>60 scheduler regression tests와 12개 full-run audit 통과</li>
+<li>\(K=1,\beta=0\)은 aria1253에서 −2.863dB, \(K=32,\beta=0.02\)는 −2.082dB</li>
+<li>따라서 높은 one-step entropy만으로는 부족하고 충분히 긴 without-replacement
+coverage가 실제 3DGS 품질에 중요하다는 증거를 얻음</li>
+</ul>
+</li>
+</ul>
+<h3>실패한 조건</h3>
+<ul>
+<li>aria1253에서는 middle/first lifetime count가 0.971이었지만,
+aria1253rot에서는 baseline 0.758에서 ERCB 0.520으로 악화했다.</li>
+<li>따라서 <strong>일반적인 raw lifetime-count equalization은 실패</strong>했다.</li>
+<li>Final pool도 aria1253 422.5→333, rot 353→334로 변했다.</li>
+<li>원인은 exp72가 기존 minimum-count maturity gate를 유지해 ordering이 admission 시점과
+cardinality에 계속 영향을 주기 때문이다.</li>
+<li>따라서 <strong>pool-size-independent admission도 실패</strong>했다.</li>
+</ul>
+<h3>현재 판정</h3>
+<ul>
+<li><strong>품질 보존 scheduler 후보:</strong> 성공</li>
+<li><strong>높은 conditional entropy:</strong> 성공</li>
+<li><strong>일반적인 lifetime 균등화:</strong> 실패</li>
+<li><strong>pool-independent admission:</strong> 실패</li>
+<li><strong>production default 교체:</strong> 보류</li>
+<li><strong>opt-in block128_beta002 구현:</strong> 유지</li>
+<li><strong>논문 contribution:</strong> GPU-token admission과 결합해 admission을 분리한 뒤 재검증 전에는
+완성된 공동 방법론으로 주장하지 않음</li>
+</ul>
+<h2>6. 세 contribution을 하나의 이야기로 묶으면</h2>
+<ul>
+<li>
+<p><strong>3.1 GPU-token cardinality</strong></p>
+<ul>
+<li>완료된 GPU service만큼 supervision pool을 확장</li>
+<li>결정 대상: \(|\mathcal A_t|\)</li>
+<li>maturity gate와 pool epoch에 독립</li>
+</ul>
+</li>
+<li>
+<p><strong>3.2 Trajectory membership</strong></p>
+<ul>
+<li>열린 \(Q_t\)개 slot을 keyframe interval 전체에 고르게 배치</li>
+<li>결정 대상: 어떤 \(v\)가 \(\mathcal A_t\)에 들어가는가</li>
+</ul>
+</li>
+<li>
+<p><strong>3.3 Entropy-regularized ordering</strong></p>
+<ul>
+<li>admitted pool에서 count imbalance를 줄이는 Gibbs weight와 \(K\)-view 비복원
+coverage를 결합</li>
+<li>결정 대상: 다음 statistical block의 순서 \(\pi_b\)</li>
+</ul>
+</li>
+<li>
+<p>정리</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>GPU가 실제로 끝낸 update만큼 pool을 키우고, 열린 slot은 trajectory 전체에 고르게 배치하며, admitted view는 count가 적은 쪽에 soft preference를 주는 \(K\)-view 비복원 block으로 학습한다.</strong></p>
+</blockquote>
+<h2>8. 마무리용 요약</h2>
+<ul>
+<li>
+<p>기존 문제</p>
+<ul>
+<li>Fixed FPS는 GPU capacity를 반영하지 않는다.</li>
+<li>Maturity gate는 growing pool 크기와 admission을 결합한다.</li>
+<li>Priority ordering은 empirical mapping objective를 왜곡할 수 있다.</li>
+</ul>
+</li>
+<li>
+<p>새 방법 후보</p>
+<ul>
+<li>Admission: completed GPU-token hard constraint</li>
+<li>Membership: temporal maximin + interval water filling</li>
+<li>Ordering: count-Gibbs + \(K\)-view sampling without replacement</li>
+</ul>
+</li>
+</ul>
+
+</main></body>
+</html>

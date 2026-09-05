@@ -1,0 +1,1 @@
+../../../../context/research/vigs_slam_method_discussion_bullets.md

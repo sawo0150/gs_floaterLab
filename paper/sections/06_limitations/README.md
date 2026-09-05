@@ -1,0 +1,21 @@
+# 6. Limitations
+
+| 항목 | 값 |
+|---|---|
+| 한 줄 claim | 실패한 것을 정직하게 적는다 (프로젝트 원칙) |
+| latex 대상 | `latex/sec/5_conclusion.tex` |
+| 담당 | 나 |
+| 상태 | plan v01 / draft 없음 |
+| 근거 실험 | — |
+| 그림·표 | — |
+| 목표 분량 | 0.2 p |
+| ⚠ claim boundary | 본문 흡수 여부는 분량 보고 결정 |
+
+- **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
+- **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)
+
+## 버전 이력
+
+| 종류 | 버전 | 날짜 | 트리거 | 무엇이 바뀌었나 |
+|---|---|---|---|---|
+| plan | [v01](plan/v01_2026-09-05_initial.md) | 2026-09-05 | paper/ 폴더 개설 | 최초 작성 |

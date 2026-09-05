@@ -1,0 +1,140 @@
+% VIGS-SLAM references.
+% 출처: context/research/vigs_slam_chapter3_4_working_draft.md 의 Working References
+%       + context/research/2026-09-01_carve_kf_viewset_mission.html 의 §8.1 positioning
+% 읽기 노트는 paper/notes/related_work/<bibkey>.md 에 둔다.
+% ⚠ 아래 항목 다수가 서지정보 미확인(연도/페이지/venue). 인용 전 반드시 확인할 것.
+
+%%%%%%%%%%%%%%%%% 3DGS / GS-SLAM %%%%%%%%%%%%%%%%%
+@inproceedings{kerbl20233dgs,
+  title     = {3D Gaussian Splatting for Real-Time Radiance Field Rendering},
+  author    = {Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
+  booktitle = {ACM Transactions on Graphics (SIGGRAPH)},
+  year      = {2023}
+}
+@misc{vigsslam,
+  title  = {VIGS-SLAM: Visual Inertial Gaussian Splatting SLAM},
+  note   = {arXiv:2512.02293. 서지정보 확인 필요},
+  year   = {2025}
+}
+@inproceedings{matsuki2024monogs,
+  title     = {Gaussian Splatting SLAM},
+  author    = {Matsuki, Hidenobu and Murai, Riku and Kelly, Paul H. J. and Davison, Andrew J.},
+  booktitle = {CVPR},
+  year      = {2024}
+}
+@article{huang2024photoslam,
+  title  = {Photo-SLAM: Real-time Simultaneous Localization and Photorealistic Mapping},
+  note   = {서지정보 확인 필요},
+  year   = {2024}
+}
+@inproceedings{mallick2024taming3dgs,
+  title  = {Taming 3DGS: High-Quality Radiance Fields with Limited Resources},
+  author = {Mallick, Saswat Subhajyoti and others},
+  note   = {서지정보 확인 필요},
+  year   = {2024}
+}
+
+%%%%%%%%%%%%%%%%% Neural / implicit SLAM %%%%%%%%%%%%%%%%%
+@inproceedings{sucar2021imap,
+  title     = {iMAP: Implicit Mapping and Positioning in Real-Time},
+  author    = {Sucar, Edgar and Liu, Shikun and Ortiz, Joseph and Davison, Andrew J.},
+  booktitle = {ICCV},
+  year      = {2021}
+}
+@inproceedings{zhu2022nice,
+  title     = {NICE-SLAM: Neural Implicit Scalable Encoding for SLAM},
+  author    = {Zhu, Zihan and Peng, Songyou and Larsson, Viktor and Xu, Weiwei and Bao, Hujun and Cui, Zhaopeng and Oswald, Martin R. and Pollefeys, Marc},
+  booktitle = {CVPR},
+  year      = {2022}
+}
+@inproceedings{teed2021droid,
+  title     = {DROID-SLAM: Deep Visual SLAM for Monocular, Stereo, and RGB-D Cameras},
+  author    = {Teed, Zachary and Deng, Jia},
+  booktitle = {NeurIPS},
+  year      = {2021}
+}
+
+%%%%%%%%%%%%%%%%% View selection / active vision %%%%%%%%%%%%%%%%%
+@inproceedings{jiang2024fisherrf,
+  title  = {FisherRF: Active View Selection and Uncertainty Quantification for Radiance Fields using Fisher Information},
+  note   = {서지정보 확인 필요},
+  year   = {2024}
+}
+@inproceedings{chen2026cover,
+  title     = {Coverage Optimization for Camera View Selection},
+  author    = {Chen and others},
+  booktitle = {CVPR},
+  year      = {2026},
+  note      = {로컬 PDF: context/reference/papers/Chen_Coverage_Optimization_for_Camera_View_Selection_CVPR_2026_paper.pdf}
+}
+@article{chen2023adaptslam,
+  title  = {AdaptSLAM: Edge-Assisted Adaptive SLAM with Resource Constraints via Uncertainty Minimization},
+  author = {Chen and others},
+  year   = {2023}
+}
+
+%%%%%%%%%%%%%%%%% Shuffling / without-replacement SGD %%%%%%%%%%%%%%%%%
+@inproceedings{shamir2016without,
+  title     = {Without-Replacement Sampling for Stochastic Gradient Methods},
+  author    = {Shamir, Ohad},
+  booktitle = {NeurIPS},
+  year      = {2016}
+}
+@inproceedings{ahn2020shuffling,
+  title     = {SGD with Shuffling: Optimal Rates without Component Convexity and Large Epoch Requirements},
+  author    = {Ahn, Kwangjun and Yun, Chulhee and Sra, Suvrit},
+  booktitle = {NeurIPS},
+  year      = {2020}
+}
+@inproceedings{mishchenko2020random,
+  title     = {Random Reshuffling: Simple Analysis with Vast Improvements},
+  author    = {Mishchenko, Konstantin and Khaled, Ahmed and Richt{\'a}rik, Peter},
+  booktitle = {NeurIPS},
+  year      = {2020}
+}
+
+%%%%%%%%%%%%%%%%% Compute-budget framing %%%%%%%%%%%%%%%%%
+@inproceedings{hoffmann2022chinchilla,
+  title     = {Training Compute-Optimal Large Language Models},
+  author    = {Hoffmann, Jordan and others},
+  booktitle = {NeurIPS},
+  year      = {2022}
+}
+
+%%%%%%%%%%%%%%%%% Floater / geometry regularization %%%%%%%%%%%%%%%%%
+@inproceedings{fan2024trimgs,
+  title  = {TrimGS: Trimming Gaussian Splatting for Accurate Geometry Representation},
+  note   = {서지정보 확인 필요},
+  year   = {2024}
+}
+@article{stablegs,
+  title  = {StableGS},
+  note   = {서지정보 확인 필요 — cross-view depth consistency, dual opacity}
+}
+@inproceedings{huang20242dgs,
+  title     = {2D Gaussian Splatting for Geometrically Accurate Radiance Fields},
+  author    = {Huang, Binbin and Yu, Zehao and Chen, Anpei and Geiger, Andreas and Gao, Shenghua},
+  booktitle = {SIGGRAPH},
+  year      = {2024}
+}
+@inproceedings{yu2024gof,
+  title  = {Gaussian Opacity Fields},
+  note   = {서지정보 확인 필요},
+  year   = {2024}
+}
+@inproceedings{deng2022dsnerf,
+  title     = {Depth-supervised NeRF: Fewer Views and Faster Training for Free},
+  author    = {Deng, Kangle and Liu, Andrew and Zhu, Jun-Yan and Ramanan, Deva},
+  booktitle = {CVPR},
+  year      = {2022}
+}
+@inproceedings{wang2023coslam,
+  title     = {Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM},
+  author    = {Wang, Hengyi and Wang, Jingwen and Agapito, Lourdes},
+  booktitle = {CVPR},
+  year      = {2023}
+}
+@article{slaim,
+  title = {SLAIM},
+  note  = {서지정보 확인 필요 — ray termination / free-space supervision}
+}

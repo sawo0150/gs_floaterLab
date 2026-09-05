@@ -1,0 +1,4 @@
+# caption: ERCB (K{=}128, $\beta{=}0.02$) vs.\ final-v7 baseline. Numbers from exp72; to be superseded by P03.
+Scene,baseline PSNR,ERCB PSNR,$\Delta$PSNR,online wall,$\rho_H$
+aria1253,27.708,27.624,−0.084,+0.033\%,0.99869
+aria1253rot,24.814,**25.177**,**+0.362**,+0.014\%,0.99842
