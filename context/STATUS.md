@@ -88,6 +88,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-05 (논문 착수 — `paper/` 워크스페이스 개설)**:
+  CVPR 2027(마감 2026-11-13 추정) 목표로 main 브랜치에 `paper/`를 만들었다. 세 contribution은
+  GPU-token admission(C1)·ERCB(C2)·carve loss(C3, 팀원)이다. 착수 전 정리에서
+  **어느 브랜치에도 커밋되지 않은 파일 4개**를 발견해 백업 커밋했다(`eee3e8b`):
+  exp70 카드, `vigs_slam_chapter3_4_working_draft.md`(§3 본문 초안),
+  `vigs_slam_method_three_contributions_notion_draft.md`, exp69 evidence json 1개.
+  `exp72-entropy-count-scheduler`는 main으로 fast-forward 했다.
+  ⚠ **C1은 미구현이고 exp72는 이 controller 없이 돌았다.** 그래서 exp72의
+  pool-independence·lifetime 균등화 실패 판정은 아직 유효하며,
+  **P01(C1 구현) → P02(rate invariance) → P03(ERCB 재검증)** 이 논문의 크리티컬 패스다.
+  → [paper/PAPER_STATUS.md](../paper/PAPER_STATUS.md),
+  [실험 테이블](../paper/plan/experiment_table/CURRENT.md),
+  [claim 원장](../paper/plan/claims/CURRENT.md)
+
 - **2026-09-04 (exp72 — count-Gibbs statistical-block scheduler 실제 A/B)**:
   final-v7 replay draw만 opt-in ERCB로 바꿔
   \\(p(i\mid\mathcal R)\propto\exp(-\beta n_i)\\)를 K-view 비복원 block에 적용했다.
