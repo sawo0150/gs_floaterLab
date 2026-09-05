@@ -27,4 +27,7 @@
 
 ## 정정
 
-(없음)
+- **2026-09-05 — P01 상태 정정:** 위 최초 행의 “미착수”를 **부분 완료**로 정정한다.
+  exp73에서 5090 기준 baseline vs token-only/no-prepurchase를 aria1253·aria301_305에 실행했고,
+  7개 gate-free run·526 admission poll에서 token-law 정수 오차 0을 확인했다. 다만 token/carry,
+  동일 bootstrap을 유지한 순수 gate-removal, 5070Ti/slowdown arm은 미실행이다.
