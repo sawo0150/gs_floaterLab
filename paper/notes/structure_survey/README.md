@@ -17,11 +17,15 @@
 
 | 논문 | PDF | 왜 이걸 보나 | §3 | §4 | 상태 |
 |---|---|---|---|---|---|
-| **cartgs** | `refs/05_budget_system/cartgs.pdf` (8p) | 계산 예산 정렬 GS-SLAM. **우리 문제의식과 가장 가까움** | ✅ | ✅ | 완료 |
-| mallick2024taming3dgs | `refs/05_budget_system/mallick2024taming3dgs.pdf` (13p) | 제한 자원 3DGS. 한글 번역본 대조 가능 | — | — | 예정 |
-| chen2026cover | `refs/02_view_selection/chen2026cover.pdf` (9p) | **CVPR 조판 실물** + 최적화 유도가 있는 §3 | — | — | 예정 |
-| vigsslam | `refs/01_gs_slam/vigsslam.pdf` (31p) | 우리 baseline이 스스로를 어떻게 서술하는가 | — | — | 예정 |
-| lmrs | `refs/05_budget_system/lmrs.pdf` (17p) | 최적화 유도 중심 논문의 §3 | — | — | 보류 |
+| **cartgs** | `refs/05_budget_system/cartgs.pdf` (8p) | 계산 예산 정렬 GS-SLAM. 우리 문제의식과 가장 가까움 | ✅ | ✅ | 완료 |
+| **chen2026cover** | `refs/02_view_selection/chen2026cover.pdf` (9p) | **CVPR 조판 실물** + 유도형 §3 + 레짐 서술 | ✅ | ✅ | 완료 |
+| **mallick2024taming3dgs** | `refs/05_budget_system/mallick2024taming3dgs.pdf` (13p) | 예산 제약 3DGS. **우리 §3.1과 문단 대응 1:1** | ✅ | ✅ | 완료 |
+| **lmrs** | `refs/05_budget_system/lmrs.pdf` (17p) | 유도형 §4 5소절 + **§4.3이 우리 C2의 직접 경쟁자** | ✅ | ✅ | 완료 |
+| **vigsslam** | `refs/01_gs_slam/vigsslam.pdf` (31p) | **우리 baseline.** online 계약 문장의 선례 | ✅ | ✅ | 완료 |
+| comapgs | `refs/02_view_selection/comapgs.pdf` (15p) | 협업 매핑 view selection | — | — | 보류 |
+
+**종합 결과는 [`_synthesis_ours.md`](_synthesis_ours.md)** — 5편에서 뽑은 것을 우리 §3/§4 설계로 옮긴 문서.
+개별 해부보다 이쪽이 먼저 읽을 것.
 
 ## 해부 스키마 (모든 파일 공통)
 
