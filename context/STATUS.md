@@ -101,6 +101,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   → [exp72 카드](experiments/exp72/exp72_entropy_count_scheduler_real_ablation.md),
   [연구 해석](research/view_scheduler_long_horizon_sim_report.md)
 
+- **2026-09-04 (exp70 — growing-pool maximum-entropy scheduler 합성 검증)**:
+  exp69 v7 maturity gate의 장기 pool-growth 문제를 age-adjusted uniform quota
+  \(q_i(T)=\sum_{t=a_i}^T1/N_t\)로 재정의하고, 12,000 optimizer update×48 seed×
+  5개 growth pattern×4개 synthetic gradient field에서 10개 scheduler를 비교했다.
+  ME-QARR(C=1)는 임의 growing pool에서 \(\max_i|n_i-q_i|<1\)을 보장하고 고정 pool에서
+  exact uniform random reshuffling이 되며, 전체 50-case 평균 rank 1위(2.56), quota
+  RMSE 0.306, final gradient RMSE 0.324%였다. ME-BDS(C=2)는 discrepancy worst 1.875회로
+  제한하면서 256-step mixing 5.300%로 IID uniform 5.144%에 근접해 두 목표의 Pareto
+  knee였다. 논문용 주안은 C=2, 이론적 특수형은 C=1로 분석 단계 채택한다. 단 실제 3DGS
+  품질 실험이 아니며 production VIGS 코드는 미수정 상태다.
+  → [exp70 카드](experiments/exp70/exp70_max_entropy_view_scheduler_sim.md),
+  [전체 보고서](research/view_scheduler_long_horizon_sim_report.md)
+
 - **2026-08-27 (exp69 추가 — pose-balanced active + unbounded archive 구현·기각)**:
   FIFO forgetting 없이 무한 causal view pool을 보존하면서 frontier replay 주기만
   분리하기 위해, <code>map()</code> 내부에 pose-farthest active set과 unbounded
