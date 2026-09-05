@@ -44,6 +44,16 @@ exp72가 자기 실패 원인을 **"기존 minimum-count maturity gate를 유지
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-05 — exp73로 C1 token law 구현·부분 실증 (위 최초 상태표 정정).**
+  5090에서 기존 `interval bootstrap + maturity gate`를 `global seed 1 + token-only/no-prepurchase`로
+  교체했다. 두 장면 7개 gate-free run·526 admission poll에서
+  `A_paid(u)=⌊u/κ⌋` 정수 오차는 0이었다. `κ=22`는 1253 두 번 평균
+  27.711dB(baseline 대비 +0.003), 305 28.815dB(−0.119)로 품질 기준을 통과했다.
+  따라서 위 표의 C1 “미구현/실증 없음”은 현재 **구현 ✅ / 실증 ⚠ 부분**으로 정정한다.
+  단, exp73은 순수 gate-removal이 아니라 무료 interval bootstrap까지 제거한 정책 교체이며,
+  hardware-rate·carry 비교는 미검증이다. selection CV도 1253 0.951, 305 0.942로 악화해
+  lifetime 균등화는 P03에 남는다.
+
 - **2026-09-05 — `paper/` 폴더 개설.**
   main 브랜치에서 직접 진행(별도 논문 브랜치 없음). 착수 전에 `exp72-entropy-count-scheduler`를
   main으로 fast-forward 하고, **어느 브랜치에도 커밋되지 않았던 파일 4개**를 백업 커밋했다
