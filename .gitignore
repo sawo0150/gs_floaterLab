@@ -60,3 +60,10 @@ paper/results/runs/**
 !paper/results/runs/*/
 !paper/results/runs/*/manifest.json
 !paper/results/runs/*/metrics.csv
+
+# 참고 논문 PDF: 저작권 자료 + 대용량(파일당 최대 50MB)이라 git에 넣지 않는다.
+# 무엇이 어디에 왜 있는지는 paper/refs/INDEX.md 가 추적한다.
+paper/refs/**
+!paper/refs/
+!paper/refs/*/
+!paper/refs/INDEX.md
