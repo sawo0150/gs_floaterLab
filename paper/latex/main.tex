@@ -1,0 +1,45 @@
+% VIGS-SLAM paper — based on the official CVPR author kit
+% https://github.com/cvpr-org/author-kit
+% NOTE: cvpr.sty / ieeenat_fullname.bst are the CVPR 2026 kit. Replace them with
+% the CVPR 2027 kit as soon as it is released (see paper/plan/timeline/CURRENT.md).
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+% \usepackage{cvpr}              % CAMERA-READY
+\usepackage[review]{cvpr}        % REVIEW
+% \usepackage[pagenumbers]{cvpr} % arXiv
+
+\input{preamble}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\def\paperID{*****}
+\def\confName{CVPR}
+\def\confYear{2027}
+
+\title{\TODO{title}}
+
+\author{\TODO{authors}}
+
+\begin{document}
+\maketitle
+
+\input{fig/teaser}
+\input{sec/0_abstract}
+\input{sec/1_intro}
+\input{sec/2_related}
+\input{sec/3_method}
+\input{sec/4_experiments}
+\input{sec/5_conclusion}
+
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% WARNING: delete the supplementary pages from the submission
+% \input{sec/X_suppl}
+
+\end{document}
