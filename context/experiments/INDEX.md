@@ -91,6 +91,7 @@ MPS 트랙(exp08~29)에서 검증한 방법들을 실제 목표 데이터셋(Ope
 
 | Exp | 내용 | 상태 | 카드 |
 |---|---|---|---|
+| **exp73** | interval별 무료 bootstrap+maturity-gated admission을 최초 seed 1장 이후 \(\kappa\) dense update당 pending view 1장을 받는 token-only 정책으로 교체. 7 run·526 admission poll에서 \(A_{paid}(u)=\lfloor u/\kappa\rfloor\) 오차 0. 공통 \(\kappa=22\)는 1253 2회 평균 27.711dB(baseline 대비 +0.003)와 305 28.815dB(−0.119)로 품질 기준 통과했지만 selection CV는 0.951/0.942로 악화. 1253 pool −34.8%는 gate 제거가 아니라 interval bootstrap 제거와 pacing의 결합 효과 | **token law 실증 / \(\kappa=22\) 첫 2-scene 후보 / 순수 gate 효과 미분리 / scheduling 미해결 / default 보류** | [exp73](exp73/exp73_gate_free_token_admission_real_ablation.md) |
 | **exp72** | count-Gibbs 분포를 K-view 비복원 block에 적용한 실제 final-v7 A/B. K=128, β=.02는 1253 −0.084dB·rot +0.362dB, wall 차이 &lt;0.04%, entropy ≥99.84%로 품질은 보존했지만 rot middle/first 0.758→0.520 및 기존 maturity gate 유지로 lifetime 균등화·pool-independent admission은 실패 | **opt-in 유지 / production·논문 방법론 보류** | [결과](exp72/exp72_entropy_count_scheduler_real_ablation.md) |
 | **exp69** | mature dust GC, FIFO epoch, pose-balanced active+unbounded archive를 strict 1.5× 세 장면에서 분리 검증; active/archive는 1253/305 photo 통과에도 paired 12F −0.92dB·305 geometry 소폭 악화로 기각 | **완료(범용 후보 기각)** | [결과](exp69/exp69_result.html) |
 | exp43 | 교차 장면 완주: rot 점수 AUC 0.98·pseudo-label 정밀도 100% / 305 **depth-anchor carve 재현 성공**(먼지 -83%·PSNR 동급) / 실패 5건 정직 기록 — 결론: carve 성패=앵커 품질 | **완료** | [exp43](exp43_cross_scene_plan.md) |

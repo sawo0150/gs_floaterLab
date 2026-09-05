@@ -7,8 +7,9 @@
 > 중심 contribution으로 두는 구성을 철회하고, **GPU-token admission + trajectory-balanced
 > membership + entropy-regularized block reshuffling**의 세 단계로 다시 정리한다.
 >
-> 현재 상태: 세 번째 단계의 ERCB는 실제 final-v7 A/B까지 완료했지만, 첫 번째 단계의
-> gate-free GPU-token admission은 아직 구현·실측 전이다.
+> 현재 상태: ERCB의 실제 final-v7 A/B에 이어, gate-free GPU-token admission도 exp73에서
+> 실제 두 장면·7 run으로 구현·검증했다. 다만 exp73는 순수 gate-removal ablation이 아니라
+> interval별 무료 bootstrap까지 제거한 token-only 정책 교체다.
 
 ## 0. 먼저 전달할 한 문장
 
@@ -187,7 +188,7 @@ $$
   - **No-prepurchase:** \(\mathcal C_t=\varnothing\)이면 \(B_t<\kappa\)가 되도록 초과 token 폐기
 - “미래 compute를 당겨 쓰지 않는다”는 두 정책 모두 만족하지만, admission burst 특성은
   다르므로 실험에서는 구분해야 한다.
-- 현재 제안은 더 보수적인 no-prepurchase를 기본 후보로 둔다.
+- exp73 구현은 더 보수적인 **no-prepurchase**를 사용한다.
 
 ### 기존 maturity gate와의 차이
 
@@ -201,15 +202,26 @@ $$
 
 ### 현재 증거와 claim boundary
 
-- View-set density의 최적점이 compute budget에 따라 달라진다는 기존 실험은
-  fixed FPS보다 service-aware cardinality가 필요하다는 동기를 뒷받침한다.
-- 그러나 exp72는 이 token controller를 구현하지 않았다.
-  - 기존 minimum-count maturity gate를 그대로 유지했다.
-  - Candidate arm과 baseline의 최종 pool이 달라졌다.
-- 따라서 현재 안전한 표현은 **제안된 contribution**이지 **실증 완료된 contribution**이 아니다.
-- 필요한 다음 실험은 GPU slowdown/속도 변화에서
-  \(A(t)\)가 이론식과 일치하는지, pool 크기가 달라도 같은 service당 admission을 주는지
-  확인하는 것이다.
+- exp73에서 최초 전역 seed 한 장 뒤 모든 신규 view를 token으로 admission하는 경로를 실제
+  final-v7에 opt-in 구현했다.
+- 두 장면 7개 gate-free run의 admission poll 526개에서
+
+$$
+A_{\mathrm{paid}}(u)=\left\lfloor\frac{u}{\kappa}\right\rfloor
+$$
+
+  의 정수 오차가 모두 0이었다. 즉 완료된 dense update에 대한 admission slope는 실제
+  growing pool에서도 정확히 \(1/\kappa\)였다.
+- 공통 \(\kappa=22\)는 aria1253 2회 평균 27.711dB(baseline 대비 +0.003dB)와
+  aria301_305 28.815dB(−0.119dB)로 두 장면 모두 −0.2dB 품질 기준을 통과했다.
+- 단, exp73는 gate만 제거한 실험이 아니다.
+  - 기존: interval별 무료 bootstrap + maturity-gated paid admission
+  - exp73: 최초 seed 1장 + token-only paid admission
+  - 따라서 1253 pool 422.5→275.5 감소는 gate 제거가 아니라 bootstrap 제거와
+    \(\kappa=22\) pacing의 결합 효과다. 305 pool은 674→749로 증가했다.
+- Selection CV는 1253/305에서 0.951/0.942로 악화했다. 그러므로 현재 claim은
+  **gate-free token law의 정확성과 두 장면의 \(\kappa=22\) feasibility**까지이며,
+  순수 gate 효과, final count 균등성, universal \(\kappa\), production default는 아니다.
 
 ## 4. Contribution 후보 2 — Trajectory-Balanced View Membership
 
@@ -632,21 +644,26 @@ $$
 - \(\beta=-1\)에서 production final-v7 동작이 유지되는 opt-in integration
 - \(K=128,\beta=0.02\)의 두 trajectory quality/time/entropy 결과
 - 60 regression tests와 12 full-run audit
+- Gate-free token-only admission 구현과 64 scheduler regression tests
+- exp73의 7개 gate-free run·526 admission poll에서 token-law 정수 오차 0
+- \(\kappa=22\)의 aria1253 2회와 aria301_305 1회 품질 기준 통과
 
 ### 아직 구현·검증하지 않은 부분
 
-- Maturity gate를 실제로 제거한 deterministic GPU-token admission
 - GPU slowdown과 hardware 변화에서의 admission tracking
 - 동일 admitted set과 동일 update 수를 고정한 순수 ordering A/B
 - GPU-token admission과 ERCB를 결합한 end-to-end 결과
 - Age-adjusted fairness와 raw lifetime fairness 중 최종 논문 target 선택
 - 세 장면 이상에서의 quality와 geometry non-regression
+- Interval bootstrap을 유지한 순수 gate-removal ablation
+- Scene-general 또는 online-adaptive \(\kappa\) 결정 규칙
 
 ## 9. 사수님께 확인받고 싶은 질문
 
 - 세 축을 **cardinality--membership--ordering**으로 분리한 framing이 system paper의
   중심 contribution으로 충분히 명확한가?
-- Admission의 기본 정책은 carry인가, no-prepurchase인가?
+- Exp73의 token-only 정책을 C1 정의로 채택할지, interval bootstrap을 유지하는 순수
+  gate-removal arm을 먼저 추가할지?
 - Fairness target은 무엇이어야 하는가?
   - Raw lifetime count equality
   - Arrival age를 고려한 causal quota equality
@@ -657,28 +674,25 @@ $$
 
 ## 10. 다음 실험 순서
 
-1. 기존 maturity gate를 끄고 deterministic GPU-token admission 구현
-2. Candidate가 충분한 synthetic stream에서 정확히 \(\kappa/\gamma\) update마다 한 장이
-   admit되는지 self-test
-3. Steady, burst, accelerating, GPU slowdown, 여러 horizon에서
-   admission tracking과 pool-size invariance 검사
-4. 동일 admitted set·동일 update 수·동일 Gaussian budget을 고정
-5. 다음 ordering을 비교
+1. \(\kappa=22\) token-only admission 아래 동일 admitted set·동일 update 수·동일 Gaussian
+   budget으로 ERCB의 순수 ordering A/B 구성
+2. 다음 ordering을 비교
    - Full-pool uniform reshuffling
    - Production causal shuffle
    - exp69 active/archive
    - Raw least-count
    - ME-QARR / ME-BDS
    - ERCB \(K\in\{1,32,128,N\}\), \(\beta\) log sweep
-6. 평균 rank 대신 worst-case Pareto frontier 보고
+3. 평균 rank 대신 worst-case Pareto frontier 보고
    - causal equalization regret
    - Jain fairness
-   - admission tracking error
    - normalized entropy \(\rho_H\)
    - cohort mixing
    - minibatch gradient MSE
    - held-out PSNR / SSIM / LPIPS
-7. Quality와 geometry non-regression을 세 장면 이상에서 확인한 뒤에만 production default와
+4. 필요하면 interval bootstrap을 유지하고 gate만 제거한 arm을 추가해 gate 효과를 분리
+5. GPU slowdown·다른 hardware에서 service당 admission slope가 유지되는지 확인
+6. Quality와 geometry non-regression을 세 장면 이상에서 확인한 뒤에만 production default와
    논문 contribution 채택 여부 결정
 
 ## 11. 논의 마무리용 요약
@@ -701,7 +715,18 @@ $$
   - pool-independent admission
   - gate-free end-to-end 방법론
 
+- exp73가 새로 보여준 것
+  - maturity count 없이 완료된 dense update만으로 token admission 가능
+  - 7개 run·526 poll에서 \(A_{paid}(u)=\lfloor u/\kappa\rfloor\) 정확히 만족
+  - \(\kappa=22\)가 현재 두 장면에서 품질 기준 통과
+
+- exp73도 보여주지 못한 것
+  - interval bootstrap을 유지한 순수 gate 효과
+  - final count 균등성
+  - scene-general \(\kappa\)와 production readiness
+
 - 지금 가장 정직한 결론
 
-> **Scheduler component의 feasibility는 확인했지만, 논문의 완성된 contribution이 되려면
-> admission을 GPU-token constraint로 분리한 뒤 동일 membership 아래에서 다시 검증해야 한다.**
+> **GPU-token admission은 exp73에서 실제로 분리·검증했고 ERCB도 개별 feasibility를
+> 확인했다. 다음 핵심은 \(\kappa=22\) token-only admission 아래 동일 membership을 고정해
+> ERCB가 균등성과 품질을 함께 보존하는지 공동 A/B하는 것이다.**

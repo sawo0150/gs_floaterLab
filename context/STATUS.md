@@ -88,6 +88,22 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-05 (exp73 — gate-free token-only admission 7-run 검증 및 해석 정정)**:
+  final-v7의 interval별 무료 bootstrap+maturity-gated admission을, 최초 전역 seed 한 장 뒤
+  완료 dense Adam update \(\kappa\)회당 pending causal view 한 장을 admission하는 token-only
+  정책으로 opt-in 교체했다. 두 장면 7개 gate-free run의 526 admission poll에서
+  \(A_{paid}(u)=\lfloor u/\kappa\rfloor\) 정수 오차는 전부 **0**이었다. 공통
+  \(\kappa=22\)는 aria1253 2회 평균 **27.711dB**(baseline 대비 +0.003, pool 275.5)와
+  aria301_305 **28.815dB**(−0.119, pool 749)로 −0.2dB 품질 기준을 모두 통과했다.
+  다만 이 실험은 gate 조건만 제거한 ablation이 아니라 interval bootstrap도 제거한 정책
+  교체다. 1253 pool 422.5→275.5 감소는 유상 admission이 줄어서가 아니라 무료 bootstrap
+  217→1 감소가 더 컸기 때문이며, 305는 674→749로 증가했다. 따라서 **token law와
+  \(\kappa=22\)의 2-scene feasibility는 실증**, 순수 gate 효과는 미분리다. Selection CV도
+  1253/305에서 **0.951/0.942**로 악화해 scheduling은 별도 미해결이고 production default는
+  보류한다.
+  → [exp73 카드](experiments/exp73/exp73_gate_free_token_admission_real_ablation.md),
+  [evidence](experiments/exp73/evidence/exp73_gate_free_token_admission_summary.json)
+
 - **2026-09-04 (exp72 — count-Gibbs statistical-block scheduler 실제 A/B)**:
   final-v7 replay draw만 opt-in ERCB로 바꿔
   \\(p(i\mid\mathcal R)\propto\exp(-\beta n_i)\\)를 K-view 비복원 block에 적용했다.

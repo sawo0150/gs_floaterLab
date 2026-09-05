@@ -1,0 +1,127 @@
+{
+  "experiment": "exp73",
+  "date": "2026-09-04",
+  "profile": "final-v7 RTX5090 original-timestamp 1x, seed0, terminal rematuration enabled",
+  "change": "replace interval-bootstrap plus maturity-gated admission with token-only admission: after one free global seed, admit one pending causal dense view per kappa completed dense Adam updates",
+  "pure_gate_removal_ablation": false,
+  "interval_bootstrap_removed": true,
+  "token_law": {
+    "equation": "A_paid(u) = floor(u / kappa)",
+    "gate_free_runs": 7,
+    "admission_polls_checked": 526,
+    "maximum_integer_error": 0,
+    "pass": true
+  },
+  "baseline": {
+    "aria1253": {
+      "runs": 2,
+      "psnr_mean": 27.708028271463185,
+      "pool_mean": 422.5,
+      "online_wall_s_mean": 65.1120065,
+      "selection_cv_mean": 0.37268609872852093
+    },
+    "aria301_305": {
+      "runs": 1,
+      "psnr": 28.9338981161665,
+      "pool": 674,
+      "online_wall_s": 134.35625,
+      "selection_cv": 0.4696353226338571,
+      "middle_to_first": 0.7744451109778044,
+      "last_to_first": 0.26334733053389325
+    }
+  },
+  "runs": [
+    {
+      "scene": "aria1253",
+      "kappa": 8,
+      "psnr": 25.66754987180067,
+      "psnr_delta_from_baseline_mean": -2.040478399662515,
+      "pool": 604,
+      "streaming_updates": 5092,
+      "selection_cv": 0.9987532555631199,
+      "middle_to_first": 0.7367674858223063,
+      "last_to_first": 0.19423440453686203
+    },
+    {
+      "scene": "aria1253",
+      "kappa": 12,
+      "psnr": 27.643768247319848,
+      "psnr_delta_from_baseline_mean": -0.06426002414333709,
+      "pool": 469,
+      "streaming_updates": 5716,
+      "selection_cv": 0.8953257166818519,
+      "middle_to_first": 0.7097126227719172,
+      "last_to_first": 0.23608584939978175
+    },
+    {
+      "scene": "aria1253",
+      "kappa": 16,
+      "psnr": 22.163134971153703,
+      "psnr_delta_from_baseline_mean": -5.544893300309482,
+      "pool": 359,
+      "streaming_updates": 6034,
+      "selection_cv": 1.0322025262949168,
+      "middle_to_first": 0.5422867513611614,
+      "last_to_first": 0.14264972776769508
+    },
+    {
+      "scene": "aria1253",
+      "kappa": 22,
+      "repeat": 0,
+      "psnr": 27.75044645130305,
+      "psnr_delta_from_baseline_mean": 0.042418179839865066,
+      "pool": 275,
+      "streaming_updates": 6319,
+      "selection_cv": 0.9399595327731578,
+      "middle_to_first": 0.6448336252189142,
+      "last_to_first": 0.15901926444833625
+    },
+    {
+      "scene": "aria1253",
+      "kappa": 22,
+      "repeat": 1,
+      "psnr": 27.67216855254621,
+      "psnr_delta_from_baseline_mean": -0.035859718916975814,
+      "pool": 276,
+      "streaming_updates": 6338,
+      "selection_cv": 0.9624811557343567,
+      "middle_to_first": 0.6653696498054474,
+      "last_to_first": 0.13972408914043155
+    },
+    {
+      "scene": "aria301_305",
+      "kappa": 12,
+      "psnr": 27.38817779402927,
+      "psnr_delta_from_baseline": -1.5457203221372299,
+      "pool": 1215,
+      "streaming_updates": 14677,
+      "selection_cv": 1.001895749797708,
+      "middle_to_first": 0.5519729771226778,
+      "last_to_first": 0.1321971441731921
+    },
+    {
+      "scene": "aria301_305",
+      "kappa": 22,
+      "psnr": 28.815325823960695,
+      "psnr_delta_from_baseline": -0.11857229220580479,
+      "pool": 749,
+      "streaming_updates": 16593,
+      "selection_cv": 0.94182292898485,
+      "middle_to_first": 0.4487134296792386,
+      "last_to_first": 0.14193396780636822
+    }
+  ],
+  "verdict": {
+    "maturity_gate_required_for_work_proportional_admission": false,
+    "fixed_kappa_12_cross_scene_generalization": false,
+    "shared_kappa_22_quality_within_0_2db_on_both_tested_scenes": true,
+    "kappa_22_aria1253_two_run_psnr_mean": 27.71130750192463,
+    "kappa_22_aria1253_delta_from_baseline_mean": 0.0032792304614446266,
+    "kappa_22_aria1253_pool_mean": 275.5,
+    "scene_general_universal_token_cost_proven": false,
+    "gate_removal_effect_isolated": false,
+    "token_only_admission_improves_lifetime_count_equality": false,
+    "gate_removal_alone_improves_lifetime_count_equality": false,
+    "production_default_change": false
+  }
+}
