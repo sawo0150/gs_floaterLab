@@ -19,11 +19,10 @@
 | 3.1 Compute-Paced View Growth (★C1) | [`03_method/3-1_compute_paced_view_growth/`](03_method/3-1_compute_paced_view_growth/) | `sec/3_method.tex` | 나 | 0.8 p | plan v01 / draft 없음 |
 | 3.2 Entropy-Regularized Count Balancing — ERCB (★C2) | [`03_method/3-2_ercb/`](03_method/3-2_ercb/) | `sec/3_method.tex` | 나 | 0.8 p | plan v01 / draft 없음 |
 | 3.3 Causal Free-Space Carving (★C3) | [`03_method/3-3_carve/`](03_method/3-3_carve/) | `sec/3_method.tex` | 팀원 | 0.7 p | plan v01 / draft 없음 |
-| 4.1 Experimental Setup | [`04_experiments/4-1_setup/`](04_experiments/4-1_setup/) | `sec/4_experiments.tex` | 나 | 0.35 p | plan v01 / draft 없음 |
-| 4.2 Main Results | [`04_experiments/4-2_main_results/`](04_experiments/4-2_main_results/) | `sec/4_experiments.tex` | 나 | 0.6 p | plan v01 / draft 없음 |
-| 4.3 Rate Robustness | [`04_experiments/4-3_rate_robustness/`](04_experiments/4-3_rate_robustness/) | `sec/4_experiments.tex` | 나 | 0.35 p | plan v01 / draft 없음 |
-| 4.4 Ablations | [`04_experiments/4-4_ablations/`](04_experiments/4-4_ablations/) | `sec/4_experiments.tex` | 나·팀원 | 0.75 p | plan v01 / draft 없음 |
-| 4.5 Compute and Latency | [`04_experiments/4-5_compute_latency/`](04_experiments/4-5_compute_latency/) | `sec/4_experiments.tex` | 나 | 0.15 p | plan v01 / draft 없음 |
+| (도입) Experimental Setup | [`04_experiments/4-0_setup/`](04_experiments/4-0_setup/) | `sec/4_experiments.tex` | 나 | 0.35 p | plan v01 / draft 없음 |
+| 4.1 Main Results | [`04_experiments/4-1_main_results/`](04_experiments/4-1_main_results/) | `sec/4_experiments.tex` | 나 | 0.65 p | plan v01 / draft 없음 |
+| 4.2 Rate Robustness | [`04_experiments/4-2_rate_robustness/`](04_experiments/4-2_rate_robustness/) | `sec/4_experiments.tex` | 나 | 0.35 p | plan v01 / draft 없음 |
+| 4.3 Ablations | [`04_experiments/4-3_ablations/`](04_experiments/4-3_ablations/) | `sec/4_experiments.tex` | 나·팀원 | 0.85 p | plan v01 / draft 없음 |
 | 5. Conclusion | [`05_conclusion/`](05_conclusion/) | `sec/5_conclusion.tex` | 나 | 0.2 p | plan v01 / draft 없음 |
 | 6. Limitations | [`06_limitations/`](06_limitations/) | `sec/5_conclusion.tex` | 나 | 0.2 p | plan v01 / draft 없음 |
 | Rebuttal (2027-02 대비) | [`R_rebuttal/`](R_rebuttal/) | `rebuttal.tex` | 나 | 1 p | plan v01 / draft 없음 |

@@ -1,15 +1,15 @@
-# 4.3 Rate Robustness
+# 4.1 Main Results
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | view growth가 pool 크기와 무관하고 하드웨어 속도에 비례한다 — C1을 정의하는 성질 |
+| 한 줄 claim | 제안 시스템이 동일 wall-time에서 baseline보다 held-out 품질이 높다 |
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | **P02** (κ 스윕·gate 제거는 4-4로 이동) |
-| 그림·표 | **Fig.4** (핵심 그림) |
-| 목표 분량 | 0.35 p |
-| ⚠ claim boundary | 이 절이 C1의 유일한 실증. 실패 시 C1은 주장 불가 |
+| 근거 실험 | P05, P06 |
+| 그림·표 | Table 1 |
+| 목표 분량 | 0.65 p (compute·latency 흡수분 포함) |
+| ⚠ claim boundary | 장면별 재튜닝 없음을 명시해야 함 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)

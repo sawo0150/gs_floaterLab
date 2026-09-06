@@ -1,15 +1,15 @@
-# 4.1 Experimental Setup
+# 4.2 Rate Robustness
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | strict streaming 계약, 데이터, 머신, seed, 반복수를 고정한다 |
+| 한 줄 claim | view growth가 pool 크기와 무관하고 하드웨어 속도에 비례한다 — C1을 정의하는 성질 |
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | — |
-| 그림·표 | — |
+| 근거 실험 | **P02** (κ 스윕·gate 제거는 4-4로 이동) |
+| 그림·표 | **Fig.4** (핵심 그림) |
 | 목표 분량 | 0.35 p |
-| ⚠ claim boundary | live Gen1과 strict file의 PSNR 직접 비교 금지 |
+| ⚠ claim boundary | 이 절이 C1의 유일한 실증. 실패 시 C1은 주장 불가 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)

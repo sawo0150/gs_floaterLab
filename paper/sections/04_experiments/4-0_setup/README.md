@@ -1,15 +1,15 @@
-# 4.2 Main Results
+# 4.0 Experimental Setup (번호 없는 §4 도입)
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | 제안 시스템이 동일 wall-time에서 baseline보다 held-out 품질이 높다 |
+| 한 줄 claim | strict streaming 계약, 데이터, 머신, seed, 반복수를 고정한다 |
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | P05, P06 |
-| 그림·표 | Table 1 |
-| 목표 분량 | 0.5 p |
-| ⚠ claim boundary | 장면별 재튜닝 없음을 명시해야 함 |
+| 근거 실험 | — |
+| 그림·표 | — |
+| 목표 분량 | 0.35 p |
+| ⚠ claim boundary | live Gen1과 strict file의 PSNR 직접 비교 금지 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)
