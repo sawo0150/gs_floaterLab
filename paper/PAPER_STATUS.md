@@ -44,6 +44,39 @@ exp72가 자기 실패 원인을 **"기존 minimum-count maturity gate를 유지
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-06 — §3/§4 구조 확정. (위 열린 결정 중 3건 종결.)**
+  절 제목 3개를 확정하고 §3·§4 소절 구성을 닫았다.
+
+  | | 확정 |
+  |---|---|
+  | C1 | **Compute-Paced View Growth** |
+  | C2 | **Entropy-Regularized Count Balancing (ERCB)** |
+  | C3 | **Causal Free-Space Carving** (팀원 확정 대기) |
+  | §3 | 3.0 + 소절 3개 |
+  | §4 | 번호 없는 Setup + **4.1 Main Results / 4.2 Ablations** |
+  | 산출물 | **4표 5그림** (v01은 5표 6그림) |
+
+  이름 원칙: **제목은 이 분야 말로, 계보는 본문 첫 문단에서.**
+  `admission`·`token`·`credit`·`reshuffling`·`Plackett–Luce`·`token bucket`은 전부 본문으로 내렸다.
+  코퍼스 25편 실측에서 `admission`/`token`/`quota`/`reshuffling`은 0회였고, `pool`도 28회 중
+  5회가 저자명 `Poole`·나머지가 `pooling`이라 사실상 안 쓰는 말이었다. 그리고 `shuffling`은
+  cartgs·taming3dgs 둘 다에서 **CUDA warp shuffle**을 뜻했다.
+
+  → 종결된 결정: ① carve를 독립 contribution으로 (§3.3), ② membership은 기여로 세지 않고
+  §3.1의 run-in 볼드 문단으로 흡수, ③ MonoGS baseline을 구현할지 인용할지 — 캡션에 출처를
+  구분 표기하면(vigsslam Table 1 방식) 섞어도 된다.
+
+  → 부수 결정: Preliminaries를 독립 절로 빼지 않는다. vision 25편 중 4편뿐이고
+  **GS-SLAM(MonoGS·SplaTAM·Photo-SLAM·Co-SLAM·iMAP·CaRtGS·VIGS-SLAM)은 예외 없이 안 뺀다.**
+  절 번호는 계획 문서대로 유지된다.
+
+  → 반영: `notes/naming/` v02, `plan/outline/` v02, `plan/figures/` v02,
+  `plan/experiment_table/` v03, `sections/03_method/`·`04_experiments/` 폴더 재편.
+
+  → ⚠ 남은 것: **exp72에 `K=128, β=0` arm이 없다.** β=0은 K=1에서만 쟀으므로 block 길이와
+  β 효과가 섞여 있고, **β 자체의 기여는 아직 한 번도 측정되지 않았다.** P03 sweep에 이 칸이
+  있으나 미착수. 계측 항목 `peak pool`·`총 admission 수`도 protocol에 추가해야 한다.
+
 - **2026-09-06 — Overleaf 동기화 방식 결정. (위 열린 결정 4번 종결.)**
   선배님이 공유하신 프로젝트(`overleaf.com/project/6a9c1b93c9b98e33cf8e5770`)를
   `CVPR2027_chsong_s_intern.zip`으로 받았다. 확인 결과 **논문 초안이 아니라 연구실 템플릿 껍데기**로,
