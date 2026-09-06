@@ -30,7 +30,8 @@
 %     §3.1  95줄 0.86p   문단 66 (16/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
 %                        ※ 5문단 + run-in. taming3dgs 는 4문단이지만 그쪽은 "왜 densify 하나"를
 %                          설명할 필요가 없다. 우리는 A2·A3(왜 keyframe 밖까지)가 한 문단 더 든다.
-%     §3.2  90줄 0.82p   문단 84 (16/10/22/22/14) + 수식2 6
+%     §3.2  101줄 0.92p  문단 84 (16/10/20/22/16) + 수식3 9
+%                        ※ 최적화 문제를 display 로 올렸다. 두 항이 (a)(b) 라는 게 이 소절의 논지다.
 %                        ※ P3·P4 가 각각 5가지를 해야 해서 24줄씩 준다. §3.1(0.83p)과 대등.
 %     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
 %   → §3 ≈ 240줄 2.18p. 팀원 §3.3 이 채워지면 ≈ 2.7p.
@@ -232,17 +233,17 @@
   \Phi(\mathbf{n}) \;=\; \tfrac12\sum_i \big(n_i-\bar n\big)^2
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{22}{%
-  \textbf{Put (a) back as a term, not as a patch.} Rather than take the deterministic $\arg\min$,
-  minimize its expectation under a distribution $p$ with an entropy penalty:
-  $\min_p \sum_i p_i\,\Delta_i\Phi - \tau H(p)$ on the simplex --- the first term is (b), the
-  second is (a), and $\tau$ is the knob P1 asked for. State what
-  $\tau$ trades: $\tau\!\to\!0$ recovers the deterministic rule, $\tau\!\to\!\infty$ recovers
-  uniform. The stationarity condition gives $p_i \propto \exp(-\Delta_i\Phi/\tau)$, and the terms
-  common to all $i$ cancel in the normalization, leaving Eq.~(\ref{eq:gibbs}) with $\beta=1/\tau$.
-  \textbf{Say ``unique'' and say why}: the objective is linear in $p$ plus $\tau$ times negative
-  entropy, strictly convex on a compact convex set, so the minimizer is unique --- this is not one
-  rule among several.
+\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{20}{%
+  \textbf{Put (a) back as a term, not as a patch.} Eq.~(\ref{eq:objective}): the first term is
+  (b), the second is (a), and $\tau$ is the knob P1 asked for --- $\tau\!\to\!0$ recovers the
+  deterministic rule, $\tau\!\to\!\infty$ recovers uniform. \textbf{At a given step the counts are
+  fixed}, so the objective is linear in $p$ plus $\tau$ times negative entropy: strictly convex on
+  the simplex, hence a \emph{unique} minimizer of Gibbs form \pend{cite --- standard; candidates
+  in refs/10\_maxent\_control}. \textbf{The step that is ours is the cancellation}: $\Delta_i\Phi$
+  differs from $n_i$ only by terms common to every $i$, which drop out in the normalization,
+  leaving Eq.~(\ref{eq:gibbs}) with $\beta=1/\tau$. \emph{The Lagrangian algebra is standard and
+  goes to the supplement} --- say so in half a clause, the way chen2026cover writes ``automatic by
+  Rayleigh quotients''.
   \textbf{Equality audit, here and not later}: at $\beta=0$ the distribution is uniform, and
   drawing $K$ views without replacement is then exactly a uniform permutation of the pool ---
   i.e.\ random reshuffling --- \emph{but only when} $K \ge N_t$. For $K<N_t$ a block is a subset,
@@ -250,30 +251,44 @@
   not inherit the convergence guarantees, since the set grows during training and the objective is
   non-convex.}
 
+\begin{equation}\label{eq:objective}
+  \min_{p \in \Delta}\;\; \underbrace{\sum_i p_i\,\Delta_i\Phi}_{\text{(b) balance}}
+  \;-\; \tau \underbrace{H(p)}_{\text{(a) mixing}}
+\end{equation}
+
 \begin{equation}\label{eq:gibbs}
   p_t(i) \;=\; \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau
 \end{equation}
 
-\slot{P4 \textemdash\ EXTENSION (relaxation 3) + ASSUMPTION LEDGER}{22}{%
+\slot{P4 \textemdash\ EXTENSION (relaxation 3) + WHEN IT IS EXACT}{22}{%
   \textbf{Name the tool in the first sentence}: drawing $K$ views one after another with weights
   $\exp(-\beta n_i)$ and no replacement is a \emph{Plackett--Luce} draw (equivalently
-  Gumbel-Top-$k$). Applying Eq.~(\ref{eq:gibbs}) exactly would mean recomputing $p$ after every
-  single selection, since each selection changes the counts. We instead freeze the counts at the
-  start of a block, $n_i^{(b)}$, and draw all $K$ under that frozen distribution.
-  \textbf{Assumption ledger}: within one block a count rises by at most one, so a frozen weight
-  differs from the exact sequential weight by at most a factor $e^{\beta}$ per selected view;
-  for small $\beta$ this is a first-order effect, and \textbf{state that condition rather than
-  calling it an approximation and moving on}. How much randomness survives is measured by
-  $\rho_H$, defined with the metrics in \S\ref{sec:exp}.}
+  Gumbel-Top-$k$, which is how it is implemented). No display for it --- name and cite, as with
+  the Gibbs form. That form is also what makes the audit in P3 work: with equal weights a
+  Plackett--Luce draw \emph{is} a uniform permutation.
+  Applying Eq.~(\ref{eq:gibbs}) exactly would mean recomputing $p$ after every single selection;
+  we instead freeze the counts at the start of a block, $n_i^{(b)}$, and draw all $K$ under that.
+  \pend{DO NOT call this a first-order approximation until checked. Drawn views leave the
+  candidate set, so their count updates cannot change the relative weights of the remaining
+  candidates, and the common terms cancel anyway --- under the model as written the frozen draw
+  looks \textbf{exact}, which is a stronger statement than the one we were making. It could still
+  break if $K$ exceeds the candidate count and wraps, or if $n_i$ increments on \emph{use} rather
+  than on selection. Verify against exp72 code, then state the condition.}
+  How much randomness survives is measured by $\rho_H$, defined with the metrics in
+  \S\ref{sec:exp}.}
 
-\slot{P5 \textemdash\ WHERE THE PROXY AND THE GOAL PART WAYS}{14}{%
+\slot{P5 \textemdash\ WHERE THE PROXY AND THE GOAL PART WAYS}{16}{%
   Counts are a proxy for (b), and the two can disagree. On one trajectory the middle-to-first
   lifetime ratio \emph{worsened}, $0.758 \to 0.520$, while held-out PSNR still improved by
-  $+0.362$\,dB; on another it was $0.971$, close to even.
-  \textbf{Say plainly that we therefore do not claim this family improves lifetime-count equality
-  in general} --- exp72 rejects that claim, and larger $\beta$ recovered only to $0.605$ at the
-  cost of entropy. Balancing counts is a design choice for (b), and this is its limit
-  (\S\ref{sec:exp}).}
+  $+0.362$\,dB; on another it was $0.971$, close to even. Larger $\beta$ recovered only to $0.605$
+  and cost entropy. \textbf{We therefore do not claim this family improves lifetime-count equality
+  in general.}
+  \textbf{Offer a hypothesis and label it as one}: balancing raw counts pulls late-admitted views
+  up, but a view admitted very late has few updates left to be pulled up \emph{in}, so on a
+  trajectory whose content is back-loaded that shortfall can dominate --- \emph{we have not tested
+  this}. Saying we lack a verified explanation is better than inventing one.
+  \textbf{Then tell the reader what it means}: if lifetime equality is itself the objective, this
+  is not the tool for it (\S\ref{sec:exp}).}
 
 % ---------- 3.3 (팀원, 110줄) ----------
 \subsection{Causal Free-Space Carving}

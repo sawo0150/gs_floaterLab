@@ -68,7 +68,7 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 | Abstract | — | — | `sections/00_abstract/` |
 | 1. Introduction | 1.0 | 1.0 | `sections/01_intro/` |
 | 2. Related Work | 1.15 | 2.15 | `sections/02_related/` |
-| 3. Method | **2.7** | 4.85 | `sections/03_method/` |
+| 3. Method | **2.75** | 4.90 | `sections/03_method/` |
 | 4. Experiments | 2.2 | 6.65 | `sections/04_experiments/` |
 | 5. Limitations | 0.2 | 6.85 | `sections/06_limitations/` |
 | 6. Conclusion | 0.2 | 7.05 | `sections/05_conclusion/` |
@@ -82,7 +82,7 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 |---|---:|---:|---|
 | (도입) Method opening | 0.17 | 19 | roadmap 1문단 (7문장) |
 | 3.1 **Compute-Paced View Growth** (C1) | 0.86 | 95 | 문단 **5** (16/12/16/10/12) + `Slot placement.` run-in 6 + 수식3 + **Fig.3** |
-| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.82 | 90 | 문단 5 (16/10/**22/22**/14) + 수식2 |
+| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.85 | 93 | 문단 5 (16/10/**20/22/16**) + 수식3 |
 | 3.3 **Causal Free-Space Carving** (C3) | 0.36→0.7 | 40→77 | 팀원 |
 
 ⚠ **2026-09-06 재산정.** 옛 계획 3.25 p 는 근거 없이 잡은 값이었다.
