@@ -6,10 +6,10 @@ latex 대상: `latex/sec/3_method.tex` (소절 전체가 한 파일에 들어간
 
 | 소절 | 분량 | 문단 | 계획 문서 |
 |---|---:|---|---|
-| [(도입) Method opening](3-0_overview/) | 0.25 p | roadmap 1문단 + `Notation.` run-in | `3-0_overview/plan/CURRENT.md` |
-| [3.1 Compute-Paced View Growth (★C1)](3-1_compute_paced_view_growth/) | 1.0 p | 5 (`Slot placement.` run-in 포함) | `3-1_compute_paced_view_growth/plan/CURRENT.md` |
-| [3.2 Entropy-Regularized Count Balancing — ERCB (★C2)](3-2_ercb/) | 0.95 p | 5 | `3-2_ercb/plan/CURRENT.md` |
-| [3.3 Causal Free-Space Carving (★C3)](3-3_carve/) | 1.0 p | — (팀원) | `3-3_carve/plan/CURRENT.md` |
+| [(도입) Method opening](3-0_overview/) | 0.13 p | **roadmap 1문단 (6문장 14줄)** | `3-0_overview/plan/CURRENT.md` |
+| [3.1 Compute-Paced View Growth (★C1)](3-1_compute_paced_view_growth/) | 1.05 p | 5 (`Slot placement.` run-in 포함) | `3-1_compute_paced_view_growth/plan/CURRENT.md` |
+| [3.2 Entropy-Regularized Count Balancing — ERCB (★C2)](3-2_ercb/) | 1.0 p | 5 | `3-2_ercb/plan/CURRENT.md` |
+| [3.3 Causal Free-Space Carving (★C3)](3-3_carve/) | 1.05 p | — (팀원) | `3-3_carve/plan/CURRENT.md` |
 
 ## 진단 소절을 두지 않는다 (2026-09-06)
 
@@ -32,7 +32,9 @@ latex 대상: `latex/sec/3_method.tex` (소절 전체가 한 파일에 들어간
 근거는 [`../../notes/naming/CURRENT.md`](../../notes/naming/CURRENT.md).
 2026-09-06 변경: 옛 `3-2_trajectory_membership` 은 기여로 세지 않기로 하여
 `3-1_.../absorbed/` 로 옮겼고 §3.1 의 run-in 볼드 한 문단이 된다.
-Preliminaries 는 독립 절로 빼지 않고 도입의 `Notation.` run-in 이 된다.
+Preliminaries 는 **아예 두지 않는다.** 배경식 2개를 넣어봤지만 §3.1·§3.2 가 참조하는 곳이
+한 군데도 없었고, 두 소절이 쓰는 기호는 전부 우리 것이라 각자 쓰이는 자리에서 정의된다.
+3DGS 소개는 §2 가, mapping loss 는 §3.3 carve 가 필요할 때 그 자리에서 진다.
 
 전체 지도는 [`../README.md`](../README.md), 서사는
 [`../../plan/outline/CURRENT.md`](../../plan/outline/CURRENT.md).

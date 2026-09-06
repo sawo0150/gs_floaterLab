@@ -3,7 +3,7 @@
 % 계획: sections/03_method/README.md
 %
 % 구조 (2026-09-06 확정, 코퍼스 11편 조사 반영):
-%   도입 = roadmap 한 문단 + Notation. run-in  ← splatam §3 형식
+%   도입 = roadmap 한 문단. Notation·배경식은 두지 않는다.
 %   3.1 / 3.2 / 3.3  세 소절. 진단 소절은 두지 않는다.
 %   진단은 각 소절 첫 문단(P1)에 분산한다 — taming3dgs §3.2 형식.
 %   ※ 진단에 소절을 준 논문은 조사한 11편 중 cartgs 하나뿐이다.
@@ -14,47 +14,43 @@
 %   박스 안 글은 영어 (kotex 미사용). 한국어 상세는 각 slot 위 주석에.
 %
 % 분량: CVPR 2단 10pt, 한 쪽 ≈ 110줄 (한 단 ≈ 55줄). §3 = 3.25p
-%   도입  0.25p ≈ 27줄  (roadmap 12 + Notation 8 + 배경식 2개 7)
-%   §3.1  1.0p  ≈ 110줄 (−Fig.3 14 −수식3 10 → 문단 5개에 86줄)
-%   §3.2  0.95p ≈ 105줄 (−수식4 14           → 문단 5개에 91줄)
-%   §3.3  1.0p  ≈ 110줄 (팀원)
+%   도입  0.13p ≈ 14줄  (roadmap 한 문단만. Notation·배경식 없음)
+%   §3.1  1.05p ≈ 116줄 (−Fig.3 14 −수식3 10 → 문단 5개에 92줄)
+%   §3.2  1.0p  ≈ 110줄 (−수식4 14           → 문단 5개에 96줄)
+%   §3.3  1.05p ≈ 116줄 (팀원)
 % ============================================================
 \section{Method}
 \label{sec:method}
 
-% ---------- 도입: roadmap 한 문단 ----------
-% 6문장. 코퍼스 조사 결과 Method 도입은 5~7문장 8~13줄이 관행이다.
+% ---------- 도입: roadmap 한 문단 (§3 도입은 이것뿐) ----------
+% 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
 % 자리 5개: ①범위 ②기존과의 대비 ③순서어로 소절 훑기 ④소절마다 얻는 것 ⑤그림 지목
-% ③④ 의 접속어가 "다음 소절이 존재해야 하는 이유"다 (lmrs §4 도입 형식).
+% 문장 3·4·5 는 전부 [간극을 짚는 접속어] → [무엇을 하는가 §ref] → [무엇을 얻는가] 로 같은 꼴.
+%   접속어가 다음 소절이 존재해야 하는 이유다 (lmrs §4 도입).
+%   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
 % 원본은 plan/outline/CURRENT.md 의 화살표 다이어그램.
-\slot{ROADMAP \textemdash\ one paragraph, 6 sentences}{12}{%
-  (1) \emph{Scope}: this section is about how an online mapper spends a limited number of updates
-  on the supervision that has arrived.
-  (2) \emph{Contrast}: prior systems tie that to keyframes; instead we separate three decisions.
-  (3) \emph{\S\ref{ssec:growth}}: completed GPU service sets how fast the view set grows,
-  \textbf{thereby} making growth independent of set size and hardware speed.
-  (4) \emph{\S\ref{ssec:ercb}}: \textbf{that leaves the order unanswered}, so we order the admitted
-  views by a count-balanced draw without replacement.
-  (5) \emph{\S\ref{ssec:carve}}: \textbf{even with an order fixed, free-space error remains}, so we
-  suppress it with causal carve evidence.
-  (6) \emph{Figure}: Fig.~2 shows the whole flow.}
-
-% ---------- 도입: Notation run-in ----------
-% splatam §3 이 개요 문단 뒤에 run-in `Gaussian Map Representation.` 을 두는 형식.
-% vigsslam 은 이걸 쓰이는 소절 안에 두지만, 우리 배경식은 세 소절에서 다 쓰이므로 앞에 둔다.
-\noindent\textbf{Notation.}\;
-\slot{NOTATION \textemdash\ run-in, background only}{8}{%
-  The 3DGS representation and the VIGS-SLAM mapping loop, in the notation used throughout.
-  Close with the boundary sentence below so the reader knows where our equations start.}
-Equations~(\ref{eq:splat})--(\ref{eq:maploss}) are standard 3DGS and VIGS-SLAM formulations,
-restated here for notation. \emph{All remaining equations are ours.}
-
-\begin{equation}\label{eq:splat}
-  G(\mathbf{x}) = o\,e^{-\frac12(\mathbf{x}-\mu)^\top\Sigma^{-1}(\mathbf{x}-\mu)}
-\end{equation}
-\begin{equation}\label{eq:maploss}
-  \mathcal{L} = \lambda_c\mathcal{L}_c + \lambda_d\mathcal{L}_d + \lambda_{iso}\mathcal{L}_{iso}
-\end{equation}
+%
+% ⚠ Notation / 배경식은 두지 않는다 (2026-09-06).
+%   3DGS 배경식 2개를 넣어봤지만 §3.1·§3.2 가 참조하는 곳이 한 군데도 없었다.
+%   두 소절이 쓰는 기호(S(t), κ, γ, A*, B_t, Q_t, n_i, Φ, β, τ, ρ_H)는 전부 우리 것이고
+%   각자 쓰이는 자리에서 정의된다. 3DGS 소개는 §2 가 진다.
+%   mapping loss 는 §3.3 carve 가 항을 더할 때 그 자리에서 꺼낸다 (vigsslam 이 §3.3 에
+%   Preliminary. 를 둔 것과 같은 이유). 미리 자리를 잡아두지 않는다.
+\slot{ROADMAP \textemdash\ the whole opening, 6 sentences}{14}{%
+  (1) \emph{Scope}: we build on a keyframe-based 3DGS mapper and ask how it should spend a
+  limited number of updates on the supervision that has already arrived.
+  (2) \emph{Contrast}: existing systems answer with a single keyframe rule; we separate the
+  question into three decisions and answer them in turn.
+  (3) \emph{\S\ref{ssec:growth}}: \textbf{First}, completed GPU service sets how fast the
+  training view set grows, \textbf{which makes} that rate independent of the size of the set and
+  of hardware speed.
+  (4) \emph{\S\ref{ssec:ercb}}: \textbf{Growth alone does not say in which order} the admitted
+  views should be revisited, so we draw each block by a count-balanced rule without replacement,
+  \textbf{which} evens out selection counts without giving up random order.
+  (5) \emph{\S\ref{ssec:carve}}: \textbf{Even with the order fixed, free-space error survives}
+  photometric supervision, so we suppress it with causal carve evidence, \textbf{which} removes
+  floaters without using future frames.
+  (6) \emph{Figure}: Fig.~2 shows how the three fit together in one pass of the mapper.}
 
 % ---------- 3.1 (5문단, 86줄) ----------
 \subsection{Compute-Paced View Growth}
@@ -74,7 +70,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 
 % 진단 + baseline 인용. §3.0 에 있던 "Diagnosis 인용형" 문단을 여기로 흡수했다.
 % taming3dgs §3.2 1문단 형식: [기존 방식] → [왜 문제] → [대가].
-\slot{P1 \textemdash\ DIAGNOSIS, absorbing the baseline quotation}{18}{%
+\slot{P1 \textemdash\ DIAGNOSIS, absorbing the baseline quotation}{20}{%
   Quote the baseline verbatim: ``For each new keyframe, we run 10 mapping iterations. In each
   iteration, we randomly sample keyframes from the frontend tracking frame graph.''
   A fixed per-keyframe iteration count, a fixed frame rate, and a maturity gate all tie the
@@ -82,7 +78,7 @@ restated here for notation. \emph{All remaining equations are ours.}
   update dilution that cannot be predicted in advance.}
 
 % 왜 wall-clock 도 iteration 도 아니고 "완료된 service" 인가를 여기서 답한다.
-\slot{P2 \textemdash\ MEASUREMENT + LINEAGE (taming3dgs; RFC 2212)}{18}{%
+\slot{P2 \textemdash\ MEASUREMENT + LINEAGE (taming3dgs; RFC 2212)}{20}{%
   Introduce completed GPU service $S(t)$, and answer here why it is neither wall-clock time nor
   an iteration count. Lineage sentence: a token bucket whose tokens are minted by \emph{completed
   GPU service} rather than by wall-clock time, which makes it credit-based rather than
@@ -97,7 +93,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 \end{align}
 
 % carry vs no-prepurchase 를 여기서 두 문장으로 종결한다. taming3dgs §3.2 4문단 형식.
-\slot{P4 \textemdash\ CORRECTION RULE + FORWARD POINTER}{12}{%
+\slot{P4 \textemdash\ CORRECTION RULE + FORWARD POINTER}{14}{%
   Realized growth after prunes and removals, (\ref{eq:quota}).
   \textbf{\color{red}Close carry vs.\ no-prepurchase here, in two sentences.}
   End with: \S\ref{sec:exp} shows the law holds with zero integer error, and how quality
@@ -108,7 +104,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 
 % 약하다는 사실 자체를 논증으로 쓴다. 기여로 세지 않는다.
 \noindent\textbf{Slot placement.}\;
-\slot{P5 \textemdash\ RUN-IN, NOT A CONTRIBUTION}{12}{%
+\slot{P5 \textemdash\ RUN-IN, NOT A CONTRIBUTION}{14}{%
   Place the opened quota by temporal maximin and interval water filling; the measured gain is
   only $+0.35\%$. \textbf{Use that weakness as the argument}: the bottleneck is \emph{how many}
   views can be admitted, not \emph{which} ones, which is why this subsection is about growth.}
@@ -118,12 +114,12 @@ restated here for notation. \emph{All remaining equations are ours.}
 \label{ssec:ercb}
 
 % 소절 개수와 유도 단계 수를 일치시킨다.
-\slot{P1 \textemdash\ ROADMAP, enumerated (chen2026cover \S4)}{11}{%
+\slot{P1 \textemdash\ ROADMAP, enumerated (chen2026cover \S4)}{12}{%
   The derivation proceeds in three steps: (1) express selection-count imbalance as a potential
   $\Phi$; (2) solve an entropy-regularized Lagrangian for the unique distribution; (3) extend it
   to a $K$-view block drawn without replacement.}
 
-\slot{P2 \textemdash\ FORMULATING}{10}{%
+\slot{P2 \textemdash\ FORMULATING}{12}{%
   Equation (\ref{eq:phi}). State that the last term is common to all $i$ and therefore does not
   affect the $\arg\max$.}
 \begin{equation}\label{eq:phi}
@@ -132,7 +128,7 @@ restated here for notation. \emph{All remaining equations are ours.}
   \Delta_i\Phi = n_i - \bar n + \tfrac12\big(1-\tfrac1N\big)
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING}{12}{%
+\slot{P3 \textemdash\ DERIVING}{14}{%
   Entropy-regularized Lagrangian to (\ref{eq:gibbs}). \textbf{Say ``unique solution'' explicitly.}
   Explain the $\beta=1/\tau$ reparameterization.}
 \begin{equation}\label{eq:gibbs}
@@ -140,7 +136,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 \end{equation}
 
 % 근사마다 성립 조건을 붙인다 — chen2026cover §4.4 의 가정 원장 형식.
-\slot{P4 \textemdash\ EXTENSION + ASSUMPTION LEDGER}{16}{%
+\slot{P4 \textemdash\ EXTENSION + ASSUMPTION LEDGER}{18}{%
   Extend to a $K$-view sequential weighted draw without replacement, holding the count snapshot
   $n_i^{(b)}$ fixed within a block. \textbf{State that this is a first-order approximation inside
   the block, with the condition under which it holds.} Measure the retained conditional entropy
@@ -150,7 +146,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 \end{equation}
 
 % 네 가지가 반드시 들어간다. (d) 가 in-method 실패 보고 — lmrs §4.2 형식.
-\slot{P5 \textemdash\ SCOPE GUARD + LINEAGE + FAILURE}{22}{%
+\slot{P5 \textemdash\ SCOPE GUARD + LINEAGE + FAILURE}{24}{%
   (a) Equality-to-bound audit: with $\beta{=}0$ this coincides with random reshuffling
   \emph{only} when $K \ge N_t$; we do not inherit its convergence guarantees, since the set grows
   and the objective is non-convex.
@@ -165,7 +161,7 @@ restated here for notation. \emph{All remaining equations are ours.}
 \subsection{Causal Free-Space Carving}
 \label{ssec:carve}
 
-\slot{\color{red}P1--P4 \textemdash\ TEAMMATE}{34}{%
+\slot{\color{red}P1--P4 \textemdash\ TEAMMATE}{40}{%
   Match the shape of the two subsections above:
   Diagnosis $\to$ Mechanism $\to$ assumption ledger $\to$ forward pointer to
   \S\ref{sec:exp} (\texttt{Carving.}).
