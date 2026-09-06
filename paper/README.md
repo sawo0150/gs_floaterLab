@@ -29,7 +29,7 @@
 | `results/` | 실험 숫자. 경량만 git (raw 로그·PLY는 원격 머신) | run_id |
 | `notes/` | 유도 노트·읽기 노트·미팅·원본 보관 | ▣ 일부 |
 | `latex/` | **Overleaf 프로젝트 미러.** 규칙은 `latex/SYNC.md` | git |
-| `scripts/` | 버전 생성·표 생성·**LaTeX 빌드(`tex.sh`)·Overleaf 동기화 점검(`sync.sh`)** | git |
+| `scripts/` | 도구 모음. 사용법은 [`scripts/README.md`](scripts/README.md) | git |
 
 ## 버전 관리 규약
 
