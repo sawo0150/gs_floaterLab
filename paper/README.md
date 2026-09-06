@@ -29,7 +29,7 @@
 | `results/` | 실험 숫자. 경량만 git (raw 로그·PLY는 원격 머신) | run_id |
 | `notes/` | 유도 노트·읽기 노트·미팅·원본 보관 | ▣ 일부 |
 | `latex/` | **Overleaf 프로젝트 미러.** 규칙은 `latex/SYNC.md` | git |
-| `scripts/` | 버전 생성·원격 실행·표 생성 | git |
+| `scripts/` | 버전 생성·표 생성·**LaTeX 빌드(`tex.sh`)·Overleaf 동기화 점검(`sync.sh`)** | git |
 
 ## 버전 관리 규약
 
@@ -93,6 +93,15 @@ plan/claims/
 **결정됨 (2026-09-06) — 사람이 직접 복사·붙여넣기.** 자동 동기화 스크립트는 만들지 않는다.
 `latex/` 는 공유받은 Overleaf 프로젝트 zip을 푼 것이며, "Overleaf가 그렇게 되어야 할 모습"으로
 유지한다. 아직 안 올린 변경은 목록으로 관리한다.
+
+로컬에서 쓰고 렌더링해 보다가 됐다 싶으면 Overleaf 에 붙여넣는다.
+
+```bash
+./paper/scripts/tex.sh watch    # 저장할 때마다 자동 빌드 → paper/build/main.pdf
+./paper/scripts/sync.sh status  # 이제 뭘 Overleaf 에 올려야 하나
+```
+
+빌드는 TinyTeX(`~/.TinyTeX`, sudo 불필요). `build/` 와 `.sync-snapshot/` 은 git 제외.
 
 → 규칙 전문과 미반영 목록은 **[`latex/SYNC.md`](latex/SYNC.md)**. `latex/` 관련해서는
 이 README보다 그 파일이 우선한다.

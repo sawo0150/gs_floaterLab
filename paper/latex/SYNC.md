@@ -27,11 +27,60 @@ paper/latex/  ──(복사·붙여넣기, 사람)──▶  Overleaf     ← �
 선배님들이 Overleaf에서 직접 고치신 게 있으면 **다시 zip을 받아 이 폴더를 덮어쓴다.**
 그때 로컬 미반영분이 날아갈 수 있으니, 덮어쓰기 전에 아래 표를 먼저 비운다.
 
-## 아직 안 올린 것
+## 로컬 작업 흐름
 
-| 파일 | 무엇을 바꿨나 | 올렸나 |
-|---|---|---|
-| `main.bib` | VIGS-SLAM 참고문헌 30개를 파일 끝에 marker 블록으로 추가 (기존 34개는 그대로 둠) | ☐ |
+로컬에서 쓰고 렌더링해 보다가, 됐다 싶으면 Overleaf 에 붙여넣는다.
+
+```bash
+./paper/scripts/tex.sh          # 한 번 빌드   → paper/build/main.pdf
+./paper/scripts/tex.sh open     # 빌드 후 뷰어로 열기
+./paper/scripts/tex.sh watch    # 저장할 때마다 자동 재빌드
+./paper/scripts/tex.sh clean    # build/ 지우기
+
+./paper/scripts/sync.sh status  # 이제 뭘 Overleaf 에 올려야 하나
+```
+
+`build/` 와 `.sync-snapshot/` 은 git 에 올라가지 않는다.
+
+### 빌드 환경
+
+**TinyTeX** (`~/.TinyTeX`, 약 300MB, sudo 불필요). 지우려면 `rm -rf ~/.TinyTeX`.
+`tex.sh` 가 PATH 를 알아서 잡으므로 셸 설정을 건드릴 필요는 없다.
+
+설치가 안 된 컴퓨터에서는:
+
+```bash
+curl -sSL https://yihui.org/tinytex/install-bin-unix.sh | sh
+export PATH="$HOME/.TinyTeX/bin/x86_64-linux:$PATH"
+tlmgr install cite silence lineno cleveref courier helvetic times \
+              algorithms algorithmicx soul lipsum multirow caption subfigure \
+              enumitem booktabs adjustbox acronym siunits cancel natbib
+```
+
+이 목록은 실제로 컴파일하며 하나씩 채운 것이다. `tex.sh` 가 실패하면 로그의
+``File `xxx.sty' not found`` 를 보고 `tlmgr install xxx` 하면 된다.
+
+### ⚠ 한국어는 컴파일되지 않는다
+
+`preamble.tex` 의 `\usepackage{kotex}` 이 주석 처리되어 있고 우리도 풀지 않는다.
+한국어 초안은 `sections/*/draft/` 에 md 로 쓰고, `latex/` 에는 영문만 넣는다.
+
+## 아직 안 올린 것 — 스크립트가 관리한다
+
+손으로 표를 유지하지 않는다. 기준 상태(= Overleaf 의 내용)는 `latex/.sync-state` 에
+파일별 해시로 들어 있고, 다음 명령이 차이를 알려준다.
+
+```bash
+./paper/scripts/sync.sh status          # 안 올린 파일 목록
+./paper/scripts/sync.sh diff main.bib   # 마지막 동기화 이후 무엇이 바뀌었나
+./paper/scripts/sync.sh mark main.bib   # Overleaf 에 붙여넣은 뒤 기록
+./paper/scripts/sync.sh mark-all        # 전부 붙여넣었을 때
+```
+
+기준 상태는 **공유받은 zip 그대로**로 초기화되어 있다 (2026-09-06, 26개 파일).
+`SYNC.md` 자신은 우리 문서라 추적 대상이 아니다.
+
+현재 안 올린 것: `main.bib` (VIGS-SLAM 참고문헌 30개를 marker 블록으로 추가).
 
 ## 보관
 

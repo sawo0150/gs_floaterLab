@@ -67,3 +67,7 @@ paper/refs/**
 !paper/refs/
 !paper/refs/*/
 !paper/refs/INDEX.md
+
+# 로컬 LaTeX 빌드 (paper/scripts/tex.sh)
+paper/build/
+paper/.sync-snapshot/
