@@ -1,4 +1,4 @@
-# 4.1 Setup
+# 4.1 Experimental Setup
 
 | 항목 | 값 |
 |---|---|
@@ -8,7 +8,7 @@
 | 상태 | plan v01 / draft 없음 |
 | 근거 실험 | — |
 | 그림·표 | — |
-| 목표 분량 | 0.3 p |
+| 목표 분량 | 0.35 p |
 | ⚠ claim boundary | live Gen1과 strict file의 PSNR 직접 비교 금지 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)

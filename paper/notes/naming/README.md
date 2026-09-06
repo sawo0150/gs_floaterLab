@@ -12,3 +12,4 @@
 | 버전 | 날짜 | 트리거 | 무엇이 바뀌었나 |
 |---|---|---|---|
 | [v01](v01_2026-09-06_initial.md) | 2026-09-06 | 4개 커뮤니티 문헌 조사 + corpus 빈도 실측 | 최초 작성. C1/C2 이름 후보와 근거 |
+| [v02](v02_2026-09-06_titles-fixed.md) | 2026-09-06 | 사수님이 `admission`에서 혼동 + 제목 확정 | C1 `Compute-Paced View Growth`, C2 `Entropy-Regularized Count Balancing`(ERCB)로 확정. `pool`도 이 분야 말이 아님을 실측. Preliminaries는 독립 절로 빼지 않기로 정정 |

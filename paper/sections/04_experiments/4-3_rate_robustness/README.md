@@ -1,15 +1,15 @@
-# 4.6 System Analysis
+# 4.3 Rate Robustness
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | 실시간 계약(deadline, zero-tail, drop)을 지킨다 |
+| 한 줄 claim | view growth가 pool 크기와 무관하고 하드웨어 속도에 비례한다 — C1을 정의하는 성질 |
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | P02, P06 |
-| 그림·표 | Table 5 |
-| 목표 분량 | 0.4 p |
-| ⚠ claim boundary | — |
+| 근거 실험 | **P02** (κ 스윕·gate 제거는 4-4로 이동) |
+| 그림·표 | **Fig.4** (핵심 그림) |
+| 목표 분량 | 0.35 p |
+| ⚠ claim boundary | 이 절이 C1의 유일한 실증. 실패 시 C1은 주장 불가 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)

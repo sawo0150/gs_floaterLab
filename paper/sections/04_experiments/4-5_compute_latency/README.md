@@ -1,15 +1,15 @@
-# 4.4 Ordering Ablation
+# 4.5 Compute and Latency
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | K-view 비복원 coverage가 품질에 필요하고 β는 count를 균등화한다 |
+| 한 줄 claim | 실시간 계약(deadline, zero-tail, drop)을 지킨다 |
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | P03 |
-| 그림·표 | Table 3 |
-| 목표 분량 | 0.5 p |
-| ⚠ claim boundary | K=1,β=0 이 -2.863dB인 것은 이미 확보된 근거 |
+| 근거 실험 | P02, P06 |
+| 그림·표 | Table 5 |
+| 목표 분량 | 0.15 p |
+| ⚠ claim boundary | — |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)

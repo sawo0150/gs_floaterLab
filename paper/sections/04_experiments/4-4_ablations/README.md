@@ -1,15 +1,15 @@
-# 3.4 Carve Loss (★C3)
+# 4.4 Ablations
 
 | 항목 | 값 |
 |---|---|
-| 한 줄 claim | TBD — 독립 loss로 낼지 scheduler의 geometry lane으로 낼지 미합의 |
-| latex 대상 | `latex/sec/3_method.tex` |
-| 담당 | 팀원 |
+| 한 줄 claim | K-view 비복원 coverage가 품질에 필요하고 β는 count를 균등화한다 |
+| latex 대상 | `latex/sec/4_experiments.tex` |
+| 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | P04 |
-| 그림·표 | Fig.6 |
-| 목표 분량 | 0.75 p |
-| ⚠ claim boundary | batch(exp39b/44d2)에서만 검증. incremental 이식 미완. floater-free 주장 금지 |
+| 근거 실험 | P03 |
+| 그림·표 | Table 3 |
+| 목표 분량 | 0.75 p (세 기여 전부) |
+| ⚠ claim boundary | K=1,β=0 이 -2.863dB인 것은 이미 확보된 근거 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
 - **실제 문장** → `draft/CURRENT.md` (영어 문장을 쓰기 시작할 때 생성)

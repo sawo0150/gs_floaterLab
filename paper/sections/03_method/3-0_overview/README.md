@@ -19,3 +19,4 @@
 | 종류 | 버전 | 날짜 | 트리거 | 무엇이 바뀌었나 |
 |---|---|---|---|---|
 | plan | [v01](plan/v01_2026-09-05_initial.md) | 2026-09-05 | paper/ 폴더 개설 | 최초 작성 |
+| plan | [v02](plan/v02_2026-09-06_titles-and-structure.md) | 2026-09-06 | 제목 확정 + membership 흡수 + Preliminaries 배치 결정 | 문단 계약 5개 확정, 세 문제 이름을 소절과 일치, Preliminaries·membership 질문 종결 |
