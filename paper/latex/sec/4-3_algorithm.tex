@@ -1,0 +1,45 @@
+%\begin{figure}[hb!]
+\begin{algorithm}[!b]
+	\scriptsize
+	\algrenewcommand\alglinenumber[1]{\tiny #1:}
+	\caption{Calibration with non-bias estimator}
+	\label{alg:keypoint}
+	\hspace*{\algorithmicindent} \textbf{Input:} $I_t \in$ \{TIR-images\} \\
+	\hspace*{\algorithmicindent} Black-White Area set = $A_t$\\
+	\hspace*{\algorithmicindent} Thresholds: $\epsilon_1,\epsilon_2,\epsilon_3,\epsilon_4,\epsilon_5$\\
+	\hspace*{\algorithmicindent} Max number of image: $N_{max}$\\
+	\hspace*{\algorithmicindent} \textbf{Output:} Intrinsic Parameter: $\bold A, \bold D$
+	\begin{algorithmic}[1]
+		\State $N=0$
+		\State $S = []$
+		\While {$N < N_{max}$}
+		    \If{$A_t$ pass Area Ratio Test$(\epsilon_1,\epsilon_2,\epsilon_3)$}
+		        \State $\bold E_t=$ Calculate Ellipse Matrix$(A_t)$
+		        \If{$dist(E_{t-1},E_t)<\epsilon_4$}
+		            \State $\bold H =$ Estimate Homography$(\bold E_t)$
+		            \If{$\min \{dist(\bold E_t, \bold E_{j \in \{1:t-1\}})\} >\epsilon_5 $}
+		                \State $N = N+1$
+                            \State $S[N]= \bold E_t$
+		            \EndIf
+		        \EndIf
+		    \EndIf
+		\EndWhile
+		
+		\State $\bold A= $ Estimate Inital Parameter$(S)$
+		\State $\bold D= 0$, $w= 0$, $\alpha=1$
+		\While{$\mathcal{L}$ Converge}
+		    \State $\mathcal{L}=0$
+		    \For{$ i = 1:n$}
+		        \State $\bold n_{1:3}, \bold c_{1:3}=$ Get Extrinsic$(S[i],\bold A,\bold D, w)$
+		        \State $\mathcal{L}+=$Coplanar Error$(\bold n_{1:3}, \bold c_{1:3})\times (1-\alpha)$ 
+		        \State $\mathcal{L}+=$Distance Error$(\bold c_{1:3})\times \alpha$
+		    \EndFor
+	        \State minimize one-step$(\mathcal{L})$
+	        \State update$(\bold A, \bold D, w)$
+	    \EndWhile
+        \State $\alpha =  0.82$
+        \State repeat line 17 - 26. 
+        \end{algorithmic}
+\end{algorithm}
+	%\vspace{-10mm}
+%\end{figure}

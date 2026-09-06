@@ -28,7 +28,7 @@
 | `experiments/` | 논문용 실험 P01..Pnn. `protocol/`은 공통 평가 계약 | ▣ 일부 |
 | `results/` | 실험 숫자. 경량만 git (raw 로그·PLY는 원격 머신) | run_id |
 | `notes/` | 유도 노트·읽기 노트·미팅·원본 보관 | ▣ 일부 |
-| `latex/` | CVPR author-kit 1:1. Overleaf 대응 | git |
+| `latex/` | **Overleaf 프로젝트 미러.** 규칙은 `latex/SYNC.md` | git |
 | `scripts/` | 버전 생성·원격 실행·표 생성 | git |
 
 ## 버전 관리 규약
@@ -90,5 +90,9 @@ plan/claims/
 
 ## Overleaf
 
-동기화 방식 미확정. `latex/` 를 정본으로 두고, 방식이 정해지면
-`scripts/sync_overleaf.sh` 를 추가한다. 선배님이 공유하시는 프로젝트를 받은 뒤 결정.
+**결정됨 (2026-09-06) — 사람이 직접 복사·붙여넣기.** 자동 동기화 스크립트는 만들지 않는다.
+`latex/` 는 공유받은 Overleaf 프로젝트 zip을 푼 것이며, "Overleaf가 그렇게 되어야 할 모습"으로
+유지한다. 아직 안 올린 변경은 목록으로 관리한다.
+
+→ 규칙 전문과 미반영 목록은 **[`latex/SYNC.md`](latex/SYNC.md)**. `latex/` 관련해서는
+이 README보다 그 파일이 우선한다.

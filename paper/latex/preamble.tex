@@ -1,72 +1,73 @@
-%% This file contains a number of tweaks that are typically applied to the main document.
-%% They are not enabled by default, but can be enabled by uncommenting the relevant lines.
-
-
-%%
-%% Official support for 2-column teaser figure
-%%
-\usepackage{cuted} %< for strip environment
-
-%%
-%% For auto-referencing of figures (see fig/teaser.tex and \label{} therein) 
-%%
-\usepackage{currfile} %< for \currfilebase macro
-
-%%
-%% caption and (global) spacing overrides
-%%
-\usepackage{caption} %< for "\captionof" commands (teaser)
-% \setlength{\abovecaptionskip}{.5em} % space above caption
-% \setlength{\belowcaptionskip}{1em} % space below caption
-
-%%
-%% Inline annotations; for predefined colors, refer to "dvipsnames" in the xcolor package:
-%% https://tinyurl.com/overleaf-colors
-%%
-\newcommand{\red}[1]{{\color{red}#1}}
-\newcommand{\todo}[1]{{\color{red}#1}}
-\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
-%%
-%% Disable for camera ready / submission by uncommenting these lines:
-%%
+%
+% --- inline annotations
+%
+\usepackage[dvipsnames]{xcolor}
+% \newcommand{\red}[1]{{\color{red}#1}}
+% \newcommand{\todo}[1]{{\color{red}#1}}
+% \newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+% --- disable by uncommenting  
 % \renewcommand{\TODO}[1]{}
 % \renewcommand{\todo}[1]{#1}
 
-%%
-%% Work harder in optimizing text layout. Typically shrinks text by 1/6 of page, enable
-%% it at the very end of the writing process, when you are just above the page limit.
-%%
-% \usepackage{microtype}
+% Colors for the comments and dummy texts
+\usepackage{soul} % to highlight
+\usepackage{lipsum}
+\usepackage{xcolor}
+\definecolor{lightblue}{rgb}{0.8,0.9,1}
+\definecolor{lightgreen}{rgb}{0.9,1,0.9}
+\definecolor{lightred}{rgb}{1,0.5,0.5}
+\definecolor{gray}{rgb}{0.7,0.7,0.7}
+\DeclareRobustCommand{\hlr}[1]{{\sethlcolor{lightred}\hl{#1}}}
+\DeclareRobustCommand{\hlg}[1]{{\sethlcolor{lightgreen}\hl{#1}}}
+\DeclareRobustCommand{\hlb}[1]{{\sethlcolor{lightblue}\hl{#1}}}
+\newcommand{\dummytxt}{{\color{gray}\lipsum[131]}}
 
-%%
-%% Fine-tune paragraph spacing.
-%%
-% \renewcommand{\paragraph}[1]{\vspace{.5em}\noindent\textbf{#1.}}
+%basic
 
-%%
-%% Globally adjusts space between figure and caption.
-%%
-% \setlength{\abovecaptionskip}{.5em}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{lipsum}
+\usepackage{multirow}
 
-%%
-%% Allows "the use of \paper to refer to the project name"
-%% with automatic management of space at the end of the word.
-%%
-% \usepackage{xspace}
-% \newcommand{\paper}{ProjectName\xspace}
 
-%%
-%% Commonly used math definitions.
-%%
-% \DeclareMathOperator*{\argmin}{arg\,min}
-% \DeclareMathOperator*{\argmax}{arg\,max}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}
+\newtheorem{thm}{Theorem}
+\newtheorem{corollary}{Corollary}[thm]
+\newtheorem{lemma}[thm]{Lemma}
+% \usepackage{subfigure}
 
-%%
-%% Tighten underline.
-%%
-% \usepackage{soul}
-% \setuldepth{foobar}
+%algorithm
+\usepackage[ruled]{algorithm}
+\usepackage{algpseudocode}
 
-%%
-%% Reconfigure paragraph (tweaks spacing)
-%%
+\usepackage{./rpm_packages/rpm_SIunits}
+\usepackage{./rpm_packages/rpm_acronyms}
+\usepackage{./rpm_packages/rpm_math}
+\usepackage{./rpm_packages/rpm_misc}
+
+%table, figure
+% \usepackage{subfigure}
+% \usepackage{multirow}
+% \usepackage{array,booktabs}
+% \usepackage{diagbox}
+% \usepackage{balance}
+% \usepackage[ruled]{algorithm}
+% \usepackage{algpseudocode}
+% \usepackage{slashbox}
+% \usepackage{array}
+% \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+%\usepackage{enumitem}
+%\usepackage{slashbox}
+% \usepackage[small]{caption}
+%\usepackage{adjustbox}
+
+
+%\usepackage{kotex} %한글
+
+
+% for comments
+% \usepackage{soul,color}
+
+

@@ -1,0 +1,34 @@
+%\begin{figure}[hb!]
+\begin{algorithm}[t]
+\scriptsize
+    \algrenewcommand\alglinenumber[1]{\tiny #1:}
+    \caption{Calculate $V_n^r$}
+    \label{alg:vnr}
+    \hspace*{\algorithmicindent} $\bs{Q}_n$ : matrix of a ellipse
+    \begin{algorithmic}[1]
+    \Function{GetVr}{\texttt{$\bs{Q}_n, r$}}
+            % \If{$\texttt{maxWeight} = \texttt{minWeight}$}
+            %   \State\Return $(\texttt{maxWeight} + \texttt{minWeight}) / 2$
+            % \EndIf
+        \State $t_x', t_y', a, b, \alpha$ = \texttt{GetGeometryOfEllipse}($\bs{Q}_n$)
+        \State $t_x = \cos\alpha t_x' + \sin\alpha t_y'$ 
+        \State $t_y = -\sin\alpha t_x' + \cos\alpha t_y'$ 
+        \State $V_x, V_y, V_0 = 0$
+        \For{$i = 0:r$}
+            \For{$j = 0:r-i$}
+                \State $c_x, c_y, c_0=0$
+                \For{$k= i:r-j$}
+                    \State $c_0 = c_0+ \binom{r}{k} \binom{2k}{2i}\binom{2r-2k}{2j}t_x^{2k-2i}t_y^{2n-2k-2j}$
+                    \State $c_x = c_x+ \binom{r}{k} \binom{2k+1}{2i}\binom{2r-2k}{2j}t_x^{2k-2i+1}t_y^{2n-2k-2j}$
+                    \State $c_y = c_y+ \binom{r}{k} \binom{2k}{2i}\binom{2r-2k+1}{2j}t_x^{2k-2i}t_y^{2n-2k-2j+1}$
+                \EndFor
+                \State $V_0 = V_0+M_0^{2i2j}*c_0$
+                \State $V_x = V_x+M_0^{2i2j}*c_x$
+                \State $V_y = V_y+M_0^{2i2j}*c_y$
+            \EndFor
+        \EndFor
+        \State  $V^r = [\cos\alpha V_x-\sin\alpha V_y, \sin\alpha V_x + \cos\alpha V_y, V_0]$
+        \State\Return $V^r$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}

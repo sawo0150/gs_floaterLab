@@ -44,6 +44,26 @@ exp72가 자기 실패 원인을 **"기존 minimum-count maturity gate를 유지
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-06 — Overleaf 동기화 방식 결정. (위 열린 결정 4번 종결.)**
+  선배님이 공유하신 프로젝트(`overleaf.com/project/6a9c1b93c9b98e33cf8e5770`)를
+  `CVPR2027_chsong_s_intern.zip`으로 받았다. 확인 결과 **논문 초안이 아니라 연구실 템플릿 껍데기**로,
+  이전 논문(카메라 캘리브레이션, conic moment estimator)을 복사해 제목만 `Real-time GS Mapping`으로
+  바꾼 상태다. §1은 `\lipsum` 더미이고 §2·§4·§5는 `\section{}` 한 줄뿐이라 **우리 서사와 충돌할
+  기존 내용이 없다.** → contribution 개수·이름·순서 결정을 Overleaf 확인 뒤로 미룰 이유가 사라졌다.
+
+  합의: **Overleaf는 그대로 두고, 로컬 작업 기준을 그 zip으로 삼으며, 동기화는 사람이 직접
+  복사·붙여넣기로 한다.** 자동 스크립트·git remote 연결은 쓰지 않는다.
+  `paper/latex/`를 zip으로 교체하고, 기존 CVPR 2026 author-kit 트리는
+  `notes/archive/latex_authorkit2026_2026-09-05/`로 보관했다(참고문헌 30개 포함).
+  규칙 전문과 미반영 목록은 `latex/SYNC.md`.
+
+  → 선배님 확인 대기 4건 (확인 전까지 우리가 손대지 않는다):
+  ① `cvpr.sty`가 **2024년 판**(`\confYear{2024}`)이고 폴더 이름만 CVPR2027 — 2026 판 교체 여부,
+  ② 지금 camera-ready 모드(`\usepackage{cvpr}`)라 줄 번호가 없음 — review 모드 전환 여부,
+  ③ 이전 논문 잔존물(`6_conclusion.tex` 본문, 고아 `4-x_algorithm.tex` 3개, `temp.tex`,
+  `note.tex`, acknowledgment 과제번호, `main.bib` 앞쪽 34개 엔트리) 삭제 여부,
+  ④ `main.tex`의 저자 목록이 이번 저자인지.
+
 - **2026-09-05 — exp73로 C1 token law 구현·부분 실증 (위 최초 상태표 정정).**
   5090에서 기존 `interval bootstrap + maturity gate`를 `global seed 1 + token-only/no-prepurchase`로
   교체했다. 두 장면 7개 gate-free run·526 admission poll에서
