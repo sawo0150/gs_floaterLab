@@ -71,3 +71,15 @@
 % \usepackage{soul,color}
 
 
+
+% ============================================================
+% 골격 마커 (2026-09-06 추가)
+%   \skel{...}  파란 대괄호 — 이 문단이 무슨 일을 하는가 (문단 계약)
+%   \pend{...}  빨간 대괄호 — 아직 안 정했거나 결과 대기
+% 초고가 채워지면 이 두 매크로만 비우면 전부 사라진다:
+%   \renewcommand{\skel}[1]{}  \renewcommand{\pend}[1]{}
+% soul 의 \hl 계열은 \ref \S \textemdash 등에서 깨지므로 쓰지 않는다.
+% ============================================================
+\definecolor{skelblue}{rgb}{0.10,0.35,0.70}
+\newcommand{\skel}[1]{{\color{skelblue}\sffamily\small [#1]}\;}
+\newcommand{\pend}[1]{{\color{red}\sffamily\small [#1]}\;}

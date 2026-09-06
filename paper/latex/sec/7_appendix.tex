@@ -1,12 +1,46 @@
+% ============================================================
+% Supplementary
+%    계획: sections/X_supplementary/
+% ============================================================
 \clearpage
 \setcounter{page}{1}
 \onecolumn
 \begin{center}
-    \Large
-    \textbf{Write Title Here}
-        
-    \vspace{0.4cm}
-    \large
-    Supplementary Material
+  \Large\textbf{Supplementary Material}
 \end{center}
 
+% 본문 번호에 이어붙지 않도록 A, B, C ... 로 재설정
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+
+\section{Derivations}
+\skel{[FULL DERIVATION, MOVED OUT OF THE MAIN TEXT]}\; Lagrangian expansion of
+\S\ref{ssec:ercb} and the $K$-view without-replacement extension in full.
+\lipsum[1-3]
+
+\section{Rejected Alternatives}
+% lmrs 부록 E 형식 — 시도했다 버린 것을 표로. 본문 지면 0.
+\skel{[TRIED AND DISCARDED \textemdash\ COSTS NO MAIN-TEXT SPACE]}
+\begin{center}\small
+\begin{tabular}{l|l|l}
+\hline
+alternative & outcome & source \\
+\hline
+novelty-first ordering    & AUC MSE $+10\%$ & exp66 Stage C \\
+residual-first ordering   & AUC MSE $+11\%$ & exp66 Stage C \\
+with-replacement sampling & $+1.7\%$        & exp66 Stage C \\
+coverage-only selection   & AUC $-3.88\%$   & draft \S4 \\
+ray $64 \to 256$          & PSNR $27.02 \to 25.47$ & mission brief \\
+single-scene tuning transfer & rot $-1.85$ dB & exp59 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Disabled Features and Why}
+% lmrs 부록 F 형식 — 무엇을 / 왜 껐는지 / 선행 연구도 그런가
+\skel{[WHAT WAS DISABLED, WHY, AND WHETHER PRIOR WORK DID THE SAME]}
+\lipsum[1-2]
+
+\section{Post-Stream Refinement Results}
+\skel{[MOVED HERE BY THE STREAMING CONTRACT IN \S\ref{sec:exp}]}
+\lipsum[1-2]

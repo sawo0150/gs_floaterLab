@@ -1,7 +1,36 @@
+% ============================================================
+% 5. Limitations  +  6. Conclusion
+%    Limitations를 Conclusion 앞에 둔다 — chen2026cover(§6→§7),
+%    cartgs(V→VI) 둘 다 그 순서다.
+% ============================================================
+\section{Limitations}
+\label{sec:limitations}
+% §3에서 붙인 가정을 순서대로 회수한다 — chen2026cover §4.4 ↔ §6 짝
+\skel{[AUDIT THE ASSUMPTION LEDGER OF \S\ref{sec:method}]}
+\begin{itemize}\itemsep2pt \parskip0pt
+  \item $\kappa$ was chosen on a single scene and is not automated. (assumption of \S\ref{ssec:growth})
+  \item Count balancing equalizes selection counts but not lifetime exposure.
+        (failure noted in \S\ref{ssec:ercb})
+  \item $\beta{=}0$ coincides with random reshuffling only when $K \ge N_t$.
+        (equality condition of \S\ref{ssec:ercb})
+  \item \pend{carving assumptions \textemdash\ pending teammate} (\S\ref{ssec:carve})
+\end{itemize}
+
 \section{Conclusion}
 \label{sec:conclusion}
-In this paper, we introduce the closed-form $n^{\text{th}}$ moment of conics and prove that the centroid of a distorted ellipse is expressed by a linear combination of the original moments. Based on these results, we developed an unbiased estimator of circular patterns under distortion for camera calibration. Using this estimator, circular pattern-based calibration overcomes its algorithmic limitation and outperforms checkerboard-based calibration. 
-%For future work, we plan to expand our method to stereo calibration and Lidar-camera calibration.
+% Aim → Field. Introduction의 역순 대칭.
+\skel{[AIM $\to$ FIELD, MIRRORING THE INTRO]}
+\lipsum[1-2]
 
-\vspace{5mm}
-\noindent \textbf{Acknowledgments.} This work was supported by the NRF grant funded by MSIP (2020R1C1C1006620) and IITP grant funded by MSIT (No.2022-0-00480).
+% ------------------------------------------------------------
+% ⚠ 아래는 이전 논문(카메라 캘리브레이션)에서 넘어온 내용이다.
+%   삭제 여부는 사수님 확인 대기 — paper/latex/SYNC.md "선배님 확인이 필요한 것" 3번.
+%   확인 전까지 지우지 않고 주석으로만 둔다.
+% ------------------------------------------------------------
+% \section{Conclusion}
+% \label{sec:conclusion}
+% In this paper, we introduce the closed-form $n^{\text{th}}$ moment of conics and prove that the centroid of a distorted ellipse is expressed by a linear combination of the original moments. Based on these results, we developed an unbiased estimator of circular patterns under distortion for camera calibration. Using this estimator, circular pattern-based calibration overcomes its algorithmic limitation and outperforms checkerboard-based calibration. 
+% %For future work, we plan to expand our method to stereo calibration and Lidar-camera calibration.
+% 
+% \vspace{5mm}
+% \noindent \textbf{Acknowledgments.} This work was supported by the NRF grant funded by MSIP (2020R1C1C1006620) and IITP grant funded by MSIT (No.2022-0-00480).

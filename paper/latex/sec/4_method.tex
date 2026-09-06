@@ -1,2 +1,142 @@
+% ============================================================
+% 3. Method   ← 이 파일이 §3이다 (파일명은 Overleaf 템플릿 것을 그대로 둠)
+% 계획: sections/03_method/README.md
+% 골격 = 대칭형(cartgs) + 사슬형 접속(lmrs) + §3.2 내부는 유도형(chen2026cover)
+% ============================================================
 \section{Method}
 \label{sec:method}
+
+% ---------- 3.0 도입 (번호 없음, 5문단) ----------
+% 문단 0 · Preliminaries: 3DGS 표현식 + VIGS-SLAM mapping loop 표기.
+\noindent\textbf{Preliminaries.}\; \skel{[P0 PRELIM]}\; \lipsum[1-2]
+Equations~(\ref{eq:splat})--(\ref{eq:maploss}) are standard 3DGS and VIGS-SLAM formulations,
+restated here for notation. \emph{All remaining equations are ours.}
+
+\begin{equation}\label{eq:splat}
+  G(\mathbf{x}) = o\,e^{-\frac12(\mathbf{x}-\mu)^\top\Sigma^{-1}(\mathbf{x}-\mu)}
+\end{equation}
+\begin{equation}\label{eq:maploss}
+  \mathcal{L} = \lambda_c\mathcal{L}_c + \lambda_d\mathcal{L}_d + \lambda_{iso}\mathcal{L}_{iso}
+\end{equation}
+
+% 문단 1 · Roadmap(사슬형): 먼저 §3.1에서 얼마나 늘릴지. 그러나 순서를 답하지 않으므로
+%   §3.2에서 순서를. 순서가 정해져도 free-space 오류가 남으므로 §3.3에서.
+\skel{[P1 ROADMAP]}\; We first ask, in \S\ref{ssec:growth}, how fast the training view set may
+grow. That does not say in which order the admitted views should be revisited, which
+\S\ref{ssec:ercb} answers; and even with an order fixed, free-space error remains, which
+\S\ref{ssec:carve} addresses.
+
+% 문단 2 · Diagnosis(인용형): baseline의 실제 문장을 인용해 세 결정이 뭉쳐 있음을 보인다.
+\skel{[P2 DIAGNOSIS-QUOTE]}\; A state-of-the-art system states it in one sentence:
+\emph{``For each new keyframe, we run 10 mapping iterations. In each iteration, we randomly
+sample keyframes from the frontend tracking frame graph.''} \lipsum[3-4]
+
+% 문단 3 · Diagnosis(분해): 세 문제에 이름을 준다. §3.1/3.2/3.3과 같은 순서·같은 이름.
+\skel{[P3 DIAGNOSIS-SPLIT]}\; \lipsum[5-6]
+
+% 문단 4 · Scope guard: 이상화된 목적함수의 전역 최적해를 푸는 것이 아니다.
+\skel{[P4 SCOPE GUARD]}\; We do not solve an idealized global objective. The growth constraint
+is met exactly by a deterministic controller, while the ordering objective is solved as an
+entropy-regularized surrogate of the one-step increase in count variance.
+
+% ---------- 3.1 ----------
+\subsection{Compute-Paced View Growth}
+\label{ssec:growth}
+
+\begin{figure}[t]
+  \centering
+  \fbox{\parbox[c][3.4cm][c]{0.94\linewidth}{\centering
+    \textbf{Fig.\,3}\\[2pt]\small $x$: wall time \quad $y$: cumulative admissions\\
+    law + measured + baseline (gate)}}
+  \caption{\skel{[FIG.3 \textemdash\ IN-METHOD EVIDENCE]} Measured growth follows the law and is
+           independent of set size. Placed here rather than in \S\ref{sec:exp}. (P01)}
+  \label{fig:growthtrace}
+\end{figure}
+
+% 문단 1 · Diagnosis: 고정 iteration / 고정 FPS / maturity gate 는 증가를 pool 크기와
+%   하드웨어 속도에 종속시킨다.
+\skel{[P1 DIAGNOSIS]}\; \lipsum[7-9]
+
+% 문단 2 · Measurement + 계보(token bucket / credit-based)
+\skel{[P2 MEASUREMENT + LINEAGE]}\; We introduce completed GPU service $S(t)$. The controller is
+a token bucket whose tokens are minted by \emph{completed GPU service} rather than by
+wall-clock time, which makes it credit-based rather than rate-based: view growth paces itself
+to whatever the hardware actually finished (Fig.~\ref{fig:growthtrace}). \lipsum[10-12]
+
+% 문단 3 · Mechanism
+\skel{[P3 MECHANISM]}
+\begin{align}
+  A^{*}(t) &= \min\!\Big(M(t),\; A_0 + \Big\lfloor \tfrac{B_0+\gamma S(t)}{\kappa} \Big\rfloor \Big) \label{eq:astar}\\
+  B_t &= B_0 + \gamma S(t) - \kappa\big(|A_t| - A_0\big) \;\ge\; 0 \label{eq:bucket}
+\end{align}
+\lipsum[13-14]
+
+% 문단 4 · Correction rule + Forward pointer. carry vs no-prepurchase를 여기서 두 문장으로 종결.
+\skel{[P4 CORRECTION + FWD]}\; After prunes and removals the realized growth is
+\begin{equation}\label{eq:quota}
+  Q_t = \min\!\big(|C_t|,\; [\,A^{*}(t) - |A_{t^-}|\,]_+\big).
+\end{equation}
+\pend{close carry vs.\ no-prepurchase here, in two sentences}
+\S\ref{sec:exp} shows that this law holds with zero integer error, and how quality degrades
+gracefully as $\kappa$ is lowered.
+
+% 문단 5 · run-in. 기여 아님. +0.35%라는 작은 이득 자체를 설계 근거로 쓴다.
+\noindent\textbf{Slot placement.}\;
+\skel{[P5 RUN-IN, NOT A CONTRIBUTION]}\; Placing the opened quota along the trajectory by
+temporal maximin and interval water filling gains only $+0.35\%$. The bottleneck is therefore
+\emph{how many} views can be admitted, not \emph{which} ones \textemdash\ which is why this
+subsection concentrates on growth.
+
+% ---------- 3.2 ----------
+\subsection{Entropy-Regularized Count Balancing}
+\label{ssec:ercb}
+
+% 문단 1 · Roadmap(열거형) — chen2026cover §4 도입 형식
+\skel{[P1 ROADMAP-ENUM]}\; The derivation proceeds in three steps: (1) expressing
+selection-count imbalance as a potential $\Phi$; (2) solving an entropy-regularized Lagrangian
+for the unique distribution; (3) extending it to a $K$-view without-replacement block.
+
+% 문단 2 · Formulating
+\skel{[P2 FORMULATING]}
+\begin{equation}\label{eq:phi}
+  \Phi(\mathbf{n}) = \tfrac12\sum_i (n_i-\bar n)^2,
+  \qquad
+  \Delta_i\Phi = n_i - \bar n + \tfrac12\big(1-\tfrac1N\big).
+\end{equation}
+The last term is common to all $i$ and does not affect the $\arg\max$. \lipsum[15-16]
+
+% 문단 3 · Deriving — 유일해임을 명시
+\skel{[P3 DERIVING]}\; The entropy-regularized Lagrangian admits a unique solution:
+\begin{equation}\label{eq:gibbs}
+  p_t(i) = \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau.
+\end{equation}
+\lipsum[17-19]
+
+% 문단 4 · Extension + 가정 원장 (근사마다 조건을 붙인다 — chen2026cover §4.4 형식)
+\skel{[P4 EXTENSION + ASSUMPTION LEDGER]}\; We extend to a $K$-view sequential weighted draw
+without replacement, holding the count snapshot $n_i^{(b)}$ fixed within a block
+\emph{(a first-order approximation inside the block)}. The conditional entropy retained is
+measured by
+\begin{equation}\label{eq:rhoH}
+  \rho_H = \frac{\sum_{b,k} H(p_{b,k})}{\sum_{b,k}\log|W_b^{(k)}|}.
+\end{equation}
+
+% 문단 5 · Scope guard + 계보 3문장 + in-method 실패
+\skel{[P5 SCOPE GUARD + LINEAGE + FAILURE]}\; With $\beta=0$ and $K \ge N_t$, the procedure
+reduces to random reshuffling over the admitted set. We do not inherit its convergence
+guarantees: our set grows during training and the objective is non-convex. The $K$-view draw
+is sequential weighted sampling without replacement, i.e.\ a Plackett--Luce draw. Count-based
+priorities of this form appear in experience replay; our objective is the opposite of
+loss-prioritized data selection, since we equalize exposure rather than concentrate it.
+\pend{[in-method failure]} This objective equalizes selection counts but does not equalize
+lifetime exposure (\S\ref{sec:exp}); using counts alone as the potential is a design choice
+and its limit.
+
+% ---------- 3.3 ----------
+\subsection{Causal Free-Space Carving}
+\label{ssec:carve}
+% 팀원 담당. 형식은 위와 동일: Diagnosis → Mechanism → 가정 원장 → Forward pointer.
+% §3.0에서 예고한 이름과 같은 이름을 쓸 것.
+\pend{[TEAMMATE]} Same shape as above: Diagnosis $\to$ Mechanism $\to$ assumption ledger
+$\to$ forward pointer. Use the same name announced in the section opening.
+\lipsum[20-24]
