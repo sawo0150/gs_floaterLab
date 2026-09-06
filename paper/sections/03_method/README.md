@@ -6,7 +6,7 @@ latex 대상: `latex/sec/3_method.tex` (소절 전체가 한 파일에 들어간
 
 | 소절 | 분량 | 문단 | 계획 문서 |
 |---|---:|---|---|
-| [(도입) Method opening](3-0_overview/) | 0.13 p | **roadmap 1문단 (6문장 14줄)** | `3-0_overview/plan/CURRENT.md` |
+| [(도입) Method opening](3-0_overview/) | 0.15 p | **roadmap 1문단 (6문장 16줄)** | `3-0_overview/plan/CURRENT.md` |
 | [3.1 Compute-Paced View Growth (★C1)](3-1_compute_paced_view_growth/) | 1.05 p | 5 (`Slot placement.` run-in 포함) | `3-1_compute_paced_view_growth/plan/CURRENT.md` |
 | [3.2 Entropy-Regularized Count Balancing — ERCB (★C2)](3-2_ercb/) | 1.0 p | 5 | `3-2_ercb/plan/CURRENT.md` |
 | [3.3 Causal Free-Space Carving (★C3)](3-3_carve/) | 1.05 p | — (팀원) | `3-3_carve/plan/CURRENT.md` |

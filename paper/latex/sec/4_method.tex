@@ -4,6 +4,7 @@
 %
 % 구조 (2026-09-06 확정, 코퍼스 11편 조사 반영):
 %   도입 = roadmap 한 문단. Notation·배경식은 두지 않는다.
+%   세 소절은 "데이터셋이 아직 도착 중"이라는 한 원인의 세 결과다 (도입 주석 참조).
 %   3.1 / 3.2 / 3.3  세 소절. 진단 소절은 두지 않는다.
 %   진단은 각 소절 첫 문단(P1)에 분산한다 — taming3dgs §3.2 형식.
 %   ※ 진단에 소절을 준 논문은 조사한 11편 중 cartgs 하나뿐이다.
@@ -14,7 +15,7 @@
 %   박스 안 글은 영어 (kotex 미사용). 한국어 상세는 각 slot 위 주석에.
 %
 % 분량: CVPR 2단 10pt, 한 쪽 ≈ 110줄 (한 단 ≈ 55줄). §3 = 3.25p
-%   도입  0.13p ≈ 14줄  (roadmap 한 문단만. Notation·배경식 없음)
+%   도입  0.15p ≈ 16줄  (roadmap 한 문단만. Notation·배경식 없음)
 %   §3.1  1.05p ≈ 116줄 (−Fig.3 14 −수식3 10 → 문단 5개에 92줄)
 %   §3.2  1.0p  ≈ 110줄 (−수식4 14           → 문단 5개에 96줄)
 %   §3.3  1.05p ≈ 116줄 (팀원)
@@ -23,34 +24,40 @@
 \label{sec:method}
 
 % ---------- 도입: roadmap 한 문단 (§3 도입은 이것뿐) ----------
-% 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
-% 자리 5개: ①범위 ②기존과의 대비 ③순서어로 소절 훑기 ④소절마다 얻는 것 ⑤그림 지목
-% 문장 3·4·5 는 전부 [간극을 짚는 접속어] → [무엇을 하는가 §ref] → [무엇을 얻는가] 로 같은 꼴.
-%   접속어가 다음 소절이 존재해야 하는 이유다 (lmrs §4 도입).
-%   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
-% 원본은 plan/outline/CURRENT.md 의 화살표 다이어그램.
+% 묶는 논리 (2026-09-06 확정, 안 ②):
+%   "데이터셋이 아직 도착 중"이라는 하나의 사실에서 세 문제가 파생된다.
+%   offline 3DGS 가 딛고 선 세 가정이 그 사실 때문에 각각 깨진다:
+%     (1) 고정 집합 위의 고정 예산      → 집합이 자라면 update 가 희석된다      → §3.1
+%     (2) 셔플링은 유한 고정합 위에 있다 → pool 이 자라면 그 전제가 깨진다        → §3.2
+%     (3) 기하는 가진 뷰로 결정된다      → free space 는 충분히 관측되기 전엔 미결정 → §3.3
+%   ★ 이 틀에서 C3 는 "남은 것"이 아니라 같은 원인의 세 번째 결과다.
+%   ★ §3.2 의 scope guard("pool 이 자라서 RR 보장을 못 가져온다")가 변명이 아니라
+%     주제의 재확인이 된다.
 %
-% ⚠ Notation / 배경식은 두지 않는다 (2026-09-06).
-%   3DGS 배경식 2개를 넣어봤지만 §3.1·§3.2 가 참조하는 곳이 한 군데도 없었다.
-%   두 소절이 쓰는 기호(S(t), κ, γ, A*, B_t, Q_t, n_i, Φ, β, τ, ρ_H)는 전부 우리 것이고
-%   각자 쓰이는 자리에서 정의된다. 3DGS 소개는 §2 가 진다.
-%   mapping loss 는 §3.3 carve 가 항을 더할 때 그 자리에서 꺼낸다 (vigsslam 이 §3.3 에
-%   Preliminary. 를 둔 것과 같은 이유). 미리 자리를 잡아두지 않는다.
-\slot{ROADMAP \textemdash\ the whole opening, 6 sentences}{14}{%
-  (1) \emph{Scope}: we build on a keyframe-based 3DGS mapper and ask how it should spend a
-  limited number of updates on the supervision that has already arrived.
-  (2) \emph{Contrast}: existing systems answer with a single keyframe rule; we separate the
-  question into three decisions and answer them in turn.
-  (3) \emph{\S\ref{ssec:growth}}: \textbf{First}, completed GPU service sets how fast the
-  training view set grows, \textbf{which makes} that rate independent of the size of the set and
-  of hardware speed.
-  (4) \emph{\S\ref{ssec:ercb}}: \textbf{Growth alone does not say in which order} the admitted
-  views should be revisited, so we draw each block by a count-balanced rule without replacement,
-  \textbf{which} evens out selection counts without giving up random order.
-  (5) \emph{\S\ref{ssec:carve}}: \textbf{Even with the order fixed, free-space error survives}
-  photometric supervision, so we suppress it with causal carve evidence, \textbf{which} removes
-  floaters without using future frames.
-  (6) \emph{Figure}: Fig.~2 shows how the three fit together in one pass of the mapper.}
+% ⚠ 이 묶음은 carve 가 "관측 부족으로 생긴 floater"를 다룰 때 성립한다.
+%   관측이 충분해도 최적화가 만든 floater 를 다루는 것이라면 이 틀은 무너지고,
+%   "학습 루프의 세 손잡이(데이터/순서/목적함수)"로 되돌아가야 한다. 팀원 확인 필요.
+%
+% 문장 3·4·5 는 같은 꼴: [깨지는 offline 가정] → [무엇을 하는가 §ref] → [무엇을 얻는가]
+%   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
+% 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
+% 원본은 plan/outline/CURRENT.md.
+\slot{ROADMAP \textemdash\ the whole opening, 6 sentences}{16}{%
+  (1) \emph{Premise}: online mapping fits a model to a dataset that is \textbf{still arriving} —
+  new views keep entering while the model is being optimized.
+  (2) \emph{Contrast}: offline 3DGS rests on three assumptions that this one fact breaks, and
+  existing online systems inherit all three through a single keyframe rule.
+  (3) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
+  let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
+  independent of the size of the set and of hardware speed.
+  (4) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
+  set is not, so we draw each block by a count-balanced rule without replacement, \textbf{which}
+  evens out exposure without giving up random order.
+  (5) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
+  space is not yet determined --- floaters are that indeterminacy made visible --- so we
+  constrain it with causal carve evidence, \textbf{which} removes them without future frames.
+  (6) \emph{Figure}: Fig.~2 shows the three consequences of the one cause in a single pass of the
+  mapper.}
 
 % ---------- 3.1 (5문단, 86줄) ----------
 \subsection{Compute-Paced View Growth}

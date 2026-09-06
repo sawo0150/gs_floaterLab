@@ -1,1 +1,1 @@
-v02_2026-09-06_structure-fixed.md
+v03_2026-09-06_binding-story.md
