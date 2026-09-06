@@ -6,9 +6,9 @@
 | latex 대상 | `latex/sec/4_experiments.tex` |
 | 담당 | 나 |
 | 상태 | plan v01 / draft 없음 |
-| 근거 실험 | P05, P06 |
-| 그림·표 | Table 1 |
-| 목표 분량 | 0.65 p (compute·latency 흡수분 포함) |
+| 근거 실험 | P03, P05, P06 + **P02**(rate robustness) |
+| 그림·표 | Table 1, Table 2, **Fig.4** |
+| 목표 분량 | 1.1 p (rate robustness·compute latency 흡수분 포함) |
 | ⚠ claim boundary | 장면별 재튜닝 없음을 명시해야 함 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
