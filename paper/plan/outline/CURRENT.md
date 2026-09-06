@@ -68,7 +68,7 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 | Abstract | — | — | `sections/00_abstract/` |
 | 1. Introduction | 1.0 | 1.0 | `sections/01_intro/` |
 | 2. Related Work | 1.15 | 2.15 | `sections/02_related/` |
-| 3. Method | **2.3** | 4.45 | `sections/03_method/` |
+| 3. Method | **2.4** | 4.55 | `sections/03_method/` |
 | 4. Experiments | 2.2 | 6.65 | `sections/04_experiments/` |
 | 5. Limitations | 0.2 | 6.85 | `sections/06_limitations/` |
 | 6. Conclusion | 0.2 | 7.05 | `sections/05_conclusion/` |
@@ -81,7 +81,7 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 | | 쪽 | 줄 | 내용 |
 |---|---:|---:|---|
 | (도입) Method opening | 0.17 | 19 | roadmap 1문단 (7문장) |
-| 3.1 **Compute-Paced View Growth** (C1) | 0.69 | 76 | 문단 4 (12/16/10/12) + `Slot placement.` run-in 6 + 수식2 + **Fig.3** |
+| 3.1 **Compute-Paced View Growth** (C1) | 0.83 | 91 | 문단 **5** (12/12/16/10/12) + `Slot placement.` run-in 6 + 수식3 + **Fig.3** |
 | 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.68 | 75 | 문단 5 (10/10/12/14/20) + 수식3 |
 | 3.3 **Causal Free-Space Carving** (C3) | 0.36→0.7 | 40→77 | 팀원 |
 

@@ -92,15 +92,18 @@
 %   초고가 들어오면 \slot{...}{...}{...} 을 실제 문단으로 갈아끼운다.
 %   전부 숨기려면:  \renewcommand{\slot}[3]{}
 \newcommand{\slot}[3]{%
-  \par\vspace{2pt}\noindent
+  % 선언한 #2 줄이 박스 바깥 여백까지 포함한 총 높이가 되도록 패딩을 빼서 잡는다.
+  % 이렇게 해야 pagemap 의 예산 계산이 실제 지면과 맞는다.
+  \par\vspace{1pt}\noindent
   \begingroup
-    \setlength{\fboxsep}{4pt}\setlength{\fboxrule}{0.4pt}%
+    \setlength{\fboxsep}{3pt}\setlength{\fboxrule}{0.4pt}%
     \fcolorbox{slotgray}{slotbg}{%
-      \parbox[t][#2\baselineskip][t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+      \parbox[t][\dimexpr #2\baselineskip - 2\fboxsep - 2\fboxrule - 3pt\relax][t]%
+        {\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
         {\sffamily\scriptsize\bfseries\color{skelblue}#1}%
         \hfill{\sffamily\scriptsize\color{slotgray}#2 lines}\\[1pt]
         {\sffamily\scriptsize\color{slotgray}#3\par}%
       }}%
   \endgroup
-  \par\vspace{3pt}%
+  \par\vspace{2pt}%
 }

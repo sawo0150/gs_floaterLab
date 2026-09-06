@@ -27,10 +27,12 @@
 %
 %   우리 배분 (수식 1개 ≈ 3줄, 그림 1개 ≈ 14줄):
 %     도입  19줄 0.17p   roadmap 한 문단
-%     §3.1  76줄 0.69p   문단 56 (12/16/10/12/6) + 수식2 6 + Fig.3 14
+%     §3.1  91줄 0.83p   문단 62 (12/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
+%                        ※ 5문단 + run-in. taming3dgs 는 4문단이지만 그쪽은 "왜 densify 하나"를
+%                          설명할 필요가 없다. 우리는 A2·A3(왜 keyframe 밖까지)가 한 문단 더 든다.
 %     §3.2  75줄 0.68p   문단 66 (10/10/12/14/20) + 수식3 9
 %     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
-%   → §3 ≈ 210줄 1.9p. 팀원 §3.3 이 채워지면 ≈ 2.3p.
+%   → §3 ≈ 225줄 2.05p. 팀원 §3.3 이 채워지면 ≈ 2.4p.
 %   중앙값보다 조금 위에 두되 chen2026cover 4.2(101)·Point-SLAM 3.1(106) 아래로 유지한다.
 %
 % ============================================================
@@ -83,6 +85,16 @@
 \subsection{Compute-Paced View Growth}
 \label{ssec:growth}
 
+% 문단 구성 (2026-09-06 개정). 5문단 + run-in.
+%   taming3dgs §3.2 는 4문단이지만 그쪽은 "왜 densify 하나"를 설명할 필요가 없다.
+%   우리는 keyframe 밖 프레임을 쓴다는 것 자체가 설명이 필요한 선택이라 한 문단이 더 든다.
+%   근거는 claims A2·A3 (둘 다 ✅).
+%
+%   논증: 더 쓰면 좋다(A2) → 공짜가 아니다, 최적 밀도가 예산 따라 움직인다(A3)
+%         → 속도를 정해야 한다. baseline 의 답은 keyframe 이고 그건 속도를 집합 크기·
+%           하드웨어에 용접한다 → 그럼 무엇이 속도를 정해야 하나 → 완료된 service(P3, 기여)
+%         → 계량이 정해지면 나머지는 장부(P4, P5) → 어디에 둘지는 +0.35%(run-in, P2 로 회귀)
+
 \begin{figure}[t]
   \centering
   \fcolorbox{slotgray}{slotbg}{\parbox[c][3.2cm][c]{0.92\linewidth}{\centering
@@ -95,46 +107,74 @@
   \label{fig:growthtrace}
 \end{figure}
 
-% 진단 + baseline 인용. §3.0 에 있던 "Diagnosis 인용형" 문단을 여기로 흡수했다.
-% taming3dgs §3.2 1문단 형식: [기존 방식] → [왜 문제] → [대가].
-\slot{P1 \textemdash\ DIAGNOSIS, absorbing the baseline quotation}{12}{%
-  Quote the baseline verbatim: ``For each new keyframe, we run 10 mapping iterations. In each
-  iteration, we randomly sample keyframes from the frontend tracking frame graph.''
-  A fixed per-keyframe iteration count, a fixed frame rate, and a maturity gate all tie the
-  growth of the training view set to the size of that set and to hardware speed. The result is
-  update dilution that cannot be predicted in advance.}
+% P1 — 왜 keyframe 밖까지 받아들이나. 근거: claims A2 (exp51/exp66).
+\slot{P1 \textemdash\ WHY ADMIT BEYOND KEYFRAMES}{12}{%
+  Keyframes are selected for tracking, not for photometric supervision. Under the same objective,
+  a view set that includes frames between keyframes reaches a lower held-out loss than one built
+  from keyframes alone. Those frames have \emph{already arrived}: nothing is spent to acquire
+  them. \emph{Evidence: claims A2 (exp51/exp66).}}
 
-% 왜 wall-clock 도 iteration 도 아니고 "완료된 service" 인가를 여기서 답한다.
-\slot{P2 \textemdash\ MEASUREMENT + LINEAGE (taming3dgs; RFC 2212)}{16}{%
-  Introduce completed GPU service $S(t)$, and answer here why it is neither wall-clock time nor
-  an iteration count. Lineage sentence: a token bucket whose tokens are minted by \emph{completed
-  GPU service} rather than by wall-clock time, which makes it credit-based rather than
-  rate-based. Point at Fig.~\ref{fig:growthtrace}.}
+% P2 — 왜 keyframe 규칙이 틀린 답인가. 근거: claims A3 (exp66 viewset density).
+%   ⚠ A2 의 경계를 여기서 밝힌다: dense 를 쓴다는 것 자체는 전제이지 우리 주장이 아니다.
+\slot{P2 \textemdash\ WHY THE KEYFRAME RULE IS THE WRONG ANSWER}{12}{%
+  Using them is not free, however: every admitted view competes for the same fixed number of
+  optimizer updates, so the best view-set density moves with the compute budget
+  \emph{(claims A3, exp66)}. A rate must therefore be chosen. The baseline chooses it by keyframe
+  --- ``For each new keyframe, we run 10 mapping iterations'' --- which welds that rate to the
+  size of the set and to hardware speed. \textbf{Say here that using dense supervision is the
+  premise, not the claim} \emph{(boundary of A2)}; what we claim is the rule that sets the rate.}
 
-\slot{P3 \textemdash\ MECHANISM}{10}{%
-  Introduce (\ref{eq:astar}) and (\ref{eq:bucket}); say what each symbol is and why the bucket
-  is constrained to stay non-negative.}
-\begin{align}
-  A^{*}(t) &= \min\!\Big(M(t),\; A_0 + \Big\lfloor \tfrac{B_0+\gamma S(t)}{\kappa} \Big\rfloor \Big) \label{eq:astar}\\
-  B_t &= B_0 + \gamma S(t) - \kappa\big(|A_t| - A_0\big) \;\ge\; 0 \label{eq:bucket}
-\end{align}
+% P3 — 이 절의 기여. 세 후보를 비교하고 계보를 밝힌다.
+%   ⚠ claims B2 는 아직 ▶(P02 미검증). "하드웨어와 무관"은 설계 성질로만 쓰고 실측 주장 금지.
+\slot{P3 \textemdash\ WHAT TO METER (the contribution)}{16}{%
+  Three candidates. \emph{Wall-clock time} advances whether or not the GPU finished anything, so
+  under a slow or stalled optimizer admission outruns it and the new views dilute the updates ---
+  open loop. \emph{Iteration count} is closer, but the cost of an iteration grows with the set,
+  so metering iterations keeps the coupling we are trying to remove. \emph{Completed GPU service}
+  is the only closed loop: it advances only when the optimizer does. Lineage: this is a token
+  bucket [RFC 2212] whose tokens are minted by completed service rather than by elapsed time,
+  which makes it credit-based rather than rate-based. A consequence: during a stall the meter
+  does not advance, so no credit accrues and no burst can build --- a time-metered bucket needs a
+  depth cap for that, ours cannot fill in the first place.
+  \pend{design property, not a measurement --- B2 awaits P02}}
 
-% carry vs no-prepurchase 를 여기서 두 문장으로 종결한다. taming3dgs §3.2 4문단 형식.
-\slot{P4 \textemdash\ CORRECTION RULE + FORWARD POINTER}{12}{%
-  Realized growth after prunes and removals, (\ref{eq:quota}).
-  \textbf{\color{red}Close carry vs.\ no-prepurchase here, in two sentences.}
-  End with: \S\ref{sec:exp} shows the law holds with zero integer error, and how quality
-  degrades gracefully as $\kappa$ is lowered.}
-\begin{equation}\label{eq:quota}
-  Q_t = \min\!\big(|C_t|,\; [\,A^{*}(t) - |A_{t^-}|\,]_+\big)
+% P4 — 불변식이 먼저, 상한이 그로부터 따라온다.
+\slot{P4 \textemdash\ INVARIANT, AND THE CAP THAT FOLLOWS}{10}{%
+  One invariant: credit spent may never exceed credit earned, Eq.~(\ref{eq:invariant}).
+  Solving it for the number of admissions gives the cap, Eq.~(\ref{eq:astar}) --- the floor
+  because admissions are integral, the $\min$ because views that have not arrived cannot be
+  admitted. Two free parameters only: $\kappa$, the cost of one admission, and $\gamma$, the
+  conversion from service to credit. \pend{$\kappa$ was fixed on one scene and reused; say so}}
+
+\begin{equation}\label{eq:invariant}
+  \kappa\big(|A_t| - A_0\big) \;\le\; B_0 + \gamma S(t)
+\end{equation}
+\begin{equation}\label{eq:astar}
+  A^{*}(t) \;=\; \min\!\Big(M(t),\; A_0 + \Big\lfloor \tfrac{B_0+\gamma S(t)}{\kappa} \Big\rfloor \Big)
 \end{equation}
 
-% 약하다는 사실 자체를 논증으로 쓴다. 기여로 세지 않는다.
+% P5 — 현실이 어긋나는 두 지점 + 정책 선언 + forward pointer.
+%   ⚠ claims B5: no-prepurchase 는 구현된 정책이다. carry 보다 낫다는 주장은 금지.
+\slot{P5 \textemdash\ REALIZED QUOTA, DISCARD, POLICY}{12}{%
+  Reality diverges twice. Only views that have arrived and are not yet admitted are candidates,
+  giving the realized quota Eq.~(\ref{eq:quota}). And when nothing is pending, credit is
+  \emph{discarded} rather than banked --- a second guard against bursts, and what keeps admission
+  causal, since credit never crosses an interval boundary to be spent on views that arrive later.
+  The implemented policy is therefore \emph{no-prepurchase}.
+  \pend{report it as the policy we implement, NOT as one shown better than carry --- B5}
+  \S\ref{sec:exp} shows the realized count matches Eq.~(\ref{eq:astar}) with zero integer error,
+  and how quality degrades as $\kappa$ falls (Fig.~\ref{fig:growthtrace}).}
+
+\begin{equation}\label{eq:quota}
+  Q_t \;=\; \min\!\big(|C_t|,\; [\,A^{*}(t) - |A_{t^-}|\,]_+\big)
+\end{equation}
+
+% run-in — 기여 아님. 약하다는 사실 자체가 P2 의 논거를 되받는다.
 \noindent\textbf{Slot placement.}\;
-\slot{P5 \textemdash\ RUN-IN, NOT A CONTRIBUTION}{6}{%
-  Place the opened quota by temporal maximin and interval water filling; the measured gain is
-  only $+0.35\%$. \textbf{Use that weakness as the argument}: the bottleneck is \emph{how many}
-  views can be admitted, not \emph{which} ones, which is why this subsection is about growth.}
+\slot{RUN-IN \textemdash\ NOT A CONTRIBUTION}{6}{%
+  The quota says how many; temporal maximin and interval water filling say where along the
+  trajectory. The measured gain is $+0.35\%$ --- the bottleneck is \emph{how many} views can be
+  admitted, not \emph{which} ones, which is why this subsection is about the rate.}
 
 % ---------- 3.2 (5문단, 91줄) ----------
 \subsection{Entropy-Regularized Count Balancing}
