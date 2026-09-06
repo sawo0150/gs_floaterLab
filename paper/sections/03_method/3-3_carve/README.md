@@ -8,7 +8,7 @@
 | 상태 | plan v01 / draft 없음 |
 | 근거 실험 | P04 |
 | 그림·표 | Fig.6 |
-| 목표 분량 | 1.05 p |
+| 목표 분량 | 0.36 p → 0.7 p (팀원) |
 | ⚠ claim boundary | batch(exp39b/44d2)에서만 검증. incremental 이식 미완. floater-free 주장 금지 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)

@@ -14,11 +14,25 @@
 %   초고가 들어오면 해당 \slot 을 실제 문단으로 갈아끼운다.
 %   박스 안 글은 영어 (kotex 미사용). 한국어 상세는 각 slot 위 주석에.
 %
-% 분량: CVPR 2단 10pt, 한 쪽 ≈ 110줄 (한 단 ≈ 55줄). §3 = 3.25p
-%   도입  0.17p ≈ 19줄  (roadmap 한 문단만. Notation·배경식 없음)
-%   §3.1  1.05p ≈ 116줄 (−Fig.3 14 −수식3 10 → 문단 5개에 92줄)
-%   §3.2  1.0p  ≈ 110줄 (−수식4 14           → 문단 5개에 96줄)
-%   §3.3  1.05p ≈ 116줄 (팀원)
+% 분량 (2026-09-06 재산정). CVPR 2단 10pt, 한 쪽 ≈ 110줄.
+%   ⚠ 이전 주석의 숫자(1.05p/1.0p/1.05p)는 실제 slot 합과 맞지 않았다. 아래는 실측 기준이다.
+%
+%   코퍼스 실측 — 같은 성격(메커니즘 명세) 소절의 총 줄수, 2단 기준:
+%     CoMapGS 3.3            29 (수식2)      LM-RS 4.5              88 (수식1)
+%     Taming3DGS 3.2         31 (수식1) ★    chen2026cover 4.2     101 (수식5)
+%     Taming3DGS 3.4         38 (수식0)      Point-SLAM 3.1        106 (수식3)
+%     LM-RS 4.3              55 (수식1)      Taming3DGS 3.3        136 (수식3)
+%     SparseGS 3.2           60 (수식2)      LM-RS 4.1              67 (수식1)
+%   중앙값 ≈ 63. ★ 우리 §3.1 과 문제가 가장 가까운 Taming3DGS 3.2 는 4문단 31줄로 끝낸다.
+%
+%   우리 배분 (수식 1개 ≈ 3줄, 그림 1개 ≈ 14줄):
+%     도입  19줄 0.17p   roadmap 한 문단
+%     §3.1  76줄 0.69p   문단 56 (12/16/10/12/6) + 수식2 6 + Fig.3 14
+%     §3.2  75줄 0.68p   문단 66 (10/10/12/14/20) + 수식3 9
+%     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
+%   → §3 ≈ 210줄 1.9p. 팀원 §3.3 이 채워지면 ≈ 2.3p.
+%   중앙값보다 조금 위에 두되 chen2026cover 4.2(101)·Point-SLAM 3.1(106) 아래로 유지한다.
+%
 % ============================================================
 \section{Method}
 \label{sec:method}
@@ -83,7 +97,7 @@
 
 % 진단 + baseline 인용. §3.0 에 있던 "Diagnosis 인용형" 문단을 여기로 흡수했다.
 % taming3dgs §3.2 1문단 형식: [기존 방식] → [왜 문제] → [대가].
-\slot{P1 \textemdash\ DIAGNOSIS, absorbing the baseline quotation}{20}{%
+\slot{P1 \textemdash\ DIAGNOSIS, absorbing the baseline quotation}{12}{%
   Quote the baseline verbatim: ``For each new keyframe, we run 10 mapping iterations. In each
   iteration, we randomly sample keyframes from the frontend tracking frame graph.''
   A fixed per-keyframe iteration count, a fixed frame rate, and a maturity gate all tie the
@@ -91,13 +105,13 @@
   update dilution that cannot be predicted in advance.}
 
 % 왜 wall-clock 도 iteration 도 아니고 "완료된 service" 인가를 여기서 답한다.
-\slot{P2 \textemdash\ MEASUREMENT + LINEAGE (taming3dgs; RFC 2212)}{20}{%
+\slot{P2 \textemdash\ MEASUREMENT + LINEAGE (taming3dgs; RFC 2212)}{16}{%
   Introduce completed GPU service $S(t)$, and answer here why it is neither wall-clock time nor
   an iteration count. Lineage sentence: a token bucket whose tokens are minted by \emph{completed
   GPU service} rather than by wall-clock time, which makes it credit-based rather than
   rate-based. Point at Fig.~\ref{fig:growthtrace}.}
 
-\slot{P3 \textemdash\ MECHANISM}{6}{%
+\slot{P3 \textemdash\ MECHANISM}{10}{%
   Introduce (\ref{eq:astar}) and (\ref{eq:bucket}); say what each symbol is and why the bucket
   is constrained to stay non-negative.}
 \begin{align}
@@ -106,7 +120,7 @@
 \end{align}
 
 % carry vs no-prepurchase 를 여기서 두 문장으로 종결한다. taming3dgs §3.2 4문단 형식.
-\slot{P4 \textemdash\ CORRECTION RULE + FORWARD POINTER}{14}{%
+\slot{P4 \textemdash\ CORRECTION RULE + FORWARD POINTER}{12}{%
   Realized growth after prunes and removals, (\ref{eq:quota}).
   \textbf{\color{red}Close carry vs.\ no-prepurchase here, in two sentences.}
   End with: \S\ref{sec:exp} shows the law holds with zero integer error, and how quality
@@ -117,7 +131,7 @@
 
 % 약하다는 사실 자체를 논증으로 쓴다. 기여로 세지 않는다.
 \noindent\textbf{Slot placement.}\;
-\slot{P5 \textemdash\ RUN-IN, NOT A CONTRIBUTION}{14}{%
+\slot{P5 \textemdash\ RUN-IN, NOT A CONTRIBUTION}{6}{%
   Place the opened quota by temporal maximin and interval water filling; the measured gain is
   only $+0.35\%$. \textbf{Use that weakness as the argument}: the bottleneck is \emph{how many}
   views can be admitted, not \emph{which} ones, which is why this subsection is about growth.}
@@ -127,12 +141,12 @@
 \label{ssec:ercb}
 
 % 소절 개수와 유도 단계 수를 일치시킨다.
-\slot{P1 \textemdash\ ROADMAP, enumerated (chen2026cover \S4)}{12}{%
+\slot{P1 \textemdash\ ROADMAP, enumerated (chen2026cover \S4)}{10}{%
   The derivation proceeds in three steps: (1) express selection-count imbalance as a potential
   $\Phi$; (2) solve an entropy-regularized Lagrangian for the unique distribution; (3) extend it
   to a $K$-view block drawn without replacement.}
 
-\slot{P2 \textemdash\ FORMULATING}{12}{%
+\slot{P2 \textemdash\ FORMULATING}{10}{%
   Equation (\ref{eq:phi}). State that the last term is common to all $i$ and therefore does not
   affect the $\arg\max$.}
 \begin{equation}\label{eq:phi}
@@ -141,7 +155,7 @@
   \Delta_i\Phi = n_i - \bar n + \tfrac12\big(1-\tfrac1N\big)
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING}{14}{%
+\slot{P3 \textemdash\ DERIVING}{12}{%
   Entropy-regularized Lagrangian to (\ref{eq:gibbs}). \textbf{Say ``unique solution'' explicitly.}
   Explain the $\beta=1/\tau$ reparameterization.}
 \begin{equation}\label{eq:gibbs}
@@ -149,7 +163,7 @@
 \end{equation}
 
 % 근사마다 성립 조건을 붙인다 — chen2026cover §4.4 의 가정 원장 형식.
-\slot{P4 \textemdash\ EXTENSION + ASSUMPTION LEDGER}{18}{%
+\slot{P4 \textemdash\ EXTENSION + ASSUMPTION LEDGER}{14}{%
   Extend to a $K$-view sequential weighted draw without replacement, holding the count snapshot
   $n_i^{(b)}$ fixed within a block. \textbf{State that this is a first-order approximation inside
   the block, with the condition under which it holds.} Measure the retained conditional entropy
@@ -159,7 +173,7 @@
 \end{equation}
 
 % 네 가지가 반드시 들어간다. (d) 가 in-method 실패 보고 — lmrs §4.2 형식.
-\slot{P5 \textemdash\ SCOPE GUARD + LINEAGE + FAILURE}{24}{%
+\slot{P5 \textemdash\ SCOPE GUARD + LINEAGE + FAILURE}{20}{%
   (a) Equality-to-bound audit: with $\beta{=}0$ this coincides with random reshuffling
   \emph{only} when $K \ge N_t$; we do not inherit its convergence guarantees, since the set grows
   and the objective is non-convex.

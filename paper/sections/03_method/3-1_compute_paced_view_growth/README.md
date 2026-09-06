@@ -8,7 +8,7 @@
 | 상태 | plan v01 / draft 없음 |
 | 근거 실험 | P01, P02 |
 | 그림·표 | Fig.3 (이 절 안에 배치 — in-method evidence), Fig.4 |
-| 목표 분량 | 1.05 p (membership run-in + baseline 인용 흡수분 포함) |
+| 목표 분량 | 0.69 p (4문단 + `Slot placement.` run-in + Fig.3 + 수식2) |
 | ⚠ claim boundary | exp72에서 pool-independence는 실패 판정 — P01/P02 통과 전 주장 금지 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)

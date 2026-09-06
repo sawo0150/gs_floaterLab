@@ -8,7 +8,7 @@
 | 상태 | plan v01 / draft 없음 |
 | 근거 실험 | P03 |
 | 그림·표 | Fig.5 |
-| 목표 분량 | 1.0 p |
+| 목표 분량 | 0.68 p (5문단 + 수식3) |
 | ⚠ claim boundary | exp72에서 lifetime 균등화는 실패 — P03 재검증 전 '균등화한다' 주장 금지 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)

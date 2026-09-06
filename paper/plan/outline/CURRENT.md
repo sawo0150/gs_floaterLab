@@ -68,27 +68,30 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 | Abstract | — | — | `sections/00_abstract/` |
 | 1. Introduction | 1.0 | 1.0 | `sections/01_intro/` |
 | 2. Related Work | 1.15 | 2.15 | `sections/02_related/` |
-| 3. Method | 3.25 | 5.4 | `sections/03_method/` |
-| 4. Experiments | 2.2 | 7.6 | `sections/04_experiments/` |
-| 5. Conclusion | 0.2 | 7.8 | `sections/05_conclusion/` |
-| 6. Limitations | 0.2 | 8.0 | `sections/06_limitations/` |
+| 3. Method | **2.3** | 4.45 | `sections/03_method/` |
+| 4. Experiments | 2.2 | 6.65 | `sections/04_experiments/` |
+| 5. Limitations | 0.2 | 6.85 | `sections/06_limitations/` |
+| 6. Conclusion | 0.2 | 7.05 | `sections/05_conclusion/` |
 
-### §3 내부 (소절 3개 + 도입)
+**0.95 p 여유.** §3 을 코퍼스 실측 기준으로 줄이면서 생겼다 (3.25 → 2.3).
+초고가 계획보다 길어지는 것이 정상이므로 이 여유를 미리 채우지 않는다.
 
-| | 쪽 | 문단 |
-|---|---:|---|
-| (도입) Method opening | 0.17 | **roadmap 1문단 (7문장 19줄).** Notation·배경식 없음 |
-| 3.1 **Compute-Paced View Growth** (C1) | 1.05 | 5 (`Slot placement.` run-in 포함) + 식3 + **Fig.3** |
-| 3.2 **Entropy-Regularized Count Balancing** (C2) | 1.0 | 5 + 식4 |
-| 3.3 **Causal Free-Space Carving** (C3) | 1.05 | 팀원 |
-| Fig.2 system diagram | (별도) | |
+### §3 내부 (소절 3개 + 도입) — 코퍼스 실측 기준
 
-⚠ **2026-09-06 변경.** 도입이 0.5p 5문단이었으나 코퍼스 11편 조사 결과 관행에서 벗어났다.
-Method 도입은 5~7문장 8~13줄 한 문단이고, 진단에 소절을 준 논문은 cartgs 하나뿐이다.
-→ 진단은 각 소절 P1 으로 분산하고, **"세 결정으로 분해"라는 중심 주장은 §1 이 진다.**
-→ Notation·배경식도 두지 않는다. 넣어본 배경식을 §3.1·§3.2 가 한 번도 참조하지 않았고,
-  두 소절이 쓰는 기호는 전부 우리 것이다. 3DGS 소개는 §2, mapping loss 는 §3.3 이 진다.
-그래서 §1 문단 4·5(우리 방법 + 기여 목록)의 무게가 커졌다.
+| | 쪽 | 줄 | 내용 |
+|---|---:|---:|---|
+| (도입) Method opening | 0.17 | 19 | roadmap 1문단 (7문장) |
+| 3.1 **Compute-Paced View Growth** (C1) | 0.69 | 76 | 문단 4 (12/16/10/12) + `Slot placement.` run-in 6 + 수식2 + **Fig.3** |
+| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.68 | 75 | 문단 5 (10/10/12/14/20) + 수식3 |
+| 3.3 **Causal Free-Space Carving** (C3) | 0.36→0.7 | 40→77 | 팀원 |
+
+⚠ **2026-09-06 재산정.** 옛 계획 3.25 p 는 근거 없이 잡은 값이었다.
+같은 성격 소절의 코퍼스 실측은 **중앙값 63줄**이고, 우리 §3.1 과 문제가 가장 가까운
+Taming3DGS 3.2 는 **4문단 31줄**로 끝낸다. 상한은 chen2026cover 4.2(101)·Point-SLAM 3.1(106).
+→ 중앙값보다 조금 위에 두되 그 상한 아래로 유지한다. 표는
+[`sections/03_method/README.md`](../../sections/03_method/README.md).
+
+> 이 개편으로 §3 이 3.0 p → 2.0 p 로 줄면서 **본문이 처음으로 8쪽 안에 들어갔다.**
 
 ### §4 내부 (번호 붙은 소절 2개 + 도입)
 
