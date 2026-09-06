@@ -8,11 +8,11 @@
 
 % ---------- 도입 = Setup (번호 없음) ----------
 \noindent\textbf{Datasets.}\;
-\skel{[SETUP 1]}\; aria1253, aria1253rot, 301\_305, 12F.
+\skel{SETUP 1}\; aria1253, aria1253rot, 301\_305, 12F.
 \lipsum[1]
 
 \noindent\textbf{Streaming contract.}\;
-\skel{[SETUP 2 \textemdash\ OUR CONTRACT LIVES HERE]}\;
+\skel{SETUP 2 \textemdash\ OUR CONTRACT LIVES HERE}\;
 To evaluate the strict streaming setting, every method receives the same sensor trace
 (RGB\,+\,IMU only, no post-processed trajectory or depth), the same $1.5\times$ wall-clock
 budget, and performs \emph{zero optimizer updates after the last sensor frame}.
@@ -20,7 +20,7 @@ Poses and depths are the online-estimated ones. Results with a post-stream refin
 are in the supplementary material.
 
 \noindent\textbf{Metrics.}\;
-\skel{[SETUP 3 \textemdash\ QUALITY vs.\ RESOURCE GROUPS]}\;
+\skel{SETUP 3 \textemdash\ QUALITY vs.\ RESOURCE GROUPS}\;
 Quality: held-out PSNR / SSIM / LPIPS and region-GT AUC/AP.
 Resources: wall-time, streaming updates, total admissions, \emph{peak} and final model size.
 All numbers are mean\,$\pm$\,std over three runs.
@@ -28,7 +28,7 @@ Held-out views are excluded from all supervision for every method; consequently,
 reported under a post-processed-pose protocol \emph{are not directly comparable to ours}.
 
 \noindent\textbf{Baselines.}\;
-\skel{[SETUP 4]}\; fixed-FPS dense / random full-pool / covisibility window /
+\skel{SETUP 4}\; fixed-FPS dense / random full-pool / covisibility window /
 novelty-first / residual-first / clustering-based batch sampler.
 \lipsum[2]
 
@@ -39,7 +39,7 @@ novelty-first / residual-first / clustering-based batch sampler.
 % --- Table 1 : 품질 + 자원을 한 표에, 상/하단 두 시나리오 ---
 \begin{table*}[t]
 \centering\small
-\caption{\skel{[TABLE 1]} Main results. Top half: \emph{same budget $\to$ quality}. Bottom half:
+\caption{\skel{TABLE 1} Main results. Top half: \emph{same budget $\to$ quality}. Bottom half:
   \emph{same quality $\to$ budget}. \pend{caption must mark provenance (cited / reproduced / F)
   and state the admission-law agreement in one line}}
 \label{tab:main}
@@ -64,17 +64,17 @@ VIGS-SLAM (baseline)       & -- & -- & -- & -- & -- & -- & -- & -- \\
 \end{tabular}
 \end{table*}
 
-\skel{[P1 RESULTS POINTER]}\; Point at Table~\ref{tab:main}, Table~\ref{tab:scene} and
+\skel{P1 RESULTS POINTER}\; Point at Table~\ref{tab:main}, Table~\ref{tab:scene} and
 Table~\ref{tab:abl} at once, and state the highlighting convention. \lipsum[2]
 
-\skel{[P2 SAME BUDGET]}\; \lipsum[4-5]
+\skel{P2 SAME BUDGET}\; \lipsum[4-5]
 
-\skel{[P3 SAME QUALITY]}\; \lipsum[7]
+\skel{P3 SAME QUALITY}\; \lipsum[7]
 
 % --- Table 2 : 장면 일반화 ---
 \begin{table}[t]
 \centering\small
-\caption{\skel{[TABLE 2]} Fixed config, scene varied. Mean\,$\pm$\,std over three runs.}
+\caption{\skel{TABLE 2} Fixed config, scene varied. Mean\,$\pm$\,std over three runs.}
 \label{tab:scene}
 \begin{tabular}{l|ccc}
 \hline
@@ -88,38 +88,38 @@ aria1253rot & -- & -- & -- \\
 \end{tabular}
 \end{table}
 
-\skel{[P4 CROSS-SCENE]}\; State explicitly that no per-scene retuning was done. \lipsum[9]
+\skel{P4 CROSS-SCENE}\; State explicitly that no per-scene retuning was done. \lipsum[9]
 
 \begin{figure}[t]
   \centering
   \fbox{\parbox[c][3.4cm][c]{0.94\linewidth}{\centering
     \textbf{Fig.\,4} \\[2pt]\small (a) growth per $S(t)$: 5090 vs.\ 5070Ti overlaid \\
     (b) PSNR range over pace $0.75$--$2.0\times$}}
-  \caption{\skel{[FIG.4 \textemdash\ KEY FIGURE]} Rate invariance. State in the caption that both GPUs
+  \caption{\skel{FIG.4 \textemdash\ KEY FIGURE} Rate invariance. State in the caption that both GPUs
            run the same trace and the same config. (P02)}
   \label{fig:rate}
 \end{figure}
 
 \noindent\textbf{Rate robustness.}\;
-\skel{[P5 RUN-IN]}\; Growth scales with hardware speed and input pace while quality holds
+\skel{P5 RUN-IN}\; Growth scales with hardware speed and input pace while quality holds
 (Fig.~\ref{fig:rate}). This is not a component removal but a \emph{result that a claimed
 property holds}. \lipsum[11]
 
 \noindent\textbf{Compute and latency.}\;
-\skel{[P6 RUN-IN]}\; Unpack the resource columns of Table~\ref{tab:main}: per-component time,
+\skel{P6 RUN-IN}\; Unpack the resource columns of Table~\ref{tab:main}: per-component time,
 and the gap between peak and final size. \lipsum[13]
 
 % ---------- 4.2 ----------
 \subsection{Ablations}
 \label{ssec:abl}
 
-\skel{[BUDGET SEAL \textemdash\ BEFORE THE TABLE]}\;
+\skel{BUDGET SEAL \textemdash\ BEFORE THE TABLE}\;
 All configurations receive the same admission budget and the same wall-clock budget;
 only the policy under test differs.
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{\skel{[TABLE 3]} Three ablation blocks in one table. $K$ runs down the rows so the
+\caption{\skel{TABLE 3} Three ablation blocks in one table. $K$ runs down the rows so the
   confounding axis (block length) sits beside the contribution axis ($\beta$).}
 \label{tab:abl}
 \begin{tabular}{ll|ccccc}
@@ -146,10 +146,10 @@ only the policy under test differs.
 \end{table}
 
 \noindent\textbf{View growth.}\;
-\skel{[ITEM 1]}\; Gate removal, $\kappa$ sweep, slot placement ($+0.35\%$). \lipsum[14]
+\skel{ITEM 1}\; Gate removal, $\kappa$ sweep, slot placement ($+0.35\%$). \lipsum[14]
 
 \noindent\textbf{Count balancing.}\;
-\skel{[ITEM 2 \textemdash\ REGIME FRAMING]}\; Where short blocks are not forced, random
+\skel{ITEM 2 \textemdash\ REGIME FRAMING}\; Where short blocks are not forced, random
 reshuffling is already strong; the gain of ERCB appears where $K \ll N_t$.
 \pend{no $K{=}128,\beta{=}0$ arm exists yet, so the effect of $\beta$ alone is unmeasured \textemdash\ P03}
 \lipsum[16]
@@ -158,9 +158,9 @@ reshuffling is already strong; the gain of ERCB appears where $K \ll N_t$.
   \centering
   \fbox{\parbox[c][3.0cm][c]{0.94\linewidth}{\centering
     \textbf{Fig.\,5} \\[2pt]\small same-viewpoint renders + PLY cross-section \\ carve off / v7 / ported}}
-  \caption{\skel{[FIG.5]} Carving removes free-space Gaussians. (P04)}
+  \caption{\skel{FIG.5} Carving removes free-space Gaussians. (P04)}
   \label{fig:carve}
 \end{figure}
 
 \noindent\textbf{Carving.}\;
-\skel{[ITEM 3]}\; \pend{teammate} (Fig.~\ref{fig:carve}) \lipsum[18]
+\skel{ITEM 3}\; \pend{teammate} (Fig.~\ref{fig:carve}) \lipsum[18]

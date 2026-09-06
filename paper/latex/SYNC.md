@@ -60,10 +60,20 @@ tlmgr install cite silence lineno cleveref courier helvetic times \
 이 목록은 실제로 컴파일하며 하나씩 채운 것이다. `tex.sh` 가 실패하면 로그의
 ``File `xxx.sty' not found`` 를 보고 `tlmgr install xxx` 하면 된다.
 
+### 골격 매크로
+
+`preamble.tex` 에 `\slot` / `\skel` / `\pend` 를 추가했다 (2026-09-06).
+`\slot{move}{줄수}{할 일}` 이 lipsum 을 대신하는 **greeking** 이다 — 계획한 줄 수만큼
+자리를 잡아 "여기는 아직 안 썼고 이만큼 써야 한다"를 보여준다.
+자세한 사용법은 `paper/scripts/README.md`.
+
+⚠ 이 매크로를 쓴 `sec/*.tex` 를 올릴 때 **`preamble.tex` 를 빠뜨리면 Overleaf 컴파일이 깨진다.**
+
 ### ⚠ 한국어는 컴파일되지 않는다
 
 `preamble.tex` 의 `\usepackage{kotex}` 이 주석 처리되어 있고 우리도 풀지 않는다.
 한국어 초안은 `sections/*/draft/` 에 md 로 쓰고, `latex/` 에는 영문만 넣는다.
+`\slot` 박스 안 글도 영어다. 한국어 상세는 각 `\slot` 바로 위 `%` 주석에 둔다.
 
 ## 아직 안 올린 것 — 스크립트가 관리한다
 

@@ -10,29 +10,29 @@
   \fbox{\parbox[c][3.2cm][c]{0.96\textwidth}{\centering
     \textbf{Fig.\,1 \textemdash\ Teaser}\\[2pt]
     \small left: concept \quad|\quad middle: renders \quad|\quad right: PSNR vs.\ wall-time}}
-  \caption{\skel{[FIG.1]} View growth and count balancing, separated, give a better map at the
+  \caption{\skel{FIG.1} View growth and count balancing, separated, give a better map at the
            same wall-clock budget. (P02, P03)}
   \label{fig:teaser}
 \end{figure*}
 
 % 문단 1 · 문제: GS-SLAM은 Gaussian 초기화를 상당 부분 풀었다. 남은 것은 제한된
 %   mapping update를 어떤 supervision에 배분할지다.
-\skel{[P1 PROBLEM]}\; \lipsum[1-2]
+\skel{P1 PROBLEM}\; \lipsum[1-2]
 
 % 문단 2 · 간극: tracker keyframe은 tracking 기준으로 골라진 표본이며, photometric map
 %   optimization에 좋은 집합과 같아야 할 이유가 없다. keyframe 사이 RGB는 이미 도착해 있다.
-\skel{[P2 GAP]}\; \lipsum[3-4]
+\skel{P2 GAP}\; \lipsum[3-4]
 
 % 문단 3 · 왜 단순한 답이 안 되나: 전부 버리면 coverage 손실, 전부 넣으면 update 희석.
 %   고정 FPS는 GPU가 실제로 감당한 service를 반영 못 하고, maturity gate는 growth와
 %   ordering을 하나로 묶어 버린다.
-\skel{[P3 WHY NOT SIMPLE]}\; \lipsum[5-6]
+\skel{P3 WHY NOT SIMPLE}\; \lipsum[5-6]
 
 % 문단 4 · 우리 방법: 세 결정으로 분해. §3.0에서 붙인 문제 이름과 같은 이름을 쓴다.
-\skel{[P4 OURS]}\; \lipsum[7]
+\skel{P4 OURS}\; \lipsum[7]
 
 % 문단 5 · 기여 목록
-\skel{[P5 CONTRIBUTIONS]}
+\skel{P5 CONTRIBUTIONS}
 \begin{itemize}\itemsep1pt \parskip0pt \topsep2pt
   \item \textbf{Compute-Paced View Growth.} Completed GPU service sets how fast the training
         view set grows. \pend{verb: propose vs.\ show \textemdash\ pending P01/P02}

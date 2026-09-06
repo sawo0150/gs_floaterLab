@@ -63,6 +63,34 @@ cd ~/Desktop/Incremental_mapping/gs_floaterLab
 - `watch` 는 `inotifywait` 이 있으면 즉시, 없으면 2초 폴링으로 돈다.
   즉시 반응을 원하면 `sudo apt install inotify-tools`
 
+## 골격 매크로 (`latex/preamble.tex`)
+
+초고를 쓰기 전 단계에서 **자리만 잡아두는** 매크로 셋. 전부 `preamble.tex` 에 있다.
+
+| 매크로 | 무엇 | 언제 지우나 |
+|---|---|---|
+| `\slot{move}{줄수}{할 일}` | **greeking.** 계획한 줄 수만큼 높이를 가진 빈 칸 + 그 문단이 할 일 | 그 문단을 실제로 쓰면 통째로 교체 |
+| `\skel{...}` | 파란 대괄호 인라인 마커 | 초고 완성 시 |
+| `\pend{...}` | 빨간 대괄호 — 미결·결과 대기 | 결정되면 |
+
+`\slot` 은 lipsum 을 대신한다. 가짜 라틴어와 달리 **안 쓰였다는 게 보이고**, 박스 높이가
+계획 분량이라 `pagemap.sh` 의 숫자가 의미를 갖는다.
+
+```latex
+\slot{P3 \textemdash\ MECHANISM}{5}{Introduce (3) and (4); say what each symbol is.}
+```
+
+한 쪽 ≈ 110줄 (CVPR 2단 10pt, 한 단 ≈ 55줄). 그림·수식이 먹는 줄을 빼고 문단에 나눈다.
+
+전부 숨기려면:
+
+```latex
+\renewcommand{\slot}[3]{}  \renewcommand{\skel}[1]{}  \renewcommand{\pend}[1]{}
+```
+
+⚠ **박스 안 글은 영어로 쓴다.** `kotex` 이 꺼져 있어 한국어는 컴파일되지 않는다.
+한국어 상세는 각 `\slot` 바로 위 `%` 주석에 둔다.
+
 ## `pagemap.sh`
 
 `build/main.pdf` 를 읽어 절마다 몇 쪽을 쓰는지 재고 `plan/outline/` 의 계획과 비교한다.
@@ -111,8 +139,8 @@ Overleaf 에 아직 안 올린 것 — 3 건
 - `SYNC.md` 자신과 빌드 산출물(`*.aux` `*.log` `*.pdf` 등)은 추적 대상이 아니다
 - 반대로 **`make_tables.py` 가 만든 `tab/*.tex` 는 git 이 무시해도 여기엔 뜬다.**
   Overleaf 가 컴파일하려면 필요하기 때문이다. 정상이니 올린다
-- ⚠ **`preamble.tex` 를 고쳤으면 반드시 같이 올릴 것.** 골격 마커 `\skel`/`\pend` 가
-  거기 정의돼 있어 빠뜨리면 Overleaf 에서 컴파일이 깨진다
+- ⚠ **`preamble.tex` 를 고쳤으면 반드시 같이 올릴 것.** 골격 매크로 `\slot`/`\skel`/`\pend`
+  가 거기 정의돼 있어 빠뜨리면 Overleaf 에서 컴파일이 깨진다
 - 선배님들이 Overleaf 에서 직접 고치셨으면 zip 을 다시 받아 `latex/` 를 덮어쓰고
   `init` 으로 기준을 재설정한다. **덮어쓰기 전에 `status` 를 비워둘 것**
 

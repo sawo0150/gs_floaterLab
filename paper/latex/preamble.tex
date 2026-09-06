@@ -81,5 +81,26 @@
 % soul 의 \hl 계열은 \ref \S \textemdash 등에서 깨지므로 쓰지 않는다.
 % ============================================================
 \definecolor{skelblue}{rgb}{0.10,0.35,0.70}
+\definecolor{slotbg}{rgb}{0.955,0.965,0.985}
+\definecolor{slotgray}{rgb}{0.42,0.45,0.50}
 \newcommand{\skel}[1]{{\color{skelblue}\sffamily\small [#1]}\;}
 \newcommand{\pend}[1]{{\color{red}\sffamily\small [#1]}\;}
+
+% \slot{move 이름}{줄 수}{이 문단이 할 일}
+%   계획된 줄 수만큼 자리를 차지하는 빈 칸. lipsum 과 달리 "안 쓰였다"가 보이고,
+%   높이가 계획 분량이라 pagemap 이 의미를 갖는다.
+%   초고가 들어오면 \slot{...}{...}{...} 을 실제 문단으로 갈아끼운다.
+%   전부 숨기려면:  \renewcommand{\slot}[3]{}
+\newcommand{\slot}[3]{%
+  \par\vspace{2pt}\noindent
+  \begingroup
+    \setlength{\fboxsep}{4pt}\setlength{\fboxrule}{0.4pt}%
+    \fcolorbox{slotgray}{slotbg}{%
+      \parbox[t][#2\baselineskip][t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        {\sffamily\scriptsize\bfseries\color{skelblue}#1}%
+        \hfill{\sffamily\scriptsize\color{slotgray}#2 lines}\\[1pt]
+        {\sffamily\scriptsize\color{slotgray}#3\par}%
+      }}%
+  \endgroup
+  \par\vspace{3pt}%
+}
