@@ -27,10 +27,10 @@
 %
 %   우리 배분 (수식 1개 ≈ 3줄, 그림 1개 ≈ 14줄):
 %     도입  19줄 0.17p   roadmap 한 문단
-%     §3.1  91줄 0.83p   문단 62 (12/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
+%     §3.1  95줄 0.86p   문단 66 (16/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
 %                        ※ 5문단 + run-in. taming3dgs 는 4문단이지만 그쪽은 "왜 densify 하나"를
 %                          설명할 필요가 없다. 우리는 A2·A3(왜 keyframe 밖까지)가 한 문단 더 든다.
-%     §3.2  90줄 0.82p   문단 84 (12/12/24/24/12) + 수식2 6
+%     §3.2  90줄 0.82p   문단 84 (16/10/22/22/14) + 수식2 6
 %                        ※ P3·P4 가 각각 5가지를 해야 해서 24줄씩 준다. §3.1(0.83p)과 대등.
 %     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
 %   → §3 ≈ 240줄 2.18p. 팀원 §3.3 이 채워지면 ≈ 2.7p.
@@ -108,12 +108,18 @@
   \label{fig:growthtrace}
 \end{figure}
 
-% P1 — 왜 keyframe 밖까지 받아들이나. 근거: claims A2 (exp51/exp66).
-\slot{P1 \textemdash\ WHY ADMIT BEYOND KEYFRAMES}{12}{%
-  Keyframes are selected for tracking, not for photometric supervision. Under the same objective,
-  a view set that includes frames between keyframes reaches a lower held-out loss than one built
-  from keyframes alone. Those frames have \emph{already arrived}: nothing is spent to acquire
-  them. \emph{Evidence: claims A2 (exp51/exp66).}}
+% P1 — 왜 학습 집합이 자라는가, 그리고 왜 상한을 둘 수 없는가.
+%   근거: claims A2 (exp51/exp66) + neural SLAM 의 forgetting 문헌(iMAP, Point-SLAM).
+%   ★ "무한정 자란다"를 여기서 세워야 §3.2 가 "그러면 어떤 순서가 이상적인가"를 물을 수 있다.
+\slot{P1 \textemdash\ WHY THE SET GROWS, AND WHY IT CANNOT BE CAPPED}{16}{%
+  Keyframes are selected for tracking, not for photometric supervision. Under the same objective a
+  view set that includes frames between keyframes reaches a lower held-out loss, and those frames
+  have \emph{already arrived}: nothing is spent to acquire them \emph{(claims A2, exp51/exp66)}.
+  \textbf{Nor can the set be capped by a sliding window.} Evicting a view stops supervision for
+  the region it covers, and the parameters are shared, so continued optimization elsewhere
+  degrades it --- this is why keyframe replay exists in neural SLAM at all [iMAP, Point-SLAM].
+  \textbf{The training set therefore grows monotonically with the trajectory}, which is the
+  premise \S\ref{ssec:ercb} has to schedule against.}
 
 % P2 — 왜 keyframe 규칙이 틀린 답인가. 근거: claims A3 (exp66 viewset density).
 %   ⚠ A2 의 경계를 여기서 밝힌다: dense 를 쓴다는 것 자체는 전제이지 우리 주장이 아니다.
@@ -199,30 +205,38 @@
 %   - Lagrangian 전개 → Supplementary. 본문은 결과와 조건만
 %   - experience replay 선행 → §2.3 Related Work. 선행 소개는 거기가 자리다
 
-\slot{P1 \textemdash\ ROADMAP + THE EXACT OBJECT}{12}{%
-  The object we would like to optimize is the final selection-count variance over the whole run,
-  chosen against an arrival process that is not yet known --- a combinatorial problem over an
-  unknown horizon, not solvable online. \textbf{Say that first.} The derivation then relaxes it in
-  three steps: (1) a one-step greedy on a potential $\Phi$; (2) an entropy-regularized form of
-  that step, which has a unique closed-form solution; (3) a $K$-view block that freezes the counts
-  while it draws. Full algebra in the supplement.}
+\slot{P1 \textemdash\ WHAT AN IDEAL SCHEDULE WOULD WANT}{16}{%
+  The set grows without bound (\S\ref{ssec:growth}) while the updates available per unit time do
+  not, so per-view exposure decays and the \emph{order} matters more as the run goes on. An ideal
+  schedule wants two things.
+  \textbf{(a) Mixing}: consecutive updates should see decorrelated gradients. Fed in trajectory
+  order, successive steps see nearly the same scene content, so the optimizer chases a local
+  region while global progress stalls --- this is what shuffling is for.
+  \textbf{(b) A bounded early-to-late spread}: sampling uniformly from a growing set gives the
+  earliest views far more total exposure, leaving a map that is sharp where the camera started and
+  blurry where it ended. Exact equality is not needed; the spread has to be compressed.
+  \textbf{These pull against each other} --- maximum mixing is uniform sampling, which maximizes
+  the spread; perfect balance is a deterministic least-count rule, which destroys the mixing.
+  What follows is a principled knob between them rather than a blend of two heuristics.
+  \pend{counts are the proxy we optimize for (b); P5 reports where proxy and goal part ways}}
 
-\slot{P2 \textemdash\ FORMULATING (relaxation 1)}{12}{%
-  Let $n_i$ be how many times view $i$ has been selected. Define the potential
+\slot{P2 \textemdash\ FORMULATING (b) AS A POTENTIAL}{10}{%
+  Formalize (b). Let $n_i$ be how many times view $i$ has been selected and define the potential
   Eq.~(\ref{eq:phi}), a monotone function of the count variance. Selecting $i$ raises $n_i$ by
-  one, and the resulting increase is $\Delta_i\Phi = n_i - \bar n + \tfrac12(1-\tfrac1N)$
-  \emph{(inline, not displayed)}. The last term does not depend on $i$, so the greedy step reduces
-  to \textbf{picking the least-selected view} --- which is deterministic, and a deterministic order
-  is exactly the randomness that shuffling was there to provide. That tension is what the next
-  step resolves.}
+  one, and the increase is $\Delta_i\Phi = n_i - \bar n + \tfrac12(1-\tfrac1N)$
+  \emph{(inline, not displayed)}; the last term does not depend on $i$, so the greedy step is
+  simply \textbf{pick the least-selected view} --- deterministic, and therefore exactly the loss
+  of (a) that P1 warned about.}
 
 \begin{equation}\label{eq:phi}
   \Phi(\mathbf{n}) \;=\; \tfrac12\sum_i \big(n_i-\bar n\big)^2
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{24}{%
-  Rather than take the deterministic $\arg\min$, minimize its expectation under a distribution $p$
-  with an entropy penalty: $\min_p \sum_i p_i\,\Delta_i\Phi - \tau H(p)$ on the simplex. State what
+\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{22}{%
+  \textbf{Put (a) back as a term, not as a patch.} Rather than take the deterministic $\arg\min$,
+  minimize its expectation under a distribution $p$ with an entropy penalty:
+  $\min_p \sum_i p_i\,\Delta_i\Phi - \tau H(p)$ on the simplex --- the first term is (b), the
+  second is (a), and $\tau$ is the knob P1 asked for. State what
   $\tau$ trades: $\tau\!\to\!0$ recovers the deterministic rule, $\tau\!\to\!\infty$ recovers
   uniform. The stationarity condition gives $p_i \propto \exp(-\Delta_i\Phi/\tau)$, and the terms
   common to all $i$ cancel in the normalization, leaving Eq.~(\ref{eq:gibbs}) with $\beta=1/\tau$.
@@ -240,7 +254,7 @@
   p_t(i) \;=\; \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau
 \end{equation}
 
-\slot{P4 \textemdash\ EXTENSION (relaxation 3) + ASSUMPTION LEDGER}{24}{%
+\slot{P4 \textemdash\ EXTENSION (relaxation 3) + ASSUMPTION LEDGER}{22}{%
   \textbf{Name the tool in the first sentence}: drawing $K$ views one after another with weights
   $\exp(-\beta n_i)$ and no replacement is a \emph{Plackett--Luce} draw (equivalently
   Gumbel-Top-$k$). Applying Eq.~(\ref{eq:gibbs}) exactly would mean recomputing $p$ after every
@@ -252,12 +266,14 @@
   calling it an approximation and moving on}. How much randomness survives is measured by
   $\rho_H$, defined with the metrics in \S\ref{sec:exp}.}
 
-\slot{P5 \textemdash\ IN-METHOD FAILURE}{12}{%
-  % lmrs §4.2 형식 — 자기 설계의 한계를 본문에서, 표 forward pointer 와 함께
-  The potential we chose equalizes \emph{selection counts}, not \emph{lifetime exposure}: a view
-  admitted late has had fewer chances, and equalizing $n_i$ does not correct for that. Measured,
-  the middle-to-first exposure ratio falls from $0.758$ to $0.520$ on one trajectory
-  (\S\ref{sec:exp}). Counts alone as the potential is a design choice, and this is its limit.}
+\slot{P5 \textemdash\ WHERE THE PROXY AND THE GOAL PART WAYS}{14}{%
+  Counts are a proxy for (b), and the two can disagree. On one trajectory the middle-to-first
+  lifetime ratio \emph{worsened}, $0.758 \to 0.520$, while held-out PSNR still improved by
+  $+0.362$\,dB; on another it was $0.971$, close to even.
+  \textbf{Say plainly that we therefore do not claim this family improves lifetime-count equality
+  in general} --- exp72 rejects that claim, and larger $\beta$ recovered only to $0.605$ at the
+  cost of entropy. Balancing counts is a design choice for (b), and this is its limit
+  (\S\ref{sec:exp}).}
 
 % ---------- 3.3 (팀원, 110줄) ----------
 \subsection{Causal Free-Space Carving}

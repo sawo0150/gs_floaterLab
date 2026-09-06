@@ -81,8 +81,8 @@ membership 이 계속 어색했던 것도 같은 뿌리다. 스케줄링 축은 
 | | 쪽 | 줄 | 내용 |
 |---|---:|---:|---|
 | (도입) Method opening | 0.17 | 19 | roadmap 1문단 (7문장) |
-| 3.1 **Compute-Paced View Growth** (C1) | 0.83 | 91 | 문단 **5** (12/12/16/10/12) + `Slot placement.` run-in 6 + 수식3 + **Fig.3** |
-| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.82 | 90 | 문단 5 (12/12/**24/24**/12) + 수식2 |
+| 3.1 **Compute-Paced View Growth** (C1) | 0.86 | 95 | 문단 **5** (16/12/16/10/12) + `Slot placement.` run-in 6 + 수식3 + **Fig.3** |
+| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.82 | 90 | 문단 5 (16/10/**22/22**/14) + 수식2 |
 | 3.3 **Causal Free-Space Carving** (C3) | 0.36→0.7 | 40→77 | 팀원 |
 
 ⚠ **2026-09-06 재산정.** 옛 계획 3.25 p 는 근거 없이 잡은 값이었다.

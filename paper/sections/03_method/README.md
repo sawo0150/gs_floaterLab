@@ -7,8 +7,8 @@ latex 대상: `latex/sec/3_method.tex` (소절 전체가 한 파일에 들어간
 | 소절 | 분량 | 문단 | 계획 문서 |
 |---|---:|---|---|
 | [(도입) Method opening](3-0_overview/) | 0.17 p | roadmap 1문단 (7문장 19줄) | `3-0_overview/plan/CURRENT.md` |
-| [3.1 Compute-Paced View Growth (★C1)](3-1_compute_paced_view_growth/) | 0.83 p | **5** + `Slot placement.` run-in (12/12/16/10/12/6줄) | `3-1_compute_paced_view_growth/plan/CURRENT.md` |
-| [3.2 Entropy-Regularized Count Balancing — ERCB (★C2)](3-2_ercb/) | 0.82 p | 5 (12/12/**24/24**/12줄) | `3-2_ercb/plan/CURRENT.md` |
+| [3.1 Compute-Paced View Growth (★C1)](3-1_compute_paced_view_growth/) | 0.86 p | **5** + `Slot placement.` run-in (16/12/16/10/12/6줄) | `3-1_compute_paced_view_growth/plan/CURRENT.md` |
+| [3.2 Entropy-Regularized Count Balancing — ERCB (★C2)](3-2_ercb/) | 0.82 p | 5 (16/10/**22/22**/14줄) | `3-2_ercb/plan/CURRENT.md` |
 | [3.3 Causal Free-Space Carving (★C3)](3-3_carve/) | 0.36 p → 0.7 p | — (팀원. 채워지면 §3.1 수준) | `3-3_carve/plan/CURRENT.md` |
 
 §3 현재 2.18 p, 팀원 §3.3 이 채워지면 **≈ 2.7 p**. 옛 계획은 3.25 p 였다.
