@@ -15,7 +15,7 @@
 %   박스 안 글은 영어 (kotex 미사용). 한국어 상세는 각 slot 위 주석에.
 %
 % 분량: CVPR 2단 10pt, 한 쪽 ≈ 110줄 (한 단 ≈ 55줄). §3 = 3.25p
-%   도입  0.15p ≈ 16줄  (roadmap 한 문단만. Notation·배경식 없음)
+%   도입  0.17p ≈ 19줄  (roadmap 한 문단만. Notation·배경식 없음)
 %   §3.1  1.05p ≈ 116줄 (−Fig.3 14 −수식3 10 → 문단 5개에 92줄)
 %   §3.2  1.0p  ≈ 110줄 (−수식4 14           → 문단 5개에 96줄)
 %   §3.3  1.05p ≈ 116줄 (팀원)
@@ -38,25 +38,31 @@
 %   관측이 충분해도 최적화가 만든 floater 를 다루는 것이라면 이 틀은 무너지고,
 %   "학습 루프의 세 손잡이(데이터/순서/목적함수)"로 되돌아가야 한다. 팀원 확인 필요.
 %
-% 문장 3·4·5 는 같은 꼴: [깨지는 offline 가정] → [무엇을 하는가 §ref] → [무엇을 얻는가]
+% 문장 3 = 셋을 독자의 말로 먼저 세어준다 (sparsegs "consists of three key components: A, B, and C").
+%   §ref 를 꺼내기 전에 "무엇을 셋으로 보는가"를 평이한 말로 심어둔다.
+% 문장 4·5·6 은 같은 꼴: [깨지는 offline 가정] → [무엇을 하는가 §ref] → [무엇을 얻는가]
 %   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
 % 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
 % 원본은 plan/outline/CURRENT.md.
-\slot{ROADMAP \textemdash\ the whole opening, 6 sentences}{16}{%
+\slot{ROADMAP \textemdash\ the whole opening, 7 sentences}{19}{%
   (1) \emph{Premise}: online mapping fits a model to a dataset that is \textbf{still arriving} —
   new views keep entering while the model is being optimized.
   (2) \emph{Contrast}: offline 3DGS rests on three assumptions that this one fact breaks, and
   existing online systems inherit all three through a single keyframe rule.
-  (3) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
+  (3) \emph{The three points}, named in plain terms before any section reference: we therefore
+  look at the three places in the mapping loop where that inheritance shows ---
+  \textbf{how much} supervision may enter, \textbf{in which order} it is revisited, and
+  \textbf{what constrains} the geometry it does not yet determine.
+  (4) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
   let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
   independent of the size of the set and of hardware speed.
-  (4) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
+  (5) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
   set is not, so we draw each block by a count-balanced rule without replacement, \textbf{which}
   evens out exposure without giving up random order.
-  (5) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
+  (6) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
   space is not yet determined --- floaters are that indeterminacy made visible --- so we
   constrain it with causal carve evidence, \textbf{which} removes them without future frames.
-  (6) \emph{Figure}: Fig.~2 shows the three consequences of the one cause in a single pass of the
+  (7) \emph{Figure}: Fig.~2 shows the three consequences of the one cause in a single pass of the
   mapper.}
 
 % ---------- 3.1 (5문단, 86줄) ----------

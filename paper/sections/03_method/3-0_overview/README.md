@@ -8,7 +8,7 @@
 | 상태 | plan v01 / draft 없음 |
 | 근거 실험 | — |
 | 그림·표 | Fig.2 |
-| 목표 분량 | 0.15 p (roadmap 1문단 6문장 16줄. Notation·배경식 없음) |
+| 목표 분량 | 0.17 p (roadmap 1문단 7문장 19줄. Notation·배경식 없음) |
 | ⚠ claim boundary | 이상화된 trajectory-level objective이며 전역 최적해를 푸는 것이 아님 |
 
 - **무엇을 쓸지** → [`plan/CURRENT.md`](plan/CURRENT.md)
