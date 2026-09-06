@@ -36,11 +36,16 @@ v01은 *"membership을 헤드라인에서 뺐기 때문에 3단 분해가 그대
 
 | | 쪽 | 문단 |
 |---|---:|---|
-| 3.0 Problem Formulation | 0.5 | 5 (`Preliminaries.` run-in 포함) |
-| 3.1 **Compute-Paced View Growth** (C1) | 0.8 | 5 (`Slot placement.` run-in 포함) + 식3 + **Fig.3** |
-| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.8 | 5 + 식4 |
-| 3.3 **Causal Free-Space Carving** (C3) | 0.7 | 팀원 |
-| Fig.2 system diagram | 0.45 | |
+| (도입) Method opening | 0.25 | **roadmap 1문단(6문장 12줄) + `Notation.` run-in(8줄) + 배경식 2개** |
+| 3.1 **Compute-Paced View Growth** (C1) | 1.0 | 5 (`Slot placement.` run-in 포함) + 식3 + **Fig.3** |
+| 3.2 **Entropy-Regularized Count Balancing** (C2) | 0.95 | 5 + 식4 |
+| 3.3 **Causal Free-Space Carving** (C3) | 1.0 | 팀원 |
+| Fig.2 system diagram | (별도) | |
+
+⚠ **2026-09-06 변경.** 도입이 0.5p 5문단이었으나 코퍼스 11편 조사 결과 관행에서 벗어났다.
+Method 도입은 5~7문장 8~13줄 한 문단이고, 진단에 소절을 준 논문은 cartgs 하나뿐이다.
+→ 진단은 각 소절 P1 으로 분산하고, **"세 결정으로 분해"라는 중심 주장은 §1 이 진다.**
+그래서 §1 문단 4·5(우리 방법 + 기여 목록)의 무게가 커졌다.
 
 ### §4 내부 (번호 붙은 소절 2개 + 도입)
 

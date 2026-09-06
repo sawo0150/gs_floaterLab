@@ -1,5 +1,14 @@
 # cartgs — 구조 해부 (§3, §4)
 
+> ## ⚠ 2026-09-06 정정
+> 아래 "가장 중요한 관찰: A와 C가 1:1 대칭이다" 는 **한 편만 보고 일반화한 것**이다.
+> 이후 코퍼스 11편에서 §3 소절 구성을 세어보니 **진단에 소절을 준 것은 이 논문뿐**이었다
+> (Taming3DGS·LM-RS·chen2026cover·MonoGS·Point-SLAM·EDGS·SparseGS·CoMapGS 전부 없음).
+> 지배적 패턴은 **진단을 각 소절 첫 문단에 분산**하는 것이다.
+> 우리는 그쪽을 따른다 — 근거와 결정은 `sections/03_method/README.md` 와
+> `sections/03_method/3-0_overview/plan/CURRENT.md`.
+> 대칭 구조 자체는 여전히 좋은 장치지만, **관행이 아니라 선택**으로 취급해야 한다.
+
 ## 기본 정보
 
 | | |
