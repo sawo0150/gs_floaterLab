@@ -144,7 +144,9 @@
   Solving it for the number of admissions gives the cap, Eq.~(\ref{eq:astar}) --- the floor
   because admissions are integral, the $\min$ because views that have not arrived cannot be
   admitted. Two free parameters only: $\kappa$, the cost of one admission, and $\gamma$, the
-  conversion from service to credit. \pend{$\kappa$ was fixed on one scene and reused; say so}}
+  conversion from service to credit. \pend{$\kappa$ was fixed on one scene and reused; say so}
+  \pend{decide: is (\ref{eq:astar}) stated on cumulative $S(t)$, or on credit remaining after the
+  discards of P5? The two differ once a discard fires, and a reviewer will check}}
 
 \begin{equation}\label{eq:invariant}
   \kappa\big(|A_t| - A_0\big) \;\le\; B_0 + \gamma S(t)
