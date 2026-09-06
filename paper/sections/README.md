@@ -17,7 +17,7 @@
 | 2.4 Floater / Geometry Regularization | [`02_related/2-4_geometry_reg/`](02_related/2-4_geometry_reg/) | `sec/2_related.tex` | 팀원 | 0.3 p | plan v01 / draft 없음 |
 | (도입) Method opening | [`03_method/3-0_overview/`](03_method/3-0_overview/) | `sec/3_method.tex` | 나 | 0.17 p | plan v03 / draft 없음 |
 | 3.1 Compute-Paced View Growth (★C1) | [`03_method/3-1_compute_paced_view_growth/`](03_method/3-1_compute_paced_view_growth/) | `sec/3_method.tex` | 나 | 0.83 p | plan v01 / draft 없음 |
-| 3.2 Entropy-Regularized Count Balancing — ERCB (★C2) | [`03_method/3-2_ercb/`](03_method/3-2_ercb/) | `sec/3_method.tex` | 나 | 0.68 p | plan v01 / draft 없음 |
+| 3.2 Entropy-Regularized Count Balancing — ERCB (★C2) | [`03_method/3-2_ercb/`](03_method/3-2_ercb/) | `sec/3_method.tex` | 나 | 0.82 p | plan v01 / draft 없음 |
 | 3.3 Causal Free-Space Carving (★C3) | [`03_method/3-3_carve/`](03_method/3-3_carve/) | `sec/3_method.tex` | 팀원 | 0.7 p | plan v01 / draft 없음 |
 | (도입) Experimental Setup | [`04_experiments/4-0_setup/`](04_experiments/4-0_setup/) | `sec/4_experiments.tex` | 나 | 0.35 p | plan v01 / draft 없음 |
 | 4.1 Main Results | [`04_experiments/4-1_main_results/`](04_experiments/4-1_main_results/) | `sec/4_experiments.tex` | 나 | 1.1 p | plan v01 / draft 없음 |

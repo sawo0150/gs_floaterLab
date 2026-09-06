@@ -20,7 +20,7 @@ refs=None
 for p in range(1,n+1):
     t=subprocess.run(['pdftotext','-f',str(p),'-l',str(p),pdf,'-'],capture_output=True,text=True).stdout
     if re.search(r'^\s*References\s*$',t,re.M): refs=p; break
-plan={'1 Introduction':1.0,'2 Related Work':1.15,'3 Method':2.4,
+plan={'1 Introduction':1.0,'2 Related Work':1.15,'3 Method':2.7,
       '4 Experiments':2.2,'5 Limitations':0.2,'6 Conclusion':0.2}
 ks=list(starts.items())
 print(f"총 {n}쪽" + (f" · References 시작 p{refs} (그 쪽에 본문이 같이 있을 수 있음)" if refs else ""))

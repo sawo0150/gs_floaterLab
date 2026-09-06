@@ -30,9 +30,10 @@
 %     §3.1  91줄 0.83p   문단 62 (12/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
 %                        ※ 5문단 + run-in. taming3dgs 는 4문단이지만 그쪽은 "왜 densify 하나"를
 %                          설명할 필요가 없다. 우리는 A2·A3(왜 keyframe 밖까지)가 한 문단 더 든다.
-%     §3.2  75줄 0.68p   문단 66 (10/10/12/14/20) + 수식3 9
+%     §3.2  90줄 0.82p   문단 84 (12/12/24/24/12) + 수식2 6
+%                        ※ P3·P4 가 각각 5가지를 해야 해서 24줄씩 준다. §3.1(0.83p)과 대등.
 %     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
-%   → §3 ≈ 225줄 2.05p. 팀원 §3.3 이 채워지면 ≈ 2.4p.
+%   → §3 ≈ 240줄 2.18p. 팀원 §3.3 이 채워지면 ≈ 2.7p.
 %   중앙값보다 조금 위에 두되 chen2026cover 4.2(101)·Point-SLAM 3.1(106) 아래로 유지한다.
 %
 % ============================================================
@@ -182,49 +183,81 @@
 \subsection{Entropy-Regularized Count Balancing}
 \label{ssec:ercb}
 
-% 소절 개수와 유도 단계 수를 일치시킨다.
-\slot{P1 \textemdash\ ROADMAP, enumerated (chen2026cover \S4)}{10}{%
-  The derivation proceeds in three steps: (1) express selection-count imbalance as a potential
-  $\Phi$; (2) solve an entropy-regularized Lagrangian for the unique distribution; (3) extend it
-  to a $K$-view block drawn without replacement.}
+% 문단 구성 (2026-09-06 개정). 5문단, 수식 2개, 90줄 0.82p — §3.1(0.83p)과 대등.
+%   늘린 이유는 코퍼스가 아니다. 우리 유도는 4단계로 chen(수식 20+)보다 진짜로 짧다.
+%   P3·P4 가 각각 5가지를 해야 하는데 16/14줄이면 항목당 3줄이라 "선언만 하고 근거를 못 단다".
+%   그리고 §3 에서 유도가 있는 소절이 제일 짧은 건 뒤집힌 배치다.
+%
+% 구조: 정확한 대상 → 완화1(greedy) → 완화2(entropy) → 완화3(block snapshot)
+%   chen2026cover §4 의 "정확 → 완화 → 실용" 을 한 소절로 압축한 것.
+%   ★ 등식 감사는 별도 문단으로 빼지 않고 깨지는 자리(P3 끝)에 붙인다 — chen §4.1 형식.
+%   ★ 도구 이름(Plackett--Luce)은 도입하는 자리(P4 첫 문장)에서 밝힌다.
+%
+% 뺀 것:
+%   - Δ_iΦ 전개식 display → 본문 inline. "마지막 항이 i 에 무관"이라 할 거면 display 를 줄 이유가 없다
+%   - ρ_H 정의 → §4 Metrics. 이건 방법이 아니라 평가 지표이고 Table 3 의 열이다
+%   - Lagrangian 전개 → Supplementary. 본문은 결과와 조건만
+%   - experience replay 선행 → §2.3 Related Work. 선행 소개는 거기가 자리다
 
-\slot{P2 \textemdash\ FORMULATING}{10}{%
-  Equation (\ref{eq:phi}). State that the last term is common to all $i$ and therefore does not
-  affect the $\arg\max$.}
+\slot{P1 \textemdash\ ROADMAP + THE EXACT OBJECT}{12}{%
+  The object we would like to optimize is the final selection-count variance over the whole run,
+  chosen against an arrival process that is not yet known --- a combinatorial problem over an
+  unknown horizon, not solvable online. \textbf{Say that first.} The derivation then relaxes it in
+  three steps: (1) a one-step greedy on a potential $\Phi$; (2) an entropy-regularized form of
+  that step, which has a unique closed-form solution; (3) a $K$-view block that freezes the counts
+  while it draws. Full algebra in the supplement.}
+
+\slot{P2 \textemdash\ FORMULATING (relaxation 1)}{12}{%
+  Let $n_i$ be how many times view $i$ has been selected. Define the potential
+  Eq.~(\ref{eq:phi}), a monotone function of the count variance. Selecting $i$ raises $n_i$ by
+  one, and the resulting increase is $\Delta_i\Phi = n_i - \bar n + \tfrac12(1-\tfrac1N)$
+  \emph{(inline, not displayed)}. The last term does not depend on $i$, so the greedy step reduces
+  to \textbf{picking the least-selected view} --- which is deterministic, and a deterministic order
+  is exactly the randomness that shuffling was there to provide. That tension is what the next
+  step resolves.}
+
 \begin{equation}\label{eq:phi}
-  \Phi(\mathbf{n}) = \tfrac12\sum_i (n_i-\bar n)^2,
-  \qquad
-  \Delta_i\Phi = n_i - \bar n + \tfrac12\big(1-\tfrac1N\big)
+  \Phi(\mathbf{n}) \;=\; \tfrac12\sum_i \big(n_i-\bar n\big)^2
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING}{12}{%
-  Entropy-regularized Lagrangian to (\ref{eq:gibbs}). \textbf{Say ``unique solution'' explicitly.}
-  Explain the $\beta=1/\tau$ reparameterization.}
+\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{24}{%
+  Rather than take the deterministic $\arg\min$, minimize its expectation under a distribution $p$
+  with an entropy penalty: $\min_p \sum_i p_i\,\Delta_i\Phi - \tau H(p)$ on the simplex. State what
+  $\tau$ trades: $\tau\!\to\!0$ recovers the deterministic rule, $\tau\!\to\!\infty$ recovers
+  uniform. The stationarity condition gives $p_i \propto \exp(-\Delta_i\Phi/\tau)$, and the terms
+  common to all $i$ cancel in the normalization, leaving Eq.~(\ref{eq:gibbs}) with $\beta=1/\tau$.
+  \textbf{Say ``unique'' and say why}: the objective is linear in $p$ plus $\tau$ times negative
+  entropy, strictly convex on a compact convex set, so the minimizer is unique --- this is not one
+  rule among several.
+  \textbf{Equality audit, here and not later}: at $\beta=0$ the distribution is uniform, and
+  drawing $K$ views without replacement is then exactly a uniform permutation of the pool ---
+  i.e.\ random reshuffling --- \emph{but only when} $K \ge N_t$. For $K<N_t$ a block is a subset,
+  not a permutation, and no view is guaranteed one appearance per pass. Even at $K \ge N_t$ we do
+  not inherit the convergence guarantees, since the set grows during training and the objective is
+  non-convex.}
+
 \begin{equation}\label{eq:gibbs}
-  p_t(i) = \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau
+  p_t(i) \;=\; \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau
 \end{equation}
 
-% 근사마다 성립 조건을 붙인다 — chen2026cover §4.4 의 가정 원장 형식.
-\slot{P4 \textemdash\ EXTENSION + ASSUMPTION LEDGER}{14}{%
-  Extend to a $K$-view sequential weighted draw without replacement, holding the count snapshot
-  $n_i^{(b)}$ fixed within a block. \textbf{State that this is a first-order approximation inside
-  the block, with the condition under which it holds.} Measure the retained conditional entropy
-  with $\rho_H$ (\ref{eq:rhoH}).}
-\begin{equation}\label{eq:rhoH}
-  \rho_H = \frac{\sum_{b,k} H(p_{b,k})}{\sum_{b,k}\log|W_b^{(k)}|}
-\end{equation}
+\slot{P4 \textemdash\ EXTENSION (relaxation 3) + ASSUMPTION LEDGER}{24}{%
+  \textbf{Name the tool in the first sentence}: drawing $K$ views one after another with weights
+  $\exp(-\beta n_i)$ and no replacement is a \emph{Plackett--Luce} draw (equivalently
+  Gumbel-Top-$k$). Applying Eq.~(\ref{eq:gibbs}) exactly would mean recomputing $p$ after every
+  single selection, since each selection changes the counts. We instead freeze the counts at the
+  start of a block, $n_i^{(b)}$, and draw all $K$ under that frozen distribution.
+  \textbf{Assumption ledger}: within one block a count rises by at most one, so a frozen weight
+  differs from the exact sequential weight by at most a factor $e^{\beta}$ per selected view;
+  for small $\beta$ this is a first-order effect, and \textbf{state that condition rather than
+  calling it an approximation and moving on}. How much randomness survives is measured by
+  $\rho_H$, defined with the metrics in \S\ref{sec:exp}.}
 
-% 네 가지가 반드시 들어간다. (d) 가 in-method 실패 보고 — lmrs §4.2 형식.
-\slot{P5 \textemdash\ SCOPE GUARD + LINEAGE + FAILURE}{20}{%
-  (a) Equality-to-bound audit: with $\beta{=}0$ this coincides with random reshuffling
-  \emph{only} when $K \ge N_t$; we do not inherit its convergence guarantees, since the set grows
-  and the objective is non-convex.
-  (b) Name the draw: sequential weighted sampling without replacement, i.e.\ Plackett--Luce.
-  (c) Name the precedent: count-based priorities appear in experience replay; our objective is
-  the opposite of loss-prioritized data selection.
-  (d) \textbf{\color{red}In-method failure}: this equalizes selection counts but not lifetime
-  exposure (rot mid/first $0.758 \to 0.520$). Using counts alone as the potential is a design
-  choice and its limit.}
+\slot{P5 \textemdash\ IN-METHOD FAILURE}{12}{%
+  % lmrs §4.2 형식 — 자기 설계의 한계를 본문에서, 표 forward pointer 와 함께
+  The potential we chose equalizes \emph{selection counts}, not \emph{lifetime exposure}: a view
+  admitted late has had fewer chances, and equalizing $n_i$ does not correct for that. Measured,
+  the middle-to-first exposure ratio falls from $0.758$ to $0.520$ on one trajectory
+  (\S\ref{sec:exp}). Counts alone as the potential is a design choice, and this is its limit.}
 
 % ---------- 3.3 (팀원, 110줄) ----------
 \subsection{Causal Free-Space Carving}
