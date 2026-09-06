@@ -1,6 +1,6 @@
 # refs/ — 참고 논문 목록
 
-> **PDF 파일 자체는 git에 없습니다.** 저작권 자료이고 파일당 최대 50MB, 합계 288MB라
+> **PDF 파일 자체는 git에 없습니다.** 저작권 자료이고 파일당 최대 50MB, 합계 521MB라
 > GitHub에 올릴 수 없습니다. 이 `INDEX.md`만 추적하며, 바이트는 로컬에만 둡니다.
 > 다른 컴퓨터에서 작업하려면 아래 목록을 보고 각자 내려받으세요.
 
@@ -107,3 +107,88 @@ C3(carve)의 관련연구. 여기가 가장 두껍습니다.
 ⚠ 다만 **git 히스토리에는 그대로 남아 있어 repo 크기(350MB)는 줄지 않습니다.**
 줄이려면 `git filter-repo`로 히스토리를 다시 써야 하는데, 원격과 다른 worktree가 있어
 별도 결정 사항으로 둡니다.
+
+---
+
+# 2026-09-06 추가 — 도구의 출처를 밝히기 위한 문헌
+
+우리 C1/C2가 쓰는 도구는 **이미 다른 커뮤니티에 이름이 있다.** 발명했다고 쓰면 안 되고,
+"이 도구를 online GS-SLAM supervision scheduling에 붙였다"로 좁혀야 한다.
+아래는 그 좁히기를 문장으로 쓰기 위해 받은 것들이다. 근거는
+[`../notes/naming/`](../notes/naming/).
+
+## 03_shuffling_theory — 비복원 SGD (C2의 β→0 극한)
+
+| 파일 | 무엇 | 어디에 쓰나 |
+|---|---|---|
+| `mishchenko2020random_reshuffling.pdf` | Random Reshuffling: Simple Analysis with Vast Improvements (NeurIPS 2020) | **β=0 ≡ random reshuffling** 주장의 인용처 |
+| `mishchenko2021proxrr.pdf` | Proximal and Federated Random Reshuffling | **importance sampling의 RR 변형은 제안·분석된 바 없다**고 명시. unbiasedness가 RR에서 깨지기 때문 — 우리 위치를 정당화하는 유일한 긍정적 근거 |
+| `desa2020rr_not_always_better.pdf` | Random Reshuffling is Not Always Better (NeurIPS 2020) | RR이 항상 낫지 않다는 반례. 우리가 보장을 안 가져오는 이유 |
+| `safran2020how_good_shuffling.pdf` | How Good is SGD with Random Shuffling? | |
+| `haochen2019shuffling_beats_sgd.pdf` | Random Shuffling Beats SGD after Finite Epochs | |
+| `gurbuzbalaban2015why_rr_beats_sgd.pdf` | Why Random Reshuffling Beats SGD | |
+| `rajput2020closing_gap_without_replacement.pdf` | Closing the convergence gap of SGD without replacement | |
+
+## 07_sampling_ranking — K-view 비복원 순차 추출 (C2의 절차)
+
+| 파일 | 무엇 | 어디에 쓰나 |
+|---|---|---|
+| `kool2019gumbel_top_k.pdf` | Stochastic Beams / Gumbel-Top-k (ICML 2019) | 우리 K-view 순차 가중 비복원 추출 = **Plackett–Luce 추출**. 이름을 먼저 밝히지 않으면 "그거 PL인데요" 한 줄로 끝난다 |
+| `efraimidis2010weighted_reservoir.pdf` | Weighted Random Sampling over Data Streams | 가중 비복원 추출의 스트리밍 구현 |
+
+> Plackett(1975), Luce(1959), Yellott(1977)은 유료라 받지 못했다. 인용만 한다.
+
+## 08_rl_replay — count 기반 우선순위 (C2와 직접 충돌)
+
+| 파일 | 무엇 | 어디에 쓰나 |
+|---|---|---|
+| `kauvar2023curious_replay.pdf` | Curious Replay (ICML 2023) | **visit count `v_i`로 `p_i = β^{v_i}`.** 우리 `p ∝ exp(−βn_i)`와 같은 형태 — 반드시 먼저 밝힐 것 |
+| `jiang2021prioritized_level_replay.pdf` | Prioritized Level Replay | count 대신 staleness `c − C_i`에 비례 |
+| `schaul2015prioritized_experience_replay.pdf` | Prioritized Experience Replay | 계보의 원형 |
+| `haarnoja2018sac.pdf` | Soft Actor-Critic | entropy 정규화 → 지수형 정책의 딥러닝 판 |
+
+## 09_data_selection — score 기반 지수 감쇠 선택 (수식 구조가 동일, 목적은 정반대)
+
+| 파일 | 무엇 |
+|---|---|
+| `loshchilov2015online_batch_selection.pdf` | Online Batch Selection — rank의 지수 함수로 선택 확률. 원형 |
+| `katharopoulos2018importance_sampling.pdf` | Not All Samples Are Created Equal |
+| `mindermann2022rho_loss.pdf` | Prioritized Training (RHO-Loss) |
+
+> 이들은 **어려운 것을 더 자주** 보고 우리는 **고르게** 본다. 목적이 반대인데 파라미터화는 같다.
+> 그래서 "우리는 반대 방향을 택했고 그 이유는 …"이라고 명시해야 한다.
+
+## 10_maxent_control — entropy 정규화 → Gibbs 해 (C2의 유도)
+
+| 파일 | 무엇 |
+|---|---|
+| `kappen2005path_integral_control.pdf` | Path integrals and symmetry breaking for optimal control |
+
+> Todorov(2007) linearly-solvable MDP, Ziebart(2010)은 arXiv에 없어 받지 못했다. 인용만 한다.
+
+## 11_admission_control — token bucket (C1의 메커니즘)
+
+| 파일 | 무엇 | 어디에 쓰나 |
+|---|---|---|
+| `rfc2212.txt` | Guaranteed QoS — **token bucket (r, b) 규격** | 우리 `B_t = B_0 + γS(t) − κ(\|A_t\|−A_0) ≥ 0` 이 정확히 token bucket이다 |
+| `rfc2215.txt` | Integrated Services 특성 파라미터 | |
+
+> ★ 다만 표준 token bucket은 **시간에 비례해** 토큰이 찬다. 우리는 **완료된 GPU service에
+> 비례해** 찬다 → 이건 rate-based가 아니라 **credit-based flow control**(수신자가 처리를
+> 마치면 credit을 돌려주는 방식)에 해당한다. 이 차이가 곧 C1의 기여다.
+> Kung & Morris(1995) credit-based flow control은 유료라 인용만 한다.
+
+## 기존 폴더 보강 (2026-09-06)
+
+| 파일 | 폴더 | 왜 |
+|---|---|---|
+| `matsuki2024monogs.pdf` | 01_gs_slam | baseline 비교군 |
+| `keetha2024splatam.pdf` | 01_gs_slam | |
+| `huang2024photoslam.pdf` | 01_gs_slam | |
+| `wang2023coslam.pdf` | 01_gs_slam | |
+| `sucar2021imap.pdf` | 01_gs_slam | **keyframe replay 없으면 catastrophic forgetting** — 왜 pool을 계속 replay해야 하는가의 근거 |
+| `sandstrom2023pointslam.pdf` | 01_gs_slam | 국소 표현도 global decoder 때문에 forgetting |
+| `jiang2024fisherrf.pdf` | 02_view_selection | C2를 information-gain 계열과 **구별**하기 위해 필요 |
+| `fan2024trimgs.pdf` | 04_geometry_floater | C3 |
+| `mallick2025multiview_training.pdf` | 05_budget_system | 3DGS multi-view mini-batch — **K(배치 뷰 수)의 효과**를 다룬 선행 |
+| `zhao2024scaling_up_3dgs.pdf` | 05_budget_system | 3DGS 학습 스케일업 |
