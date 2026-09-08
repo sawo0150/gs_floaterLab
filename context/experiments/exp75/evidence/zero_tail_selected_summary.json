@@ -1,0 +1,625 @@
+{
+  "method": {
+    "name": "relative_floor_interval_softmax_rr",
+    "rho": 0.5,
+    "K": 8,
+    "gamma": 1.0986122886681098,
+    "maximum_odds_multiplier": 3.0,
+    "admission": "all causal arrivals admitted immediately",
+    "tail_updates": 0
+  },
+  "rows": [
+    {
+      "scene": "305",
+      "seed": 0,
+      "stress_control": false,
+      "iteration": 18661,
+      "quality": {
+        "label": "305_s0",
+        "iteration": 18661,
+        "heldout_views": 336,
+        "mean_rr": 32.153921530360265,
+        "mean_candidate": 32.64094305322284,
+        "mean_delta": 0.4870215228625767,
+        "temporal_thirds_rr": [
+          35.62130309854235,
+          30.286126971244812,
+          30.55433452129364
+        ],
+        "temporal_thirds_candidate": [
+          35.587085366249084,
+          31.187517404556274,
+          31.148226388863154
+        ],
+        "temporal_thirds_delta": [
+          -0.03421773229326419,
+          0.9013904333114624,
+          0.5938918675695142
+        ],
+        "worst_q1_rr": 26.181265263330367,
+        "worst_q1_candidate": 27.262498299280804,
+        "worst_q1_delta": 1.0812330359504365,
+        "rr_hard_q1_candidate": 27.563686722800846,
+        "rr_hard_q1_delta": 1.3824214594704785,
+        "per_view_improved_fraction": 0.6339285714285714
+      },
+      "rr": {
+        "total_iterations": 18661,
+        "last_arrival": 18661,
+        "zero_tail_verified": true,
+        "pool_size": 2352,
+        "count_cv": 0.9328759784573566,
+        "unselected_fraction": 0.05187074829931973,
+        "count_temporal_thirds": [
+          16.09311224489796,
+          5.875,
+          1.8341836734693877
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9695292577876072,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 586714
+      },
+      "candidate": {
+        "total_iterations": 18661,
+        "last_arrival": 18661,
+        "zero_tail_verified": true,
+        "pool_size": 2352,
+        "count_cv": 0.8616513223144753,
+        "unselected_fraction": 0.0352891156462585,
+        "count_temporal_thirds": [
+          15.330357142857142,
+          6.176020408163265,
+          2.295918367346939
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9610262301865767,
+        "native_blocks": 2436,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 602155
+      },
+      "count_cv_delta": -0.07122465614288132,
+      "entropy_ratio_delta": -0.0085030276010305
+    },
+    {
+      "scene": "305",
+      "seed": 1,
+      "stress_control": false,
+      "iteration": 18661,
+      "quality": {
+        "label": "305_s1",
+        "iteration": 18661,
+        "heldout_views": 336,
+        "mean_rr": 31.998895855177018,
+        "mean_candidate": 32.76435841832842,
+        "mean_delta": 0.7654625631514023,
+        "temporal_thirds_rr": [
+          35.44358777999878,
+          30.452239445277623,
+          30.10086034025465
+        ],
+        "temporal_thirds_candidate": [
+          35.85354484830584,
+          31.424558724675858,
+          31.014971682003566
+        ],
+        "temporal_thirds_delta": [
+          0.40995706830705814,
+          0.9723192793982349,
+          0.9141113417489173
+        ],
+        "worst_q1_rr": 26.180686814444407,
+        "worst_q1_candidate": 27.466440223512194,
+        "worst_q1_delta": 1.2857534090677873,
+        "rr_hard_q1_candidate": 27.9142822992234,
+        "rr_hard_q1_delta": 1.733595484778995,
+        "per_view_improved_fraction": 0.6339285714285714
+      },
+      "rr": {
+        "total_iterations": 18661,
+        "last_arrival": 18661,
+        "zero_tail_verified": true,
+        "pool_size": 2352,
+        "count_cv": 0.9347203764892357,
+        "unselected_fraction": 0.05612244897959184,
+        "count_temporal_thirds": [
+          16.10969387755102,
+          5.8979591836734695,
+          1.7946428571428572
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9703202619153046,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 582833
+      },
+      "candidate": {
+        "total_iterations": 18661,
+        "last_arrival": 18661,
+        "zero_tail_verified": true,
+        "pool_size": 2352,
+        "count_cv": 0.8543540833259667,
+        "unselected_fraction": 0.04039115646258504,
+        "count_temporal_thirds": [
+          15.30484693877551,
+          6.19515306122449,
+          2.302295918367347
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9593288132382908,
+        "native_blocks": 2436,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 607973
+      },
+      "count_cv_delta": -0.08036629316326893,
+      "entropy_ratio_delta": -0.010991448677013849
+    },
+    {
+      "scene": "12F",
+      "seed": 0,
+      "stress_control": false,
+      "iteration": 24421,
+      "quality": {
+        "label": "12F_s0",
+        "iteration": 24421,
+        "heldout_views": 276,
+        "mean_rr": 27.02139721400496,
+        "mean_candidate": 27.243787392326023,
+        "mean_delta": 0.22239017832106356,
+        "temporal_thirds_rr": [
+          29.5438682825669,
+          28.083029747009277,
+          23.4372936124387
+        ],
+        "temporal_thirds_candidate": [
+          29.499686427738357,
+          28.30177454326464,
+          23.929901205975078
+        ],
+        "temporal_thirds_delta": [
+          -0.044181854828543976,
+          0.21874479625536125,
+          0.49260759353637695
+        ],
+        "worst_q1_rr": 21.21626288648965,
+        "worst_q1_candidate": 21.88435833696006,
+        "worst_q1_delta": 0.6680954504704104,
+        "rr_hard_q1_candidate": 22.072268112846043,
+        "rr_hard_q1_delta": 0.8560052263563946,
+        "per_view_improved_fraction": 0.5760869565217391
+      },
+      "rr": {
+        "total_iterations": 24421,
+        "last_arrival": 24421,
+        "zero_tail_verified": true,
+        "pool_size": 1925,
+        "count_cv": 1.0649509821470706,
+        "unselected_fraction": 0.043116883116883116,
+        "count_temporal_thirds": [
+          27.319314641744548,
+          8.45171339563863,
+          2.2714508580343216
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9778861667922791,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 287017
+      },
+      "candidate": {
+        "total_iterations": 24421,
+        "last_arrival": 24421,
+        "zero_tail_verified": true,
+        "pool_size": 1925,
+        "count_cv": 0.9469277850092582,
+        "unselected_fraction": 0.035844155844155845,
+        "count_temporal_thirds": [
+          25.570093457943926,
+          9.411214953271028,
+          3.062402496099844
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9627822000254526,
+        "native_blocks": 3156,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 296035
+      },
+      "count_cv_delta": -0.1180231971378124,
+      "entropy_ratio_delta": -0.015103966766826571
+    },
+    {
+      "scene": "12F",
+      "seed": 1,
+      "stress_control": false,
+      "iteration": 24421,
+      "quality": {
+        "label": "12F_s1",
+        "iteration": 24421,
+        "heldout_views": 276,
+        "mean_rr": 26.904802819956902,
+        "mean_candidate": 27.20317686813465,
+        "mean_delta": 0.2983740481777488,
+        "temporal_thirds_rr": [
+          29.61364223646081,
+          27.894494326218314,
+          23.206271897191588
+        ],
+        "temporal_thirds_candidate": [
+          29.54917271240898,
+          28.298959897912066,
+          23.761397994082905
+        ],
+        "temporal_thirds_delta": [
+          -0.06446952405183026,
+          0.40446557169375197,
+          0.5551260968913176
+        ],
+        "worst_q1_rr": 21.088959845943727,
+        "worst_q1_candidate": 21.39868334065313,
+        "worst_q1_delta": 0.3097234947094023,
+        "rr_hard_q1_candidate": 21.52883011361827,
+        "rr_hard_q1_delta": 0.43987026767454296,
+        "per_view_improved_fraction": 0.6340579710144928
+      },
+      "rr": {
+        "total_iterations": 24421,
+        "last_arrival": 24421,
+        "zero_tail_verified": true,
+        "pool_size": 1925,
+        "count_cv": 1.0628606279056996,
+        "unselected_fraction": 0.04363636363636364,
+        "count_temporal_thirds": [
+          27.2803738317757,
+          8.475077881619939,
+          2.287051482059282
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.97723137614771,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 289405
+      },
+      "candidate": {
+        "total_iterations": 24421,
+        "last_arrival": 24421,
+        "zero_tail_verified": true,
+        "pool_size": 1925,
+        "count_cv": 0.9425545685734269,
+        "unselected_fraction": 0.032207792207792206,
+        "count_temporal_thirds": [
+          25.521806853582554,
+          9.398753894080997,
+          3.123244929797192
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.962095487136803,
+        "native_blocks": 3156,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 304210
+      },
+      "count_cv_delta": -0.12030605933227267,
+      "entropy_ratio_delta": -0.015135889010907011
+    },
+    {
+      "scene": "3F",
+      "seed": 0,
+      "stress_control": false,
+      "iteration": 36481,
+      "quality": {
+        "label": "3F_s0",
+        "iteration": 36481,
+        "heldout_views": 609,
+        "mean_rr": 28.675631671899254,
+        "mean_candidate": 28.76832518554086,
+        "mean_delta": 0.09269351364160627,
+        "temporal_thirds_rr": [
+          35.09928965451095,
+          27.250482906848926,
+          23.677122454337887
+        ],
+        "temporal_thirds_candidate": [
+          35.041350914339716,
+          27.390701519444658,
+          23.872923122838213
+        ],
+        "temporal_thirds_delta": [
+          -0.05793874017123102,
+          0.14021861259573143,
+          0.19580066850032551
+        ],
+        "worst_q1_rr": 21.63409076017492,
+        "worst_q1_candidate": 21.83685419917886,
+        "worst_q1_delta": 0.20276343900393812,
+        "rr_hard_q1_candidate": 22.03120768927281,
+        "rr_hard_q1_delta": 0.39711692909789065,
+        "per_view_improved_fraction": 0.5533661740558292
+      },
+      "rr": {
+        "total_iterations": 36481,
+        "last_arrival": 36481,
+        "zero_tail_verified": true,
+        "pool_size": 4260,
+        "count_cv": 0.940311453605836,
+        "unselected_fraction": 0.03427230046948357,
+        "count_temporal_thirds": [
+          17.44507042253521,
+          6.245070422535211,
+          2.000704225352113
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9681997431035767,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 419675
+      },
+      "candidate": {
+        "total_iterations": 36481,
+        "last_arrival": 36481,
+        "zero_tail_verified": true,
+        "pool_size": 4260,
+        "count_cv": 0.8502486658176696,
+        "unselected_fraction": 0.02699530516431925,
+        "count_temporal_thirds": [
+          16.42042253521127,
+          6.764084507042254,
+          2.506338028169014
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.960965448318047,
+        "native_blocks": 4664,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 429626
+      },
+      "count_cv_delta": -0.09006278778816645,
+      "entropy_ratio_delta": -0.007234294785529727
+    },
+    {
+      "scene": "3F",
+      "seed": 1,
+      "stress_control": false,
+      "iteration": 36481,
+      "quality": {
+        "label": "3F_s1",
+        "iteration": 36481,
+        "heldout_views": 609,
+        "mean_rr": 28.735134066815057,
+        "mean_candidate": 28.82770794835584,
+        "mean_delta": 0.09257388154078328,
+        "temporal_thirds_rr": [
+          35.48908341694348,
+          27.093127607712017,
+          23.623191175789668
+        ],
+        "temporal_thirds_candidate": [
+          35.06434947986321,
+          27.41253757946597,
+          24.006236785738338
+        ],
+        "temporal_thirds_delta": [
+          -0.4247339370802692,
+          0.31940997175395225,
+          0.3830456099486703
+        ],
+        "worst_q1_rr": 21.430651490205253,
+        "worst_q1_candidate": 21.808488870757856,
+        "worst_q1_delta": 0.3778373805526023,
+        "rr_hard_q1_candidate": 22.002020355922724,
+        "rr_hard_q1_delta": 0.5713688657174707,
+        "per_view_improved_fraction": 0.5582922824302134
+      },
+      "rr": {
+        "total_iterations": 36481,
+        "last_arrival": 36481,
+        "zero_tail_verified": true,
+        "pool_size": 4260,
+        "count_cv": 0.9400629202625631,
+        "unselected_fraction": 0.03450704225352113,
+        "count_temporal_thirds": [
+          17.443661971830984,
+          6.248591549295774,
+          1.9985915492957746
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9681137103527513,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 407496
+      },
+      "candidate": {
+        "total_iterations": 36481,
+        "last_arrival": 36481,
+        "zero_tail_verified": true,
+        "pool_size": 4260,
+        "count_cv": 0.8451245296635124,
+        "unselected_fraction": 0.02699530516431925,
+        "count_temporal_thirds": [
+          16.47394366197183,
+          6.707746478873239,
+          2.509154929577465
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9632049358342454,
+        "native_blocks": 4664,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 434400
+      },
+      "count_cv_delta": -0.09493839059905074,
+      "entropy_ratio_delta": -0.0049087745185059095
+    },
+    {
+      "scene": "1253",
+      "seed": 0,
+      "stress_control": true,
+      "iteration": 8821,
+      "quality": {
+        "label": "1253_s0",
+        "iteration": 8821,
+        "heldout_views": 163,
+        "mean_rr": 29.609637617333536,
+        "mean_candidate": 29.541737328277776,
+        "mean_delta": -0.06790028905576051,
+        "temporal_thirds_rr": [
+          32.05025097240101,
+          31.54811703717267,
+          25.18534829881456
+        ],
+        "temporal_thirds_candidate": [
+          31.127855543656782,
+          31.37234295739068,
+          26.095640924241806
+        ],
+        "temporal_thirds_delta": [
+          -0.9223954287442275,
+          -0.17577407978199133,
+          0.9102926254272461
+        ],
+        "worst_q1_rr": 24.140637002340178,
+        "worst_q1_candidate": 24.679793753275057,
+        "worst_q1_delta": 0.5391567509348789,
+        "rr_hard_q1_candidate": 25.092379825871166,
+        "rr_hard_q1_delta": 0.9517428235309886,
+        "per_view_improved_fraction": 0.48466257668711654
+      },
+      "rr": {
+        "total_iterations": 8821,
+        "last_arrival": 8821,
+        "zero_tail_verified": true,
+        "pool_size": 1140,
+        "count_cv": 1.0782799812201183,
+        "unselected_fraction": 0.014035087719298246,
+        "count_temporal_thirds": [
+          16.378947368421052,
+          5.121052631578947,
+          1.7131578947368422
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9715133791140103,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 653887
+      },
+      "candidate": {
+        "total_iterations": 8821,
+        "last_arrival": 8821,
+        "zero_tail_verified": true,
+        "pool_size": 1140,
+        "count_cv": 1.004416014970005,
+        "unselected_fraction": 0.035964912280701755,
+        "count_temporal_thirds": [
+          15.778947368421052,
+          5.434210526315789,
+          2.0
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.966343205770019,
+        "native_blocks": 1206,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 665039
+      },
+      "count_cv_delta": -0.07386396625011327,
+      "entropy_ratio_delta": -0.00517017334399128
+    },
+    {
+      "scene": "1253",
+      "seed": 1,
+      "stress_control": true,
+      "iteration": 8821,
+      "quality": {
+        "label": "1253_s1",
+        "iteration": 8821,
+        "heldout_views": 163,
+        "mean_rr": 29.53216754000611,
+        "mean_candidate": 29.581452515959008,
+        "mean_delta": 0.04928497595289727,
+        "temporal_thirds_rr": [
+          32.298502974076705,
+          31.34364170498318,
+          24.903129506994176
+        ],
+        "temporal_thirds_candidate": [
+          31.120517869429154,
+          31.380390379163956,
+          26.21494808903447
+        ],
+        "temporal_thirds_delta": [
+          -1.1779851046475507,
+          0.03674867418077454,
+          1.3118185820402921
+        ],
+        "worst_q1_rr": 23.683054761188785,
+        "worst_q1_candidate": 24.729004650581174,
+        "worst_q1_delta": 1.0459498893923893,
+        "rr_hard_q1_candidate": 25.28739236040813,
+        "rr_hard_q1_delta": 1.6043375992193454,
+        "per_view_improved_fraction": 0.49079754601226994
+      },
+      "rr": {
+        "total_iterations": 8821,
+        "last_arrival": 8821,
+        "zero_tail_verified": true,
+        "pool_size": 1140,
+        "count_cv": 1.077151633263638,
+        "unselected_fraction": 0.013157894736842105,
+        "count_temporal_thirds": [
+          16.373684210526317,
+          5.126315789473685,
+          1.7131578947368422
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9729314331277545,
+        "native_blocks": 1,
+        "native_blocks_with_interval_duplicates": null,
+        "gaussians": 672556
+      },
+      "candidate": {
+        "total_iterations": 8821,
+        "last_arrival": 8821,
+        "zero_tail_verified": true,
+        "pool_size": 1140,
+        "count_cv": 0.9901066890571433,
+        "unselected_fraction": 0.035964912280701755,
+        "count_temporal_thirds": [
+          15.607894736842105,
+          5.55,
+          2.055263157894737
+        ],
+        "dynamic_window128_temporal_entropy_ratio": 0.9664677564682753,
+        "native_blocks": 1206,
+        "native_blocks_with_interval_duplicates": 0,
+        "gaussians": 680311
+      },
+      "count_cv_delta": -0.08704494420649467,
+      "entropy_ratio_delta": -0.006463676659479223
+    }
+  ],
+  "main_three_scene_aggregate": {
+    "mean_delta": {
+      "mean": 0.3264192846158635,
+      "min": 0.09257388154078328,
+      "max": 0.7654625631514023,
+      "positive_runs": 6,
+      "runs": 6
+    },
+    "worst_q1_delta": {
+      "mean": 0.6542343682924295,
+      "min": 0.20276343900393812,
+      "max": 1.2857534090677873,
+      "positive_runs": 6,
+      "runs": 6
+    },
+    "rr_hard_q1_delta": {
+      "mean": 0.8967297055159621,
+      "min": 0.39711692909789065,
+      "max": 1.733595484778995,
+      "positive_runs": 6,
+      "runs": 6
+    },
+    "late_third_delta": {
+      "mean": 0.522430529699187,
+      "min": 0.19580066850032551,
+      "max": 0.9141113417489173,
+      "positive_runs": 6,
+      "runs": 6
+    },
+    "count_cv_delta": {
+      "mean": -0.09582023069390876,
+      "min": -0.12030605933227267,
+      "max": -0.07122465614288132,
+      "positive_runs": 0,
+      "runs": 6
+    },
+    "entropy_ratio_delta": {
+      "mean": -0.010312900226635594,
+      "min": -0.015135889010907011,
+      "max": -0.0049087745185059095,
+      "positive_runs": 0,
+      "runs": 6
+    }
+  }
+}
