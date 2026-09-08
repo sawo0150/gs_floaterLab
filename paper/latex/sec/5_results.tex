@@ -69,8 +69,10 @@
   appear nowhere else in the paper. \textbf{Then the contract, in one sentence}: each method
   receives the sensor stream in real time and performs \emph{zero optimizer updates after the last
   frame}, so the compute budget is the duration of the stream itself; poses and depths are the
-  online-estimated ones, never the post-processed trajectory. Results with a post-stream
-  refinement tail are in the supplement.}
+  online-estimated ones, never the post-processed trajectory. \textbf{One sentence that the same
+  configuration is used on every sequence} --- nothing retuned per scene, which is what makes
+  Table~\ref{tab:scene} worth reading (exp59: a configuration tuned on one trajectory lost
+  $1.85$\,dB on another). Results with a post-stream refinement tail are in the supplement.}
 
 % ---- Baselines ----
 % MonoGS 형식: 목록이 아니라 선정 기준을 말한다.
@@ -112,39 +114,68 @@ VIGS-SLAM                  & -- & -- & -- & -- & -- & -- & -- \\
 \end{tabular}
 \end{table*}
 
-% cartgs IV.B 첫 문단 형식: 표를 한 번에 가리키고 최우수 표기 규칙을 밝힌다.
-\slot{P1 \textemdash\ RESULTS POINTER}{7}{%
-  Point at Table~\ref{tab:main}, Table~\ref{tab:scene} and Table~\ref{tab:abl} at once and state
-  the highlighting convention --- cartgs opens its results this way, in one sentence.}
+% 4.2 문단 구성 (2026-09-08). 코퍼스는 결과를 세 가지 축 중 하나로 나눈다:
+%   ① 능력별  MonoGS 4.2 (Camera Tracking Accuracy → Novel View Rendering), vigsslam 4.1
+%   ② 데이터셋별  CoMapGS 4.2 (LLFF. → Mip-NeRF 360.), cartgs IV.B
+%   ③ 시나리오별  taming3dgs 5.2 (같은 예산→품질 / 같은 품질→예산, 표 상하 분할)
+% 우리는 1× 하나뿐이라 ③이 안 맞고, tracking 이 기여가 아니라 ①도 안 맞는다 → ②로 간다.
+%
+% 문단마다 같은 꼴 (MonoGS):
+%   [표 지목] → [결과] → [무엇을 안 쓰고 얻었는지] → [어디까지만] → [그래서 무슨 뜻인가]
+%
+% 코퍼스가 반복해서 하는 것:
+%   · "without requiring any deep priors" (MonoGS) — 안 쓰고 얻었음을 결과 문단에서 회수
+%   · 진 항목을 먼저 짚고 이유를 댄다 (CoMapGS: "second only to ReconFusion … likely due to")
+%   · 재현 수치임을 밝히고 표에 † (CoMapGS)
+%
+% 2026-09-08 변경: `Compute and latency.` 문단 폐지 → P2 에 흡수.
+%   Table 1 이 이미 자원 열을 들고 있어 그걸 "풀어 설명"하는 문단은 표를 반복한다.
+%   대신 P2 를 고정 예산 논거로 닫는다 (chen2026cover 5.3 이 그렇게 끝낸다).
+% 2026-09-08 변경: "장면별 재튜닝 없음"은 문단이 아니라 Implementation details 한 문장으로.
+%   Table 2 는 P3 이 읽는다.
 
-\slot{P2 \textemdash\ QUALITY AT EQUAL COMPUTE}{16}{%
-  The claim is not that we render better but that we render better \emph{from the same stream in
-  the same time}. Read the quality columns against the resource columns together, and say what
-  the peak-versus-final gap shows about methods that oversample before pruning.}
+\slot{P1 \textemdash\ RESULTS POINTER}{7}{%
+  Point at Table~\ref{tab:main} and Table~\ref{tab:scene} at once, state the highlighting
+  convention, and \textbf{state the provenance marks here} (reproduced by us / cited / failed) ---
+  cartgs opens its results with exactly this sentence, and CoMapGS marks reproduced numbers with
+  a dagger.}
+
+\slot{P2 \textemdash\ SAME STREAM, SAME TIME}{18}{%
+  Read the quality columns of Table~\ref{tab:main} \emph{against} the resource columns, not apart
+  from them: the claim is not that we render better but that we render better \emph{from the same
+  stream in the same time}. Note what the peak-versus-final gap says about methods that oversample
+  before pruning.
+  \textbf{Close with what we did not use} --- MonoGS's ``without requiring any deep priors'' move:
+  no post-processed trajectory, no depth sensor, and no optimization after the stream ends. This
+  is where the contract declared in \S\ref{ssec:setup} earns its keep; declaring it and never
+  cashing it in would be wasted.}
 
 \begin{table}[t]
 \centering\small
-\caption{\skel{TABLE 2} One configuration, every scene. Mean\,$\pm$\,std over three seeds.}
+\caption{\skel{TABLE 2} One configuration, every sequence. Nothing was retuned per scene
+  (\S\ref{ssec:setup}). Mean\,$\pm$\,std over three seeds.}
 \label{tab:scene}
 \begin{tabular}{l|ccc}
 \hline
-Scene & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \hline
-\pend{scenes TBD} & -- & -- & -- \\
+\pend{sequences TBD} & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table}
 
-\slot{P3 \textemdash\ THE SAME CONFIGURATION EVERYWHERE}{12}{%
-  \textbf{State explicitly that nothing was retuned per scene.} This is the claim exp59 makes
-  expensive to get wrong: a configuration tuned on one trajectory lost $1.85$\,dB on another.
-  Saying it plainly is what makes Table~\ref{tab:scene} worth reading.}
+\slot{P3 \textemdash\ WHERE THE SCENES DIVERGE}{14}{%
+  Table~\ref{tab:scene}, one configuration across every sequence. Say where the self-captured
+  Aria sequence and the public one behave differently \textbf{and why} --- CoMapGS does this per
+  dataset rather than reporting an average and moving on. \pend{scenes not yet chosen; see
+  notes/datasets/CURRENT.md}}
 
-\slot{P4 \textemdash\ COMPUTE AND LATENCY}{10}{%
-  Unpack the resource columns: where the time goes per component, and the gap between peak and
-  final model size. chen2026cover gives compute its own subsection; at our size a paragraph is
-  enough, but it should end on the fixed-budget argument --- what this buys when the stream, not
-  the optimizer, sets when you stop.}
+\slot{P4 \textemdash\ WHERE WE LOSE}{11}{%
+  \textbf{Name the losses before a reviewer does.} CoMapGS: ``second only to ReconFusion in the
+  3-view case. This difference is likely due to \dots''; chen2026cover concedes that a random
+  baseline is already strong. Where a method beats us, say so and say what it uses that we
+  contractually do not --- a depth sensor, a post-processed pose, or time after the stream.
+  \pend{fill once numbers exist; the slot is reserved so the concession is not an afterthought}}
 
 % ============================================================
 \subsection{Ablations}
