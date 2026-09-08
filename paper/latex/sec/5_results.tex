@@ -181,56 +181,136 @@ Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \subsection{Ablations}
 \label{ssec:abl}
 
-% taming3dgs 형식: 표보다 먼저 교란변수를 봉인한다.
-%   "Note that all configurations yield the same number of Gaussians."
-\slot{BUDGET SEAL \textemdash\ BEFORE THE TABLE}{5}{%
-  Every configuration receives the same stream and the same real-time budget; only the policy
-  under test differs. Say this \emph{before} the table, as Taming3DGS does.}
+% ============================================================
+% 2026-09-08 개정. 코퍼스 8편의 ablation 소절을 실측하고 다시 짰다.
+% (taming 5.3 / lmrs 5.2 / sparsegs 4.3 / vigsslam 4.3 / chen 5.2 / comapgs 4.3 /
+%  edgs 4.5 / tidigs F)  분량 ~180~440 words. 우리 42줄 ≈ 365 words → 길이는 이미 적정.
+%   고친 것은 길이가 아니라 구조다.
+%
+% [1] 여는 문단은 항상 네 가지 일을 2~3문장에 한다 — 무엇을 바꾸는지 / 어느 데이터로 /
+%     무엇을 붙잡아 뒀는지(seal) / 어디를 보라(표·그림 지목).
+%     seal 은 taming("all configurations yield the same number of Gaussians") 하나가 아니라
+%     tidigs 도 한다("keeping the training budget and camera paths identical across all runs").
+%     2/8 이지만 우리처럼 '예산이 곧 주장'인 논문에는 필수. 다만 seal 만 있고 나머지 셋이
+%     없던 게 이전 버전의 문제였다 → 한 슬롯으로 합쳤다.
+%
+% [2] run-in 은 4/8 이 쓰고(lmrs·sparsegs·vigsslam·edgs), 쓸 때는 예외 없이
+%     "끌 수 있는 것 하나 = run-in 하나", 이름은 §3 소절 이름 그대로, 순서도 그대로.
+%     lmrs 는 아예 절 번호를 본문에 박는다("in Sec. 4.3", "in Sec. 4.4", "(Sec. 4.5)").
+%     → 우리 View growth / Count balancing / Carving 은 이미 맞다. 유지.
+%
+% [3] 항목 문단의 꼴은 lmrs 가 가장 정확하다: (a) 목적 재진술 + §역참조 →
+%     (b) 표 지목 → (c) 행을 이름 대며 순서대로 읽음 → (d) 숫자 하나로 닫음.
+%     sparsegs 는 (d)를 세 항목 전부에서 지킨다(1.37dB / 0.33dB / 0.28dB).
+%     → 우리 세 항목도 각각 숫자 하나로 끝나야 한다.
+%
+% [4] 표 전체를 한 문장으로 읽는 종합 문장이 따로 있다 —
+%     vigsslam("removing any component will degrade ... while our full system achieves the best"),
+%     tidigs("These ablations trace a clear causal chain" 이후 한 문단).
+%     우리에겐 이게 §3의 '한 원인, 세 결과'를 회수하는 자리다 → 맨 끝에 3줄 신설.
+%
+% [5] 자기보다 나은 행을 지우지 않는다.
+%     taming: -reduce SH frequency 가 PSNR 25.39 > 우리 25.20 인데 그대로 싣고
+%             "그래도 속도 50% 손해"로 답한다.
+%     lmrs Tab.2: Random MBS=32 (21.68) 가 Clustering MBS=16 (21.37) 을 이긴다 — 교란축이
+%             기여축을 이기는 표를 스스로 싣는다. Tab.3 은 자기가 고른 N=32 가 품질에서 열세.
+%     chen: "only as good as the random baseline in very sparse initialization regimes".
+%     → κ=16 이상치와 K=128,β=0 부재는 표 안 \pend 로 숨길 게 아니라 본문에 자리를 줘야 한다.
+%
+% [6] ★ 표 형태 — 여기가 이전 버전의 진짜 결함이었다.
+%     코퍼스의 ablation 표는 두 종류뿐이다:
+%       (i) 제거축 한 개 — 행 = "무엇을 뺐나". taming·edgs·tidigs·vigsslam·sparsegs
+%       (ii) setting × method — chen Tab.2 (+ oracle 행)
+%     세 개의 독립 축을 \multirow 로 한 표에 겹친 예는 8편 중 0편이다.
+%     lmrs 는 항목이 3개라 표를 3개로 나눠 각 문단 옆에 둔다.
+%     이전 우리 Table 3 은 growth/ordering/carve 세 축을 겹쳐 놓고 ρ_H·sel.CV·lifetime 열을
+%     공유시켰는데, 그 세 열은 ordering 축에만 정의된다 — 셀 2/3 이 무의미해진다.
+%     → 표를 둘로 쪼갠다: Table 3 은 전 행에 정의되는 열만 가진 제거축 표(taming 꼴),
+%       Table 4 는 ordering 축에만 있는 진단 열을 K×β 로 놓는다(lmrs Tab.2 꼴 — 교란축 K 를
+%       기여축 β 옆에 둔다). κ sweep 은 표에서 뺀다: 코퍼스에서 하이퍼파라미터 sweep 은
+%       ablation 표가 아니라 별도 그림/표로 간다(taming Fig.1, tidigs Tab.II) → 본문 숫자 + 보충자료.
+% ============================================================
+
+\slot{OPENER \textemdash\ scope, data, seal, pointer (3 sentences)}{5}{%
+  \textbf{What varies and on what data} --- one sentence, as SparseGS opens (``We ablate our
+  method on the Mip-NeRF360 dataset 12-view setting'').
+  \textbf{Then the seal}: every configuration receives the same stream, the same real-time budget,
+  the same seeds, and no per-scene retuning; only the policy under test differs (Taming3DGS seals
+  the Gaussian count, TIDI-GS seals budget \emph{and} camera paths --- we have three confounds to
+  seal, so we name all three).
+  \textbf{Then point at Table~\ref{tab:abl}, Table~\ref{tab:order} and Fig.~\ref{fig:carve}
+  at once.}}
 
 \begin{table}[t]
-\centering\footnotesize
-\caption{\skel{TABLE 3} Three blocks in one table. Within \emph{ordering}, $K$ runs down the rows
-  so the confounding axis (block length) sits beside the contribution axis ($\beta$) --- the
-  arrangement lmrs uses to show that its own gain is smaller than the batch-size effect.}
+\centering\small
+\caption{\skel{TABLE 3} Ablations: one axis, \emph{what replaced our policy}. Every column is
+  defined for every row --- the arrangement Taming3DGS and EDGS use. Diagnostics that exist only
+  for the ordering axis are in Table~\ref{tab:order}, not here.
+  \pend{rows that beat the full system stay in the table and are answered in the text, as
+  Taming3DGS does with \texttt{-reduce SH frequency}}}
 \label{tab:abl}
-\begin{tabular}{ll|ccccc}
+\begin{tabular}{l|ccc|cc}
 \hline
- & policy & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first & final \\
+Configuration & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & updates & final \\
 \hline
-\multirow{4}{*}{\rotatebox{90}{\scriptsize growth}}
-  & keyframe rule (baseline) & -- & -- & -- & -- & -- \\
-  & fixed-FPS dense          & -- & -- & -- & -- & -- \\
-  & \textbf{ours}            & -- & -- & -- & -- & -- \\
-  & $\kappa$ sweep \pend{incl.\ the $\kappa{=}16$ outlier} & -- & -- & -- & -- & -- \\
+\textbf{Ours (full)}                & -- & -- & -- & -- & -- \\
 \hline
-\multirow{6}{*}{\rotatebox{90}{\scriptsize ordering}}
-  & random full-pool         & -- & -- & -- & -- & -- \\
-  & covisibility window      & -- & -- & -- & -- & -- \\
-  & novelty-first            & -- & -- & -- & -- & -- \\
-  & residual-first           & -- & -- & -- & -- & -- \\
-  & clustering sampler       & -- & -- & -- & -- & -- \\
-  & $K{\times}\beta$ grid \pend{$K{=}128,\beta{=}0$ NOT MEASURED} & -- & -- & -- & -- & -- \\
+$-$growth: keyframe rule            & -- & -- & -- & -- & -- \\
+$-$growth: fixed-FPS dense          & -- & -- & -- & -- & -- \\
 \hline
-\multirow{3}{*}{\rotatebox{90}{\scriptsize carve}}
-  & off                      & -- & -- & -- & -- & -- \\
-  & v7-64                    & -- & -- & -- & -- & -- \\
-  & ported                   & -- & -- & -- & -- & -- \\
+$-$order: random full-pool          & -- & -- & -- & -- & -- \\
+$-$order: covisibility window       & -- & -- & -- & -- & -- \\
+$-$order: novelty-first             & -- & -- & -- & -- & -- \\
+$-$order: residual-first            & -- & -- & -- & -- & -- \\
+\hline
+$-$carving                          & -- & -- & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table}
 
 \noindent\textbf{View growth.}\;
-\slot{ITEM 1 \textemdash\ matches \S\ref{ssec:growth}}{12}{%
-  Gate removal against the keyframe rule; the $\kappa$ sweep and how quality degrades as the price
-  per view falls; and slot placement at $+0.35\%$, reported as the reason the subsection is about
-  the rate rather than the choice.}
+\slot{ITEM 1 \textemdash\ lmrs shape: purpose+\S ref, table, rows in order, one number}{11}{%
+  \textbf{Restate the purpose with the section reference in the sentence}, as lmrs writes it
+  (``We propose a view sampling approach in Sec.~4.3 to ensure that\dots''): \S\ref{ssec:growth}
+  lets completed service, not the keyframe rule, set how fast the pool may grow.
+  Then read the two replacement rows of Table~\ref{tab:abl} in order.
+  \textbf{Report the $\kappa$ sweep in prose, not in the table} --- hyperparameter sweeps sit
+  outside the ablation table in the corpus (Taming3DGS puts its budget sweep in Fig.~1) --- and
+  \textbf{state the $\kappa{=}16$ anomaly here rather than omitting it} \pend{22.163\,dB,
+  $-5.545$ against trend; full sweep in the supplement}. Close on one number.}
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{\skel{TABLE 4} Ordering axis only, since $\rho_H$, selection CV and lifetime are
+  undefined for the other two. $K$ runs down the rows so the confounding axis (block length) sits
+  beside the contribution axis ($\beta$) --- lmrs's Table~2 arrangement, which is what lets a
+  reader see that the confound can be the larger effect.
+  \pend{$\rho_H$, sel.\ CV and lifetime must be defined in \S\ref{ssec:setup}; only $\rho_H$ is}}
+\label{tab:order}
+\begin{tabular}{ll|cccc}
+\hline
+$K$ & $\beta$ & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first \\
+\hline
+1   & 0                          & -- & -- & -- & -- \\
+32  & 0                          & -- & -- & -- & -- \\
+32  & \textbf{ours}              & -- & -- & -- & -- \\
+128 & 0 \pend{NOT MEASURED}      & -- & -- & -- & -- \\
+128 & \textbf{ours}              & -- & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
 
 \noindent\textbf{Count balancing.}\;
-\slot{ITEM 2 \textemdash\ REGIME FRAMING, matches \S\ref{ssec:ercb}}{16}{%
-  \textbf{Concede first, as chen2026cover does with its random baseline}: where short blocks are
-  not forced, random reshuffling is already strong, and the gain appears where $K \ll N_t$. Then
-  the proxy-versus-goal divergence from \S\ref{ssec:ercb}, with both numbers.
-  \pend{no $K{=}128,\beta{=}0$ arm exists yet, so the effect of $\beta$ alone is still unmeasured}}
+\slot{ITEM 2 \textemdash\ REGIME FRAMING first, matches \S\ref{ssec:ercb}}{15}{%
+  \textbf{Concede the regime first}, as chen2026cover does (``only as good as the random baseline
+  in very sparse initialization regimes''): where blocks are long, random reshuffling is already
+  strong, and the gain appears where $K \ll N_t$. Read Table~\ref{tab:order} down $K$ before
+  across $\beta$, so the reader sees which of the two axes is the larger effect --- lmrs prints
+  the table in which its own contribution loses to batch size and says so.
+  Then the proxy-versus-goal divergence from \S\ref{ssec:ercb}, with both numbers.
+  \pend{the $K{=}128,\beta{=}0$ arm does not exist yet, so the effect of $\beta$ alone is
+  unmeasured; say this in the text --- an empty cell alone will read as an oversight}
+  Close on one number.}
 
 \begin{figure}[t]
   \centering
@@ -243,5 +323,15 @@ Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \end{figure}
 
 \noindent\textbf{Carving.}\;
-\slot{ITEM 3 \textemdash\ matches \S\ref{ssec:carve}}{10}{%
-  \pend{teammate} Same shape as the two items above (Fig.~\ref{fig:carve}).}
+\slot{ITEM 3 \textemdash\ same shape, matches \S\ref{ssec:carve}}{9}{%
+  \pend{teammate} Purpose with the \S\ref{ssec:carve} reference, the removal row of
+  Table~\ref{tab:abl}, then Fig.~\ref{fig:carve} for what the number does not show ---
+  SparseGS pairs its floater-pruning row with a qualitative figure for exactly this reason.
+  Close on one number.}
+
+% 종합 문장. vigsslam 은 항목 끝에서, tidigs 는 독립 문단으로 표 전체를 한 번 읽는다.
+% 우리에겐 §3 도입의 '한 원인, 세 결과'가 여기서 회수된다 — 세 정책이 서로 다른 방식으로
+% 품질을 잃어야 세 소절이 한 문제의 세 얼굴이라는 주장이 증거를 얻는다.
+\slot{CLOSING \textemdash\ read the table as a whole}{3}{%
+  Removing any one of the three costs quality, \emph{and the three losses differ in kind} ---
+  which is the claim of \S\ref{sec:method}'s opening recovered as a measurement, not restated.}

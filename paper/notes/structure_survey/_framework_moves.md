@@ -80,3 +80,20 @@ Introduction은 Field→Aim(넓음→좁음), Conclusion은 Aim→Field(좁음�
 | **Rejected alternatives 부록** | 시도했다 버린 대안을 표로. 본문 지면 0 | lmrs App E |
 | **Disabled features 부록** | 무엇을/왜 껐는지 + **선행 연구도 그랬음** | lmrs App F |
 | **가정 원장 ↔ Limitations 짝** | §3에서 붙인 가정을 §6에서 순서대로 감사 | chen §4.4 ↔ §6 |
+
+## §4.3 Ablation — 8편 실측 후 추가 (2026-09-08)
+
+> 표본: taming 5.3 · lmrs 5.2 · sparsegs 4.3 · vigsslam 4.3 · chen 5.2 · comapgs 4.3 ·
+> edgs 4.5 · tidigs F. 본문 77~442 words.
+
+| move | 하는 일 | 실물 |
+|---|---|---|
+| **Ablation 여는 문단 4작업** | 2~3문장에 (a) 무엇을 바꾸는지 (b) 어느 데이터로 (c) 무엇을 붙잡아 뒀는지 (d) 어디를 보라 | sparsegs 4.3 첫 두 문장, taming 5.3 첫 세 문장 |
+| **예산 봉인 (일반형)** | 봉인 대상은 예산만이 아니다 — 교란이 여럿이면 여럿을 부른다 | tidigs *"keeping the training budget **and camera paths** identical across all runs"* |
+| **항목 문단 4부 꼴** | (a) 목적 재진술 + **§역참조를 문장 안에** → (b) 표 지목 → (c) 행을 이름 대며 순서대로 → (d) **숫자 하나로 닫음** | lmrs 5.2 세 항목 전부 |
+| **항목마다 델타 숫자** | 모든 항목이 dB 하나로 끝난다 | sparsegs (1.37 / 0.33 / 0.28 dB) |
+| **표 전체 종합 문장** | 행별 서술 뒤에 표를 한 번에 읽는 문장/문단 | vigsslam 4.3 *"removing any component will degrade…"*, tidigs *"These ablations trace a clear causal chain"* |
+| **열세 행 게시** | **자기보다 나은 행을 지우지 않고 싣고 답한다** | taming `-reduce SH frequency` (25.39 > 25.20, "속도 50% 손해"로 답함); lmrs Tab.3 자기 설정이 품질 열세 |
+| **명명 ablation (재확인)** | (a)–(f) 번호 + 무엇을 껐는지 한 문장씩 | vigsslam Tab.6, tidigs (a)–(e) |
+| **★ 표 = 축 하나** | ablation 표는 (i) 제거축 한 개 **또는** (ii) setting×method 둘 중 하나다. **독립 축 여럿을 `\multirow` 로 겹친 예는 8/8 중 0편.** 항목이 여럿이면 **표를 나눠 각 문단 옆에 둔다** | 제거축: taming·edgs·tidigs·vigsslam·sparsegs / setting×method: chen Tab.2 / 표 분할: lmrs Tab.2·3·4 |
+| **sweep 은 표 밖** | 하이퍼파라미터 sweep 은 ablation 표가 아니라 별도 그림·표·본문으로 | taming Fig.1 (예산 sweep), tidigs Tab.II (4개 임계값 민감도) |
