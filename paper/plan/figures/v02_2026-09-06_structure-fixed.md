@@ -1,5 +1,10 @@
 # Figure 명세 v02 (2026-09-06) — 구조 확정 반영
 
+> ⚠ **2026-09-08 정정: Fig.4(rate invariance) 폐기, 그림 4개.**
+> 단일 GPU·1× 실시간으로 정하면서 pace 스윕과 GPU 대조가 사라져 그릴 실험이 없다.
+> 근거: [`../../notes/decisions/2026-09-08_single-gpu-realtime.md`](../../notes/decisions/2026-09-08_single-gpu-realtime.md)
+> Fig.5(floater) 는 **Fig.4** 로 번호가 당겨진다.
+
 > 각 그림이 **무엇을 증명하는가**를 먼저 적는다. 예쁜 그림이 아니라 근거가 목적이다.
 > claim 번호는 `plan/claims/CURRENT.md` 기준.
 > **6그림 → 5그림.** 같은 조판(CVPR 9쪽)인 chen2026cover가 2표 3그림이다.

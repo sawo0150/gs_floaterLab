@@ -1,167 +1,216 @@
 % ============================================================
 % 4. Experiments   ← 이 파일이 §4다 (파일명은 Overleaf 템플릿 것을 그대로 둠)
-%    계획: sections/04_experiments/README.md
-%    번호 붙은 소절은 2개. Setup은 번호 없이 도입 문단에 run-in 볼드로.
+% 계획: sections/04_experiments/README.md
+%
+% 구조 (2026-09-08 개정): 번호 붙은 소절 3개.
+%   4.1 Setup / 4.2 Main Results / 4.3 Ablations
+%   ⚠ 이전엔 Setup 을 번호 없는 도입으로 뒀으나, 표본을 5편→8편으로 늘리니
+%     번호 있음 5편(MonoGS·SparseGS·CoMapGS·CaRtGS·Taming) : 없음 3편(chen·lmrs·vigsslam)로
+%     다수가 번호를 준다. 길이도 15~37줄로 번호 유무와 무관했다.
+%
+% 2026-09-08 결정 반영 (notes/decisions/2026-09-08_single-gpu-realtime.md):
+%   · 5090 한 대, 1× 실시간만. GPU 2대·pace 배수 언급하지 않는다
+%   · 예산은 "스트림 길이 그 자체" → 1.5× 같은 배수 서술 삭제
+%   · Fig.4 rate invariance 폐기 (그릴 실험이 없음) → 그림 5개 → 4개
+%   · Table 1 은 시스템 baseline, scheduler arm 6개는 Table 3 으로 이동
+%
+% 분량: 한 쪽 ≈ 110줄. §4 목표 2.2p
+%   4.1  35줄 0.32p   run-in 4개. CaRtGS 37 · SparseGS 37 · MonoGS 31 과 같은 급
+%   4.2  74줄 0.67p   문단 4 + Table 1(2단) + Table 2
+%   4.3  76줄 0.69p   봉인문장 + Table 3 + run-in 3개 + Fig.4
 % ============================================================
 \section{Experiments}
 \label{sec:exp}
 
-% ---------- 도입 = Setup (번호 없음) ----------
+\subsection{Setup}
+\label{ssec:setup}
+
+% ---- Datasets ----
+% 방침: 자체 Aria 촬영분 1개 + 표준 1~2개. 후보 조사는 notes/datasets/CURRENT.md
+%   제약이 빡빡하다 — 단안 RGB(렌더 평가) + IMU(tracking) 를 동시에 주는 공개 데이터셋이 적다.
+%   EuRoC 은 흑백이라 렌더 평가에 못 쓴다 (vigsslam 도 같은 이유로 렌더는 다른 데이터셋에서 본다).
 \noindent\textbf{Datasets.}\;
-\skel{SETUP 1}\; aria1253, aria1253rot, 301\_305, 12F.
-\lipsum[1]
+\slot{DATASETS}{9}{%
+  \pend{not yet chosen --- see notes/datasets/CURRENT.md}
+  One self-captured Aria sequence plus one or two public sets, each with a clause saying what
+  makes it different (the corpus does this: cartgs, MonoGS). \textbf{State the held-out split
+  exactly}, in the manner of SparseGS's ``every eighth image as testing view'' --- ours are the
+  frames in \texttt{test.txt}, which no method uses for supervision. \textbf{If a sequence is
+  excluded, say why in place} (MonoGS: ``Since Replica is designed for RGB-D \dots we hence use
+  it for RGB-D evaluation only'').}
 
-\noindent\textbf{Streaming contract.}\;
-\skel{SETUP 2 \textemdash\ OUR CONTRACT LIVES HERE}\;
-To evaluate the strict streaming setting, every method receives the same sensor trace
-(RGB\,+\,IMU only, no post-processed trajectory or depth), the same $1.5\times$ wall-clock
-budget, and performs \emph{zero optimizer updates after the last sensor frame}.
-Poses and depths are the online-estimated ones. Results with a post-stream refinement tail
-are in the supplementary material.
-
+% ---- Metrics ----
+% 코퍼스 9편 실측: 렌더는 PSNR/SSIM/LPIPS 가 사실상 전부, tracking 은 ATE RMSE.
+%   그리고 논문마다 자기 주장에 맞는 지표를 하나씩 만들어 쓴다 —
+%   CaRtGS 의 IPF, Taming3DGS 의 Peak #G, VIGS-SLAM 의 Recall@5cm.
+%   ★ CaRtGS 가 IPF 를 Setup 에서 정의한다 → 우리 ρ_H 도 여기서 정의한다 (§3.2 에서 옮겨옴).
 \noindent\textbf{Metrics.}\;
-\skel{SETUP 3 \textemdash\ QUALITY vs.\ RESOURCE GROUPS}\;
-Quality: held-out PSNR / SSIM / LPIPS and region-GT AUC/AP.
-Resources: wall-time, streaming updates, total admissions, \emph{peak} and final model size.
-\pend{define $\rho_H$ here \textemdash\ moved out of \S\ref{ssec:ercb}; it is a metric, not a method}
-All numbers are mean\,$\pm$\,std over three runs.
-Held-out views are excluded from all supervision for every method; consequently, numbers
-reported under a post-processed-pose protocol \emph{are not directly comparable to ours}.
+\slot{METRICS}{10}{%
+  \emph{Quality}: PSNR, SSIM, LPIPS on held-out views. \emph{Resources}: wall-clock time, number
+  of streaming updates, number of admitted views, and peak and final model size --- peak matters
+  because a method that oversamples and prunes is otherwise indistinguishable from one that stays
+  within budget (Taming3DGS's \texttt{Peak \#G}). \textbf{Define $\rho_H$ here}, as cartgs defines
+  IPF in its setup: the entropy of the draw normalised by that of an unweighted draw, so $1.0$
+  means no randomness was given up. Name the tools (\texttt{evo}, \texttt{torchmetrics}) the way
+  cartgs does, with footnote URLs. All numbers are mean\,$\pm$\,std over three seeds.
+  Numbers reported under a post-processed-pose protocol \emph{are not directly comparable to
+  ours}.}
 
+% ---- Implementation details ----
+% 6/8 편에 있는 항목인데 우리에겐 통째로 없었다. CaRtGS: "RTX 4090, Ryzen 9 7950X, 128GB RAM".
+%   CaRtGS 형식 = "기본값 유지, 바꾼 것만" 나열.
+% ★ zero-tail 이 여기 산다. 별도 run-in(`Streaming contract.`) 은 두지 않는다 —
+%   코퍼스 어디에도 그런 run-in 이 없고, 실제로 논문에 필요한 것은 zero-tail 과 online pose 둘뿐이다.
+%   vigsslam 이 같은 내용을 `Baselines.` 안 한 문장으로 처리한 선례를 따른다.
+\noindent\textbf{Implementation details.}\;
+\slot{IMPLEMENTATION DETAILS}{9}{%
+  Hardware in one clause (a single RTX 5090). \textbf{Retain the VIGS-SLAM defaults and list only
+  what changed} --- $\kappa$, $\beta$, $K$ --- which is how cartgs writes it; these three values
+  appear nowhere else in the paper. \textbf{Then the contract, in one sentence}: each method
+  receives the sensor stream in real time and performs \emph{zero optimizer updates after the last
+  frame}, so the compute budget is the duration of the stream itself; poses and depths are the
+  online-estimated ones, never the post-processed trajectory. Results with a post-stream
+  refinement tail are in the supplement.}
+
+% ---- Baselines ----
+% MonoGS 형식: 목록이 아니라 선정 기준을 말한다.
+%   ("methods that, like ours, do not have explicit loop closure" / "selected based on their public
+%    reporting or the availability of source code" / "the method which uses ground truth poses
+%    for initialisation is not considered")
+% 출처 표기는 CoMapGS·VIGS-SLAM 형식: Setup 에서 규칙을 말하고 표에서 기호로 표시.
 \noindent\textbf{Baselines.}\;
-\skel{SETUP 4}\; fixed-FPS dense / random full-pool / covisibility window /
-novelty-first / residual-first / clustering-based batch sampler.
-\lipsum[2]
+\slot{BASELINES \textemdash\ CRITERIA, NOT A LIST}{7}{%
+  Photo-SLAM, MonoGS, CaRtGS and VIGS-SLAM. \textbf{Give the criteria that select them}, as MonoGS
+  does: they run in real time from monocular input and build a photorealistic map; code or
+  published numbers exist; and they do not presuppose a depth sensor or a post-processed pose ---
+  which is what excludes the RGB-D-only systems. \textbf{State the provenance rule here} and mark
+  it in the tables: reproduced by us, cited from the paper, or failed.}
 
-% ---------- 4.1 ----------
+% ============================================================
 \subsection{Main Results}
 \label{ssec:main}
 
-% --- Table 1 : 품질 + 자원을 한 표에, 상/하단 두 시나리오 ---
 \begin{table*}[t]
 \centering\small
-\caption{\skel{TABLE 1} Main results. Top half: \emph{same budget $\to$ quality}. Bottom half:
-  \emph{same quality $\to$ budget}. \pend{caption must mark provenance (cited / reproduced / F)
-  and state the admission-law agreement in one line}}
+\caption{\skel{TABLE 1} Main results. Quality and resource columns in one table, so the claim is
+  \emph{at equal compute}, not merely \emph{better} (cartgs puts ATE/FPS/IPF/PSNR/Points together;
+  Taming3DGS puts quality beside train time and \texttt{Peak \#G}).
+  \pend{caption carries the provenance marks (reproduced / cited / F) and states the
+  admission-law agreement in one line}}
 \label{tab:main}
-\begin{tabular}{l|ccc|ccccc}
+\begin{tabular}{l|ccc|cccc}
 \hline
 Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$
-       & wall-time & updates & admissions & peak & final \\
+       & wall-time & updates & peak & final \\
 \hline
-\multicolumn{9}{c}{\emph{same budget $\to$ quality}}\\
-\hline
-fixed-FPS dense            & -- & -- & -- & -- & -- & -- & -- & -- \\
-random full-pool           & -- & -- & -- & -- & -- & -- & -- & -- \\
-covisibility window        & -- & -- & -- & -- & -- & -- & -- & -- \\
-clustering batch sampler   & -- & -- & -- & -- & -- & -- & -- & -- \\
-\textbf{Ours}              & -- & -- & -- & -- & -- & -- & -- & -- \\
-\hline
-\multicolumn{9}{c}{\emph{same quality $\to$ budget}}\\
-\hline
-VIGS-SLAM (baseline)       & -- & -- & -- & -- & -- & -- & -- & -- \\
-\textbf{Ours} (update-matched) & -- & -- & -- & -- & -- & -- & -- & -- \\
+Photo-SLAM                 & -- & -- & -- & -- & -- & -- & -- \\
+MonoGS                     & -- & -- & -- & -- & -- & -- & -- \\
+CaRtGS                     & -- & -- & -- & -- & -- & -- & -- \\
+VIGS-SLAM                  & -- & -- & -- & -- & -- & -- & -- \\
+\textbf{Ours}              & -- & -- & -- & -- & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table*}
 
-\skel{P1 RESULTS POINTER}\; Point at Table~\ref{tab:main}, Table~\ref{tab:scene} and
-Table~\ref{tab:abl} at once, and state the highlighting convention. \lipsum[2]
+% cartgs IV.B 첫 문단 형식: 표를 한 번에 가리키고 최우수 표기 규칙을 밝힌다.
+\slot{P1 \textemdash\ RESULTS POINTER}{7}{%
+  Point at Table~\ref{tab:main}, Table~\ref{tab:scene} and Table~\ref{tab:abl} at once and state
+  the highlighting convention --- cartgs opens its results this way, in one sentence.}
 
-\skel{P2 SAME BUDGET}\; \lipsum[4-5]
+\slot{P2 \textemdash\ QUALITY AT EQUAL COMPUTE}{16}{%
+  The claim is not that we render better but that we render better \emph{from the same stream in
+  the same time}. Read the quality columns against the resource columns together, and say what
+  the peak-versus-final gap shows about methods that oversample before pruning.}
 
-\skel{P3 SAME QUALITY}\; \lipsum[7]
-
-% --- Table 2 : 장면 일반화 ---
 \begin{table}[t]
 \centering\small
-\caption{\skel{TABLE 2} Fixed config, scene varied. Mean\,$\pm$\,std over three runs.}
+\caption{\skel{TABLE 2} One configuration, every scene. Mean\,$\pm$\,std over three seeds.}
 \label{tab:scene}
 \begin{tabular}{l|ccc}
 \hline
 Scene & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \hline
-aria1253 & -- & -- & -- \\
-aria1253rot & -- & -- & -- \\
-301\_305 & -- & -- & -- \\
-12F & -- & -- & -- \\
+\pend{scenes TBD} & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table}
 
-\skel{P4 CROSS-SCENE}\; State explicitly that no per-scene retuning was done. \lipsum[9]
+\slot{P3 \textemdash\ THE SAME CONFIGURATION EVERYWHERE}{12}{%
+  \textbf{State explicitly that nothing was retuned per scene.} This is the claim exp59 makes
+  expensive to get wrong: a configuration tuned on one trajectory lost $1.85$\,dB on another.
+  Saying it plainly is what makes Table~\ref{tab:scene} worth reading.}
 
-\begin{figure}[t]
-  \centering
-  \fbox{\parbox[c][3.4cm][c]{0.94\linewidth}{\centering
-    \textbf{Fig.\,4} \\[2pt]\small (a) growth per $S(t)$: 5090 vs.\ 5070Ti overlaid \\
-    (b) PSNR range over pace $0.75$--$2.0\times$}}
-  \caption{\skel{FIG.4 \textemdash\ KEY FIGURE} Rate invariance. State in the caption that both GPUs
-           run the same trace and the same config. (P02)}
-  \label{fig:rate}
-\end{figure}
+\slot{P4 \textemdash\ COMPUTE AND LATENCY}{10}{%
+  Unpack the resource columns: where the time goes per component, and the gap between peak and
+  final model size. chen2026cover gives compute its own subsection; at our size a paragraph is
+  enough, but it should end on the fixed-budget argument --- what this buys when the stream, not
+  the optimizer, sets when you stop.}
 
-\noindent\textbf{Rate robustness.}\;
-\skel{P5 RUN-IN}\; Growth scales with hardware speed and input pace while quality holds
-(Fig.~\ref{fig:rate}). This is not a component removal but a \emph{result that a claimed
-property holds}. \lipsum[11]
-
-\noindent\textbf{Compute and latency.}\;
-\skel{P6 RUN-IN}\; Unpack the resource columns of Table~\ref{tab:main}: per-component time,
-and the gap between peak and final size. \lipsum[13]
-
-% ---------- 4.2 ----------
+% ============================================================
 \subsection{Ablations}
 \label{ssec:abl}
 
-\skel{BUDGET SEAL \textemdash\ BEFORE THE TABLE}\;
-All configurations receive the same admission budget and the same wall-clock budget;
-only the policy under test differs.
+% taming3dgs 형식: 표보다 먼저 교란변수를 봉인한다.
+%   "Note that all configurations yield the same number of Gaussians."
+\slot{BUDGET SEAL \textemdash\ BEFORE THE TABLE}{5}{%
+  Every configuration receives the same stream and the same real-time budget; only the policy
+  under test differs. Say this \emph{before} the table, as Taming3DGS does.}
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{\skel{TABLE 3} Three ablation blocks in one table. $K$ runs down the rows so the
-  confounding axis (block length) sits beside the contribution axis ($\beta$).}
+\caption{\skel{TABLE 3} Three blocks in one table. Within \emph{ordering}, $K$ runs down the rows
+  so the confounding axis (block length) sits beside the contribution axis ($\beta$) --- the
+  arrangement lmrs uses to show that its own gain is smaller than the batch-size effect.}
 \label{tab:abl}
 \begin{tabular}{ll|ccccc}
 \hline
- & config & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first & pool \\
+ & policy & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first & final \\
 \hline
-\multirow{3}{*}{\rotatebox{90}{\scriptsize growth}}
-  & gate (baseline)        & -- & -- & -- & -- & -- \\
-  & gate-free              & -- & -- & -- & -- & -- \\
-  & $\kappa$ sweep \pend{(incl.\ the $\kappa{=}16$ outlier)} & -- & -- & -- & -- & -- \\
+\multirow{4}{*}{\rotatebox{90}{\scriptsize growth}}
+  & keyframe rule (baseline) & -- & -- & -- & -- & -- \\
+  & fixed-FPS dense          & -- & -- & -- & -- & -- \\
+  & \textbf{ours}            & -- & -- & -- & -- & -- \\
+  & $\kappa$ sweep \pend{incl.\ the $\kappa{=}16$ outlier} & -- & -- & -- & -- & -- \\
 \hline
-\multirow{4}{*}{\rotatebox{90}{\scriptsize balancing}}
-  & $K{=}1,\ \beta{=}0$    & -- & -- & -- & -- & -- \\
-  & $K{=}32,\ \beta{=}0$   & -- & -- & -- & -- & -- \\
-  & $K{=}128,\ \beta{=}0$  & \pend{NOT MEASURED} & -- & -- & -- & -- \\
-  & $K{=}128,\ \beta{=}0.02$ & -- & -- & -- & -- & -- \\
+\multirow{6}{*}{\rotatebox{90}{\scriptsize ordering}}
+  & random full-pool         & -- & -- & -- & -- & -- \\
+  & covisibility window      & -- & -- & -- & -- & -- \\
+  & novelty-first            & -- & -- & -- & -- & -- \\
+  & residual-first           & -- & -- & -- & -- & -- \\
+  & clustering sampler       & -- & -- & -- & -- & -- \\
+  & $K{\times}\beta$ grid \pend{$K{=}128,\beta{=}0$ NOT MEASURED} & -- & -- & -- & -- & -- \\
 \hline
 \multirow{3}{*}{\rotatebox{90}{\scriptsize carve}}
-  & carve off              & -- & -- & -- & -- & -- \\
-  & v7-64                  & -- & -- & -- & -- & -- \\
-  & ported                  & -- & -- & -- & -- & -- \\
+  & off                      & -- & -- & -- & -- & -- \\
+  & v7-64                    & -- & -- & -- & -- & -- \\
+  & ported                   & -- & -- & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table}
 
 \noindent\textbf{View growth.}\;
-\skel{ITEM 1}\; Gate removal, $\kappa$ sweep, slot placement ($+0.35\%$). \lipsum[14]
+\slot{ITEM 1 \textemdash\ matches \S\ref{ssec:growth}}{12}{%
+  Gate removal against the keyframe rule; the $\kappa$ sweep and how quality degrades as the price
+  per view falls; and slot placement at $+0.35\%$, reported as the reason the subsection is about
+  the rate rather than the choice.}
 
 \noindent\textbf{Count balancing.}\;
-\skel{ITEM 2 \textemdash\ REGIME FRAMING}\; Where short blocks are not forced, random
-reshuffling is already strong; the gain of ERCB appears where $K \ll N_t$.
-\pend{no $K{=}128,\beta{=}0$ arm exists yet, so the effect of $\beta$ alone is unmeasured \textemdash\ P03}
-\lipsum[16]
+\slot{ITEM 2 \textemdash\ REGIME FRAMING, matches \S\ref{ssec:ercb}}{16}{%
+  \textbf{Concede first, as chen2026cover does with its random baseline}: where short blocks are
+  not forced, random reshuffling is already strong, and the gain appears where $K \ll N_t$. Then
+  the proxy-versus-goal divergence from \S\ref{ssec:ercb}, with both numbers.
+  \pend{no $K{=}128,\beta{=}0$ arm exists yet, so the effect of $\beta$ alone is still unmeasured}}
 
 \begin{figure}[t]
   \centering
-  \fbox{\parbox[c][3.0cm][c]{0.94\linewidth}{\centering
-    \textbf{Fig.\,5} \\[2pt]\small same-viewpoint renders + PLY cross-section \\ carve off / v7 / ported}}
-  \caption{\skel{FIG.5} Carving removes free-space Gaussians. (P04)}
+  \fcolorbox{slotgray}{slotbg}{\parbox[c][3.0cm][c]{0.92\linewidth}{\centering
+    {\sffamily\scriptsize\bfseries\color{skelblue}FIG.\,4}\\[3pt]
+    {\sffamily\scriptsize\color{slotgray}same-viewpoint renders + PLY cross-section\\
+     carve off / v7-64 / ported \quad\textbullet\quad P04}}}
+  \caption{Carving removes free-space Gaussians.}
   \label{fig:carve}
 \end{figure}
 
 \noindent\textbf{Carving.}\;
-\skel{ITEM 3}\; \pend{teammate} (Fig.~\ref{fig:carve}) \lipsum[18]
+\slot{ITEM 3 \textemdash\ matches \S\ref{ssec:carve}}{10}{%
+  \pend{teammate} Same shape as the two items above (Fig.~\ref{fig:carve}).}

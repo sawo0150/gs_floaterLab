@@ -13,6 +13,13 @@
 - 표 5→4, 그림 6→5
 - 근거: `notes/naming/CURRENT.md`, `sections/04_experiments/README.md`
 
+## ⚠ 2026-09-08 — P02 폐기
+
+단일 GPU·1× 실시간으로 정하면서 rate invariance 를 검증할 축(pace·GPU)이 사라졌다.
+**P02 와 Fig.4 를 폐기하고 claims B2 를 삭제(또는 future work)한다.**
+pool-independence(B1)는 한 run 안에서 pool 이 커지는 동안 측정되므로 그대로 유효하다.
+근거: [`../../notes/decisions/2026-09-08_single-gpu-realtime.md`](../../notes/decisions/2026-09-08_single-gpu-realtime.md)
+
 ## 크리티컬 패스
 
 ```

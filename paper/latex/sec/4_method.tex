@@ -73,7 +73,7 @@
   \textbf{what constrains} the geometry it does not yet determine.
   (4) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
   let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
-  independent of the size of the set and of hardware speed.
+  independent of the size of the set.
   (5) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
   set is not, so we draw each block by a count-balanced rule without replacement, \textbf{which}
   evens out exposure without giving up random order.
@@ -133,7 +133,10 @@
   premise, not the claim} \emph{(boundary of A2)}; what we claim is the rule that sets the rate.}
 
 % P3 — 이 절의 기여. 세 후보를 비교하고 계보를 밝힌다.
-%   ⚠ claims B2 는 아직 ▶(P02 미검증). "하드웨어와 무관"은 설계 성질로만 쓰고 실측 주장 금지.
+%   ⚠ 2026-09-08: 단일 GPU·pace 스윕 없음으로 정하면서 "하드웨어 속도와 무관" 주장은
+%     검증할 실험이 사라졌다(claims B2, Fig.4, P02 폐기). 집합 크기 독립성만 말한다 —
+%     그건 한 run 안에서 pool 이 커지는 동안 측정된다(B1, exp73 526 poll).
+%     근거: notes/decisions/2026-09-08_single-gpu-realtime.md
 \slot{P3 \textemdash\ WHAT TO METER (the contribution)}{16}{%
   Three candidates. \emph{Wall-clock time} advances whether or not the GPU finished anything, so
   under a slow or stalled optimizer admission outruns it and the new views dilute the updates ---
@@ -144,7 +147,8 @@
   which makes it credit-based rather than rate-based. A consequence: during a stall the meter
   does not advance, so no credit accrues and no burst can build --- a time-metered bucket needs a
   depth cap for that, ours cannot fill in the first place.
-  \pend{design property, not a measurement --- B2 awaits P02}}
+  \pend{claim set-size independence only. "hardware speed" dropped 2026-09-08: single GPU, no
+  pace sweep, so B2 has no experiment --- notes/decisions/2026-09-08\_single-gpu-realtime.md}}
 
 % P4 — 불변식이 먼저, 상한이 그로부터 따라온다.
 \slot{P4 \textemdash\ INVARIANT, AND THE CAP THAT FOLLOWS}{10}{%
