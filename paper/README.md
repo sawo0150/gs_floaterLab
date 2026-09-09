@@ -13,6 +13,7 @@
 | 무엇 | 어디 |
 |---|---|
 | 지금 상태와 다음 할 일 | [`PAPER_STATUS.md`](PAPER_STATUS.md) |
+| **§3·§4 문단·표 배치 한눈에** | [`PARAGRAPH_MAP.md`](PARAGRAPH_MAP.md) |
 | 섹션별 무슨 내용을 쓸지 | [`sections/README.md`](sections/README.md) → 각 절 폴더 |
 | 실험 테이블 | [`plan/experiment_table/CURRENT.md`](plan/experiment_table/CURRENT.md) |
 | 무엇을 주장해도 되는가 | [`plan/claims/CURRENT.md`](plan/claims/CURRENT.md) ← **가장 중요** |
