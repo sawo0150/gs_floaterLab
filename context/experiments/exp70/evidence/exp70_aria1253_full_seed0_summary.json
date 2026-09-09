@@ -1,0 +1,230 @@
+{
+  "schema": "exp70.detached-opacity-summary.v1",
+  "quality_metric": "strict zero-tail held-out",
+  "first_run_alignment_reference": "control",
+  "geometry_warning": "Opacity counts are gauge independent. Raw scale/opacity-area fields use each run's gauge; ply_aligned_to_first applies trajectory Sim3 but remains only a global giant-splat diagnostic, not a floater-specific metric. The aria1253 manual-region mask is absent on this machine, so this summary must not be reported as a floater/geometry PASS.",
+  "runs": [
+    {
+      "label": "control",
+      "run_dir": "exp70_axes/results/exp70_control_aria1253_full_seed0",
+      "status": "complete",
+      "heldout": {
+        "mean_psnr": 27.013062456036142,
+        "mean_ssim": 0.8653879690894765,
+        "mean_lpips": 0.24709298790983072
+      },
+      "online_loop_seconds": 100.41606187820435,
+      "gaussians": 98028,
+      "opacity_bands": {
+        "le_0_01": 2255,
+        "0_01_to_0_1": 16408,
+        "0_1_to_0_3": 13308,
+        "gt_0_3": 66057
+      },
+      "opacity_quantiles": {
+        "p01": 0.005038370300197382,
+        "p50": 0.7166557431971112,
+        "p99": 0.9997806677225941
+      },
+      "scale": {
+        "gt_0_5_raw_gauge": 49,
+        "gt_1_0_raw_gauge": 27,
+        "p99_raw_gauge": 0.15279562781698894
+      },
+      "opacity_area_raw_gauge": 513.2724977627712,
+      "detached": {},
+      "replay": {
+        "steps": 6215,
+        "dense_updates": 6215,
+        "pool": 396,
+        "active_candidates": 390
+      },
+      "trajectory_sim3_to_first": {
+        "scale": 1.0,
+        "pairs": null,
+        "median_residual": 0.0,
+        "p90_residual": 0.0
+      },
+      "ply_aligned_to_first": {
+        "scale_gt_0_5": 49,
+        "scale_gt_1_0": 27,
+        "scale_p99": 0.15279562781698894,
+        "opacity_area": 513.2724977627712
+      }
+    },
+    {
+      "label": "detector",
+      "run_dir": "exp70_axes/results/exp70_detector_aria1253_full_seed0",
+      "status": "complete",
+      "heldout": {
+        "mean_psnr": 25.60439770524673,
+        "mean_ssim": 0.8068060250901385,
+        "mean_lpips": 0.33630409289295504
+      },
+      "online_loop_seconds": 100.50263810157776,
+      "gaussians": 92564,
+      "opacity_bands": {
+        "le_0_01": 3468,
+        "0_01_to_0_1": 15339,
+        "0_1_to_0_3": 10530,
+        "gt_0_3": 63227
+      },
+      "opacity_quantiles": {
+        "p01": 0.004237989000157545,
+        "p50": 0.7743781813596452,
+        "p99": 0.9997333739769323
+      },
+      "scale": {
+        "gt_0_5_raw_gauge": 3161,
+        "gt_1_0_raw_gauge": 1355,
+        "p99_raw_gauge": 1.502781588901565
+      },
+      "opacity_area_raw_gauge": 30316.363859157584,
+      "detached": {
+        "enabled": "True",
+        "mode": "nll",
+        "lambda": 0.0,
+        "calls": 225,
+        "projected": 2557837,
+        "surface_cells": 383263,
+        "valley_cells": 36794,
+        "selected": 69557,
+        "selected_per_projected": 0.027193679659806312
+      },
+      "replay": {
+        "steps": 6548,
+        "dense_updates": 6548,
+        "pool": 328,
+        "active_candidates": 322
+      },
+      "trajectory_sim3_to_first": {
+        "scale": 0.25062131461228865,
+        "pairs": 148,
+        "median_residual": 1.2546654072046455,
+        "p90_residual": 4.347715511108806
+      },
+      "ply_aligned_to_first": {
+        "scale_gt_0_5": 709,
+        "scale_gt_1_0": 345,
+        "scale_p99": 0.3766290973856542,
+        "opacity_area": 1904.2024442078741
+      }
+    },
+    {
+      "label": "alpha",
+      "run_dir": "exp70_axes/results/exp70_alpha_aria1253_full_seed0",
+      "status": "complete",
+      "heldout": {
+        "mean_psnr": 27.31244771124908,
+        "mean_ssim": 0.8704260716122159,
+        "mean_lpips": 0.24288995745103004
+      },
+      "online_loop_seconds": 100.43064141273499,
+      "gaussians": 98120,
+      "opacity_bands": {
+        "le_0_01": 2358,
+        "0_01_to_0_1": 16340,
+        "0_1_to_0_3": 13444,
+        "gt_0_3": 65978
+      },
+      "opacity_quantiles": {
+        "p01": 0.005004299103230629,
+        "p50": 0.7095878474219959,
+        "p99": 0.9997916762159784
+      },
+      "scale": {
+        "gt_0_5_raw_gauge": 47,
+        "gt_1_0_raw_gauge": 27,
+        "p99_raw_gauge": 0.14762191646519993
+      },
+      "opacity_area_raw_gauge": 377.08917135168883,
+      "detached": {
+        "enabled": "True",
+        "mode": "alpha",
+        "lambda": 0.002,
+        "calls": 244,
+        "projected": 2800409,
+        "surface_cells": 415227,
+        "valley_cells": 39162,
+        "selected": 75000,
+        "selected_per_projected": 0.02678180222960289
+      },
+      "replay": {
+        "steps": 6410,
+        "dense_updates": 6410,
+        "pool": 331,
+        "active_candidates": 325
+      },
+      "trajectory_sim3_to_first": {
+        "scale": 1.0038129974696535,
+        "pairs": 124,
+        "median_residual": 0.003977416681554012,
+        "p90_residual": 0.006771986937562057
+      },
+      "ply_aligned_to_first": {
+        "scale_gt_0_5": 47,
+        "scale_gt_1_0": 27,
+        "scale_p99": 0.14818479845914714,
+        "opacity_area": 379.97033394458026
+      }
+    },
+    {
+      "label": "nll",
+      "run_dir": "exp70_axes/results/exp70_nll_aria1253_full_seed0",
+      "status": "complete",
+      "heldout": {
+        "mean_psnr": 27.22923943219264,
+        "mean_ssim": 0.871718570672346,
+        "mean_lpips": 0.23645273221461155
+      },
+      "online_loop_seconds": 100.44709944725037,
+      "gaussians": 97859,
+      "opacity_bands": {
+        "le_0_01": 2286,
+        "0_01_to_0_1": 15510,
+        "0_1_to_0_3": 13444,
+        "gt_0_3": 66619
+      },
+      "opacity_quantiles": {
+        "p01": 0.005074251469899349,
+        "p50": 0.7181750461194129,
+        "p99": 0.9997600669327811
+      },
+      "scale": {
+        "gt_0_5_raw_gauge": 42,
+        "gt_1_0_raw_gauge": 18,
+        "p99_raw_gauge": 0.15761921475163707
+      },
+      "opacity_area_raw_gauge": 348.5124805478766,
+      "detached": {
+        "enabled": "True",
+        "mode": "nll",
+        "lambda": 0.002,
+        "calls": 236,
+        "projected": 2806064,
+        "surface_cells": 408245,
+        "valley_cells": 39460,
+        "selected": 74093,
+        "selected_per_projected": 0.026404600892923326
+      },
+      "replay": {
+        "steps": 6569,
+        "dense_updates": 6569,
+        "pool": 286,
+        "active_candidates": 280
+      },
+      "trajectory_sim3_to_first": {
+        "scale": 0.9964350218761966,
+        "pairs": 124,
+        "median_residual": 0.00529785551768393,
+        "p90_residual": 0.01076123708592085
+      },
+      "ply_aligned_to_first": {
+        "scale_gt_0_5": 42,
+        "scale_gt_1_0": 18,
+        "scale_p99": 0.15705730569915644,
+        "opacity_area": 346.03203107899606
+      }
+    }
+  ]
+}

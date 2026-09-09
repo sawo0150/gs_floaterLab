@@ -88,6 +88,66 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-09 (exp76 — threshold-free mean-normalized Softmax는 RR 우세, exp75 대체 실패)**:
+  interval member당 service를 현재 frame-average service로 나눈 단일 식
+  `w_j=|G_j| exp(-gamma r_j/mean_r)`를 구현하고, 즉시 causal admission·K=8·inner RR·
+  zero-tail 조건에서 305/12F seed0의 `exp(gamma)=1.0~2.0` 9점을 sweep했다. 두 장면의
+  overall과 worst-Q1을 함께 올린 유일한 공통값 `gamma=log1.25`를 고정해 seed1로 검증하자
+  causal RR 대비 overall **4/4 양수**(평균 **+.089dB**), worst-Q1 **+.233dB**,
+  RR-hard-Q1 **+.660dB**였다. 그러나 exp75 relative-floor 최고식 대비 overall은
+  **-.354dB(0/4 승)**, late-third는 **-.632dB(0/4 승)**라 호각 가설은 기각했다.
+  normalized의 count CV .904와 dynamic entropy .973은 relative-floor .901/.961보다
+  오히려 좋은데 품질은 낮아, global count variance+entropy만으로 3DGS 품질을 설명할 수
+  없고 심한 under-service에 correction을 집중하는 형태가 중요함을 확인했다. **깔끔한
+  scale-free RR ablation으로는 유지하되 exp75 주 방법을 대체하지 않는다.**
+  → [exp76 카드](experiments/exp76/exp76_mean_normalized_softmax_ablation.md),
+  [evidence](experiments/exp76/evidence/exp76_summary.json)
+
+- **2026-09-06 (exp75 — pure-online zero-tail relative-floor interval softmax RR, 3-scene goal 달성)**:
+  maturity gate·post-arrival polish·phase switch·loss term을 모두 제거하고, 모든 causal arrival을
+  즉시 admission한 채 마지막 training-view arrival에서 update를 정확히 종료했다. 단일 법칙
+  `relative_floor_interval_softmax_rr(K=8, rho=.5, gamma=log3)`는 interval member당 service가
+  현재 전체 평균의 절반보다 부족할 때만 최대 3× odds를 주고, outer interval과 inner frame을
+  비복원 추출한다. fixed VIGS pose/init·llffhold-8 held-out에서 305/12F/3F×독립 2 seed의
+  causal RR 대비 overall이 **6/6 양수**(평균 **+.326dB**, 최소 +.093), worst-Q1
+  **+.654dB**, RR-hard-Q1 **+.897dB**, late-third **+.522dB**였다. count CV는
+  .979→.883, 128-update temporal entropy는 .972→.962로 약 1%p만 낮아졌고 후보의
+  20,512 interval block은 duplicate 0이었다. 추가 1253은 overall 평균 −.009dB로 동률이나
+  worst-Q1 +.793dB, late +1.111dB였다. 후보 Gaussian은 평균 +3.9%라 topology 경로를 포함한
+  end-to-end scheduler 효과이며 replay-only 인과효과로 과장하지 않는다. **3-scene offline goal은
+  달성했지만 실제 RGB+IMU-only strict VIGS 및 wall-clock budget 이식 전이다.**
+  → [exp75 카드](experiments/exp75/exp75_block_weighted_rr_30k_loop.md),
+  [machine-readable summary](experiments/exp75/evidence/zero_tail_selected_summary.json),
+  [ablation figure](experiments/exp75/evidence/zero_tail_selected_ablation.png)
+
+- **2026-09-06 (exp74-30k 정정 — count balancing의 late-bin 회복 확인)**:
+  최초 exp74의 11,880 update가 기본 densify 종료 15k에도 못 미쳐 saturation 결론에
+  부족하다는 사용자 지적을 반영해 1253/305 causal RR와 count-balanced RR를 30k로
+  재실행했다. 1253 전체는 **35.202 vs 34.883dB(−0.319)**이나 후반 third는
+  **33.377→33.455(+0.078)**로 역전했다. 305 전체는 **34.541 vs 33.526(−1.015)**이나
+  후반은 **33.563→34.561(+0.998)**로 더 크게 역전했다. count-balanced의 count CV는
+  1253 0.018, 305 0.034로 거의 균등했고, 짧은 run 대비 개선량도 RR보다 컸다.
+  1253 static all-at-once RR는 전체 **35.301**, 후반 **33.946dB**로 여전히 최고였다.
+  **정정 결론: raw count balancing은 조기 NO-GO가 아니라 느리게 수렴하며 late-bin을
+  회복하는 방법이다. 다만 30k 전체 평균에서 일반 RR 역전은 아직 실패했고, 다음 판단에는
+  final PSNR뿐 아니라 temporal worst-bin과 anytime curve를 함께 사용한다.**
+  → [exp74 30k 정정](experiments/exp74/exp74_offline_causal_full_pool_scheduler_ablation.md),
+  [evidence](experiments/exp74/evidence/exp74_30k_summary.json)
+
+- **2026-09-06 (exp74 — all-frame offline scheduler ablation, raw count equality 기각)**:
+  3dgs-custom에 growing-pool causal RR, minimum-count RR, soft-count, floor-protected RR와
+  full-frame arrival replay를 구현했다. fixed VIGS pose·동일 init/update·llffhold-8에서
+  1253 causal RR은 **32.220dB**, count-balanced RR은 **30.402dB(−1.818)**였고,
+  305는 **33.378→30.443dB(−2.936)**였다. count CV는 각각 0.799→0.072,
+  0.797→0.047로 거의 균등해졌지만 tail block temporal entropy도 0.979→0.908/0.863으로
+  낮아졌다. 1253 soft β=.005/.01/.02와 floor α=.25/.5도 전부 −0.270~−0.511dB로
+  RR을 못 이겼다. 모든 frame을 처음부터 공개한 static RR는 **32.660dB**로 causal RR보다
+  +0.440dB였으며 static pool에서 count-balanced RR는 수학적으로 같은 sampling law다.
+  **결론: 큰 pool이면 raw-count fairness가 RR을 이긴다는 가설은 2-scene에서 기각; 다음은
+  raw count가 아니라 marginal utility/residual 감소량당 GPU cost를 목적함수로 정의한다.**
+  → [exp74 카드](experiments/exp74/exp74_offline_causal_full_pool_scheduler_ablation.md),
+  [evidence](experiments/exp74/evidence/exp74_summary.json)
+
 - **2026-09-05 (exp73 — gate-free token-only admission 7-run 검증 및 해석 정정)**:
   final-v7의 interval별 무료 bootstrap+maturity-gated admission을, 최초 전역 seed 한 장 뒤
   완료 dense Adam update \(\kappa\)회당 pending causal view 한 장을 admission하는 token-only

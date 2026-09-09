@@ -1,0 +1,23 @@
+{
+  "contract": {
+    "resolution": 4,
+    "seed": 0,
+    "iterations": 30000,
+    "temporal_partition": "held-out frames sorted by timestamp and split into three near-equal groups",
+    "init": "fixed accumulated VIGS depth-anchor PCD; 16039 points for aria1253",
+    "pose": "fixed traj_full_online_eval from exp73 kappa22 run"
+  },
+  "aria1253": {
+    "causal_rr": {"psnr": 35.2021402581, "thirds": [36.0772460244, 36.1358530256, 33.3771160620], "count_cv": 0.3172494287, "count_min": 18, "count_max": 73},
+    "count_balanced_rr": {"psnr": 34.8833997176, "thirds": [35.4144504200, 35.7709773735, 33.4549370872], "count_cv": 0.0176635217, "count_min": 26, "count_max": 27},
+    "static_rr": {"psnr": 35.3010250864, "thirds": [35.9300622767, 36.0151705565, 33.9461935891]},
+    "count_balanced_minus_causal": {"psnr": -0.3187405405, "thirds": [-0.6627956044, -0.3648756522, 0.0778210251]},
+    "gain_11880_to_30000": {"causal_rr": 2.9824500172, "count_balanced_rr": 4.4817674906}
+  },
+  "aria305": {
+    "causal_rr": {"psnr": 34.5408967166, "thirds": [37.2555421591, 32.8040530511, 33.5630949395], "count_cv": 0.5795277158, "count_min": 5, "count_max": 44},
+    "count_balanced_rr": {"psnr": 33.5263395707, "thirds": [34.4721082108, 31.5461615154, 34.5607489858], "count_cv": 0.0337140920, "count_min": 12, "count_max": 13},
+    "count_balanced_minus_causal": {"psnr": -1.0145571459, "thirds": [-2.7834339482, -1.2578915358, 0.9976540463]},
+    "gain_21780_to_30000": {"causal_rr": 1.1625178541, "count_balanced_rr": 3.0836784329}
+  }
+}
