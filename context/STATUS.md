@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-09-04. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-09. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -143,6 +143,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   → [exp70 카드](experiments/exp70/exp70_max_entropy_view_scheduler_sim.md),
   [전체 보고서](research/view_scheduler_long_horizon_sim_report.md)
 
+- **2026-09-01 (exp70.5 추가 — vanilla VIGS-SLAM depth/normal loss ablation)**: carve loss를
+  확률모형으로 재검토하는 작업(`research/carveloss_academic/`, 별도 문서 트랙, STATUS
+  범위 밖)과 병행해, VIGS-SLAM 최신 동작 확인 과정에서 "무수정 vanilla 알고리즘 자체의
+  depth loss·normal loss가 온라인 매핑 품질에 주는 개별 효과"를 별도 체크아웃
+  (`VIGS-SLAM-vanilla-check`, `cvg/VIGS-SLAM` origin/main 무수정)에서 2x2 ablation으로
+  측정했다. aria1253 `--pure_online`(오프라인 26k-iter 정제 제외) 조건에서 **depth OFF/
+  normal OFF가 4개 중 최고(23.14dB)**, normal 단독 ON이 최저(21.96dB, −1.17dB) — 두
+  감독 항 모두 이 조건에서는 개별로 손해였다. n=1이라 기존 run-to-run 노이즈
+  (±0.24~0.33dB)를 감안해도 depth 단독 효과(−0.70dB)는 유의하나 상호작용은 반복 검증
+  전까지 잠정. hard 채택/기각 판단 없이 측정치만 기록 → [exp70.5](experiments/exp70/exp70.5_vigs_vanilla_depth_normal_loss_ablation.md).
 - **2026-08-27 (exp69 추가 — pose-balanced active + unbounded archive 구현·기각)**:
   FIFO forgetting 없이 무한 causal view pool을 보존하면서 frontier replay 주기만
   분리하기 위해, <code>map()</code> 내부에 pose-farthest active set과 unbounded
