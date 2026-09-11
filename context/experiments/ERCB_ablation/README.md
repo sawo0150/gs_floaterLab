@@ -93,10 +93,12 @@ scheduler 효과다.
 
 ## 재현 및 evidence
 
-- 3dgs-custom GitHub main: `db035da`
+- 3dgs-custom GitHub main: `8568fd6`
 - dataset builder: `scripts/incremental/build_benchmark_causal_dataset.py`
+- VIGS replay builder: `scripts/incremental/build_vigs_benchmark_causal_dataset.py`
 - runner: `scripts/incremental/run_ercb_benchmark_ablation.sh`
 - summarizer: `scripts/incremental/summarize_ercb_benchmark.py`
+- corrected VIGS replay 재개 지점: [`HANDOFF_5070TI.md`](HANDOFF_5070TI.md)
 - compact result: [`evidence/representative_1000_summary.json`](evidence/representative_1000_summary.json)
 - full run artifacts (fastMRI only):
   `/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/runs/`
