@@ -1,0 +1,72 @@
+{
+  "date": "2026-09-11",
+  "code": {
+    "repository": "sawo0150/3dgs-custom",
+    "branch": "main",
+    "commit": "db035da"
+  },
+  "protocol": {
+    "frames": 1000,
+    "train_frames": 875,
+    "heldout_frames": 125,
+    "heldout_rule": "sorted image index modulo 8 equals zero",
+    "rgb_per_interval": 8,
+    "iters_per_interval": 60,
+    "total_iterations": 7441,
+    "tail_iterations": 0,
+    "resolution": 4,
+    "seeds": [0, 1],
+    "pose": "fixed ground truth; offline scheduler-isolation harness",
+    "initialization": "shared deterministic multi-depth ray scaffold from training images; non-causal",
+    "arms": {
+      "causal_rr": {},
+      "normalized_interval_size_softmax_rr": {"block_size": 8, "gamma": 0.22314355131420976},
+      "relative_floor_interval_softmax_rr": {"block_size": 8, "rho": 0.5, "gamma": 1.0986122886681098}
+    }
+  },
+  "scenes": {
+    "rpng_table01_1000": {
+      "initial_points": 176400,
+      "runs": {
+        "causal_rr": {
+          "seed0": {"psnr": 26.748668670654297, "ssim": 0.8658962845802307, "lpips": 0.1139058843255043, "worst_q1": 22.69618974858895, "late": 24.166102816585003, "count_cv": 0.9246263823766413, "gaussians": 434216},
+          "seed1": {"psnr": 26.734468460083008, "ssim": 0.8670051097869873, "lpips": 0.11209950596094131, "worst_q1": 22.5581279504347, "late": 23.83957158096275, "count_cv": 0.9248143693267062, "gaussians": 438133}
+        },
+        "normalized_interval_size_softmax_rr": {
+          "seed0": {"psnr": 26.687637329101562, "ssim": 0.8689104318618774, "lpips": 0.11051179468631744, "worst_q1": 23.01777305706713, "rr_hard_q1": 23.77559247860621, "late": 24.025305052634803, "count_cv": 0.8445741741784192, "gaussians": 440503},
+          "seed1": {"psnr": 26.63490104675293, "ssim": 0.8694684505462646, "lpips": 0.10899201035499573, "worst_q1": 22.875420821451318, "rr_hard_q1": 23.401876212240257, "late": 23.719579074828648, "count_cv": 0.8585298892828473, "gaussians": 442210}
+        },
+        "relative_floor_interval_softmax_rr": {
+          "seed0": {"psnr": 26.615942001342773, "ssim": 0.8701760172843933, "lpips": 0.10902682691812515, "worst_q1": 23.026763885256777, "rr_hard_q1": 23.43204024216976, "late": 24.5028905085265, "count_cv": 0.8574800314301837, "gaussians": 455973},
+          "seed1": {"psnr": 26.59563636779785, "ssim": 0.8693541288375854, "lpips": 0.11291702091693878, "worst_q1": 23.109689889594154, "rr_hard_q1": 23.443674735104075, "late": 24.359376277916443, "count_cv": 0.8646012369924272, "gaussians": 448537}
+        }
+      },
+      "mean_delta_vs_rr": {
+        "normalized": {"psnr": -0.08029937744140625, "worst_q1": 0.3194380897474005, "rr_hard_q1": 0.9615754959114096, "late": -0.13039513504215172, "count_cv": -0.07316834412104051},
+        "relative_floor": {"psnr": -0.13577938079833984, "worst_q1": 0.4410680379136416, "rr_hard_q1": 0.8106986391250928, "late": 0.42829619444759537, "count_cv": -0.06367974164036833}
+      }
+    },
+    "utmm_square1_1000": {
+      "initial_points": 360612,
+      "runs": {
+        "causal_rr": {
+          "seed0": {"psnr": 25.064241409301758, "ssim": 0.8679523468017578, "lpips": 0.13267725706100464, "worst_q1": 20.479772994564097, "late": 25.55913508606824, "count_cv": 0.9246263823766413, "gaussians": 984095},
+          "seed1": {"psnr": 24.6407527923584, "ssim": 0.8680888414382935, "lpips": 0.13345099985599518, "worst_q1": 20.634659080736302, "late": 24.750376723930955, "count_cv": 0.9248143693267062, "gaussians": 992873}
+        },
+        "normalized_interval_size_softmax_rr": {
+          "seed0": {"psnr": 24.71283531188965, "ssim": 0.8690927028656006, "lpips": 0.13514408469200134, "worst_q1": 20.631528133456307, "rr_hard_q1": 20.765988694113553, "late": 24.603304810046357, "count_cv": 0.8445741741784192, "gaussians": 1029585},
+          "seed1": {"psnr": 24.871803283691406, "ssim": 0.8697871565818787, "lpips": 0.13517211377620697, "worst_q1": 20.859306771292214, "rr_hard_q1": 20.973175297063175, "late": 25.204984704489227, "count_cv": 0.8585298892828473, "gaussians": 1021844}
+        },
+        "relative_floor_interval_softmax_rr": {
+          "seed0": {"psnr": 24.740358352661133, "ssim": 0.8686702847480774, "lpips": 0.13366861641407013, "worst_q1": 20.605602310272946, "rr_hard_q1": 20.728916445579344, "late": 24.464453640969182, "count_cv": 0.8574800314301837, "gaussians": 1027317},
+          "seed1": {"psnr": 24.814302444458008, "ssim": 0.8703307509422302, "lpips": 0.13260388374328613, "worst_q1": 20.628654755274614, "rr_hard_q1": 20.67965840093162, "late": 25.064612315174013, "count_cv": 0.8646012369924272, "gaussians": 1021318}
+        }
+      },
+      "mean_delta_vs_rr": {
+        "normalized": {"psnr": -0.06017780303955078, "worst_q1": 0.1882014147240607, "rr_hard_q1": 0.31236595793816413, "late": -0.2506111477318047, "count_cv": -0.07316834412104051},
+        "relative_floor": {"psnr": -0.07516670227050781, "worst_q1": 0.0599124951235801, "rr_hard_q1": 0.14707138560528144, "late": -0.39022292692799887, "count_cv": -0.06367974164036833}
+      }
+    }
+  },
+  "verdict": "overall held-out PSNR transfer failed; count CV and average lower-tail metrics improved; this non-causal artificial-init harness is not a strict streaming result"
+}

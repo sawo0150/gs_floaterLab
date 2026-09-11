@@ -88,6 +88,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-11 (ERCB ablation — RPNG-AR/UTMM representative transfer, overall NO-GO)**:
+  새 exp 번호를 만들지 않고 `context/experiments/ERCB_ablation/` 누적 트랙에서
+  RPNG `table_01`과 UTMM `square-1`의 첫 1,000 RGB를 fixed-GT-pose/shared
+  multi-depth ray-scaffold로 변환했다. 공통 계약은 train/held-out 875/125,
+  llffhold-8, 8-RGB interval, 60 update/event, `T=7,441==last arrival`, zero-tail,
+  resolution 4, seed 0/1이다. Causal RR 대비 normalized(`K=8,gamma=log1.25`)와
+  relative-floor(`K=8,rho=.5,gamma=log3`)의 두 scene×두 seed overall 평균은 각각
+  **-.070dB(1/4 승), -.105dB(1/4 승)**로 exp75의 양수 transfer를 재현하지 못했다.
+  반면 worst-Q1은 평균 **+.254/+.250dB**, RR-hard-Q1은 **+.637/+.479dB**,
+  count CV는 `.925→.852/.861`로 fairness/lower-tail 효과는 재현했다. 두 scene 모두
+  27dB 미만이라 carve는 적용하지 않는다. 전체 slice의 미래 train RGB ray를 init에
+  쓴 non-causal scheduler-isolation harness이고 RPNG camera/IMU extrinsic도 근사했으므로,
+  다음은 UTMM native depth와 RPNG VIGS/COLMAP 또는 causal point admission으로 init 축을
+  분리해야 한다. 3dgs-custom 구현·runner는 GitHub `main@db035da`에 통합했다.
+  → [ERCB ablation 카드](experiments/ERCB_ablation/README.md),
+  [compact evidence](experiments/ERCB_ablation/evidence/representative_1000_summary.json)
+
 - **2026-09-09 (exp76 — threshold-free mean-normalized Softmax는 RR 우세, exp75 대체 실패)**:
   interval member당 service를 현재 frame-average service로 나눈 단일 식
   `w_j=|G_j| exp(-gamma r_j/mean_r)`를 구현하고, 즉시 causal admission·K=8·inner RR·
