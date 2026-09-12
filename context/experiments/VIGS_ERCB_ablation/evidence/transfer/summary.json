@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-13",
+  "decision_rule": "at_least_2_of_3_transfer_scenes_delta_ge_1db",
+  "development_scene_excluded": "ego-drive",
+  "passes": 1,
+  "scene_count": 3,
+  "accepted": false,
+  "scenes": [
+    {
+      "scene": "ego-centric-1",
+      "custom_keyframes": 52,
+      "vanilla_keyframes": 53,
+      "shared_view_count": 299,
+      "custom_psnr": 21.22629506611904,
+      "vanilla_psnr": 17.327093121200104,
+      "delta_db": 3.8992019449189357,
+      "passes_plus_1db": true
+    },
+    {
+      "scene": "slow-straight-2",
+      "custom_keyframes": 12,
+      "vanilla_keyframes": 16,
+      "custom_psnr": null,
+      "vanilla_union_psnr": 19.232922799447003,
+      "delta_db": null,
+      "passes_plus_1db": false,
+      "failure": "custom IMU_poseinit_after=15 gate was never reached; zero mapping packets and zero Adam steps; post-hoc evaluator then found no initialized map"
+    },
+    {
+      "scene": "square-1",
+      "custom_keyframes": 71,
+      "vanilla_keyframes": 84,
+      "shared_view_count": 311,
+      "custom_psnr": 21.051757668375586,
+      "vanilla_psnr": 20.69059895702497,
+      "delta_db": 0.3611587113506154,
+      "passes_plus_1db": false
+    }
+  ]
+}

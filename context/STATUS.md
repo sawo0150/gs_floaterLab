@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-09-09. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-13. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -87,6 +87,168 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 - 표준 지표: region GT(`floater_metric_region.py`) + ray-density 상호보완. 오프라인 청소: `extract_floaters_rulebase.py`(예산 top-K) + 3D 삭제 영역(`build_floater_region.py`).
 
 ## 최근 흐름 (최신순)
+
+- **2026-09-13 (VIGS provisional pre-IMU map으로 short-motion 구조 복구)**:
+  inertial BA의 15-frame 전제를 깨는 조기 IMU init 대신, 원본 vanilla처럼
+  `--mapping_after_imu_init`만 끈 단일 축을 exposed `slow-straight-2`에서
+  진단했다. 12KF는 그대로지만 mapping packet 0→3, Adam 0→2,756회로 복구돼
+  strict fixed **22.8337dB**, vanilla keyframe을 함께 제거한 120-view shared
+  **22.8250 vs 19.1036dB(+3.7214)**를 얻었다. deadline/EOS 뒤 update는
+  0/0이다. short sequence 구조 해결 후보로 유지하되 이 장면은 개발 case라
+  일반화 승률에는 넣지 않고, untouched scene 전이와 `square-1`의 loop coverage
+  부족을 별도로 검증한다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-13 (VIGS verified baseline 무재튜닝 전이 1/3 — 일반화 NO-GO)**:
+  개발 장면 `ego-drive`를 제외하고 결과 전에 고정한 `ego-centric-1`,
+  `slow-straight-2`, `square-1`에 verified strict 1.5× KF100 recipe를 그대로
+  전이했다. original vanilla가 사용한 keyframe을 양쪽의 fixed subset에서 제거한
+  공통 held-out 비교에서 `ego-centric-1`은 **21.2263 vs 17.3271dB
+  (+3.8992)**로 통과했지만, `square-1`은 **21.0518 vs 20.6906dB
+  (+0.3612)**에 그쳤다. `slow-straight-2`는 realtime frontend가 12KF만 만들어
+  `IMU_poseinit_after=15` gate에 못 미쳐 mapping packet/Adam 0회로 실패했고,
+  vanilla는 16KF/union 19.2329dB였다. 따라서 목표 “3개 중 2개 이상 vanilla
+  +1dB”는 **1/3 NO-GO**다. 다음은 scene별 튜닝 없이 causal map-init gate와
+  loop coverage를 각각 단일 변인으로 고친다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-13 (VIGS strict 1.5× fixed-22 baseline 2/2 재현)**:
+  clean `9c1e2767` 기반 `exp81-vigs-benchmark-strict15x`에서 native depth/normal을
+  끈 paired arm이 fixed 21.1211→21.5655dB(+0.4444)였다. 추가 감사에서 계수가 0인데도
+  inverse-depth/normal graph를 매번 계산하는 낭비를 찾아 loss/gradient는 그대로 두고
+  short-circuit(`13698eb5`)했다. KF75/dense25는 21.8822dB, VIGS 원형에 가까운
+  non-eval KF100 replay는 **22.0991/22.0100dB**(평균 **22.0545**)로 fixed 22를
+  2/2 통과했다. SSIM은 .73345/.73115, LPIPS는 .27073/.27363, Adam은
+  5,185/4,882회다. 두 run 모두 69.9454초, fixed 281-view mapping 제외,
+  RGB+IMU-only/MPS0, eval map update 0, deadline/EOS 뒤 update 0이며
+  ERCB/token/carve/detached loss/background polish/terminal action은 모두 꺼져 있다.
+  원본 vanilla fixed 진단 20.0346보다 평균 +2.0199dB다. 재현 runner는
+  `exp81_axes/run_utmm_strict15x_verified_baseline.sh`(`551b3d44`)로 고정했다.
+  단 KF100은 dense view selector 비교가 아니므로, 다음 dense RR↔ERCB ablation은
+  active set/loss/budget을 paired 고정해야 한다. 이전 vanilla-density −0.6273 주장은
+  gradient scope까지 달랐던 confound이며, 통제된 init32 결과는 −0.1353dB로 정정한다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS vanilla 5070 Ti 기준선 및 custom strict fixed 재집계)**:
+  original `origin/main@22ffe24c`의 mapping/tracking/loss와 `config/utmm.yaml` 그대로
+  Ego-Drive를 측정했다(eval-only hook 6줄, 컴파일 include 1줄 제외). 공개 evaluator
+  union은 **20.1556dB**, keyframe 제외 fixed JPEG 진단은 **20.0346dB**, wall은
+  218.83초였다. 논문 refinement 전 21.54dB와 1.38~1.51dB 차이지만 논문은 mapping
+  view 제외, 공개 코드는 `idx%5 OR keyframe`이라 직접 동치 비교하지 않는다. custom
+  paper recipe fixed는 unlimited 20.3309/strict 15.5057dB로 synchronous schedule의
+  strict backlog 손실도 확인했다. 과거 exp81 표의 union을 held-out으로 부른 오류를
+  정정해 fixed로 재집계한 현재 custom strict 최고는 **21.4257dB**(dense 미등록
+  keyframe-only fallback), 실제 dense/KF 25:75 control은 21.2920dB다. 공개 vanilla
+  birth density 전체 이식은 Gaussian 18.25만, replay 1,370으로 fixed 20.6647dB까지
+  하락해 NO-GO. 개발 대상은 계속 custom branch이며 vanilla는 reference 전용이다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS 논문/공개 코드 protocol 재감사 — online control과 strict wrapper 분리)**:
+  VIGS는 RGB+IMU tracking과 Gaussian mapping을 하나의 end-to-end 실행에서 수행한다.
+  논문은 simultaneous/parallel로 서술하지만 공개 UTMM config는 `parallel` 미지정으로
+  코드 기본값 false, 즉 frontend 뒤 mapping 동기 호출이다(iPhone config만 true).
+  새 keyframe마다 direct-RGB Gaussian을 local frame-graph keyframe+global 2-view로 10회 최적화하며,
+  UTMM EgoDrv held-out은 final BA/color refinement 전 **21.54dB**(UTMM 평균 20.87),
+  refinement 후 23.47dB다. RTX5090 runtime 12.02 FPS도 full tracking+mapping 수치다.
+  다만 논문은 모든 mapping/keyframe view를 제외한다고 설명하는 반면 공개 evaluator는
+  idx%5/keyframe을 포함하고 keyframe skip이 주석 처리돼 있으며, pure-online 경로는
+  metric을 직접 계산하지 않는다. 따라서 논문 21.54와 현 llffhold-8은 직접 비교하지 않는다.
+  다만 논문은 전체 frame/전체 runtime FPS만 보고하고 fixed 1.5× deadline/zero-tail은
+  명시하지 않는다. 현 exp81은 end-to-end이지만 parallel 7-iters/global6/init600/
+  window15/thresh2.6+custom final-v7이고, 원형은 synchronous 10/global2/init1050/
+  window25/thresh2.4라 논문 원형 baseline이 아니다. 따라서 `ego-drive` 하나에서 원형의 online
+  control을 먼저 복원하고, 동일 schedule에 strict wrapper만 추가해 손실을 분리한 뒤
+  ERCB로 진행한다. 오해를 전제로 준비한 frontend-iters 실험 변경은 실행·커밋 없이 철회했다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS ERCB ablation — adaptive dense gradient도 현 5070Ti compute에서 NO-GO)**:
+  kf75와 budget을 고정하고 dense replay는 topology controller가 frontier를 떠난 뒤
+  SH appearance-only, keyframe은 full-geometry로 분리했다. audit에서 keyframe full
+  199, dense full 35, dense appearance 32로 의도를 확인했고 strict zero-tail도 통과했지만,
+  held-out은 **18.4075dB**로 kf75 full-gradient보다 −0.2866dB였다. tracking
+  73.221초 > budget 69.945초, idle replay 0, Adam 656, dense pool 152로 여전히
+  compute-starved다. 이는 appearance-only dense update가 32회인 상태에서 geometry를 더
+  줄인 결과이므로 5090 mapping-only recipe 자체의 기각으로 일반화하지 않는다.
+  다음은 dataset을 늘리지 않고 `ego-drive`에서 5090 reference와의 처리량 차이
+  (1,968 vs 656 Adam; 약 887 vs 152 dense views)를 먼저 해소한다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS ERCB ablation — keyframe 75% source quota 단독 NO-GO)**:
+  `ego-drive` seed0 hybrid 실행 경로를 고정하고 replay 252회를 keyframe 189 /
+  dense 63으로 정확히 75:25 배분했다. future-frame 0, deadline/EOS 뒤 update 0으로
+  strict contract은 통과했지만 held-out은 **18.6941dB**로 dense-only hybrid
+  18.8602dB보다 −0.1661dB였다. 따라서 keyframe 비율 단독은 채택하지 않고,
+  5090 recipe의 본질인 dense topology-성숙 후 appearance-only / keyframe full-geometry
+  gradient role 분리를 다음 단일 변인으로 검증한다. 설정 탐색은 UTMM
+  `ego-drive` 하나에서만 하고, 후보 확정 후 2–3개 대표 장면에만 전이한다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS ERCB ablation — cache-off hybrid 18.8602dB, 실행 경로 개선만 GO)**:
+  RTX5070Ti에서 GPU image cache만 끄고 5090의 4-step/overlap/packed replay와 UTMM
+  TRT를 결합했다. OOM 없이 zero-tail을 통과했고 held-out **18.8602dB**로 PyTorch
+  control보다 +1.1784dB 높았다. SSIM/LPIPS는 .6150/.4834, peak allocated/reserved는
+  8.10/11.18GB다. 그러나 tracking 73.409초가 69.945초 budget을 여전히 넘고 11 packet
+  drop, idle replay 0, 656 Adam에 그쳐 22dB baseline은 아니다. hybrid 실행 경로는
+  채택 후보로 두되 다음은 5090 mapping-only 22.010dB recipe의 source mix/gradient
+  scope/density를 코드에 대응시켜 한 축씩 이식한다. ERCB/carve는 계속 끈다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS ERCB ablation — 5070Ti 저메모리+UTMM TRT 단독 적용 NO-GO)**:
+  fixed-shape UTMM fnet/update/PGBA TRT engine과 RTX5070Ti 저메모리 profile로 strict
+  1.5×를 완주했다. peak allocated/reserved memory는 8.12/9.32GB로 OOM을 해소했고
+  deadline/EOS 뒤 update는 0이었지만, held-out은 **17.5679dB**로 PyTorch control
+  17.6818dB보다 −0.1138dB였다. Adam은 636→685, replay는 266→315로 소폭 늘었으나
+  tracking이 여전히 76.075초로 69.945초 budget보다 느려 idle replay는 0회였다.
+  따라서 TRT 단독은 품질 복원 수단으로 기각하고, 다음은 image cache만 끈 4-step/overlap
+  hybrid로 실행 병목을 분리한다. ERCB/carve는 계속 끈다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (VIGS ERCB ablation — strict 1.5× clean baseline 복원 진행 중)**:
+  clean `9c1e2767`에서 `exp81-vigs-benchmark-strict15x` branch를 만들고 fixed
+  sensor-EOS deadline/zero-tail guard와 UTMM 328×648 전용 TRT build 경로를 복원했다.
+  ERCB·token·legacy carve·detached loss·terminal action을 모두 끈 첫 유효 RTX5070Ti
+  PyTorch control은 held-out **17.6818dB**, 636 Adam, 266 dense replay였고
+  deadline/EOS 뒤 update는 모두 0이었다. 다만 tracking이 77.146초로 69.945초 budget보다
+  느려 idle replay가 0회였으므로 baseline compute starvation 상태다. 464×464 static TRT
+  shape 오류와 5090 memory profile을 15.46GB GPU에 적용한 OOM은 무효 run으로 분리했다.
+  다음은 5070Ti 저메모리 profile+UTMM TRT로 재검증하고, 여전히 22dB 미달이면 5090
+  mapping-only 22.010dB recipe의 source mix/gradient scope/density를 baseline에 하나씩
+  이식한다. **22dB baseline 전에는 ERCB나 carve를 켜지 않는다.**
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-12 (ERCB exp02 — RGB capture-time service latency 후보 전수 구현·검증, 품질 NO-GO)**:
+  물리 RGB 촬영 시각부터 해당 frame gradient가 실제 optimizer update에 포함돼 적용될 때까지를
+  latency로 정의하고, research 문서의 dense moment compensation, cross-view service field,
+  fresh/old pair mean mixing, debt–utility A, prefix balance B, approximate MIR C, safe pair D를
+  모두 구현했다. `slow-straight-2(mu/lambda=.312)`와 `ego-drive(1.608)`에서 전수 선별하고
+  ticket 강도 및 후보 내부 파라미터를 `ego-drive`에서 튜닝한 뒤, Debt A와 Service Field를 고정해
+  UTMM 6-scene으로 transfer했다. 최종 held-out PSNR은 RR **19.025dB** 대비 Debt
+  **18.548(−.477)**, Service Field **18.471(−.555)**로 각각 1/6·2/6 승에 그쳤고 worst-Q1도 하락했다.
+  반면 처리 가능 4-scene p95 latency는 RR **25.988초**에서 **18.526/18.540초**로 약
+  29% 감소했다. Pair는 같은 2 backward를 1 optimizer update로 묶어 cadence가 절반이 되며
+  더 악화했다. Tuning 중 token bucket과 Prefix ticket quota 결함을 발견·수정했고, quota를
+  지키지 않아 나온 Prefix 20.519dB는 무효로 제외했다. **결론: direct service latency는
+  줄일 수 있지만 최종 품질 병목은 아니며, 현재 후보 중 RR을 지배하는 방법은 없다.** 기존
+  interval ERCB의 UTMM 평균 +.0698dB binary ablation은 별도 근거로 유지한다.
+  → [exp02 카드](experiments/ERCB_ablation/exp02/RESULT.md),
+  [machine summary](experiments/ERCB_ablation/exp02/evidence/final_v3_summary.json)
+
+- **2026-09-11 (ERCB ablation 정정 — UTMM bundle 기준 튜닝·3-seed 검증, 평균 소폭 GO)**:
+  새 benchmark 중 motion diversity와 반복 비용을 고려해 UTMM 하나를 validation bundle로
+  고정했다. exp80 VIGS 결과에 사전 tracking gate(complete 및 Sim(3) ATE<10cm)를 적용해
+  6 scene을 사용하고, seed0에서 bundle-wide grid search한 뒤
+  `K=8,rho=.75,gamma=log1.5`를 고정해 seed1/2를 검증했다. 18 paired run에서
+  RR→ERCB held-out PSNR은 **21.9148→21.9845dB(+.0698)**, worst-Q1은
+  **+.1062dB**, RR-hard-Q1은 **+.3321dB**, win은 **11/18**이며 seed별 평균 delta는
+  `+.1343/+.0484/+.0265dB`로 모두 양수였다. 다만 fast-straight는 3-seed 평균
+  `-.2957dB`, selection-count CV는 `.8030→.9389`로 악화했다. 따라서 논문 주장은
+  **“UTMM validation module ablation에서 평균·hard-frame 품질 소폭 개선”**으로 제한하고,
+  보편적 우월성·통계적 유의성·count equality는 주장하지 않는다. 실제 timestamp interval과
+  sensor EOS/zero-tail은 지켰으나 final-online VIGS pose와 누적 geometry init을 고정한
+  scheduler-isolation이므로 strict online localization/P03 완료로 간주하지 않는다.
+  → [ERCB ablation 카드](experiments/ERCB_ablation/README.md),
+  [protocol](experiments/ERCB_ablation/UTMM_TUNING_PROTOCOL.md),
+  [compact evidence](experiments/ERCB_ablation/evidence/utmm_tuning_v1_compact.json)
 
 - **2026-09-11 (ERCB ablation — RPNG-AR/UTMM representative transfer, overall NO-GO)**:
   새 exp 번호를 만들지 않고 `context/experiments/ERCB_ablation/` 누적 트랙에서
