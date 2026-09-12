@@ -1,5 +1,7 @@
 # Experiment Index
 
+- **2026-09-13 exp77 (52 runs 완료):** event15 기존 ERCB−RR 3-seed 평균 UTMM +0.241/RPNG +1.027dB, 6/6 양수. coverage1 +0.276/+1.056. 큰 예산 역전·서비스 trade-off 포함. [최종 보고](exp77/FINAL_REPORT.md)
+
 전 실험 목록. 상세는 각 카드 참조. baseline 대비 Δ는 PSNR@30k 기준.
 
 > **HTML 보고서 모음:** [브라우저 인덱스](index.html) · [exp66](exp66/) · [exp67](exp67/) · [exp68](exp68/) · [exp69](exp69/)

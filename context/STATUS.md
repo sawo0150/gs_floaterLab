@@ -249,6 +249,103 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   → [ERCB ablation 카드](experiments/ERCB_ablation/README.md),
   [protocol](experiments/ERCB_ablation/UTMM_TUNING_PROTOCOL.md),
   [compact evidence](experiments/ERCB_ablation/evidence/utmm_tuning_v1_compact.json)
+- **2026-09-13 (exp77 완료 — 예산 제한에서 ERCB 우위 재현)**:
+  총52 runs 종료. event15 기존 ERCB−RR 3-seed 평균 UTMM +0.241/RPNG +1.027dB,
+  coverage1 +0.276/+1.056, 두 방법 모두 6/6 양수. 동일 dense stream과 예산이며
+  event30/60의 음수 결과도 포함했다. 저예산 zero-service는 증가하므로 fairness/
+  bounded latency 개선으로 주장하지 않는다. fixed pose/init replay에 한정된 결과.
+  → [최종 보고](experiments/exp77/FINAL_REPORT.md), [근거](experiments/exp77/evidence/final_ablation.json)
+
+- **2026-09-13 (exp77 예산 seed0 완료)**:
+  event15 ERCB−RR UTMM +0.4446/RPNG +1.1765 dB, coverage1 +0.4295/+1.1832.
+  event30 ERCB +0.1345/−0.0229, coverage1 +0.2106/−0.0253로 모든 예산 우위는 아니다.
+  추가12 runs matched 계약 통과, event15 seed1/2 반복으로 재현성을 확인한다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 event15 양수 신호·반복 예약)**:
+  event15 seed0 ERCB/coverage1−RR은 UTMM +0.4446/+0.4295,
+  RPNG +1.1765/+1.1832 dB. zero-service는 증가해 fairness 개선과 구분해야 한다.
+  event30 진행 후 동일 event15 seed1/2 12 runs를 재튜닝 없이 반복 예약했다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 coverage1 반복 완료)**:
+  seed1/2 12 runs 완료, coverage1−RR 3-seed 평균 UTMM +0.0223/RPNG +0.1838 dB.
+  seed1/2 독립 반복 3/4 양수(+0.1342 평균), RPNG 3/3 양수지만 interval-base 대비
+  보정 추가 효과는 작다. zero-service 6/6 감소, 범용 가속/독립 장면 일반화 미검증.
+  event15/30 비교로 이어간다. → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 예산 ablation 실행 예약)**:
+  seed2 반복 진행 중이며 종료 후 event15/30 × 두 scene × RR/기존 ERCB/coverage1의
+  사전 고정 12개 명령을 실행 예약했다. 전체 frame/event 유지·동일 예산·zero-tail
+  검사를 통과했으며 event60 결과도 함께 보고한다. 아직 예산 품질 결과는 없다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 window 기각·coverage1 반복 시작)**:
+  window−RR UTMM −0.0934/RPNG −0.1588 dB, 무보정 window −0.0612/−0.1627.
+  4개 run 계약 검사 통과지만 모든 평가 지점 RR 미달로 window 채택하지 않는다.
+  coverage1 seed1/2 × 두 scene × RR/base/coverage1 12개 run이 이어서 시작됐다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 coverage1 seed 재현성 검증 예약)**:
+  seed0의 coverage1 미소 개선을 확인하기 위해 seed1/2 × 두 scene × RR/interval-base/
+  coverage1 총 12개 run을 파라미터 변경 없이 고정했다. window PID 36130 종료 및
+  결과 존재 확인 뒤 실행한다. 현재는 window UTMM 실행 중이며 재현성 결과는 없다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 coverage 6 runs 완료·window 시작)**:
+  coverage1−RR UTMM +0.0005/RPNG +0.0810 dB, coverage2 −0.0578/−0.0585.
+  interval-base −0.1438/+0.0784여서 RPNG 개선을 보정 효과로 단독 귀속할 수 없다.
+  coverage1 초기 두 평가도 RR 미달, 가속/일반화 미검증이다. 계약 검사 6/6 통과,
+  window/control 4 runs 후속 시작. → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 window 구조 후보 구현·후속 실행 예약)**:
+  interval top-K의 size-mass 비보존 반례를 CPU에서 확인했다. RR의 최대 32 ticket
+  내 순서만 바꾸는 window 후보 및 동일 예약/셔플을 쓰는 무보정 control을 구현했다.
+  8 seeds static epoch coverage/gamma0 exact RR 검사를 통과했다. coverage 프로세스
+  종료 후 두 scene×두 arm seed0 실행하도록 예약했으며 아직 품질 근거는 없다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 coverage 개발 screen 시작)**:
+  RR 조건을 바꾸지 않고 interval-base(gamma0)와 초기 1/2 pass만 보정하는
+  coverage1/coverage2를 두 장면 seed0에 추가 비교한다. coverage2는 기존 구현 재사용.
+  6개 명령 사전 고정, gamma0 exact control equivalence/causal count 검사 통과.
+  출력 `outputs/exp77_coverage_screen_s0/`; 아직 품질 결과 없음, 개발용 비교다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 seed0 완료 — packet 범용 가속 근거 없음)**:
+  full v2 UTMM/RPNG × RR/ERC B/packet 6개 run 완료 및 update/평가/outer pairing 검증 통과.
+  held-out RR→ERCB→packet은 UTMM 18.7095→18.6738→18.7271,
+  RPNG 24.0392→23.8403→23.8348 dB. packet은 초기 두 평가에서 모두 RR보다 낮고
+  zero-service도 ERCB 대비 UTMM 95→222/RPNG 205→256으로 증가했다.
+  단일 seed fixed-pose/init/topology isolation이며 packet 채택 보류, seed1 미실행.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 실제 seed0 loop 시작, 품질 판정 대기)**:
+  복사 완료된 full-scene v2의 UTMM → RPNG 각 RR/ERC B/packet 순차 실행을 시작했다.
+  UTMM full 이미지 링크 1,614개를 로컬 원본으로 복구하고 이전 링크를 보존했다.
+  T=4,741/14,581, resolution4, fixed topology, zero-tail이며 최종 VIGS pose/누적
+  geometry를 쓰는 noncausal scheduler isolation이다. 출력 `outputs/exp77_full_v2_seed0/`.
+  arm 실패/잔여 디스크 3 GiB 미만 시 중단하며, 아직 held-out 결과 판정은 없다.
+  → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 준비 후속 — 서버 동기화 및 세 arm 실행 경로 확인)**:
+  3dgs-custom main을 `8568fd6`→`da1dbda`로 fast-forward pull하고 로컬 변경을
+  충돌 없이 복원했다. CPU 기존 30+신규 5 tests, 3070 synthetic 세 arm 각 12-update
+  통합 검사(마지막 update 포함/post-update 평가/PLY/요약/outer sequence 일치)를 통과했다.
+  COLMAP/이미지/초기 PLY/llffhold-8/도착표/provenance preflight, overwrite/GPU 충돌 차단,
+  실제 결과 요약 스크립트를 준비했다. **실제 데이터 학습과 품질 측정은 아직 없음.**
+  데이터 경로 및 복사 완료 확인 뒤 preflight가 다음 단계다. → [exp77](experiments/exp77/README.md)
+
+- **2026-09-13 (exp77 준비 — 3070 inner packet-RR, 실제 품질 실험 미실행)**:
+  causal RR / exp75 ERCB / ERCB+inner packet(m4,r2) 세 arm 계획을 만들었다.
+  local 3dgs-custom `8568fd6` 위 opt-in 구현은 legacy inner RNG를 shadow로 진행해
+  outer interval 순서를 보존하며, CPU 5 tests를 통과했다. 마지막 update 생략 및
+  pre-update report를 피하는 fixed-topology opt-in도 준비했다. conda 3dgs의
+  PyTorch2.1.2+cu118/nvcc11.8을 유지해 rasterizer/simple-knn을 설치했고 RTX3070 Laptop
+  8GB의 synthetic render/backward/KNN smoke를 통과했다. **이는 PSNR 결과가 아니다.**
+  사용자 데이터 복사 및 5070Ti 서버 push 대기 중이며, local patch를 카드 폴더에
+  보존했다. pull 후 재검증하고 실제 데이터/pose/init/llffhold-8/arrival 계약을
+  확인하기 전에는 학습하지 않는다. → [exp77](experiments/exp77/README.md)
 
 - **2026-09-11 (ERCB ablation — RPNG-AR/UTMM representative transfer, overall NO-GO)**:
   새 exp 번호를 만들지 않고 `context/experiments/ERCB_ablation/` 누적 트랙에서
