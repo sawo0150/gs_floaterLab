@@ -1,0 +1,16 @@
+{
+  "status": "PASS_SYNTHETIC_NOT_QUALITY",
+  "torch": "2.1.2+cu118",
+  "cuda_build": "11.8",
+  "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "image_shape": [
+    3,
+    32,
+    32
+  ],
+  "image_max": 0.5783185362815857,
+  "xyz_grad_norm": 0.0017969306791201234,
+  "color_grad_norm": 0.003549154382199049,
+  "rasterizer_output_count": 5,
+  "knn_finite": true
+}

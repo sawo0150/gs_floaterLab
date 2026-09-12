@@ -1,0 +1,38 @@
+{
+  "status": "PASS_SYNTHETIC_INTEGRATION_NOT_QUALITY",
+  "arms": {
+    "rr": {
+      "completed_updates": 12,
+      "evaluation_steps": [
+        3,
+        6,
+        12
+      ],
+      "heldout_count": 3,
+      "outer_trace_sha256": null
+    },
+    "ercb": {
+      "completed_updates": 12,
+      "evaluation_steps": [
+        3,
+        6,
+        12
+      ],
+      "heldout_count": 3,
+      "outer_trace_sha256": "ee128d8f425f74a5ab0bbec508b9e06a263c484e3d482556d3359ad9beee41b5"
+    },
+    "packet": {
+      "completed_updates": 12,
+      "evaluation_steps": [
+        3,
+        6,
+        12
+      ],
+      "heldout_count": 3,
+      "outer_trace_sha256": "ee128d8f425f74a5ab0bbec508b9e06a263c484e3d482556d3359ad9beee41b5"
+    }
+  },
+  "outer_pairing": true,
+  "missing_arrival_rejected": true,
+  "temporary_fixture_removed_on_exit": true
+}
