@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-13 (VIGS 채택 recipe 6-scene 전이 closure 4/6 GO)**:
+  `custom/main@8c094371`의 동일 recipe로 gate-on이던 `ego-centric-1`/`square-1`을
+  backfill하고 `slow-straight-2`도 50ms guard로 재실행했다. 개발 장면을 제외한 고정
+  6-scene shared held-out 비교는 `+1.870/+3.711/+0.289/+1.878/−1.999/+1.319dB`,
+  즉 **+1dB 4/6**, raw 5/6 승, scene 평균 **+1.178dB**, 1,109-view 가중
+  **+1.247dB**다. 여섯 run 모두 strict 1.5×, MPS0, 후처리0, margin 50ms,
+  deadline/EOS 뒤 update 0/0을 통과해 “대부분 장면 vanilla +1dB” 목표는 이 panel에서
+  달성했다. 단 `slow-straight-1`의 4KF/Adam132 초희소 service, `square-1` 후반
+  pose-map drift, gate-off `ego-centric-1`의 기존 custom 대비 −2.03dB는 남은 실패다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
 - **2026-09-13 (VIGS provisional pre-IMU map untouched 전이 2/3 GO·기본 채택)**:
   결과 전에 고정한 `fast-straight`, `slow-straight-1`, `ego-centric-2`에
   `mapping_after_imu_init=0`만 바꾼 verified strict recipe를 순차 전이했다. original

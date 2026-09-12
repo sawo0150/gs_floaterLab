@@ -356,6 +356,42 @@ map packet 1회, Adam 132회뿐이라 실패했다. 즉 gate-off만으로 “map
 frontend threshold를 전역으로 낮추는 방식이 아니라 첫 provisional map에 고정된 causal
 최소 service credit을 주는 방식이어야 한다.
 
+## 최종 recipe 전이 closure 사전등록
+
+현재 채택된 `mapping_after_imu_init=0`으로 직접 실행된 장면은
+`slow-straight-2`, `fast-straight`, `slow-straight-1`, `ego-centric-2` 네 개다.
+기존 `ego-centric-1`과 `square-1` 결과는 gate-on baseline이므로, 동일 recipe라는
+주장을 위해 이 두 장면만 순차 backfill한다. 새 scene이나 파라미터는 추가하지 않는다.
+최종 판정은 개발 장면 `ego-drive`를 제외한 6개 UTMM scene 가운데 **최소 4개가
+original vanilla 대비 shared held-out +1.0dB**이면 “대부분 장면” 전이 성공으로 둔다.
+각 run은 strict 1.5×/zero-tail/MPS0 계약을 개별 통과해야 한다.
+
+## 2026-09-13 최종 recipe 6-scene closure — 4/6 GO
+
+현재 `custom/main@8c094371`의 동일한 채택 recipe로 기존 두 장면을 backfill하고,
+`slow-straight-2`도 50ms guard로 다시 실행해 여섯 장면의 계약을 완전히 맞췄다.
+
+| scene | custom shared | vanilla shared | 차이 | +1dB |
+|---|---:|---:|---:|---|
+| `ego-centric-1` | 19.1974 | 17.3271 | **+1.8703** | PASS |
+| `slow-straight-2` | 22.8149 | 19.1036 | **+3.7112** | PASS |
+| `square-1` | 20.9792 | 20.6906 | +0.2886 | FAIL |
+| `fast-straight` | 19.2754 | 17.3971 | **+1.8783** | PASS |
+| `slow-straight-1` | 16.9579 | 18.9565 | −1.9986 | FAIL |
+| `ego-centric-2` | 20.5488 | 19.2300 | **+1.3188** | PASS |
+
+결과는 **+1dB 4/6, raw 승리 5/6, scene 평균 +1.1781dB**다. 총 1,109 shared
+view로 가중한 평균은 custom 20.2407 vs vanilla 18.9938dB, **+1.2469dB**다.
+따라서 사전 정의한 “대부분 장면에서 vanilla +1dB” 전이 목표는 이 고정 panel에서
+통과했다. 여섯 custom run 모두 `mapping_after_imu_init=false`, margin 50ms,
+MPS0, post-stream refinement 없음, deadline/EOS 뒤 update 0/0이다.
+
+성공 범위를 과장하지 않는다. `slow-straight-1`은 초희소 initial-map service 부족,
+`square-1`은 후반 pose-map drift로 실패한다. 또한 `ego-centric-1`은 vanilla보다
++1.87dB지만 이전 gate-on custom(+3.90dB)보다 약 2.03dB 낮다. 즉 현재 recipe는
+“대부분 +1dB” checkpoint에는 합격했지만, 모든 scene의 절대 품질을 동시에 최대화하는
+최종 scheduler는 아니다.
+
 ## artifact
 
 - valid control:
@@ -387,5 +423,7 @@ frontend threshold를 전역으로 낮추는 방식이 아니라 첫 provisional
   `evidence/transfer/square-1-thresh3-diagnostic.json`
 - provisional pre-IMU untouched transfer summary:
   `evidence/transfer/preimu-untouched-summary.json`
+- adopted-recipe six-scene closure:
+  `evidence/transfer/adopted-recipe-six-scene-summary.json`
 
 이 문서는 실험을 진행하면서 유효/무효 run, 계약 변경, 다음 의사결정을 누적한다.
