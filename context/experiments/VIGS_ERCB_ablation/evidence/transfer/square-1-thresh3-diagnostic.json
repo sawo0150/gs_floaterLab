@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-13",
+  "scene": "square-1",
+  "status": "NO-GO",
+  "change": {
+    "single_axis": "motion_filter_thresh",
+    "baseline": 3.6,
+    "candidate": 3.0,
+    "all_other_verified_recipe_axes_unchanged": true
+  },
+  "valid_attempt": {
+    "output": "results/benchmarks/exp81_vigs_strict15x_baseline/utmm/square-1/verified_transfer_thresh3_margin50_seed0",
+    "margin_seconds": 0.05,
+    "fixed_eval_psnr": 20.833159067012645,
+    "fixed_eval_ssim": 0.7200461684001817,
+    "fixed_eval_lpips": 0.30996324961292154,
+    "union_psnr": 21.167569318155603,
+    "shared_psnr": 20.850660980322736,
+    "vanilla_shared_psnr": 20.69059895702497,
+    "shared_delta_db": 0.16006202329776542,
+    "passes_plus_1db": false,
+    "adam_steps": 7664,
+    "replay_steps": 7166,
+    "keyframes_including_csv_header": 69,
+    "ate_sim3_rmse_m": 0.139938,
+    "updates_after_deadline": 0,
+    "updates_after_sensor_eos": 0
+  },
+  "shared_temporal_quintile_delta_db_candidate_minus_vanilla": [
+    1.2488,
+    0.7062,
+    2.1623,
+    1.7103,
+    -4.9450
+  ],
+  "conclusion": "Denser keyframe admission alone increases neither loop robustness nor transfer quality; do not adopt."
+}

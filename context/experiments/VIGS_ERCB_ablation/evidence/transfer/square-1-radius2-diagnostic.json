@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-13",
+  "scene": "square-1",
+  "status": "NO-GO",
+  "change": {
+    "single_axis": "frontend_radius",
+    "baseline": 1,
+    "candidate": 2,
+    "all_other_verified_recipe_axes_unchanged": true
+  },
+  "invalid_attempt": {
+    "output": "results/benchmarks/exp81_vigs_strict15x_baseline/utmm/square-1/verified_transfer_radius2_seed0",
+    "margin_seconds": 0.02,
+    "error": "Gaussian Adam update completed after deadline",
+    "quality_valid": false
+  },
+  "valid_attempt": {
+    "output": "results/benchmarks/exp81_vigs_strict15x_baseline/utmm/square-1/verified_transfer_radius2_margin50_seed0",
+    "margin_seconds": 0.05,
+    "fixed_eval_psnr": 20.842153658101587,
+    "fixed_eval_ssim": 0.712383253890791,
+    "fixed_eval_lpips": 0.3293475629646837,
+    "union_psnr": 21.15956500480915,
+    "shared_psnr": 20.877808650590215,
+    "vanilla_shared_psnr": 20.69059895702497,
+    "shared_delta_db": 0.18720969356524364,
+    "passes_plus_1db": false,
+    "adam_steps": 7398,
+    "replay_steps": 6931,
+    "keyframes_including_csv_header": 65,
+    "ate_sim3_rmse_m": 0.100096,
+    "updates_after_deadline": 0,
+    "updates_after_sensor_eos": 0
+  },
+  "verified_radius1_reference": {
+    "fixed_eval_psnr": 21.023553865927237,
+    "shared_psnr": 21.0518,
+    "vanilla_shared_psnr": 20.69059895702497,
+    "shared_delta_db": 0.3612,
+    "ate_sim3_rmse_m": 0.08837
+  },
+  "shared_temporal_quintile_delta_db_candidate_minus_vanilla": [
+    1.6156,
+    1.1637,
+    1.0852,
+    0.7886,
+    -3.6551
+  ],
+  "conclusion": "Radius 2 does not repair late pose-map drift and regresses both the paired custom reference and ATE; do not adopt."
+}

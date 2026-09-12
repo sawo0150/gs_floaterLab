@@ -88,6 +88,36 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-13 (VIGS provisional pre-IMU map untouched 전이 2/3 GO·기본 채택)**:
+  결과 전에 고정한 `fast-straight`, `slow-straight-1`, `ego-centric-2`에
+  `mapping_after_imu_init=0`만 바꾼 verified strict recipe를 순차 전이했다. original
+  vanilla keyframe을 공통 제외한 shared 비교는 각각 **+1.8783/−1.9986/+1.3188dB**로
+  사전 기준 2/3과 long-sequence guard를 통과했다. custom ATE는 1.34/1.06/1.86cm,
+  세 run 모두 deadline/EOS 뒤 update 0/0이다. 따라서 verified runner 기본값으로
+  채택한다. 다만 `slow-straight-1`은 4KF·map packet 1·Adam 132회뿐이라 실패했으므로,
+  다음 병목은 초희소 stream의 causal 최소 initial-map service다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-13 (VIGS square-1 keyframe 밀도 증가도 NO-GO)**:
+  radius를 verified 값 1로 되돌리고 `motion_filter.thresh=3.6→3.0`만 내려 keyframe
+  admission을 늘렸다. 50ms guard에서 tail 0/0으로 유효했지만 fixed **20.8332dB**,
+  shared **20.8507 vs 20.6906dB(+0.1601)**에 그쳤고 Sim3 ATE RMSE는
+  **13.99cm**, 마지막 temporal quintile은 **−4.945dB**로 더 악화됐다. 앞선 radius2와
+  함께 local graph 폭/키프레임 수만 늘리는 접근은 기각한다. square 상수 튜닝을 멈추고
+  provisional pre-IMU map 후보의 untouched scene 전이를 우선한다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
+- **2026-09-13 (VIGS square-1 frontend radius=2 단일 축 NO-GO)**:
+  verified strict recipe의 radius만 1→2로 바꿨다. 20ms EOS guard 실행은 실제 Adam
+  step보다 margin이 짧아 deadline 뒤 update를 검출했으므로 무효 처리했고, 50ms 재실행은
+  tail 0/0으로 유효했다. 그러나 fixed **20.8422dB**, vanilla keyframe을 공통 제외한
+  shared **20.8778 vs 20.6906dB(+0.1872)**로 +1dB에 실패했다. radius-1 shared
+  +0.3612보다도 낮고 Sim3 ATE RMSE는 8.84→10.01cm로 악화됐다. temporal quintile은
+  `+1.616/+1.164/+1.085/+0.789/−3.655dB`로 마지막 20% 붕괴가 유지돼 radius 확장은
+  기각하고 기본 runner는 radius 1로 되돌렸다. 병목은 update 수나 단순 window 폭이 아니라
+  후반 pose와 map이 함께 drift하는 현상이다.
+  → [VIGS ERCB ablation running log](experiments/VIGS_ERCB_ablation/README.md)
+
 - **2026-09-13 (VIGS provisional pre-IMU map으로 short-motion 구조 복구)**:
   inertial BA의 15-frame 전제를 깨는 조기 IMU init 대신, 원본 vanilla처럼
   `--mapping_after_imu_init`만 끈 단일 축을 exposed `slow-straight-2`에서

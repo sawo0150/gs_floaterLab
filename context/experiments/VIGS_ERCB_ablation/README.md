@@ -293,6 +293,69 @@ vanilla keyframe을 공통으로 뺀 120-view 비교는 **22.8250 vs 19.1036dB,
 실패를 해결하는 **후보**로 유지한다. 다만 이 장면은 수정 동기를 제공한 exposed
 development case이므로 일반화 성공 수에는 아직 넣지 않는다.
 
+## 2026-09-13 square-1 frontend radius 단일 축 — NO-GO
+
+`square-1` 실패가 후반 tracking/loop coverage 문제인지 확인하려고 verified recipe에서
+`frontend_radius=1→2`만 바꿨다. 첫 실행의 20ms EOS guard는 실제 Gaussian Adam
+step 최대치(기존 valid run 약 41–44ms)보다 짧아 deadline 뒤 update를 검출했고,
+save/eval 전에 실패했으므로 품질 수치가 없는 **무효 run**이다. 동일 arm을 controller
+원래 기본값인 50ms guard로 다시 실행하자 deadline/EOS 뒤 update 0/0으로 유효했다.
+
+유효 radius-2 arm은 fixed **20.8422dB**, vanilla keyframe을 함께 제거한 311-view
+shared **20.8778 vs 20.6906dB(+0.1872)**로 +1dB gate를 통과하지 못했다. 오히려
+radius-1 reference의 fixed 21.0236/shared +0.3612dB보다 낮고, Sim3 ATE RMSE도
+8.84→10.01cm로 악화됐다. shared temporal quintile 차이는
+`+1.616/+1.164/+1.085/+0.789/−3.655dB`라 앞부분의 우위와 마지막 20% 붕괴가
+그대로다. 따라서 radius 확장은 loop drift 해결책으로 채택하지 않으며 runner 기본값과
+merge된 baseline 코드는 radius 1로 유지한다. 다음 tracking 축은 단순 window 확대가
+아니라 후반 pose revision/loop recovery가 실제 발생하도록 만드는지부터 계측해야 한다.
+
+같은 판단을 교차확인하려고 radius를 1로 되돌린 뒤 `motion_filter.thresh=3.6→3.0`만
+바꿔 keyframe을 더 촘촘히 받았다. 이 arm도 50ms guard에서 tail 0/0으로 유효했지만,
+fixed **20.8332dB**, shared **20.8507 vs 20.6906dB(+0.1601)**로 실패했다.
+Sim3 ATE RMSE는 **13.99cm**까지 악화됐고 마지막 quintile은 **−4.945dB**였다.
+따라서 keyframe 밀도 증가도 기각한다. 두 단일 축이 공통으로 보여준 것은 square-1
+후반 붕괴가 local window 폭이나 keyframe 수 부족만으로 고쳐지지 않는다는 점이다.
+square 한 장면에 frontend 상수를 더 맞추지 않고, 이미 short-motion 구조 복구 효과가
+확인된 provisional pre-IMU map 후보를 untouched scene에 먼저 전이한다.
+
+## 다음 실행 사전등록: provisional pre-IMU map untouched transfer
+
+결과를 보기 전에 다음 세 장면을 고정한다. `fast-straight`와 `slow-straight-1`은
+15KF 미만 가능성이 있는 짧은 저운동 장면, `ego-centric-2`는 15KF를 넘는 긴 장면의
+회귀 guard다. exposed 개발 장면인 `slow-straight-2`와 frontend 상수를 진단한
+`square-1`은 채택 승률에서 제외한다. 세 장면은 한꺼번에 병렬 실행하지 않고 GPU를
+확인하며 순차 실행한다.
+
+candidate는 verified strict 1.5× KF100 recipe에서 `mapping_after_imu_init=1→0`만
+바꾸고, original vanilla comparator와 shared non-keyframe held-out subset 규칙은 이전
+transfer와 동일하게 고정한다. 성공 기준은 **3개 중 최소 2개에서 vanilla +1.0dB**이며,
+long-sequence guard가 크게 회귀하면 short-sequence 이득만으로 채택하지 않는다.
+20ms guard가 실제 41–44ms Gaussian step보다 짧아 무효 run을 만든 사실에 따라,
+zero-tail safety margin은 controller 원래 기본값 50ms로 복구한다.
+
+## 2026-09-13 provisional pre-IMU map untouched 전이 — 2/3 GO
+
+사전등록한 세 장면을 순차 실행했고 설정이나 scene을 교체하지 않았다.
+
+| scene | custom / vanilla KF | map packet / Adam | custom shared | vanilla shared | 차이 | 판정 |
+|---|---:|---:|---:|---:|---:|---|
+| `fast-straight` | 7 / 17 | 5 / 998 | **19.2754** | 17.3971 | **+1.8783** | PASS |
+| `slow-straight-1` | 4 / 12 | 1 / 132 | 16.9579 | **18.9565** | **−1.9986** | FAIL |
+| `ego-centric-2` | 63 / 62 | 45 / 4,155 | **20.5488** | 19.2300 | **+1.3188** | PASS |
+
+세 custom run은 모두 strict 1.5×, MPS 입력 0, eval map update 0,
+deadline/EOS 뒤 update 0/0을 통과했다. Sim3 ATE RMSE는 각각
+1.34/1.06/1.86cm다. 따라서 사전 기준 **2/3 + long-sequence guard PASS**를 충족해
+`mapping_after_imu_init=0`을 verified runner 기본값으로 채택한다. 15KF에 도달하는
+긴 장면은 pre-IMU map을 metric 초기화 때 폐기하고 같은 verified map으로 재시작한다.
+
+이 결과는 모든 장면 성공이 아니다. `slow-straight-1`은 pose ATE가 좋은데도 4KF,
+map packet 1회, Adam 132회뿐이라 실패했다. 즉 gate-off만으로 “mapping 0회”는
+없앴지만, 초희소 stream에 충분한 initial-map service를 보장하지는 않는다. 다음 축은
+frontend threshold를 전역으로 낮추는 방식이 아니라 첫 provisional map에 고정된 causal
+최소 service credit을 주는 방식이어야 한다.
+
 ## artifact
 
 - valid control:
@@ -318,5 +381,11 @@ development case이므로 일반화 성공 수에는 아직 넣지 않는다.
   `results/benchmarks/exp81_vigs_strict15x_baseline/utmm/ego-drive/{seed0_hybrid_fastfront_dense_rr_kf100_autofreeze_interp_uint8cache_rgbonly_shortcircuit,seed0_hybrid_fastfront_dense_rr_kf100_autofreeze_interp_uint8cache_rgbonly_shortcircuit_r2}/`
 - generated UTMM TRT engines:
   `/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828/pretrained_models/generated_utmm_328x648/`
+- square-1 radius-2 NO-GO evidence:
+  `evidence/transfer/square-1-radius2-diagnostic.json`
+- square-1 threshold-3.0 NO-GO evidence:
+  `evidence/transfer/square-1-thresh3-diagnostic.json`
+- provisional pre-IMU untouched transfer summary:
+  `evidence/transfer/preimu-untouched-summary.json`
 
 이 문서는 실험을 진행하면서 유효/무효 run, 계약 변경, 다음 의사결정을 누적한다.
