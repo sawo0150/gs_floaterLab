@@ -1,5 +1,65 @@
 # Experiment Index
 
+- **2026-09-13 5070 Ti 인계:** 사용자 요청으로3070 실험 중단. RPNG 유효한 비교 없음, parallel 누락 수정/메모리 실패 기록/실행 명령을 전용 Git 브랜치로 전달. [인계](VIGS_ERCB_ablation/HANDOFF_5070TI.md)
+
+- **2026-09-13 RPNG retry4 실패:** cudaMallocAsync도 frame731 correlation 복사 OOM. PSNR 없음; 정확값 CPU staging 메모리 절감 검토로 전환. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG retry3 OOM:** replay pool 등록 후 frame1538 correlation880MiB 할당 실패. PSNR 없음, cudaMallocAsync allocator 대안 검사. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG replay 누락 수정:** parallel=false로 worker 미생성 확인, retry2 PSNR은 RR 비교에서 제외. UTMM 공통 mapping 실행 설정을 RPNG overlay에 반영, retry3 예정. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG RR retry2 완주:** fixed502뷰15.397522dB, Adam2324, deadline/EOS0/0. MAP_RR_DONE 누락으로 replay 활성 여부 점검 필요; 비교 유효성 미확정. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG retry1 OOM:** frame839 correlation 복사1004MiB 할당 실패, PSNR 없음. retry2 공통 allocator max_split_size_mb:128 검사 예정. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG RR 초기 실행 실패:** frame276에서 미초기화 Rwg 사용. 공통 gravity-ready guard 추가, CPU tests6 통과; PSNR 없음, retry1 예정. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG VIGS 비교 재개:** 사용자 요청, native RPNG sensor config+공통 RGB-only mapping/scale6/KF256. table_01 RR seed0 시작, 품질 미검증. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS3-arm3-seed 수집 종료:** 평균 RR19.415636/기존19.533003/coverage1 19.584229dB. 변형-기존+0.051226(2/3), 변형-RR+0.168593(3/3). 사용자 요청으로 신규 실험 중단, 논문 검증 미완. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 입력 bracket 해석 정정:** VIGS 첫 KF 적분 생략/가용 IMU clamp 확인; 초기12.9ms gap을 실행 거부 대신 별도 경고로 보존. metadata pass, 경계 정확도/decode 미검증. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 slow-straight-2 입력 사전 검사:** 첫 IMU가 첫 RGB보다12.902ms 늦어 엄격 bracket 검사 실패. 입력 처리 대조 필요, 손상 판정 아님; decode 미완. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RR seed2 완료:** fixed19.398387dB; coverage1-RR3 seeds [+0.060898,+0.228690,+0.216190], 평균+0.168593dB. 단일 장면 개발 결과/일반화 미완. 기존 ERCB seed2 시작. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS coverage1 seed2 완료:** fixed19.614576dB, Adam25177, pool1235, deadline/EOS0/0. RR seed2 시작, 3-seed paired 비교 미완. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS RR seed1 완료:** fixed19.390477dB; 기존 ERCB+0.058463/coverage1+0.228690dB. 두 seed 양수이나 일반화 미확정. coverage1 seed2 시작. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 seed1 pool 차이 감사:** relative-floor에만 KF1316 기록, 저장 KF 궤적71/70행. 동일 pool/pose 비교 아님; dense UID 원인 추적은 미완. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS coverage1 seed1 완료:** fixed19.619168dB, 기존 ERCB+0.170227dB; RR seed1 미판정. 최종 pool1236/1235 불일치 명시, deadline/EOS0/0. RR seed1 시작. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 interval 혼합 CPU 반례:** 크기9/1, full interval block에서200 draw가100/100으로 배분됨(3 mode); frame-uniform 아님. 테스트8개 통과, 학습 코드 불변. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS relative-floor seed1 완료:** fixed19.448941dB, Adam25692, deadline/EOS0/0. seed1 RR 미실행으로 우열 미판정; coverage1 seed1 진행. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS coverage1 seed0 완료:** fixed19.518942dB, RR+0.060898/기존 ERCB-0.045353dB, deadline/EOS0/0. 기존 ERCB 대비 개선·반복 우위 미확정; seed1 진행. [카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS relative-floor seed0 완료:** fixed324뷰19.5643dB, 동일 조건 RR 대비+0.1063dB; deadline/EOS0/0. 단일 실행으로 우위 미확정, coverage1 비교 진행. [결과 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS relative-floor 통합 실패 수정:** service_state 누락으로 최초 실행 실패, 인터페이스 추가/11 tests 통과 후 동일 조건 재시작. PSNR 없음. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS RR 공통 설정 seed0:** fixed324뷰19.4580dB, Adam26140, deadline/EOS0/0. relative-floor 동일 조건 시작. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS 3070 첫 완주:** memory-trim RR diagnostic fixed324뷰19.6030dB, deadline/EOS update0/0, trim7회629ms. ERCB 비교 아직 없음. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS allocator census:** dense417에서 allocator free3.20GB 확인 후 진단 종료. malloc_trim 전후 계측으로 전환. 품질 결과 없음. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS buffer128 compact 조합:** frame979 RAM 압박으로 중단, 품질 없음. process_memory.jsonl 보존; storage/allocator 계측 필요. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS ownedpriors 단독 probe:** frame1289 RAM772MiB로 자체 중단. 이전 OOM 지점 통과했으나 안정적 완주 미확보. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS GPU lookup probe:** RAM 증가로 자체 중단, PSNR 없음. keyframe depth/normal slice의 전체 batch storage 보유 후보 발견. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS uint8 CPU 복원 probe:** frame827 RAM 여유509MiB로 자체 중단. 전체 메모리 개선 실패, PSNR 없음. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS ERCB buffer256 probe:** square-1 RR 6× frame1253 부근 RAM OOM kill 확인. 완주/PSNR 없음, 선할당 축소만으로 부족. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS ERCB local3070 probe:** square-1 RR 6× 실제 실행은 메모리 압박으로 중단. held-out 품질 결과 없음; 1,200 KF 선할당 경로 확인. [진행 카드](VIGS_ERCB_ablation/LOCAL3070.md)
+
 - **2026-09-13 exp77 (52 runs 완료):** event15 기존 ERCB−RR 3-seed 평균 UTMM +0.241/RPNG +1.027dB, 6/6 양수. coverage1 +0.276/+1.056. 큰 예산 역전·서비스 trade-off 포함. [최종 보고](exp77/FINAL_REPORT.md)
 
 전 실험 목록. 상세는 각 카드 참조. baseline 대비 Δ는 PSNR@30k 기준.

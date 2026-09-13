@@ -88,6 +88,117 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-13 사용자 요청:5070 Ti 인계:**3070 신규 학습 중단, 실행 프로세스 없음. RPNG RR–ERCB 유효 비교는 아직 없음. parallel 누락 수정 및 OOM 실패를 정리해 handoff/ercb-rpng-20260913 브랜치로 전달; CPU staging 미구현. 다음은5070에서 RR부터. [인계](experiments/VIGS_ERCB_ablation/HANDOFF_5070TI.md)
+
+- **2026-09-13 RPNG retry4 OOM:** cudaMallocAsync도 frame731 실패. allocator만으로 해결 불가; correlation CPU staging으로 동시 상주 피크 절감 검토. 최종 비교 결과 없음. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG retry3 OOM:** 병렬 replay 설정에서 frame1538 CUDA OOM. 최종 PSNR 없음. 데이터 축소 없이 cudaMallocAsync allocator 대안 검사로 진행. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG 설정 누락 확정:** Training.parallel 누락으로 idle replay 미실행. retry2는 RR 기준값에서 제외. 공통 mapping 실행 설정을 수정하고 retry3 준비; native RPNG 센서 설정 유지. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG RR retry2 평가:** fixed15.397522dB/502뷰, Adam2324, deadline/EOS0/0, exit0. 전체 loop약540초로 예산501초 초과; MAP_RR_DONE 누락으로 replay 활성 여부부터 점검 필요. ERCB 비교 미완. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG retry1 OOM:** 초기화 구간 통과 후 frame839에서 correlation 복사 CUDA OOM. 최종 PSNR 없음; 데이터/학습 조건 유지하고 allocator max_split_size_mb:128로 retry2 준비. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RPNG RR 실패/수정:** frame276에서 Rwg=None IMU pose-init 오류. 공통 gravity-ready guard 추가, CPU tests6 통과. 실패 로그 보존, 최종 PSNR 없음; retry1로 재개. [기록](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 사용자 RPNG 측정 재개 요청:** table_01 실제 VIGS RR seed0 시작(session44555), scale6/RGB-only/native RPNG IMU+calib/KF256 공통 비교. GT 입력 없음, 유효성·PSNR 미검증. 앞선 중단 지시는 이번 요청 범위에서 해제. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 사용자 요청으로 실험 여기까지:** 기존 ERCB seed2 fixed19.585773 평가 회수로3-arm3-seed 수집 종료. 평균 RR19.415636/기존19.533003/coverage1 19.584229dB. 변형-기존+0.051226(2/3), 변형-RR+0.168593(3/3). 단일 장면/6×/pool 차이로 논문 목표 미완; 새 실험 시작 금지(재개 요청 전). [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 입력 검사 정정:** VIGS 첫 KF 적분 생략/IMU slice clamp로 초기 bracket assert는 과도함. slow-straight-2 metadata pass, 초기 gap12.902ms를 별도 보존; 경계 정확도/full decode 미검증. 학습 코드 불변. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 다음 장면 입력 검사:** slow-straight-2 첫 IMU가 첫 RGB보다12.902ms 늦어 사전 bracket 검사 실패. 손상/실행 불가로 단정하지 않고 loader 정책 확인 필요; full decode 미완. relative-floor seed2 계속 실행. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 coverage1 첫3-seed 개선:** RR seed2 fixed19.398387 완료, coverage1-RR [+0.060898,+0.228690,+0.216190]dB(평균+0.168593). 단일 개발 장면3/3 양수이나 pool/pose 차이·교차 장면·latency/overhead 검증 미완. relative-floor seed2 시작. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 coverage1 seed2 완료:** fixed19.614576dB, Adam25177, pool1235, deadline/EOS0/0. coverage1 세 seed 수집 완료지만 RR seed2 미완으로3/3 우위 미판정. RR seed2 시작. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 RR seed1 완료:** fixed19.390477dB, deadline/EOS0/0. seed1 기존 ERCB+0.058463/coverage1+0.228690dB; 두 seed 모두 RR 대비 양수지만 단일 장면·pool/pose 차이로 확실한 우위 미검증. coverage1 seed2 시작. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 seed1 pool 차이 감사:** relative-floor에만 KF1316, coverage1과 저장 KF 궤적71/70행 차이 확인. 같은 config라도 realized pool/pose 동일성은 성립하지 않음; 정확한 dense UID/원인 미검증. RR seed1 계속 진행. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS coverage1 seed1 완료:** fixed19.619168dB, relative-floor+0.170227dB지만 마지막 구간은 악화. pool1236/1235로 동일 pool 비교 아님; deadline/EOS0/0, Adam25287. RR seed1 시작, 반복 우위 미확정. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 interval 혼합 반례 검증:** full interval block에서 크기9/1이어도 선택100/100으로 분배됨(3 mode CPU test). frame-uniform 주장 불가; PSNR 영향 미검증. 학습 코드 변경 없이 coverage1 seed1 계속 진행. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS relative-floor seed1 완료:** fixed324뷰19.448941dB, Adam25692, deadline/EOS0/0. seed0 대비-0.115355dB 변동으로 단일 seed 우위 주장 불가. seed1 RR과의 비교는 아직 없으며 coverage1 seed1 시작. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS coverage1 seed0 완료:** fixed324뷰19.518942dB, RR 대비+0.060898/relative-floor 대비-0.045353dB. 동일 예산 감사 통과, deadline/EOS0/0, Adam25221. 기존 ERCB보다 개선되지 않았으며 반복 우위 미확정. 계획대로 relative-floor seed1 시작. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 VIGS relative-floor seed0 완료:** square-1 scale6 fixed324뷰19.564295dB, 동일 조건 RR19.458044 대비+0.106251dB. Adam26374/26140, deadline/EOS0/0, 필요 계약 감사 통과. 반복·교차 장면·시간별 pool/학습 trace 미검증이므로 확실한 우위 아님. coverage1 동일 조건 비교로 진행. [카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 interval 큐 서비스 인터페이스 보완)**:
+  relative-floor 최초 실행은 service_state 누락으로 실패했다. 통계 인터페이스
+  추가 및11 tests 통과 후 동일 설정 retry1 진행. 선택식 변경 없음, 품질 미검증.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 RR 비교 기준 첫 완료)**:
+  상세 계측 제거 공통 설정 RR seed0 fixed324뷰19.4580dB, Adam26140,
+  deadline/EOS 이후0/0. relative-floor 동일 조건 실행 시작. ERCB 우위와
+  반복성은 아직 미검증. → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 VIGS RR 진단 첫 평가 완료)**:
+  malloc_trim 적용으로 square-1 1614프레임 end-to-end exit0, fixed324뷰
+  PSNR19.6030dB. 6× budget322.8565s/deadline·EOS 이후 update0/0.
+  trim7회629ms. 다음은 계측 제거 공통 설정으로 RR/ERCB/변형 비교이며,
+  이 진단 결과를 ERCB 우위나 strict1.5× 성능으로 주장하지 않는다.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 allocator 미사용 공간 증가 실측)**:
+  dense417에서 allocator free3.20GB/RSS6.59GB를 계측했다. census 실행을
+  종료하고 malloc_trim 전후 RSS 진단을 시작했다. 전체 메모리 해결 및 최종
+  품질 비교는 아직 미달성. → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 저장 개선 조합도 완주 미확보)**:
+  buffer128+ownedpriors+uint8 GPU lookup RR은 frame979 RAM 압박으로 중단.
+  5초 간격 RSS 기록을 보존했다. 추가 설정 추측보다 실제 storage/allocator
+  계측을 우선한다. 최종 PSNR 및 ERCB 비교 없음.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 prior 독립 저장 단독으로 불충분)**:
+  RR frame1289에서 RAM 여유772MiB로 자체 중단. 이전 OOM 지점은 넘었지만
+  최종 품질 결과는 없다. 저장 개선 조합 및 KF 선할당 추가 축소를 검토한다.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 패킷 슬라이스 메모리 보유 후보 발견)**:
+  GPU RGB lookup probe도 RAM 증가로 중단했다. keyframe depth/normal이 전체
+  패킷 storage를 공유하는 경로를 확인했고 32장 CPU 재현에서 한 장이 32배
+  storage를 붙잡았다. 독립 frame storage 검증을 진행한다. 품질 결과 없음.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 uint8 CPU 복원 방식 미채택)**:
+  원본 픽셀 보존 테스트는 통과했으나 RR probe frame827에서 RAM 여유509MiB,
+  RSS8.6GB로 증가해 자체 중단했다. 총 메모리 개선/완주/품질은 미검증이다.
+  sampled-view GPU 변환으로 CPU 임시 복원을 피하는 경로를 조사한다.
+  → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 buffer256 RR도 RAM OOM — 비교 미완료)**:
+  square-1/6×/seed0 RR은 frame1253 부근까지 진행했으나 커널이 PID58718을
+  RAM OOM으로 종료했다. dense eviction 없이 진행했고 최종 held-out 결과는 없다.
+  KF 선할당 축소만으로 부족하므로 dense RGB CPU 저장 및 중복 보유 경로를
+  조사한다. → [진행 카드](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 실제 RR probe 중단 — 품질 결과 없음)**:
+  공식 HF Omnidata 대체 가중치의 hash/strict-load/CUDA forward를 검증한 뒤
+  square-1 dense RR 6× probe를 실행했으나 약 frame345에서 RAM/VRAM 압박으로
+  자체 프로세스를 종료했다. 서버 Zenodo 가중치와 tensor 동일성은 미확인이다.
+  `buffer=-1`이 keyframe 1,200개 고정 선할당으로 해석되는 경로를 확인했으며,
+  dense pool 삭제 없이 저장 메모리 개선을 조사 중이다. 완주·PSNR·RR 우위 미검증.
+  → [로컬 진행](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (3070 interval ERCB 이식 진행 — 품질 미검증)**:
+  VIGS/LieTorch/rasterizer 빌드 및 native CUDA smoke 통과. exp77 relative-floor와
+  coverage1 interval 큐를 opt-in replay 경로에 연결했고, additive 소형 스트림
+  10-seed 원본 대조 1,360 draw 일치. 모델 다운로드는 진행 중이며 실제 VIGS
+  학습/held-out PSNR 비교는 아직 없다. → [로컬 진행](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
+- **2026-09-13 (VIGS 3070 통합 개발 환경 준비)**:
+  custom `23adbfaf`를 별도 worktree에 받고 vigs3070 env를 생성했다. 기존3dgs 환경은
+  보존했다. sm86/original lietorch용 opt-in 빌드 경로와 pinned submodule 준비 완료,
+  CUDA backend/rasterizer 컴파일 및 Omnidata 가중치 다운로드 진행 중.
+  아직 VIGS 실학습/품질 결과는 없다. → [로컬 진행](experiments/VIGS_ERCB_ablation/LOCAL3070.md)
+
 - **2026-09-13 (VIGS provisional pre-IMU map으로 short-motion 구조 복구)**:
   inertial BA의 15-frame 전제를 깨는 조기 IMU init 대신, 원본 vanilla처럼
   `--mapping_after_imu_init`만 끈 단일 축을 exposed `slow-straight-2`에서
