@@ -51,6 +51,10 @@ class Stage5RunnerTest(unittest.TestCase):
         self.assertEqual(runner.EXPECTED_SEEDS, (1, 2, 3))
         self.assertNotIn(0, runner.EXPECTED_SEEDS)
 
+    def test_custom_environment_exposes_compiled_backend_root(self):
+        components = runner.mapping_environment("rr")["PYTHONPATH"].split(":")
+        self.assertIn(str(runner.BUILT_THIRDPARTY_ROOT), components)
+
 
 if __name__ == "__main__":
     unittest.main()

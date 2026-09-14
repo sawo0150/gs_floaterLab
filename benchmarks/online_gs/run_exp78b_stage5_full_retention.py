@@ -214,6 +214,7 @@ def mapping_environment(arm: str) -> dict[str, str]:
         components = (
             PAPER_ROOT / "vigs",
             PAPER_ROOT,
+            BUILT_THIRDPARTY_ROOT,
             built / "diff-gaussian-rasterization",
             built / "lietorch_5090",
             built / "simple-knn",
@@ -314,6 +315,16 @@ def require_predeclared_state() -> dict[str, str]:
             "predeclared source/input hash mismatch:\n"
             + json.dumps(mismatches, indent=2, sort_keys=True)
         )
+    subprocess.run(
+        (
+            str(PYTHON_ENV / "bin/python"),
+            "-c",
+            "import vigs_backends, lietorch, diff_gaussian_rasterization, simple_knn",
+        ),
+        cwd=WORKSPACE,
+        env=mapping_environment("rr"),
+        check=True,
+    )
     return {
         "paper_commit": paper_commit,
         "official_commit": official_commit,
