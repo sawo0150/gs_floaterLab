@@ -9,6 +9,7 @@ Scope: dataset `0416_301-1253`, SLAM은 OpenMAVIS, 재구성은 custom 3DGS. (2D
 - **현재 상태 / 다음 할 일**: `context/STATUS.md`
 - 전체 실험 이력: `context/experiments/INDEX.md`
 - 문서 규칙: `context/README.md`
+- 로컬/5090 안전 동기화: `context/SYNC_5090.md`
 
 ## 폴더 구조 (2026-07 재편, 각 폴더 README 참조)
 

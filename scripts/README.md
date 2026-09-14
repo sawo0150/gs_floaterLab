@@ -8,6 +8,9 @@
 | `analysis/` | 결과 분석 | `read_psnr.py` (tfevents에서 PSNR 추출), plateau coverage/검증 |
 | `anchors/` | 앵커 생성 | monodepth 추론(`inference_monodepth.py`), plateau 앵커 저장(`save_anchors_v3_v4.py`) |
 
+5090 코드·실험 결과 동기화는 `sync_5090.sh`를 사용한다. 상세 안전 절차는
+`context/SYNC_5090.md`에 있다.
+
 ## 규칙
 
 - 새 실험 스크립트는 `experiments/run_expNN_이름.sh`로 만들고, 출력 루트는 `results/experiments/`로 한다 (기존 스크립트 복사 권장).
