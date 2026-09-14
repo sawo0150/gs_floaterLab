@@ -1,0 +1,478 @@
+<title>exp67 스케줄러 뜯어보기 — 코드 없이 이해하는 구조</title>
+<style>
+  :root {
+    --paper: #f7f5f0; --panel: #ffffff; --panel-2: #efece3;
+    --ink: #211f1a; --ink-soft: #6b675c; --line: #ddd7c8;
+    --accent: #1f6f66; --accent-soft: #e2efec;
+    --amber: #a8720f; --amber-soft: #f6ecd8;
+    --coral: #b8503a; --coral-soft: #f7e5df;
+    --blue: #2f5c8a; --blue-soft: #e4ecf4;
+    --code: #ece7d9;
+    --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181a; --panel: #1b2124; --panel-2: #232a2d;
+      --ink: #eae7de; --ink-soft: #a7a297; --line: #343c3e;
+      --accent: #6cc0b3; --accent-soft: #1c302c;
+      --amber: #e0aa5a; --amber-soft: #332711;
+      --coral: #e08a72; --coral-soft: #332019;
+      --blue: #8db2df; --blue-soft: #1c2836;
+      --code: #20272a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181a; --panel: #1b2124; --panel-2: #232a2d;
+    --ink: #eae7de; --ink-soft: #a7a297; --line: #343c3e;
+    --accent: #6cc0b3; --accent-soft: #1c302c;
+    --amber: #e0aa5a; --amber-soft: #332711;
+    --coral: #e08a72; --coral-soft: #332019;
+    --blue: #8db2df; --blue-soft: #1c2836;
+    --code: #20272a;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; padding: 56px 22px 100px; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.72; }
+  main { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+
+  header { display: flex; flex-direction: column; gap: 13px; padding-bottom: 30px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+  h1 { font-family: var(--serif); font-weight: 640; font-size: clamp(28px, 4.6vw, 40px); line-height: 1.28; letter-spacing: -.017em; margin: 0; text-wrap: balance; max-width: 22ch; }
+  .dek { font-size: 16.5px; color: var(--ink-soft); max-width: 66ch; }
+
+  h2 { font-family: var(--serif); font-size: 25px; font-weight: 630; margin: 0 0 4px; display: flex; align-items: baseline; gap: 11px; }
+  h2 .n { font-family: var(--mono); font-size: 14px; color: var(--accent); font-weight: 600; }
+  h3 { font-family: var(--serif); font-size: 18.5px; font-weight: 630; margin: 26px 0 6px; }
+  .section-dek { color: var(--ink-soft); font-size: 15px; max-width: 66ch; margin: 0 0 18px; }
+  section { display: flex; flex-direction: column; }
+  p { max-width: 68ch; margin: 0 0 13px; font-size: 15.3px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 680; }
+  a { color: var(--accent); }
+  code { font-family: var(--mono); font-size: .87em; background: var(--code); padding: 1px 5px; border-radius: 4px; }
+
+  .lede {
+    font-family: var(--serif); font-size: 18px; line-height: 1.65;
+    padding: 20px 24px; border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    background: var(--panel); border-radius: 4px; max-width: 70ch;
+  }
+
+  .analogy {
+    display: flex; gap: 14px; padding: 18px 20px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--accent-soft); align-items: flex-start;
+  }
+  .analogy .glyph { font-size: 26px; line-height: 1; flex: 0 0 auto; }
+  .analogy .body { font-size: 14.8px; }
+  .analogy .body b { display: block; font-family: var(--serif); font-size: 16px; margin-bottom: 4px; }
+
+  .callout { padding: 16px 20px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font-size: 14.5px; }
+  .callout.amber { border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); background: var(--amber-soft); }
+  .callout.coral { border-color: color-mix(in srgb, var(--coral) 45%, var(--line)); background: var(--coral-soft); }
+  .callout.blue { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); background: var(--blue-soft); }
+  .callout .tag { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+  .callout.amber .tag { color: var(--amber); } .callout.coral .tag { color: var(--coral); } .callout.blue .tag { color: var(--blue); }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 16px 18px; }
+  .card h4 { margin: 0 0 6px; font-family: var(--serif); font-size: 15.5px; }
+  .card p { font-size: 13.8px; margin: 0; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-variant-numeric: tabular-nums; }
+  th { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); background: var(--panel-2); }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; }
+  tr.hl td { background: var(--accent-soft); font-weight: 620; }
+
+  pre { background: var(--code); border: 1px solid var(--line); border-radius: 8px; padding: 15px 18px; overflow-x: auto; font: 12.6px/1.6 var(--mono); margin: 0; }
+  code.f { font-family: var(--mono); }
+
+  /* sliding window diagram */
+  .window-diagram { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow-x: auto; }
+  .frame-strip { display: flex; gap: 5px; align-items: center; min-width: max-content; }
+  .frame-strip .lbl { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); width: 92px; flex: 0 0 auto; }
+  .cell { width: 30px; height: 30px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 10.5px; flex: 0 0 auto; border: 1px solid var(--line); color: var(--ink-soft); background: var(--panel-2); }
+  .cell.kf { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); font-weight: 700; }
+  .cell.win { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .cell.out { opacity: .35; }
+  .cell.dense { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+
+  /* phase state machine */
+  .phase-diagram { display: flex; align-items: stretch; gap: 0; flex-wrap: wrap; }
+  .phase-box { flex: 1 1 200px; border: 2px solid var(--line); border-radius: 10px; padding: 16px 16px; background: var(--panel); display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
+  .phase-box.active { border-color: var(--accent); background: var(--accent-soft); }
+  .phase-box .name { font-family: var(--serif); font-weight: 700; font-size: 16px; }
+  .phase-box .desc { font-size: 12.8px; color: var(--ink-soft); }
+  .phase-arrow { display: flex; align-items: center; justify-content: center; padding: 0 10px; color: var(--ink-soft); font-size: 20px; flex: 0 0 auto; }
+  .phase-cond { font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft); text-align: center; max-width: 120px; }
+
+  .footnote { font-size: 13px; color: var(--ink-soft); border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 14px; }
+
+  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+  ol.steps li { counter-increment: s; position: relative; padding-left: 42px; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 12.5px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+  .checklist { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .checklist li { padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-size: 13.8px; }
+  .checklist .k { font-family: var(--mono); font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-right: 8px; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 18px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 5px; }
+
+  @media (max-width: 680px) {
+    body { padding: 36px 14px 80px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .phase-diagram { flex-direction: column; }
+    .phase-arrow { transform: rotate(90deg); padding: 6px; }
+  }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">gs_floaterLab · exp67 코드 해설 · 2026-08-26</div>
+    <h1>이 스케줄러는 실제로 무엇을 결정하고 있는가</h1>
+    <p class="dek">
+      <code>vigs/map_scheduler.py</code>와 그걸 실제 tracking↔mapping 루프에 연결하는
+      <code>vigs/vigs.py</code> / <code>vigs/gs_backend.py</code> 코드를 읽고, 코드를 몰라도
+      따라올 수 있게 개념·수식·실제 숫자를 다시 풀어썼다. 결과(PSNR 표)가 아니라
+      <strong>"어떻게 이런 결정을 내리는가"</strong>에 집중한다.
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="n">00</span> 이 시스템이 풀어야 하는 문제</h2>
+    <p class="section-dek">
+      결과 문서 표현을 빌리면 "scene 이름, fps, 절대 frame 경계, 최종 길이, validation gradient를
+      전혀 보지 않는" 온라인 3DGS mapping 스케줄러다. 실시간으로 카메라 frame이 도착하는데, 매 순간
+      세 가지를 결정해야 한다.
+    </p>
+    <div class="analogy">
+      <div class="glyph">📚</div>
+      <div class="body">
+        <b>사서 비유</b>
+        컨베이어벨트에서 책이 끊임없이 들어온다. 그중 일부는 "이번 학기 필독서"(SLAM이 고른 keyframe)로
+        이미 정해져 있다. 사서는 세 가지를 매 순간 결정해야 한다 —
+        <strong>① 필독서 사이사이의 다른 책들 중 어떤 걸 서가에 추가로 꽂을지</strong>(membership),
+        <strong>② 서가에 꽂힌 책들을 학생들에게 어떤 순서로 나눠줄지</strong>(order),
+        <strong>③ 지금 당장 새 책을 분류하는 데 시간을 쓸지, 이미 있는 책을 학생에게 읽힐 시간을
+        늘릴지</strong>(compute allocation). 이 문서에서 다룰 4개의 작은 클래스가 정확히 이 세 가지를
+        나눠서 맡는다.
+      </div>
+    </div>
+    <p>
+      기존 여러 시도가 실패한 이유는 이 세 결정을 한 번에 뭉쳐서 내렸기 때문이다 — 예를 들어
+      "가장 새로운(novel) 책을 서가에도 먼저 꽂고 학생에게도 먼저 준다"처럼. exp67은 이걸
+      의도적으로 분리한다: <strong>membership(무엇을 볼지)에는 novelty를 쓰고, order(언제 볼지)에는
+      그냥 shuffle을 쓴다.</strong> 이전 실험(Stage C)에서 "novelty 순서로 먼저 주기"가 오히려
+      느렸다는 게 이 분리의 직접적 근거다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="n">01</span> "window"는 사실 두 개다 — 헷갈리기 쉬운 지점</h2>
+    <p class="section-dek">
+      실행 커맨드에 <code>window</code>라는 말이 두 번 나오는데, 완전히 다른 두 시스템을 가리킨다.
+      이 문서 전체에서 헷갈리지 않도록 먼저 분리한다.
+    </p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>① Tracking window — <code>frontend_window 15</code></h4>
+        <p>
+          SLAM 쪽(카메라 pose 추정) 얘기다. "최근 15개 frame을 서로 겹쳐 보면서 pose를 동시에
+          미세조정한다"는 뜻 — 이 문서의 scheduler와는 별개 시스템이고, 값은 세 장면 다 15로
+          고정(자체가 하나의 "scene에 안 맞추기" 원칙 적용 사례).
+        </p>
+      </div>
+      <div class="card">
+        <h4>② Mapping window — <code>window_size 10</code>, 코드명 <code>current_window</code></h4>
+        <p>
+          이 문서가 다루는 3DGS mapping 쪽. "가장 최근 10개의 tracked keyframe을 한꺼번에 놓고
+          공동 최적화(bundle-adjustment 스타일)한다"는 뜻 — 아래 <strong>frontier 단계</strong>가
+          바로 이 window를 쓴다.
+        </p>
+      </div>
+    </div>
+    <h3>Mapping window는 어떻게 미끄러지는가</h3>
+    <p>
+      새 keyframe이 확정되면 맨 앞에 추가하고, window 길이(10)를 넘으면 <strong>가장 오래된 것 하나를
+      뺀다</strong> — 딱 그만큼만. 실제 코드(<code>gs_backend.py:3892</code>)는 이렇게 짧다:
+    </p>
+    <pre><code class="f">self.current_window = (
+    [새_keyframe] + self.current_window[:-1]
+    if len(self.current_window) > window_size
+    else [새_keyframe] + self.current_window
+)</code></pre>
+    <div class="window-diagram">
+      <div class="frame-strip">
+        <span class="lbl">keyframe 도착 →</span>
+        <div class="cell kf">1</div><div class="cell kf">2</div><div class="cell kf">3</div>
+        <div class="cell kf">4</div><div class="cell kf">5</div><div class="cell kf">6</div>
+        <div class="cell kf">7</div><div class="cell kf">8</div><div class="cell kf">9</div>
+        <div class="cell kf">10</div><div class="cell kf">11</div>
+      </div>
+      <div class="frame-strip">
+        <span class="lbl">window (10개)</span>
+        <div class="cell out">1</div>
+        <div class="cell win">2</div><div class="cell win">3</div><div class="cell win">4</div>
+        <div class="cell win">5</div><div class="cell win">6</div><div class="cell win">7</div>
+        <div class="cell win">8</div><div class="cell win">9</div><div class="cell win">10</div>
+        <div class="cell win">11</div>
+      </div>
+    </div>
+    <p class="footnote">
+      keyframe 11이 들어오는 순간 keyframe 1은 window 밖으로 나간다 — 그 keyframe이 "잊혀지는" 게
+      아니라, <strong>더 이상 매 frontier 호출마다 공동 최적화 대상이 아니게</strong> 된다는 뜻이다
+      (Gaussian은 계속 남아있고, 나중에 dense replay가 그 근처를 다시 스칠 수도 있다).
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="n">02</span> 작은 숫자로 전체 흐름을 한 번 따라가 보기</h2>
+    <p class="section-dek">
+      실제 실행은 keyframe이 수백~수천 개지만, 메커니즘은 아주 작은 예로도 똑같이 재현된다.
+      아래는 실제 파라미터(<code>required_opportunities=2</code>)를 그대로 쓴 가상의 타임라인이다.
+    </p>
+    <ol class="steps">
+      <li>
+        <strong>keyframe 1, 2가 확정된다.</strong> 그 사이(interval)에 tracking이 스킵한 dense
+        frame 후보가 5개 있다고 하자. <code>temporal_maximin_order()</code>가 이 5개를
+        "가장 keyframe 1·2에서 멀리 떨어진 것부터" 순서를 매긴다 — 양쪽 끝에서 가장 먼 중간
+        지점이 1등, 그다음 남은 구간을 이등분하는 지점이 2등... (1차원 farthest-point 방식).
+      </li>
+      <li>
+        <strong>맨 처음 1개(bootstrap)는 즉시 서가에 꽂힌다.</strong> 이건 "credit"을 기다리지
+        않는다 — 안 그러면 replay pool이 비어서 아무것도 학습할 게 없는 deadlock이 난다.
+        나머지 4개는 대기열(<code>_pending</code>)에서 기다린다.
+      </li>
+      <li>
+        <strong>지금까지 서가(active pool)에 꽂힌 view들이 실제로 몇 번 학생 손에 들어갔는지</strong>를
+        누적한다 — 이게 <code>service_credit</code>다. 예를 들어 최근 optimizer가 실제로 4 step을
+        소비했다면 credit이 4 늘어난다.
+      </li>
+      <li>
+        <strong>credit ÷ 2 (=required_opportunities) = 이번에 새로 추가할 수 있는 개수.</strong>
+        credit이 4면 새 view 2개를 더 서가에 꽂을 수 있다. 대기 중인 interval이 여러 개면
+        <strong>지금까지 가장 적게 채워진 interval부터</strong> 채운다(water-filling) — 한 구간만
+        dense view로 도배되는 걸 막는다.
+      </li>
+      <li>
+        <strong>서가에 꽂힌 view들(keyframe + admitted dense)은 셔플 카드 덱처럼 동작한다.</strong>
+        한 번 뽑히면 그 "판(epoch)"이 끝날 때까지 다시 안 뽑힌다. 판이 다 돌면 다시 전부 섞어서
+        새 판을 시작한다. 새 view가 중간에 들어오면 <strong>지금 진행 중인 판의 무작위 위치에
+        끼어든다</strong> — 맨 위(다음 차례)로 새치기하지 않는다.
+      </li>
+    </ol>
+    <div class="callout amber">
+      <span class="tag">숫자 2가 의미하는 것</span>
+      <p>
+        <code>required_opportunities=2</code>는 "fps"도 "장면 크기"도 아니고, <strong>"한 번 보여준 것과
+        그다음에 실제로 나아졌는지 확인할 최소 반복 횟수"를 구분하는 증거 개수</strong>다(계획서 원문
+        표현 그대로). 1번만 보여주면 "봤다"인지 "배웠다"인지 구별이 안 되니 최소 2번을 요구하는 것 —
+        이 값 자체가 scene 특성과 무관하게 고정이라는 게 "scene마다 안 바꿔도 된다"의 근거 중 하나다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">03</span> 결정 ① — 무엇을 서가에 꽂을지: <code>AdaptiveViewsetController</code></h2>
+    <p class="section-dek">membership만 담당한다. 순서나 학습 여부는 전혀 모른다.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h4>bootstrap</h4>
+        <p>새 keyframe 구간이 열리면 그 구간에서 가장 novel한 dense view 1개는 credit 없이 즉시 admit.
+        deadlock 방지용 "선불".</p>
+      </div>
+      <div class="card">
+        <h4>budget admission</h4>
+        <p><code>service_credit = 실제로 소비된 replay step 누적치</code>. <code>quota = credit ÷ 2</code>개까지만
+        새로 admit, 쓴 만큼 credit 차감.</p>
+      </div>
+    </div>
+    <div class="callout coral">
+      <span class="tag">중요한 안전장치</span>
+      <p>
+        <code>active_pool_mature=False</code>(=서가에 이미 꽂힌 것들이 아직 부채 상태, 즉 자기 몫의
+        학습 기회를 다 못 받음)일 때는 <strong>쌓인 credit을 통째로 0으로 리셋</strong>한다
+        (<code>map_scheduler.py:130</code>). "이미 있는 애들 밥도 못 챙겨줬는데 새 손님부터 받지
+        않는다"는 것 — 이게 없으면 서가가 계속 새 책으로만 채워지고 아무도 제대로 못 배우는 상태가 된다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">04</span> 결정 ② — 어떤 순서로 줄지: <code>CausalShuffleQueue</code></h2>
+    <p class="section-dek">순서만 담당한다. 뭘 admit할지는 전혀 모른다 — 위 컨트롤러가 이미 골라준 걸 그냥 받는다.</p>
+    <div class="analogy">
+      <div class="glyph">🃏</div>
+      <div class="body">
+        <b>카드 덱 비유</b>
+        52장을 섞어서 한 장씩 뽑는다(shuffle-without-replacement). 다 뽑으면 다시 섞어서 새 판.
+        <strong>중간에 새 카드가 배달되면?</strong> — 지금 남은 카드 더미의 무작위 위치에 끼워
+        넣는다. 다음 뽑을 카드로 바로 넣지도 않고(그러면 새 카드만 계속 우선됨), 이번 판이 끝날
+        때까지 미루지도 않는다(그러면 급하게 들어온 카드가 한참 대기).
+      </div>
+    </div>
+    <p>
+      실제 실행에서 이 큐가 뽑는 대상은 <code>("keyframe", uid)</code>와 <code>("dense", uid)</code>가
+      섞인 키다 — <strong>단, 이번 exp67 universal 실행은 <code>--mapping_replay_dense_only</code>
+      플래그를 켰기 때문에, 이 replay 큐에는 실제로 dense view만 들어간다</strong>
+      (<code>gs_backend.py</code> 주석: "tracked keyframes remain supervised by the ordinary
+      frontier map() calls"). 이 디테일은 05절에서 이어서 다룬다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>지표</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td><code>selection_count_min / max</code></td><td>지금까지 가장 적게/많이 뽑힌 view의 횟수 — 이 둘의 차이가 항상 ≤1이면 "기아(starvation) 없음"이 증명된 것</td></tr>
+          <tr><td><code>epochs_started</code></td><td>덱을 몇 번 다시 섞었는지 — 아래 phase 전환 조건에 그대로 재사용된다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">05</span> 결정 ③ — 지금 뭘 학습할 시간인가: 3단계 phase</h2>
+    <p class="section-dek">
+      <code>TopologyReplayController</code>가 담당. 매 frame마다 "지금은 frontier(구조 잡기) 시간인가,
+      replay(dense RGB로 다듬기) 시간인가"를 결정한다. frame 번호나 scene 이름은 전혀 안 보고,
+      <strong>반복 관측된 증거</strong>만 본다.
+    </p>
+    <div class="phase-diagram">
+      <div class="phase-box active">
+        <span class="name">FRONTIER</span>
+        <span class="desc">mapping window(최근 10 keyframe)로 공동 최적화. densify/prune 활발히 발생.</span>
+      </div>
+      <div class="phase-arrow">→</div>
+      <div class="phase-cond">densify/prune을<br><strong>2번</strong> 독립 관측<br>+ 직전 pruning 수준까지<br>Gaussian 개수 회복</div>
+      <div class="phase-arrow">→</div>
+      <div class="phase-box">
+        <span class="name">BALANCED</span>
+        <span class="desc">frontier는 √(window_size)번(=√10≈3회)만 축소 실행, dense replay 병행 시작.</span>
+      </div>
+      <div class="phase-arrow">→</div>
+      <div class="phase-cond">셔플 덱이<br><strong>2번 통째로</strong><br>다 소진(epoch +3)</div>
+      <div class="phase-arrow">→</div>
+      <div class="phase-box">
+        <span class="name">REPLAY</span>
+        <span class="desc">frontier iteration = 0. 일반 map() 호출은 append/pose 갱신만. dense replay가 학습 전담.</span>
+      </div>
+    </div>
+    <p class="footnote">
+      "epoch가 3만큼 늘면 2번의 완전한 판"인 이유: BALANCED 진입 시점의 epoch 수를 기준점(origin)으로
+      찍어두고, 그 이후 <code>epochs_started - origin ≥ 3</code>이면 전환한다 — 진입 직후 진행 중이던
+      1판(0에서 시작할 때부터 이미 카운트되어 있던 것)에 이어 2판이 더 완결됐다는 뜻(코드 주석 그대로).
+    </p>
+    <div class="callout coral">
+      <span class="tag">이번 실행에서 실제로 벌어지는 일 — 앞 절과 연결</span>
+      <p>
+        <code>mapping_replay_dense_only=True</code>라서, REPLAY 단계에 들어가면 <strong>tracked
+        keyframe은 더 이상 자기 전용 frontier 호출(원래 갖고 있던 depth+normal 지도 supervision)을
+        받지 않는다.</strong> 그 keyframe이 앵커하는 3D Gaussian들은 오직 <strong>근처를 지나가는
+        dense view의 render/backward를 통해서만 간접적으로</strong> 계속 다듬어진다 — keyframe
+        자신의 시점에서 직접 재학습되는 게 아니라, 공간을 공유하는 이웃 dense view가 그 자리를
+        스칠 때 "덤으로" 개선된다는 뜻이다. 결과 문서의 SSIM/LPIPS까지 함께 개선된 걸 보면 이
+        간접 경로가 실제로 잘 작동한 것으로 보이지만, <strong>keyframe 시점 자체의 직접 재평가는
+        이 설계에서 의도적으로 포기했다</strong>는 점은 명시할 필요가 있다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">06</span> 결정 ③-보충 — idle이 아예 없는 장면(12F)은 어떻게 하나</h2>
+    <p class="section-dek">
+      원래 설계는 "GPU가 노는 순간(idle)에만 replay"였다. 그런데 12F처럼 keyframe이 너무 자주
+      나오는 장면은 tracking이 GPU를 거의 계속 붙잡고 있어서 <strong>"노는 순간" 자체가 안
+      생긴다</strong> — 그러면 replay가 0번 실행되는 실패가 났다(문서 12장에 남아있는 실측 실패:
+      25.49dB).
+    </p>
+    <div class="analogy">
+      <div class="glyph">🚦</div>
+      <div class="body">
+        <b>신호등 비유로 고친 방식</b>
+        "차가 안 지나갈 때만 보행자를 건너게 하자"가 원래 규칙이었는데, 차가 끊이지 않는
+        교차로에서는 보행자가 영원히 못 건넌다. 그래서 규칙을 바꿨다: <strong>"방금 온 packet이
+        실제로 아무 replay도 서비스하지 못했다"</strong>는 신호가 <strong>2번 연속</strong>
+        관측되면, 그 packet이 원래 쓰려던 frontier 최적화 시간(budget)을 <strong>같은 개수만큼의
+        dense replay 1-view step으로 통째로 바꿔치기</strong>한다. 추가로 시간을 더 주는 게
+        아니라, 원래 쓸 시간을 다른 용도로 대체하는 것이라 tracking의 실시간성을 침범하지 않는다.
+      </div>
+    </div>
+    <p>
+      이 대체가 실제로 세 장면에서 얼마나 다르게 발동했는지가 이 시스템이 "scene마다 다른 파라미터를
+      쓴 게 아니라 같은 규칙이 입력에 따라 자연히 다르게 반응했다"는 증거다:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>장면</th><th class="num">pressure 관측</th><th class="num">실제 대체(allocation)</th><th class="num">비율</th><th>해석</th></tr></thead>
+        <tbody>
+          <tr><td>aria1253</td><td class="num">48</td><td class="num">22</td><td class="num">46%</td><td>중간 — idle과 pressure가 섞임</td></tr>
+          <tr><td>aria301_305</td><td class="num">42</td><td class="num">12</td><td class="num">29%</td><td>idle 여유 많음 — 대부분 원래 방식대로 진행, 40 epoch나 돌 수 있었음</td></tr>
+          <tr class="hl"><td>aria301_12F</td><td class="num">256</td><td class="num">227</td><td class="num">89%</td><td>거의 항상 saturated — 이 대체 없이는 12F는 애초에 학습이 거의 안 됨</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">07</span> 세 결정이 실제 한 번의 map() 호출에서 합쳐지는 순간</h2>
+    <p class="section-dek">tracking 루프가 "지금 GPU 여유 있나?"를 물을 때마다 실행되는 한 사이클이다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>단계</th><th>무엇을 하는가</th><th>담당 클래스</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>새 keyframe 구간이 열렸으면 maximin 순서로 후보 나열, bootstrap 1개 즉시 admit</td><td>AdaptiveViewsetController</td></tr>
+          <tr><td>2</td><td>지금까지 쌓인 service credit으로 추가 admit (interval별 water-fill)</td><td>AdaptiveViewsetController</td></tr>
+          <tr><td>3</td><td>PGBA pose revision 대기 중이면 그것부터 처리(topology는 건드리지 않는 bounded 복구)</td><td>TopologyReplayController.structural_iterations</td></tr>
+          <tr><td>4</td><td>아니면 phase(FRONTIER/BALANCED/REPLAY)와 saturation 여부로 이번 packet의 iteration을 frontier용/replay용으로 배분</td><td>TopologyReplayController.foreground_allocation</td></tr>
+          <tr><td>5</td><td>replay로 배분됐으면, 셔플 덱에서 그 수만큼 view를 뽑아 B1(1-view) Adam step 실행</td><td>CausalShuffleQueue.draw</td></tr>
+          <tr><td>6</td><td>densify/prune 이벤트가 있었으면 phase controller에 관측치로 보고(다음 전환 판단 재료)</td><td>TopologyReplayController.observe_topology</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      각 단계가 <strong>서로의 내부 상태를 몰라도 되게</strong> 짜여 있다는 게 핵심이다 —
+      AdaptiveViewsetController는 phase를 모르고, CausalShuffleQueue는 admission 로직을 모르고,
+      TopologyReplayController는 어떤 view가 뽑혔는지 모른다. 서로 "숫자"(credit, epoch 수,
+      Gaussian 개수)만 주고받는다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="n">08</span> "scene마다 튜닝 안 함"이 실제로 뜻하는 것</h2>
+    <p class="section-dek">
+      이 시스템 전체에서 사람이 고정한 숫자는 딱 몇 개뿐이고, 전부 <strong>"몇 번 반복 관측해야
+      우연이 아니라고 믿을지"</strong>를 나타내는 evidence count이지, 물리량(fps·frame 번호·초)이
+      아니다.
+    </p>
+    <div class="grid-3">
+      <div class="card"><h4>2</h4><p><code>required_opportunities</code> — admission 전 최소 반복 관측</p></div>
+      <div class="card"><h4>2</h4><p>topology 독립 관측 횟수(FRONTIER→BALANCED)</p></div>
+      <div class="card"><h4>2 (연속)</h4><p>worker saturation 연속 관측(pressure 대체 발동)</p></div>
+    </div>
+    <p>
+      나머지(window_size=10, frontend_window=15 등)는 scheduler 자신이 정한 게 아니라 기존
+      config 값을 그대로 물려받은 것이고, <code>run_map_rr_adaptive_universal.sh</code> 자체가
+      <code>--length</code>(평가 구간 길이) 외의 어떤 override도 <strong>exit 2로 거부</strong>하도록
+      스크립트 단에서 강제한다 — "이 실행에서 세 장면에 진짜로 같은 정책을 썼다"를 코드 레벨에서
+      보장하는 장치다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="n">09</span> 아직 못 다룬 것 · 다음에 볼만한 파일</h2>
+    <ul class="checklist">
+      <li><span class="k">얕게 봄</span><code>vigs/pgo_buffer.py</code> — PGBA(pose graph 재조정) back-pressure의 세부 구현. 여기서는 "2판 성숙 전엔 다음 revision을 미룬다"는 규칙만 확인, 실제 큐 구조는 안 읽음.</li>
+      <li><span class="k">확인 안 함</span><code>demo.py</code>의 mutual-exclusion 검증 — <code>--idle_map_rr</code>와 기존 <code>background_polish</code> 계열 flag가 동시에 켜지는 걸 막는 부분.</li>
+      <li><span class="k">열린 질문</span>05절에서 짚은 "REPLAY 단계 이후 keyframe은 간접 refine만 받는다"가 실제 geometry(floater 등)에 어떤 영향을 주는지는 이번 결과 문서에 없음 — PSNR/SSIM/LPIPS만 측정됨.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div>근거 코드: vigs/map_scheduler.py · vigs/vigs.py · vigs/gs_backend.py (VIGS-SLAM-custom, exp66-lmrs-polish-preempt, uncommitted working-tree)</div>
+    <div>실행 recipe: exp67_axes/run_map_rr_adaptive_universal.sh · 결과 문서: exp67_universal_scheduler_result.html</div>
+  </footer>
+</main>

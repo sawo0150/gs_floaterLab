@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp69 v5/v6/v7 — adaptive mapping scheduler 및 geometry audit</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper:#f5f3f8; --panel:#fff; --ink:#211d2a; --soft:#6e677b;
+      --line:#ddd7e7; --accent:#674a9d; --good:#286b55; --warn:#98620d;
+      --bad:#a13f31; --info:#365e91; --code:#f0edf5;
+    }
+    @media (prefers-color-scheme:dark) {
+      :root { --paper:#141219; --panel:#1d1925; --ink:#eeeaf4; --soft:#aaa2b8;
+        --line:#393144; --accent:#b29ee7; --good:#79bea5; --warn:#e4ae60;
+        --bad:#e17e70; --info:#89b3e6; --code:#17141d; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink);
+      font:15px/1.64 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif; }
+    main { max-width:1060px; margin:auto; padding:54px 24px 90px; }
+    header { border-bottom:1px solid var(--line); padding-bottom:28px; }
+    .eyebrow { font:12px ui-monospace,SFMono-Regular,Consolas,monospace; color:var(--soft); letter-spacing:.07em; text-transform:uppercase; }
+    h1 { margin:8px 0 10px; font-size:clamp(27px,4vw,38px); line-height:1.25; letter-spacing:-.025em; }
+    h2 { margin:42px 0 14px; font-size:23px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+    h3 { margin:26px 0 9px; font-size:17px; }
+    p { margin:8px 0; }
+    .lead { max-width:80ch; color:var(--soft); font-size:16px; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:22px 0; }
+    .metric { padding:15px; border:1px solid var(--line); border-radius:7px; background:var(--panel); }
+    .metric .k { color:var(--soft); font:11px ui-monospace,SFMono-Regular,Consolas,monospace; text-transform:uppercase; }
+    .metric .v { margin-top:5px; font-size:23px; font-weight:700; }
+    .metric p { color:var(--soft); font-size:12.5px; line-height:1.45; }
+    .box { margin:16px 0; padding:14px 17px; border:1px solid var(--line); border-left-width:4px; border-radius:5px; background:var(--panel); }
+    .box.good { border-left-color:var(--good); } .box.warn { border-left-color:var(--warn); }
+    .box.bad { border-left-color:var(--bad); } .box.info { border-left-color:var(--info); }
+    .good-text { color:var(--good); font-weight:650; } .warn-text { color:var(--warn); font-weight:650; }
+    .bad-text { color:var(--bad); font-weight:650; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:6px; background:var(--panel); }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th,td { padding:9px 11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--soft); font:11px ui-monospace,SFMono-Regular,Consolas,monospace; text-transform:uppercase; letter-spacing:.025em; }
+    tr:last-child td { border-bottom:0; } td.num,th.num { text-align:right; font-variant-numeric:tabular-nums; }
+    code,.mono { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    code { padding:1px 5px; border-radius:3px; background:var(--code); }
+    pre.eq { white-space:pre-wrap; overflow-wrap:anywhere; padding:15px 17px; border:1px solid var(--line); border-radius:6px; background:var(--code); font:13px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace; }
+    ul,ol { padding-left:22px; } li { margin:6px 0; }
+    .flow { display:flex; align-items:stretch; gap:8px; margin:18px 0; overflow-x:auto; }
+    .node { min-width:155px; flex:1; padding:13px; border:1px solid var(--line); border-radius:6px; background:var(--panel); text-align:center; }
+    .arrow { align-self:center; color:var(--soft); font-size:20px; }
+    details { margin:14px 0; border:1px solid var(--line); border-radius:6px; background:var(--panel); padding:11px 14px; }
+    summary { cursor:pointer; font-weight:650; }
+    .small { color:var(--soft); font-size:12.5px; }
+    footer { margin-top:48px; border-top:1px solid var(--line); padding-top:18px; color:var(--soft); font-size:12px; }
+    a { color:var(--accent); }
+    @media(max-width:760px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .flow { flex-direction:column; } .arrow { transform:rotate(90deg); } }
+  </style>
+</head>
+<body><main>
+  <header>
+    <div class="eyebrow">exp69 · scheduler v5 + experimental v6/v7 · strict causal audit · 2026-08-27</div>
+    <h1>v5/v6/v7 adaptive mapping scheduler 및 geometry audit</h1>
+    <p class="lead">exp68에서 서로 얽혀 있던 dense replay, bounded archive, carve, opacity 억제와 pruning을 분리했다.
+      검증된 exp67 <code>map()</code>-내 dense scheduler를 먼저 고정하고, 저-opacity·저기여 Gaussian을 정확히 계측한 뒤
+      telemetry → reversible suppression → hard deletion → bounded archive 순으로 한 축씩 시험했다.</p>
+    <div class="grid">
+      <div class="metric"><div class="k">회귀 테스트</div><div class="v good-text">89 pass</div><p>exp66 scheduler 53 + exp67 carve 23 + exp69 dust 13</p></div>
+      <div class="metric"><div class="k">정확 계측</div><div class="v good-text">성공</div><p>CUDA에서 Gaussian별 compositing mass 수집</p></div>
+      <div class="metric"><div class="k">범용 geometry action</div><div class="v bad-text">미통과</div><p>세 장면을 동시에 만족하는 action은 아직 없음</p></div>
+      <div class="metric"><div class="k">기준 / 선택 후보</div><div class="v good-text">v5 / v6</div><p>v6: universal λ=0.01 + terminal cleanup</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 결론부터</h2>
+    <div class="box info"><b>v5 명명 업데이트:</b> 이 문서의 1–14장은 mature-dust와 v1–v4 scheduler의
+      성공·실패 이력을 그대로 보존한다. 이후 exact world-Jacobian PGBA를 결합한 현재 구성을 <b>v5</b>로
+      명명했다. 이는 1253/305용 현재 scheduler 채택을 뜻하며, geometry action의 3-scene universal PASS를
+      새로 주장하는 것은 아니다. 12F의 빠른-motion 한계도 별도 제한사항으로 남긴다.</div>
+    <div class="box good"><b>성공한 부분:</b> <code>n_touched</code>를 Fisher/기여도로 잘못 해석하지 않고,
+      실제 alpha compositing에서 Gaussian별 <span class="mono">T_before × alpha</span>를 직접 누적하는 저비용 계측 경로를 만들었다.
+      stable ID 상태, EMA, 성숙도, lifetime visual-risk budget, topology 변화 후 상태 정합까지 <code>map()</code> 내부에서 동작한다.</div>
+    <div class="box warn"><b>조건부로 유망한 부분:</b> 매우 보수적인 reversible suppression은 1253에서 27.28 dB를 유지하며
+      nominal high-opacity floater를 154→143으로 줄였다. 12F는 26.22 dB로 기존 exp67 반복 범위 하단과 거의 맞닿았지만,
+      305 한 번의 strict run은 25.87 dB로 크게 실패했다. 비동기 trajectory 변동이 섞였으므로 원인을 suppression 하나로 단정할 수 없지만,
+      현재 증거만으로 범용 PASS라고 부를 수도 없다.</div>
+    <div class="box bad"><b>기각한 부분:</b> hard prune은 보수적 조건에서도 12F를 25.90 dB로 낮췄다.
+      bounded archive는 1253/305 PSNR을 27.89/29.42 dB로 올렸지만 giant-splat/global footprint를 크게 악화시켰다.
+      따라서 둘 다 production default로 채택하지 않는다.</div>
+    <p>즉 exp69는 “floater 제거까지 완료된 champion”이 아니라, <b>검출기는 성숙했고 action의 위험 경계가 드러난 실험</b>이다.
+      실패 결과를 숨기거나 장면별 threshold를 따로 맞추지 않았다.</p>
+  </section>
+
+  <section>
+    <h2>2. 고정한 문제와 PASS 규칙</h2>
+    <ul>
+      <li>입력은 aria RGB/IMU의 실제 순서를 유지한 <b>strict 1.5× causal streaming</b>이다.</li>
+      <li>정책 삽입점은 <code>GSBackEnd.map()</code> 내부다. <code>background_polish_step</code>은 사용하지 않는다.</li>
+      <li>1253, 305, 12F에 <b>동일한 설정</b>을 쓴다. dataset 경로 외 scene/frame별 예외는 없다.</li>
+      <li>view membership과 optimizer order는 exp67의 dense admission + shuffle-without-replacement를 고정한다.</li>
+      <li>1253/305 photometric floor는 사용자가 완화한 27 dB, 12F는 exp67 반복 평균 약 26.41 dB에 대한 scene-relative non-inferiority로 본다.</li>
+      <li>geometry는 한 개 count가 아니라 opacity band, manual-region high-opacity/support, covariance footprint/area를 함께 본다.</li>
+      <li>라벨은 사후 평가에만 쓴다. detector와 threshold 선택에는 사용하지 않았다.</li>
+    </ul>
+    <p class="small">주의: strict pipeline은 tracking과 mapping이 비동기로 함께 돌아가므로 run마다 keyframe/PGBA pose revision 수가 달라질 수 있다.
+      단일 run의 PSNR 차이 전체를 geometry action의 인과효과로 읽지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>3. 구현 구조</h2>
+    <div class="flow">
+      <div class="node">dense/keyframe<br>render + loss</div><div class="arrow">→</div>
+      <div class="node">매 8 action<br>low-opacity audit</div><div class="arrow">→</div>
+      <div class="node">stable-ID EMA<br>maturity 판정</div><div class="arrow">→</div>
+      <div class="node">매 256 action<br>bounded action</div><div class="arrow">→</div>
+      <div class="node">attenuate 또는<br>prune_points()</div>
+    </div>
+
+    <h3>3.1 정확한 render contribution</h3>
+    <pre class="eq">pixel p에서 Gaussian g의 compositing mass:  c_gp = T_before(g,p) · alpha(g,p)
+view v에서의 정규화 기여도:             m_g(v) = (1 / HW) Σ_p c_gp
+전체 render alpha mass:                 A(v) = (1 / HW) Σ_p [1 - T_final(p)]</pre>
+    <p>CUDA rasterizer는 audit 때만, 그리고 현재 opacity≤0.03인 Gaussian에 대해서만 atomic accumulation을 수행한다.
+      전체 alpha denominator는 추가 per-Gaussian atomic 없이 최종 transmittance로 계산한다.
+      예전 구현처럼 “dust subset의 mass”를 denominator로 쓰면 0.1% budget이 사실상 dust의 0.1%가 되어 지나치게 빨리 소진되므로 이를 수정했다.</p>
+
+    <h3>3.2 범용 성숙 조건</h3>
+    <pre class="eq">eligible(g) = observed
+  ∧ opportunities(g) ≥ 10
+  ∧ consecutive_low_persistence(g) ≥ 5
+  ∧ current_opacity(g), EMA_opacity(g) ≤ 0.005
+  ∧ EMA_exact_contribution(g) ≤ 3×10⁻⁶
+  ∧ EMA_opacity_footprint(g) ≤ 3×10⁻⁶</pre>
+    <p>EMA decay는 0.90이다. 서로 다른 view에서 적어도 10번 관측되고, 그중 마지막 5회 연속으로 모든 low 조건을 만족해야 한다.
+      한 프레임에서 우연히 가려졌다는 이유만으로 삭제하지 않기 위한 probation이다.</p>
+
+    <h3>3.3 action과 위험 예산</h3>
+    <pre class="eq">lifetime visual spend = Σ selected_g EMA[m_g] / EMA[A]
+constraint            = lifetime visual spend ≤ 3×10⁻⁴  (0.03%)
+batch cap              = 512 rows / action event
+reversible action      = opacity ← 0.25 · opacity
+hard action            = Gaussian + Adam state를 prune_points()로 제거</pre>
+    <p>action은 256 optimizer actions마다만 실행해 O(N) compaction을 amortize한다. “pruning을 더 자주”는 후보가 정확하다는 보장이 생기기 전에는
+      손실을 키울 수 있으므로, audit 빈도와 destructive action 빈도를 분리했다.</p>
+
+    <h3>3.4 증분 topology와 실패 안전성</h3>
+    <ul>
+      <li>Gaussian의 row index가 densify/prune으로 바뀌어도 <code>point_ids</code>로 history를 보존한다.</li>
+      <li>append-only birth는 fast path, 실제 compaction 때만 O(N) ID reconciliation을 수행한다. 매 step 전 Gaussian을 다시 훑는 O(N²) 누적을 피한다.</li>
+      <li>GS worker packet은 모든 branch에서 6-field schema로 통일했다. 과거 5/6 tuple 불일치로 worker가 죽고 queue join이 영원히 대기하던 문제를 수정했다.</li>
+      <li>worker 예외는 <code>GS_WORKER_FATAL</code>로 기록하고 <code>task_done()</code>을 보장해 fail-fast한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. Stage A — detector가 실제 무엇을 측정하는가</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene / run</th><th class="num">PSNR</th><th class="num">map steps</th><th class="num">eligible</th><th class="num">exact↔proxy Pearson</th><th class="num">Spearman</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>1253 / A3 telemetry</td><td class="num">27.264</td><td class="num">6,247</td><td class="num">692</td><td class="num">0.982</td><td class="num">0.893</td><td class="good-text">계측 성공</td></tr>
+        <tr><td>305 / A3 telemetry</td><td class="num">28.941</td><td class="num">17,806</td><td class="num">5,802</td><td class="num">0.994</td><td class="num">0.764</td><td class="good-text">계측 성공</td></tr>
+        <tr><td>12F / A4 telemetry</td><td class="num">26.149</td><td class="num">4,986</td><td class="num">6,805</td><td class="num">0.935</td><td class="num">0.514</td><td class="good-text">계측 성공</td></tr>
+      </tbody>
+    </table></div>
+    <p>Pearson은 값의 선형 상관, Spearman은 순위 상관이다. 12F의 Spearman 0.514는 <code>n_touched</code>가 “어떤 Gaussian이 더 기여가 작은가”라는
+      순위를 상당히 다르게 만든다는 뜻이다. 따라서 <code>n_touched</code>는 cheap proxy로 보존하되 Fisher나 exact contribution으로 해석하지 않는다.</p>
+    <p>저장된 telemetry 후보를 held-out view에서 사후로 0으로 만든 counterfactual은 PSNR 변화가 약 10⁻⁵ dB였다.
+      이는 <b>최종 상태에서 후보가 거의 보이지 않는다</b>는 증거이지, 학습 중 일찍 제거해도 optimization trajectory가 같다는 증거는 아니다.
+      이후 hard-prune 실패가 바로 이 차이를 확인했다.</p>
+  </section>
+
+  <section>
+    <h2>5. Stage B/C — action ladder 결과</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>run</th><th>scene</th><th>action / envelope</th><th class="num">PSNR</th><th class="num">rows acted</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>B8</td><td>1253</td><td>hard / 초기 완화 조건</td><td class="num">27.397</td><td class="num">1,045 prune</td><td>사진 floor 통과</td></tr>
+        <tr><td>B9</td><td>305</td><td>hard / 초기 완화 조건</td><td class="num">29.036</td><td class="num">7,927 prune</td><td>사진 floor 통과, high-opacity geometry는 악화</td></tr>
+        <tr><td>B10</td><td>12F</td><td>hard / 초기 완화 조건</td><td class="num bad-text">25.414</td><td class="num">6,356 prune</td><td class="bad-text">명확한 실패</td></tr>
+        <tr><td>B11</td><td>12F</td><td>reversible / 초기 완화 조건</td><td class="num bad-text">25.833</td><td class="num">5,447 attenuate</td><td>hard보다 낫지만 실패</td></tr>
+        <tr><td>B12</td><td>12F</td><td>reversible / very-conservative</td><td class="num warn-text">26.216</td><td class="num">3,614 attenuate</td><td>exp67 하단에 근접, 단독 PASS 불충분</td></tr>
+        <tr><td>B13</td><td>1253</td><td>reversible / very-conservative</td><td class="num good-text">27.279</td><td class="num">175 attenuate</td><td class="good-text">사진 + 좁은 geometry 개선</td></tr>
+        <tr><td>B14</td><td>305</td><td>reversible / very-conservative</td><td class="num bad-text">25.868</td><td class="num">3,493 attenuate</td><td class="bad-text">27 dB floor 실패</td></tr>
+        <tr><td>B17</td><td>12F</td><td>hard / very-conservative</td><td class="num bad-text">25.901</td><td class="num">3,593 prune</td><td class="bad-text">B12보다 −0.314 dB; hard 최종 기각</td></tr>
+      </tbody>
+    </table></div>
+    <p>B17은 action 횟수 18회, lifetime visual spend 0.00000627(허용 0.0003의 약 2.1%)에 불과했다.
+      그런데도 B12보다 품질이 낮다. 이는 “최종 render contribution이 작다”와 “학습 도중 제거해도 optimization이 안전하다”가 같은 명제가 아님을 보여준다.
+      12F가 한 번 실패한 시점에서 동일 hard 설정을 1253/305에 더 돌려 성공 run만 모으지 않았다.</p>
+  </section>
+
+  <section>
+    <h2>6. low-opacity dust는 실제로 줄었는가</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>12F 최종 상태</th><th class="num">전체 rows</th><th class="num">opacity≤.005 count</th><th class="num">≤.005 opacity sum</th><th class="num">opacity≤.01 count</th><th class="num">≤.01 opacity sum</th><th class="num">opacity≤.1 count</th></tr></thead>
+      <tbody>
+        <tr><td>A4 telemetry-only</td><td class="num">155,517</td><td class="num">6,314</td><td class="num">22.82</td><td class="num">10,705</td><td class="num">54.96</td><td class="num">36,575</td></tr>
+        <tr><td>B12 reversible suppression</td><td class="num">154,839</td><td class="num">6,582</td><td class="num good-text">14.69</td><td class="num">11,152</td><td class="num good-text">48.25</td><td class="num">37,498</td></tr>
+        <tr><td>B17 hard prune</td><td class="num">152,379</td><td class="num good-text">3,391</td><td class="num good-text">12.89</td><td class="num good-text">7,948</td><td class="num good-text">46.24</td><td class="num good-text">34,163</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>Suppression은 Gaussian을 삭제하지 않으므로 count가 늘 수 있다. 대신 opacity mass는 22.82→14.69로 줄었다.</li>
+      <li>Hard prune은 count와 mass를 모두 실제로 줄였다. 따라서 pruning 코드가 “작동하지 않은” 것은 아니다.</li>
+      <li>그러나 hard prune의 12F PSNR 손실이 커서, dust 감소만으로 PASS할 수 없다.</li>
+      <li>이 detector는 low-opacity/low-contribution dust만 다룬다. opacity가 높거나 covariance가 큰 visible floater를 자동으로 해결하지 않는다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. manual-region geometry 감사</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>비교</th><th class="num">nominal high-opacity</th><th class="num">region opacity-area</th><th class="num">global footprint area</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>1253 A3 telemetry → B13 conservative suppression</td><td class="num good-text">154→143</td><td class="num good-text">0.878→0.840</td><td class="num">—</td><td>작지만 같은 방향의 개선</td></tr>
+        <tr><td>305 A3 telemetry → B14 conservative suppression</td><td class="num good-text">643→629</td><td class="num good-text">7.51→5.66</td><td class="num">—</td><td>geometry는 개선, PSNR은 실패</td></tr>
+        <tr><td>305 A3 telemetry → B15 bounded suppression</td><td class="num bad-text">643→914</td><td class="num bad-text">7.51→9.56</td><td class="num bad-text">1,123→3,160</td><td class="bad-text">geometry 실패</td></tr>
+        <tr><td>1253 A3 telemetry → B16 bounded suppression</td><td class="num bad-text">154→418</td><td class="num bad-text">0.878→1.964</td><td class="num bad-text">502→8,953</td><td class="bad-text">giant-splat 실패</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">Manual mask는 과거 label PLY를 현재 VIGS trajectory로 Sim3 정합한 사후 지표다.
+      305 B14/B15 정합 median 오차는 각각 약 7.6 cm/22.5 cm여서 region count의 절대값은 특히 조심해야 한다.
+      다만 bounded run의 global footprint 폭증은 manual mask 정합과 무관한 독립적 반례다.</p>
+  </section>
+
+  <section>
+    <h2>8. Stage F — bounded active/archive 재검증</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>run</th><th>scene</th><th class="num">PSNR</th><th class="num">steps</th><th class="num">active / working / archive</th><th class="num">capacity</th><th>결론</th></tr></thead>
+      <tbody>
+        <tr><td>B15</td><td>305</td><td class="num good-text">29.424</td><td class="num">12,942</td><td class="num">2,013 / 1,955 / 58</td><td class="num">3,392</td><td class="bad-text">사진 PASS, geometry FAIL</td></tr>
+        <tr><td>B16</td><td>1253</td><td class="num good-text">27.885</td><td class="num">5,617</td><td class="num">892 / 892 / 0</td><td class="num">1,120</td><td class="bad-text">사진 PASS, geometry FAIL</td></tr>
+      </tbody>
+    </table></div>
+    <p>bounded 구현은 epoch를 시작할 때 working set을 freeze하고 새 admission을 pending/archive로 회전시킨다.
+      그러나 capacity를 측정된 처리량에 맞춰 geometric doubling하는 현재 법칙은 최종적으로 892/1,955개를 working set에 남겼다.
+      즉 <b>epoch snapshot은 bounded지만 작은 상수 크기의 active pool을 보장하지 않는다.</b></p>
+    <p>더 중요한 반례는 사진 품질과 geometry가 반대 방향으로 움직였다는 점이다. 적은 step으로 PSNR은 높았지만
+      high-opacity/footprint가 크게 증가했다. 1253 한 장면에서 이미 공통 geometry 조건을 위반했으므로 12F bounded run을 추가해
+      성공 장면만 찾지 않고 이 축을 기각했다.</p>
+  </section>
+
+  <section>
+    <h2>9. 최종 PASS matrix</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>후보</th><th>1253 photo</th><th>305 photo</th><th>12F photo</th><th>geometry</th><th>strict service</th><th>최종</th></tr></thead>
+      <tbody>
+        <tr><td>exp67 scheduler + telemetry only</td><td class="good-text">진단 run 27.26</td><td class="good-text">28.94</td><td class="warn-text">26.15</td><td>action 없음</td><td class="good-text">통과</td><td>안전한 기준선/계측</td></tr>
+        <tr><td>very-conservative suppression</td><td class="good-text">27.28</td><td class="bad-text">25.87</td><td class="warn-text">26.22</td><td>1253/305 좁은 지표 개선</td><td class="good-text">통과</td><td class="warn-text">provisional, 범용 미통과</td></tr>
+        <tr><td>very-conservative hard GC</td><td>중단</td><td>중단</td><td class="bad-text">25.90</td><td>dust count/mass 감소</td><td class="good-text">통과</td><td class="bad-text">기각</td></tr>
+        <tr><td>bounded archive + suppression</td><td class="good-text">27.89</td><td class="good-text">29.42</td><td>중단</td><td class="bad-text">giant-splat 악화</td><td class="good-text">통과</td><td class="bad-text">기각</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box bad"><b>정직한 최종 판정:</b> exp69 action 중 세 장면 photo + geometry를 한 번에 통과한 universal champion은 없다.
+      따라서 pass를 만들기 위해 threshold를 scene별로 조절하지 않았고, 실패한 305/12F 결과를 제외하지 않았다.</div>
+  </section>
+
+  <section>
+    <h2>10. 무엇을 production에 남길 것인가</h2>
+    <ol>
+      <li><b>기본 scheduler:</b> exp67의 unbounded dense admission + shuffle을 유지한다. novelty-first로 바꾸지 않는다.</li>
+      <li><b>진단:</b> exp69 exact telemetry를 켤 수 있게 유지한다. 8-step audit는 CPU 누적 시간이 전체 run에서 약 0.6–2.0초 수준이었다.</li>
+      <li><b>reversible suppression:</b> 실험 flag로만 보존한다. 3-scene 반복/고정-trajectory 검증 전 기본값으로 승격하지 않는다.</li>
+      <li><b>hard prune:</b> off. 최종 기여도가 작아도 학습 중 제거하면 이후 gradient 경로를 잃는다.</li>
+      <li><b>bounded archive:</b> off. 현재 capacity law는 small active set을 보장하지 않고 geometry 반례가 있다.</li>
+      <li><b>carve:</b> exp69에서 재도입하지 않았다. low-opacity dust와 3D free-space violation은 서로 다른 detector 문제이므로,
+        dust action이 실패한 상태에서 둘을 다시 섞으면 인과가 불명확해진다.</li>
+    </ol>
+    <div class="box info"><b>다음에 가장 먼저 필요한 실험:</b> 동일 tracking trajectory/동일 view service를 저장해 두고
+      telemetry와 suppression을 replay하는 paired protocol이다. 이것으로 305의 25.87 dB가 geometry action 때문인지,
+      3회 대 6회의 pose revision 등 비동기 tracking 차이 때문인지 분리해야 한다. 그 전에는 threshold를 더 미세 조정하지 않는다.</div>
+  </section>
+
+  <section>
+    <h2>11. 재현 위치와 검증</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>파일</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><code>vigs/gaussian/utils/mature_dust_gc.py</code></td><td>stable-ID EMA, maturity, visual budget, attenuation/hard prune</td></tr>
+        <tr><td><code>vigs/gs_backend.py</code></td><td><code>map()</code> render audit/action integration과 최종 telemetry 저장</td></tr>
+        <tr><td><code>thirdparty/diff-gaussian-rasterization/…</code></td><td>Gaussian별 exact compositing mass와 final transmittance 출력</td></tr>
+        <tr><td><code>vigs/vigs.py</code></td><td>GS worker schema, exception propagation, queue fail-fast</td></tr>
+        <tr><td><code>exp69_axes/run_decoupled_geometry.sh</code></td><td>세 장면 공통 strict 1.5× 실행 recipe</td></tr>
+        <tr><td><code>exp69_axes/analyze_mature_dust_telemetry.py</code></td><td>opacity bands, exact/proxy correlation, label-blind grid</td></tr>
+        <tr><td><code>exp69_axes/evaluate_dust_gc_counterfactual.py</code></td><td>held-out rerender counterfactual</td></tr>
+        <tr><td><code>exp69_axes/test_mature_dust_gc.py</code></td><td>stable ID, persistence, budget, bounded batch, prune/attenuate unit tests</td></tr>
+      </tbody>
+    </table></div>
+    <p>로컬 테스트 환경은 <code>/home/wosasa/miniconda3/envs/3dgs/bin/python</code>, 원격 VIGS 환경은
+      <code>/home/wosas/miniconda3/envs/vigs-slam-5090</code>을 사용했다. 결과 원본은 원격
+      <code>/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/exp69_axes/results/</code>의 A3/A4, B8–B17 디렉터리에 보존했다.</p>
+    <details><summary>핵심 실행 설정</summary>
+      <pre class="eq">--strict_aria_online --realtime_replay --replay_time_scale 1.5
+--idle_map_rr --mapping_model_scheduler --mapping_adaptive_viewset
+--mapping_replay_deadline_guard --mapping_replay_dense_only
+--mapping_mature_dust_gc_audit_stride 8
+--mapping_mature_dust_gc_action_stride 256
+--mapping_mature_dust_gc_min_opportunities 10
+--mapping_mature_dust_gc_min_persistence 5
+--mapping_mature_dust_gc_opacity_threshold 0.005
+--mapping_mature_dust_gc_touch_mass_threshold 0.000003
+--mapping_mature_dust_gc_footprint_mass_threshold 0.000003
+--mapping_mature_dust_gc_visual_budget_total 0.0003</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>12. 이번 exp69가 답한 질문</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>질문</th><th>답</th></tr></thead>
+      <tbody>
+        <tr><td>opacity dust가 남은 이유는 pruning이 전혀 안 돼서인가?</td><td>아니다. hard GC는 count/mass를 실제 줄였지만 12F 최적화를 손상했다.</td></tr>
+        <tr><td>pruning을 더 자주 하면 되는가?</td><td>아니다. frequency보다 maturity와 trajectory effect가 먼저다. action stride 256으로 분리한 이유다.</td></tr>
+        <tr><td><code>n_touched</code>만으로 충분한가?</td><td>12F 순위 상관 0.514라서 불충분하다. exact compositing mass가 필요하다.</td></tr>
+        <tr><td>archive pool이면 active epoch 크기가 일정한가?</td><td>현재 구현은 epoch snapshot만 bounded다. capacity doubling 때문에 최종 working set은 수백~수천까지 자랐다.</td></tr>
+        <tr><td>bounded archive가 더 빠른 수렴을 만들었는가?</td><td>PSNR은 올랐지만 geometry가 나빠졌다. joint objective 기준으로는 실패다.</td></tr>
+        <tr><td>지금 바로 배포할 새 scheduler가 나왔는가?</td><td>아니다. exp67을 기본으로 유지하고 exp69 detector/telemetry만 안전하게 남긴다.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>13. 추가 검증 — 고정 크기 FIFO epoch sampler (B48–B50)</h2>
+    <div class="box info"><b>질문:</b> 전체 causal pool을 계속 커지는 한 epoch으로 도는 대신,
+      GPU가 실제로 완료한 optimizer draw를 clock으로 삼아 크기 <span class="mono">K</span>의 epoch을 만들고
+      그중 비율 <span class="mono">ρ</span>를 새 causal view에 예약하면 장기 stream에서도 일정한
+      replay 주기와 무작위성을 함께 유지할 수 있는가?</div>
+
+    <h3>13.1 구현한 규칙</h3>
+    <pre class="eq">epoch membership size:              K
+new-view slots per completed epoch: q = round(K · ρ)
+mature-view weight:                 w_i = w_floor + w_bonus exp(-n_i / τ)
+
+검증 설정: K=50, ρ=0.08 → q=4, w_floor=1, w_bonus=1, τ=2
+physical dense-camera FIFO capacity: 500</pre>
+    <ul>
+      <li><code>--mapping_replay_epoch_size</code>와 <code>--mapping_replay_new_fraction</code>은 독립 CLI parameter다.
+        실험 wrapper에서도 <code>EXP69_FIFO_EPOCH_SIZE</code>, <code>EXP69_FIFO_NEW_FRACTION</code>으로 덮어쓸 수 있다.
+        50과 0.08은 B48–B50 recipe의 기본값이지 scheduler 내부의 frame/scene switch가 아니다.</li>
+      <li>매 <span class="mono">K</span>개의 <b>실제 완료 replay draw</b>가 다음 admission quota
+        <span class="mono">q</span>를 만든다. 미래 frame에 과거 compute credit을 미리 쓰지 않는다.</li>
+      <li>신규 후보는 도착한 keyframe interval 사이에서 temporal maximin으로 membership만 고른다.
+        나머지 membership은 FIFO live pool에서 위 floor-exponential weight로 without-replacement 추출하고,
+        최종 50장은 전부 한 번 더 무작위 shuffle한다. novelty는 optimizer 순서를 정하지 않는다.</li>
+      <li>DROID keyframe replacement 때문에 서로 겹치는 interval이 같은 RGB frame을 다시 내놓을 수 있어,
+        controller 전역 candidate-ID deduplication을 추가했다. 수정 전 실측 신규 비율 6.09%가 수정 후
+        7.83–8.00%로 회복됐고 <code>skipped_dense</code>도 정상 구간에서 0이 됐다.</li>
+      <li>dense camera는 sensor-time FIFO 500장으로 제한한다. queue의 lifetime count도 퇴출 시 함께 제거한다.</li>
+    </ul>
+
+    <h3>13.2 strict 1.5× causal 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene / run</th><th class="num">PSNR</th><th class="num">replay steps</th><th class="num">최종 dense pool</th><th class="num">FIFO evictions</th><th class="num">완성 epoch 신규 비율</th><th class="num">PGBA revisions</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>1253 / B48 FIFO epoch</td><td class="num good-text">27.257</td><td class="num">6,059</td><td class="num">488</td><td class="num">0</td><td class="num">7.835%</td><td class="num">2</td><td class="good-text">27 dB floor 통과</td></tr>
+        <tr><td>305 / B43 기존 champion</td><td class="num">27.923</td><td class="num">18,536</td><td class="num">661</td><td class="num">0</td><td class="num">—</td><td class="num">5</td><td>reference</td></tr>
+        <tr><td>305 / B49 FIFO epoch</td><td class="num bad-text">24.875</td><td class="num">15,814</td><td class="num">500</td><td class="num">768</td><td class="num">7.607%</td><td class="num">5</td><td class="bad-text">−3.047 dB, 실패</td></tr>
+        <tr><td>12F / B44 기존 champion</td><td class="num">26.286</td><td class="num">5,240</td><td class="num">609</td><td class="num">0</td><td class="num">—</td><td class="num">0</td><td>reference</td></tr>
+        <tr><td>12F / B50 FIFO epoch</td><td class="num bad-text">23.796</td><td class="num">3,569</td><td class="num">288</td><td class="num">0</td><td class="num good-text">8.000%</td><td class="num">11</td><td class="bad-text">−2.490 dB, 실패</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">1253의 기존 <code>terminal_gc_sparse_moments</code> strict 반복은 비동기 PGBA 영향으로
+      약 24.42–27.78 dB 범위였으므로 B48의 27.257 dB를 정책의 인과적 향상으로 읽지 않는다.
+      반면 305/12F의 동일 reference 대비 큰 하락은 새 기본값 채택을 기각하기에 충분한 반례다.</p>
+
+    <h3>13.3 무엇이 실패했는가</h3>
+    <ol>
+      <li><b><span class="mono">ρ</span>는 frame density가 아니라 “optimizer draw당 신규 view 수”다.</b>
+        scene별 tracking 부하가 다르면 완료 draw 수가 달라지고, 같은 8%라도 admitted viewset 밀도가 크게 달라진다.
+        12F에서는 기존 609장 대신 288장만 admit되어 “dense할수록 빠르다”는 핵심 실측을 오히려 훼손했다.</li>
+      <li><b>FIFO forgetting은 실제 위험이지만 유일한 원인은 아니다.</b>
+        305는 768회 오래된 view를 퇴출한 뒤 크게 하락했다. 그러나 12F는 퇴출 0회인데도 실패했으므로
+        FIFO 500만 늘리면 해결된다고 결론낼 수 없다.</li>
+      <li><b>mapping scheduler와 PGBA causal gate가 아직 결합돼 있다.</b>
+        12F의 pose revision이 reference 0회에서 11회로 바뀌었고 replay steps도 32% 줄었다.
+        fixed epoch이 더 빨리 opportunity certificate를 만들면서 비동기 optimization trajectory까지 바꿨다.</li>
+      <li><b>규칙 준수와 품질 성공은 별개다.</b> 4/50 membership, random shuffle, pool 500 유지,
+        중복 방지는 모두 로그와 테스트로 확인됐지만 세 장면 공통 quality는 통과하지 못했다.</li>
+    </ol>
+    <div class="box bad"><b>최종 판정:</b> <code>K=50, ρ=0.08, FIFO=500</code>은 production default로 채택하지 않는다.
+      구현은 명시적 실험 flag로 보존하고 기본은 기존 <code>terminal_gc_sparse_moments</code> 경로로 둔다.
+      다음 설계에서는 (a) dense camera admission rate, (b) 한 optimizer epoch의 working membership,
+      (c) PGBA rematuration clock을 서로 다른 상태변수로 분리해야 한다.</div>
+
+    <details><summary>추가 코드·검증 위치</summary>
+      <pre class="eq">vigs/map_scheduler.py
+  AdaptiveViewsetController.admit_quota(), global candidate dedup
+  CausalShuffleQueue(epoch_size, new_fraction, floor/bonus/tau)
+vigs/vigs.py
+  completed-draw admission polling, pending interval water-fill
+vigs/gs_backend.py
+  map()-내 queue integration, sensor-time FIFO eviction, telemetry
+demo.py
+  --mapping_replay_epoch_size / --mapping_replay_new_fraction
+exp66_axes/viewset_density/test_map_scheduler.py
+  scheduler tests 45/45 pass
+exp69_axes tests
+  geometry tests 24/24 pass</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>14. 추가 검증 — pose-balanced active + unbounded archive</h2>
+    <div class="box info"><b>질문:</b> FIFO처럼 과거 view를 버리지 않으면서도, 계속 커지는 전체 pool의
+      한 epoch에 admission이 묶이는 문제를 피할 수 있는가? 이를 위해 새 frontier의 pose 대표 view는
+      active, 나머지 causal view는 무제한 archive에 보존하고 두 pool을 각각
+      shuffle-without-replacement로 학습하는 정책을 시험했다.</div>
+
+    <h3>14.1 구현한 수학적 규칙</h3>
+    <pre class="eq">active membership:
+  현재 keyframe window와 맞닿은 interval마다 pose-farthest 대표 view 1장
+
+pose distance:
+  d(i,j) = sqrt((||t_i-t_j|| / median Δt_KF)^2
+              + (SO(3)(R_i,R_j) / median ΔR_KF)^2)
+
+active demand:
+  D_A = median(d_active-to-archive) / (1 + median(d_active-to-archive))
+        · (1 + mean Fisher-cosine novelty),       0 ≤ D_A ≤ 2
+
+pool choice:
+  odds(active) = |A| / |H| · (1 + D_A)
+  P(active) = odds(active) / (1 + odds(active))</pre>
+    <ul>
+      <li><b>archive는 무제한</b>이라 FIFO forgetting이 없다. active/archive partition은 working membership일 뿐
+        전체 causal training set을 삭제하거나 줄이지 않는다.</li>
+      <li><b>active 크기는 frame 수가 아니라 live frontier interval 수</b>로 정한다. 그 안에서는 위치와 회전을
+        현재 keyframe의 median motion으로 정규화한 farthest-point selection을 쓴다. 장면별 거리 threshold는 없다.</li>
+      <li><b>Fisher cosine은 membership의 tie-break와 active service demand에만 사용</b>한다. optimizer 순서를
+        novelty-first로 정하지 않으며, 각 pool 내부 순서는 random shuffle이다.</li>
+      <li><b>별도 historical demand <span class="mono">D_H</span>는 두지 않았다.</b> active demand가 0이면
+        active draw 확률은 정확히 population fraction이 되어 full-pool random sampling의 주변분포를 복원한다.
+        demand가 커져도 active odds 배수는 최대 3배라 frontier 독점을 막는다.</li>
+      <li>정책 삽입점은 <code>GSBackEnd.map()</code> 내부이고 <code>background_polish_step</code>은 사용하지 않는다.
+        dense admission, loss, terminal GC, strict 1.5× 조건은 기존 <code>terminal_gc_sparse_moments</code>와 동일하다.</li>
+    </ul>
+
+    <h3>14.2 strict 1.5× causal 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">기존 PSNR</th><th class="num">active/archive</th><th class="num">Δ</th><th class="num">기존→신규 steps</th><th class="num">active draw</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">27.778</td><td class="num good-text">27.868</td><td class="num good-text">+0.090</td><td class="num">6,366→6,501</td><td class="num">19.46%</td><td class="good-text">photo 통과</td></tr>
+        <tr><td>aria301_305</td><td class="num">27.923</td><td class="num good-text">28.273</td><td class="num good-text">+0.351</td><td class="num">18,536→17,568</td><td class="num">9.28%</td><td class="good-text">photo 통과</td></tr>
+        <tr><td>aria301_12F, paired current-code</td><td class="num">26.678</td><td class="num bad-text">25.760</td><td class="num bad-text">−0.918</td><td class="num">4,979→4,065</td><td class="num">11.22%</td><td class="bad-text">명확한 실패</td></tr>
+      </tbody>
+    </table></div>
+    <p>12F는 과거 B44와 비교한 비동기 차이만이 아니다. 같은 현재 코드·seed로 기존 full-pool queue를 다시 돌린
+      paired control이 26.678 dB였고, active/archive만 켠 run은 25.760 dB였다. replay service가 914 step(18.4%) 줄어든
+      반례가 있으므로 세 장면 공통 scheduler로 승격할 수 없다.</p>
+    <p>Fisher feature 계산의 candidate별 GPU synchronization을 한 번의 interval batch transfer로 바꾼 v4도 수학적으로
+      동일함을 수치 검증했지만, 12F는 4,570 steps / 25.069 dB로 회복되지 않았다. 따라서 실패 원인을 단순 Python/GPU
+      동기화 비용 하나로 설명할 수 없다. 두 독립 queue가 만드는 gradient sequence와 partition maintenance가 짧은 idle gap에서
+      full-pool shuffle의 gradient cancellation/service를 훼손한 것이 남은 구조적 원인이다.</p>
+
+    <h3>14.3 floater/geometry는 기존보다 나빠지지 않았는가</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene / 기존→신규</th><th class="num">global opacity≤.1</th><th class="num">nominal region opacity&gt;.3</th><th class="num">region opacity-area support</th><th class="num">global opacity-area</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num good-text">18,534→16,775</td><td class="num good-text">176→142</td><td class="num bad-text">1.045→1.244</td><td class="num good-text">2,147.9→1,626.6</td><td class="warn-text">count 개선, region footprint 혼합</td></tr>
+        <tr><td>aria301_305</td><td class="num good-text">22,086→20,950</td><td class="num bad-text">676→726</td><td class="num bad-text">6.979→7.313</td><td class="num bad-text">733.5→830.2</td><td class="bad-text">저-opacity count 외 geometry 소폭 악화</td></tr>
+      </tbody>
+    </table></div>
+    <p>terminal GC detector/action은 기존 recipe와 같았고 실제 terminal prune도 1253에서 41→45 rows,
+      305에서 1,707→1,981 rows로 동작했다. 그래서 “pruning이 꺼져 floater가 늘었다”는 설명은 맞지 않는다.
+      그러나 scheduler가 optimization trajectory를 바꾸면서 high-opacity와 covariance footprint는 별도로 움직였다.
+      1253은 nominal high-opacity count가 줄었지만 305는 늘었으므로 <b>floater가 기존과 동등하거나 항상 더 낫다고
+      판정할 수 없다.</b> 다만 bounded archive에서 관측한 3–18배 global footprint 폭증 같은 재앙적 giant-splat 실패는 아니다.</p>
+    <p class="small">1253/305 region 수치는 기존과 동일하게 trajectory Sim3로 manual mask를 정합한 상대 진단이다.
+      center count 하나가 아니라 opacity band, ±2σ support, opacity-area, global footprint를 함께 판정했다. 12F에는
+      대응 manual region GT가 없어 global PLY 통계만 가능하며 geometry PASS 근거로 사용하지 않았다.</p>
+
+    <h3>14.4 구현/실패 이력과 최종 결정</h3>
+    <ol>
+      <li><b>v1:</b> active를 과도하게 서비스해 12F 20.797 dB — 즉시 기각.</li>
+      <li><b>v2:</b> bounded probability를 넣었지만 partition maintenance가 deadline predictor에 섞여 24.182 dB — predictor 계측 수정.</li>
+      <li><b>v3:</b> maintenance 분리·pose pairwise vectorization 후 1253/305는 통과했으나 paired 12F −0.918 dB.</li>
+      <li><b>v4:</b> Fisher interval interpolation/transfer도 batch화했으나 12F가 회복되지 않아 구조적 기각.</li>
+    </ol>
+    <div class="box bad"><b>v4 당시 판정:</b> pose-balanced active + unbounded archive는 FIFO forgetting과
+      무한 epoch의 admission 결합을 개념적으로 분리했지만, 세 장면 공통 photometric·geometry non-inferiority를 통과하지 못했다.
+      <code>--mapping_pose_active_archive</code> opt-in ablation으로 코드는 보존하되 production 기본값은
+      기존 <code>terminal_gc_sparse_moments</code> full-pool shuffle로 유지한다. scene별 active 비율이나 threshold를
+      따로 맞춰 PASS를 만들지 않았다.</div>
+    <div class="box info"><b>후속 상태:</b> 위 판정은 quaternion/PGBA 결함을 고치기 전 v4에 대한 역사적 결론이다.
+      exact PGBA와 work-credit를 결합한 후속 구성을 section 15에서 v5로 정의한다.</div>
+    <details><summary>코드·원본 결과 위치</summary>
+      <pre class="eq">vigs/map_scheduler.py
+  pose_balanced_frontier_subset(), ActiveArchiveReplayQueue
+vigs/gs_backend.py
+  _mapping_active_archive_partition(), map()-internal draw
+vigs/vigs.py
+  batched causal SE(3) Fisher descriptor
+demo.py
+  --mapping_pose_active_archive (opt-in; dense-only replay requirement)
+exp69_axes/run_decoupled_geometry.sh
+  terminal_gc_sparse_moments_pose_active_archive
+
+remote raw runs:
+  exp69_axes/results/exp69_pose_active_archive_v3_aria1253_strict15x_seed0
+  exp69_axes/results/exp69_pose_active_archive_v3_aria301_305_strict15x_seed0
+  exp69_axes/results/exp69_pose_active_archive_v3_control_aria301_12F_strict15x_seed0
+  exp69_axes/results/exp69_pose_active_archive_v3_aria301_12F_strict15x_seed0
+  exp69_axes/results/exp69_pose_active_archive_v4_batched_fisher_aria301_12F_strict15x_seed0
+
+regression:
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q \
+    exp66_axes/viewset_density/test_map_scheduler.py
+  49 passed</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>15. v5 — exact-PGBA adaptive scheduler</h2>
+    <p>기존 VIGS 경로는 PGBA 뒤 Gaussian 중심은 world-frame 선형변환으로 옮기면서도,
+      anisotropic orientation에는 lietorch pose quaternion을 Gaussian quaternion에 직접 곱했다.
+      여기에는 두 문제가 있었다. GaussianModel/renderer는 <code>wxyz</code>, lietorch는
+      <code>xyzw</code> 순서를 쓰며, 단순 inverse camera delta도 일반적인 비가환 회전에서는 중심에
+      실제 적용된 <code>R_now R_prev^T</code>와 같지 않다.</p>
+    <pre class="eq">x' = C_now + R_delta (x - C_prev) / s
+q' = q_wxyz(R_delta) ⊗ q
+
+R_delta는 xyz update가 반환한 동일한 3×3 world Jacobian을 재사용한다.</pre>
+    <p>수정 경로는 회전행렬을 180° 부근에서도 안정적인 largest-component 방식으로 unit
+      <code>wxyz</code> quaternion으로 바꾸고, raw quaternion Adam 1차 moment에는 같은 left-product
+      Jacobian을, diagonal 2차 moment에는 그 원소별 제곱 근사를 적용한다. 따라서 중심, 공분산 축,
+      optimizer state가 하나의 좌표변환을 따른다.</p>
+
+    <h3>15.1 aria1253rot 격리 비교</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>PGBA orientation 경로</th><th class="num">epoch 0</th><th class="num">epoch 1</th><th class="num">epoch 2</th><th class="num">epoch 3</th></tr></thead>
+      <tbody>
+        <tr><td>legacy raw pose quaternion</td><td class="num">23.466</td><td class="num">24.490</td><td class="num">24.821</td><td class="num">25.084</td></tr>
+        <tr><td>inverse pose-delta 추정</td><td class="num">23.785</td><td class="num">24.254</td><td class="num">24.603</td><td class="num">24.729</td></tr>
+        <tr><td><b>exact xyz world Jacobian</b></td><td class="num good-text"><b>24.700</b></td><td class="num good-text"><b>25.094</b></td><td class="num good-text"><b>25.433</b></td><td class="num good-text"><b>25.573</b></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">수치는 fixed eval mean PSNR(dB). epoch 0은 strict stream 종료 직후이며,
+      epoch 1–3은 원인 진단용 full-pool-equivalent 추가 replay라 strict online budget에는 포함되지 않는다.
+      exact 경로는 legacy 대비 epoch 0에서 +1.233 dB, epoch 3에서 +0.489 dB였다.</p>
+
+    <h3>15.2 aria1253 / aria301_305 strict 1.5× 확인</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">legacy v4</th><th class="num">성공 v3</th><th class="num">v5</th><th class="num">v5 steps</th><th class="num">v5 PGBA</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">25.403</td><td class="num">27.868</td><td class="num good-text"><b>27.745</b></td><td class="num">6,475</td><td class="num">2</td></tr>
+        <tr><td>aria301_305</td><td class="num">26.555</td><td class="num">28.273</td><td class="num">27.660</td><td class="num">17,068</td><td class="num">4</td></tr>
+      </tbody>
+    </table></div>
+    <p>1253은 성공 v3 대비 −0.123 dB로 사실상 같은 범위까지 회복했고, 305는 legacy v4보다
+      +1.105 dB 개선됐지만 성공 v3보다 −0.614 dB 낮았다. 두 run 모두 추가 post-stream replay 없이
+      exact orientation과 xyz/quaternion Adam transport가 활성화된 순수 strict 결과다. 비동기 pipeline에서
+      PGBA 횟수와 optimizer step 수가 run마다 달라지므로, 이 표만으로 모든 PSNR 차이를 orientation 수정의
+      인과효과로 해석하지 않는다.</p>
+
+    <h3>15.3 장기 연산량 감사</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th class="num">수정 Gaussian 수</th><th class="num">matrix→q + 축 회전</th><th class="num">rotation Adam 포함</th></tr></thead>
+      <tbody>
+        <tr><td class="num">150,000</td><td class="num">0.506 ms</td><td class="num">1.102 ms</td></tr>
+        <tr><td class="num">500,000</td><td class="num">1.793 ms</td><td class="num">3.906 ms</td></tr>
+        <tr><td class="num">1,000,000</td><td class="num">6.306 ms</td><td class="num">10.685 ms</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">RTX 5070 Ti CUDA event microbenchmark. 수정은 PGBA 이벤트에서 대상 Gaussian마다
+      고정 크기 3×3/4×4 연산을 한 번 수행하는 O(M) 경로이며, history를 누적 순회하거나 Gaussian 쌍을
+      비교하지 않는다. 장기적으로 Gaussian 수에 비례해 늘지만 이번 수정이 O(M²) 폭발을 만들지는 않는다.
+      기존 keyframe-ID matching의 별도 장기 확장성은 이 측정에 포함되지 않는다.</p>
+
+    <h3>15.4 v5의 정확한 정의</h3>
+    <pre class="eq">v5 = pose-balanced active + unbounded archive
+   + work-credit dense admission
+   + shuffle-without-replacement within each pool
+   + exact xyz world-Jacobian Gaussian orientation
+   + xyz / raw-quaternion Adam moment transport
+   + conservative terminal mature-dust GC
+
+strict 1.5× causal streaming
+background_polish_step 금지
+post-stream training 없음
+scene/frame별 parameter 분기 없음</pre>
+    <p>Fisher cosine은 active membership과 bounded demand에만 사용하며 optimizer 순서를 novelty-first로
+      만들지 않는다. dense RGB replay와 keyframe geometry loss의 기존 역할도 유지한다. carve action은 v5에
+      포함하지 않는다.</p>
+    <div class="box good"><b>현재 명명/채택:</b> 위 구성을 <b>v5</b>로 사용한다. wrapper에서는 긴 역사적 mode
+      이름 대신 아래처럼 실행할 수 있고, <code>input_provenance.json</code>에
+      <code>scheduler_version: "v5"</code>가 기록된다.
+      <pre class="eq">bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v5</pre>
+      1253/305 strict PSNR은 각각 27.745/27.660 dB였다. 12F의 빠른-motion 입력은 현재 적용 범위의
+      명시적 한계로 문서화하며, 이를 맞추기 위한 scene별 파라미터는 추가하지 않는다.</div>
+    <div class="box good"><b>판정:</b> 단순 layout 수정이나 inverse-delta 추정은 충분하지 않았고,
+      xyz에 실제 적용된 world Jacobian을 단일 기준으로 사용해야 했다. 비가환 회전, anisotropic covariance,
+      xyz/quaternion Adam moment를 포함한 단위 테스트 6개가 로컬 <code>3dgs</code>와 원격
+      <code>vigs-slam-5090</code> 환경에서 모두 통과했다. v5 runner는 이 경로를 기본으로 사용하며,
+      <code>EXP69_CORRECT_PGBA_QUATERNION=0</code>만 legacy 재현용 opt-out으로 남긴다.</div>
+    <details><summary>코드·원본 결과 위치</summary>
+      <pre class="eq">vigs/gs_backend.py
+  _rotation_matrix_to_wxyz()
+  _left_multiply_gaussian_quaternions()
+  _apply_pose_scale_updates()
+exp69_axes/test_pgba_adam_moments.py
+exp69_axes/run_decoupled_geometry.sh
+
+remote raw run:
+  exp69_axes/results/exp69_v4_work_credit_worldjac_post_pgba_3epoch_aria1253rot_strict15x_seed0
+  exp69_axes/results/exp69_v4_worldjac_aria1253_strict15x_seed0
+  exp69_axes/results/exp69_v4_worldjac_aria301_305_strict15x_seed0</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>16. 역사적 v6-H — v5 + visible-lazy causal carve</h2>
+    <div class="box warn"><b>상태:</b> 이 절은 terminal 조건을 바꾸기 전 λ=0.02 단일 실험을 보존한
+      역사적 기록이다. 최종 v6 정의와 sweep 판정은 section 17을 따른다.</div>
+    <div class="box info"><b>검증 질문:</b> v5의 strict streaming·active/archive·work-credit·exact PGBA·terminal dust GC를
+      그대로 유지하면서, 도착한 SLAM depth로 만든 3D carve evidence를 map 안에서 작게 적용하면
+      PSNR을 거의 유지한 채 floater를 유의미하게 줄일 수 있는가?</div>
+
+    <h3>16.1 추가한 축과 안전장치</h3>
+    <pre class="eq">v6 = v5
+   + causal 3D carve field (arrived keyframe depth anchors only)
+   + visible-lazy stale score refresh
+   + soft opacity gradient (lambda = 0.02)
+   + bounded reversible opacity prox (total harm budget = 0.005)
+
+disabled:
+  xyz force / newborn gate / hard carve prune / scene-specific threshold</pre>
+    <p>이 carve는 특정 dense RGB frame의 2D loss가 아니다. 지금까지 도착한 keyframe의 SLAM depth
+      correspondence를 누적한 전역 3D free-space/terminal field이며, <code>GSBackEnd.map()</code>의
+      photometric backward 뒤 Gaussian opacity gradient에 더해진다. dense Gaussian의 geometry update 자체는
+      제한하지 않는다.</p>
+    <p>핵심 수정은 <b>freshness를 Gaussian별로 추적</b>하는 것이다. field generation이 바뀌면 관련 row를
+      stale로 표시하고, 현재 map render가 이미 계산한 visibility mask와 겹치는 stale row만 우선 재계산한다.
+      아직 다시 확인하지 못한 stale row의 carve weight는 0이므로, exp68에서 관측했던 “대부분이 오래된
+      score인데도 계속 gradient를 받는” 실패를 막는다. topology prune 뒤에도 stable point ID와
+      <code>_stale</code> row를 함께 정렬한다.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>공통 설정</th><th class="num">값</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td>anchor budget</td><td class="num">128 / keyframe</td><td>입력 해상도와 무관한 도착 depth anchor 상한</td></tr>
+        <tr><td>incremental row budget</td><td class="num">2,048</td><td>한 refresh에서 score를 다시 계산할 row 상한</td></tr>
+        <tr><td>dirty fraction</td><td class="num">0.25</td><td>dirty support가 충분히 쌓였을 때 event-driven refresh</td></tr>
+        <tr><td>large-splat exact budget</td><td class="num">512</td><td>큰 footprint 후보의 exact 검사 보존</td></tr>
+        <tr><td>soft / force</td><td class="num">0.02 / 0</td><td>opacity만 완만히 억제하고 xyz 이동은 금지</td></tr>
+        <tr><td>opacity prox budget</td><td class="num">0.005</td><td>전체 실행 동안 허용하는 reversible contribution 변화 상한</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>16.2 구현 및 회귀 검증</h3>
+    <ul>
+      <li><code>vigs/gaussian/utils/causal_carve.py</code>: <code>visible_lazy_refresh</code>, per-row
+        <code>_stale</code>, visible-first selection, stale-weight zeroing, 진단 counter.</li>
+      <li><code>vigs/gs_backend.py</code>: map render의 <code>visibility_filter</code>를 OR-reduce하여 carve에 전달.
+        <code>background_polish_step</code>이나 post-stream update는 추가하지 않았다.</li>
+      <li><code>demo.py</code>: opt-in flag·조합 validation·provenance 기록.</li>
+      <li><code>exp69_axes/run_decoupled_geometry.sh ... v6</code>: v5와 같은 universal recipe에 위 carve 설정만 추가.
+        scene ID에 따른 parameter 분기는 없다.</li>
+    </ul>
+    <div class="box good"><b>회귀:</b> causal-carve unittest 30/30, exact-PGBA unittest 6/6,
+      Python compile·CLI validation·remote import를 로컬 <code>3dgs</code>와 원격
+      <code>vigs-slam-5090</code>에서 통과했다. 두 full run의 provenance에
+      <code>scheduler_version: "v6"</code>와 <code>mapping_causal_carve_visible_lazy_refresh: true</code>가 기록됐다.</div>
+
+    <h3>16.3 strict 1.5× photometric 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">v5 PSNR</th><th class="num">v6 PSNR</th><th class="num">Δ</th><th class="num">v5→v6 replay steps</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">27.745</td><td class="num">27.381</td><td class="num warn-text">−0.364</td><td class="num">6,475→4,819</td><td class="warn-text">27 dB 유지, 소폭 비열화</td></tr>
+        <tr><td>aria301_305</td><td class="num">27.660</td><td class="num good-text">29.195</td><td class="num good-text">+1.536</td><td class="num">17,068→14,300</td><td class="good-text">개선</td></tr>
+        <tr><td><b>두 scene 단순 평균</b></td><td class="num">27.702</td><td class="num good-text">28.288</td><td class="num good-text">+0.586</td><td class="num">—</td><td>photo 조건 통과</td></tr>
+      </tbody>
+    </table></div>
+    <p>1253에서 carve 비용과 gradient가 들어가며 replay service는 25.6% 줄었지만 PSNR 하락은 0.364 dB였고
+      절대 27 dB를 유지했다. 305는 step이 16.2% 적은데도 +1.536 dB였다. 따라서 이번 두 strict run에서는
+      “v5 정도의 PSNR 유지” 조건은 만족한다. 다만 비동기 tracking/PGBA의 run-to-run 변동이 있으므로
+      305의 +1.536 dB 전체를 carve의 인과효과로 해석하지 않는다.</p>
+    <p class="small">carve maintenance 누적은 1253 2.003 s, 305 2.721 s였다. visible-lazy가 실제로 다시 계산한
+      row는 각각 21,046 / 29,573개이고, stale gradient를 20,110 / 73,265회 차단했다. opacity prox는
+      2,330 / 962 rows에 작동했고 두 scene 모두 사전 지정한 누적 budget 0.005를 넘지 않았다.</p>
+
+    <h3>16.4 floater / covariance footprint 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene / v5→v6</th><th class="num">global opacity≤.1</th><th class="num">nominal region opacity&gt;.3</th><th class="num">region opacity-area</th><th class="num">global opacity-area</th><th class="num">scale&gt;0.5 m</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num bad-text">17,144→18,318</td><td class="num good-text">182→151</td><td class="num good-text">1.756→1.182</td><td class="num good-text">2,111.0→1,198.7</td><td class="num good-text">516→252</td></tr>
+        <tr><td>aria301_305</td><td class="num bad-text">20,663→23,262</td><td class="num bad-text">706→1,008*</td><td class="num bad-text">6.440→9.128*</td><td class="num bad-text">833.8→1,890.2</td><td class="num bad-text">56→401</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>1253은 유의미한 geometry 개선</b>이다. label 정합 median이 v5/v6 2.45/2.21 cm로 안정적이고,
+      nominal high-opacity floater는 17.0%, region opacity-area는 32.7%, global opacity-area는 43.2%,
+      0.5 m 초과 splat은 51.2% 줄었다. eroded와 dilated mask에서도 high-opacity count가 각각
+      96→82, 459→393으로 같은 방향이라 mask 경계 하나에 의존하지 않는다.</p>
+    <p><b>305는 universal geometry PASS가 아니다.</b> 별표를 붙인 manual-region 값은 v6의 trajectory
+      Sim3 정합 median/p90 오차가 25.9/45.2 cm로 커져(v5 5.1/8.2 cm) 절대 비교가 불안정하다.
+      그러나 label과 무관한 global opacity-area가 2.27배, 0.5 m 초과 splat이 7.16배 증가한 것은 독립적인
+      반례다. dilated mask의 high-opacity는 3,461→2,797로 감소해 region 결과 자체도 erosion/nominal과
+      일관되지 않다.</p>
+    <p>carve detector 자체는 사후 manual-region AUC가 1253 <b>0.931</b>, 305 <b>0.869</b>로 높은 편이었다.
+      즉 현재 반례는 “score가 아무 정보도 없다”기보다, opacity 억제와 photometric 보상이 결합해 일부 run에서
+      covariance scale이 커질 수 있는 <b>opacity–scale 보상 자유도</b>, 그리고 비동기 trajectory 차이를 함께
+      분리하지 못한 문제에 가깝다. 또한 두 scene 모두 opacity≤0.1 row가 늘었으므로 v6는 보이는 floater를
+      약화할 수 있어도 저-opacity dust를 제거했다고 주장할 수 없다.</p>
+
+    <h3>16.5 terminal dust 조건 완화 sweep</h3>
+    <p>기존 terminal GC는 online destructive action용으로 만든
+      <code>opacity≤0.005 + opportunity≥10 + persistence≥5 + opacity EMA + 두 contribution threshold</code>를
+      마지막 순간에도 그대로 사용했다. 그 결과 terminal 직전 opacity≤0.1 row 18,465/26,247개 중 실제 삭제는
+      1253 147개, 305 2,985개뿐이었다. 단순 opacity band 전체를 dust라고 부르는 것은 부정확하지만,
+      terminal-only action에는 이 certificate가 지나치게 보수적인지 별도 counterfactual sweep으로 검사했다.</p>
+    <pre class="eq">simple terminal candidate:
+  observed ∧ opportunities ≥ 3 ∧ opacity ≤ tau_opacity
+  ∧ max(exact contribution EMA, opacity-footprint EMA) ≤ tau_score
+
+selected candidates are ordered by importance and clipped by:
+  sum(selected exact contribution) / full render alpha ≤ 0.003</pre>
+    <p>라벨을 사용하지 않고 <code>tau_opacity={0.01,0.02,0.03}</code>,
+      <code>tau_score={1e-5,3e-5}</code>, score history를 EMA 또는 lifetime-max로 둔 12개 공통 규칙을
+      48-view에서 screening했다. 이후 아래 세 후보를 1253 전체 262개, 305 전체 539개 fixed-eval view에서
+      다시 렌더링했다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>공통 규칙</th><th class="num">1253 추가 삭제</th><th class="num">1253 ΔPSNR</th><th class="num">305 추가 삭제</th><th class="num">305 ΔPSNR</th></tr></thead>
+      <tbody>
+        <tr><td>EMA, opacity≤0.02, score≤3e-5</td><td class="num">2,397</td><td class="num good-text">−0.00013</td><td class="num">8,487</td><td class="num good-text">+0.00105</td></tr>
+        <tr><td><b>EMA, opacity≤0.03, score≤3e-5</b></td><td class="num good-text"><b>2,827</b></td><td class="num good-text"><b>−0.00017</b></td><td class="num good-text"><b>9,474</b></td><td class="num good-text"><b>+0.00163</b></td></tr>
+        <tr><td>lifetime-max, opacity≤0.03, score≤3e-5</td><td class="num">1,603</td><td class="num good-text">−0.00005</td><td class="num">3,487</td><td class="num good-text">+0.00056</td></tr>
+      </tbody>
+    </table></div>
+    <p>가장 넓은 EMA 규칙은 현재 terminal 이후 PLY에서 1253 2.94%, 305 11.38%의 row를 추가 제거하며,
+      opacity≤0.1 count를 18,318→15,491, 23,262→13,788로 낮춘다. 실제 사용한 predicted visual spend는
+      0.104%/0.182%로 0.3% budget 아래였고, 전체 held-out PSNR 변화는 0.002 dB보다 작았다.
+      terminal은 학습이 끝난 뒤이므로 이 opacity-zero counterfactual은 online 중간 prune보다 실제 hard deletion에
+      훨씬 가까운 안전성 검사다.</p>
+    <div class="box good"><b>sweep 결론:</b> 현재 10/5 persistence certificate는 terminal cleanup에는 과도하다.
+      두 장면 공통 후보로 <code>opportunities≥3, opacity≤0.03, EMA importance≤3e-5,
+      cumulative visual budget≤0.003</code>가 가장 많은 dust를 지우면서 즉시 photometric harm가 없었다.
+      다만 이것은 아직 저장된 PLY에 대한 offline terminal counterfactual이며 v6 runner 기본값은 바꾸지 않았다.
+      또한 기존 audit ceiling이 0.03이므로 opacity 0.03–0.1 구간은 신뢰할 exact score가 없어 이번 sweep에서
+      의도적으로 제외했다.</div>
+    <p class="small">근거 JSON:
+      <a href="evidence/aria1253_terminal_pruning_simple_sweep_screen48.json">1253 screening</a> ·
+      <a href="evidence/aria301_305_terminal_pruning_simple_sweep_screen48.json">305 screening</a> ·
+      <a href="evidence/aria1253_terminal_pruning_simple_sweep_full.json">1253 full</a> ·
+      <a href="evidence/aria301_305_terminal_pruning_simple_sweep_full.json">305 full</a>
+    </p>
+
+    <h3>16.6 최종 판정</h3>
+    <div class="box warn"><b>v6-H 상태: 구현·실행 완료, superseded historical candidate로 보존.</b>
+      photometric 목표는 통과했고 1253에서는 여러 독립 지표가 일치하는 큰 floater 개선을 확인했다.
+      그러나 305의 label-independent giant-splat 반례 때문에 “v5 PSNR을 유지하면서 두 scene 공통으로
+      floater가 개선됐다”는 universal claim은 기각한다. 이 결과를 숨기기 위해 305 전용 threshold나
+      scene별 carve 강도를 넣지 않았으며, 기본 채택 상태는 계속 v5다.</div>
+    <p>다음 원인 분리 실험은 새로운 scheduler 튜닝이 아니라, 동일 trajectory/동일 초기 PLY에서
+      (a) visible-lazy telemetry only, (b) soft opacity, (c) bounded prox를 paired replay하여
+      opacity–scale 보상을 직접 측정하는 것이다. 그 전에는 hard carve prune이나 scale regularizer를 v6 기본값에
+      추가하지 않는다.</p>
+    <details><summary>원본 결과·평가 위치</summary>
+      <pre class="eq">remote raw runs:
+  exp69_axes/results/exp69_v6_visible_lazy_carve_aria1253_strict15x_seed0
+  exp69_axes/results/exp69_v6_visible_lazy_carve_aria301_305_strict15x_seed0
+
+post-hoc label evaluation:
+  exp69_axes/results/exp69_v6_vs_v5_aria1253_manual.json
+  exp69_axes/results/exp69_v6_vs_v5_aria301_305_manual.json
+  exp69_axes/results/exp69_v6_aria1253_carve_label_audit.json
+  exp69_axes/results/exp69_v6_aria301_305_carve_label_audit.json
+
+run:
+  bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v6</pre>
+      <p class="small">로컬 보존본:
+        <a href="evidence/exp69_v6_vs_v5_aria1253_manual.json">1253 PLY 지표</a> ·
+        <a href="evidence/exp69_v6_vs_v5_aria301_305_manual.json">305 PLY 지표</a> ·
+        <a href="evidence/exp69_v6_aria1253_carve_label_audit.json">1253 carve audit</a> ·
+        <a href="evidence/exp69_v6_aria301_305_carve_label_audit.json">305 carve audit</a>
+      </p>
+    </details>
+  </section>
+
+  <section>
+    <h2>17. 최종 v6 — carve main-effect sweep + 실제 terminal pruning</h2>
+    <div class="box info"><b>재정의:</b> 사용자와 합의한 대로 v6는 더 이상 section 16의 단일
+      λ=0.02 run이 아니다. <b>v5 + visible-lazy carve + sweep으로 고른 공통 carve 강도 +
+      sweep으로 고른 terminal hard-prune</b> 전체를 뜻한다.</div>
+
+    <h3>17.1 최종 구조</h3>
+    <pre class="eq">v6 = v5 scheduler / exact PGBA
+   + arrived-depth causal carve field
+   + visible-lazy stale refresh
+   + soft opacity gradient: lambda = 0.01
+   + reversible opacity prox: lifetime budget = 0.005
+   + stream-end terminal cleanup:
+       observed
+       ∧ distinct opportunities ≥ 3
+       ∧ current opacity ≤ 0.03
+       ∧ touch EMA ≤ 3e-5
+       ∧ footprint EMA ≤ 3e-5
+       ∧ cumulative contribution / full render alpha ≤ 0.003
+
+disabled:
+  online dust deletion / xyz carve force / hard carve prune
+  newborn gate / scene-specific parameter / post-stream training</pre>
+    <p>terminal policy는 online optimization 도중에는 Gaussian을 지우지 않는다. strict stream과
+      map worker가 모두 끝난 뒤, 세 개 이상의 서로 다른 view에서 실제로 관측됐지만 현재 opacity와
+      lifetime render importance가 모두 낮은 row만 importance 오름차순으로 한 번 hard-prune한다.
+      따라서 낮은 opacity 하나만 보고 지우는 규칙은 아니다.</p>
+
+    <h3>17.2 sweep 설계</h3>
+    <p>장면별 튜닝을 피하기 위해 두 scene에 정확히 같은 다섯 arm을 적용했다. 중심점
+      <code>(0.02, 0.005)</code>에서 한 번에 한 축만 바꾼 main-effect sweep이다. 모든 run은
+      strict 1.5× streaming, seed 0, post-stream optimizer update 없음 조건이다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>arm</th><th class="num">λ soft</th><th class="num">prox budget</th><th class="num">1253 PSNR</th><th class="num">305 PSNR</th><th class="num">두 scene 최저</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td><b>lambda_low</b></td><td class="num"><b>0.01</b></td><td class="num"><b>0.005</b></td><td class="num good-text">27.427</td><td class="num good-text">28.090</td><td class="num good-text"><b>27.427</b></td><td class="good-text">선택</td></tr>
+        <tr><td>center</td><td class="num">0.02</td><td class="num">0.005</td><td class="num">27.433</td><td class="num bad-text">25.028</td><td class="num bad-text">25.028</td><td>불안정</td></tr>
+        <tr><td>lambda_high</td><td class="num">0.04</td><td class="num">0.005</td><td class="num bad-text">22.275</td><td class="num">28.367</td><td class="num bad-text">22.275</td><td>비공통</td></tr>
+        <tr><td>budget_low</td><td class="num">0.02</td><td class="num">0.0025</td><td class="num">27.288</td><td class="num">27.844</td><td class="num">27.288</td><td>통과, λ 민감도 잔존</td></tr>
+        <tr><td>budget_high</td><td class="num">0.02</td><td class="num">0.010</td><td class="num">27.448</td><td class="num">28.016</td><td class="num">27.448</td><td>통과, geometry 열세</td></tr>
+      </tbody>
+    </table></div>
+    <p><code>λ=0.02</code>는 과거 section 16 run에서 305 29.195 dB였지만 이번 동일 중심점은
+      25.028 dB였다. replay step도 run별로 달라지는 비동기 분산이 섞여 있으나, 이 정도 worst-case
+      민감도 자체가 기본값으로 부적합하다는 증거다. <code>λ=0.04</code>는 두 scene의 반응 방향이
+      완전히 갈렸다. 반면 <code>λ=0.01</code>은 두 scene 모두 27 dB를 넘겨 가장 보수적인 공통값이다.</p>
+
+    <h3>17.3 terminal hard-prune 실제 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">terminal 전 Gaussian</th><th class="num">실제 삭제</th><th class="num">opacity≤.1 전→후</th><th class="num">low-opacity 감소율</th><th class="num">visual spend</th><th class="num">PSNR</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">96,470</td><td class="num">3,257</td><td class="num">17,550→14,293</td><td class="num good-text">−18.6%</td><td class="num">0.125%</td><td class="num">27.427</td></tr>
+        <tr><td>aria301_305</td><td class="num">86,271</td><td class="num">12,460</td><td class="num">27,720→15,260</td><td class="num good-text">−44.9%</td><td class="num">0.174%</td><td class="num">28.090</td></tr>
+      </tbody>
+    </table></div>
+    <p>두 scene 모두 실제 소비한 contribution budget은 상한 0.3%보다 작았다. terminal 전후의
+      opacity&gt;0.3 count는 정확히 같았으므로, 이 단계가 보이는 고-opacity surface를 잘라서 숫자를
+      만든 것이 아니라 low-opacity/low-evidence dust만 제거했다는 것도 확인했다.</p>
+
+    <h3>17.4 선택 v6와 v5 비교</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">v5→v6 PSNR</th><th class="num">global opacity&gt;.3</th><th class="num">Sim3 global opacity-area</th><th class="num">Sim3 scale&gt;.5 m</th><th class="num">nominal region &gt;.3</th><th class="num">region opacity-area</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">27.745→27.427</td><td class="num good-text">66,640→65,846</td><td class="num good-text">2,111.0→2,070.2</td><td class="num good-text">516→487</td><td class="num warn-text">182→189</td><td class="num good-text">1.756→1.457</td></tr>
+        <tr><td>aria301_305</td><td class="num good-text">27.660→28.090</td><td class="num good-text">52,297→49,400</td><td class="num good-text">833.8→564.9</td><td class="num warn-text">56→63</td><td class="num good-text">706→673*</td><td class="num warn-text">6.440→7.507*</td></tr>
+        <tr><td><b>두 scene 평균</b></td><td class="num good-text"><b>27.702→27.759</b></td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+      </tbody>
+    </table></div>
+    <p>photometric 기준은 통과한다. 1253은 v5 대비 −0.318 dB지만 27 dB 위이며, 305는
+      +0.430 dB, 두 scene 단순 평균은 +0.057 dB다. low-opacity dust 감소는 두 scene에서 크고
+      일관적이다. high-opacity 전역 count도 1.2%/5.5% 감소했다.</p>
+    <p>다만 <b>고-opacity visible floater가 모든 지표에서 유의미하게 줄었다고 주장할 수는 없다.</b>
+      1253의 nominal region count는 182→189로 소폭 늘었고, 305의 trajectory-to-label Sim3 정합
+      median/p90 오차는 12.0/28.6 cm라 별표 지표의 절대 비교가 불안정하다. footprint-weighted mass는
+      1253 region과 305 global에서 감소했지만 scale&gt;0.5 m는 305에서 56→63으로 늘었다.
+      따라서 정확한 결론은 “PSNR을 유지하면서 low-opacity dust는 유의미하게 제거했고,
+      high-opacity floater는 전역 opacity count 기준 소폭 개선했으나 universal visible-region 개선은 미확정”이다.</p>
+
+    <h3>17.5 구현·재현성·운영 감사</h3>
+    <ul>
+      <li><code>MatureDustConfig.terminal_simple_policy</code>와 terminal 전용 eligibility/action을 추가했다.
+        기존 online persistence/opacity-EMA 정책은 건드리지 않는다.</li>
+      <li><code>--mapping_mature_dust_gc_terminal_simple_policy</code>는 terminal prune과 함께 쓸 때만 허용된다.</li>
+      <li><code>EXP69_V6_CARVE_LAMBDA_SOFT</code>와 <code>EXP69_V6_CARVE_OPACITY_BUDGET</code>은
+        sweep 재현용이며 최종 기본값은 0.01/0.005다.</li>
+      <li>targeted regression은 causal carve 30 + mature dust 15 + exact PGBA 6 = <b>51/51 pass</b>를
+        로컬 <code>3dgs</code>와 원격 <code>vigs-slam-5090</code>에서 통과했다.</li>
+    </ul>
+    <div class="box warn"><b>실행 이상 보존:</b> 1253 budget-high 첫 시도는 40%에서 GPU 1%, 로그 무진전
+      상태로 교착되어 결과에서 제외했다. 부분 디렉터리는
+      <code>exp69_v6_sweep_budget_high_aria1253_strict15x_seed0_hung_20260827</code>로 삭제 없이 보존했고,
+      동일 인자로 재실행한 run은 정상 완료했다. 이는 parameter 성능값으로 해석하지 않는다.</div>
+
+    <div class="box good"><b>두 개발 scene에서의 v6 판정:</b> 공통 후보값은
+      <code>lambda_soft=0.01</code>, <code>opacity_prox_budget=0.005</code>, 위 terminal certificate로 고정한다.
+      aria1253/aria301_305에서는 v5 수준 PSNR과 terminal dust cleanup을 만족했다. 이 두 장면만으로
+      universal PASS를 선언하지 않으며, 아래 추가 장면 검증으로 최종 범위를 갱신한다.</div>
+    <details><summary>재현 명령·근거</summary>
+      <pre class="eq"># 최종 v6
+bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v6
+
+# 다섯-arm 공통 sweep
+bash exp69_axes/run_v6_carve_sweep.sh
+
+# label-independent 집계
+python exp69_axes/summarize_v6_carve_sweep.py \
+  --output exp69_axes/results/exp69_v6_carve_sweep_summary.json</pre>
+      <p class="small">근거 JSON:
+        <a href="evidence/exp69_v6_carve_sweep_summary.json">전체 sweep summary</a> ·
+        <a href="evidence/exp69_v6_carve_sweep_aria1253_manual.json">1253 PLY/region audit</a> ·
+        <a href="evidence/exp69_v6_carve_sweep_aria301_305_manual.json">305 PLY/region audit</a>
+      </p>
+    </details>
+  </section>
+
+  <section>
+    <h2>18. 12F·1253_rot 확장 검증과 최종 PLY 판정 <span class="bad-text">보편적 PASS 아님</span></h2>
+    <p>개발에 쓴 1253/305 결과에 과적합된 결론을 피하려고 aria301_12F와 aria1253_rot을 같은
+      strict 1.5×, seed 0, 동일 v5/v6 설정으로 새로 실행했다. 기존 1253_rot 진단 산출물에 있던
+      post-PGBA 추가 epoch는 비교에서 제외하고 두 버전을 모두 다시 돌렸다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">v5 PSNR</th><th class="num">v6 PSNR</th><th class="num">Δ</th><th class="num">replay step v5→v6</th><th class="num">opacity≤.1 v5→v6</th><th class="num">opacity&gt;.3 v5→v6</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">27.745</td><td class="num">27.427</td><td class="num">−0.318</td><td class="num">6,475→4,855</td><td class="num good-text">17,144→14,293</td><td class="num good-text">66,640→65,846</td></tr>
+        <tr><td>aria301_305</td><td class="num">27.660</td><td class="num">28.090</td><td class="num good-text">+0.431</td><td class="num">17,068→15,048</td><td class="num good-text">20,663→15,260</td><td class="num good-text">52,297→49,400</td></tr>
+        <tr><td>aria301_12F</td><td class="num">26.186</td><td class="num bad-text">23.905</td><td class="num bad-text">−2.281</td><td class="num bad-text">4,542→2,404</td><td class="num good-text">37,146→21,597</td><td class="num bad-text">99,667→105,042</td></tr>
+        <tr><td>aria1253_rot</td><td class="num">24.213</td><td class="num bad-text">23.484</td><td class="num bad-text">−0.729</td><td class="num bad-text">3,743→2,613</td><td class="num good-text">42,924→31,423</td><td class="num bad-text">86,904→87,143</td></tr>
+      </tbody>
+    </table></div>
+    <p>v6의 terminal policy는 네 장면 모두에서 low-opacity dust를 16.6–41.9% 줄였다. 그러나
+      12F와 1253_rot에서는 high-opacity count가 감소하지 않았고 PSNR도 각각 2.281/0.729 dB
+      하락했다. 두 실패 장면에서는 carve를 켠 뒤 replay step도 47.1%/30.2% 줄었다. 이는 carve의
+      기하 정리가 무효라는 뜻보다는, 현재 구현이 strict 시간 예산 안에서 photometric replay를
+      과도하게 잠식한다는 반례다. 따라서 <b>최종 v6는 dust-cleanup 효과는 확인됐지만,
+      PSNR 유지와 visible high-opacity floater 개선은 보편적으로 통과하지 못했다.</b></p>
+    <div class="box warn"><b>최종 범위:</b> 1253/305에서 선택한 설정을 12F/1253_rot에 맞춰 다시
+      튜닝하지 않았다. 후속 개선은 장면별 λ가 아니라 carve maintenance를 별도 시간 credit으로
+      제한하거나 lazy refresh 비용을 더 낮추는 방향이어야 한다.</div>
+    <p class="small">네 장면 PLY와 해시·원본 경로:
+      <a href="evidence/exp69_v5_v6_four_scene_ply_manifest.json">comparison manifest</a> ·
+      <a href="exp69_v5_v6_ply_package_README.md">PLY package README</a></p>
+  </section>
+
+  <section>
+    <h2>19. v7 — multi-view verified carve ray와 adaptive surface margin</h2>
+    <div class="box info"><b>질문:</b> 기존 v6의 균일 grid depth ray와 0.20 m surface 보호대를
+      그대로 쓰면, 실제로 여러 keyframe에서 확인된 ray를 충분히 활용하지 못하고 surface 근처
+      floater를 free-space로 판정하지 못할 수 있다. v7은 이 지점만 바꾸고 v5 scheduler,
+      v6의 λ=0.01·opacity budget·terminal cleanup은 그대로 고정했다.</div>
+
+    <h3>19.1 최종 구현</h3>
+    <pre class="eq">ConvGRU + BA가 갱신한 metric depth
+  → 기존 VIGS depth_filter로 causal 이웃 keyframe reprojection 확인
+  → support ≥ 2인 pixel만 후보
+  → image grid별 최고 support ray를 골라 keyframe당 최대 64개
+  → support = 2: surface margin 0.10 m
+     support ≥ 3: surface margin 0.05 m
+  → arrived-only global 3D carve field에 누적</pre>
+    <p>따라서 이것은 dense RGB frame에 붙는 2D depth loss가 아니다. keyframe에서 이미 SLAM이
+      계산한 depth와 pose를 이용해 3D free-space evidence를 만들고, 어떤 RGB view가 replay되든
+      <code>map()</code> 내부의 global opacity regularizer가 그 evidence를 사용한다. 64개는
+      장면별 값이 아니라 1253/305/12F/1253_rot에 동일하게 적용한 strict-budget 상한이다.</p>
+
+    <h3>19.2 O(history) spike를 제거한 방식</h3>
+    <ul>
+      <li><b>verification cache + batch 8:</b> 같은 keyframe을 매 mapping packet마다 다시
+        <code>depth_filter</code>하지 않는다. 새 keyframe 8개를 한 번의 CUDA call로 묶고, 아직
+        batch에 들어가지 않은 keyframe은 support=0으로 보내 carve 관측만 지연한다.</li>
+      <li><b>PGBA lazy rebuild:</b> PGBA는 action budget을 환불하지 않은 채 pose-dependent voxel
+        field만 비운다. corrected ray endpoint는 compact queue에 넣고 이후 <code>map()</code> 호출마다
+        최대 512 ray씩 복구한다. 전체 과거 keyframe을 한 번에 다시 넣지 않는다.</li>
+      <li><b>visible-lazy score:</b> 이번 render에서 보인 stale Gaussian을 우선 갱신하고, 아직
+        최신 evidence로 확인하지 못한 row의 carve weight는 0으로 둔다.</li>
+    </ul>
+    <p>초기 구현은 PGBA마다 모든 keyframe의 verification과 field insertion을 동기식으로 수행해
+      수 초씩 멈췄다. 305 PSNR 23.94 dB는 그 실패 구현의 결과다. lazy rebuild 뒤 PGBA field
+      service 누적시간은 1253/305/1253_rot에서 각각 0.197/0.554/0.325 s로 제한됐다.</p>
+
+    <h3>19.3 ray-budget sweep</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>1253 arm</th><th class="num">ray/KF</th><th class="num">PSNR</th><th class="num">replay step</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>paired v6 control</td><td class="num">uniform ≤128</td><td class="num">27.268</td><td class="num">5,084</td><td>비교 기준</td></tr>
+        <tr><td>v7 verified-lazy</td><td class="num">64</td><td class="num good-text">27.016</td><td class="num">4,392</td><td class="good-text">선택</td></tr>
+        <tr><td>v7 verified</td><td class="num">128</td><td class="num">26.674</td><td class="num">4,144</td><td>PSNR 손실</td></tr>
+        <tr><td>v7 verified-lazy batch8</td><td class="num">128</td><td class="num">26.629</td><td class="num">3,145</td><td>추가 PGBA timing 변동</td></tr>
+        <tr><td>v7 verified</td><td class="num">256</td><td class="num bad-text">25.466</td><td class="num bad-text">2,094</td><td class="bad-text">기각</td></tr>
+      </tbody>
+    </table></div>
+    <p>ray가 많을수록 좋은 것이 아니었다. 256은 더 촘촘한 geometry evidence를 주지만 strict
+      시간 안의 photometric replay를 절반 가까이 줄였다. 최종 기본값은 64이며
+      <code>EXP69_V7_CARVE_ANCHOR_BUDGET</code>으로만 재현 sweep이 가능하다.</p>
+
+    <h3>19.4 공통 64-ray 설정의 네 장면 결과</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">v6→v7 PSNR</th><th class="num">Δ</th><th class="num">replay step</th><th class="num">opacity≤.1</th><th class="num">opacity&gt;.3</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">27.268→27.016</td><td class="num">−0.252</td><td class="num">5,084→4,392</td><td class="num good-text">14,817→13,203</td><td class="num bad-text">64,001→66,948</td></tr>
+        <tr><td>aria301_305</td><td class="num">28.090→29.005</td><td class="num good-text">+0.914</td><td class="num">15,048→13,549</td><td class="num good-text">15,260→13,126</td><td class="num good-text">49,400→49,242</td></tr>
+        <tr><td>aria301_12F</td><td class="num">23.905→24.664</td><td class="num good-text">+0.759</td><td class="num">2,404→2,945</td><td class="num good-text">21,597→20,664</td><td class="num good-text">105,042→103,601</td></tr>
+        <tr><td>aria1253_rot</td><td class="num">23.484→23.524</td><td class="num good-text">+0.040</td><td class="num">2,613→2,197</td><td class="num good-text">31,423→31,087</td><td class="num bad-text">87,143→87,996</td></tr>
+      </tbody>
+    </table></div>
+    <p>PSNR은 네 장면 모두 v6 대비 −0.252 dB 이상이며, 사용자가 정한 1253의 27 dB 기준도
+      통과한다. low-opacity dust는 네 장면 모두 1.1–14.0% 줄었다. 그러나 global high-opacity
+      count는 1253과 1253_rot에서 각각 4.6%/1.0% 늘어 <b>보편적 visible-floater PASS는 아니다.</b></p>
+
+    <h3>19.5 manual floater label 해석</h3>
+    <ul>
+      <li>1253 nominal mask에서 opacity&gt;0.1은 396→387, opacity&gt;0.3은 196→191로 약 2–3%
+        감소했다. opacity&gt;0.5는 132→133으로 동일하다.</li>
+      <li>305 nominal mask는 혼재했다. opacity&gt;0.3은 673→664지만 &gt;0.1은 1,170→1,184다.
+        dilated mask에서는 &gt;0.3이 2,871→2,608, opacity-area support가 18.53→16.45로 감소해
+        큰 floater 부피 감소 신호가 있다.</li>
+      <li>305의 trajectory-to-label Sim3 median 오차가 v6/v7 12.0/8.9 cm라 mask 경계별 결과가
+        흔들린다. 따라서 이를 강한 통계적 개선으로 서술하지 않는다.</li>
+    </ul>
+    <div class="box warn"><b>최종 판정:</b> v7-64는 <b>가장 좋은 실험 후보</b>다. v6보다 strict
+      PSNR robustness가 좋아졌고 low-opacity dust 및 305의 큰 floater 부피는 줄었다. 하지만
+      고-opacity visible floater가 모든 장면에서 일관되게 감소하지 않았으므로 production의
+      “geometry 개선 완료”로 승격하지 않는다. 설정은 장면별로 바꾸지 않았고 runner의 v7
+      기본 ray budget은 64로 고정했다.</div>
+    <p class="small">근거 JSON:
+      <a href="evidence/exp69_v7_verified_carve_summary.json">전체 run summary</a> ·
+      <a href="evidence/exp69_v7_verified64_aria1253_manual.json">1253 manual audit</a> ·
+      <a href="evidence/exp69_v7_verified64_aria301_305_manual.json">305 manual audit</a></p>
+    <details><summary>재현 명령</summary>
+      <pre class="eq"># v7 기본값: verified ray 64, verification batch 8,
+# margin 0.10/0.05 m, PGBA rebuild 512 ray/map call
+bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v7
+
+# ray-budget 재현 sweep
+EXP69_V7_CARVE_ANCHOR_BUDGET=128 bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v7
+EXP69_V7_CARVE_ANCHOR_BUDGET=256 bash exp69_axes/run_decoupled_geometry.sh aria1253 OUTPUT_DIR v7</pre>
+    </details>
+  </section>
+
+  <footer>
+    exp69 v5 baseline + v6 + verified-carve v7 candidate · aria1253 / aria301_305 / aria301_12F / aria1253_rot · 2026-08-27 · strict 1.5× causal streaming ·
+    계획서: <a href="exp69_decoupled_geometry_maintenance_plan.html">exp69_decoupled_geometry_maintenance_plan.html</a> ·
+    본 문서는 성공/실패 run을 모두 포함한 사후 결과 보고서다.
+  </footer>
+</main></body></html>

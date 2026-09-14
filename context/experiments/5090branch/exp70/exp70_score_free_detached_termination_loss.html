@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>exp70 — Score-free Detached Opacity Loss</title>
+  <style>
+    :root {
+      --bg:#f3f5f4; --paper:#ffffff; --ink:#17231f; --muted:#65736e;
+      --line:#d7dfdc; --surface:#23765e; --surface-soft:#def0e9;
+      --transit:#326d9b; --transit-soft:#e1edf6; --detach:#b4493d;
+      --detach-soft:#f7e3df; --amber:#9a6a13; --amber-soft:#f7edd8;
+      --code:#edf1ef; --shadow:0 12px 34px rgba(26,54,44,.07);
+    }
+    @media (prefers-color-scheme:dark) {
+      :root {
+        --bg:#111715; --paper:#19211e; --ink:#e8efec; --muted:#9caaa4;
+        --line:#303d38; --surface:#72c7aa; --surface-soft:#203d34;
+        --transit:#83b9e6; --transit-soft:#1d3446; --detach:#e38b80;
+        --detach-soft:#472a28; --amber:#e1b35e; --amber-soft:#41351f;
+        --code:#222d29; --shadow:none;
+      }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink);
+      font:15px/1.68 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif; }
+    main { max-width:1040px; margin:auto; padding:52px 24px 82px; }
+    header { padding-bottom:27px; border-bottom:1px solid var(--line); }
+    h1,h2,h3 { letter-spacing:-.018em; }
+    h1 { max-width:840px; margin:8px 0 13px; font-size:clamp(29px,4.5vw,45px); line-height:1.18; }
+    h2 { margin:38px 0 13px; font-size:23px; }
+    h3 { margin:0 0 7px; font-size:15px; }
+    p { max-width:88ch; margin:7px 0; }
+    ul,ol { max-width:90ch; margin:8px 0; padding-left:22px; }
+    li { margin:5px 0; }
+    code,.mono,.eyebrow,.eq,.tag { font-family:ui-monospace,"SFMono-Regular",Consolas,monospace; }
+    code { padding:1px 5px; border-radius:4px; background:var(--code); font-size:.9em; }
+    .eyebrow { color:var(--muted); font-size:12px; letter-spacing:.07em; text-transform:uppercase; }
+    .lead { max-width:820px; color:var(--muted); font-size:17px; }
+    .tag { display:inline-block; margin-top:12px; padding:5px 10px; border:1px solid var(--amber);
+      border-radius:999px; color:var(--amber); font-size:11px; }
+    .cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:22px; }
+    .card,.box,.figure,.table-wrap { border:1px solid var(--line); border-radius:10px; background:var(--paper); }
+    .card { min-height:128px; padding:16px; border-top:4px solid var(--line); box-shadow:var(--shadow); }
+    .card:nth-child(1) { border-top-color:var(--transit); }
+    .card:nth-child(2) { border-top-color:var(--detach); }
+    .card:nth-child(3) { border-top-color:var(--surface); }
+    .card .k { color:var(--muted); font:11px ui-monospace,monospace; text-transform:uppercase; }
+    .card .v { margin:6px 0; font:700 18px/1.3 ui-monospace,monospace; }
+    .card p { color:var(--muted); font-size:13px; line-height:1.5; }
+    .box { margin:14px 0; padding:15px 18px; }
+    .box.good { border-left:5px solid var(--surface); }
+    .box.warn { border-left:5px solid var(--amber); background:var(--amber-soft); }
+    .box.bad { border-left:5px solid var(--detach); }
+    .eq { overflow-x:auto; margin:13px 0; padding:15px 18px; border:1px solid var(--line);
+      border-radius:8px; background:var(--code); font-size:14px; line-height:1.9; white-space:pre; }
+    .figure { overflow:hidden; margin:17px 0; }
+    .figure svg { display:block; width:100%; height:auto; background:linear-gradient(180deg,var(--paper),var(--bg)); }
+    figcaption { padding:11px 15px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px; }
+    .flow { display:grid; grid-template-columns:1fr 28px 1fr 28px 1fr; gap:7px; align-items:stretch; margin:15px 0; }
+    .node { display:flex; flex-direction:column; justify-content:center; min-height:105px; padding:13px;
+      border:1px solid var(--line); border-radius:9px; background:var(--paper); text-align:center; }
+    .node b { font:700 13px/1.35 ui-monospace,monospace; }
+    .node span { margin-top:5px; color:var(--muted); font-size:12px; }
+    .arrow { display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:21px; }
+    .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .mini { padding:15px 17px; border:1px solid var(--line); border-radius:9px; background:var(--paper); }
+    .mini p,.mini li { color:var(--muted); font-size:13px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th,td { padding:9px 11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font:650 11px ui-monospace,monospace; text-transform:uppercase; }
+    tr:last-child td { border-bottom:0; }
+    .surface { color:var(--surface); } .transit { color:var(--transit); }
+    .detach { color:var(--detach); } .muted { color:var(--muted); }
+    .small { color:var(--muted); font-size:12.5px; }
+    footer { margin-top:43px; padding-top:17px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+    a { color:var(--transit); }
+    @media(max-width:760px) {
+      main { padding:34px 15px 60px; }
+      .cards,.two,.flow { grid-template-columns:1fr; }
+      .arrow { min-height:24px; transform:rotate(90deg); }
+    }
+    @media print { body{background:white} main{max-width:none;padding:18px} .card{box-shadow:none} section,.figure{break-inside:avoid} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">exp70 · implementation &amp; region-GT result · 2026-09-02</div>
+    <h1>Score-free Detached<br>Opacity Loss</h1>
+    <p class="lead">Depth keyframe의 terminal surface에 연결된 density component는 보호하고,
+      그보다 앞에서 분리된 component에만 visibility-independent opacity pressure를 가한다.</p>
+    <div class="tag">1.5× BASELINE POSITIVE · FINAL v7 1× NO-GO</div>
+    <div class="cards">
+      <div class="card"><div class="k">Observation</div><div class="v">DEPTH KF</div><p>현재 선택된 KF의 pose·online depth로 terminal-conditioned component를 찾는다.</p></div>
+      <div class="card"><div class="k">Decision</div><div class="v">EPHEMERAL mᵢₖ</div><p>현재 KF에서 명확히 분리된 Gaussian만 선택하고 mask는 그 step 뒤 폐기한다.</p></div>
+      <div class="card"><div class="k">Action</div><div class="v">ALPHA vs. NLL</div><p><span class="mono">Tᵢ</span> 없이 같은 mask에 두 primitive-opacity penalty를 비교한다.</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 연구 질문</h2>
+    <div class="box good"><b>목표:</b> 모든 free-space Gaussian을 없애는 것이 아니다.
+      <b>관측된 terminal surface의 density component와 분리되어 앞쪽에 남은 Gaussian만 억제</b>한다.</div>
+    <p>기존 depth supervision은 주로 terminal surface의 위치를 정렬한다. 여기에 transit 관측을 더하면
+      “이 구간에서는 ray가 아직 종료되면 안 된다”는 negative occupancy evidence를 얻는다. 판별과
+      opacity 최적화를 분리해야 수렴 중인 넓은 surface support를 보존할 수 있다.</p>
+  </section>
+
+  <section>
+    <h2>2. 먼저 detachment를 판별한다</h2>
+    <p>3D Gaussian을 keyframe ray 위의 1D density로 제한한다. 이 판별에는 compositing
+      transmittance <span class="mono">Tᵢᵣ</span>를 쓰지 않는다. 강한 앞쪽 floater가 뒤의 surface component를 숨기는
+      순환을 막기 위해서다.</p>
+    <div class="eq">ρᵢₖᵣ(t) = oᵢ Aᵢₖᵣ exp(−(t − μᵢₖᵣ)² / 2σ²ᵢₖᵣ)
+ρₖᵣ(t)  = Σᵢ ρᵢₖᵣ(t)
+
+p*ₖᵣ = terminal depth zₖᵣ에 대응하는 density peak
+bₖᵣ  = p*ₖᵣ 앞에서 마지막으로 확인되는 density valley
+
+mᵢₖ = 1  if Gaussian i의 현재-KF support가 bₖᵣ 앞 component에 속함
+       0  otherwise; terminal peak/valley가 불명확해도 0 (abstain)</div>
+    <div class="two">
+      <div class="mini">
+        <h3 class="transit">Terminal-conditioned component</h3>
+        <p>렌더된 최대 peak를 곧바로 surface로 쓰지 않는다. KF depth <span class="mono">zₖᵣ</span>가 지지하는 peak를
+          surface component로 선택하므로 강한 floater가 mode를 차지해도 기준이 뒤집히지 않는다.</p>
+      </div>
+      <div class="mini">
+        <h3 class="detach">Topology, not fixed 3σ</h3>
+        <p>임의의 <span class="mono">κσ</span> surface band로 자르지 않고 두 component 사이의 valley를 경계로 쓴다.
+          하나의 넓은 surface mode뿐이거나 valley가 불명확하면 carve하지 않는다.</p>
+      </div>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 960 370" role="img" aria-labelledby="figTitle figDesc">
+        <title id="figTitle">Terminal-conditioned density component와 detached component</title>
+        <desc id="figDesc">Keyframe depth가 뒤쪽 surface peak를 지정하고 그 앞의 density valley가 detached component와의 경계를 정한다.</desc>
+        <defs>
+          <marker id="head" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--transit)"/></marker>
+        </defs>
+        <g font-family="-apple-system,BlinkMacSystemFont,Apple SD Gothic Neo,sans-serif">
+          <rect x="72" y="47" width="816" height="264" rx="15" fill="var(--paper)"/>
+          <line x1="105" y1="278" x2="865" y2="278" stroke="var(--transit)" stroke-width="2" marker-end="url(#head)"/>
+          <line x1="105" y1="278" x2="105" y2="78" stroke="var(--line)" stroke-width="2"/>
+          <path d="M105 278 C170 278 190 274 218 255 C245 237 255 139 310 128 C366 117 391 244 435 265 C455 274 470 276 486 273 L486 278 Z"
+            fill="var(--detach-soft)" stroke="var(--detach)" stroke-width="3"/>
+          <path d="M486 273 C535 269 560 239 594 191 C635 133 670 91 725 104 C786 118 810 222 852 270 L852 278 L486 278 Z"
+            fill="var(--surface-soft)" stroke="var(--surface)" stroke-width="3"/>
+          <line x1="486" y1="69" x2="486" y2="292" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 5"/>
+          <line x1="735" y1="69" x2="735" y2="292" stroke="var(--surface)" stroke-width="2" stroke-dasharray="6 5"/>
+          <circle cx="486" cy="273" r="5" fill="var(--amber)"/>
+          <text x="105" y="328" text-anchor="middle" fill="var(--ink)" font-size="13" font-weight="700">camera</text>
+          <text x="310" y="105" text-anchor="middle" fill="var(--detach)" font-size="15" font-weight="700">detached component</text>
+          <text x="310" y="151" text-anchor="middle" fill="var(--detach)" font-size="12">mᵢₖ = 1 → opacity penalty</text>
+          <text x="486" y="55" text-anchor="middle" fill="var(--amber)" font-size="13" font-weight="700">density valley bₖᵣ</text>
+          <text x="705" y="84" text-anchor="middle" fill="var(--surface)" font-size="15" font-weight="700">surface component</text>
+          <text x="760" y="327" text-anchor="middle" fill="var(--surface)" font-size="13">KF terminal depth zₖᵣ → select &amp; protect</text>
+          <text x="504" y="301" fill="var(--transit)" font-size="12">ray depth t</text>
+          <text x="34" y="174" transform="rotate(-90 34 174)" fill="var(--muted)" font-size="12">unoccluded ray density ρₖᵣ(t)</text>
+        </g>
+      </svg>
+      <figcaption><b>Figure 1.</b> KF depth는 어느 peak가 surface인지를 정하고, unoccluded density topology는
+        그 앞의 detached component 경계를 정한다. 명확한 valley가 없으면 넓은 surface support로 보고 abstain한다.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>3. 왜 loss에는 Tᵢ가 없는가?</h2>
+    <p>Detached 구간에서 관측된 사건은 “어느 Gaussian에서 처음 hit했는가”가 아니라
+      <b>“그 구간 전체를 통과했다”</b>이다. 그 likelihood를 쓰면 transmittance 곱은 로그 안에서
+      Gaussian별 optical thickness의 합으로 바뀐다.</p>
+    <div class="eq">P(transit | r) = Πᵢ∈𝒟ₖᵣ (1 − αᵢₖᵣ)
+
+−log P(transit | r) = Σᵢ∈𝒟ₖᵣ −log(1 − αᵢₖᵣ)     ← no Tᵢ
+
+oᵢ = sigmoid(θᵢ)
+
+                   λ
+ℒalpha⁽ᵏ⁾ = ─────────────── Σᵢ mᵢₖ oᵢ
+                Σᵢmᵢₖ + ε
+
+                 λ
+ℒNLL⁽ᵏ⁾ = ─────────────── Σᵢ mᵢₖ [−log(1−oᵢ)]
+              Σᵢmᵢₖ + ε
+
+           λ
+         = ─────────────── Σᵢ mᵢₖ softplus(θᵢ)
+            Σᵢmᵢₖ + ε
+
+∂ℒalpha/∂θᵢ ∝ mᵢₖ oᵢ(1−oᵢ)     ∂ℒNLL/∂θᵢ ∝ mᵢₖ oᵢ</div>
+    <div class="box good"><b>Detector는 같고 action만 다르다.</b> 두 arm 모두 pixel footprint가 곱해진
+      <span class="mono">αᵢₖᵣ</span>가 아니라 Gaussian 자체 opacity <span class="mono">oᵢ</span>를 누른다.
+      NLL은 high-opacity에서 더 강하다는 수학적 장점이 있다. 1.5× baseline에서는 더 완만한
+      direct-alpha가 안정적이었지만, final-v7 1×에서는 두 action 모두 nominal/dilated region을
+      악화시켰다. 즉 analytic gradient만으로 action을 선택할 근거는 없다.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Penalty</th><th>Opacity-logit gradient</th><th>성질</th><th>exp70 관측</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">Tᵢαᵢ</span></td><td>앞쪽 transmittance에 의존</td><td>opaque floater가 뒤 후보의 gradient를 가림</td><td>설계에서 제외</td></tr>
+        <tr><td><b><span class="mono">oᵢ</span></b></td><td><span class="mono">oᵢ(1−oᵢ)</span></td><td>높은 opacity에서 더 완만함</td><td>1.5× 개선; final-v7 1× 실패</td></tr>
+        <tr><td><span class="mono">−log(1−oᵢ)</span></td><td><span class="mono">oᵢ</span></td><td>high-opacity saturation 제거</td><td>두 실행 조건 모두 alpha 우위 없음</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>4. Persistent multi-view score도 필요 없다</h2>
+    <div class="box good"><b><span class="mono">mᵢₖ</span>는 현재 KF에서만 존재하는 일회성 mask다.</b>
+      현재 depth-loss step에서 만들고 같은 backward에 사용한 뒤 폐기한다. Gaussian ID별 score나
+      transit/terminal count를 topology 변화에 맞춰 관리하지 않는다.</div>
+    <div class="flow">
+      <div class="node"><b>DEPTH KF STEP</b><span>기존 pose·online depth·render 재사용</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>NO-GRAD DETECTOR</b><span>현재-view component mask mᵢₖ</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>SAME BACKWARD</b><span>mᵢₖ penalty(oᵢ), then discard</span></div>
+    </div>
+    <div class="eq">min  𝔼ₖ∼𝒦 [ ℒRGBD⁽ᵏ⁾ + ℒdetach⁽ᵏ⁾ ]</div>
+    <p>Keyframe replay가 여러 view의 loss를 순차적으로 샘플링하므로 multi-view evidence는 optimizer gradient에
+      암묵적으로 누적된다. 진짜 floater는 여러 KF에서 반복 압력을 받고, 한 KF의 일시적 depth·pose 오류는 한 번의
+      제한된 update로 희석된다.</p>
+    <div class="box warn"><b>단, score가 사라지는 대신 view selection이 중요해진다.</b>
+      같은 방향의 KF만 과도하게 replay하면 같은 판정이 반복된다. 그러나 이 문제는 별도 evidence field가 아니라
+      기존 KF sampler의 coverage와 per-view loss normalization 문제로 다룬다.</div>
+  </section>
+
+  <section>
+    <h2>5. Optimization 역할 분리</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>신호</th><th>책임</th><th>업데이트</th></tr></thead>
+      <tbody>
+        <tr><td class="surface"><b>RGB / depth loss</b></td><td>surface Gaussian을 관측 surface에 정렬하고 appearance를 학습</td><td>xyz·scale·rotation·opacity 등 기존 optimizer</td></tr>
+        <tr><td class="detach"><b>Detached opacity penalty</b></td><td>현재 KF에서 분리된 component의 optical thickness 제거</td><td><b>opacity만 감소</b>; <span class="mono">Tᵢ</span>·xyz force 없음</td></tr>
+        <tr><td><b>기존 pruning</b></td><td>여러 update 뒤에도 opacity가 낮은 primitive를 topology에서 정리</td><td>초기 실험에서는 carve hard-prune를 추가하지 않음</td></tr>
+      </tbody>
+    </table></div>
+    <p>Transit evidence는 “여기에 있으면 안 된다”는 것은 알려주지만 “어느 surface로 이동해야 한다”는 방향은 제공하지 않는다.
+      따라서 모호한 xyz force 대신 opacity를 가역적으로 낮추는 것이 자연스럽다. 잘못 판정되면 이후 RGB gradient가 opacity를 회복할 수 있다.</p>
+  </section>
+
+  <section>
+    <h2>6. 기존 carve와 달라지는 점</h2>
+    <div class="two">
+      <div class="mini">
+        <h3 class="muted">현재 score-based carve</h3>
+        <ul>
+          <li>ray를 3D voxel의 transit/terminal count로 누적</li>
+          <li>수동 terminal weight가 포함된 위치 score</li>
+          <li>Gaussian score × whole opacity pressure</li>
+          <li>실제 ray 기여와 떨어진 상태로 동작 가능</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h3 class="surface">제안하는 direct loss</h3>
+        <ul>
+          <li>현재 depth KF에서 terminal-conditioned component를 직접 구성</li>
+          <li>density valley로 surface-connected와 detached를 분리</li>
+          <li><span class="mono">Tᵢ</span> 없이 primitive opacity를 직접 최적화; alpha와 NLL action 비교</li>
+          <li>persistent score·landmark·xyz attractor 불필요</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>7. 최소 구현 경계</h2>
+    <ol>
+      <li>기존 depth-bearing KF가 RGBD loss를 계산하는 mapping step에만 detector와 loss를 붙인다.</li>
+      <li>optimizer step마다 현재 RGBD view 중 하나만 round-robin으로 선택한다. 여러 view를 합산하는 step도 detector 호출은 1회다.</li>
+      <li>선택된 KF pose·online depth·intrinsics를 재사용하며 별도 depth rendering이나 renderer visibility를 요구하지 않는다.</li>
+      <li>Gaussian의 camera-space depth와 ray-projected covariance로 transmittance 없는 density mixture를 계산한다.</li>
+      <li><span class="mono">mᵢₖ</span>는 <span class="mono">no_grad</span>로 만들고, 같은 step에서 direct <span class="mono">sigmoid(_opacity)</span> 또는 NLL <span class="mono">softplus(_opacity)</span>를 기존 loss에 더한 뒤 폐기한다.</li>
+      <li>hard pruning, newborn gate, xyz force, persistent carve score는 모두 끈다.</li>
+      <li>strict causal 조건에서 control과 동일한 KF/view 및 optimizer budget으로 비교한다.</li>
+    </ol>
+    <p class="small"><b>현재 renderer의 <span class="mono">contribution_mass</span>는 재사용하지 않는다.</b>
+      이것은 <span class="mono">Σ Tᵢαᵢ</span>이므로 opacity shielding을 다시 도입한다. 현재 renderer가 내는 expected depth만으로는
+      component 분리가 자동으로 생기지 않으므로, 초기 구현은 Python/Torch의 Gaussian projection detector로 시작하고
+      비용이 확인된 뒤에만 auxiliary CUDA output을 고려한다.</p>
+  </section>
+
+  <section>
+    <h2>8. 구현과 첫 반증 실험</h2>
+    <div class="box good"><b>구현 완료.</b> VIGS mapping backend에 opt-in으로 연결했다.
+      detector는 coarse ray cell의 analytic Gaussian depth-bin mass를 <span class="mono">no_grad</span>로 구성하고,
+      현재 step의 mask에만 primitive opacity penalty를 적용한다. persistent score, <span class="mono">Tᵢ</span>, xyz force,
+      hard prune는 사용하지 않는다.</div>
+    <p class="small">Implementation: <code>vigs/gaussian/utils/detached_opacity.py</code> ·
+      backend hook: <code>vigs/gs_backend.py</code> · runner: <code>exp70_axes/run_detached_opacity.sh</code> ·
+      tests: <code>exp70_axes/test_detached_opacity.py</code></p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th>설정</th><th>held-out PSNR / SSIM / LPIPS</th><th>online loop</th></tr></thead>
+      <tbody>
+        <tr><td>A0</td><td>strict control</td><td><b>27.013</b> / .86539 / .24709</td><td>100.416 s</td></tr>
+        <tr><td>A1</td><td>detector, λ=0</td><td class="detach"><b>25.604</b> / .80681 / .33630</td><td>100.503 s</td></tr>
+        <tr><td>A2</td><td>mask + direct <span class="mono">oᵢ</span>, λ=.002</td><td><b>27.312</b> / .87043 / .24289</td><td>100.431 s</td></tr>
+        <tr><td>A3</td><td>mask + <span class="mono">softplus(θᵢ)</span>, λ=.002</td><td><b>27.229</b> / <b>.87172</b> / <b>.23645</b></td><td>100.447 s</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">aria1253 전체 1303 frame, pure-online strict streaming, fixed 1.5× budget,
+      final-frame 뒤 optimizer update 0회. 각 arm은 seed0 단일 run이다. A2가 PSNR 최고이고 A3가 SSIM/LPIPS 최고이므로,
+      실제 데이터에서는 아직 NLL이 direct opacity penalty보다 우월하다고 말할 수 없다.</p>
+
+    <h3>8.1 Detector와 action은 실제로 작동했는가?</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th>호출</th><th>selected / projected</th><th>control gauge 정렬 뒤 global footprint</th><th>scale &gt; 1 m</th></tr></thead>
+      <tbody>
+        <tr><td>A0 control</td><td>—</td><td>—</td><td>513.27</td><td>27</td></tr>
+        <tr><td>A2 alpha</td><td>244</td><td>75,000 / 2,800,409 (2.678%)</td><td>379.97 (−26.0%)</td><td>27</td></tr>
+        <tr><td>A3 NLL</td><td>236</td><td>74,093 / 2,806,064 (2.640%)</td><td>346.03 (−32.6%)</td><td>18</td></tr>
+      </tbody>
+    </table></div>
+    <p>Detector는 모든 Gaussian을 free space로 누르지 않고 약 2.6–2.7%만 선택했다. A2/A3 trajectory는
+      control에 Sim3 정렬했을 때 median residual 4.0/5.3 mm, scale 1.0038/0.9964라 global footprint 비교의
+      gauge 차이도 작다. 따라서 <b>opacity action이 적용되고 giant-splat을 만들지 않았다는 positive signal</b>은 있다.
+      하지만 global footprint 감소는 floater-specific metric이 아니다.</p>
+
+    <h3>8.2 반례와 현재 판정</h3>
+    <div class="box warn"><b>A1 detector-only는 timing control이 되지 못했다.</b>
+      λ=0인데 trajectory Sim3 scale이 .2506, median residual이 1.25 m로 붕괴했고, view pool과 PGBA 경로도
+      다른 arm과 갈라졌다. 이 strict streaming 구현은 작은 GPU timing 차이가 tracking/mapping interleaving을
+      바꾸므로 단일 run의 dB 차이를 순수 loss 효과로 해석하면 안 된다.</div>
+    <ul>
+      <li><b>Implementation PASS:</b> 43개 detector/gradient/기존 carve 회귀 test 통과. 선택된 row의 opacity만 gradient를 받고 xyz는 받지 않는다.</li>
+      <li><b>1.5× baseline quality feasibility PASS:</b> active A2/A3 둘 다 zero-tail held-out 27 dB를 유지했다.</li>
+      <li><b>1.5× baseline runtime PASS:</b> control 대비 전체 loop 차이는 +0.015/+0.031 s. 100k Gaussian microbenchmark는 detector 1.17 ms/call, peak allocation 약 94 MB였다.</li>
+      <li><b>NLL-vs-alpha:</b> analytic gradient는 NLL이 high-opacity saturation을 제거하지만, 아래 manual-region 결과에서는 direct alpha가 더 일관되게 개선됐다.</li>
+      <li><b>Floater/geometry single-seed positive:</b> FastMRI의 aria1253 manual-region GT를 복구해 평가한 결과 direct alpha는 erosion/nominal/dilation 모두에서 visible floater를 줄였다. 반복 seed 전까지 범용 PASS로 확장하지 않는다.</li>
+    </ul>
+    <div class="box good"><b>8.3 복구된 manual-region GT 평가.</b> ORB-frame voxel mask와 ORB keyframe trajectory를
+      FastMRI에서 복구하고, 각 VIGS run을 trajectory Umeyama Sim3로 사후 정합했다. control/alpha/NLL의
+      alignment median은 2.71/2.95/2.17 cm, p90은 4.42/4.89/3.73 cm였다.</div>
+    <p><b>세 mask는 정합·경계 오차에 대한 민감도 검사다.</b> Nominal은 원래 수동 floater 영역,
+      eroded는 경계를 1 voxel(7.5 cm) 안쪽으로 줄인 확실한 core, dilated는 1 voxel 바깥으로 넓혀
+      경계 주변까지 포함한 영역이다. 따라서 세 범위에서 같은 방향이면 특정 mask 경계 선택만으로 생긴
+      개선일 가능성이 낮다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th>eroded visible (op&gt;.3)</th><th>nominal visible</th><th>dilated visible</th><th>nominal opacity-support</th><th>nominal opacity-area-support</th></tr></thead>
+      <tbody>
+        <tr><td>control</td><td>83</td><td>174</td><td>427</td><td>202.46</td><td>.8905</td></tr>
+        <tr><td>direct alpha</td><td><b>73 (−12.0%)</b></td><td><b>148 (−14.9%)</b></td><td><b>388 (−9.1%)</b></td><td><b>179.24 (−11.5%)</b></td><td><b>.8306 (−6.7%)</b></td></tr>
+        <tr><td>NLL</td><td>97 (+16.9%)</td><td>156 (−10.3%)</td><td>403 (−5.6%)</td><td>198.05 (−2.2%)</td><td>.9113 (+2.3%)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Direct alpha는 mask erosion/dilation에 관계없이 visible count와 support 지표를 모두 줄여
+      <b>단일-seed floater efficacy positive</b>다. NLL은 nominal/dilated visible count는 줄였지만 eroded core와
+      nominal opacity-area-support가 악화해 alpha보다 낫지 않았다. detector-only arm은 alignment median 1.06 m로
+      붕괴했으므로 region count를 해석하지 않는다.</p>
+    <div class="box warn"><b>1.5× baseline 한정 결론:</b> score-free loss는 27 dB·시간 경계 안에서 동작하며,
+      direct alpha는 manual-region floater를 일관되게 9–15% 줄였다. 반면 NLL 우월성은 기각되고,
+      이 결과가 final v7 1×로 전이되는지는 아래 교정 실험 전까지 미확인이었다.</div>
+    <p class="small">Raw evidence:
+      <a href="evidence/exp70_aria1253_full_seed0_summary.json">4-arm held-out / telemetry / PLY audit</a> ·
+      <a href="evidence/exp70_aria1253_manual_region.json">manual-region Sim3 evaluation</a></p>
+
+    <h3>8.4 교정 실험: final v7 RTX 5090, original 1×</h3>
+    <div class="box good"><b>요청한 replacement 조건을 별도로 실행했다.</b> exp69 final-v7의 RTX 5090
+      hardware profile과 original timestamp pacing(약 20 FPS)은 유지했다. 기존 score-based causal carve는
+      flag 자체를 제거해 <span class="mono">CAUSAL_CARVE_DONE enabled=False</span>를 확인했고, final-v7의
+      terminal dust-GC와 EOS pose rematuration은 세 arm에 공통으로 유지했다. 따라서 이것은
+      <b>final-v7 final-map 비교</b>이며, EOS update가 있는 만큼 strict zero-tail 결과는 아니다.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th>held-out PSNR / SSIM / LPIPS</th><th>control ΔPSNR</th><th>stream / total updates</th><th>stream / total loop</th><th>EOS rematuration</th></tr></thead>
+      <tbody>
+        <tr><td>control</td><td><b>28.148</b> / <b>.88466</b> / <b>.21726</b></td><td>—</td><td>5,910 / 7,326</td><td>69.064 / 73.631 s</td><td>1,416 / 4.57 s</td></tr>
+        <tr><td>direct alpha, λ=.002</td><td>27.706 / .87662 / .22720</td><td class="detach"><b>−0.441 dB</b></td><td>6,089 / 6,089 (+3.0%)</td><td>69.098 / 69.098 s</td><td>0 / 0.00 s</td></tr>
+        <tr><td>NLL, λ=.002</td><td>27.792 / .87608 / .22868</td><td class="detach"><b>−0.356 dB</b></td><td>5,956 / 6,340 (+0.8%)</td><td>69.066 / 70.263 s</td><td>384 / 1.20 s</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box warn"><b>Accounting correction.</b> 처음에는 total replay 7,326/6,089/6,340을 직접
+      비교해 detector가 update를 16.9/13.5% 줄였다고 잘못 해석했다. 그러나 total에는 arm마다 다른
+      EOS rematuration 1,416/0/384회가 들어 있다. 이를 빼면 streaming replay는
+      <b>5,910/6,089/5,956</b>으로 alpha/NLL이 오히려 +3.0/+0.8%이며, pre-EOS 시간도
+      69.064/69.098/69.066초로 사실상 같다.</div>
+    <p>따라서 새 detector/loss는 이 실험에서 실시간 mapping budget을 유의미하게 잠식하지 않았다.
+      100k Gaussian microbenchmark도 detector 1.17 ms/call이고 실제 호출은 226–227회뿐이었다.
+      아래의 품질·geometry 악화는 단순 compute tax로 설명할 수 없으며, opacity action이 만든 optimization
+      path 변화와 arm별 adaptive EOS rematuration 차이를 분리해야 한다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Arm</th><th>eroded op&gt;.3</th><th>nominal op&gt;.3</th><th>dilated op&gt;.3</th><th>align median / p90</th><th>nominal opacity-area support</th></tr></thead>
+      <tbody>
+        <tr><td>control</td><td>85</td><td><b>148</b></td><td><b>383</b></td><td>2.06 / 3.74 cm</td><td>1.2751</td></tr>
+        <tr><td>direct alpha</td><td>83 (−2.4%)</td><td class="detach"><b>161 (+8.8%)</b></td><td class="detach"><b>401 (+4.7%)</b></td><td>2.47 / 4.75 cm</td><td><b>1.0517 (−17.5%)</b></td></tr>
+        <tr><td>NLL</td><td>85 (0.0%)</td><td class="detach"><b>164 (+10.8%)</b></td><td class="detach"><b>407 (+6.3%)</b></td><td>2.25 / 4.32 cm</td><td>1.2231 (−4.1%)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Alpha는 확실한 eroded core에서 2개만 줄었고 nominal/dilated count는 증가했다. NLL도 core는
+      동일하고 두 넓은 mask에서 악화했다. 정합 residual은 세 arm 모두 2.1–2.5 cm로 비교 가능한 범위다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Control gauge global audit</th><th>control</th><th>direct alpha</th><th>NLL</th></tr></thead>
+      <tbody>
+        <tr><td>scale &gt; 1 m</td><td><b>1</b></td><td class="detach"><b>206</b></td><td class="detach"><b>56</b></td></tr>
+        <tr><td>opacity-area</td><td><b>218.78</b></td><td class="detach"><b>1,585.56</b></td><td class="detach"><b>1,270.27</b></td></tr>
+      </tbody>
+    </table></div>
+    <div class="box bad"><b>최종 판정 — 현재 final-v7 1× 통합은 NO-GO.</b>
+      1.5× baseline의 alpha 개선은 최종 1× 시스템으로 전이되지 않았다. 두 action 모두 품질이 낮아지고,
+      nominal/dilated floater와 giant splat이 증가했다. 다만 연산량이 원인은 아니므로 다음 우선순위는
+      detector fuse가 아니라 <b>EOS rematuration을 끄고 online update 수·view 순서를 고정한 A/B</b>다.
+      그 조건에서만 alpha/NLL action 자체가 geometry를 악화시키는지 판단할 수 있다.</div>
+    <p class="small">Corrected evidence:
+      <a href="evidence/exp70_v7_1x_legacyoff_seed0_summary.json">final-v7 1× held-out / replay / region-GT summary</a></p>
+  </section>
+
+  <section>
+    <h2>9. 논문 포지셔닝의 경계</h2>
+    <p>Empty-space density 억제 자체는 기존 연구에 있다. 예를 들어
+      <a href="https://openaccess.thecvf.com/content/CVPR2022/papers/Rematas_Urban_Radiance_Fields_CVPR_2022_paper.pdf">Urban Radiance Fields</a>와
+      <a href="https://arxiv.org/pdf/2404.12385">MeshLRM</a>도 camera–surface 구간을 제약한다.
+      따라서 contribution 후보는 다음 결합에 있다.</p>
+    <div class="box bad"><b>Detachment-aware, primitive-level, causal:</b>
+      terminal-conditioned density topology로 surface-connected support를 보호하고,
+      현재 KF의 일회성 detached label을 visibility-independent primitive opacity penalty로 바꾸며,
+      online replay 자체가 multi-view evidence를 누적하는 score-free opacity-to-pruning 과정.</div>
+    <p class="small">Empty-space NLL 또는 opacity suppression 자체는 contribution으로 주장할 수 없다.
+      핵심 후보는 <b>surface inflation을 보존하는 detachment 판별</b>과 그것을 별도 3D score 없이
+      incremental KF optimization에 결합하는 방식이다.</p>
+  </section>
+
+  <footer>
+    exp70 · score-free detached opacity loss · 2026-09-02<br>
+    선행 문제 정의: <a href="exp70_detached_floater_problem_formulation.html">exp70 detached floater problem formulation</a><br>
+    1.5× baseline의 direct-alpha 개선은 final-v7 1×에서 재현되지 않았다. 현재 1× 통합 recipe는 NO-GO다.
+  </footer>
+</main>
+</body>
+</html>

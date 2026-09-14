@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>View-set 구성과 Budget-aware 학습 기회 배분 — exp66 워킹노트</title>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --paper: #14121a;
+        --panel: #1c1926;
+        --panel-2: #221e2d;
+        --ink: #e9e5f2;
+        --ink-soft: #a79fb8;
+        --line: #3a324d;
+        --accent: #a995df;
+        --obs: #7fb8a8;
+        --hyp: #e0a85e;
+        --proposal: #8da8e6;
+        --open: #dc7f77;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --paper: #14121a;
+      --panel: #1c1926;
+      --panel-2: #221e2d;
+      --ink: #e9e5f2;
+      --ink-soft: #a79fb8;
+      --line: #3a324d;
+      --accent: #a995df;
+      --obs: #7fb8a8;
+      --hyp: #e0a85e;
+      --proposal: #8da8e6;
+      --open: #dc7f77;
+    }
+
+    :root {
+      --paper: #f5f3f9;
+      --panel: #fcfaff;
+      --panel-2: #f0ecf7;
+      --ink: #221e2c;
+      --ink-soft: #6f6880;
+      --line: #dfd9ec;
+      --accent: #6b4fa0;
+      --obs: #336b5c;
+      --hyp: #97620f;
+      --proposal: #385ea0;
+      --open: #a5432f;
+      --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding: 52px 24px 80px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 38px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      padding-bottom: 26px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { font-family: var(--serif); }
+    h1 {
+      margin: 0;
+      font-size: clamp(27px, 4vw, 36px);
+      font-weight: 620;
+      line-height: 1.28;
+      letter-spacing: -.015em;
+      text-wrap: balance;
+    }
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-size: 22px;
+      font-weight: 620;
+      line-height: 1.4;
+    }
+    h3 { margin: 4px 0 0; font-size: 17px; font-weight: 620; }
+    p { margin: 0; }
+    .dek { max-width: 73ch; color: var(--ink-soft); font-size: 15.5px; }
+    section { display: flex; flex-direction: column; gap: 16px; }
+    .prose { max-width: 76ch; font-size: 14.8px; }
+    strong { font-weight: 680; }
+    code {
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: var(--panel);
+      font-family: var(--mono);
+      font-size: .9em;
+    }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    .pill {
+      flex: 0 0 auto;
+      padding: 2px 9px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .pill.obs { color: var(--obs); border-color: var(--obs); }
+    .pill.hyp { color: var(--hyp); border-color: var(--hyp); }
+    .pill.proposal { color: var(--proposal); border-color: var(--proposal); }
+    .pill.open { color: var(--open); border-color: var(--open); }
+
+    .callout {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 17px 20px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 14.5px;
+    }
+    .callout.obs { border-color: var(--obs); }
+    .callout.hyp { border-color: var(--hyp); }
+    .callout.proposal { border-color: var(--proposal); }
+    .callout.open { border-color: var(--open); }
+    .callout .label {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10.8px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .callout.obs .label { color: var(--obs); }
+    .callout.hyp .label { color: var(--hyp); }
+    .callout.proposal .label { color: var(--proposal); }
+    .callout.open .label { color: var(--open); }
+
+    .equation {
+      overflow-x: auto;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel-2);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.8;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .equation .sub { color: var(--ink-soft); font-size: 12px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 17px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 14px;
+    }
+    .card .num {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .05em;
+    }
+    .card h3 { margin: 0; }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 10px;
+      align-items: stretch;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+    .flow .node {
+      display: flex;
+      min-height: 105px;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--paper);
+      text-align: center;
+      font-size: 13px;
+    }
+    .flow .node strong { font-size: 14px; }
+    .flow .arrow { align-self: center; color: var(--ink-soft); font-family: var(--mono); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th, td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 620;
+      letter-spacing: .045em;
+      text-transform: uppercase;
+    }
+    tr:last-child td { border-bottom: 0; }
+    ol, ul { margin: 0; padding-left: 22px; }
+    li + li { margin-top: 8px; }
+    .water {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+    .tank {
+      position: relative;
+      min-height: 170px;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 6px 6px;
+      background: var(--paper);
+    }
+    .tank .fill {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: var(--fill);
+      border-top: 1px solid var(--proposal);
+      background: color-mix(in srgb, var(--proposal) 22%, transparent);
+    }
+    .tank .tank-label {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      font-size: 12.5px;
+      text-align: center;
+    }
+    .tank .gain { color: var(--ink-soft); font-family: var(--mono); font-size: 11px; }
+    .caption { color: var(--ink-soft); font-size: 12.5px; text-align: center; }
+    .status-line {
+      padding: 14px 18px;
+      border: 1px dashed var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+    .status-line strong { color: var(--ink); }
+    .refs { font-size: 13px; color: var(--ink-soft); }
+    footer {
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 11.5px;
+    }
+    @media (max-width: 720px) {
+      body { padding: 34px 16px 60px; }
+      .grid-2, .water { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow .arrow { transform: rotate(90deg); justify-self: center; }
+      h2 { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">exp66 부속 · scheduler theory working note · 2026-08-25</span>
+    <h1>View-set 구성과 Budget-aware 학습 기회 배분</h1>
+    <p class="dek">
+      Dense RGB가 keyframe-only보다 빨리 수렴했다는 관측에서 출발해, 지금까지 논의한
+      Fisher/coverage, gradient alignment, view admission, replay 순서와 GPU budget 배분을
+      하나의 문제 구조로 정리한다. 이 문서는 <strong>설계 워킹노트</strong>이며, 수식의
+      대부분은 아직 exp66에서 직접 검증되지 않았다.
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="pill obs">관측 경계</span> 지금 확인된 것과 아직 모르는 것</h2>
+    <div class="grid-2">
+      <div class="callout obs">
+        <span class="label">관측된 사실</span>
+        <p>동일한 26k-step 평가에서 dense 비중이 커질수록 held-out PSNR이 높았고, keyframe 비중을 높인 arm은 단조롭게 낮아졌다.</p>
+        <p>별도의 novelty/coverage 우선 sampler는 초반 수렴을 늦췄거나 최종 품질을 악화한 사례가 있다.</p>
+      </div>
+      <div class="callout open">
+        <span class="label">아직 열린 질문</span>
+        <p>Dense의 이점이 view-set의 구성 때문인지, sampling 빈도 때문인지, 또는 둘의 상호작용인지는 완전히 분리되지 않았다.</p>
+        <p>30 fps 전체가 최적인지, frame마다 몇 번의 update가 필요한지, 그 값이 장면을 넘어 일반화되는지는 모른다.</p>
+      </div>
+    </div>
+    <div class="callout hyp">
+      <span class="label">현재 가장 중요한 정정</span>
+      <p>
+        <strong>“정보가 새로운 view”와 “지금 한 step 학습했을 때 빨리 좋아지는 view”는 같은 개념이 아니다.</strong>
+        Fisher/coverage는 장기 observability와 dataset 구성을 설명하는 데 가깝고, 즉시 수렴 속도는 residual,
+        gradient 방향, optimizer 상태와 replay 정도까지 영향을 받는다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">문제 분해</span> 서로 다른 두 결정을 분리한다</h2>
+    <div class="grid-2">
+      <article class="card">
+        <span class="num">PROBLEM A · VIEW-SET / ADMISSION</span>
+        <h3>30개 중 어떤 관측을 지도 학습 pool에 남길 것인가?</h3>
+        <p>목표는 frame 수 자체를 늘리는 것이 아니라, pose가 믿을 만하고 서로 중복되지 않으면서 장면과 평가 분포를 잘 대표하는 관측 집합을 만드는 것이다.</p>
+        <p><strong>주된 도구:</strong> Fisher/coverage, viewing-direction novelty, overlap, pose confidence, coreset.</p>
+      </article>
+      <article class="card">
+        <span class="num">PROBLEM B · UPDATE ALLOCATION</span>
+        <h3>남긴 관측 중 다음 optimizer update를 누구에게 줄 것인가?</h3>
+        <p>목표는 고정 GPU 시간 안에서 새 frame의 첫 update와 기존 frame의 replay 사이에 학습 기회를 배분하는 것이다.</p>
+        <p><strong>주된 도구:</strong> uniform reshuffling, residual/learning progress, gradient alignment, 실제 ms당 한계 이득.</p>
+      </article>
+    </div>
+    <div class="flow" aria-label="view admission과 update allocation 흐름">
+      <div class="node"><strong>30 fps 입력</strong><span>raw causal RGB<br>+ pose/confidence</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>Active view-set</strong><span>coverage가 중복되면 압축<br>새로운 관측은 admission</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><strong>GPU update queue</strong><span>첫 학습 vs replay를<br>한계 이득/ms로 경쟁</span></div>
+    </div>
+    <div class="callout proposal">
+      <span class="label">역할 배치</span>
+      <p><strong>CONVERGE/Fisher는 주로 Problem A</strong>에, validation-gradient/learning-progress는 주로 <strong>Problem B</strong>에 배치한다. Novelty-only로 두 문제를 동시에 풀려고 하면 새 방향만 연속 선택하는 편향이 생길 수 있다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill hyp">수학적 배경</span> Dense set과 한 장씩의 novelty는 왜 다를 수 있나</h2>
+    <p class="prose">
+      고정된 view-set <em>D</em>의 평균 loss와 gradient를 다음처럼 둔다. Uniform sampling을 하면
+      매 step의 gradient는 이 평균 gradient의 unbiased estimator가 된다.
+    </p>
+    <div class="equation">
+      L<sub>D</sub>(θ) = (1/|D|) Σ<sub>v∈D</sub> ℓ<sub>v</sub>(θ)
+      &nbsp;&nbsp;,&nbsp;&nbsp;
+      g<sub>D</sub> = (1/|D|) Σ<sub>v∈D</sub> g<sub>v</sub>
+    </div>
+    <p class="prose">
+      Dense set의 개별 frame gradient가 모두 evaluation gradient와 잘 맞을 필요는 없다. 여러 시점의
+      gradient를 평균했을 때 편향과 noise가 상쇄되어 <em>g<sub>D</sub></em>가 전체 장면 목표에 가까워질 수 있다.
+      반대로 매번 가장 novel한 한 장만 고르면 이 평균을 따르지 않고, 시간에 따라 이동하는
+      novelty-weighted objective를 최적화한다.
+    </p>
+    <div class="equation">
+      Uniform: E[g<sub>t</sub>] = g<sub>D</sub>
+      &nbsp;&nbsp; / &nbsp;&nbsp;
+      Novelty-first: E[g<sub>t</sub>] = Σ<sub>v</sub> q<sub>t</sub>(v)g<sub>v</sub>, &nbsp; q<sub>t</sub> ≠ 1/|D|
+    </div>
+    <p class="prose">
+      국소 선형화에서는 set-level Gauss–Newton/Fisher 행렬
+      <em>H<sub>D</sub> ≈ |D|<sup>−1</sup>ΣJ<sub>v</sub><sup>T</sup>W<sub>v</sub>J<sub>v</sub></em>의
+      spectrum이 수렴에 영향을 준다. Dense view가 기존에 약했던 방향을 보강하면 conditioning이 좋아질 수
+      있지만, 중복 frame을 단순히 늘리는 것만으로는 보장되지 않는다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">View-set</span> 최종 정책은 “몇 fps”로 고정하지 않는다</h2>
+    <div class="callout proposal">
+      <span class="label">원칙</span>
+      <p>
+        <code>K=2,4,8,16,30</code> sweep은 dense 효과의 포화 지점을 확인하는 <strong>진단 실험</strong>이다.
+        최종 online 정책의 하이퍼파라미터를 “8 fps”로 고정하기 위한 실험이 아니다.
+      </p>
+    </div>
+    <p class="prose">
+      실제 정책에서는 raw frame을 보관하는 비용과 optimizer update 비용을 구분한다. CPU 메모리에 frame을
+      보관하는 비용이 작다면 30장을 받아도 되지만, GPU 학습에서 실제로 기회를 받은 frame만 effective view-set이 된다.
+      따라서 active set의 크기는 아래 두 방식 중 하나로 정할 수 있다.
+    </p>
+    <div class="grid-2">
+      <article class="card">
+        <span class="num">OPTION A · HARD ACTIVE-SET</span>
+        <h3>Memory/latency cap으로 최대 M개 유지</h3>
+        <p>새 frame의 marginal coverage가 기존의 가장 중복된 frame보다 클 때 교체한다. M은 fps가 아니라 메모리·조회 지연 한계로 정한다.</p>
+      </article>
+      <article class="card">
+        <span class="num">OPTION B · UNIFIED ACTION</span>
+        <h3>첫 학습과 replay를 같은 budget에서 경쟁</h3>
+        <p>아직 안 쓴 frame의 첫 update도 하나의 action, 기존 frame의 재학습도 하나의 action으로 본다. 한계 이득이 0이면 자동으로 선택되지 않아 별도의 K가 필요 없다.</p>
+      </article>
+    </div>
+    <div class="callout hyp">
+      <span class="label">현재 권장 해석</span>
+      <p>
+        개념적으로는 Option B가 가장 깔끔하다. 구현 안정성을 위해서는 bounded active buffer를 함께 두되,
+        그 크기는 최종 품질을 직접 튜닝한 fps가 아니라 시스템 메모리/latency cap으로 둔다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">필요 iteration</span> 미리 아는 상수가 아니라 포화 속도를 추정한다</h2>
+    <p class="prose">
+      frame <em>v</em>가 <em>n</em>번의 학습 기회를 받았을 때 얻는 누적 이득을 설명용으로 다음처럼 근사한다.
+    </p>
+    <div class="equation">
+      G<sub>v</sub>(n) = A<sub>v</sub>(1 − exp(−n/τ<sub>v</sub>))
+      <br>
+      <span class="sub">A<sub>v</sub>: 총 잠재가치 · τ<sub>v</sub>: 그 가치를 흡수하는 데 필요한 속도 상수</span>
+    </div>
+    <div class="equation">
+      MG<sub>v</sub>(n) = dG<sub>v</sub>/dn = (A<sub>v</sub>/τ<sub>v</sub>) exp(−n/τ<sub>v</sub>)
+      <br>
+      <span class="sub">같은 frame에 기회를 더 줄수록 다음 한 번의 이득은 감소한다.</span>
+    </div>
+    <p class="prose">
+      하지만 <em>A<sub>v</sub></em>와 <em>τ<sub>v</sub></em>를 사전에 정확히 알 수는 없다.
+      첫 구현에서는 한두 번의 probe update 후 실제 reference/neighbor loss 감소량을 측정하고 EMA로 갱신한다.
+    </p>
+    <div class="equation">
+      m̂<sub>v</sub>(t) = EMA[(L<sub>R</sub>(θ<sub>before</sub>) − L<sub>R</sub>(θ<sub>after</sub>)) / GPU-ms]
+    </div>
+    <div class="callout open">
+      <span class="label">모델의 한계</span>
+      <p>
+        3DGS 파라미터는 view 사이에서 공유된다. 따라서 한 frame을 직접 학습하지 않아도 인접 frame update로
+        그 loss가 내려갈 수 있다. 위 곡선은 독립 frame 모델이 아니라 설명용 근사이며, 실제 추정 단위는
+        frame 하나보다 visible-Gaussian/view-direction이 비슷한 <strong>view cluster</strong>가 더 타당할 수 있다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">Water-filling</span> “모두에게 같은 횟수” 대신 한계 이득을 맞춘다</h2>
+    <p class="prose">
+      Water-filling은 제한된 자원을 여러 대상에 나눌 때, 다음 한 단위를 넣어서 얻는 이득이 큰 곳부터 채우는
+      고전적인 자원배분 비유다. 여기서 물은 GPU 시간이고, 각 통은 view 또는 view cluster다.
+    </p>
+    <div class="water" aria-label="water filling 직관 그림">
+      <div class="tank" style="--fill: 70%">
+        <div class="fill"></div>
+        <div class="tank-label"><strong>View A</strong><span>초기 이득 큼<br>여러 번 배정</span><span class="gain">현재 MG/ms = μ</span></div>
+      </div>
+      <div class="tank" style="--fill: 42%">
+        <div class="fill"></div>
+        <div class="tank-label"><strong>View B</strong><span>빨리 포화<br>적게 배정</span><span class="gain">현재 MG/ms = μ</span></div>
+      </div>
+      <div class="tank" style="--fill: 10%">
+        <div class="fill"></div>
+        <div class="tank-label"><strong>View C</strong><span>비싸거나 가치 낮음<br>거의 미배정</span><span class="gain">초기 MG/ms ≤ μ</span></div>
+      </div>
+    </div>
+    <p class="caption">실제로 수위를 맞추는 것이 아니라, 선택된 대상들의 “다음 GPU 1 ms당 기대 이득”이 같아질 때까지 배분한다.</p>
+    <div class="equation">
+      maximize Σ<sub>v</sub> G<sub>v</sub>(n<sub>v</sub>)
+      &nbsp;&nbsp; subject to &nbsp;&nbsp;
+      Σ<sub>v</sub> c<sub>v</sub>n<sub>v</sub> ≤ B
+    </div>
+    <div class="equation">
+      active view의 최적 조건: &nbsp; MG<sub>v</sub>(n<sub>v</sub>)/c<sub>v</sub> = μ
+      <br>
+      n<sub>v</sub><sup>*</sup> = τ<sub>v</sub>[log(A<sub>v</sub>/(μc<sub>v</sub>τ<sub>v</sub>))]<sub>+</sub>
+    </div>
+    <div class="callout hyp">
+      <span class="label">μ의 뜻</span>
+      <p>
+        <em>μ</em>는 GPU 시간의 그림자가격(shadow price)이다. Tracking queue가 밀리거나 deadline이 가까우면
+        μ를 높여 큰 이득의 update만 허용한다. Idle budget이 넉넉하면 μ를 낮춰 더 많은 view와 replay에 기회를 준다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">통합 scheduler</span> Novelty는 첫 기회의 prior, 실측 progress는 replay의 근거</h2>
+    <div class="equation">
+      U(v,t) = [m̂<sub>v</sub>(t) + λ<sub>t</sub>N(v | D<sub>t</sub>)] · p<sub>v</sub> / c<sub>v</sub>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항</th><th>의미</th><th>주된 역할</th><th>주의점</th></tr></thead>
+        <tbody>
+          <tr><td><code>N(v | D_t)</code></td><td>현재 set에 조건부인 coverage/view-direction novelty</td><td>아직 안 써본 frame의 첫 기회</td><td>단독 최대화하면 novelty-only 실패 반복 가능</td></tr>
+          <tr><td><code>m̂_v(t)</code></td><td>최근 reference 또는 neighbor loss의 실제 감소량</td><td>replay가 아직 가치 있는지 판단</td><td>final test set으로 측정하면 leakage</td></tr>
+          <tr><td><code>p_v</code></td><td>pose, blur, exposure 등 관측 신뢰도</td><td>잘못된 hard frame 차단</td><td>단순 residual은 pose error와 혼동</td></tr>
+          <tr><td><code>c_v</code></td><td>실측 render+backward+optimizer ms의 EMA</td><td>시간 budget에 맞춘 비교</td><td>step 수보다 wall-clock을 써야 함</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ol>
+      <li>도착 frame을 pose confidence와 최소 overlap 조건으로 먼저 거른다.</li>
+      <li>아직 안 쓴 frame에는 novelty 기반의 제한된 probe 기회를 준다.</li>
+      <li>probe 후에는 실제 learning progress를 EMA로 추정한다.</li>
+      <li>새 frame의 첫 기회와 기존 cluster의 replay를 동일한 <code>U(v,t)</code> queue에서 경쟁시킨다.</li>
+      <li>최대 utility가 현재 shadow price <em>μ(t)</em>보다 작으면 GPU를 tracking에 양보하거나 polish를 쉰다.</li>
+    </ol>
+    <div class="callout open">
+      <span class="label">아직 결정하지 않은 설계</span>
+      <p>
+        <em>m̂</em>를 reference loss 감소로 측정할지, 인접 view cluster loss 감소로 측정할지, 또는 저해상도
+        virtual Adam step으로 예측할지는 실측 비용과 상관 분석 후 결정한다. 현재 문서는 특정 구현을 채택하지 않는다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill open">과적합 방지</span> Scene-specific fps와 final-eval feedback을 피한다</h2>
+    <ul>
+      <li><strong>최종 정책에 fps 상수를 넣지 않는다.</strong> 카메라가 정지하면 적게, 빠르게 움직이면 많이 admission되는 내용 기반 규칙을 사용한다.</li>
+      <li><strong>Final fixed-eval은 scheduler에 사용하지 않는다.</strong> 별도의 causal reference buffer 또는 rotating anchor를 사용하고 최종 평가는 완전히 분리한다.</li>
+      <li><strong>Frame보다 view cluster를 배분 단위로 검토한다.</strong> 30 fps 인접 frame이 같은 정보로 30표를 얻는 것을 막는다.</li>
+      <li><strong>동일 rule을 여러 장면·속도·budget에 재튜닝 없이 적용한다.</strong> threshold를 장면별 PSNR로 맞추지 않고, normalization된 novelty와 ms당 learning progress를 사용한다.</li>
+      <li><strong>실험은 MSE-vs-GPU-ms로 비교한다.</strong> Gaussian 수와 view 수에 따라 step 비용이 달라지는 문제를 제거한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="pill proposal">검증 순서</span> Set 효과와 scheduler 효과를 먼저 분리한다</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>단계</th><th>고정</th><th>변경</th><th>알 수 있는 것</th></tr></thead>
+        <tbody>
+          <tr><td>A. 밀도 진단</td><td>RGB-only, uniform reshuffle, GPU-ms, 초기 map</td><td>nested K = 2/4/8/16/30</td><td>View-set 밀도의 포화와 underfit 구간. K는 최종 정책값이 아님.</td></tr>
+          <tr><td>B. 순서 분리</td><td>동일한 하나의 D<sub>K</sub></td><td>uniform / novelty / residual / mixed</td><td>같은 objective에서 sampling bias와 순서 효과</td></tr>
+          <tr><td>C. 상관 진단</td><td>동일 candidate, 동일 checkpoint</td><td>novelty, gradient alignment, 실제 one-step ΔMSE 기록</td><td>어떤 proxy가 즉시 수렴을 예측하는지</td></tr>
+          <tr><td>D. Adaptive policy</td><td>동일 rule, final eval 비사용</td><td>budget과 장면만 변경</td><td>고정 fps 없이 admission+replay가 일반화되는지</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="status-line">
+      <strong>현재 문서의 결론 수준:</strong> A–D는 실험 계획이다. Water-filling 곡선, utility 식,
+      cluster 단위 추정은 구현·검증 전의 제안이며 exp66 관측사실로 간주하지 않는다.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill hyp">한 문장 모델</span></h2>
+    <div class="callout hyp">
+      <span class="label">working hypothesis</span>
+      <p>
+        <strong>고정 fps로 dense frame을 모두 쓰는 것이 최종 목표가 아니다.</strong> Budget 안에서
+        비중복 관측에는 첫 학습 기회를 주고, 이미 선택된 view cluster에는 실측 한계 이득이 유지되는 동안만
+        replay를 배정하며, 모든 활성 action의 기대 품질 이득/GPU-ms가 비슷해지는 지점에서 멈춘다.
+      </p>
+    </div>
+  </section>
+
+  <section class="refs">
+    <h2>관련 근거와 연결</h2>
+    <ul>
+      <li><a href="../../reference/papers/Chen_Coverage_Optimization_for_Camera_View_Selection_CVPR_2026_paper.pdf">CONVERGE — Coverage Optimization for Camera View Selection</a>: Fisher gain을 directional coverage로 근사하는 Problem A의 핵심 연결.</li>
+      <li><a href="https://proceedings.mlr.press/v139/killamsetty21a.html">GRAD-MATCH</a>, <a href="https://ojs.aaai.org/index.php/AAAI/article/view/16988">GLISTER</a>: training/validation gradient를 근사하는 subset 및 update 선택.</li>
+      <li><a href="https://proceedings.neurips.cc/paper/2020/hash/e6385d39ec9394f2f3a354d9d2b88eec-Abstract.html">TracIn</a>: 한 training update가 reference/test loss에 미치는 1차 영향의 gradient-dot-product 근사.</li>
+      <li><a href="https://proceedings.mlr.press/v162/mindermann22a.html">RHO-LOSS</a>: hard/noisy sample과 실제로 learnable하고 worth-learning인 sample을 구분하는 online batch selection 관점.</li>
+      <li><a href="https://openaccess.thecvf.com/content/CVPR2024/html/Kheradmand_Accelerating_Neural_Field_Training_via_Soft_Mining_CVPR_2024_paper.html">Neural Field Soft Mining</a>: high-error 영역의 importance sampling을 통한 neural-field 수렴 가속 사례.</li>
+      <li><a href="https://arxiv.org/abs/2601.03024">SA-ResGS</a> (preprint): 강한 view dissimilarity가 multi-view overlap을 약화할 수 있다는 최근 관찰.</li>
+    </ul>
+  </section>
+
+  <footer>
+    exp66 · aria1253 · 2026-08-25 · conceptual working note · 관측사실과 제안 수식을 의도적으로 분리함<br>
+    다음 갱신 조건: K-density 통제 실험, novelty/alignment/actual-ΔMSE 상관 측정, 또는 adaptive admission/replay 구현 결과가 생길 때.
+  </footer>
+</main>
+</body>
+</html>

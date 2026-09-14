@@ -1,0 +1,1208 @@
+{
+  "rows": [
+    {
+      "name": "aria79_0",
+      "frames": 1303,
+      "budget_s": 65.09999891300686,
+      "adam_completed": 6537,
+      "adam_skipped": 1,
+      "input_fps": 20.00000033394567,
+      "pipeline": {
+        "online_wall_s": 65.119293,
+        "track_wall_ms": 35166.293,
+        "dispatch_wall_ms": 11851.694,
+        "idle_replay_wall_ms": 20464.261,
+        "gate_allowed": 2550.0,
+        "gate_allowed_tracking": 710.0,
+        "deadline_slack_ms_max": 54.437,
+        "reject_tracking": 63692.0,
+        "reject_model": 43317.0,
+        "reject_deadline": 1910.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 106,
+          "wall_ms": 8.609
+        },
+        "dense_interval_queue": {
+          "calls": 106,
+          "wall_ms": 4446.342
+        },
+        "frontend": {
+          "calls": 1303,
+          "wall_ms": 16789.477
+        },
+        "gs_mapping": {
+          "calls": 106,
+          "wall_ms": 250.572
+        },
+        "mapping_pose_gate": {
+          "calls": 19,
+          "wall_ms": 0.097
+        },
+        "motion_filter": {
+          "calls": 1303,
+          "wall_ms": 11317.088
+        },
+        "pgba_call_gs": {
+          "calls": 2,
+          "wall_ms": 850.797
+        },
+        "pgba_run": {
+          "calls": 2,
+          "wall_ms": 1113.726
+        }
+      },
+      "replay": {
+        "steps": "6261",
+        "active_candidates": "380",
+        "wall_ms_ema": "3.5031690463509353",
+        "selection_count_mean": "16.476315789473684",
+        "selection_count_last_to_first": "0.3121560780390195",
+        "model_pose_revision_observations": "2",
+        "model_rematuration_cycles": "2",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 185,
+        "fraction": 0.1419800460475825
+      },
+      "psnr": 26.177473403115307,
+      "heldout_views": 262,
+      "psnr_thirds": [
+        28.138497078555755,
+        27.546400749820403,
+        22.88536273349415
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.36503362151777136
+    },
+    {
+      "name": "aria79_1",
+      "frames": 1303,
+      "budget_s": 65.09999891300686,
+      "adam_completed": 6895,
+      "adam_skipped": 0,
+      "input_fps": 20.00000033394567,
+      "pipeline": {
+        "online_wall_s": 65.108229,
+        "track_wall_ms": 34492.74,
+        "dispatch_wall_ms": 11529.644,
+        "idle_replay_wall_ms": 20601.131,
+        "gate_allowed": 2580.0,
+        "gate_allowed_tracking": 675.0,
+        "deadline_slack_ms_max": 54.599,
+        "reject_tracking": 62660.0,
+        "reject_model": 45358.0,
+        "reject_deadline": 1557.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 106,
+          "wall_ms": 8.695
+        },
+        "dense_interval_queue": {
+          "calls": 106,
+          "wall_ms": 4434.142
+        },
+        "frontend": {
+          "calls": 1303,
+          "wall_ms": 16101.703
+        },
+        "gs_mapping": {
+          "calls": 106,
+          "wall_ms": 281.068
+        },
+        "mapping_pose_gate": {
+          "calls": 15,
+          "wall_ms": 0.075
+        },
+        "motion_filter": {
+          "calls": 1303,
+          "wall_ms": 11071.217
+        },
+        "pgba_call_gs": {
+          "calls": 3,
+          "wall_ms": 949.302
+        },
+        "pgba_run": {
+          "calls": 3,
+          "wall_ms": 1296.976
+        }
+      },
+      "replay": {
+        "steps": "6613",
+        "active_candidates": "404",
+        "wall_ms_ema": "3.0901685724128094",
+        "selection_count_mean": "16.36881188118812",
+        "selection_count_last_to_first": "0.3222013170272813",
+        "model_pose_revision_observations": "3",
+        "model_rematuration_cycles": "3",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 185,
+        "fraction": 0.1419800460475825
+      },
+      "psnr": 27.498560810817107,
+      "heldout_views": 262,
+      "psnr_thirds": [
+        29.40513380642595,
+        28.857003924490392,
+        24.270647157322276
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.38808837656099904
+    },
+    {
+      "name": "rpng/table_01",
+      "frames": 2506,
+      "budget_s": 83.53692960739136,
+      "adam_completed": 1882,
+      "adam_skipped": 1,
+      "input_fps": 29.986737743092217,
+      "pipeline": {
+        "online_wall_s": 83.548627,
+        "track_wall_ms": 64896.707,
+        "dispatch_wall_ms": 24498.706,
+        "idle_replay_wall_ms": 8265.546,
+        "gate_allowed": 496.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 36.473,
+        "reject_tracking": 116639.0,
+        "reject_model": 33975.0,
+        "reject_deadline": 13864.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 228,
+          "wall_ms": 23.513
+        },
+        "dense_interval_queue": {
+          "calls": 228,
+          "wall_ms": 9677.386
+        },
+        "frontend": {
+          "calls": 2506,
+          "wall_ms": 34444.506
+        },
+        "gs_mapping": {
+          "calls": 228,
+          "wall_ms": 588.155
+        },
+        "mapping_pose_gate": {
+          "calls": 157,
+          "wall_ms": 296.644
+        },
+        "motion_filter": {
+          "calls": 2506,
+          "wall_ms": 14216.387
+        },
+        "pgba_call_gs": {
+          "calls": 5,
+          "wall_ms": 2469.491
+        },
+        "pgba_run": {
+          "calls": 5,
+          "wall_ms": 2772.634
+        }
+      },
+      "replay": {
+        "steps": "1515",
+        "active_candidates": "460",
+        "wall_ms_ema": "9.767194768035402",
+        "selection_count_mean": "3.2934782608695654",
+        "selection_count_last_to_first": "0.3622641509433962",
+        "model_pose_revision_observations": "5",
+        "model_rematuration_cycles": "2",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 290,
+        "fraction": 0.11572226656025539
+      },
+      "psnr": 20.250045806763183,
+      "heldout_views": 502,
+      "psnr_thirds": [
+        21.086888472239178,
+        20.150605424435554,
+        19.50763248968981
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.22954091816367264
+    },
+    {
+      "name": "rpng/table_02",
+      "frames": 2914,
+      "budget_s": 97.16563606262207,
+      "adam_completed": 2413,
+      "adam_skipped": 1,
+      "input_fps": 29.979734791450415,
+      "pipeline": {
+        "online_wall_s": 97.175272,
+        "track_wall_ms": 78801.504,
+        "dispatch_wall_ms": 30340.821,
+        "idle_replay_wall_ms": 6254.79,
+        "gate_allowed": 511.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 36.954,
+        "reject_tracking": 142357.0,
+        "reject_model": 36214.0,
+        "reject_deadline": 17510.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 314,
+          "wall_ms": 36.089
+        },
+        "dense_interval_queue": {
+          "calls": 314,
+          "wall_ms": 13712.992
+        },
+        "frontend": {
+          "calls": 2914,
+          "wall_ms": 43917.749
+        },
+        "gs_mapping": {
+          "calls": 314,
+          "wall_ms": 804.756
+        },
+        "mapping_pose_gate": {
+          "calls": 242,
+          "wall_ms": 0.871
+        },
+        "motion_filter": {
+          "calls": 2914,
+          "wall_ms": 17629.195
+        },
+        "pgba_call_gs": {
+          "calls": 2,
+          "wall_ms": 1124.076
+        },
+        "pgba_run": {
+          "calls": 2,
+          "wall_ms": 1074.523
+        }
+      },
+      "replay": {
+        "steps": "2085",
+        "active_candidates": "625",
+        "wall_ms_ema": "9.17734047157927",
+        "selection_count_mean": "3.336",
+        "selection_count_last_to_first": "0.23897911832946636",
+        "model_pose_revision_observations": "2",
+        "model_rematuration_cycles": "2",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 299,
+        "fraction": 0.10260809883321895
+      },
+      "psnr": 16.643925252026076,
+      "heldout_views": 584,
+      "psnr_thirds": [
+        16.45097597073286,
+        16.479757864450672,
+        17.000200036855844
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.26824034334763946
+    },
+    {
+      "name": "rpng/table_03",
+      "frames": 7006,
+      "budget_s": 233.6047465801239,
+      "adam_completed": 6145,
+      "adam_skipped": 0,
+      "input_fps": 29.98654822964978,
+      "pipeline": {
+        "online_wall_s": 233.614124,
+        "track_wall_ms": 132852.525,
+        "dispatch_wall_ms": 30055.93,
+        "idle_replay_wall_ms": 47579.4,
+        "gate_allowed": 3351.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 36.669,
+        "reject_tracking": 314262.0,
+        "reject_model": 58060.0,
+        "reject_deadline": 138370.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 489,
+          "wall_ms": 72.536
+        },
+        "dense_interval_queue": {
+          "calls": 489,
+          "wall_ms": 20319.002
+        },
+        "frontend": {
+          "calls": 4096,
+          "wall_ms": 39993.602
+        },
+        "gs_mapping": {
+          "calls": 489,
+          "wall_ms": 1279.235
+        },
+        "mapping_pose_gate": {
+          "calls": 435,
+          "wall_ms": 1.643
+        },
+        "motion_filter": {
+          "calls": 4096,
+          "wall_ms": 21788.614
+        },
+        "pgba_call_gs": {
+          "calls": 7,
+          "wall_ms": 3942.672
+        },
+        "pgba_run": {
+          "calls": 7,
+          "wall_ms": 4210.688
+        }
+      },
+      "replay": {
+        "steps": "5793",
+        "active_candidates": "995",
+        "wall_ms_ema": "20.018887297351448",
+        "selection_count_mean": "5.822110552763819",
+        "selection_count_last_to_first": "0.029693251533742335",
+        "model_pose_revision_observations": "7",
+        "model_rematuration_cycles": "7",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 408,
+        "fraction": 0.058235797887524976
+      },
+      "psnr": 17.380831843606074,
+      "heldout_views": 1402,
+      "psnr_thirds": [
+        17.33141980619512,
+        17.330128751423935,
+        17.481052780559793
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.17755174875089222
+    },
+    {
+      "name": "rpng/table_04",
+      "frames": 6068,
+      "budget_s": 202.33982729911804,
+      "adam_completed": 5665,
+      "adam_skipped": 0,
+      "input_fps": 29.984210627160326,
+      "pipeline": {
+        "online_wall_s": 202.346981,
+        "track_wall_ms": 116020.475,
+        "dispatch_wall_ms": 27087.02,
+        "idle_replay_wall_ms": 43034.591,
+        "gate_allowed": 2776.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 36.186,
+        "reject_tracking": 268541.0,
+        "reject_model": 58368.0,
+        "reject_deadline": 101251.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 397,
+          "wall_ms": 53.65
+        },
+        "dense_interval_queue": {
+          "calls": 397,
+          "wall_ms": 16653.153
+        },
+        "frontend": {
+          "calls": 4096,
+          "wall_ms": 38886.837
+        },
+        "gs_mapping": {
+          "calls": 397,
+          "wall_ms": 1016.114
+        },
+        "mapping_pose_gate": {
+          "calls": 345,
+          "wall_ms": 1.24
+        },
+        "motion_filter": {
+          "calls": 4096,
+          "wall_ms": 20091.777
+        },
+        "pgba_call_gs": {
+          "calls": 8,
+          "wall_ms": 4447.4
+        },
+        "pgba_run": {
+          "calls": 8,
+          "wall_ms": 4979.826
+        }
+      },
+      "replay": {
+        "steps": "5256",
+        "active_candidates": "820",
+        "wall_ms_ema": "20.119935320614843",
+        "selection_count_mean": "6.409756097560976",
+        "selection_count_last_to_first": "0.05021030494216615",
+        "model_pose_revision_observations": "8",
+        "model_rematuration_cycles": "8",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 419,
+        "fraction": 0.06905075807514832
+      },
+      "psnr": 17.0406762700022,
+      "heldout_views": 1215,
+      "psnr_thirds": [
+        16.779228022069105,
+        16.588771987255708,
+        17.754028800681784
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.16896764887698332
+    },
+    {
+      "name": "rpng/table_05",
+      "frames": 6164,
+      "budget_s": 205.51649808883667,
+      "adam_completed": 6446,
+      "adam_skipped": 1,
+      "input_fps": 29.987860134401366,
+      "pipeline": {
+        "online_wall_s": 205.532263,
+        "track_wall_ms": 134901.363,
+        "dispatch_wall_ms": 32529.139,
+        "idle_replay_wall_ms": 43062.359,
+        "gate_allowed": 3468.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 37.417,
+        "reject_tracking": 251937.0,
+        "reject_model": 54854.0,
+        "reject_deadline": 56122.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 315,
+          "wall_ms": 39.907
+        },
+        "dense_interval_queue": {
+          "calls": 315,
+          "wall_ms": 13964.409
+        },
+        "frontend": {
+          "calls": 4096,
+          "wall_ms": 38256.709
+        },
+        "gs_mapping": {
+          "calls": 315,
+          "wall_ms": 987.812
+        },
+        "mapping_pose_gate": {
+          "calls": 261,
+          "wall_ms": 0.976
+        },
+        "motion_filter": {
+          "calls": 4096,
+          "wall_ms": 19436.272
+        },
+        "pgba_call_gs": {
+          "calls": 8,
+          "wall_ms": 5978.439
+        },
+        "pgba_run": {
+          "calls": 8,
+          "wall_ms": 6442.33
+        }
+      },
+      "replay": {
+        "steps": "6070",
+        "active_candidates": "628",
+        "wall_ms_ema": "10.63866082349365",
+        "selection_count_mean": "9.665605095541402",
+        "selection_count_last_to_first": "0.1125876707272056",
+        "model_pose_revision_observations": "8",
+        "model_rematuration_cycles": "7",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 478,
+        "fraction": 0.07754704737183647
+      },
+      "psnr": 21.160700138036397,
+      "heldout_views": 1234,
+      "psnr_thirds": [
+        21.785971367736224,
+        20.789025492331696,
+        20.90771907973058
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.12738336713995943
+    },
+    {
+      "name": "rpng/table_06",
+      "frames": 2767,
+      "budget_s": 92.24467062950134,
+      "adam_completed": 2459,
+      "adam_skipped": 3,
+      "input_fps": 29.985472126726727,
+      "pipeline": {
+        "online_wall_s": 92.259259,
+        "track_wall_ms": 71913.278,
+        "dispatch_wall_ms": 29163.862,
+        "idle_replay_wall_ms": 9094.758,
+        "gate_allowed": 684.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 36.948,
+        "reject_tracking": 120584.0,
+        "reject_model": 42934.0,
+        "reject_deadline": 7534.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 208,
+          "wall_ms": 21.682
+        },
+        "dense_interval_queue": {
+          "calls": 208,
+          "wall_ms": 9208.38
+        },
+        "frontend": {
+          "calls": 2767,
+          "wall_ms": 40628.414
+        },
+        "gs_mapping": {
+          "calls": 208,
+          "wall_ms": 632.492
+        },
+        "mapping_pose_gate": {
+          "calls": 134,
+          "wall_ms": 0.481
+        },
+        "motion_filter": {
+          "calls": 2767,
+          "wall_ms": 14850.55
+        },
+        "pgba_call_gs": {
+          "calls": 5,
+          "wall_ms": 2698.355
+        },
+        "pgba_run": {
+          "calls": 5,
+          "wall_ms": 3408.165
+        }
+      },
+      "replay": {
+        "steps": "2101",
+        "active_candidates": "420",
+        "wall_ms_ema": "6.921248854288599",
+        "selection_count_mean": "5.002380952380952",
+        "selection_count_last_to_first": "0.39712230215827343",
+        "model_pose_revision_observations": "5",
+        "model_rematuration_cycles": "3",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 385,
+        "fraction": 0.13913986266714853
+      },
+      "psnr": 21.44226164946685,
+      "heldout_views": 555,
+      "psnr_thirds": [
+        21.761131204141154,
+        22.362426405367643,
+        20.21483593602334
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.189873417721519
+    },
+    {
+      "name": "rpng/table_07",
+      "frames": 4784,
+      "phases": {},
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 499,
+        "fraction": 0.10430602006688963
+      }
+    },
+    {
+      "name": "rpng/table_08",
+      "frames": 8484,
+      "phases": {},
+      "imu_init_start_progress": {
+        "kf": 19,
+        "gaussians": 0,
+        "frame": 320,
+        "fraction": 0.03771805752003772
+      }
+    },
+    {
+      "name": "utmm/ego-centric-1",
+      "frames": 1535,
+      "budget_s": 51.14666438102722,
+      "adam_completed": 1772,
+      "adam_skipped": 0,
+      "input_fps": 29.992180693782153,
+      "pipeline": {
+        "online_wall_s": 51.912583,
+        "track_wall_ms": 23932.135,
+        "dispatch_wall_ms": 13714.165,
+        "idle_replay_wall_ms": 4283.082,
+        "gate_allowed": 457.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 38.417,
+        "reject_tracking": 38657.0,
+        "reject_model": 92985.0,
+        "reject_deadline": 263.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 45,
+          "wall_ms": 3.317
+        },
+        "dense_interval_queue": {
+          "calls": 45,
+          "wall_ms": 3262.211
+        },
+        "frontend": {
+          "calls": 1535,
+          "wall_ms": 12660.259
+        },
+        "gs_mapping": {
+          "calls": 45,
+          "wall_ms": 123.498
+        },
+        "mapping_pose_gate": {
+          "calls": 1,
+          "wall_ms": 0.009
+        },
+        "motion_filter": {
+          "calls": 1535,
+          "wall_ms": 6726.172
+        },
+        "pgba_call_gs": {
+          "calls": 1,
+          "wall_ms": 295.027
+        },
+        "pgba_run": {
+          "calls": 1,
+          "wall_ms": 615.58
+        }
+      },
+      "replay": {
+        "steps": "1442",
+        "active_candidates": "188",
+        "wall_ms_ema": "2.9999764292034294",
+        "selection_count_mean": "7.670212765957447",
+        "selection_count_last_to_first": "1.2922077922077924",
+        "model_pose_revision_observations": "1",
+        "model_rematuration_cycles": "1",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 618,
+        "fraction": 0.4026058631921824
+      },
+      "psnr": 19.125471842753424,
+      "heldout_views": 308,
+      "psnr_thirds": [
+        18.068788833988524,
+        19.99313952876072,
+        19.3229111236276
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.1532192339038305
+    },
+    {
+      "name": "utmm/ego-centric-2",
+      "frames": 1298,
+      "budget_s": 43.242632150650024,
+      "adam_completed": 1765,
+      "adam_skipped": 0,
+      "input_fps": 29.993548854322075,
+      "pipeline": {
+        "online_wall_s": 43.489997,
+        "track_wall_ms": 21527.063,
+        "dispatch_wall_ms": 10752.522,
+        "idle_replay_wall_ms": 4453.411,
+        "gate_allowed": 456.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 37.515,
+        "reject_tracking": 40633.0,
+        "reject_model": 65986.0,
+        "reject_deadline": 3042.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 53,
+          "wall_ms": 3.777
+        },
+        "dense_interval_queue": {
+          "calls": 53,
+          "wall_ms": 3744.445
+        },
+        "frontend": {
+          "calls": 1298,
+          "wall_ms": 9992.905
+        },
+        "gs_mapping": {
+          "calls": 53,
+          "wall_ms": 131.123
+        },
+        "mapping_pose_gate": {
+          "calls": 7,
+          "wall_ms": 0.047
+        },
+        "motion_filter": {
+          "calls": 1298,
+          "wall_ms": 5768.766
+        },
+        "pgba_call_gs": {
+          "calls": 2,
+          "wall_ms": 529.155
+        },
+        "pgba_run": {
+          "calls": 2,
+          "wall_ms": 1141.169
+        }
+      },
+      "replay": {
+        "steps": "1451",
+        "active_candidates": "456",
+        "wall_ms_ema": "3.222219736596031",
+        "selection_count_mean": "3.182017543859649",
+        "selection_count_last_to_first": "0.7974358974358974",
+        "model_pose_revision_observations": "2",
+        "model_rematuration_cycles": "2",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 397,
+        "fraction": 0.30585516178736516
+      },
+      "psnr": 17.979967639820785,
+      "heldout_views": 261,
+      "psnr_thirds": [
+        19.246752947226337,
+        19.557886759440105,
+        15.135263212795916
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.43972999035679844
+    },
+    {
+      "name": "utmm/ego-drive",
+      "frames": 1399,
+      "budget_s": 46.630266427993774,
+      "adam_completed": 1968,
+      "adam_skipped": 0,
+      "input_fps": 29.98052782217714,
+      "pipeline": {
+        "online_wall_s": 46.630494,
+        "track_wall_ms": 38667.989,
+        "dispatch_wall_ms": 18083.047,
+        "idle_replay_wall_ms": 3789.711,
+        "gate_allowed": 437.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 38.684,
+        "reject_tracking": 57217.0,
+        "reject_model": 20692.0,
+        "reject_deadline": 3859.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 77,
+          "wall_ms": 6.241
+        },
+        "dense_interval_queue": {
+          "calls": 77,
+          "wall_ms": 4243.681
+        },
+        "frontend": {
+          "calls": 1399,
+          "wall_ms": 25017.29
+        },
+        "gs_mapping": {
+          "calls": 77,
+          "wall_ms": 218.812
+        },
+        "mapping_pose_gate": {
+          "calls": 16,
+          "wall_ms": 0.08
+        },
+        "motion_filter": {
+          "calls": 1399,
+          "wall_ms": 8059.344
+        },
+        "pgba_call_gs": {
+          "calls": 1,
+          "wall_ms": 240.168
+        },
+        "pgba_run": {
+          "calls": 1,
+          "wall_ms": 647.503
+        }
+      },
+      "replay": {
+        "steps": "1598",
+        "active_candidates": "329",
+        "wall_ms_ema": "3.0990123086811545",
+        "selection_count_mean": "4.857142857142857",
+        "selection_count_last_to_first": "0.7371007371007371",
+        "model_pose_revision_observations": "1",
+        "model_rematuration_cycles": "1",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 131,
+        "fraction": 0.09363831308077197
+      },
+      "psnr": 20.975665550639196,
+      "heldout_views": 281,
+      "psnr_thirds": [
+        22.76775313438253,
+        22.083472672329155,
+        18.087556027351543
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.29427549194991054
+    },
+    {
+      "name": "utmm/fast-straight",
+      "frames": 332,
+      "budget_s": 11.039334535598755,
+      "adam_completed": 65,
+      "adam_skipped": 55,
+      "input_fps": 29.983691402105617,
+      "pipeline": {
+        "online_wall_s": 12.208005,
+        "track_wall_ms": 5830.874,
+        "dispatch_wall_ms": 3008.77,
+        "idle_replay_wall_ms": 0.0,
+        "gate_allowed": 0.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 37.991,
+        "reject_tracking": 12262.0,
+        "reject_model": 33501.0,
+        "reject_deadline": 0.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 6,
+          "wall_ms": 0.313
+        },
+        "dense_interval_queue": {
+          "calls": 6,
+          "wall_ms": 316.971
+        },
+        "frontend": {
+          "calls": 332,
+          "wall_ms": 3904.736
+        },
+        "gs_mapping": {
+          "calls": 6,
+          "wall_ms": 13.365
+        },
+        "motion_filter": {
+          "calls": 332,
+          "wall_ms": 1525.002
+        }
+      },
+      "replay": {
+        "steps": "0",
+        "active_candidates": "13",
+        "wall_ms_ema": "0.0",
+        "selection_count_mean": "0.0",
+        "selection_count_last_to_first": "0.0",
+        "model_pose_revision_observations": "0",
+        "model_rematuration_cycles": "0",
+        "model_phase": "frontier"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 241,
+        "fraction": 0.7259036144578314
+      },
+      "psnr": 4.895615402389975,
+      "heldout_views": 68,
+      "psnr_thirds": [
+        4.258263919664466,
+        4.931322249499234,
+        5.498812509619671
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.04924242424242424
+    },
+    {
+      "name": "utmm/slow-straight-1",
+      "frames": 393,
+      "pipeline": {
+        "online_wall_s": 13.077711,
+        "track_wall_ms": 2783.725,
+        "dispatch_wall_ms": 0.0,
+        "idle_replay_wall_ms": 0.0,
+        "gate_allowed": 0.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 37.643,
+        "reject_tracking": 9858.0,
+        "reject_model": 50740.0,
+        "reject_deadline": 0.0
+      },
+      "phases": {
+        "frontend": {
+          "calls": 393,
+          "wall_ms": 1060.445
+        },
+        "motion_filter": {
+          "calls": 393,
+          "wall_ms": 1624.912
+        }
+      },
+      "replay": {
+        "steps": "0",
+        "active_candidates": "0",
+        "wall_ms_ema": "0.0",
+        "selection_count_mean": null,
+        "selection_count_last_to_first": null,
+        "model_pose_revision_observations": "0",
+        "model_rematuration_cycles": "0",
+        "model_phase": "frontier"
+      }
+    },
+    {
+      "name": "utmm/slow-straight-2",
+      "frames": 597,
+      "budget_s": 19.869544506072998,
+      "adam_completed": 163,
+      "adam_skipped": 1,
+      "input_fps": 29.995654898774173,
+      "pipeline": {
+        "online_wall_s": 19.869915,
+        "track_wall_ms": 6658.871,
+        "dispatch_wall_ms": 3421.71,
+        "idle_replay_wall_ms": 0.0,
+        "gate_allowed": 0.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 40.933,
+        "reject_tracking": 15490.0,
+        "reject_model": 57718.0,
+        "reject_deadline": 0.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 4,
+          "wall_ms": 0.202
+        },
+        "dense_interval_queue": {
+          "calls": 4,
+          "wall_ms": 259.17
+        },
+        "frontend": {
+          "calls": 597,
+          "wall_ms": 3750.209
+        },
+        "gs_mapping": {
+          "calls": 4,
+          "wall_ms": 19.508
+        },
+        "motion_filter": {
+          "calls": 597,
+          "wall_ms": 2490.509
+        }
+      },
+      "replay": {
+        "steps": "0",
+        "active_candidates": "17",
+        "wall_ms_ema": "0.0",
+        "selection_count_mean": "0.0",
+        "selection_count_last_to_first": "0.0",
+        "model_pose_revision_observations": "0",
+        "model_rematuration_cycles": "0",
+        "model_phase": "frontier"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 456,
+        "fraction": 0.7638190954773869
+      },
+      "psnr": 18.347790268827076,
+      "heldout_views": 121,
+      "psnr_thirds": [
+        12.980573606491088,
+        21.377583169937132,
+        20.628203694413347
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.03571428571428571
+    },
+    {
+      "name": "utmm/square-1",
+      "frames": 1614,
+      "budget_s": 53.80941700935364,
+      "adam_completed": 3646,
+      "adam_skipped": 0,
+      "input_fps": 29.976165690842066,
+      "pipeline": {
+        "online_wall_s": 54.403063,
+        "track_wall_ms": 28885.116,
+        "dispatch_wall_ms": 12143.732,
+        "idle_replay_wall_ms": 10926.094,
+        "gate_allowed": 1140.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 38.001,
+        "reject_tracking": 54952.0,
+        "reject_model": 55652.0,
+        "reject_deadline": 3311.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 68,
+          "wall_ms": 5.388
+        },
+        "dense_interval_queue": {
+          "calls": 68,
+          "wall_ms": 5084.701
+        },
+        "frontend": {
+          "calls": 1614,
+          "wall_ms": 14784.337
+        },
+        "gs_mapping": {
+          "calls": 68,
+          "wall_ms": 172.724
+        },
+        "mapping_pose_gate": {
+          "calls": 1,
+          "wall_ms": 0.011
+        },
+        "motion_filter": {
+          "calls": 1614,
+          "wall_ms": 8031.188
+        },
+        "pgba_call_gs": {
+          "calls": 1,
+          "wall_ms": 0.006
+        },
+        "pgba_run": {
+          "calls": 1,
+          "wall_ms": 468.533
+        }
+      },
+      "replay": {
+        "steps": "3386",
+        "active_candidates": "608",
+        "wall_ms_ema": "3.5593068944621566",
+        "selection_count_mean": "5.569078947368421",
+        "selection_count_last_to_first": "0.46",
+        "model_pose_revision_observations": "0",
+        "model_rematuration_cycles": "0",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 224,
+        "fraction": 0.13878562577447337
+      },
+      "psnr": 13.588508994491011,
+      "heldout_views": 324,
+      "psnr_thirds": [
+        16.933901963410555,
+        12.223325967788696,
+        11.608299052273786
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.47131782945736433
+    },
+    {
+      "name": "utmm/square-2",
+      "frames": 1219,
+      "budget_s": 40.61602711677551,
+      "adam_completed": 2293,
+      "adam_skipped": 0,
+      "input_fps": 29.988161976012993,
+      "pipeline": {
+        "online_wall_s": 42.49965,
+        "track_wall_ms": 26793.805,
+        "dispatch_wall_ms": 13713.422,
+        "idle_replay_wall_ms": 5526.385,
+        "gate_allowed": 634.0,
+        "gate_allowed_tracking": 0.0,
+        "deadline_slack_ms_max": 37.538,
+        "reject_tracking": 39178.0,
+        "reject_model": 42341.0,
+        "reject_deadline": 1004.0
+      },
+      "phases": {
+        "dense_interval_prefetch": {
+          "calls": 61,
+          "wall_ms": 4.684
+        },
+        "dense_interval_queue": {
+          "calls": 61,
+          "wall_ms": 4344.776
+        },
+        "frontend": {
+          "calls": 1219,
+          "wall_ms": 13453.999
+        },
+        "gs_mapping": {
+          "calls": 61,
+          "wall_ms": 160.808
+        },
+        "mapping_pose_gate": {
+          "calls": 11,
+          "wall_ms": 0.067
+        },
+        "motion_filter": {
+          "calls": 1219,
+          "wall_ms": 6384.564
+        },
+        "pgba_call_gs": {
+          "calls": 3,
+          "wall_ms": 563.679
+        },
+        "pgba_run": {
+          "calls": 3,
+          "wall_ms": 1667.77
+        }
+      },
+      "replay": {
+        "steps": "2017",
+        "active_candidates": "176",
+        "wall_ms_ema": "2.80354160131764",
+        "selection_count_mean": "11.460227272727273",
+        "selection_count_last_to_first": "1.1851063829787234",
+        "model_pose_revision_observations": "2",
+        "model_rematuration_cycles": "2",
+        "model_phase": "replay"
+      },
+      "imu_init_start_progress": {
+        "kf": 14,
+        "gaussians": 0,
+        "frame": 246,
+        "fraction": 0.2018047579983593
+      },
+      "psnr": 15.648109949851523,
+      "heldout_views": 245,
+      "psnr_thirds": [
+        23.386570790918864,
+        13.258249659597137,
+        10.270364761352539
+      ],
+      "final_replay_pool_fraction_of_nonheldout": 0.1806981519507187
+    }
+  ]
+}

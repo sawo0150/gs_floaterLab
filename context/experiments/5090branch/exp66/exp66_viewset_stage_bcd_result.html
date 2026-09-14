@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exp66 — View-set 구성·학습 순서·Gradient Probe 결과</title>
+<style>
+  :root {
+    --paper:#f6f4f0; --panel:#fffdfa; --ink:#24221f; --soft:#6e6860;
+    --line:#ddd7cd; --accent:#5b4b8a; --good:#2f6b55; --bad:#a3483b;
+    --warn:#986c18; --code:#eee9e1;
+    --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+    --serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace;
+  }
+  @media(prefers-color-scheme:dark){:root{--paper:#141319;--panel:#1b1922;--ink:#ebe7f1;--soft:#a29bac;--line:#373140;--accent:#ad9ce3;--good:#75bda2;--bad:#e3897d;--warn:#dfb965;--code:#25212d}}
+  *{box-sizing:border-box} body{margin:0;padding:52px 22px 80px;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.64}
+  main{max-width:980px;margin:auto} header{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:38px}
+  .eyebrow{font:12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+  h1,h2,h3{font-family:var(--serif);font-weight:600} h1{font-size:clamp(27px,4vw,39px);line-height:1.25;margin:9px 0 12px;letter-spacing:-.02em}
+  h2{font-size:24px;margin:42px 0 14px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:18px;margin:26px 0 8px}
+  p{max-width:76ch;margin:8px 0 13px}.dek{color:var(--soft);font-size:16px}.small{font-size:13px;color:var(--soft)}
+  code,pre{font-family:var(--mono);font-size:.9em} code{background:var(--code);padding:1px 5px;border-radius:3px} pre{background:var(--code);border:1px solid var(--line);padding:15px;overflow:auto;line-height:1.55}
+  .lead{background:var(--panel);border:1px solid var(--accent);border-left:4px solid var(--accent);padding:18px 21px;margin:22px 0}.lead strong{color:var(--accent)}
+  .callout{background:var(--panel);border:1px solid var(--line);padding:16px 19px;margin:16px 0}.callout.good{border-left:4px solid var(--good)}.callout.bad{border-left:4px solid var(--bad)}.callout.warn{border-left:4px solid var(--warn)}
+  .tag{display:inline-block;font:10.5px var(--mono);letter-spacing:.04em;border:1px solid currentColor;border-radius:12px;padding:2px 8px;margin-right:6px;color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin:16px 0}.card{background:var(--panel);border:1px solid var(--line);padding:15px 17px}.card b{display:block;margin-bottom:5px}.metric{font:22px var(--mono);color:var(--accent)}
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--panel);margin:14px 0 7px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font:10.5px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}tr:last-child td{border-bottom:0}.best{color:var(--good);font-weight:700}.worse{color:var(--bad)}
+  ul,ol{max-width:78ch;padding-left:22px}li{margin:6px 0}.equation{font:15px var(--mono);background:var(--panel);border:1px solid var(--line);padding:13px 16px;overflow-x:auto;margin:12px 0}
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:9px;margin:18px 0}.node{background:var(--panel);border:1px solid var(--line);padding:13px;text-align:center}.arrow{color:var(--accent);font-size:20px}
+  details{border:1px solid var(--line);background:var(--panel);padding:10px 14px;margin:10px 0}summary{cursor:pointer;font-weight:600}
+  footer{border-top:1px solid var(--line);margin-top:45px;padding-top:16px;color:var(--soft);font:12px var(--mono)}
+  @media(max-width:680px){body{padding:30px 13px 60px}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}th,td{padding:8px}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="eyebrow">exp66 · aria1253 · Stage B/C/D · 2026-08-25</div>
+  <h1>View-set의 구성과 학습 순서를 분리하면 무엇이 수렴을 빠르게 하는가</h1>
+  <p class="dek">Stage A에서 관측한 “dense frame이 빠르다”를 곧바로 novelty/Fisher 설명으로 치환하지 않고, (B) 같은 크기의 set을 어떻게 구성할지, (C) 같은 set을 어떤 순서로 학습할지, (D) 한 update의 실제 일반화 이득을 무엇이 예측하는지를 순서대로 분리한 결과 보고서다.</p>
+</header>
+
+<div class="lead">
+  <strong>결론부터:</strong> 이 장면에서는 pure novelty가 빠른 수렴의 원인이 아니었다. 시간적으로 고르게 분포된 representative set은 약한 AUC 개선만 보였고, novel view를 연속 배치하면 오히려 크게 느려졌다. 반면 작은 held-out reference buffer에 대한 gradient alignment, 특히 Adam이 실제로 만드는 이동까지 반영한 <code>-g_RᵀΔθ_Adam</code>은 one-step 개선량을 매우 잘 예측했다. 따라서 view-set 구성과 update 순서는 서로 다른 문제로 유지해야 한다.
+</div>
+
+<section>
+<h2>1. 실험을 세 단계로 나눈 이유</h2>
+<div class="flow">
+  <div class="node"><b>Stage B · Membership</b><br>784장을 어떤 frame으로 채우는가</div><div class="arrow">→</div>
+  <div class="node"><b>Stage C · Order</b><br>동일한 784장을 어떤 순서로 반복하는가</div><div class="arrow">→</div>
+  <div class="node"><b>Stage D · Mechanism</b><br>한 frame update의 held-out 이득을 무엇이 예측하는가</div>
+</div>
+<p>이 분리가 중요하다. novelty가 높은 frame을 set에 포함하는 문제와 그 frame들을 연속으로 먼저 학습하는 문제는 수학적으로도 다르다. 앞의 문제는 데이터 분포/제약의 span을 정하고, 뒤의 문제는 비선형 optimizer가 지나가는 trajectory를 정한다.</p>
+</section>
+
+<section>
+<h2>2. 고정한 통제 조건</h2>
+<div class="grid">
+  <div class="card"><b>초기 상태</b>seed별 immutable Phase-1 checkpoint. Stage B/C의 각 arm은 같은 seed 안에서 Gaussian tensor checksum이 동일하다.</div>
+  <div class="card"><b>학습 objective</b>RGB L1+SSIM만 사용. depth/normal, densification/pruning, mixed loss confound를 제거했다.</div>
+  <div class="card"><b>계산 budget</b>wall time이나 저장/eval 시간이 아니라 실제 CUDA optimizer update 누적 100초.</div>
+  <div class="card"><b>평가</b>고정 trajectory의 curve-only 124 views. train view와 overlap 0. lockbox는 열지 않았다.</div>
+  <div class="card"><b>View-set 크기</b>Stage A의 D12와 같은 784 frames. Dmax 후보 pool은 1,041 frames.</div>
+  <div class="card"><b>반복성</b>Stage B/C는 3 seeds. Stage D diagnostic은 비용 때문에 2 seeds, 시점당 32 candidates.</div>
+</div>
+<p class="small">AUC는 0–100초 held-out curve MSE의 시간 평균이며 낮을수록 좋다. 모든 비교는 paired seed 기준이다.</p>
+</section>
+
+<section>
+<h2>3. Stage B — 같은 784장을 어떻게 고를 것인가</h2>
+<p>1,041개 후보를 초기 <code>θ₀</code>에서 한 번 profiling한 뒤 정확히 784장을 골랐다. coverage는 visible Gaussian의 0.1m spatial cell × 64 viewing-direction bin을 이용한 COVER-style surrogate이며 exact Fisher가 아니다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>구성</th><th>정의</th><th class="num">AUC MSE</th><th class="num">baseline 대비</th><th class="num">paired win</th><th class="num">100s PSNR</th></tr></thead>
+<tbody>
+<tr><td>temporal uniform</td><td>D12 membership</td><td class="num">0.00117752</td><td class="num">—</td><td class="num">—</td><td class="num best">31.199</td></tr>
+<tr><td>random</td><td>전역 무작위 784장</td><td class="num">0.00119120</td><td class="num worse">+1.18%</td><td class="num">1/3</td><td class="num">31.173</td></tr>
+<tr><td>coverage</td><td>전역 coverage reverse-greedy</td><td class="num">0.00122309</td><td class="num worse">+3.88%</td><td class="num">0/3</td><td class="num">31.009</td></tr>
+<tr><td class="best">representative</td><td>초별 quota 안에서 coverage 최적화</td><td class="num best">0.00117337</td><td class="num best">−0.35%</td><td class="num best">3/3</td><td class="num">31.166</td></tr>
+<tr><td>residual</td><td>초별 quota 안에서 초기 residual 상위</td><td class="num">0.00119670</td><td class="num worse">+1.64%</td><td class="num">1/3</td><td class="num">31.035</td></tr>
+</tbody></table></div>
+<div class="callout warn"><b>해석:</b> representative의 AUC 승리는 3/3으로 방향은 일관되지만 평균 0.35%에 불과하고, 100초 최종 MSE는 temporal uniform보다 약간 나쁘다. 따라서 “대표성 유지가 약간 유리할 수 있다”까지는 말할 수 있지만, novelty membership이 dense 수렴을 설명한다는 강한 결론은 지지되지 않는다.</div>
+<div class="callout bad"><b>중요한 반증:</b> temporal quota 없이 novelty/coverage만 극대화한 set은 3 seeds 모두 느렸다. 제약 방향의 폭을 넓히는 것만으로는 초기 optimization trajectory와 gradient coherence가 보장되지 않는다.</div>
+</section>
+
+<section>
+<h2>4. Stage C — 동일한 representative set을 어떤 순서로 학습할 것인가</h2>
+<p>Stage B에서 AUC가 가장 낮았던 representative membership을 고정했다. 따라서 아래 차이는 frame의 종류가 아니라 오직 순서/재방문 정책의 차이다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>순서 정책</th><th>정의</th><th class="num">AUC MSE</th><th class="num">shuffle 대비</th><th class="num">paired win</th><th class="num">count spread</th></tr></thead>
+<tbody>
+<tr><td class="best">shuffle epoch</td><td>매 epoch 전부 1회, 순서 shuffle</td><td class="num best">0.00117337</td><td class="num">—</td><td class="num">—</td><td class="num">1 / 1 / 1</td></tr>
+<tr><td>with replacement</td><td>매 step 독립 추출</td><td class="num">0.00119316</td><td class="num worse">+1.68%</td><td class="num">0/3</td><td class="num worse">32 / 30 / 33</td></tr>
+<tr><td>novelty first</td><td>coverage score 내림차순 반복</td><td class="num">0.00129813</td><td class="num worse">+10.64%</td><td class="num">0/3</td><td class="num">1 / 1 / 1</td></tr>
+<tr><td>alternating</td><td>high/low novelty 교대</td><td class="num">0.00122914</td><td class="num worse">+4.74%</td><td class="num">0/3</td><td class="num">1 / 1 / 1</td></tr>
+<tr><td>residual first</td><td>직전 residual 내림차순</td><td class="num">0.00130340</td><td class="num worse">+11.06%</td><td class="num">0/3</td><td class="num">1 / 1 / 1</td></tr>
+</tbody></table></div>
+<div class="callout bad"><b>강한 결과:</b> novelty-first는 2, 5, 10, 20, 40, 60, 80, 100초의 모든 nonzero milestone에서 3/3 seeds 모두 shuffle보다 나빴다. 과거 Fisher/novelty-next 실험의 실패가 우연한 최종 품질 차이가 아니라, novel gradient를 연속 배치한 optimization path의 문제일 가능성이 높다.</div>
+<p>with-replacement도 나빴다. 동일 budget에서 어떤 frame은 다른 frame보다 30회 이상 더 선택되었다. 즉 dense set을 만들어 놓는 것만으로 충분하지 않고, 각 frame이 일정한 재방문 기회를 받는 <b>opportunity control</b>이 필요하다.</p>
+</section>
+
+<section>
+<h2>5. Stage D — 한 frame이 실제로 일반화를 개선하는지 예측할 수 있는가</h2>
+<h3>측정 정의</h3>
+<p>curve-only held-out split에서 시간적으로 고른 8장을 reference buffer <code>R</code>로 두고, representative set의 coverage-score quantile에서 32개 후보를 골랐다. 각 후보마다 실제 Adam 한 step을 수행해 reference objective의 변화를 측정한 뒤 Gaussian과 Adam state를 원복했다.</p>
+<div class="equation">g_R = (1 / |R|) Σᵣ ∇θ Lᵣ(θ), &nbsp; gᵥ = ∇θ Lᵥ(θ)</div>
+<div class="equation">raw alignment = cos(g_R, gᵥ)</div>
+<div class="equation">θ′ = AdamStep(θ, gᵥ), &nbsp; predicted decrease = −g_Rᵀ(θ′−θ)</div>
+<div class="equation">actual decrease = L_R(θ) − L_R(θ′)</div>
+<p>모든 후보 뒤 parameter와 optimizer state의 최대 절대 원복 오차는 0이었다. Stage D 본 실험은 2 seeds × 3 시점 × 32 후보 = 192개의 one-step counterfactual이다.</p>
+
+<h3>실제 RGB objective 개선량에 대한 순위 상관</h3>
+<div class="table-wrap"><table>
+<thead><tr><th rowspan="2">예측 신호</th><th colspan="2" class="num">0초</th><th colspan="2" class="num">40초</th><th colspan="2" class="num">100초</th></tr><tr><th class="num">Spearman ρ</th><th class="num">Top-Q</th><th class="num">Spearman ρ</th><th class="num">Top-Q</th><th class="num">Spearman ρ</th><th class="num">Top-Q</th></tr></thead>
+<tbody>
+<tr><td>초기 coverage score</td><td class="num">+0.005</td><td class="num">0.188</td><td class="num">−0.090</td><td class="num">0.063</td><td class="num">−0.146</td><td class="num">0.125</td></tr>
+<tr><td>현재 frame residual</td><td class="num">+0.468</td><td class="num">0.313</td><td class="num">+0.158</td><td class="num">0.438</td><td class="num">−0.032</td><td class="num">0.250</td></tr>
+<tr><td>raw gradient cosine</td><td class="num">+0.726</td><td class="num">0.875</td><td class="num">+0.733</td><td class="num">0.813</td><td class="num">+0.375</td><td class="num">0.563</td></tr>
+<tr><td>Adam descent cosine</td><td class="num">+0.885</td><td class="num">0.938</td><td class="num">+0.991</td><td class="num best">1.000</td><td class="num">+0.823</td><td class="num">0.875</td></tr>
+<tr><td class="best">−g<sub>R</sub>ᵀΔθ<sub>Adam</sub></td><td class="num best">+0.994</td><td class="num">0.938</td><td class="num best">+0.993</td><td class="num best">1.000</td><td class="num best">+0.877</td><td class="num best">0.938</td></tr>
+</tbody></table></div>
+<p class="small">Top-Q는 예측 상위 25%와 실제 개선 상위 25%의 overlap 비율이다. 시점마다 두 seed를 합친 n=64. Pearson r도 <code>−g_RᵀΔθ_Adam</code>에 대해 각각 0.995, 0.999, 0.989였다.</p>
+
+<h3>“한 step이면 무조건 좋아지는가?”</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>시점</th><th class="num">reference objective 개선</th><th class="num">악화</th><th class="num">평균 감소량</th><th>해석</th></tr></thead>
+<tbody>
+<tr><td>0초</td><td class="num">64 / 64</td><td class="num">0 / 64</td><td class="num">+4.008×10⁻⁴</td><td>초기에는 거의 모든 후보가 유용</td></tr>
+<tr><td>40초</td><td class="num">18 / 64</td><td class="num worse">46 / 64</td><td class="num worse">−1.024×10⁻⁵</td><td>중간 상태에서는 다수의 개별 update가 reference를 악화</td></tr>
+<tr><td>100초</td><td class="num">53 / 64</td><td class="num">11 / 64</td><td class="num">+1.532×10⁻⁵</td><td>더 작은 후반 step과 optimizer state에서 다시 대체로 양수</td></tr>
+</tbody></table></div>
+<div class="callout good"><b>무엇을 배웠나:</b> 후보 frame의 residual이나 novelty보다 “현재 optimizer가 그 frame으로 실제 어느 방향으로 움직일지”가 held-out one-step 이득을 훨씬 잘 설명했다. 특히 Adam에서는 <code>cos(g_R,g_v)</code>보다 moment/preconditioning을 반영한 <code>−g_RᵀΔθ_Adam</code>이 맞는 1차식이다.</div>
+<div class="callout warn"><b>그러나 scheduler 완성은 아니다:</b> reference gradient와 모든 후보의 counterfactual Adam step을 직접 계산한 결과이므로 예측력이 높은 것이 이론적으로 자연스럽다. 이것은 mechanism validation이지 아직 저비용 online score가 아니다. 실제 scheduler에는 작은 audit buffer, top-K에만 probe, probe 비용 차감, 오염 방지가 추가로 필요하다.</div>
+
+<h3>Fisher λ<sub>min</sub>에 대한 정정</h3>
+<p>32개 후보 gradient로 수백만 차원의 full empirical Fisher를 만들면 rank가 최대 32이므로 full-space <code>λ_min</code>은 항상 0이다. 따라서 “λ_min이 커졌다”는 표현은 이 실험에서 성립하지 않는다. 보고한 값은 32×32 gradient Gram의 비영 spectrum과 effective rank뿐이다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>시점</th><th class="num">seed 0 effective rank</th><th class="num">seed 1 effective rank</th><th>주의</th></tr></thead>
+<tbody><tr><td>0초</td><td class="num">18.45</td><td class="num">20.94</td><td rowspan="3">gradient 크기와 현재 θ에 강하게 의존. utility의 직접 척도가 아님.</td></tr><tr><td>40초</td><td class="num">14.27</td><td class="num">8.85</td></tr><tr><td>100초</td><td class="num">19.00</td><td class="num">1.18</td></tr></tbody>
+</table></div>
+<p>seed 1의 100초 rank가 1.18까지 무너졌어도 one-step 개선 예측은 잘 작동했다. 적어도 이 표본에서는 gradient set의 spectrum을 넓히는 목표와 지금 validation objective를 가장 빨리 낮추는 목표가 동일하지 않다.</p>
+</section>
+
+<section>
+<h2>6. Stage A의 “dense가 빠르다”를 지금 어떻게 설명해야 하는가</h2>
+<p>현재 증거가 지지하는 설명은 “novel direction을 최대화해서”보다 더 복합적이다.</p>
+<ol>
+  <li><b>Membership:</b> keyframe 2fps보다 촘촘한 frame set은 trajectory 사이의 supervision gap을 줄이고 held-out trajectory와 train distribution의 거리를 줄인다.</li>
+  <li><b>Redundancy:</b> 서로 가까운 view는 완전히 새로운 제약은 아니지만 gradient 방향의 coherence와 낮은 분산을 제공할 수 있다. pure coverage가 제거해 버린 이 중복이 초기 수렴에는 오히려 유용할 수 있다.</li>
+  <li><b>Opportunity:</b> dense membership의 이득은 각 frame이 적절히 반복될 때 나타난다. novelty-first처럼 어려운 방향을 몰아주거나 replacement로 일부 frame을 굶기면 이득이 사라진다.</li>
+  <li><b>State dependence:</b> 같은 frame의 유용성도 θ, Adam moment, learning rate에 따라 바뀐다. 따라서 frame 자체에 고정된 “필요 iteration 수”가 있다고 보기 어렵다.</li>
+</ol>
+<div class="callout"><b>정리:</b> dense의 이득은 “제약의 수/폭”만이 아니라 <b>train–eval 분포 간격, gradient coherence, 공평한 재방문, 현재 optimizer state</b>의 결합으로 보는 편이 데이터와 더 잘 맞는다.</div>
+</section>
+
+<section>
+<h2>7. 현 시점의 scheduler 설계 원칙</h2>
+<ol>
+  <li><b>View-set 구성과 순서를 분리한다.</b> 구성 단계는 시간 quota를 먼저 지키고 그 안에서 대표성을 개선한다. 전역 pure novelty는 사용하지 않는다.</li>
+  <li><b>기본 순서는 shuffle-without-replacement다.</b> 이것이 현재 가장 강한 baseline이며 모든 frame에 거의 같은 opportunity를 준다.</li>
+  <li><b>Novelty는 admission의 약한 보조항으로만 쓴다.</b> 다음 update를 결정하는 단독 우선순위로 사용하지 않는다.</li>
+  <li><b>선택적 top-K probe를 검토한다.</b> cheap residual/pose/coverage gate로 후보를 줄인 뒤, 작은 protected audit buffer에 대한 optimizer-aware alignment를 top-K에서만 계산한다.</li>
+  <li><b>water-filling의 stop 조건은 고정 횟수가 아니다.</b> 예측된 held-out 감소량/비용이 threshold 아래면 그 frame 또는 전체 polish를 멈춘다. Stage D의 40초 결과는 “budget이 남았으니 계속”이 항상 안전하지 않음을 보인다.</li>
+</ol>
+<div class="equation">a* = argmaxₐ  [ predicted held-out decrease(a | θ, Adam state) / measured cost(a) ]</div>
+<p>다만 이 식을 실제 online scheduler로 채택하기 전에는 별도 실험이 필요하다. reference buffer 크기, 갱신 주기, top-K 수, probe 비용을 고정한 뒤 shuffle baseline보다 end-to-end AUC가 좋아지는지 확인해야 한다.</p>
+</section>
+
+<section>
+<h2>8. 한계와 다음 실험</h2>
+<ul>
+  <li>Stage B/C는 한 장면의 3 seeds, Stage D는 2 seeds다. 장면 일반화 주장은 아직 할 수 없다.</li>
+  <li>Stage D reference는 curve-only 8 views이며 같은 objective로 gradient와 actual delta를 측정했다. 높은 Taylor correlation은 올바른 sanity check지만 독립 test 성능 보장은 아니다.</li>
+  <li>Stage D 후보는 representative set의 coverage quantile 32개다. 모든 784장에 대한 exhaustive 결론은 아니다.</li>
+  <li>coverage surrogate는 exact Fisher가 아니며, full Fisher <code>λ_min</code>을 측정하지 않았다.</li>
+  <li>다음 우선순위는 (i) audit 4/8/16 안정성, (ii) top-K=4/8/16 비용 포함 AUC, (iii) 다른 trajectory/scene 반복, (iv) depth/normal geometry metric과의 별도 trade-off다.</li>
+</ul>
+<p class="small">후속 실험의 상세 protocol: <a href="exp66_stage_e_causal_gradient_balance_plan.html">exp66_stage_e_causal_gradient_balance_plan.html</a></p>
+<p class="small">View-quality admission 후속 protocol: <a href="exp66_stage_f_view_quality_admission_plan.html">exp66_stage_f_view_quality_admission_plan.html</a></p>
+</section>
+
+<section>
+<h2>9. 재현 정보</h2>
+<div class="grid">
+  <div class="card"><b>로컬 개발 branch</b><code>exp66-viewset-stagebcd</code></div>
+  <div class="card"><b>Stage B commit</b><code>9d98efed</code></div>
+  <div class="card"><b>Stage C commit</b><code>04ea3ce6</code></div>
+  <div class="card"><b>Stage D commits</b><code>3fbed371</code>, <code>e8cdbe97</code></div>
+  <div class="card"><b>분석 commit</b><code>c3a1b48f</code></div>
+  <div class="card"><b>검증</b>local/remote Python compile + 16 CPU tests, smoke + rollback audit</div>
+</div>
+<details><summary>원격 결과와 분석 산출물</summary><pre>exp66_axes/viewset_density/stage_b/
+exp66_axes/viewset_density/stage_c/
+exp66_axes/viewset_density/stage_d/runs_optimizer_aware/
+exp66_axes/viewset_density/analysis_bcd/stage_b_summary.json
+exp66_axes/viewset_density/analysis_bcd/stage_c_summary.json
+exp66_axes/viewset_density/analysis_bcd/stage_d_summary.json
+exp66_axes/viewset_density/analysis_bcd/stage_d_rows.csv</pre></details>
+<details><summary>핵심 실행 조건</summary><pre>--polish_camera_source fixed_trajectory
+--polish_loss rgb
+--polish_optimizer_state reset
+--polish_sampler shuffle_epoch
+--polish_budget_seconds 100
+--polish_eval_split curve
+--polish_stage_d_times 0,40,100
+--polish_stage_d_candidate_count 32
+--polish_stage_d_audit_count 8</pre></details>
+<p class="small">분석 재생성: <code>python exp66_axes/viewset_density/analyze_stage_bcd.py --root exp66_axes/viewset_density --output exp66_axes/viewset_density/analysis_bcd</code></p>
+</section>
+
+<footer>exp66 view-set density controlled experiment · lockbox unopened · report generated from raw remote artifacts on 2026-08-25</footer>
+</main></body></html>

@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp68 — adaptive causal map scheduler 방법론 설명서</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper:#f5f4f8; --panel:#fff; --ink:#211e29; --soft:#6c6677;
+      --line:#ddd8e6; --accent:#654ca0; --accent2:#e9e1fa;
+      --good:#276852; --good-bg:#e8f5ef; --warn:#96630c; --warn-bg:#fff5df;
+      --bad:#a34738; --bad-bg:#fceeea; --blue:#315f89; --blue-bg:#edf4fb;
+      --mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace;
+      --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+      --serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper:#141219; --panel:#1d1a24; --ink:#eeeaf3; --soft:#aaa3b5;
+        --line:#393243; --accent:#b39ae8; --accent2:#2c2440;
+        --good:#81c6ae; --good-bg:#172b25; --warn:#e0af5d; --warn-bg:#302718;
+        --bad:#e08a7c; --bad-bg:#33201d; --blue:#8ab9e1; --blue-bg:#192734;
+      }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.68 var(--sans); }
+    main { max-width:1040px; margin:0 auto; padding:54px 24px 86px; }
+    header { border-bottom:1px solid var(--line); padding-bottom:28px; }
+    .eyebrow { color:var(--soft); font:12px var(--mono); letter-spacing:.07em; text-transform:uppercase; }
+    h1 { margin:9px 0 10px; font:600 clamp(28px,4vw,40px)/1.24 var(--serif); letter-spacing:-.025em; }
+    .dek { max-width:78ch; margin:0; color:var(--soft); font-size:16px; }
+    h2 { margin:44px 0 14px; padding-top:4px; font:600 24px/1.35 var(--serif); letter-spacing:-.01em; }
+    h3 { margin:28px 0 9px; font:600 18px/1.4 var(--serif); }
+    p { max-width:82ch; margin:8px 0; }
+    ul, ol { max-width:84ch; margin:9px 0; padding-left:23px; }
+    li { margin:6px 0; }
+    code { padding:1px 5px; border:1px solid var(--line); border-radius:4px; background:var(--paper); font:.9em var(--mono); }
+    a { color:var(--accent); }
+    .hero-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:24px; }
+    .metric { min-height:112px; padding:15px; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+    .metric .k { color:var(--soft); font:11px var(--mono); text-transform:uppercase; letter-spacing:.04em; }
+    .metric .v { margin:5px 0 2px; color:var(--accent); font:700 23px var(--mono); }
+    .metric p { margin:0; color:var(--soft); font-size:12.5px; line-height:1.45; }
+    .lead { margin-top:28px; padding:20px 23px; border-left:4px solid var(--accent); background:var(--panel); box-shadow:0 1px 0 var(--line); }
+    .lead b { color:var(--accent); }
+    .callout { margin:15px 0; padding:15px 18px; border:1px solid var(--line); border-left-width:4px; border-radius:6px; background:var(--panel); }
+    .callout.good { border-left-color:var(--good); background:var(--good-bg); }
+    .callout.warn { border-left-color:var(--warn); background:var(--warn-bg); }
+    .callout.bad { border-left-color:var(--bad); background:var(--bad-bg); }
+    .callout.blue { border-left-color:var(--blue); background:var(--blue-bg); }
+    .flow { display:flex; flex-wrap:wrap; align-items:stretch; gap:8px; margin:18px 0; }
+    .flow .node { flex:1 1 155px; padding:14px; border:1px solid var(--line); border-radius:7px; background:var(--panel); text-align:center; }
+    .flow .arrow { align-self:center; color:var(--soft); font:18px var(--mono); }
+    .node b { color:var(--accent); }
+    .table-wrap { overflow-x:auto; margin:13px 0 18px; border:1px solid var(--line); border-radius:7px; background:var(--panel); }
+    table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    th, td { padding:9px 11px; border-bottom:1px solid var(--line); vertical-align:top; text-align:left; }
+    th { color:var(--soft); font:600 10.5px var(--mono); letter-spacing:.035em; text-transform:uppercase; }
+    tr:last-child td { border-bottom:0; }
+    td.num, th.num { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .good-text { color:var(--good); font-weight:700; }
+    .warn-text { color:var(--warn); font-weight:700; }
+    .bad-text { color:var(--bad); font-weight:700; }
+    .eq { margin:13px 0; padding:15px 18px; border:1px solid var(--line); border-radius:6px; background:var(--panel); overflow-x:auto; white-space:pre-wrap; font:13.5px/1.75 var(--mono); }
+    .small { color:var(--soft); font-size:12.5px; }
+    .tag { display:inline-block; margin-right:6px; padding:2px 8px; border-radius:10px; border:1px solid currentColor; font:10.5px var(--mono); }
+    .tag.good { color:var(--good); } .tag.warn { color:var(--warn); } .tag.bad { color:var(--bad); }
+    .two { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .card { padding:17px 19px; border:1px solid var(--line); border-radius:7px; background:var(--panel); }
+    .card h3 { margin-top:0; }
+    .state { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:15px 0; }
+    .state .card { border-top:4px solid var(--accent); }
+    .state .step { color:var(--accent); font:700 14px var(--mono); }
+    .check { list-style:none; padding-left:0; }
+    .check li::before { content:"✓"; display:inline-block; width:21px; color:var(--good); font-weight:700; }
+    footer { margin-top:48px; padding-top:20px; border-top:1px solid var(--line); color:var(--soft); font:12px/1.6 var(--mono); }
+    @media (max-width:800px) {
+      .hero-grid { grid-template-columns:1fr 1fr; }
+      .two, .state { grid-template-columns:1fr; }
+      .flow .arrow { display:none; }
+    }
+    @media (max-width:500px) { .hero-grid { grid-template-columns:1fr; } main { padding-left:16px; padding-right:16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">exp68 methodology explainer · final universal variant · 2026-08-26</div>
+    <h1>Adaptive Causal Map Scheduler<br>논문 독자를 위한 구조·수식·실측 설명</h1>
+    <p class="dek">코드를 모르는 독자도 “어떤 frame을 학습 집합에 넣는가”, “어떤 순서로 학습하는가”,
+      “언제 keyframe 중심 mapping에서 dense replay로 넘어가는가”, “RGB 수렴을 유지하면서 floater를 어떻게 억제하는가”를
+      서로 다른 문제로 이해할 수 있도록 정리했다. 최종 설정은 두 장면에 동일하게 적용되며 frame 번호나 장면별 임계값을 사용하지 않는다.</p>
+    <div class="hero-grid">
+      <div class="metric"><div class="k">aria1253 fixed PSNR</div><div class="v">27.933</div><p>exp68 final, held-out UID</p></div>
+      <div class="metric"><div class="k">aria301_305 fixed PSNR</div><div class="v">30.670</div><p>exp68 final, held-out UID</p></div>
+      <div class="metric"><div class="k">visible floater 감소</div><div class="v">−35%</div><p>1253: exp67 scheduler 193 → exp68 126</p></div>
+      <div class="metric"><div class="k">visible floater 감소</div><div class="v">−20%</div><p>305: exp67 scheduler 660 → exp68 529</p></div>
+    </div>
+  </header>
+
+  <div class="lead">
+    <b>한 문장 요약.</b> 새 dense frame을 무조건 빨리 학습하지 않는다. 도착한 frame 중 시간적으로 대표적인 view를
+    기존 pool이 소화한 만큼만 점진적으로 받아들이고, admitted dense view와 keyframe을 shuffle-without-replacement로 공평하게 반복한다.
+    keyframe의 RGBD+normal이 표면을 지지하고, SLAM depth-ray의 전역 3D carve가 여러 방향에서 확인된 자유공간 Gaussian의 opacity만 약하게 낮춘다.
+  </div>
+
+  <section>
+    <h2>1. 먼저 네 가지 결정을 분리해야 한다</h2>
+    <p>“dense frame을 쓴다”는 말 하나에는 사실 서로 다른 네 문제가 섞여 있다. 이들을 한 점수로 합치면 실패 원인을 해석하기 어렵다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>결정</th><th>질문</th><th>최종 방법</th><th>사용하지 않는 것</th></tr></thead>
+      <tbody>
+        <tr><td><b>View-set membership</b></td><td>30 fps 중 어떤 frame을 pool에 넣나?</td><td>temporal maximin + service-credit water filling</td><td>고정 fps, 고정 stride, 전역 novelty 최대화</td></tr>
+        <tr><td><b>Training order</b></td><td>pool 안에서 다음 Adam target은?</td><td>seeded shuffle without replacement</td><td>novelty-first, residual-first</td></tr>
+        <tr><td><b>Budget allocation</b></td><td>새 view 추가와 기존 view 반복을 어떻게 나누나?</td><td>기존 dense pool이 2회씩 service된 뒤, 실제 replay 2 step당 새 view 1개 credit</td><td>장면별 view 수, frame 번호 전환</td></tr>
+        <tr><td><b>Geometry protection</b></td><td>dense RGB가 늘 때 geometry/floater를 어떻게 지키나?</td><td>keyframe RGBD+normal + global 3D carve + Fisher 방향 신뢰도</td><td>dense geometry freeze, hard prune, 2D dense-depth network</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout blue"><b>핵심 설계 원칙:</b> novelty는 view-set의 대표성을 만드는 데 제한적으로 쓰고, optimizer 순서는 공평한 shuffle로 둔다.
+      Fisher는 최종 설정에서 view의 학습 우선순위를 정하지 않는다. 3D free-space 판단이 비슷한 한 방향의 ray에만 의존하지 않았는지를 검사한다.</div>
+  </section>
+
+  <section>
+    <h2>2. “window 크기”는 하나가 아니다</h2>
+    <p>이 구현에서 가장 혼동하기 쉬운 부분이다. 서로 목적이 다른 세 컨테이너가 있으며, 숫자 15와 10은 같은 의미가 아니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>구조</th><th class="num">크기</th><th>담당 역할</th><th>관리 방식</th></tr></thead>
+      <tbody>
+        <tr><td><b>Tracking frontend window</b></td><td class="num">15</td><td>최근 camera pose·depth를 BA로 추적</td><td>tracking 전용 sliding window. radius 2, motion threshold 2.6</td></tr>
+        <tr><td><b>Mapping frontier window</b></td><td class="num">10 KF</td><td>새 keyframe 도착 시 topology birth/densify/prune와 국소 map 적응</td><td>최근 keyframe 중심. global view 최대 6장을 보조로 더할 수 있음</td></tr>
+        <tr><td><b>Causal replay pool</b></td><td class="num">고정 상한 없음</td><td>지금까지 도착해 admission을 통과한 dense view와 keyframe의 장기 반복 학습</td><td>service가 감당한 만큼만 성장. 한 Adam step에 한 view</td></tr>
+      </tbody>
+    </table></div>
+    <p>따라서 “window가 10이니 dense frame도 최근 10장만 쓴다”는 해석은 틀리다. 10은 새 keyframe 주변의 <i>frontier objective</i> 크기이고,
+      replay pool은 시간과 함께 누적된다. 최종 run에서 등록된 dense pool은 1253이 370장, 305가 815장이었다.
+      keyframe까지 포함한 최종 active action 수는 각각 461개와 937개였다.</p>
+    <div class="callout warn"><b>왜 replay pool에 고정 상한이 없나?</b> 30 fps 중 몇 fps를 쓸지 장면별로 정하면 카메라 속도·길이·GPU에 과적합되기 쉽다.
+      대신 “현재 pool이 최소 두 번씩 최적화되었는가”라는 실제 service 증거로 확장 속도를 제한한다. 고정 상한이 없다는 것은 전부 즉시 넣는다는 뜻이 아니다.</div>
+  </section>
+
+  <section>
+    <h2>3. 전체 파이프라인</h2>
+    <div class="flow">
+      <div class="node"><b>30 fps causal RGB/IMU</b><br>미래 frame 접근 없음</div><div class="arrow">→</div>
+      <div class="node"><b>Tracking</b><br>window 15<br>keyframe + BA depth</div><div class="arrow">→</div>
+      <div class="node"><b>Interval admission</b><br>temporal maximin<br>service credit</div><div class="arrow">→</div>
+      <div class="node"><b>Mixed action pool</b><br>KF RGBD+N<br>dense RGB</div><div class="arrow">→</div>
+      <div class="node"><b>map() Adam</b><br>shuffle B1<br>global carve</div>
+    </div>
+    <ul class="check">
+      <li>두 endpoint keyframe이 모두 이미 도착한 interval만 처리한다.</li>
+      <li>dense pose는 단순 선형 보간 대신 <code>trajectory_filler</code>로 optical refinement한다. 한 번에 최대 16장씩 처리한다.</li>
+      <li>fixed evaluator의 dense 후보(<code>uid % 5 == 0</code>)는 학습 pool에서 제외한다.</li>
+      <li>별도 <code>background_polish_step()</code>은 호출하지 않는다. 모든 학습 action은 <code>map()</code>의 optimizer·loss 경로를 공유한다.</li>
+      <li>stream 종료 후에는 평가만 하며 추가 refinement는 0회다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. View-set membership: 얼마나 많은 dense view를 받을 것인가</h2>
+    <h3>4.1 먼저 각 keyframe interval을 고르게 덮는다</h3>
+    <p>이미 도착한 연속 keyframe을 <code>a</code>, <code>b</code>라 하고, 그 사이에서 keyframe과 fixed-eval frame을 뺀 dense 후보를
+      <code>V(a,b)</code>라 하자. 첫 view는 endpoint와 가장 먼 시간 위치를 택하고, 다음 view는 지금까지 선택된 모든 위치와의 최소 거리가
+      가장 큰 frame을 택한다.</p>
+    <div class="eq">v* = arg max[v ∈ remaining]  min[u ∈ {a,b} ∪ admitted] |v − u|</div>
+    <p>이것은 1차원 farthest-point cover다. 한 interval 안에서 가운데를 먼저, 그다음 큰 빈 구간의 가운데를 차례로 채우므로
+      프레임이 앞쪽이나 뒤쪽에 몰리지 않는다. 새 interval마다 첫 1장은 bootstrap으로 즉시 받는다. 이 한 장이 없으면 replay가 시작되기 전에
+      “기존 pool이 성숙해야 새 view를 받는다”는 조건이 서로 기다리는 deadlock이 생길 수 있다.</p>
+
+    <h3>4.2 Pool이 소화한 만큼만 확장한다</h3>
+    <p>현재 admitted dense pool을 <code>A(t)</code>, view <code>v</code>가 뽑힌 누적 횟수를 <code>nᵥ(t)</code>라 하자.</p>
+    <div class="eq">mature(t) = [ |A(t)| &gt; 0  and  min(v ∈ A(t)) nᵥ(t) ≥ 2 ]
+
+credit(t) += Δ replay_steps              if mature(t)
+new_admission_quota = floor(credit(t) / 2)</div>
+    <p>즉 기존 dense view가 모두 최소 두 번씩 기회를 받기 전에는 추가 dense view를 budget으로 열지 않는다. 성숙한 뒤에는 실제로 처리한
+      replay 두 step마다 새 view 한 장을 받을 수 있다. 여기서 2는 fps나 장면 길이가 아니라 “한 번 본 것”과 “반복 학습 기회를 준 것”을
+      구분하는 최소 반복 증거다.</p>
+    <div class="callout good"><b>쉽게 말하면:</b> 책을 계속 새로 사기 전에 책장에 이미 꽂힌 책을 최소 두 번씩 읽는다.
+      실제로 두 번 더 읽을 계산 여유가 생겼을 때 새 책 한 권을 들인다.</div>
+
+    <h3>4.3 Water filling: 어느 interval에 다음 view를 넣는가</h3>
+    <p>새 view quota가 생기면 후보가 남아 있는 interval 중 현재 admitted 개수가 가장 작은 interval을 먼저 고른다.</p>
+    <div class="eq">interval* = arg min[j : pending(j) ≠ ∅] admitted_count(j)</div>
+    <p>물을 여러 컵에 부을 때 수위가 가장 낮은 컵부터 채우는 것과 같다. 긴 interval 하나가 pool을 독점하는 것을 막고, trajectory 전반의
+      시간적 밀도를 균형 있게 키운다. 이 단계는 <b>view-set 구성</b>일 뿐, 방금 admitted된 view를 바로 다음 optimizer target으로 만들지는 않는다.</p>
+  </section>
+
+  <section>
+    <h2>5. Training order: 왜 random shuffle인가</h2>
+    <p>admitted dense view와 tracked keyframe은 하나의 action pool에 들어간다. 매 epoch마다 active action을 한 번씩만 뽑고 순서를 섞는다.
+      stream 중 새 action이 도착하면 현재 epoch의 남은 queue 안 임의 위치에 삽입한다. 맨 앞에 강제로 넣지 않고 다음 epoch까지 무작정 기다리지도 않는다.</p>
+    <div class="eq">epoch e:  permutation({arrived keyframes} ∪ {admitted dense views})
+constraint: each active action is selected at most once before epoch refill</div>
+    <p>이 구조의 목적은 randomness 자체가 아니라 <b>opportunity 균등화</b>다. 특정 난이도·시간대·novelty 방향이 연속으로 optimizer를 지배하지 않으면서,
+      모든 view가 거의 같은 횟수로 반복된다.</p>
+    <h3>Stage C의 직접 근거</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>동일한 784-view set의 순서</th><th class="num">AUC MSE ↓</th><th class="num">shuffle 대비</th><th class="num">paired win</th><th>결론</th></tr></thead>
+      <tbody>
+        <tr><td><b>shuffle epoch</b></td><td class="num good-text">0.00117337</td><td class="num">—</td><td class="num">—</td><td>채택</td></tr>
+        <tr><td>alternating high/low novelty</td><td class="num">0.00122914</td><td class="num bad-text">+4.74%</td><td class="num">0/3</td><td>기각</td></tr>
+        <tr><td>novelty first</td><td class="num">0.00129813</td><td class="num bad-text">+10.64%</td><td class="num">0/3</td><td>기각</td></tr>
+        <tr><td>residual first</td><td class="num">0.00130340</td><td class="num bad-text">+11.06%</td><td class="num">0/3</td><td>기각</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">AUC MSE는 시간에 따른 held-out MSE 곡선 아래 면적이라 작을수록 전체 구간에서 빨리 수렴했다는 뜻이다.
+      novelty-first는 2–100초의 모든 nonzero milestone에서 3 seeds 모두 shuffle보다 나빴다.</p>
+    <div class="callout warn"><b>왜 novelty-first가 느렸나?</b> 새로운 Fisher/eigen 방향은 장기적인 제약 span을 넓힐 수 있지만,
+      매번 가장 새로운 gradient를 연속 공급하면 직전 update와의 coherence가 낮아지고 이미 시작한 방향을 충분히 반복해 성숙시킬 기회를 줄인다.
+      “좋은 view를 set에 포함한다”와 “어려운 view를 연속으로 먼저 학습한다”는 서로 다른 주장이다.</div>
+  </section>
+
+  <section>
+    <h2>6. 언제 frontier에서 replay 중심으로 넘어가는가</h2>
+    <p>frame 800부터 replay처럼 장면별 시점을 하드코딩하지 않는다. Gaussian topology와 실제 service 상태를 관측하는 세 상태 controller를 쓴다.</p>
+    <div class="state">
+      <div class="card"><div class="step">FRONTIER</div><h3>표현 용량 만들기</h3><p>새 keyframe의 birth/densify/prune를 정상 수행한다. topology 관측이 2회 이상이고 마지막 prune 전 Gaussian 용량까지 회복되면 다음 상태로 간다.</p></div>
+      <div class="card"><div class="step">BALANCED</div><h3>겹쳐서 넘기기</h3><p>frontier 반복은 <code>round(√window)</code>로 제한한다. window 10이면 약 3회다. 동시에 replay를 시작해 현재 pool이 두 번의 완전한 shuffled pass를 받도록 한다.</p></div>
+      <div class="card"><div class="step">REPLAY</div><h3>분포 학습</h3><p>일반 frontier 최적화는 append/pose 중심으로 줄이고 replay가 Adam budget을 맡는다. topology cadence는 replay step으로 전진하지 않는다.</p></div>
+    </div>
+    <p>PGBA가 pose를 바꾸면 topology를 다시 열어 대규모 prune을 반복하지 않는다. 현재 mapping window 크기에서 유도한
+      <code>round(√10) ≈ 3</code>회의 bounded local recovery만 수행한 뒤 replay를 계속한다. 또한 mapping worker가 두 packet 연속으로
+      idle replay 기회를 얻지 못하면, 새 계산을 더하는 대신 원래 frontier iteration budget을 같은 수의 replay step으로 대체한다.</p>
+    <div class="callout blue"><b>중요:</b> 이것은 extra polish budget을 붙이는 구조가 아니다. stream 압력이 높을 때 이미 예정된 mapping 계산을
+      causal replay로 재배분한다. 그래서 frame 번호·최종 stream 길이·validation PSNR을 몰라도 동작한다.</div>
+  </section>
+
+  <section>
+    <h2>7. 한 action에서 무엇을 학습하는가</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Action</th><th>Supervision</th><th>업데이트되는 Gaussian 파라미터</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><b>Keyframe</b></td><td>RGBD mapping loss + normal loss (<code>λ_dnormal=0.5</code>)</td><td>xyz, rotation, scale, opacity, color 전체</td><td>표면·깊이·normal geometry를 반복 지지</td></tr>
+        <tr><td><b>Dense frame</b></td><td>RGB L1/SSIM (<code>λ_dssim=0.2</code>)</td><td>xyz, rotation, scale, opacity, color 전체</td><td>촘촘한 ray 분포로 photometric 수렴 가속</td></tr>
+        <tr><td><b>Global carve</b></td><td>이미 도착한 keyframe의 BA depth-ray로 만든 3D field</td><td>선별된 opacity에 약한 gradient/prox</td><td>free-space floater 억제</td></tr>
+      </tbody>
+    </table></div>
+    <p>dense frame은 depth/normal이 없지만 geometry update를 제한하지 않는다. appearance-only mask도 없고 replay 뒤 scale projection도 없다.
+      이는 exp66의 “dense RGB가 빠른 수렴을 만든다”는 이득을 살리기 위한 선택이다. geometry 손실 빈도는 mixed pool의 keyframe action으로 복구한다.</p>
+  </section>
+
+  <section>
+    <h2>8. Carve는 frame별 2D loss가 아니라 누적 3D 제약이다</h2>
+    <p>keyframe의 BA-refined depth를 world-space point로 역투영한다. camera에서 surface point 직전까지 지나간 voxel에는
+      <i>transit</i> 표를, surface 주변에는 <i>terminal</i> 표를 누적한다. 한 camera packet은 같은 voxel에 최대 한 표만 주므로
+      ray-march sample 개수가 독립 관측 수처럼 부풀지 않는다.</p>
+    <div class="eq">ρ(x) = transit(x) / [transit(x) + 3·terminal(x) + ε]
+w(x) = ρ(x) · min(d₅(x, anchors) / 0.25 m, 1)
+s(x) = w(x) · [1 − localMaxOpacity₀.₀₅ₘ(x)]</div>
+    <ul>
+      <li><code>ρ</code>가 크면 여러 depth-ray가 그 위치를 표면 전의 빈 공간으로 통과했다는 뜻이다.</li>
+      <li>가까운 유효 anchor에서 너무 멀지 않은지 <code>d₅</code>로 조절한다.</li>
+      <li>강한 surface splat 주변은 local maximum opacity 보호항으로 carve 압력을 줄인다.</li>
+    </ul>
+
+    <h3>Fisher의 최종 역할: 새로운 view 찾기가 아니라 증거의 방향 조건성</h3>
+    <p>각 voxel을 통과한 viewing ray를 13개의 undirected 방향 bin에 누적한다. 방향 <code>d</code>의 위치 정보 factor를
+      <code>I − ddᵀ</code>로 근사하고, 가장 약한 eigen-direction이 평균 정보량에 비해 얼마나 지지되는지를 계산한다.</p>
+    <div class="eq">F(x) = Σᵣ [I − dᵣdᵣᵀ]
+q_F(x) = λ_min(F) / [trace(F)/3]  ∈ [0,1]</div>
+    <p>한 방향의 비슷한 ray만 반복되면 <code>λ_min</code>이 작아서 <code>q_F</code>가 낮다. 여러 비공선 방향이 같은 위치를 자유공간으로
+      확인하면 <code>q_F</code>가 커진다. 최종 설정은 <code>q_F &gt; 0.2</code>인 경우만 carve pressure를 허용한다.</p>
+    <div class="eq">L_carve = 0.02 · mean[s(x)·q_F(x)·opacity(x)]
+opacity ← opacity · [1 − 0.5·s(x)·q_F(x)]   (새 evidence generation에서만)
+Σ removed visual contribution / total contribution ≤ 0.0075</div>
+    <p>soft gradient는 RGB(D) backward 뒤 같은 Adam step에 더한다. proximal opacity 감소는 새 evidence generation에서만 실행하고,
+      이후 RGB gradient가 opacity를 다시 키울 수 있다. 최종 설정에서 xyz force와 hard contribution prune은 0/off다.
+      newborn gate는 <code>s&gt;0.95</code>와 <code>q_F&gt;0.2</code>를 요구하지만 최종 두 run에서 실제 삭제는 0개였다.</p>
+    <div class="callout good"><b>surface 두께와의 관계:</b> depth/normal처럼 모든 Gaussian을 얇은 surface shell로 강제하지 않는다.
+      dense RGB의 자유로운 xyz/scale 최적화는 보존하면서, SLAM ray가 반복적으로 빈 공간이라고 말하는 위치의 <i>가시성(opacity)</i>만 약하게 낮춘다.</div>
+  </section>
+
+  <section>
+    <h2>9. 시간 budget과 deadline guard</h2>
+    <p>한 replay action은 한 view에 대한 한 번의 Adam step이다(<code>batch_size=1</code>, <code>iters=1</code>).
+      다음 RGB packet이 도착하기 전 남은 시간에 최근 16개의 평범한 replay step 중 최대 시간을 넣을 수 있을 때만 실행한다.</p>
+    <div class="eq">admit next replay step iff
+now + max(last 16 ordinary replay wall-times) &lt; predicted next RGB arrival</div>
+    <p>도착 주기는 sensor timestamp로부터 causal하게 추정한다. 드문 O(N) carve field refresh는 실제 wall time에는 포함하지만,
+      이후의 4–5 ms 평범한 replay step을 계속 거부하게 만들지 않도록 step predictor에서는 별도로 집계한다.
+      실험은 동일하게 1.5× replay pacing으로 실행했다.</p>
+  </section>
+
+  <section>
+    <h2>10. 최종 핵심 파라미터</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>범주</th><th>파라미터</th><th class="num">값</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="5">Tracking</td><td><code>frontend_window</code></td><td class="num">15</td><td>pose/depth BA window</td></tr>
+        <tr><td><code>frontend_radius</code></td><td class="num">2</td><td>frontend graph 연결 반경</td></tr>
+        <tr><td><code>motion_filter_thresh</code></td><td class="num">2.6</td><td>keyframe 밀도에 영향을 주는 motion gate</td></tr>
+        <tr><td><code>frontend_iters1 / iters2</code></td><td class="num">2 / 0</td><td>front-end 반복</td></tr>
+        <tr><td><code>IMU_poseinit_after</code></td><td class="num">20</td><td>IMU pose 초기화 이후 mapping</td></tr>
+        <tr><td rowspan="4">Mapping</td><td><code>Training.window_size</code></td><td class="num">10</td><td>frontier keyframe window</td></tr>
+        <tr><td><code>n_global_views</code></td><td class="num">6</td><td>frontier 보조 global views</td></tr>
+        <tr><td><code>lambda_dnormal</code></td><td class="num">0.5</td><td>keyframe normal loss</td></tr>
+        <tr><td><code>lambda_dssim</code></td><td class="num">0.2</td><td>RGB SSIM 혼합</td></tr>
+        <tr><td rowspan="6">View-set / replay</td><td><code>required_opportunities</code></td><td class="num">2</td><td>pool 성숙 및 새 admission당 service cost</td></tr>
+        <tr><td><code>replay_batch / iters</code></td><td class="num">1 / 1</td><td>한 action = 한 view Adam step</td></tr>
+        <tr><td><code>replay_seed</code></td><td class="num">0</td><td>재현 가능한 shuffle</td></tr>
+        <tr><td><code>dense stability lag</code></td><td class="num">0</td><td>bracket된 view를 즉시 causal 후보화</td></tr>
+        <tr><td><code>max endpoint fraction</code></td><td class="num">0.5</td><td>양 endpoint 사이 전 구간 허용</td></tr>
+        <tr><td><code>trajectory filler chunk</code></td><td class="num">16</td><td>dense pose refinement 묶음</td></tr>
+        <tr><td rowspan="11">3D carve</td><td>voxel / ray step</td><td class="num">0.10 / 0.06 m</td><td>sparse free-space field 해상도</td></tr>
+        <tr><td>surface margin</td><td class="num">0.20 m</td><td>terminal surface 보호 폭</td></tr>
+        <tr><td>depth range</td><td class="num">0.15–15 m</td><td>유효 ray 범위</td></tr>
+        <tr><td>terminal weight</td><td class="num">3</td><td>surface evidence 가중</td></tr>
+        <tr><td>anchor τ</td><td class="num">0.25 m</td><td>anchor 거리 포화</td></tr>
+        <tr><td>soft score / Fisher min</td><td class="num">0.50 / 0.20</td><td>opacity pressure 자격</td></tr>
+        <tr><td>soft λ</td><td class="num">0.02</td><td>약한 opacity regularizer</td></tr>
+        <tr><td>prox strength</td><td class="num">0.50</td><td>event-driven opacity attenuation</td></tr>
+        <tr><td>total contribution cap</td><td class="num">0.0075</td><td>전체 visual contribution의 최대 0.75%</td></tr>
+        <tr><td>newborn gate</td><td class="num">0.95 / 0.20</td><td>score/Fisher 동시 조건</td></tr>
+        <tr><td>xyz force / hard prune</td><td class="num">0 / off</td><td>비가역 geometry 압력 제거</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">두 장면은 위 설정을 그대로 공유했다. 장면 ID, 최종 frame 번호, 목표 PSNR, label mask는 online policy 입력에 들어가지 않았다.</p>
+  </section>
+
+  <section>
+    <h2>11. 실제 실행에서 scheduler가 한 일</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">final dense pool</th><th class="num">active actions</th><th class="num">replay actions</th><th class="num">KF RGBD+N</th><th class="num">dense RGB</th><th class="num">shuffle epochs</th><th class="num">ordinary step EMA</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">370</td><td class="num">461</td><td class="num">5,304</td><td class="num">1,068 (20.1%)</td><td class="num">4,236</td><td class="num">16</td><td class="num">4.31 ms</td></tr>
+        <tr><td>aria301_305</td><td class="num">815</td><td class="num">937</td><td class="num">14,316</td><td class="num">2,045 (14.3%)</td><td class="num">12,271</td><td class="num">27</td><td class="num">4.63 ms</td></tr>
+      </tbody>
+    </table></div>
+    <p>1253에서는 총 admission counter가 bootstrap 217 + service-credit 207, 305에서는 312 + 673이었다.
+      이 누적 counter에는 IMU 재초기화 전 admission도 포함되므로 최종 등록 dense pool 크기와 같지 않다. 비교에 쓸 최종 상태는 위의 370/815다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">carve camera packets</th><th class="num">field generations</th><th class="num">prox events</th><th class="num">affected rows</th><th class="num">실제 contribution 감소</th><th class="num">hard/gate prune</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">97</td><td class="num">7</td><td class="num">3</td><td class="num">1,066</td><td class="num">0.0061%</td><td class="num">0</td></tr>
+        <tr><td>aria301_305</td><td class="num">123</td><td class="num">7</td><td class="num">3</td><td class="num">694</td><td class="num">0.0050%</td><td class="num">0</td></tr>
+      </tbody>
+    </table></div>
+    <p>실제 opacity prox가 쓴 contribution은 허용 상한 0.75%보다 두 자릿수 이상 작았다. 최종 개선은 대량 삭제가 아니라
+      매우 작은 reversible geometry pressure와 keyframe geometry service가 결합된 결과다.</p>
+  </section>
+
+  <section>
+    <h2>12. exp67과 exp68 결과 비교</h2>
+    <h3>12.1 화질</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">native baseline fixed PSNR</th><th class="num">exp67 scheduler fixed PSNR</th><th class="num">exp68 final fixed PSNR</th><th class="num">exp68 all-view PSNR</th><th class="num">exp68 SSIM</th><th class="num">exp68 LPIPS ↓</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">24.7205</td><td class="num">27.8123*</td><td class="num good-text">27.9331</td><td class="num">28.0303</td><td class="num">0.86292</td><td class="num">0.24753</td></tr>
+        <tr><td>aria301_305</td><td class="num">25.8145</td><td class="num">29.7826</td><td class="num good-text">30.6697</td><td class="num">30.6990</td><td class="num">0.91100</td><td class="num">0.22606</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">* exp67 1253 fixed 값은 2회 평균이다. Drive의 exp67 27.94 dB PLY는 그중 all-view 27.9358 dB인 seed0 run이다.
+      exp67과 exp68은 strict online tracking의 비동기 trajectory 변동이 있으므로 차이 전체를 carve의 인과 효과로 귀속할 수 없다.</p>
+
+    <h3>12.2 Floater</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>scene</th><th class="num">native baseline visible</th><th class="num">exp67 scheduler</th><th class="num">exp68 dense-only carve/Fisher</th><th class="num">exp68 final mixed</th><th class="num">exp67→final</th><th class="num">baseline→final</th></tr></thead>
+      <tbody>
+        <tr><td>aria1253</td><td class="num">118</td><td class="num">193</td><td class="num">139</td><td class="num good-text">126</td><td class="num good-text">−34.7%</td><td class="num">+6.8%</td></tr>
+        <tr><td>aria301_305</td><td class="num">491</td><td class="num">660</td><td class="num">576</td><td class="num good-text">529</td><td class="num good-text">−19.8%</td><td class="num">+7.7%</td></tr>
+      </tbody>
+    </table></div>
+    <p>visible은 manual floater region 안의 <code>opacity &gt; 0.3</code> Gaussian nominal count다. exp68 mixed pool은 dense-only보다
+      1253에서 139→126, 305에서 576→529로 더 줄었다. 이것이 keyframe RGBD+normal을 같은 replay pool에서 계속 service한 이유다.</p>
+    <div class="callout warn"><b>과도한 해석 금지:</b> label mask와 VIGS map은 trajectory Sim3로 정합했고 median 오차가 1253 2.48 cm,
+      305 6.34 cm다(mask voxel 7.5 cm). erosion/dilation에 따라 순위가 일부 바뀐다. 따라서 exp68은 “exp67보다 visible floater가 줄고
+      baseline 수준에 접근했다”까지가 안전하며, 126과 118의 차이를 정밀한 물체 개수 차이처럼 읽으면 안 된다.
+      저-opacity를 포함한 전체 region Gaussian은 아직 baseline보다 많다.</div>
+  </section>
+
+  <section>
+    <h2>13. 왜 이 구조를 채택했고 무엇을 기각했나</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>실험 축</th><th>관측</th><th>최종 판단</th></tr></thead>
+      <tbody>
+        <tr><td>Dense RGB supervision</td><td>exp66에서 keyframe 비중이 늘수록 PSNR이 단조 하락</td><td><span class="tag good">채택</span>dense pool을 budget만큼 확장</td></tr>
+        <tr><td>Fisher novelty-first order/membership</td><td>Stage C + online 후보에서 수렴 지연; 1253 후보 약 24.91 dB</td><td><span class="tag bad">기각</span>optimizer priority에서 제거</td></tr>
+        <tr><td>Shuffle without replacement</td><td>동일 set에서 novelty/residual order보다 AUC 우세, 3/3</td><td><span class="tag good">채택</span>기본 order</td></tr>
+        <tr><td>고정 FPS·pool cap</td><td>GPU/장면/속도에 종속되고 drained pool 후보는 23.53/22.68 dB</td><td><span class="tag bad">기각</span>service-credit admission</td></tr>
+        <tr><td>Dense geometry freeze/scale projection</td><td>RGB 수렴과 geometry freedom 손상</td><td><span class="tag bad">기각</span>full geometry Adam 보존</td></tr>
+        <tr><td>Dense-only replay</td><td>PSNR은 높으나 visible floater 139/576</td><td><span class="tag warn">수정</span>keyframe+dense mixed pool</td></tr>
+        <tr><td>Hard carve / xyz force</td><td>PSNR 손실 또는 불안정한 floater 개선</td><td><span class="tag bad">기각</span>soft opacity + reversible prox</td></tr>
+        <tr><td>Fisher-conditioned carve</td><td>서로 다른 ray 방향으로 지지된 free-space에만 압력</td><td><span class="tag good">채택</span>geometry confidence</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>14. 논문에서 주장할 수 있는 범위</h2>
+    <div class="two">
+      <div class="card">
+        <h3 class="good-text">현재 증거가 지지하는 것</h3>
+        <ul>
+          <li>view-set membership, training order, geometry constraint를 분리한 causal scheduler가 실제 VIGS <code>map()</code> 안에서 동작한다.</li>
+          <li>한 universal 설정으로 1253/305에서 exp67의 높은 PSNR을 유지·개선하면서 visible floater를 각각 34.7%/19.8% 줄였다.</li>
+          <li>Fisher novelty는 optimizer order보다 3D evidence confidence에 쓰는 편이 현재 실험과 정합적이다.</li>
+          <li>dense RGB full-geometry update와 keyframe RGBD+normal service가 공존할 수 있다.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 class="warn-text">아직 주장할 수 없는 것</h3>
+        <ul>
+          <li>carve 하나가 PSNR 상승의 인과 원인이라는 주장. paired fixed-trajectory 실험이 아니다.</li>
+          <li>모든 장면에서 전역 최적인 hyperparameter라는 주장. exp68 geometry label 검증은 1253/305 두 장면이다.</li>
+          <li>저-opacity dust까지 native baseline으로 복원했다는 주장.</li>
+          <li>dense frame의 빠른 수렴을 Fisher eigen-direction 보강 하나로 설명하는 주장. Stage C 결과가 이를 반박한다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>15. 코드 구조와 재현 경로</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>파일 / 함수</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><code>vigs/map_scheduler.py</code><br><code>AdaptiveViewsetController</code></td><td>service-credit admission과 interval water filling</td></tr>
+        <tr><td><code>vigs/map_scheduler.py</code><br><code>CausalShuffleQueue</code></td><td>동적 pool의 shuffle-without-replacement</td></tr>
+        <tr><td><code>vigs/map_scheduler.py</code><br><code>TopologyReplayController</code></td><td>FRONTIER→BALANCED→REPLAY 상태와 pressure feedback</td></tr>
+        <tr><td><code>vigs/vigs.py</code><br><code>_queue_adaptive_causal_dense_intervals()</code></td><td>도착한 keyframe interval 후보 구성·pose filling·admission</td></tr>
+        <tr><td><code>vigs/gs_backend.py</code><br><code>idle_map_rr_step()</code>, <code>map()</code></td><td>동일 optimizer/loss로 한-view replay 실행, deadline timing</td></tr>
+        <tr><td><code>vigs/gs_backend.py</code><br><code>_frontier_mapping_view_loss()</code></td><td>keyframe RGBD+N / dense RGB 분기</td></tr>
+        <tr><td><code>vigs/gaussian/utils/causal_carve.py</code></td><td>SLAM ray transit/terminal field, Fisher LUT, soft gradient, opacity prox</td></tr>
+        <tr><td><code>exp68_axes/run_geometry_scheduler_ablation.sh</code></td><td>최종 universal variant <code>carve_exp40_fisher_unrestricted_mixed</code></td></tr>
+        <tr><td><code>exp66_axes/recipe_backpolish_off.yaml</code></td><td>mapping window와 base optimizer 설정</td></tr>
+      </tbody>
+    </table></div>
+    <p>정량 결과와 label protocol은 <a href="exp68_geometry_scheduler_result.html">exp68_geometry_scheduler_result.html</a>,
+      view-set/order 분리 실험은 <a href="../exp66/exp66_viewset_stage_bcd_result.html">exp66_viewset_stage_bcd_result.html</a>,
+      exp67 universal scheduler의 세 장면 검증은 <a href="../exp67/exp67_universal_scheduler_result.html">exp67_universal_scheduler_result.html</a>에 있다.</p>
+  </section>
+
+  <footer>
+    exp68 final universal variant: carve_exp40_fisher_unrestricted_mixed · seed 0 · 1.5× strict causal replay ·
+    background_polish_step calls 0 · post-stream map updates 0 · online policy label access 0.<br>
+    PLY 비교 묶음: GoogleDrive/gs_floaterLab/exp68_geometry_scheduler/
+  </footer>
+</main>
+</body>
+</html>

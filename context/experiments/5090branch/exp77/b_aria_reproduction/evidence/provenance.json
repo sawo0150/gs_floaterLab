@@ -1,0 +1,14 @@
+{
+  "head": "2a3eeeb5b83743c642bbd7e5278817a4c76228ee",
+  "reference_psnr": 27.708,
+  "protocol": "original1x_finalmap_queue_drain_terminal_rematuration",
+  "files": {
+    "exp72_axes/run_scheduler_ablation.sh": "645e780dea5e4c04be6beb56a71c03f2dcd2cd37ce89624773ed42a748441be6",
+    "exp70_axes/run_v7_1x_no_legacy_carve.sh": "4ea1bd3f0e62410639829e1c1254fde93c2978d6bf34ab88815b5cc7931504cb",
+    "exp69_axes/run_decoupled_geometry.sh": "1c1cfb7a20677b91593759cd55b0192460769681cc3e6df028fe45241b752ff1",
+    "exp69_axes/hardware_profiles.sh": "1cc4f12049f16beedaa89ae7290767e243bffe8612ee89123b351d5edfb524e5",
+    "exp66_axes/recipe_backpolish_off.yaml": "b57648cffcdafd703fb1e7beece3c2892a8799cb0892262f2e7b952494dfdac3",
+    "calib/aria1253.txt": "0e9a03c3e366c1f7ae07d6d5709ea1a0b2425443a6ed150f442e5cb1a7d1113c"
+  },
+  "inherited_relevant_environment": {}
+}

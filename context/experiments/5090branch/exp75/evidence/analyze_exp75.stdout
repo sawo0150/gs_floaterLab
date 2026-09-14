@@ -1,0 +1,3077 @@
+{
+  "aria1253_K128_b001_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.01,
+    "heldout_psnr": 35.03864804367346,
+    "heldout_psnr_temporal_thirds": [
+      35.84926060763272,
+      35.78511856220387,
+      33.466553617406774
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.03864804367346,
+        "heldout_psnr_temporal_thirds": [
+          35.84926060763272,
+          35.78511856220387,
+          33.466553617406774
+        ],
+        "heldout_psnr_worst_q1": 32.0405045020871,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.31274163990957987,
+        "count_min": 10,
+        "count_max": 72,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9956307087948937
+      }
+    },
+    "count_cv": 0.31274163990957987,
+    "count_min": 10,
+    "count_max": 72,
+    "count_temporal_thirds": [
+      33.94210526315789,
+      24.057894736842105,
+      20.94736842105263
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9791125027750288,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K128_b002_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.02,
+    "heldout_psnr": 34.934251867189,
+    "heldout_psnr_temporal_thirds": [
+      35.756169163097034,
+      35.55666125262225,
+      33.47470449518274
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.934251867189,
+        "heldout_psnr_temporal_thirds": [
+          35.756169163097034,
+          35.55666125262225,
+          33.47470449518274
+        ],
+        "heldout_psnr_worst_q1": 31.93621481918707,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2635706104000723,
+        "count_min": 11,
+        "count_max": 63,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.994090239399229
+      }
+    },
+    "count_cv": 0.2635706104000723,
+    "count_min": 11,
+    "count_max": 63,
+    "count_temporal_thirds": [
+      32.60526315789474,
+      24.513157894736842,
+      21.82894736842105
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.977555738629122,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K128_b005_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 35.00867304187611,
+    "heldout_psnr_temporal_thirds": [
+      35.617740631103516,
+      35.838225505970144,
+      33.55877395912453
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.00867304187611,
+        "heldout_psnr_temporal_thirds": [
+          35.617740631103516,
+          35.838225505970144,
+          33.55877395912453
+        ],
+        "heldout_psnr_worst_q1": 31.968283071750548,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.17619988649258547,
+        "count_min": 14,
+        "count_max": 51,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9911272071170938
+      }
+    },
+    "count_cv": 0.17619988649258547,
+    "count_min": 14,
+    "count_max": 51,
+    "count_temporal_thirds": [
+      30.007894736842104,
+      25.294736842105262,
+      23.644736842105264
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9713405053492624,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K256_b002_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 256,
+    "beta": 0.02,
+    "heldout_psnr": 35.01906314217971,
+    "heldout_psnr_temporal_thirds": [
+      35.524850914695044,
+      35.971544407032155,
+      33.55142766458017
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.01906314217971,
+        "heldout_psnr_temporal_thirds": [
+          35.524850914695044,
+          35.971544407032155,
+          33.55142766458017
+        ],
+        "heldout_psnr_worst_q1": 32.19020434123714,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2700602401934304,
+        "count_min": 13,
+        "count_max": 66,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9971053712796447
+      }
+    },
+    "count_cv": 0.2700602401934304,
+    "count_min": 13,
+    "count_max": 66,
+    "count_temporal_thirds": [
+      32.713157894736845,
+      24.526315789473685,
+      21.707894736842107
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9773646461271573,
+    "tail_updates": 21180,
+    "native_blocks": 155,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K512_b002_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 512,
+    "beta": 0.02,
+    "heldout_psnr": 34.984870875539954,
+    "heldout_psnr_temporal_thirds": [
+      35.78211028359153,
+      35.84824533815737,
+      33.30949331212927
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.984870875539954,
+        "heldout_psnr_temporal_thirds": [
+          35.78211028359153,
+          35.84824533815737,
+          33.30949331212927
+        ],
+        "heldout_psnr_worst_q1": 32.05601096734768,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2893212747103123,
+        "count_min": 14,
+        "count_max": 70,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9978397997624758
+      }
+    },
+    "count_cv": 0.2893212747103123,
+    "count_min": 14,
+    "count_max": 70,
+    "count_temporal_thirds": [
+      33.53421052631579,
+      24.144736842105264,
+      21.268421052631577
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9790957654964861,
+    "tail_updates": 21180,
+    "native_blocks": 103,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K64_b001_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 64,
+    "beta": 0.01,
+    "heldout_psnr": 35.06089754631183,
+    "heldout_psnr_temporal_thirds": [
+      35.65973240245472,
+      36.035146995827006,
+      33.476723706280744
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.06089754631183,
+        "heldout_psnr_temporal_thirds": [
+          35.65973240245472,
+          36.035146995827006,
+          33.476723706280744
+        ],
+        "heldout_psnr_worst_q1": 32.117160052787966,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.3080240250370091,
+        "count_min": 9,
+        "count_max": 70,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9984889144728855
+      }
+    },
+    "count_cv": 0.3080240250370091,
+    "count_min": 9,
+    "count_max": 70,
+    "count_temporal_thirds": [
+      33.55,
+      24.32894736842105,
+      21.068421052631578
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9778415484919376,
+    "tail_updates": 21180,
+    "native_blocks": 492,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K64_b002_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 64,
+    "beta": 0.02,
+    "heldout_psnr": 34.99177104271263,
+    "heldout_psnr_temporal_thirds": [
+      35.550505343350494,
+      35.964827926070605,
+      33.44963292722349
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.99177104271263,
+        "heldout_psnr_temporal_thirds": [
+          35.550505343350494,
+          35.964827926070605,
+          33.44963292722349
+        ],
+        "heldout_psnr_worst_q1": 32.042936278552546,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.25672968923233896,
+        "count_min": 11,
+        "count_max": 61,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9975365657718154
+      }
+    },
+    "count_cv": 0.25672968923233896,
+    "count_min": 11,
+    "count_max": 61,
+    "count_temporal_thirds": [
+      32.21578947368421,
+      24.739473684210527,
+      21.992105263157896
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9767949670987053,
+    "tail_updates": 21180,
+    "native_blocks": 492,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_K64_b005_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "block_weighted_rr",
+    "K": 64,
+    "beta": 0.05,
+    "heldout_psnr": 35.048076454115794,
+    "heldout_psnr_temporal_thirds": [
+      35.53075162714178,
+      35.91540054038719,
+      33.6891387656883
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.048076454115794,
+        "heldout_psnr_temporal_thirds": [
+          35.53075162714178,
+          35.91540054038719,
+          33.6891387656883
+        ],
+        "heldout_psnr_worst_q1": 32.22430443182224,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.1687906000542289,
+        "count_min": 15,
+        "count_max": 51,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9965898036069579
+      }
+    },
+    "count_cv": 0.1687906000542289,
+    "count_min": 15,
+    "count_max": 51,
+    "count_temporal_thirds": [
+      29.721052631578946,
+      25.389473684210525,
+      23.83684210526316
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9716845840119147,
+    "tail_updates": 21180,
+    "native_blocks": 492,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria3F_interval_size_K32_b002_r4_79081_s0": {
+    "scene": "3F",
+    "scheduler": "interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 29.791786444402486,
+    "heldout_psnr_temporal_thirds": [
+      35.96808180785531,
+      28.212757129387317,
+      25.194520395964826
+    ],
+    "heldout_views": 609,
+    "checkpoints": {
+      "45000": {
+        "heldout_psnr": 29.019263478922728,
+        "heldout_psnr_temporal_thirds": [
+          35.364177384400016,
+          27.318473609210233,
+          24.37513944315793
+        ],
+        "heldout_psnr_worst_q1": 21.966204487420374,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.7003745876050637,
+        "count_min": 1,
+        "count_max": 50,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9936398535206938
+      },
+      "79081": {
+        "heldout_psnr": 29.791786444402486,
+        "heldout_psnr_temporal_thirds": [
+          35.96808180785531,
+          28.212757129387317,
+          25.194520395964826
+        ],
+        "heldout_psnr_worst_q1": 22.5075783947714,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.3511252400450241,
+        "count_min": 9,
+        "count_max": 53,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9950028744523209
+      }
+    },
+    "count_cv": 0.3511252400450241,
+    "count_min": 9,
+    "count_max": 53,
+    "count_temporal_thirds": [
+      25.803521126760565,
+      16.822535211267606,
+      13.064788732394366
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9761252458915043,
+    "tail_updates": 42601,
+    "native_blocks": 2656,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.35134666093995776,
+    "interval_count_min": 45,
+    "interval_count_max": 365,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria3F_rr_K32_b002_du36500_r4_79081_s0": {
+    "scene": "3F",
+    "scheduler": "causal_rr",
+    "K": 32,
+    "beta": 0.0,
+    "heldout_psnr": 34.295225112113265,
+    "heldout_psnr_temporal_thirds": [
+      36.45106647284747,
+      33.778800344232266,
+      32.65580851926005
+    ],
+    "heldout_views": 609,
+    "checkpoints": {
+      "45000": {
+        "heldout_psnr": 32.54522896752569,
+        "heldout_psnr_temporal_thirds": [
+          34.94361854891471,
+          32.244611514612956,
+          30.44745683904939
+        ],
+        "heldout_psnr_worst_q1": 28.276617785684422,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.7603438598326321,
+        "count_min": 2,
+        "count_max": 59,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9988015490168283
+      },
+      "79081": {
+        "heldout_psnr": 34.295225112113265,
+        "heldout_psnr_temporal_thirds": [
+          36.45106647284747,
+          33.778800344232266,
+          32.65580851926005
+        ],
+        "heldout_psnr_worst_q1": 30.20183721554825,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.43246670006750443,
+        "count_min": 10,
+        "count_max": 67,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9987155456442652
+      }
+    },
+    "count_cv": 0.43246670006750443,
+    "count_min": 10,
+    "count_max": 67,
+    "count_temporal_thirds": [
+      27.414084507042254,
+      16.242957746478872,
+      12.033802816901408
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9790627099727468,
+    "tail_updates": 42601,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria3F_rr_K32_b002_r4_79081_s0": {
+    "scene": "3F",
+    "scheduler": "causal_rr",
+    "K": 32,
+    "beta": 0.0,
+    "heldout_psnr": 30.045416714522638,
+    "heldout_psnr_temporal_thirds": [
+      36.530764095888934,
+      28.11400477404665,
+      25.49148127363233
+    ],
+    "heldout_views": 609,
+    "checkpoints": {
+      "45000": {
+        "heldout_psnr": 29.260942628230953,
+        "heldout_psnr_temporal_thirds": [
+          35.645762927426496,
+          27.600146354712876,
+          24.536918602553495
+        ],
+        "heldout_psnr_worst_q1": 21.992658490448996,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.7603438598326321,
+        "count_min": 2,
+        "count_max": 59,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9988015490168283
+      },
+      "79081": {
+        "heldout_psnr": 30.045416714522638,
+        "heldout_psnr_temporal_thirds": [
+          36.530764095888934,
+          28.11400477404665,
+          25.49148127363233
+        ],
+        "heldout_psnr_worst_q1": 22.528712777530444,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.43246670006750443,
+        "count_min": 10,
+        "count_max": 67,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9987155456442652
+      }
+    },
+    "count_cv": 0.43246670006750443,
+    "count_min": 10,
+    "count_max": 67,
+    "count_temporal_thirds": [
+      27.414084507042254,
+      16.242957746478872,
+      12.033802816901408
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9790627099727468,
+    "tail_updates": 42601,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria3F_staged_interval_size_K32_b002_du36500_r4_79081_s0": {
+    "scene": "3F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 34.082251168236944,
+    "heldout_psnr_temporal_thirds": [
+      35.950260528789954,
+      33.4358719323069,
+      32.86062104361398
+    ],
+    "heldout_views": 609,
+    "checkpoints": {
+      "45000": {
+        "heldout_psnr": 32.45664830826382,
+        "heldout_psnr_temporal_thirds": [
+          34.67194992215762,
+          32.098298124491876,
+          30.59969687814196
+        ],
+        "heldout_psnr_worst_q1": 28.162218368131352,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.7382254598898833,
+        "count_min": 1,
+        "count_max": 58,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9946749755535877
+      },
+      "79081": {
+        "heldout_psnr": 34.082251168236944,
+        "heldout_psnr_temporal_thirds": [
+          35.950260528789954,
+          33.4358719323069,
+          32.86062104361398
+        ],
+        "heldout_psnr_worst_q1": 30.076451295341542,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.3718754632582143,
+        "count_min": 8,
+        "count_max": 62,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9965917161155992
+      }
+    },
+    "count_cv": 0.3718754632582143,
+    "count_min": 8,
+    "count_max": 62,
+    "count_temporal_thirds": [
+      25.96267605633803,
+      16.6,
+      13.128169014084508
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9766971685422988,
+    "tail_updates": 42601,
+    "native_blocks": 1331,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.371720898601471,
+    "interval_count_min": 35,
+    "interval_count_max": 429,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria3F_staged_interval_size_K32_b002_r4_79081_s0": {
+    "scene": "3F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 30.040909505634275,
+    "heldout_psnr_temporal_thirds": [
+      35.90473081090767,
+      28.65607167699654,
+      25.561926028998613
+    ],
+    "heldout_views": 609,
+    "checkpoints": {
+      "45000": {
+        "heldout_psnr": 29.39949838672757,
+        "heldout_psnr_temporal_thirds": [
+          35.45819253404739,
+          28.012892953280744,
+          24.72740967285457
+        ],
+        "heldout_psnr_worst_q1": 22.345609839445626,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.7076626524196608,
+        "count_min": 1,
+        "count_max": 54,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9923030066416728
+      },
+      "79081": {
+        "heldout_psnr": 30.040909505634275,
+        "heldout_psnr_temporal_thirds": [
+          35.90473081090767,
+          28.65607167699654,
+          25.561926028998613
+        ],
+        "heldout_psnr_worst_q1": 22.860629948136076,
+        "heldout_views": 609,
+        "eligible_pool_size": 4260,
+        "count_cv": 0.3539636375845535,
+        "count_min": 9,
+        "count_max": 57,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9968078845504627
+      }
+    },
+    "count_cv": 0.3539636375845535,
+    "count_min": 9,
+    "count_max": 57,
+    "count_temporal_thirds": [
+      25.721830985915492,
+      16.864788732394366,
+      13.104225352112676
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9765057223810092,
+    "tail_updates": 42601,
+    "native_blocks": 2003,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.3538571147649037,
+    "interval_count_min": 51,
+    "interval_count_max": 396,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria1253_efloor_K128_r01_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.1,
+    "heldout_psnr": 35.09683888675245,
+    "heldout_psnr_temporal_thirds": [
+      35.59826091419567,
+      35.96632445300067,
+      33.71664569996022
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.09683888675245,
+        "heldout_psnr_temporal_thirds": [
+          35.59826091419567,
+          35.96632445300067,
+          33.71664569996022
+        ],
+        "heldout_psnr_worst_q1": 32.36200327989532,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2651231160549126,
+        "count_min": 22,
+        "count_max": 73,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.99813133324416
+      }
+    },
+    "count_cv": 0.2651231160549126,
+    "count_min": 22,
+    "count_max": 73,
+    "count_temporal_thirds": [
+      32.392105263157895,
+      23.33684210526316,
+      23.21842105263158
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9779573067549755,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_efloor_K128_r02_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.2,
+    "heldout_psnr": 35.197593302814504,
+    "heldout_psnr_temporal_thirds": [
+      35.730752702192824,
+      36.103669272528755,
+      33.74848461151123
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.197593302814504,
+        "heldout_psnr_temporal_thirds": [
+          35.730752702192824,
+          36.103669272528755,
+          33.74848461151123
+        ],
+        "heldout_psnr_worst_q1": 32.386166409748355,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2190646784247368,
+        "count_min": 24,
+        "count_max": 69,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9952082446662992
+      }
+    },
+    "count_cv": 0.2190646784247368,
+    "count_min": 24,
+    "count_max": 69,
+    "count_temporal_thirds": [
+      30.03421052631579,
+      24.45,
+      24.46315789473684
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9736017107493369,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_efloor_K128_r035_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.35,
+    "heldout_psnr": 35.20084066332483,
+    "heldout_psnr_temporal_thirds": [
+      35.61541696028276,
+      36.16835149129232,
+      33.81107619956688
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.20084066332483,
+        "heldout_psnr_temporal_thirds": [
+          35.61541696028276,
+          36.16835149129232,
+          33.81107619956688
+        ],
+        "heldout_psnr_worst_q1": 32.33705748581305,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.1697559031865068,
+        "count_min": 25,
+        "count_max": 63,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9980798086887118
+      }
+    },
+    "count_cv": 0.1697559031865068,
+    "count_min": 25,
+    "count_max": 63,
+    "count_temporal_thirds": [
+      28.24736842105263,
+      25.378947368421052,
+      25.321052631578947
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9656401738489095,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_efloor_K128_r0_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.0,
+    "heldout_psnr": 35.0704304630771,
+    "heldout_psnr_temporal_thirds": [
+      36.15802047035911,
+      35.78088022161413,
+      33.25225014156766
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.0704304630771,
+        "heldout_psnr_temporal_thirds": [
+          36.15802047035911,
+          35.78088022161413,
+          33.25225014156766
+        ],
+        "heldout_psnr_worst_q1": 31.973233525345965,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.32539371024447705,
+        "count_min": 18,
+        "count_max": 75,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.999334392501581
+      }
+    },
+    "count_cv": 0.32539371024447705,
+    "count_min": 18,
+    "count_max": 75,
+    "count_temporal_thirds": [
+      35.06315789473684,
+      23.68421052631579,
+      20.2
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9805406750932302,
+    "tail_updates": 21180,
+    "native_blocks": 266,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_interval_K32_b00025_r4_45k_s0": {
+    "scene": "1253",
+    "scheduler": "interval_softmax_rr",
+    "K": 32,
+    "beta": 0.0025,
+    "heldout_psnr": 35.068681330768605,
+    "heldout_psnr_temporal_thirds": [
+      36.2140419699929,
+      35.65623481185348,
+      33.31455682825159
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.068681330768605,
+        "heldout_psnr_temporal_thirds": [
+          36.2140419699929,
+          35.65623481185348,
+          33.31455682825159
+        ],
+        "heldout_psnr_worst_q1": 32.00309818546946,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.44987879849280893,
+        "count_min": 15,
+        "count_max": 93,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9959279096370336
+      },
+      "45000": {
+        "heldout_psnr": 35.368931834683096,
+        "heldout_psnr_temporal_thirds": [
+          35.96324417807839,
+          36.23381452207212,
+          33.898731019761826
+        ],
+        "heldout_psnr_worst_q1": 32.620054151953724,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.35472238492992003,
+        "count_min": 27,
+        "count_max": 125,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9973981819504181
+      }
+    },
+    "count_cv": 0.35472238492992003,
+    "count_min": 27,
+    "count_max": 125,
+    "count_temporal_thirds": [
+      50.73947368421052,
+      35.857894736842105,
+      31.823684210526316
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9812360758405855,
+    "tail_updates": 36180,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.11455981240070164,
+    "interval_count_min": 245,
+    "interval_count_max": 468,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria1253_interval_K32_b0005_r4_45k_s0": {
+    "scene": "1253",
+    "scheduler": "interval_softmax_rr",
+    "K": 32,
+    "beta": 0.005,
+    "heldout_psnr": 35.014512851925716,
+    "heldout_psnr_temporal_thirds": [
+      35.915930938720706,
+      35.78609169854058,
+      33.32482299098262
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.014512851925716,
+        "heldout_psnr_temporal_thirds": [
+          35.915930938720706,
+          35.78609169854058,
+          33.32482299098262
+        ],
+        "heldout_psnr_worst_q1": 31.93227139914908,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.39135422999289704,
+        "count_min": 16,
+        "count_max": 85,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9976625004309585
+      },
+      "45000": {
+        "heldout_psnr": 35.330420160586115,
+        "heldout_psnr_temporal_thirds": [
+          35.85278611616655,
+          36.38291736885353,
+          33.74588355311641
+        ],
+        "heldout_psnr_worst_q1": 32.14916499068097,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.3088321610579179,
+        "count_min": 29,
+        "count_max": 115,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9963017198241054
+      }
+    },
+    "count_cv": 0.3088321610579179,
+    "count_min": 29,
+    "count_max": 115,
+    "count_temporal_thirds": [
+      48.578947368421055,
+      36.51578947368421,
+      33.32631578947368
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.981085314418404,
+    "tail_updates": 36180,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.07090236026648213,
+    "interval_count_min": 264,
+    "interval_count_max": 415,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria1253_interval_K32_b0_r4_45k_s0": {
+    "scene": "1253",
+    "scheduler": "interval_softmax_rr",
+    "K": 32,
+    "beta": 0.0,
+    "heldout_psnr": 34.99271544942095,
+    "heldout_psnr_temporal_thirds": [
+      36.14570593400435,
+      35.99190881517198,
+      32.81917992344609
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.99271544942095,
+        "heldout_psnr_temporal_thirds": [
+          36.14570593400435,
+          35.99190881517198,
+          32.81917992344609
+        ],
+        "heldout_psnr_worst_q1": 31.679148511188785,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.5401052983755421,
+        "count_min": 15,
+        "count_max": 96,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9920671346543647
+      },
+      "45000": {
+        "heldout_psnr": 35.460571780526564,
+        "heldout_psnr_temporal_thirds": [
+          36.70351600646973,
+          36.17967118157281,
+          33.475510667871546
+        ],
+        "heldout_psnr_worst_q1": 32.19852856891911,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.4398780975915268,
+        "count_min": 25,
+        "count_max": 136,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9903000121803842
+      }
+    },
+    "count_cv": 0.4398780975915268,
+    "count_min": 25,
+    "count_max": 136,
+    "count_temporal_thirds": [
+      54.6,
+      34.65526315789474,
+      29.16578947368421
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9777407904841883,
+    "tail_updates": 36180,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.19951306649867248,
+    "interval_count_min": 220,
+    "interval_count_max": 557,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_interval_K32_b0005_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "interval_softmax_rr",
+    "K": 32,
+    "beta": 0.005,
+    "heldout_psnr": 27.50688885951388,
+    "heldout_psnr_temporal_thirds": [
+      29.47918815198152,
+      28.356451988220215,
+      24.685026438339897
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.50688885951388,
+        "heldout_psnr_temporal_thirds": [
+          29.47918815198152,
+          28.356451988220215,
+          24.685026438339897
+        ],
+        "heldout_psnr_worst_q1": 22.171563024106234,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8720850175170869,
+        "count_min": 1,
+        "count_max": 179,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9964956098063485
+      },
+      "45000": {
+        "heldout_psnr": 28.125472638918005,
+        "heldout_psnr_temporal_thirds": [
+          29.743206013803896,
+          28.777877185655676,
+          25.855334717294443
+        ],
+        "heldout_psnr_worst_q1": 23.18053752788599,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.6148321862784597,
+        "count_min": 4,
+        "count_max": 203,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9955670938271908
+      }
+    },
+    "count_cv": 0.6148321862784597,
+    "count_min": 4,
+    "count_max": 203,
+    "count_temporal_thirds": [
+      36.39408099688473,
+      20.65109034267913,
+      13.068642745709829
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9770507526653265,
+    "tail_updates": 20580,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.37022477256691266,
+    "interval_count_min": 53,
+    "interval_count_max": 330,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_interval_size_K32_b002_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 27.646398122759834,
+    "heldout_psnr_temporal_thirds": [
+      29.428118747213613,
+      28.463818176932957,
+      25.047257444132928
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.646398122759834,
+        "heldout_psnr_temporal_thirds": [
+          29.428118747213613,
+          28.463818176932957,
+          25.047257444132928
+        ],
+        "heldout_psnr_worst_q1": 22.7165584564209,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.7290023624409213,
+        "count_min": 2,
+        "count_max": 68,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9849594022019375
+      },
+      "45000": {
+        "heldout_psnr": 28.297452774600707,
+        "heldout_psnr_temporal_thirds": [
+          29.86240355864815,
+          28.648996829986572,
+          26.380957935167395
+        ],
+        "heldout_psnr_worst_q1": 24.066505266272504,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.4329816236513428,
+        "count_min": 11,
+        "count_max": 72,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9906679282841474
+      }
+    },
+    "count_cv": 0.4329816236513428,
+    "count_min": 11,
+    "count_max": 72,
+    "count_temporal_thirds": [
+      34.68847352024922,
+      20.666666666666668,
+      14.761310452418098
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9738114183970433,
+    "tail_updates": 20580,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4365434601418198,
+    "interval_count_min": 20,
+    "interval_count_max": 418,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_staged_interval_size_K32_b002_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 27.709372340769008,
+    "heldout_psnr_temporal_thirds": [
+      29.537515142689582,
+      28.335289706354555,
+      25.255312173262887
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.709372340769008,
+        "heldout_psnr_temporal_thirds": [
+          29.537515142689582,
+          28.335289706354555,
+          25.255312173262887
+        ],
+        "heldout_psnr_worst_q1": 22.810133450273156,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.7855070902855613,
+        "count_min": 2,
+        "count_max": 80,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9910367749906291
+      },
+      "45000": {
+        "heldout_psnr": 28.340847049934276,
+        "heldout_psnr_temporal_thirds": [
+          29.74633457349694,
+          28.73245199866917,
+          26.54375457763672
+        ],
+        "heldout_psnr_worst_q1": 24.076873198799465,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.46500662413972893,
+        "count_min": 11,
+        "count_max": 82,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9926872998055905
+      }
+    },
+    "count_cv": 0.46500662413972893,
+    "count_min": 11,
+    "count_max": 82,
+    "count_temporal_thirds": [
+      34.769470404984425,
+      20.439252336448597,
+      14.90795631825273
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.973103351332617,
+    "tail_updates": 20580,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4876857032815143,
+    "interval_count_min": 26,
+    "interval_count_max": 571,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_interval_K32_b0005_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "interval_softmax_rr",
+    "K": 32,
+    "beta": 0.005,
+    "heldout_psnr": 34.53964377017248,
+    "heldout_psnr_temporal_thirds": [
+      36.02944598879133,
+      33.5635050705501,
+      34.025980251176016
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.53964377017248,
+        "heldout_psnr_temporal_thirds": [
+          36.02944598879133,
+          33.5635050705501,
+          34.025980251176016
+        ],
+        "heldout_psnr_worst_q1": 29.68825324376424,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.6731558313892358,
+        "count_min": 4,
+        "count_max": 190,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9896049025490667
+      },
+      "45000": {
+        "heldout_psnr": 35.431285012336005,
+        "heldout_psnr_temporal_thirds": [
+          36.88094231060573,
+          34.48203148160662,
+          34.930881244795664
+        ],
+        "heldout_psnr_worst_q1": 31.209733804066975,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.49380844389222356,
+        "count_min": 9,
+        "count_max": 214,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9920655465846637
+      }
+    },
+    "count_cv": 0.49380844389222356,
+    "count_min": 9,
+    "count_max": 214,
+    "count_temporal_thirds": [
+      23.836734693877553,
+      18.10969387755102,
+      15.451530612244898
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9698011210441343,
+    "tail_updates": 26340,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.249186504598612,
+    "interval_count_min": 89,
+    "interval_count_max": 332,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_interval_size_K32_b002_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 34.764442483584084,
+    "heldout_psnr_temporal_thirds": [
+      36.76286336353847,
+      33.583991748946055,
+      33.94647233826773
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.764442483584084,
+        "heldout_psnr_temporal_thirds": [
+          36.76286336353847,
+          33.583991748946055,
+          33.94647233826773
+        ],
+        "heldout_psnr_worst_q1": 30.624936807723273,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5399644432738141,
+        "count_min": 4,
+        "count_max": 81,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.995967805798221
+      },
+      "45000": {
+        "heldout_psnr": 35.553462601843336,
+        "heldout_psnr_temporal_thirds": [
+          37.142627120018005,
+          34.60079881123134,
+          34.91696187428066
+        ],
+        "heldout_psnr_worst_q1": 32.075976848602295,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.3207456497785307,
+        "count_min": 10,
+        "count_max": 82,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9964398521561965
+      }
+    },
+    "count_cv": 0.3207456497785307,
+    "count_min": 10,
+    "count_max": 82,
+    "count_temporal_thirds": [
+      25.570153061224488,
+      17.818877551020407,
+      14.008928571428571
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9781422691053349,
+    "tail_updates": 26340,
+    "native_blocks": 1591,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.42960662109526304,
+    "interval_count_min": 34,
+    "interval_count_max": 770,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_staged_interval_size_K32_b002_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 34.56777064573197,
+    "heldout_psnr_temporal_thirds": [
+      36.35300781045641,
+      33.32180981976645,
+      34.02849430697305
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.56777064573197,
+        "heldout_psnr_temporal_thirds": [
+          36.35300781045641,
+          33.32180981976645,
+          34.02849430697305
+        ],
+        "heldout_psnr_worst_q1": 30.329845996130082,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5314862682453173,
+        "count_min": 4,
+        "count_max": 41,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.994033975618934
+      },
+      "45000": {
+        "heldout_psnr": 35.88020921321142,
+        "heldout_psnr_temporal_thirds": [
+          37.56921168736049,
+          34.595075028283254,
+          35.47634092399052
+        ],
+        "heldout_psnr_worst_q1": 31.919755958375475,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.3183029072137745,
+        "count_min": 11,
+        "count_max": 45,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9965919739533433
+      }
+    },
+    "count_cv": 0.3183029072137745,
+    "count_min": 11,
+    "count_max": 45,
+    "count_temporal_thirds": [
+      25.683673469387756,
+      17.54719387755102,
+      14.167091836734693
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9779188355228985,
+    "tail_updates": 26340,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.581998986889789,
+    "interval_count_min": 33,
+    "interval_count_max": 1331,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria1253_lag_L32_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "lag_rr",
+    "K": 128,
+    "beta": 32.0,
+    "heldout_psnr": 34.90992233650816,
+    "heldout_psnr_temporal_thirds": [
+      35.437564329667524,
+      35.46988473115144,
+      33.812546800684046
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.90992233650816,
+        "heldout_psnr_temporal_thirds": [
+          35.437564329667524,
+          35.46988473115144,
+          33.812546800684046
+        ],
+        "heldout_psnr_worst_q1": 32.11948906503073,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.13437063171194316,
+        "count_min": 25,
+        "count_max": 57,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9987848906866501
+      }
+    },
+    "count_cv": 0.13437063171194316,
+    "count_min": 25,
+    "count_max": 57,
+    "count_temporal_thirds": [
+      27.589473684210525,
+      25.676315789473684,
+      25.681578947368422
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9703876425899962,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_lag_L40_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "lag_rr",
+    "K": 128,
+    "beta": 40.0,
+    "heldout_psnr": 35.04183810181413,
+    "heldout_psnr_temporal_thirds": [
+      35.769732978127216,
+      35.909841007656524,
+      33.43246078491211
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.04183810181413,
+        "heldout_psnr_temporal_thirds": [
+          35.769732978127216,
+          35.909841007656524,
+          33.43246078491211
+        ],
+        "heldout_psnr_worst_q1": 32.05689444193026,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.19344973507348107,
+        "count_min": 24,
+        "count_max": 64,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9997450685695337
+      }
+    },
+    "count_cv": 0.19344973507348107,
+    "count_min": 24,
+    "count_max": 64,
+    "count_temporal_thirds": [
+      29.068421052631578,
+      24.942105263157895,
+      24.936842105263157
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.971395139259449,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_lag_L48_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "lag_rr",
+    "K": 128,
+    "beta": 48.0,
+    "heldout_psnr": 34.98879548523324,
+    "heldout_psnr_temporal_thirds": [
+      35.91626264398748,
+      35.90708799715395,
+      33.12586049680357
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.98879548523324,
+        "heldout_psnr_temporal_thirds": [
+          35.91626264398748,
+          35.90708799715395,
+          33.12586049680357
+        ],
+        "heldout_psnr_worst_q1": 31.79260105040015,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.27425365388024764,
+        "count_min": 22,
+        "count_max": 70,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9990796438066423
+      }
+    },
+    "count_cv": 0.27425365388024764,
+    "count_min": 22,
+    "count_max": 70,
+    "count_temporal_thirds": [
+      33.089473684210525,
+      23.018421052631577,
+      22.839473684210525
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9760390889724863,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_lag_L56_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "lag_rr",
+    "K": 128,
+    "beta": 56.0,
+    "heldout_psnr": 35.1405210670518,
+    "heldout_psnr_temporal_thirds": [
+      35.89181400645863,
+      36.087494673552335,
+      33.428341688933195
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.1405210670518,
+        "heldout_psnr_temporal_thirds": [
+          35.89181400645863,
+          36.087494673552335,
+          33.428341688933195
+        ],
+        "heldout_psnr_worst_q1": 32.016607982356376,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.3166459642355587,
+        "count_min": 18,
+        "count_max": 73,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.999204042326574
+      }
+    },
+    "count_cv": 0.3166459642355587,
+    "count_min": 18,
+    "count_max": 73,
+    "count_temporal_thirds": [
+      34.92368421052632,
+      23.70263157894737,
+      20.321052631578947
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9813781171281849,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_mix_r010_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "mixed_deficit_rr",
+    "K": 128,
+    "beta": 0.1,
+    "heldout_psnr": 35.11301796567952,
+    "heldout_psnr_temporal_thirds": [
+      35.77501827586781,
+      35.98024393011023,
+      33.57153242605704
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.11301796567952,
+        "heldout_psnr_temporal_thirds": [
+          35.77501827586781,
+          35.98024393011023,
+          33.57153242605704
+        ],
+        "heldout_psnr_worst_q1": 32.1369090196563,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.3066805069340622,
+        "count_min": 20,
+        "count_max": 72,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9988229423852338
+      }
+    },
+    "count_cv": 0.3066805069340622,
+    "count_min": 20,
+    "count_max": 72,
+    "count_temporal_thirds": [
+      34.623684210526314,
+      23.481578947368423,
+      20.842105263157894
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9768446474752517,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_mix_r020_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "mixed_deficit_rr",
+    "K": 128,
+    "beta": 0.2,
+    "heldout_psnr": 35.03310875219802,
+    "heldout_psnr_temporal_thirds": [
+      35.968324626575814,
+      35.52732799671315,
+      33.5863548208166
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.03310875219802,
+        "heldout_psnr_temporal_thirds": [
+          35.968324626575814,
+          35.52732799671315,
+          33.5863548208166
+        ],
+        "heldout_psnr_worst_q1": 32.08112060732958,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.27590215657004213,
+        "count_min": 22,
+        "count_max": 68,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9991947231600443
+      }
+    },
+    "count_cv": 0.27590215657004213,
+    "count_min": 22,
+    "count_max": 68,
+    "count_temporal_thirds": [
+      33.57368421052632,
+      23.2,
+      22.173684210526314
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9764382848510337,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_mix_r035_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "mixed_deficit_rr",
+    "K": 128,
+    "beta": 0.35,
+    "heldout_psnr": 35.15129189988587,
+    "heldout_psnr_temporal_thirds": [
+      35.598746074329725,
+      36.03699641757541,
+      33.80984701933684
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.15129189988587,
+        "heldout_psnr_temporal_thirds": [
+          35.598746074329725,
+          36.03699641757541,
+          33.80984701933684
+        ],
+        "heldout_psnr_worst_q1": 32.35095894045946,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.2143890544469719,
+        "count_min": 23,
+        "count_max": 61,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9989806472757696
+      }
+    },
+    "count_cv": 0.2143890544469719,
+    "count_min": 23,
+    "count_max": 61,
+    "count_temporal_thirds": [
+      31.33684210526316,
+      23.88157894736842,
+      23.728947368421053
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9728573087953997,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_mix_r050_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "mixed_deficit_rr",
+    "K": 128,
+    "beta": 0.5,
+    "heldout_psnr": 35.028916236081734,
+    "heldout_psnr_temporal_thirds": [
+      35.68274983492765,
+      35.626670625474716,
+      33.76522021823459
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.028916236081734,
+        "heldout_psnr_temporal_thirds": [
+          35.68274983492765,
+          35.626670625474716,
+          33.76522021823459
+        ],
+        "heldout_psnr_worst_q1": 32.27405729526427,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.15860769212115786,
+        "count_min": 24,
+        "count_max": 54,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9970231676080329
+      }
+    },
+    "count_cv": 0.15860769212115786,
+    "count_min": 24,
+    "count_max": 54,
+    "count_temporal_thirds": [
+      29.11315789473684,
+      24.88157894736842,
+      24.95263157894737
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9678495169885654,
+    "tail_updates": 21180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria12F_causal_rr_r4_30k_s0": {
+    "scene": "12F",
+    "scheduler": "causal_rr",
+    "K": 128,
+    "beta": 1.0,
+    "heldout_psnr": 27.639971256256104,
+    "heldout_psnr_temporal_thirds": [
+      29.811652287192967,
+      28.379640392635178,
+      24.728621088940166
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.639971256256104,
+        "heldout_psnr_temporal_thirds": [
+          29.811652287192967,
+          28.379640392635178,
+          24.728621088940166
+        ],
+        "heldout_psnr_worst_q1": 22.604133191316023,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8665959586540637,
+        "count_min": 3,
+        "count_max": 86,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9985126753366357
+      }
+    },
+    "count_cv": 0.8665959586540637,
+    "count_min": 3,
+    "count_max": 86,
+    "count_temporal_thirds": [
+      30.19626168224299,
+      11.320872274143301,
+      5.21996879875195
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9786582972788221,
+    "tail_updates": 5580,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_efloor_r035_r4_45k_s0": {
+    "scene": "1253",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.35,
+    "heldout_psnr": 35.14532646226005,
+    "heldout_psnr_temporal_thirds": [
+      35.669531492753464,
+      35.87282519870334,
+      33.883915194758664
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.14532646226005,
+        "heldout_psnr_temporal_thirds": [
+          35.669531492753464,
+          35.87282519870334,
+          33.883915194758664
+        ],
+        "heldout_psnr_worst_q1": 32.24474558016149,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.1697559031865068,
+        "count_min": 25,
+        "count_max": 63,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9980798086887118
+      },
+      "45000": {
+        "heldout_psnr": 35.560916514484425,
+        "heldout_psnr_temporal_thirds": [
+          36.21663964011452,
+          36.270878120704936,
+          34.18308876178883
+        ],
+        "heldout_psnr_worst_q1": 32.6337067673846,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.09087166367608364,
+        "count_min": 38,
+        "count_max": 72,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9971910268551067
+      }
+    },
+    "count_cv": 0.09087166367608364,
+    "count_min": 38,
+    "count_max": 72,
+    "count_temporal_thirds": [
+      40.73947368421052,
+      38.81842105263158,
+      38.863157894736844
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9713154236199413,
+    "tail_updates": 36180,
+    "native_blocks": 383,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_rr_r4_45k_s0": {
+    "scene": "1253",
+    "scheduler": "causal_rr",
+    "K": 128,
+    "beta": 0.0,
+    "heldout_psnr": 35.17229191364686,
+    "heldout_psnr_temporal_thirds": [
+      36.01019162264737,
+      36.13183233473036,
+      33.35933512228507
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.17229191364686,
+        "heldout_psnr_temporal_thirds": [
+          36.01019162264737,
+          36.13183233473036,
+          33.35933512228507
+        ],
+        "heldout_psnr_worst_q1": 31.917206322274556,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.31724942868348877,
+        "count_min": 18,
+        "count_max": 73,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9989582210371439
+      },
+      "45000": {
+        "heldout_psnr": 35.43809505766886,
+        "heldout_psnr_temporal_thirds": [
+          36.340050402554596,
+          36.163689860591184,
+          33.79384203310366
+        ],
+        "heldout_psnr_worst_q1": 32.383251887996025,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.21126777812547298,
+        "count_min": 31,
+        "count_max": 86,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9990698928675362
+      }
+    },
+    "count_cv": 0.21126777812547298,
+    "count_min": 31,
+    "count_max": 86,
+    "count_temporal_thirds": [
+      48.09736842105263,
+      36.85263157894737,
+      33.47105263157895
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9811708997534268,
+    "tail_updates": 36180,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria12F_efloor_r035_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.35,
+    "heldout_psnr": 27.50586964427561,
+    "heldout_psnr_temporal_thirds": [
+      29.448172133901846,
+      28.146367342575736,
+      24.92306945634925
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.50586964427561,
+        "heldout_psnr_temporal_thirds": [
+          29.448172133901846,
+          28.146367342575736,
+          24.92306945634925
+        ],
+        "heldout_psnr_worst_q1": 22.7777972843336,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.5865522615722792,
+        "count_min": 9,
+        "count_max": 74,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.967241151672444
+      },
+      "45000": {
+        "heldout_psnr": 28.285869446353637,
+        "heldout_psnr_temporal_thirds": [
+          29.851368530936863,
+          28.768255565477453,
+          26.23798424264659
+        ],
+        "heldout_psnr_worst_q1": 24.16498479981353,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.3309417911594159,
+        "count_min": 19,
+        "count_max": 79,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9873104395820854
+      }
+    },
+    "count_cv": 0.3309417911594159,
+    "count_min": 19,
+    "count_max": 79,
+    "count_temporal_thirds": [
+      29.937694704049843,
+      20.115264797507788,
+      20.07176287051482
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9469195283018352,
+    "tail_updates": 20580,
+    "native_blocks": 387,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria12F_rr_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "causal_rr",
+    "K": 128,
+    "beta": 0.0,
+    "heldout_psnr": 27.597354184026305,
+    "heldout_psnr_temporal_thirds": [
+      29.8527310412863,
+      28.347339650859002,
+      24.591991859933604
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.597354184026305,
+        "heldout_psnr_temporal_thirds": [
+          29.8527310412863,
+          28.347339650859002,
+          24.591991859933604
+        ],
+        "heldout_psnr_worst_q1": 22.465740231500156,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8665959586540637,
+        "count_min": 3,
+        "count_max": 86,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9985126753366357
+      },
+      "45000": {
+        "heldout_psnr": 28.179518620173138,
+        "heldout_psnr_temporal_thirds": [
+          30.06783729014189,
+          28.794229113537334,
+          25.676489456840184
+        ],
+        "heldout_psnr_worst_q1": 23.087337950001594,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.5780912183990718,
+        "count_min": 11,
+        "count_max": 94,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9979332388606715
+      }
+    },
+    "count_cv": 0.5780912183990718,
+    "count_min": 11,
+    "count_max": 94,
+    "count_temporal_thirds": [
+      37.99065420560748,
+      19.12772585669782,
+      12.995319812792511
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9788550274633719,
+    "tail_updates": 20580,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria305_efloor_r035_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "entropy_floor_rr",
+    "K": 128,
+    "beta": 0.35,
+    "heldout_psnr": 34.68644772824787,
+    "heldout_psnr_temporal_thirds": [
+      35.81284895965031,
+      32.981705852917266,
+      35.264788372176035
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.68644772824787,
+        "heldout_psnr_temporal_thirds": [
+          35.81284895965031,
+          32.981705852917266,
+          35.264788372176035
+        ],
+        "heldout_psnr_worst_q1": 30.636363915034703,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.31942481640181514,
+        "count_min": 10,
+        "count_max": 36,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.979883409956905
+      },
+      "45000": {
+        "heldout_psnr": 35.85385365145547,
+        "heldout_psnr_temporal_thirds": [
+          37.019562653132844,
+          34.37077007974897,
+          36.17122822148459
+        ],
+        "heldout_psnr_worst_q1": 31.69376239322481,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.17168805476254936,
+        "count_min": 17,
+        "count_max": 40,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9945561400314016
+      }
+    },
+    "count_cv": 0.17168805476254936,
+    "count_min": 17,
+    "count_max": 40,
+    "count_temporal_thirds": [
+      20.974489795918366,
+      18.210459183673468,
+      18.213010204081634
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9595557868920711,
+    "tail_updates": 26340,
+    "native_blocks": 363,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria305_rr_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "causal_rr",
+    "K": 128,
+    "beta": 0.0,
+    "heldout_psnr": 34.36955676192329,
+    "heldout_psnr_temporal_thirds": [
+      36.6500198841095,
+      32.83626180035727,
+      33.6223886013031
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.36955676192329,
+        "heldout_psnr_temporal_thirds": [
+          36.6500198841095,
+          32.83626180035727,
+          33.6223886013031
+        ],
+        "heldout_psnr_worst_q1": 29.906152475447882,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5795277157594219,
+        "count_min": 5,
+        "count_max": 44,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9974216031421875
+      },
+      "45000": {
+        "heldout_psnr": 35.105279615947175,
+        "heldout_psnr_temporal_thirds": [
+          37.44020072051457,
+          33.94891117300306,
+          33.926726954323904
+        ],
+        "heldout_psnr_worst_q1": 31.053429512750533,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.3859542862971095,
+        "count_min": 11,
+        "count_max": 50,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9987412096399704
+      }
+    },
+    "count_cv": 0.3859542862971095,
+    "count_min": 11,
+    "count_max": 50,
+    "count_temporal_thirds": [
+      27.276785714285715,
+      17.075255102040817,
+      13.045918367346939
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9793686708234924,
+    "tail_updates": 26340,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria12F_shared_interval_size_b002_K32_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 27.54599992779718,
+    "heldout_psnr_temporal_thirds": [
+      29.494131544361945,
+      28.360753764276918,
+      24.783114474752676
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.54599992779718,
+        "heldout_psnr_temporal_thirds": [
+          29.494131544361945,
+          28.360753764276918,
+          24.783114474752676
+        ],
+        "heldout_psnr_worst_q1": 22.312584061553512,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.7855070902855613,
+        "count_min": 2,
+        "count_max": 80,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9910367749906291
+      },
+      "45000": {
+        "heldout_psnr": 28.288624846416973,
+        "heldout_psnr_temporal_thirds": [
+          29.70502221066019,
+          28.7749633167101,
+          26.385889011880625
+        ],
+        "heldout_psnr_worst_q1": 23.900157845538594,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.46500662413972893,
+        "count_min": 11,
+        "count_max": 82,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9926872998055905
+      }
+    },
+    "count_cv": 0.46500662413972893,
+    "count_min": 11,
+    "count_max": 82,
+    "count_temporal_thirds": [
+      34.769470404984425,
+      20.439252336448597,
+      14.90795631825273
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.973103351332617,
+    "tail_updates": 20580,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4876857032815143,
+    "interval_count_min": 26,
+    "interval_count_max": 571,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_shared_interval_size_b005_K32_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.05,
+    "heldout_psnr": 27.553906226503678,
+    "heldout_psnr_temporal_thirds": [
+      28.874846292578656,
+      28.269623549088188,
+      25.517248837844186
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.553906226503678,
+        "heldout_psnr_temporal_thirds": [
+          28.874846292578656,
+          28.269623549088188,
+          25.517248837844186
+        ],
+        "heldout_psnr_worst_q1": 22.95310924364173,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.7006514825503476,
+        "count_min": 4,
+        "count_max": 78,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9768030338907344
+      },
+      "45000": {
+        "heldout_psnr": 28.217465110447097,
+        "heldout_psnr_temporal_thirds": [
+          29.20834835715916,
+          28.84435046237448,
+          26.59969651180765
+        ],
+        "heldout_psnr_worst_q1": 23.863108482913695,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.3710650337329823,
+        "count_min": 13,
+        "count_max": 78,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9790895588880602
+      }
+    },
+    "count_cv": 0.3710650337329823,
+    "count_min": 13,
+    "count_max": 78,
+    "count_temporal_thirds": [
+      31.8006230529595,
+      21.210280373831775,
+      17.109204368174726
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.956829175086767,
+    "tail_updates": 20580,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4289534827581778,
+    "interval_count_min": 26,
+    "interval_count_max": 539,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_shared_interval_size_b01_K32_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.1,
+    "heldout_psnr": 27.26745863928311,
+    "heldout_psnr_temporal_thirds": [
+      27.970125073971957,
+      28.39136554883874,
+      25.440885295038637
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.26745863928311,
+        "heldout_psnr_temporal_thirds": [
+          27.970125073971957,
+          28.39136554883874,
+          25.440885295038637
+        ],
+        "heldout_psnr_worst_q1": 22.273511858953945,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.6387023737408702,
+        "count_min": 5,
+        "count_max": 78,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9450954364860399
+      },
+      "45000": {
+        "heldout_psnr": 27.9976201713949,
+        "heldout_psnr_temporal_thirds": [
+          28.535653166148972,
+          28.843489771303922,
+          26.613717576731805
+        ],
+        "heldout_psnr_worst_q1": 23.10070542321689,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.3138002431366053,
+        "count_min": 16,
+        "count_max": 78,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9752518403067735
+      }
+    },
+    "count_cv": 0.3138002431366053,
+    "count_min": 16,
+    "count_max": 78,
+    "count_temporal_thirds": [
+      29.334890965732086,
+      21.376947040498443,
+      19.411856474258972
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9370657007354806,
+    "tail_updates": 20580,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4138637170570722,
+    "interval_count_min": 24,
+    "interval_count_max": 536,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria12F_shared_rr_K32_r4_45k_s0": {
+    "scene": "12F",
+    "scheduler": "causal_rr",
+    "K": 32,
+    "beta": 0.0,
+    "heldout_psnr": 27.52030556789343,
+    "heldout_psnr_temporal_thirds": [
+      29.815613808839217,
+      28.378816604614258,
+      24.366486290226813
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.52030556789343,
+        "heldout_psnr_temporal_thirds": [
+          29.815613808839217,
+          28.378816604614258,
+          24.366486290226813
+        ],
+        "heldout_psnr_worst_q1": 22.1000221501226,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8665959586540637,
+        "count_min": 3,
+        "count_max": 86,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9985126753366357
+      },
+      "45000": {
+        "heldout_psnr": 28.20807192982107,
+        "heldout_psnr_temporal_thirds": [
+          30.094644505044688,
+          28.779237747192383,
+          25.750333537226137
+        ],
+        "heldout_psnr_worst_q1": 23.41683548084204,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.5780912183990718,
+        "count_min": 11,
+        "count_max": 94,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9979332388606715
+      }
+    },
+    "count_cv": 0.5780912183990718,
+    "count_min": 11,
+    "count_max": 94,
+    "count_temporal_thirds": [
+      37.99065420560748,
+      19.12772585669782,
+      12.995319812792511
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9788550274633719,
+    "tail_updates": 20580,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria305_shared_interval_size_K32_b002_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.02,
+    "heldout_psnr": 34.492993740808394,
+    "heldout_psnr_temporal_thirds": [
+      36.545308641024995,
+      33.23637332235064,
+      33.69729925904955
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.492993740808394,
+        "heldout_psnr_temporal_thirds": [
+          36.545308641024995,
+          33.23637332235064,
+          33.69729925904955
+        ],
+        "heldout_psnr_worst_q1": 30.072963578360422,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5314862682453173,
+        "count_min": 4,
+        "count_max": 41,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.994033975618934
+      },
+      "45000": {
+        "heldout_psnr": 35.576181729634605,
+        "heldout_psnr_temporal_thirds": [
+          37.452830808503286,
+          34.1354752097811,
+          35.14023917061942
+        ],
+        "heldout_psnr_worst_q1": 31.691279820033483,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.3183029072137745,
+        "count_min": 11,
+        "count_max": 45,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9965919739533433
+      }
+    },
+    "count_cv": 0.3183029072137745,
+    "count_min": 11,
+    "count_max": 45,
+    "count_temporal_thirds": [
+      25.683673469387756,
+      17.54719387755102,
+      14.167091836734693
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9779188355228985,
+    "tail_updates": 26340,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.581998986889789,
+    "interval_count_min": 33,
+    "interval_count_max": 1331,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_shared_interval_size_b005_K32_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.05,
+    "heldout_psnr": 34.3826714299974,
+    "heldout_psnr_temporal_thirds": [
+      35.875690596444265,
+      32.801128080912996,
+      34.47119561263493
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.3826714299974,
+        "heldout_psnr_temporal_thirds": [
+          35.875690596444265,
+          32.801128080912996,
+          34.47119561263493
+        ],
+        "heldout_psnr_worst_q1": 30.53476903552101,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.46776746359703136,
+        "count_min": 5,
+        "count_max": 39,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9842354766412664
+      },
+      "45000": {
+        "heldout_psnr": 35.74569594860077,
+        "heldout_psnr_temporal_thirds": [
+          37.12624723570688,
+          34.47772654465267,
+          35.63311406544277
+        ],
+        "heldout_psnr_worst_q1": 31.818688960302445,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.2484200981909177,
+        "count_min": 12,
+        "count_max": 41,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9913702694038671
+      }
+    },
+    "count_cv": 0.2484200981909177,
+    "count_min": 12,
+    "count_max": 41,
+    "count_temporal_thirds": [
+      24.036989795918366,
+      17.883928571428573,
+      15.47704081632653
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9703010679157806,
+    "tail_updates": 26340,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.5198549997265975,
+    "interval_count_min": 31,
+    "interval_count_max": 1219,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_shared_interval_size_b01_K32_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "staged_interval_size_softmax_rr",
+    "K": 32,
+    "beta": 0.1,
+    "heldout_psnr": 34.52056115014212,
+    "heldout_psnr_temporal_thirds": [
+      35.727459192276,
+      33.521847469466074,
+      34.3123767886843
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.52056115014212,
+        "heldout_psnr_temporal_thirds": [
+          35.727459192276,
+          33.521847469466074,
+          34.3123767886843
+        ],
+        "heldout_psnr_worst_q1": 30.459285372779483,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.40824646150742483,
+        "count_min": 6,
+        "count_max": 38,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9755664417023331
+      },
+      "45000": {
+        "heldout_psnr": 35.54464075678871,
+        "heldout_psnr_temporal_thirds": [
+          36.67386419432504,
+          34.533733929906575,
+          35.42632414613451
+        ],
+        "heldout_psnr_worst_q1": 31.696262904575892,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.18945398346789086,
+        "count_min": 14,
+        "count_max": 39,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.986056906458154
+      }
+    },
+    "count_cv": 0.18945398346789086,
+    "count_min": 14,
+    "count_max": 39,
+    "count_temporal_thirds": [
+      22.411989795918366,
+      18.052295918367346,
+      16.933673469387756
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.959097875752435,
+    "tail_updates": 26340,
+    "native_blocks": 938,
+    "native_blocks_with_duplicates": 0,
+    "interval_count_cv": 0.4759637458960581,
+    "interval_count_min": 29,
+    "interval_count_max": 1150,
+    "native_blocks_with_interval_duplicates": 0,
+    "native_block_interval_entropy_ratio": 1.0
+  },
+  "aria305_shared_rr_K32_b002_r4_45k_s0": {
+    "scene": "305",
+    "scheduler": "causal_rr",
+    "K": 32,
+    "beta": 0.0,
+    "heldout_psnr": 34.79318787370409,
+    "heldout_psnr_temporal_thirds": [
+      37.12769114971161,
+      33.30749661581857,
+      33.9443758555821
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.79318787370409,
+        "heldout_psnr_temporal_thirds": [
+          37.12769114971161,
+          33.30749661581857,
+          33.9443758555821
+        ],
+        "heldout_psnr_worst_q1": 30.260768095652264,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5795277157594219,
+        "count_min": 5,
+        "count_max": 44,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9974216031421875
+      },
+      "45000": {
+        "heldout_psnr": 35.45978499594189,
+        "heldout_psnr_temporal_thirds": [
+          37.65262223993029,
+          34.147946170398164,
+          34.57878657749721
+        ],
+        "heldout_psnr_worst_q1": 31.61416398911249,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.3859542862971095,
+        "count_min": 11,
+        "count_max": 50,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9987412096399704
+      }
+    },
+    "count_cv": 0.3859542862971095,
+    "count_min": 11,
+    "count_max": 50,
+    "count_temporal_thirds": [
+      27.276785714285715,
+      17.075255102040817,
+      13.045918367346939
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9793686708234924,
+    "tail_updates": 26340,
+    "native_blocks": 1,
+    "native_blocks_with_duplicates": 1
+  },
+  "aria1253_stable_K128_b0005_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.005,
+    "heldout_psnr": 35.01356282848522,
+    "heldout_psnr_temporal_thirds": [
+      35.956710850108756,
+      35.77533404032389,
+      33.291177890918874
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.01356282848522,
+        "heldout_psnr_temporal_thirds": [
+          35.956710850108756,
+          35.77533404032389,
+          33.291177890918874
+        ],
+        "heldout_psnr_worst_q1": 32.05711108882253,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.324344878177535,
+        "count_min": 11,
+        "count_max": 73,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9968991349373607
+      }
+    },
+    "count_cv": 0.324344878177535,
+    "count_min": 11,
+    "count_max": 73,
+    "count_temporal_thirds": [
+      34.502631578947366,
+      24.039473684210527,
+      20.405263157894737
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9796722922560062,
+    "tail_updates": 21180,
+    "native_blocks": 118,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_stable_K128_b001_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.01,
+    "heldout_psnr": 34.942196606127034,
+    "heldout_psnr_temporal_thirds": [
+      35.699812004782935,
+      35.7943549686008,
+      33.31839293020743
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.942196606127034,
+        "heldout_psnr_temporal_thirds": [
+          35.699812004782935,
+          35.7943549686008,
+          33.31839293020743
+        ],
+        "heldout_psnr_worst_q1": 32.15395573871891,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.3096359152294837,
+        "count_min": 11,
+        "count_max": 71,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9969605262215165
+      }
+    },
+    "count_cv": 0.3096359152294837,
+    "count_min": 11,
+    "count_max": 71,
+    "count_temporal_thirds": [
+      34.055263157894736,
+      24.155263157894737,
+      20.736842105263158
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9795877373747007,
+    "tail_updates": 21180,
+    "native_blocks": 118,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_stable_K128_b005_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 34.96431177525432,
+    "heldout_psnr_temporal_thirds": [
+      35.283767665516244,
+      35.99755809925221,
+      33.60569371117486
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.96431177525432,
+        "heldout_psnr_temporal_thirds": [
+          35.283767665516244,
+          35.99755809925221,
+          33.60569371117486
+        ],
+        "heldout_psnr_worst_q1": 32.02274248076648,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.22907611544346276,
+        "count_min": 15,
+        "count_max": 62,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9927887218616521
+      }
+    },
+    "count_cv": 0.22907611544346276,
+    "count_min": 15,
+    "count_max": 62,
+    "count_temporal_thirds": [
+      31.55,
+      24.742105263157896,
+      22.655263157894737
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9735210357460021,
+    "tail_updates": 21180,
+    "native_blocks": 118,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria1253_stable_K128_b0_r4_30k_s0": {
+    "scene": "1253",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.0,
+    "heldout_psnr": 35.071803075404254,
+    "heldout_psnr_temporal_thirds": [
+      36.03852837302468,
+      35.91995613663285,
+      33.23902239622893
+    ],
+    "heldout_views": 163,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 35.071803075404254,
+        "heldout_psnr_temporal_thirds": [
+          36.03852837302468,
+          35.91995613663285,
+          33.23902239622893
+        ],
+        "heldout_psnr_worst_q1": 31.988015663333055,
+        "heldout_views": 163,
+        "eligible_pool_size": 1140,
+        "count_cv": 0.34276269730918313,
+        "count_min": 10,
+        "count_max": 76,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9969569436391325
+      }
+    },
+    "count_cv": 0.34276269730918313,
+    "count_min": 10,
+    "count_max": 76,
+    "count_temporal_thirds": [
+      35.01052631578948,
+      23.902631578947368,
+      20.03421052631579
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9798436557248499,
+    "tail_updates": 21180,
+    "native_blocks": 118,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria12F_stable_K128_b005_r4_30k_s0": {
+    "scene": "12F",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 27.680960358053014,
+    "heldout_psnr_temporal_thirds": [
+      29.251928018487018,
+      28.281201321145762,
+      25.50975173452626
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.680960358053014,
+        "heldout_psnr_temporal_thirds": [
+          29.251928018487018,
+          28.281201321145762,
+          25.50975173452626
+        ],
+        "heldout_psnr_worst_q1": 23.27743795643682,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8063815267394626,
+        "count_min": 1,
+        "count_max": 84,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9707103130629166
+      }
+    },
+    "count_cv": 0.8063815267394626,
+    "count_min": 1,
+    "count_max": 84,
+    "count_temporal_thirds": [
+      28.87538940809969,
+      11.542056074766355,
+      6.3213728549141965
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9470958451222994,
+    "tail_updates": 5580,
+    "native_blocks": 43,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria305_stable_K128_b005_r4_30k_s0": {
+    "scene": "305",
+    "scheduler": "stable_pool_block_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 34.57628276234581,
+    "heldout_psnr_temporal_thirds": [
+      35.83394842488425,
+      33.56525724274771,
+      34.329642619405476
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.57628276234581,
+        "heldout_psnr_temporal_thirds": [
+          35.83394842488425,
+          33.56525724274771,
+          34.329642619405476
+        ],
+        "heldout_psnr_worst_q1": 30.631381579807826,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.5072997798803648,
+        "count_min": 2,
+        "count_max": 43,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9851859881399554
+      }
+    },
+    "count_cv": 0.5072997798803648,
+    "count_min": 2,
+    "count_max": 43,
+    "count_temporal_thirds": [
+      19.443877551020407,
+      10.931122448979592,
+      7.89030612244898
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.965966317455224,
+    "tail_updates": 11340,
+    "native_blocks": 88,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria12F_K128_b001_r4_30k_s0": {
+    "scene": "12F",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.01,
+    "heldout_psnr": 27.71462991272194,
+    "heldout_psnr_temporal_thirds": [
+      29.785079769466233,
+      28.216650340868078,
+      25.1421596278315
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.71462991272194,
+        "heldout_psnr_temporal_thirds": [
+          29.785079769466233,
+          28.216650340868078,
+          25.1421596278315
+        ],
+        "heldout_psnr_worst_q1": 23.231492747431215,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.8268997991158166,
+        "count_min": 0,
+        "count_max": 80,
+        "unselected_fraction": 0.0036363636363636364,
+        "recent1024_temporal_entropy_ratio": 0.9952460468230121
+      }
+    },
+    "count_cv": 0.8268997991158166,
+    "count_min": 0,
+    "count_max": 80,
+    "count_temporal_thirds": [
+      29.60747663551402,
+      11.87227414330218,
+      5.257410296411856
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9766097796013657,
+    "tail_updates": 5580,
+    "native_blocks": 270,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria12F_K128_b005_r4_30k_s0": {
+    "scene": "12F",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 27.54993864418804,
+    "heldout_psnr_temporal_thirds": [
+      28.693875996962838,
+      28.51651562815127,
+      25.439424307450004
+    ],
+    "heldout_views": 276,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 27.54993864418804,
+        "heldout_psnr_temporal_thirds": [
+          28.693875996962838,
+          28.51651562815127,
+          25.439424307450004
+        ],
+        "heldout_psnr_worst_q1": 23.090515302575152,
+        "heldout_views": 276,
+        "eligible_pool_size": 1925,
+        "count_cv": 0.607334065129453,
+        "count_min": 1,
+        "count_max": 59,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.975669612434377
+      }
+    },
+    "count_cv": 0.607334065129453,
+    "count_min": 1,
+    "count_max": 59,
+    "count_temporal_thirds": [
+      26.101246105919003,
+      13.66043613707165,
+      6.978159126365054
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9543453677109078,
+    "tail_updates": 5580,
+    "native_blocks": 270,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria305_K128_b001_r4_30k_s0": {
+    "scene": "305",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.01,
+    "heldout_psnr": 34.26337704204378,
+    "heldout_psnr_temporal_thirds": [
+      37.03695023059845,
+      32.64629544530596,
+      33.10688545022692
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.26337704204378,
+        "heldout_psnr_temporal_thirds": [
+          37.03695023059845,
+          32.64629544530596,
+          33.10688545022692
+        ],
+        "heldout_psnr_worst_q1": 29.652068410600936,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.6215557255789701,
+        "count_min": 0,
+        "count_max": 53,
+        "unselected_fraction": 0.0008503401360544217,
+        "recent1024_temporal_entropy_ratio": 0.9988082441007049
+      }
+    },
+    "count_cv": 0.6215557255789701,
+    "count_min": 0,
+    "count_max": 53,
+    "count_temporal_thirds": [
+      20.959183673469386,
+      10.681122448979592,
+      6.625
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9779766565195444,
+    "tail_updates": 11340,
+    "native_blocks": 245,
+    "native_blocks_with_duplicates": 0
+  },
+  "aria305_K128_b005_r4_30k_s0": {
+    "scene": "305",
+    "scheduler": "block_weighted_rr",
+    "K": 128,
+    "beta": 0.05,
+    "heldout_psnr": 34.633842218489875,
+    "heldout_psnr_temporal_thirds": [
+      36.44188339369638,
+      33.391406297683716,
+      34.06823696408953
+    ],
+    "heldout_views": 336,
+    "checkpoints": {
+      "30000": {
+        "heldout_psnr": 34.633842218489875,
+        "heldout_psnr_temporal_thirds": [
+          36.44188339369638,
+          33.391406297683716,
+          34.06823696408953
+        ],
+        "heldout_psnr_worst_q1": 30.540324574425107,
+        "heldout_views": 336,
+        "eligible_pool_size": 2352,
+        "count_cv": 0.45253561185833757,
+        "count_min": 1,
+        "count_max": 37,
+        "unselected_fraction": 0.0,
+        "recent1024_temporal_entropy_ratio": 0.9923492678321723
+      }
+    },
+    "count_cv": 0.45253561185833757,
+    "count_min": 1,
+    "count_max": 37,
+    "count_temporal_thirds": [
+      18.7640306122449,
+      11.57780612244898,
+      7.923469387755102
+    ],
+    "tail_block128_temporal_entropy_ratio": 0.9683243174846538,
+    "tail_updates": 11340,
+    "native_blocks": 245,
+    "native_blocks_with_duplicates": 0
+  }
+}

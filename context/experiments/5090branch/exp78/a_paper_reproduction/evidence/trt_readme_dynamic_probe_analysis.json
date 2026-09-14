@@ -1,0 +1,214 @@
+{
+  "comparison_note": "table_08 uses the valid PyTorch seed1 retry because PyTorch seed0 has catastrophic trajectory failure; all other pairs use seed0",
+  "protocol": "exp78a-official-readme-trt-probes-v1",
+  "rows": [
+    {
+      "dataset": "utmm",
+      "delta_tensorrt_minus_pytorch": {
+        "ate_rmse_cm": -0.006099999999999994,
+        "lpips": 0.0014046564316138044,
+        "peak_cuda_allocated_gib": -0.8605084419250488,
+        "peak_cuda_reserved_gib": -3.146484375,
+        "psnr": 0.02553559572268682,
+        "runtime_ratio": 0.797190871572967,
+        "seconds": -4.739493510045577,
+        "speedup": 1.254404729982498,
+        "ssim": -0.000573140688431617
+      },
+      "pytorch": {
+        "ate_rmse_cm": 0.9421999999999999,
+        "fps": 14.206714387320146,
+        "gaussians": 40654,
+        "keyframes": 17,
+        "lpips": 0.45520195059287244,
+        "peak_cuda_allocated_bytes": 6907809792,
+        "peak_cuda_reserved_bytes": 11272192000,
+        "psnr": 18.024419258802364,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 23.369231685006525,
+        "ssim": 0.6740351747243832
+      },
+      "pytorch_seed": 0,
+      "sequence": "fast-straight",
+      "tensorrt": {
+        "ate_rmse_cm": 0.9360999999999999,
+        "fps": 17.820969724964797,
+        "gaussians": 41010,
+        "keyframes": 17,
+        "lpips": 0.45660660702448624,
+        "mapping_iterations": 115,
+        "mapping_view_count": 16,
+        "peak_cuda_allocated_bytes": 5983845888,
+        "peak_cuda_reserved_bytes": 7893680128,
+        "pose_consistency": {
+          "camera_center_error_max": 0.001212246366776526,
+          "camera_center_error_mean": 0.0006968369780224748,
+          "compared_mapping_views": 16,
+          "rotation_error_degrees_max": 0.02797645516693592,
+          "rotation_error_degrees_mean": 0.001748528447933495
+        },
+        "psnr": 18.04995485452505,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 18.62973817496095,
+        "ssim": 0.6734620340359516
+      },
+      "tensorrt_seed": 0
+    },
+    {
+      "dataset": "utmm",
+      "delta_tensorrt_minus_pytorch": {
+        "ate_rmse_cm": 0.0023999999999997357,
+        "lpips": 0.0053743418188696435,
+        "peak_cuda_allocated_gib": -1.271984577178955,
+        "peak_cuda_reserved_gib": -2.193359375,
+        "psnr": -0.05146883825176474,
+        "runtime_ratio": 0.9013802114683652,
+        "seconds": -10.071377777960151,
+        "speedup": 1.1094097554804108,
+        "ssim": -0.0029546590281762652
+      },
+      "pytorch": {
+        "ate_rmse_cm": 5.1759,
+        "fps": 13.69912709040502,
+        "gaussians": 130448,
+        "keyframes": 85,
+        "lpips": 0.37716582810298077,
+        "peak_cuda_allocated_bytes": 8246497280,
+        "peak_cuda_reserved_bytes": 11333009408,
+        "psnr": 20.324605786014764,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 102.1232952119899,
+        "ssim": 0.6647304667101207
+      },
+      "pytorch_seed": 0,
+      "sequence": "ego-drive",
+      "tensorrt": {
+        "ate_rmse_cm": 5.1783,
+        "fps": 15.197945235661303,
+        "gaussians": 128337,
+        "keyframes": 85,
+        "lpips": 0.3825401699218504,
+        "mapping_iterations": 835,
+        "mapping_view_count": 84,
+        "peak_cuda_allocated_bytes": 6880714240,
+        "peak_cuda_reserved_bytes": 8977907712,
+        "pose_consistency": {
+          "camera_center_error_max": 0.013594997115433216,
+          "camera_center_error_mean": 0.0010121098576270188,
+          "compared_mapping_views": 84,
+          "rotation_error_degrees_max": 0.17017419636249542,
+          "rotation_error_degrees_mean": 0.012662920346927075
+        },
+        "psnr": 20.273136947763,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 92.05191743402975,
+        "ssim": 0.6617758076819444
+      },
+      "tensorrt_seed": 0
+    },
+    {
+      "dataset": "rpng",
+      "delta_tensorrt_minus_pytorch": {
+        "ate_rmse_cm": 0.006299999999999972,
+        "lpips": -0.0026201724483960187,
+        "peak_cuda_allocated_gib": -1.6264395713806152,
+        "peak_cuda_reserved_gib": -2.099609375,
+        "psnr": 0.0381265136430855,
+        "runtime_ratio": 0.940025657029173,
+        "seconds": -17.93609028798528,
+        "speedup": 1.063800751099037,
+        "ssim": 0.0012453767167268648
+      },
+      "pytorch": {
+        "ate_rmse_cm": 1.5473,
+        "fps": 9.252239720907374,
+        "gaussians": 174349,
+        "keyframes": 232,
+        "lpips": 0.26033329558019047,
+        "peak_cuda_allocated_bytes": 8583615488,
+        "peak_cuda_reserved_bytes": 10976493568,
+        "psnr": 23.038304213243674,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 299.06272248300957,
+        "ssim": 0.7621667481095322
+      },
+      "pytorch_seed": 0,
+      "sequence": "table_06",
+      "tensorrt": {
+        "ate_rmse_cm": 1.5535999999999999,
+        "fps": 9.84253956444961,
+        "gaussians": 173110,
+        "keyframes": 232,
+        "lpips": 0.25771312313179445,
+        "mapping_iterations": 2795,
+        "mapping_view_count": 231,
+        "peak_cuda_allocated_bytes": 6837239296,
+        "peak_cuda_reserved_bytes": 8722055168,
+        "pose_consistency": {
+          "camera_center_error_max": 0.04254576563835144,
+          "camera_center_error_mean": 0.0018145020256041715,
+          "compared_mapping_views": 231,
+          "rotation_error_degrees_max": 1.6231709718704224,
+          "rotation_error_degrees_mean": 0.062326543371785774
+        },
+        "psnr": 23.07643072688676,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 281.1266321950243,
+        "ssim": 0.7634121248262591
+      },
+      "tensorrt_seed": 0
+    },
+    {
+      "dataset": "rpng",
+      "delta_tensorrt_minus_pytorch": {
+        "ate_rmse_cm": -0.012099999999999334,
+        "lpips": 4.486270661546721e-05,
+        "peak_cuda_allocated_gib": -1.2823262214660645,
+        "peak_cuda_reserved_gib": 0.71875,
+        "psnr": -0.06124181343328061,
+        "runtime_ratio": 0.9185355137223357,
+        "seconds": -71.35598422202747,
+        "speedup": 1.088689533567986,
+        "ssim": -0.0008761008531272818
+      },
+      "pytorch": {
+        "ate_rmse_cm": 3.4132999999999996,
+        "fps": 9.685868804348283,
+        "gaussians": 411674,
+        "keyframes": 579,
+        "lpips": 0.2760281098401734,
+        "peak_cuda_allocated_bytes": 11149352448,
+        "peak_cuda_reserved_bytes": 12440305664,
+        "psnr": 22.185653168663286,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 875.9152298440458,
+        "ssim": 0.7621198979160722
+      },
+      "pytorch_seed": 1,
+      "sequence": "table_08",
+      "tensorrt": {
+        "ate_rmse_cm": 3.4012000000000002,
+        "fps": 10.544903990806638,
+        "gaussians": 419355,
+        "keyframes": 579,
+        "lpips": 0.27607297254678886,
+        "mapping_iterations": 7745,
+        "mapping_view_count": 578,
+        "peak_cuda_allocated_bytes": 9772465152,
+        "peak_cuda_reserved_bytes": 13212057600,
+        "pose_consistency": {
+          "camera_center_error_max": 0.028604654595255852,
+          "camera_center_error_mean": 0.0020000732225104304,
+          "compared_mapping_views": 578,
+          "rotation_error_degrees_max": 2.0517587661743164,
+          "rotation_error_degrees_mean": 0.054026138208239344
+        },
+        "psnr": 22.124411355230006,
+        "recall_at_10cm_percent": 100.0,
+        "seconds": 804.5592456220184,
+        "ssim": 0.7612437970629449
+      },
+      "tensorrt_seed": 0
+    }
+  ]
+}

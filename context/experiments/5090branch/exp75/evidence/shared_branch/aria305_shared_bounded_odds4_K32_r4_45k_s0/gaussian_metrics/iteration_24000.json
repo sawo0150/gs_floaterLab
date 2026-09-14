@@ -1,0 +1,10 @@
+{
+  "gaussian/count": 592695,
+  "gaussian/large_scale_count": 49433,
+  "gaussian/large_scale_ratio": 0.08340377428525633,
+  "gaussian/low_opacity_count": 439443,
+  "gaussian/low_opacity_ratio": 0.7414319337939412,
+  "gaussian/nearest_orb_median": 0.22337689918957543,
+  "gaussian/opacity_median": 0.034244246780872345,
+  "gaussian/scale_median": 0.04480802267789841
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exp66 Stage F — View-quality Admission 실험계획</title>
+<style>
+  :root{--paper:#f5f3ef;--panel:#fffdfa;--ink:#24211e;--soft:#706960;--line:#ddd6cb;--accent:#4e638e;--good:#306b56;--bad:#a34a3c;--warn:#946719;--code:#eee9e1;--sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;--serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;--mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace}
+  @media(prefers-color-scheme:dark){:root{--paper:#141319;--panel:#1c1a22;--ink:#ece8f1;--soft:#a39cac;--line:#393241;--accent:#9eb0e4;--good:#78bea4;--bad:#e28b80;--warn:#e1b967;--code:#27222d}}
+  *{box-sizing:border-box}body{margin:0;padding:52px 22px 80px;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65}main{max-width:980px;margin:auto}header{border-bottom:1px solid var(--line);padding-bottom:25px;margin-bottom:36px}.eyebrow{font:12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}h1,h2,h3{font-family:var(--serif);font-weight:600}h1{font-size:clamp(27px,4vw,39px);line-height:1.25;margin:9px 0 12px;letter-spacing:-.02em}h2{font-size:23px;margin:42px 0 14px;padding-top:9px;border-top:1px solid var(--line)}h3{font-size:18px;margin:26px 0 8px}p{max-width:78ch;margin:8px 0 13px}.dek,.small{color:var(--soft)}.dek{font-size:16px}.small{font-size:13px}code,pre{font-family:var(--mono);font-size:.9em}code{background:var(--code);padding:1px 5px;border-radius:3px}pre{background:var(--code);border:1px solid var(--line);padding:15px;overflow:auto;line-height:1.55}.lead,.box{background:var(--panel);border:1px solid var(--line);padding:17px 20px;margin:16px 0}.lead{border-color:var(--accent);border-left:4px solid var(--accent)}.good{border-left:4px solid var(--good)}.bad{border-left:4px solid var(--bad)}.warn{border-left:4px solid var(--warn)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin:16px 0}.card{background:var(--panel);border:1px solid var(--line);padding:15px 17px}.card b{display:block;margin-bottom:5px}.equation{font:15px var(--mono);background:var(--panel);border:1px solid var(--line);padding:13px 16px;overflow-x:auto;margin:12px 0}.table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--panel);margin:14px 0 7px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font:10.5px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}tr:last-child td{border-bottom:0}ul,ol{max-width:80ch;padding-left:22px}li{margin:6px 0}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:9px;align-items:center;margin:18px 0}.node{background:var(--panel);border:1px solid var(--line);padding:13px;text-align:center}.arrow{color:var(--accent);font-size:20px}.status{font:12px var(--mono);color:var(--warn)}details{border:1px solid var(--line);background:var(--panel);padding:10px 14px;margin:10px 0}summary{cursor:pointer;font-weight:600}footer{border-top:1px solid var(--line);margin-top:45px;padding-top:16px;color:var(--soft);font:12px var(--mono)}a{color:var(--accent)}@media(max-width:680px){body{padding:30px 13px 60px}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}th,td{padding:8px}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="eyebrow">exp66 후속 · Stage F 설계노트 · 2026-08-25</div>
+  <h1>Blur·노출·Pose 불신뢰 frame을 view set admission에서 걸러야 하는가</h1>
+  <p class="dek">Dense view set의 수렴 이득을 유지하면서 학습을 오염시키는 저품질 관측을 제거할 수 있는지 검증한다. Novelty/coverage와 영상·pose quality를 분리하고, 동일한 시간 분포와 cardinality 아래에서 membership 효과만 측정한다.</p>
+  <div class="status">STATUS: PLANNED / NOT STARTED / LOCKBOX UNOPENED</div>
+</header>
+
+<div class="lead"><b>핵심 가설:</b> blur, 극단 노출, tracking/pose 불신뢰 frame은 높은 residual과 불안정한 gradient를 만들어 같은 계산 budget의 수렴을 늦출 수 있다. 단, 큰 motion과 novel view 자체를 저품질로 오판하면 coverage를 잃으므로 quality는 temporal quota 안의 admission constraint로 검증해야 한다.</div>
+
+<section>
+<h2>1. 왜 Stage B와 별도의 축인가</h2>
+<div class="grid">
+  <div class="card"><b>Novelty</b>새로운 surface·ray·viewing direction을 얼마나 제공하는가</div>
+  <div class="card"><b>Temporal representativeness</b>trajectory의 시간 구간을 얼마나 고르게 대표하는가</div>
+  <div class="card"><b>Observation quality</b>그 관측이 sharp하고 정상 노출이며 pose를 신뢰할 수 있는가</div>
+</div>
+<p>세 신호는 서로 상관될 수 있지만 같은 개념이 아니다. 빠른 이동 구간은 novelty가 높으면서 동시에 blur와 pose 오차 위험도 높을 수 있다. 이들을 하나의 utility로 바로 합치면 어떤 요인이 결과를 만들었는지 디버깅하기 어렵다.</p>
+<div class="box warn"><b>설계 원칙:</b> Stage F에서는 시간 quota, view-set 크기, 학습 순서, loss, budget을 고정하고 quality admission만 바꾼다. Quality 축이 독립적으로 유효하다고 확인된 뒤에만 representative coverage와 결합한다.</div>
+<p class="small">관련 순서/gradient 후속 계획: <a href="exp66_stage_e_causal_gradient_balance_plan.html">exp66_stage_e_causal_gradient_balance_plan.html</a></p>
+</section>
+
+<section>
+<h2>2. 큰 motion과 나쁜 frame을 구분해야 한다</h2>
+<p>카메라 이동량이나 optical-flow magnitude가 크다는 이유만으로 frame을 제거하면 안 된다. 큰 motion은 다음을 의미할 수 있다.</p>
+<ul>
+  <li>새로운 surface와 시점을 빠르게 확보한 유용한 frame</li>
+  <li>정상적으로 sharp하지만 frame 간 baseline이 큰 frame</li>
+  <li>실제로 motion blur 또는 rolling-shutter 왜곡이 있는 frame</li>
+  <li>tracking이 실패해 pose가 부정확한 frame</li>
+</ul>
+<p>따라서 <code>motion magnitude</code>는 quality score가 아니라 위험·조건 변수로 기록한다. 실제 rejection은 sharpness, exposure, pose confidence처럼 관측 신뢰도를 나타내는 별도 증거로 결정한다.</p>
+<div class="equation">large motion ≠ blur ≠ bad pose ≠ low utility</div>
+<div class="box bad"><b>금지할 shortcut:</b> flow/pose displacement가 큰 상위 x%를 그대로 제거하거나, residual이 큰 frame을 저품질로 정의하는 것. 이는 novel/hard view를 체계적으로 삭제할 수 있다.</div>
+</section>
+
+<section>
+<h2>3. 후보 quality 신호</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>축</th><th>측정 후보</th><th>의미</th><th>주요 함정</th></tr></thead>
+<tbody>
+<tr><td><b>Sharpness</b></td><td>multi-scale Laplacian/Tenengrad, high-frequency ratio, temporal-relative sharpness</td><td>defocus·motion blur 가능성</td><td>textureless wall도 blur처럼 보임</td></tr>
+<tr><td><b>Exposure</b></td><td>dark/bright clipped pixel 비율, usable intensity range, local contrast</td><td>정보가 소실된 과·저노출</td><td>실제로 어두운 장면을 오판</td></tr>
+<tr><td><b>Pose confidence</b></td><td>tracking reprojection/photometric residual, inlier ratio, covariance/condition, filler confidence</td><td>잘못된 camera pose가 map을 오염할 위험</td><td>새로운 view는 원래 residual이 클 수 있음</td></tr>
+<tr><td><b>Motion risk</b></td><td>IMU gyro/acceleration, flow magnitude·anisotropy, frame-to-frame pose displacement</td><td>blur/RS/track failure의 조건 변수</td><td>motion 자체는 품질이 아님</td></tr>
+<tr><td><b>Dynamics</b></td><td>flow/reprojection outlier fraction, temporal photometric inconsistency</td><td>moving object가 static map을 오염할 위험</td><td>occlusion boundary와 혼동</td></tr>
+<tr><td><b>Corruption</b></td><td>decode failure, missing rows, timestamp gap, duplicated frame</td><td>명백한 invalid observation</td><td>hard reject 기준을 명시해야 함</td></tr>
+</tbody></table></div>
+
+<h3>Temporal-relative sharpness</h3>
+<p>절대 Laplacian 값은 장면 texture에 크게 의존하므로, 인접 시간창의 median에 대해 상대화한 점수를 함께 사용한다.</p>
+<div class="equation">qsharp(v) = sharpness(v) / [ε + median{sharpness(u): |tᵤ−tᵥ|≤W}]</div>
+<p>이렇게 하면 textureless 구간 전체를 저품질로 버리는 오류를 줄일 수 있다. 단, metric이 실제 blur를 측정하는지는 Stage F0에서 별도로 검증한다.</p>
+</section>
+
+<section>
+<h2>4. 전체 실험 구조</h2>
+<div class="flow">
+  <div class="node"><b>F0 · Metric audit</b><br>실제·합성 corruption에서<br>quality score 검증</div><div class="arrow">→</div>
+  <div class="node"><b>F1 · Admission isolation</b><br>동일 temporal quota에서<br>quality 축만 비교</div><div class="arrow">→</div>
+  <div class="node"><b>F2 · Interaction</b><br>quality × representative × density<br>필요한 조합만 검증</div>
+</div>
+</section>
+
+<section>
+<h2>5. Stage F0 — Quality metric 자체가 맞는지 먼저 검증</h2>
+<p class="status">NO TRAINING CONCLUSION · METRIC VALIDATION ONLY</p>
+
+<h3>F0-A: Natural-frame audit</h3>
+<ul>
+  <li>Dmax 1,041개 후보 전체에 quality feature를 계산한다.</li>
+  <li>각 metric의 상·중·하 quantile contact sheet를 생성해 사람이 blind review한다.</li>
+  <li>인접 시간 frame과 함께 보여 장면 texture와 blur를 구분한다.</li>
+  <li>high-motion/low-sharpness, high-motion/high-sharpness, low-motion/low-sharpness를 따로 표본화한다.</li>
+  <li>pose residual, blur, exposure, motion 간 상관행렬을 기록하되 하나를 다른 것의 label로 간주하지 않는다.</li>
+</ul>
+
+<h3>F0-B: Synthetic corruption sanity check</h3>
+<p>원래 sharp한 frame에 알려진 수준의 corruption을 적용해 metric 방향이 맞는지 확인한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Corruption</th><th>Level</th><th>통과 조건</th></tr></thead>
+<tbody><tr><td>linear motion blur</td><td>kernel 3/7/11/15 px, 여러 방향</td><td>blur level이 증가할수록 sharpness quality가 단조 하락</td></tr><tr><td>defocus blur</td><td>Gaussian σ 단계</td><td>자연 blur와 동일 방향 반응</td></tr><tr><td>over/under exposure</td><td>gain/gamma + clipping 단계</td><td>clipped fraction과 exposure quality가 단조 반응</td></tr><tr><td>pose perturbation</td><td>translation/rotation noise 단계</td><td>pose confidence가 perturbation과 일관되게 하락</td></tr></tbody>
+</table></div>
+<div class="box warn"><b>F1 진행 gate:</b> 단순 metric이 합성 corruption 수준을 안정적으로 정렬하고 natural contact sheet에서도 명백한 실패 frame을 상·하 quantile로 분리해야 한다. 실패하면 합성 corruption은 검출하지만 natural blur를 검출한다고 주장하지 않는다.</div>
+</section>
+
+<section>
+<h2>6. Stage F1 — 동일한 784장 admission에서 quality 효과 분리</h2>
+<p>Stage B의 temporal quota를 그대로 사용한다. 각 시간 bin에서 동일한 수의 frame을 선택하므로 모든 arm의 cardinality는 784이며 장기 temporal density도 동일하다. 학습 순서는 모두 <code>shuffle_epoch</code>, RGB-only, Adam reset, CUDA update 100초로 고정한다.</p>
+
+<h3>Primary arms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Arm</th><th>시간 bin 내부 선택</th><th>검증 질문</th></tr></thead>
+<tbody>
+<tr><td><b>F1-Temporal</b></td><td>기존 D12 temporal-uniform</td><td>기준선</td></tr>
+<tr><td><b>F1-RandomDrop</b></td><td>quality arm과 동일한 교체 수를 무작위로 교체</td><td>단순 set 변경 효과 control</td></tr>
+<tr><td><b>F1-Sharp</b></td><td>temporal-relative sharpness 우선</td><td>blur 제거만의 효과</td></tr>
+<tr><td><b>F1-Pose</b></td><td>pose confidence 우선, invalid pose hard reject</td><td>잘못된 pose 제거 효과</td></tr>
+<tr><td><b>F1-Exposure</b></td><td>극단 clipping 회피</td><td>과·저노출 제거 효과</td></tr>
+<tr><td><b>F1-Combined</b></td><td>사전 고정한 equal-weight quality score</td><td>여러 저품질 원인의 결합 효과</td></tr>
+<tr><td><b>F1-Worst</b></td><td>의도적으로 quality 하위 frame 우선</td><td>metric 방향성 negative control; 소규모/조기 중단 허용</td></tr>
+</tbody></table></div>
+
+<h3>Combined score</h3>
+<p>각 metric을 temporal bin 안에서 percentile <code>[0,1]</code>로 정규화하고, 임의 weight tuning을 피하기 위해 equal-weight geometric mean을 먼저 사용한다.</p>
+<div class="equation">qcombined(v) = [qsharp(v) · qexposure(v) · qpose(v)]^(1/3)</div>
+<p>한 항이 매우 낮으면 전체 점수가 낮아져 명백한 corruption을 억제하지만, 어떤 항이 원인인지 manifest에 별도로 남긴다. Motion magnitude는 이 식에 직접 넣지 않는다.</p>
+
+<h3>Hard reject와 soft preference 분리</h3>
+<ul>
+  <li><b>Hard reject:</b> decode failure, invalid/missing pose, 거의 전체 clipping처럼 명백히 학습 불가능한 frame만.</li>
+  <li><b>Soft preference:</b> blur 의심, pose confidence 저하, contrast 부족은 bin 내부 ranking으로만 사용.</li>
+  <li>선택 수가 부족하면 같은 temporal bin의 다음 후보로 채워 temporal quota를 보존한다.</li>
+</ul>
+</section>
+
+<section>
+<h2>7. F1의 통제 조건과 budget</h2>
+<div class="grid">
+  <div class="card"><b>Membership 크기</b>모든 arm 정확히 784 frames. Held-out overlap 0.</div>
+  <div class="card"><b>Temporal 분포</b>동일한 absolute-time bin quota. 최대 gap과 bin별 count 기록.</div>
+  <div class="card"><b>학습 순서</b>모두 shuffle-without-replacement. Quality를 order score로 재사용하지 않음.</div>
+  <div class="card"><b>Objective</b>RGB-only, 동일 parameter scope, optimizer reset, densification/pruning 없음.</div>
+  <div class="card"><b>Budget</b>0/2/5/10/20/40/60/80/100초 CUDA update milestone. AUC primary.</div>
+  <div class="card"><b>반복</b>최소 3 paired seeds. aria1253는 개발 장면; 일반화에는 추가 scene 필요.</div>
+</div>
+<p>Quality feature 계산은 admission 전처리 비용으로 별도 기록한다. Offline membership mechanism 비교에서는 update-time AUC를 유지하되, 실제 causal Stage F2에서는 quality 계산비용까지 system budget에 포함한다.</p>
+</section>
+
+<section>
+<h2>8. 무엇을 평가해야 하나</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>범주</th><th>지표</th><th>이유</th></tr></thead>
+<tbody>
+<tr><td>Primary</td><td>0–100초 curve MSE AUC</td><td>quality filtering이 실제 수렴 속도를 높이는가</td></tr>
+<tr><td>Final</td><td>100초 MSE/PSNR/SSIM/LPIPS</td><td>초기 속도와 최종 ceiling을 분리</td></tr>
+<tr><td>Geometry</td><td>floater/region-GT/depth/normal 지표</td><td>PSNR 개선이 geometry 악화와 교환되지 않는지</td></tr>
+<tr><td>Coverage</td><td>visible Gaussian/cell-direction coverage, temporal gap</td><td>quality filter가 유용한 motion/novel view를 지우지 않았는지</td></tr>
+<tr><td>Stability</td><td>non-finite, loss spikes, gradient norm, harmful update probe</td><td>저품질 frame 제거의 예상 mechanism</td></tr>
+<tr><td>Set audit</td><td>Jaccard, 교체 UID, quality quantile, motion distribution</td><td>어떤 frame이 왜 바뀌었는지 추적</td></tr>
+</tbody></table></div>
+<div class="box warn"><b>해석 주의:</b> PSNR이 좋아져도 coverage·motion span이 줄면 “품질 개선”이 아니라 쉬운 view 편향일 수 있다. 반대로 geometry가 좋아지고 PSNR AUC가 약간 나빠질 수도 있으므로 두 결과를 분리해서 보고한다.</div>
+</section>
+
+<section>
+<h2>9. Stage F2 — Quality와 representative/density의 상호작용</h2>
+<p>F1에서 독립적인 quality 축이 일관되게 유효할 때만 진행한다. 처음부터 모든 조합을 돌리지 않는다.</p>
+
+<h3>F2-A: Representative interaction</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Coverage</th><th>Quality gate 없음</th><th>Quality gate 있음</th></tr></thead>
+<tbody><tr><td>Temporal only</td><td>Temporal baseline</td><td>Temporal + Combined quality</td></tr><tr><td>Representative coverage</td><td>Stage B representative</td><td>Representative + Combined quality</td></tr></tbody>
+</table></div>
+<p>2×2 factorial로 quality와 representative coverage의 주효과·상호작용을 분리한다. Cardinality와 temporal quota는 모두 동일하다.</p>
+
+<h3>F2-B: Density interaction</h3>
+<p>Quality gate가 dense setting에서만 의미가 있는지 확인하려면 Stage A의 후보 density 중 최소 조합만 비교한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Density</th><th>No quality</th><th>Combined quality</th><th>질문</th></tr></thead>
+<tbody><tr><td>D04</td><td>기존 membership</td><td>bin 내부 quality preference</td><td>sparse-mid density에서도 이득인가</td></tr><tr><td>D12</td><td>기존 선택점</td><td>bin 내부 quality preference</td><td>현재 주 설정에서 이득인가</td></tr><tr><td>D16/Dmax</td><td>plateau density</td><td>quality preference</td><td>더 많은 frame이 저품질 오염을 늘리는가</td></tr></tbody>
+</table></div>
+<p>F1에서 효과가 없는 metric은 F2에 포함하지 않는다. Density를 quality 결과를 본 뒤 임의로 늘리지 않고 위 조합을 사전에 고정한다.</p>
+</section>
+
+<section>
+<h2>10. 결과별 해석과 의사결정</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>관측 결과</th><th>해석</th><th>다음 행동</th></tr></thead>
+<tbody>
+<tr><td>Pose만 개선</td><td>영상 blur보다 trajectory confidence가 주 오염원</td><td>pose hard/soft gate를 admission에 우선 적용</td></tr>
+<tr><td>Sharpness만 개선</td><td>natural motion/defocus blur가 수렴을 늦춤</td><td>temporal-relative sharpness를 causal하게 구현</td></tr>
+<tr><td>Combined만 개선</td><td>단일 원인보다 복합 corruption tail이 문제</td><td>equal-weight score 유지 후 cross-scene 검증</td></tr>
+<tr><td>Synthetic에서만 개선</td><td>metric은 작동하지만 natural sequence 오염이 부족하거나 domain mismatch</td><td>natural filtering 채택 금지</td></tr>
+<tr><td>PSNR 개선, coverage/geometry 악화</td><td>쉬운·정적인 view 편향</td><td>quality gate 강도 완화 또는 reject 금지</td></tr>
+<tr><td>F1 개선, F2 interaction 없음</td><td>quality와 representative가 독립적인 작은 주효과</td><td>비용이 낮으면 조합 가능</td></tr>
+<tr><td>모두 무효</td><td>현재 데이터 quality가 이미 충분하거나 metric이 부정확</td><td>복잡한 quality selector를 추가하지 않음</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>11. Manifest와 로그에 반드시 남길 값</h2>
+<ul>
+  <li>UID, timestamp, temporal bin, pose validity, source/eval flag</li>
+  <li>raw·relative sharpness, exposure/clipping, pose confidence, motion-risk feature</li>
+  <li>각 feature의 bin percentile과 combined score</li>
+  <li>hard reject 여부와 정확한 reason code</li>
+  <li>선택된 frame이 대체한 baseline UID 및 동일-bin replacement UID</li>
+  <li>quality feature code/version/hash, threshold/weight provenance</li>
+  <li>set size, temporal quota, max gap, held-out overlap, view-set SHA-256</li>
+  <li>selection 전처리 wall/CUDA cost와 causal 이용 가능 시점</li>
+</ul>
+<div class="box bad"><b>즉시 실패 처리:</b> arm별 cardinality·temporal quota가 다름, quality를 학습 order에도 사용함, held-out 결과로 threshold를 조정함, motion magnitude만으로 hard reject함, selected set이 eval/lockbox와 overlap함.</div>
+</section>
+
+<section>
+<h2>12. 권장 구현 순서</h2>
+<ol>
+  <li>Quality feature extractor와 JSONL audit만 구현한다. 학습 코드는 아직 바꾸지 않는다.</li>
+  <li>F0 synthetic corruption과 natural contact sheet로 metric을 검증한다.</li>
+  <li>Temporal baseline과 RandomDrop control을 생성한다.</li>
+  <li>Sharp/Pose/Exposure 단일축 manifest를 각각 생성해 F1을 수행한다.</li>
+  <li>단일축 결과를 보기 전에 고정한 equal-weight Combined manifest를 함께 생성한다.</li>
+  <li>F1 gate를 통과한 축만 representative 2×2 및 density interaction으로 확장한다.</li>
+  <li>Offline 효과가 확인된 뒤에만 causal admission 비용을 Stage E system budget에 통합한다.</li>
+</ol>
+</section>
+
+<section>
+<h2>13. 결과 기입란</h2>
+<p class="status">아직 실험 전. 아래 값은 raw artifact 분석으로 자동 생성한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>완료</th><th>Primary 결과</th><th>Coverage/geometry audit</th><th>Gate</th><th>Artifact</th></tr></thead>
+<tbody><tr><td>F0</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F1</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F2-A</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F2-B</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+</table></div>
+</section>
+
+<footer>exp66 Stage F plan · quality admission isolated from novelty and order · hypothesis/protocol, not a result</footer>
+</main></body></html>

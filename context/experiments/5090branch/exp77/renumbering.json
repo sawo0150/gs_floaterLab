@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-11",
+  "canonical_experiment": "exp77",
+  "legacy_stages": {
+    "exp77": ".",
+    "exp78": "b_aria_reproduction",
+    "exp79": "c_aria_zero_tail",
+    "exp80": "d_benchmark_zero_tail"
+  },
+  "next_experiment": "exp78 reserved; only on explicit user instruction",
+  "raw_results_policy": "Existing results paths and evidence contents retain original run IDs.",
+  "current_stage": "exp77 E",
+  "reserve_ablation_legacy_id": "exp78_reserve_ablation_20260911"
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "exp70.v7-1x-legacyoff-summary.v1",
+  "date": "2026-09-02",
+  "protocol": {
+    "scene": "aria1253",
+    "frames": 1303,
+    "seed": 0,
+    "hardware_profile": "rtx5090",
+    "scheduler": "exp69-v7-final",
+    "replay_time_scale": 1.0,
+    "input_pacing": "original approximately 20 FPS timestamps",
+    "legacy_causal_carve_enabled": false,
+    "terminal_dust_gc_retained": true,
+    "terminal_pose_rematuration_retained": true,
+    "detached_opacity_lambda": 0.002,
+    "important_scope": "final-v7 final-map comparison; not strict zero-tail because EOS rematuration is retained"
+  },
+  "arms": [
+    {
+      "label": "control",
+      "run_dir": "exp70_axes/results/exp70_v7_1x_legacyoff_control_aria1253_seed0",
+      "heldout": {"psnr": 28.14780301678905, "ssim": 0.8846642048978015, "lpips": 0.21726209587978396},
+      "online_loop_seconds_including_eos_finalization": 73.6310920715332,
+      "replay_updates": 7326,
+      "streaming_loop_seconds_excluding_eos_rematuration": 69.0643350715332,
+      "streaming_replay_updates_excluding_eos_rematuration": 5910,
+      "terminal_rematuration": {"added_steps": 1416, "wall_seconds": 4.566757},
+      "gaussians": 93033,
+      "detached_selected_fraction": null,
+      "manual_region_alignment": {"median_m": 0.02055637885224931, "p90_m": 0.03742606033759987},
+      "manual_region_opacity_gt_0_3": {"eroded": 85, "nominal": 148, "dilated": 383},
+      "nominal_opacity_support": 198.0215901514091,
+      "nominal_opacity_area_support": 1.275109756424755,
+      "control_aligned_global": {"scale_gt_1m": 1, "opacity_area": 218.78389702097942}
+    },
+    {
+      "label": "alpha",
+      "run_dir": "exp70_axes/results/exp70_v7_1x_legacyoff_alpha_aria1253_seed0",
+      "heldout": {"psnr": 27.706342496924638, "ssim": 0.8766183996398146, "lpips": 0.22719647739473628},
+      "heldout_delta_vs_control": {"psnr": -0.4414605198644139, "ssim": -0.008045805257986927, "lpips": 0.009934381514952323},
+      "online_loop_seconds_including_eos_finalization": 69.09776282310486,
+      "replay_updates": 6089,
+      "streaming_loop_seconds_excluding_eos_rematuration": 69.09757382310486,
+      "streaming_replay_updates_excluding_eos_rematuration": 6089,
+      "streaming_replay_update_delta_pct_vs_control": 3.0287648054145526,
+      "terminal_rematuration": {"added_steps": 0, "wall_seconds": 0.000189},
+      "gaussians": 93219,
+      "detached_selected_fraction": 0.02690974157202762,
+      "manual_region_alignment": {"median_m": 0.024684737875944517, "p90_m": 0.047450818376766964},
+      "manual_region_opacity_gt_0_3": {"eroded": 83, "nominal": 161, "dilated": 401},
+      "manual_region_delta_pct_vs_control": {"eroded": -2.352941176470591, "nominal": 8.783783783783793, "dilated": 4.699738903394257},
+      "nominal_opacity_support": 197.3977319059837,
+      "nominal_opacity_area_support": 1.051675615133293,
+      "control_aligned_global": {"scale_gt_1m": 206, "opacity_area": 1585.5594739831945}
+    },
+    {
+      "label": "nll",
+      "run_dir": "exp70_axes/results/exp70_v7_1x_legacyoff_nll_aria1253_seed0",
+      "heldout": {"psnr": 27.791755855412774, "ssim": 0.8760827499858582, "lpips": 0.22868002119643913},
+      "heldout_delta_vs_control": {"psnr": -0.3560471613762779, "ssim": -0.008581454911943287, "lpips": 0.01141792531665517},
+      "online_loop_seconds_including_eos_finalization": 70.26315712928772,
+      "replay_updates": 6340,
+      "streaming_loop_seconds_excluding_eos_rematuration": 69.06576312928772,
+      "streaming_replay_updates_excluding_eos_rematuration": 5956,
+      "streaming_replay_update_delta_pct_vs_control": 0.7783417935702088,
+      "terminal_rematuration": {"added_steps": 384, "wall_seconds": 1.197394},
+      "gaussians": 93479,
+      "detached_selected_fraction": 0.02691043689743215,
+      "manual_region_alignment": {"median_m": 0.022530682506052786, "p90_m": 0.04317132090795152},
+      "manual_region_opacity_gt_0_3": {"eroded": 85, "nominal": 164, "dilated": 407},
+      "manual_region_delta_pct_vs_control": {"eroded": 0.0, "nominal": 10.81081081081081, "dilated": 6.266318537859017},
+      "nominal_opacity_support": 199.8382728033147,
+      "nominal_opacity_area_support": 1.2231184162517104,
+      "control_aligned_global": {"scale_gt_1m": 56, "opacity_area": 1270.2655872243913}
+    }
+  ],
+  "raw_evidence": {
+    "summary": "exp70_axes/results/exp70_v7_1x_legacyoff_summary.json",
+    "summary_sha256": "42b6c2d33a2fe99ce125d94f5069fab592518b8be29121e4e6d43dad576eda4f",
+    "manual_region": "exp70_axes/results/exp70_v7_1x_legacyoff_manual_region.json",
+    "manual_region_sha256": "beec2198d4c6437be16ec8c37bb92e41d48d613b00543905412c1908834346f3"
+  },
+  "excluded_diagnostics": [
+    "exp70_v7_1x_nocarve_control_aria1253_seed0 retained the legacy detector with zero mutation and is not the matched control",
+    "exp70_v7_1x_nocarve_alpha_aria1253_seed0 stopped before streaming at the mutual-exclusion guard"
+  ],
+  "verdict": {
+    "whole_system": "NO-GO at current 1x final-v7 integration",
+    "reason": "alpha/NLL lose 0.44/0.36 dB, do not improve nominal or dilated region-GT counts, and create many giant splats",
+    "accounting_correction": "total replay counts include 1416/0/384 EOS rematuration steps. After subtracting them, streaming replay is 5910/6089/5956 and does not decrease for alpha/NLL; pre-EOS wall time is also effectively equal at 69.064/69.098/69.066 seconds.",
+    "causal_caveat": "adaptive EOS rematuration and the stochastic online optimization path differ across arms, so the negative final-map result does not isolate the mathematical penalty under a fixed update schedule"
+  }
+}

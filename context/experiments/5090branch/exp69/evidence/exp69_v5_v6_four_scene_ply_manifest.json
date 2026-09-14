@@ -1,0 +1,119 @@
+{
+  "title": "exp69 v5-before-carve versus final-v6 PLY comparison",
+  "date": "2026-08-27",
+  "protocol": {
+    "streaming": "strict causal streaming",
+    "replay_time_scale": 1.5,
+    "seed": 0,
+    "scene_specific_tuning": false,
+    "v5": "pose-active/archive scheduler with exact PGBA moment transport; causal carve disabled",
+    "v6": "v5 plus visible-lazy causal carve, lambda_soft=0.01, opacity-prox budget=0.005, and terminal simple dust pruning"
+  },
+  "scenes": {
+    "aria1253": {
+      "v5": {
+        "psnr_db": 27.74503599802653,
+        "ssim": 0.8736408983667692,
+        "lpips": 0.2266697186148829,
+        "replay_steps": 6475,
+        "vertices": 96724,
+        "opacity_le_0_1": 17144,
+        "opacity_gt_0_3": 66640,
+        "source": "exp69_axes/results/exp69_v4_worldjac_aria1253_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "de395205fa82f36652d56e5256f9223455de642274b83eaddfe29030801c7376"
+      },
+      "v6": {
+        "psnr_db": 27.42658151520623,
+        "ssim": 0.8657068832053079,
+        "lpips": 0.2423848656316598,
+        "replay_steps": 4855,
+        "vertices": 93213,
+        "opacity_le_0_1": 14293,
+        "opacity_gt_0_3": 65846,
+        "source": "exp69_axes/results/exp69_v6_sweep_lambda_low_aria1253_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "66ad3cc8738bb6a1e716dc4d62bf19b629f8c55f2ba6097569812334110530c4"
+      }
+    },
+    "aria301_305": {
+      "v5": {
+        "psnr_db": 27.659626470085318,
+        "ssim": 0.9016902985463615,
+        "lpips": 0.2566258683686948,
+        "replay_steps": 17068,
+        "vertices": 80556,
+        "opacity_le_0_1": 20663,
+        "opacity_gt_0_3": 52297,
+        "source": "exp69_axes/results/exp69_v4_worldjac_aria301_305_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "a6d9502109c6a29f245cfa342b3056e93e67539619ac72225b37fef485b5b13b"
+      },
+      "v6": {
+        "psnr_db": 28.090403185150056,
+        "ssim": 0.8972959164586312,
+        "lpips": 0.26455882853431645,
+        "replay_steps": 15048,
+        "vertices": 73811,
+        "opacity_le_0_1": 15260,
+        "opacity_gt_0_3": 49400,
+        "source": "exp69_axes/results/exp69_v6_sweep_lambda_low_aria301_305_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "aaaca3667b1c10781b8c9aedf6dd421bb06a5a764331f8c55b6658ac17b4ae7a"
+      }
+    },
+    "aria301_12F": {
+      "v5": {
+        "psnr_db": 26.18615668217341,
+        "ssim": 0.8721512899630599,
+        "lpips": 0.399718285103639,
+        "replay_steps": 4542,
+        "vertices": 155126,
+        "opacity_le_0_1": 37146,
+        "opacity_gt_0_3": 99667,
+        "source": "exp69_axes/results/exp69_v5_final_compare_aria301_12F_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "0c0f8b8d495f79a6aff313418a120c36af77305068952a999ee13250b042c659"
+      },
+      "v6": {
+        "psnr_db": 23.9048592523673,
+        "ssim": 0.8519743753076429,
+        "lpips": 0.4779606944413775,
+        "replay_steps": 2404,
+        "vertices": 145755,
+        "opacity_le_0_1": 21597,
+        "opacity_gt_0_3": 105042,
+        "source": "exp69_axes/results/exp69_v6_final_compare_aria301_12F_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "cb5da2254dd6bc87df0078ec19acde127abc921d34e8fe712cc122570d695bd7"
+      }
+    },
+    "aria1253_rot": {
+      "v5": {
+        "psnr_db": 24.213221201082554,
+        "ssim": 0.8143197287477041,
+        "lpips": 0.3391415042319478,
+        "replay_steps": 3743,
+        "vertices": 153986,
+        "opacity_le_0_1": 42924,
+        "opacity_gt_0_3": 86904,
+        "source": "exp69_axes/results/exp69_v5_final_compare_aria1253rot_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "f80d19859f8bfefe65dce5fb4066adfbaee24fb2892466b5747712a8c4794cdb"
+      },
+      "v6": {
+        "psnr_db": 23.483752481160302,
+        "ssim": 0.79681312998224,
+        "lpips": 0.3655766469742401,
+        "replay_steps": 2613,
+        "vertices": 142796,
+        "opacity_le_0_1": 31423,
+        "opacity_gt_0_3": 87143,
+        "source": "exp69_axes/results/exp69_v6_final_compare_aria1253rot_strict15x_seed0/3dgs_before_final.ply",
+        "sha256": "81e9e940f838c747c22415f8c6fae23c99f1900bca8cd2ec7bb3c60e0be35b72"
+      }
+    }
+  },
+  "conclusion": {
+    "psnr_delta_v6_minus_v5_db": {
+      "aria1253": -0.3184544828203004,
+      "aria301_305": 0.4307767150647377,
+      "aria301_12F": -2.281297429806109,
+      "aria1253_rot": -0.7294687199222516
+    },
+    "interpretation": "v6 consistently removes low-opacity dust, but it does not preserve PSNR or reduce high-opacity floaters universally under the strict 1.5x budget. The largest regressions coincide with fewer replay steps after enabling carve maintenance."
+  }
+}

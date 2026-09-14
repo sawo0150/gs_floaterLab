@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exp66 Stage F — View-quality Admission 실험계획</title>
+<style>
+  :root{--paper:#f5f3ef;--panel:#fffdfa;--ink:#24211e;--soft:#706960;--line:#ddd6cb;--accent:#4e638e;--good:#306b56;--bad:#a34a3c;--warn:#946719;--code:#eee9e1;--sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;--serif:ui-serif,Georgia,"Noto Serif KR","Nanum Myeongjo",serif;--mono:ui-monospace,"SFMono-Regular","Cascadia Code","D2Coding",Consolas,monospace}
+  @media(prefers-color-scheme:dark){:root{--paper:#141319;--panel:#1c1a22;--ink:#ece8f1;--soft:#a39cac;--line:#393241;--accent:#9eb0e4;--good:#78bea4;--bad:#e28b80;--warn:#e1b967;--code:#27222d}}
+  *{box-sizing:border-box}body{margin:0;padding:52px 22px 80px;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.65}main{max-width:980px;margin:auto}header{border-bottom:1px solid var(--line);padding-bottom:25px;margin-bottom:36px}.eyebrow{font:12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}h1,h2,h3{font-family:var(--serif);font-weight:600}h1{font-size:clamp(27px,4vw,39px);line-height:1.25;margin:9px 0 12px;letter-spacing:-.02em}h2{font-size:23px;margin:42px 0 14px;padding-top:9px;border-top:1px solid var(--line)}h3{font-size:18px;margin:26px 0 8px}p{max-width:78ch;margin:8px 0 13px}.dek,.small{color:var(--soft)}.dek{font-size:16px}.small{font-size:13px}code,pre{font-family:var(--mono);font-size:.9em}code{background:var(--code);padding:1px 5px;border-radius:3px}pre{background:var(--code);border:1px solid var(--line);padding:15px;overflow:auto;line-height:1.55}.lead,.box{background:var(--panel);border:1px solid var(--line);padding:17px 20px;margin:16px 0}.lead{border-color:var(--accent);border-left:4px solid var(--accent)}.good{border-left:4px solid var(--good)}.bad{border-left:4px solid var(--bad)}.warn{border-left:4px solid var(--warn)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin:16px 0}.card{background:var(--panel);border:1px solid var(--line);padding:15px 17px}.card b{display:block;margin-bottom:5px}.equation{font:15px var(--mono);background:var(--panel);border:1px solid var(--line);padding:13px 16px;overflow-x:auto;margin:12px 0}.table-wrap{overflow-x:auto;border:1px solid var(--line);background:var(--panel);margin:14px 0 7px}table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font:10.5px var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--soft)}td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}tr:last-child td{border-bottom:0}ul,ol{max-width:80ch;padding-left:22px}li{margin:6px 0}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;gap:9px;align-items:center;margin:18px 0}.node{background:var(--panel);border:1px solid var(--line);padding:13px;text-align:center}.arrow{color:var(--accent);font-size:20px}.status{font:12px var(--mono);color:var(--warn)}details{border:1px solid var(--line);background:var(--panel);padding:10px 14px;margin:10px 0}summary{cursor:pointer;font-weight:600}footer{border-top:1px solid var(--line);margin-top:45px;padding-top:16px;color:var(--soft);font:12px var(--mono)}a{color:var(--accent)}@media(max-width:680px){body{padding:30px 13px 60px}.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);text-align:center}th,td{padding:8px}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="eyebrow">exp66 후속 · Stage F 설계노트 · 2026-08-25</div>
+  <h1>Blur·노출·Pose 불신뢰 frame을 view set admission에서 걸러야 하는가</h1>
+  <p class="dek">Dense view set의 수렴 이득을 유지하면서 학습을 오염시키는 저품질 관측을 제거할 수 있는지 검증한다. Novelty/coverage와 영상·pose quality를 분리하고, 동일한 시간 분포와 cardinality 아래에서 membership 효과만 측정한다. Offline 효과는 최종 결론이 아니며, Stage E의 update 정책과 함께 native VIGS strict-streaming 경로에서 검증하는 EF-Causal을 최종 acceptance로 둔다.</p>
+  <div class="status">STATUS: PLANNED / NOT STARTED / LOCKBOX UNOPENED</div>
+</header>
+
+<div class="lead"><b>핵심 가설:</b> blur, 극단 노출, tracking/pose 불신뢰 frame은 높은 residual과 불안정한 gradient를 만들어 같은 계산 budget의 수렴을 늦출 수 있다. 단, 큰 motion과 novel view 자체를 저품질로 오판하면 coverage를 잃으므로 quality는 temporal quota 안의 admission constraint로 검증해야 한다.</div>
+
+<section>
+<h2>1. 왜 Stage B와 별도의 축인가</h2>
+<div class="grid">
+  <div class="card"><b>Novelty</b>새로운 surface·ray·viewing direction을 얼마나 제공하는가</div>
+  <div class="card"><b>Temporal representativeness</b>trajectory의 시간 구간을 얼마나 고르게 대표하는가</div>
+  <div class="card"><b>Observation quality</b>그 관측이 sharp하고 정상 노출이며 pose를 신뢰할 수 있는가</div>
+</div>
+<p>세 신호는 서로 상관될 수 있지만 같은 개념이 아니다. 빠른 이동 구간은 novelty가 높으면서 동시에 blur와 pose 오차 위험도 높을 수 있다. 이들을 하나의 utility로 바로 합치면 어떤 요인이 결과를 만들었는지 디버깅하기 어렵다.</p>
+<div class="box warn"><b>설계 원칙:</b> Stage F에서는 시간 quota, view-set 크기, 학습 순서, loss, budget을 고정하고 quality admission만 바꾼다. Quality 축이 독립적으로 유효하다고 확인된 뒤에만 representative coverage와 결합한다.</div>
+<p class="small">관련 순서/gradient 후속 계획: <a href="exp66_stage_e_causal_gradient_balance_plan.html">exp66_stage_e_causal_gradient_balance_plan.html</a></p>
+</section>
+
+<section>
+<h2>2. 큰 motion과 나쁜 frame을 구분해야 한다</h2>
+<p>카메라 이동량이나 optical-flow magnitude가 크다는 이유만으로 frame을 제거하면 안 된다. 큰 motion은 다음을 의미할 수 있다.</p>
+<ul>
+  <li>새로운 surface와 시점을 빠르게 확보한 유용한 frame</li>
+  <li>정상적으로 sharp하지만 frame 간 baseline이 큰 frame</li>
+  <li>실제로 motion blur 또는 rolling-shutter 왜곡이 있는 frame</li>
+  <li>tracking이 실패해 pose가 부정확한 frame</li>
+</ul>
+<p>따라서 <code>motion magnitude</code>는 quality score가 아니라 위험·조건 변수로 기록한다. 실제 rejection은 sharpness, exposure, pose confidence처럼 관측 신뢰도를 나타내는 별도 증거로 결정한다.</p>
+<div class="equation">large motion ≠ blur ≠ bad pose ≠ low utility</div>
+<div class="box bad"><b>금지할 shortcut:</b> flow/pose displacement가 큰 상위 x%를 그대로 제거하거나, residual이 큰 frame을 저품질로 정의하는 것. 이는 novel/hard view를 체계적으로 삭제할 수 있다.</div>
+</section>
+
+<section>
+<h2>3. 후보 quality 신호</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>축</th><th>측정 후보</th><th>의미</th><th>주요 함정</th></tr></thead>
+<tbody>
+<tr><td><b>Sharpness</b></td><td>multi-scale Laplacian/Tenengrad, high-frequency ratio, temporal-relative sharpness</td><td>defocus·motion blur 가능성</td><td>textureless wall도 blur처럼 보임</td></tr>
+<tr><td><b>Exposure</b></td><td>dark/bright clipped pixel 비율, usable intensity range, local contrast</td><td>정보가 소실된 과·저노출</td><td>실제로 어두운 장면을 오판</td></tr>
+<tr><td><b>Pose confidence</b></td><td>tracking reprojection/photometric residual, inlier ratio, covariance/condition, filler confidence</td><td>잘못된 camera pose가 map을 오염할 위험</td><td>새로운 view는 원래 residual이 클 수 있음</td></tr>
+<tr><td><b>Motion risk</b></td><td>IMU gyro/acceleration, flow magnitude·anisotropy, frame-to-frame pose displacement</td><td>blur/RS/track failure의 조건 변수</td><td>motion 자체는 품질이 아님</td></tr>
+<tr><td><b>Dynamics</b></td><td>flow/reprojection outlier fraction, temporal photometric inconsistency</td><td>moving object가 static map을 오염할 위험</td><td>occlusion boundary와 혼동</td></tr>
+<tr><td><b>Corruption</b></td><td>decode failure, missing rows, timestamp gap, duplicated frame</td><td>명백한 invalid observation</td><td>hard reject 기준을 명시해야 함</td></tr>
+</tbody></table></div>
+
+<h3>Temporal-relative sharpness</h3>
+<p>절대 Laplacian 값은 장면 texture에 크게 의존하므로, 인접 시간창의 median에 대해 상대화한 점수를 함께 사용한다.</p>
+<div class="equation">qsharp(v) = sharpness(v) / [ε + median{sharpness(u): |tᵤ−tᵥ|≤W}]</div>
+<p>이렇게 하면 textureless 구간 전체를 저품질로 버리는 오류를 줄일 수 있다. 단, metric이 실제 blur를 측정하는지는 Stage F0에서 별도로 검증한다.</p>
+</section>
+
+<section>
+<h2>4. 전체 실험 구조</h2>
+<div class="flow">
+  <div class="node"><b>F0 · Metric audit</b><br>실제·합성 corruption에서<br>quality score 검증</div><div class="arrow">→</div>
+  <div class="node"><b>F1 · Admission isolation</b><br>동일 temporal quota에서<br>quality 축만 비교</div><div class="arrow">→</div>
+  <div class="node"><b>F2 · Offline interaction</b><br>quality × representative × density<br>필요한 조합만 검증</div><div class="arrow">→</div>
+  <div class="node"><b>EF-C · Incremental</b><br>native source-rate causal replay에서<br>admission × update 검증</div>
+</div>
+<div class="box warn"><b>범위 구분:</b> F0–F2는 고정 Phase-1 map에서 원인을 분리하는 실험이다. 실제 incremental mapping에 해당한다고 판정할 수 있는 단계는 아래 Stage EF-Causal뿐이다.</div>
+</section>
+
+<section>
+<h2>5. Stage F0 — Quality metric 자체가 맞는지 먼저 검증</h2>
+<p class="status">NO TRAINING CONCLUSION · METRIC VALIDATION ONLY</p>
+
+<h3>F0-A: Natural-frame audit</h3>
+<ul>
+  <li>Dmax 1,041개 후보 전체에 quality feature를 계산한다.</li>
+  <li>각 metric의 상·중·하 quantile contact sheet를 생성해 사람이 blind review한다.</li>
+  <li>인접 시간 frame과 함께 보여 장면 texture와 blur를 구분한다.</li>
+  <li>high-motion/low-sharpness, high-motion/high-sharpness, low-motion/low-sharpness를 따로 표본화한다.</li>
+  <li>pose residual, blur, exposure, motion 간 상관행렬을 기록하되 하나를 다른 것의 label로 간주하지 않는다.</li>
+</ul>
+
+<h3>F0-B: Synthetic corruption sanity check</h3>
+<p>원래 sharp한 frame에 알려진 수준의 corruption을 적용해 metric 방향이 맞는지 확인한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Corruption</th><th>Level</th><th>통과 조건</th></tr></thead>
+<tbody><tr><td>linear motion blur</td><td>kernel 3/7/11/15 px, 여러 방향</td><td>blur level이 증가할수록 sharpness quality가 단조 하락</td></tr><tr><td>defocus blur</td><td>Gaussian σ 단계</td><td>자연 blur와 동일 방향 반응</td></tr><tr><td>over/under exposure</td><td>gain/gamma + clipping 단계</td><td>clipped fraction과 exposure quality가 단조 반응</td></tr><tr><td>pose perturbation</td><td>translation/rotation noise 단계</td><td>pose confidence가 perturbation과 일관되게 하락</td></tr></tbody>
+</table></div>
+<div class="box warn"><b>F1 진행 gate:</b> 단순 metric이 합성 corruption 수준을 안정적으로 정렬하고 natural contact sheet에서도 명백한 실패 frame을 상·하 quantile로 분리해야 한다. 실패하면 합성 corruption은 검출하지만 natural blur를 검출한다고 주장하지 않는다.</div>
+</section>
+
+<section>
+<h2>6. Stage F1 — 동일한 784장 admission에서 quality 효과 분리</h2>
+<p>Stage B의 temporal quota를 그대로 사용한다. 각 시간 bin에서 동일한 수의 frame을 선택하므로 모든 arm의 cardinality는 784이며 장기 temporal density도 동일하다. 학습 순서는 모두 <code>shuffle_epoch</code>, RGB-only, Adam reset, CUDA update 100초로 고정한다.</p>
+
+<h3>Primary arms</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Arm</th><th>시간 bin 내부 선택</th><th>검증 질문</th></tr></thead>
+<tbody>
+<tr><td><b>F1-Temporal</b></td><td>기존 D12 temporal-uniform</td><td>기준선</td></tr>
+<tr><td><b>F1-RandomDrop</b></td><td>quality arm과 동일한 교체 수를 무작위로 교체</td><td>단순 set 변경 효과 control</td></tr>
+<tr><td><b>F1-Sharp</b></td><td>temporal-relative sharpness 우선</td><td>blur 제거만의 효과</td></tr>
+<tr><td><b>F1-Pose</b></td><td>pose confidence 우선, invalid pose hard reject</td><td>잘못된 pose 제거 효과</td></tr>
+<tr><td><b>F1-Exposure</b></td><td>극단 clipping 회피</td><td>과·저노출 제거 효과</td></tr>
+<tr><td><b>F1-Combined</b></td><td>사전 고정한 equal-weight quality score</td><td>여러 저품질 원인의 결합 효과</td></tr>
+<tr><td><b>F1-Worst</b></td><td>의도적으로 quality 하위 frame 우선</td><td>metric 방향성 negative control; 소규모/조기 중단 허용</td></tr>
+</tbody></table></div>
+
+<h3>Combined score</h3>
+<p>각 metric을 temporal bin 안에서 percentile <code>[0,1]</code>로 정규화하고, 임의 weight tuning을 피하기 위해 equal-weight geometric mean을 먼저 사용한다.</p>
+<div class="equation">qcombined(v) = [qsharp(v) · qexposure(v) · qpose(v)]^(1/3)</div>
+<p>한 항이 매우 낮으면 전체 점수가 낮아져 명백한 corruption을 억제하지만, 어떤 항이 원인인지 manifest에 별도로 남긴다. Motion magnitude는 이 식에 직접 넣지 않는다.</p>
+
+<h3>Hard reject와 soft preference 분리</h3>
+<ul>
+  <li><b>Hard reject:</b> decode failure, invalid/missing pose, 거의 전체 clipping처럼 명백히 학습 불가능한 frame만.</li>
+  <li><b>Soft preference:</b> blur 의심, pose confidence 저하, contrast 부족은 bin 내부 ranking으로만 사용.</li>
+  <li>선택 수가 부족하면 같은 temporal bin의 다음 후보로 채워 temporal quota를 보존한다.</li>
+</ul>
+</section>
+
+<section>
+<h2>7. F1의 통제 조건과 budget</h2>
+<div class="grid">
+  <div class="card"><b>Membership 크기</b>모든 arm 정확히 784 frames. Held-out overlap 0.</div>
+  <div class="card"><b>Temporal 분포</b>동일한 absolute-time bin quota. 최대 gap과 bin별 count 기록.</div>
+  <div class="card"><b>학습 순서</b>모두 shuffle-without-replacement. Quality를 order score로 재사용하지 않음.</div>
+  <div class="card"><b>Objective</b>RGB-only, 동일 parameter scope, optimizer reset, densification/pruning 없음.</div>
+  <div class="card"><b>Budget</b>0/2/5/10/20/40/60/80/100초 CUDA update milestone. AUC primary.</div>
+  <div class="card"><b>반복</b>최소 3 paired seeds. aria1253는 개발 장면; 일반화에는 추가 scene 필요.</div>
+</div>
+<p>Quality feature 계산은 admission 전처리 비용으로 별도 기록한다. Offline membership mechanism 비교에서는 update-time AUC를 유지하되, 실제 causal EF-C에서는 quality 계산·bin 대기·pose 준비·selection 비용까지 system budget과 latency에 포함한다.</p>
+</section>
+
+<section>
+<h2>8. 무엇을 평가해야 하나</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>범주</th><th>지표</th><th>이유</th></tr></thead>
+<tbody>
+<tr><td>Primary</td><td>0–100초 curve MSE AUC</td><td>quality filtering이 실제 수렴 속도를 높이는가</td></tr>
+<tr><td>Final</td><td>100초 MSE/PSNR/SSIM/LPIPS</td><td>초기 속도와 최종 ceiling을 분리</td></tr>
+<tr><td>Geometry</td><td>floater/region-GT/depth/normal 지표</td><td>PSNR 개선이 geometry 악화와 교환되지 않는지</td></tr>
+<tr><td>Coverage</td><td>visible Gaussian/cell-direction coverage, temporal gap</td><td>quality filter가 유용한 motion/novel view를 지우지 않았는지</td></tr>
+<tr><td>Stability</td><td>non-finite, loss spikes, gradient norm, harmful update probe</td><td>저품질 frame 제거의 예상 mechanism</td></tr>
+<tr><td>Set audit</td><td>Jaccard, 교체 UID, quality quantile, motion distribution</td><td>어떤 frame이 왜 바뀌었는지 추적</td></tr>
+</tbody></table></div>
+<div class="box warn"><b>해석 주의:</b> PSNR이 좋아져도 coverage·motion span이 줄면 “품질 개선”이 아니라 쉬운 view 편향일 수 있다. 반대로 geometry가 좋아지고 PSNR AUC가 약간 나빠질 수도 있으므로 두 결과를 분리해서 보고한다.</div>
+</section>
+
+<section>
+<h2>9. Stage F2 — Quality와 representative/density의 상호작용</h2>
+<p>F1에서 독립적인 quality 축이 일관되게 유효할 때만 진행한다. 처음부터 모든 조합을 돌리지 않는다.</p>
+
+<h3>F2-A: Representative interaction</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Coverage</th><th>Quality gate 없음</th><th>Quality gate 있음</th></tr></thead>
+<tbody><tr><td>Temporal only</td><td>Temporal baseline</td><td>Temporal + Combined quality</td></tr><tr><td>Representative coverage</td><td>Stage B representative</td><td>Representative + Combined quality</td></tr></tbody>
+</table></div>
+<p>2×2 factorial로 quality와 representative coverage의 주효과·상호작용을 분리한다. Cardinality와 temporal quota는 모두 동일하다.</p>
+
+<h3>F2-B: Density interaction</h3>
+<p>Quality gate가 dense setting에서만 의미가 있는지 확인하려면 Stage A의 후보 density 중 최소 조합만 비교한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Density</th><th>No quality</th><th>Combined quality</th><th>질문</th></tr></thead>
+<tbody><tr><td>D04</td><td>기존 membership</td><td>bin 내부 quality preference</td><td>sparse-mid density에서도 이득인가</td></tr><tr><td>D12</td><td>기존 선택점</td><td>bin 내부 quality preference</td><td>현재 주 설정에서 이득인가</td></tr><tr><td>D16/Dmax</td><td>plateau density</td><td>quality preference</td><td>더 많은 frame이 저품질 오염을 늘리는가</td></tr></tbody>
+</table></div>
+<p>F1에서 효과가 없는 metric은 F2에 포함하지 않는다. Density를 quality 결과를 본 뒤 임의로 늘리지 않고 위 조합을 사전에 고정한다.</p>
+</section>
+
+<section>
+<h2>10. Stage EF-Causal — native incremental mapping 최종 검증</h2>
+<p class="status">FINAL ACCEPTANCE STAGE · F0–F2/E0–E1의 offline 결과를 incremental 주장으로 자동 확대하지 않음</p>
+
+<div class="lead"><b>최종 질문:</b> 고정 checkpoint를 잘 polish하는가가 아니라, RGB+IMU frame이 실제 시간 순서로 들어오고 tracking·keyframe 생성·Gaussian birth·densification/pruning이 동시에 진행되는 동안에도 quality admission과 Stage E의 update 정책이 동일 system budget에서 held-out map 품질을 높이는가?</div>
+
+<h3>10.1 코드 감사 결과 — 어떤 경로를 써야 실제 incremental인가</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>구성요소</th><th>확인된 native 경로</th><th>EF-C 포함 여부와 의미</th></tr></thead>
+<tbody>
+<tr><td>시간 순 RGB 입력</td><td><code>demo.py::mono_stream(realtime_replay=True)</code></td><td><b>필수.</b> source timestamp 간격을 1.5배 wall-clock으로 replay한다.</td></tr>
+<tr><td>Online tracking</td><td><code>VIGS.track() → motion_filter → frontend</code></td><td><b>필수.</b> 저장된 full trajectory를 학습 pose로 읽지 않고 해당 시점의 DROID/IMU 상태를 사용한다.</td></tr>
+<tr><td>Keyframe·PGBA</td><td><code>frontend → call_gs()</code>, online PGBA</td><td><b>필수.</b> keyframe 선택과 pose correction이 정책 실행 중 실제로 일어난다.</td></tr>
+<tr><td>Gaussian birth</td><td><code>process_track_data() → add_next_kf()</code></td><td><b>필수.</b> 새 keyframe의 depth로 map이 순차 확장된다.</td></tr>
+<tr><td>Topology 변화</td><td><code>map() → densify_and_prune()</code></td><td><b>필수.</b> 선택된 dense/keyframe의 gradient와 visibility가 성장·prune에 실제로 반영된다.</td></tr>
+<tr><td>Dense pose 준비</td><td><code>_queue_causal_dense_interval()</code></td><td><b>필수.</b> 오른쪽 bracketing keyframe이 도착한 과거 frame만 보간/trajectory filler pose를 얻는다.</td></tr>
+<tr><td>Dense registry</td><td><code>register_causal_dense_views()</code></td><td><b>입력 plumbing만 사용.</b> legacy 이름이 <code>polish_viewpoints</code>여도, 저장된 dense camera를 <code>map()</code> candidate로 넘기는 역할만 허용한다.</td></tr>
+<tr><td>공동 view scheduler</td><td><code>GSBackEnd.map()</code>의 <code>viewpoint_stack</code> + <code>random_viewpoint_stack</code> + <code>dense_viewpoint_stack</code> → <code>current_viewpoints</code> 조립 구간</td><td><b>유일한 정책 삽입점.</b> F는 dense membership을 정하고, E는 map iteration마다 dense/keyframe 학습 slot과 순서를 정한다.</td></tr>
+<tr><td>Idle polish</td><td><code>background_polish_step()</code></td><td><b>EF-C에서 금지.</b> 호출 수와 optimizer step 모두 0이어야 한다.</td></tr>
+<tr><td>Checkpoint polish</td><td><code>run_checkpoint_phase2()</code>, <code>color_refinement()</code></td><td><b>금지.</b> tracking과 Phase-1 map update가 없는 offline 경로라 EF-C 결과가 될 수 없다.</td></tr>
+</tbody></table></div>
+
+<div class="box good"><b>판정:</b> 위 native 경로를 처음부터 끝까지 사용하면 recorded RGB+IMU replay이더라도 알고리즘 수준에서는 실제 incremental mapping이다. 지도 파라미터와 Gaussian 집합이 frame prefix마다 달라지고, 정책도 그 시점까지 준비된 관측만 보기 때문이다.</div>
+<div class="box warn"><b>남는 한계:</b> recorded replay는 실제 센서 드라이버·Fisheye624 stereo localization 배포 검증은 아니다. 따라서 “incremental mapping 방법 검증”은 가능하지만 “실기기 live stack 검증 완료”라고 표현하지 않는다.</div>
+
+<h3>10.2 EF-C0와 EF-C1을 분리한다</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>단계</th><th>실행 조건</th><th>허용되는 결론</th><th>허용되지 않는 결론</th></tr></thead>
+<tbody>
+<tr><td><b>EF-C0 · integration replay</b></td><td>aria1253, 기존 strict recipe를 기반으로 native full pipeline 2×2 실행</td><td>성장 중인 map에서 F/E mechanism이 충돌 없이 유지되는가</td><td>unknown-length stream이나 cross-scene 일반성</td></tr>
+<tr><td><b>EF-C1 · strict unknown-horizon</b></td><td>종료 길이에 의존하지 않는 frozen policy, aria1253+최소 2개 추가 scene, 재튜닝 없음</td><td>실제 streaming incremental mapping 개선</td><td>실기기 localization까지 완료했다는 주장</td></tr>
+<tr><td><b>EF-C2 · live/30fps deployment</b></td><td>실제 30fps 입력과 최종 Aria localization stack</td><td>배포 수준 end-to-end</td><td>EF-C0/C1만으로는 미검증</td></tr>
+</tbody></table></div>
+
+<p>현재 <code>exp63_axes/recipe/run_flags_current.sh</code>는 native tracking/mapping pipeline의 출발점이지만 그대로 EF-C0에 사용할 수는 없다. 이 recipe는 <code>background_polish_step()</code>을 활성화하고, <code>background_polish_start_frac</code>, <code>late_mapping_start_frac</code>, <code>mapping_freeze_after_frac</code>가 전체 <code>--length</code>도 미리 사용한다. EF-C0에서는 background polish를 완전히 끄고 dense/keyframe 학습을 <code>map()</code> 안으로 옮겨야 하며, EF-C1에서는 길이 비율 schedule까지 제거해야 한다.</p>
+<p>또한 aria1253 RGB는 source timestamp상 약 20fps이고, <code>replay_time_scale=1.5</code>는 이 기록을 1.5배 느린 wall-clock으로 재생하는 현재 프로젝트의 strict budget이다. 따라서 EF-C0/C1을 “30fps 실시간 처리 완료”라고 쓰지 않는다. 30fps 입력률 자체는 EF-C2에서 실제 30fps 데이터 또는 별도의 처리율 stress protocol로 검증해야 한다.</p>
+<div class="box bad"><b>EF-C1 blocker:</b> 전체 길이 비율로 계산하는 schedule, 미래 UID가 들어 있는 manifest, postprocessed trajectory/depth, 마지막 frame 뒤 optimizer update 중 하나라도 사용하면 즉시 실패다. Start/freeze/budget 경계는 elapsed sensor time, 도착 frame count, queue pressure, 관측된 map 상태처럼 현재 prefix에서 계산 가능한 값으로 고정해야 한다.</div>
+
+<h3>10.3 Dense frame의 causal eligibility와 admission 시점</h3>
+<p>RGB pixel은 frame이 도착하면 볼 수 있지만, dense frame의 학습 pose는 곧바로 준비되지 않는다. 현재 구현은 왼쪽·오른쪽 keyframe이 모두 도착한 뒤 그 사이 pose를 완성한다.</p>
+<div class="equation">tready(v) = max[trgb(v), tright-KF(v), tpose-fill-done(v)]</div>
+<div class="equation">A(t) = {v | tready(v) ≤ t, eval(v)=false, hard-invalid(v)=false}</div>
+<ul>
+  <li>Sharpness·exposure처럼 image-only feature는 <code>trgb</code>에 계산·cache할 수 있다.</li>
+  <li>Pose 관련 feature와 최종 admission은 <code>tready</code> 전에는 사용할 수 없다.</li>
+  <li><code>causal_pose_residual</code>은 보간 pose와 trajectory-filler pose의 차이일 뿐 calibrated confidence가 아니다. F0 검증 전에는 hard reject에 쓰지 않는다.</li>
+  <li>현재 코드에 dense frame별 inlier ratio/covariance가 직접 보존되지 않으므로, 신뢰할 pose score가 확보되지 않으면 F1-Pose와 EF의 pose 항을 생략한다. 임의 proxy로 채우지 않는다.</li>
+</ul>
+
+<h3>10.4 Online temporal quota — 미래를 보지 않고 동일 cardinality 유지</h3>
+<p>F1의 “전체 sequence에서 가장 좋은 784장”을 그대로 옮기면 미래 누출이다. EF-C에서는 sensor-time 1초 bin을 닫은 뒤, 그 bin에 이미 도착했고 pose까지 준비된 후보만 비교한다. 목표 rate <code>r</code>은 F1 전에 고정하며 D12를 채택하면 1초당 최대 12장을 admission한다.</p>
+<div class="equation">tclose(b) = 첫 arrived keyframe k 중 sensor-time(k) &gt; tb,end 인 시점</div>
+<div class="equation">q(b) = min[round(r · Δtb), |A(tclose(b)) ∩ bin b|]</div>
+<ul>
+  <li><b>Temporal arm:</b> 닫힌 bin 안에서 균일한 시간 위치의 <code>q(b)</code>장을 선택한다.</li>
+  <li><b>Quality arm:</b> 같은 닫힌 bin·같은 <code>q(b)</code> 안에서 사전 고정 quality score가 높은 frame을 선택한다.</li>
+  <li>두 arm 모두 같은 bin-close/pose-ready 지연을 적용해 quality arm만 미래를 더 보는 일이 없게 한다.</li>
+  <li>한번 학습에 사용한 frame을 나중에 더 좋은 frame이 왔다고 소급 교체하지 않는다.</li>
+  <li>stream 끝까지 오른쪽 keyframe이 생기지 않은 마지막 open bin/interval은 tail에서 보충하지 않고 모든 arm에서 제외한다.</li>
+  <li>Regular tracked keyframe은 primary EF-C에서 quality admission으로 제거하지 않는다. 그러면 tracking graph와 Gaussian birth 자체가 달라져 F의 membership 효과를 분리할 수 없기 때문이다.</li>
+  <li>다만 학습 가능한 keyframe과 admitted dense frame은 모두 <code>map()</code>의 공동 candidate pool에 들어간다. Stage E scheduler가 각 map iteration의 제한된 학습 slot을 두 종류 사이에 배분한다.</li>
+</ul>
+
+<h3>10.5 2×2 primary arms — admission과 update를 끝까지 분리</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Arm</th><th>Dense admission</th><th><code>map()</code> view scheduler</th><th>무엇을 분리하는가</th></tr></thead>
+<tbody>
+<tr><td><b>EF-C-Base</b></td><td>Temporal quota</td><td><b>Map-RR</b>: 같은 slot 수에서 keyframe/dense 공동 random reshuffle</td><td>native map-only 기준선</td></tr>
+<tr><td><b>EF-C-F</b></td><td>F1에서 통과한 quality gate</td><td>동일 Map-RR</td><td>quality membership의 incremental 주효과</td></tr>
+<tr><td><b>EF-C-E</b></td><td>Temporal quota</td><td><b>Map-E</b>: E1에서 통과한 균형/순서 정책을 공동 pool에 적용</td><td>map 내부 dense:keyframe allocation·order의 주효과</td></tr>
+<tr><td><b>EF-C-EF</b></td><td>F1 winner</td><td>동일 Map-E</td><td>두 축의 상호작용과 실제 통합 이득</td></tr>
+</tbody></table></div>
+<div class="equation">Pt = Kfrontier(t) ∪ Khistory(t) ∪ Dadmitted(t), &nbsp; Bt = Sched(Pt, debt, budget)</div>
+<p>정책은 <code>map()</code>이 세 stack을 만든 직후, <code>current_viewpoints</code>를 확정하기 전에 삽입한다. Tracking/keyframe membership과 Gaussian birth 자체는 유지하되, 각 optimizer step이 실제로 render/backward할 batch <code>Bt</code>의 dense:keyframe 구성과 순서를 결정한다. 새 frontier keyframe starvation을 막기 위해 사전 고정한 최소 frontier slot을 두고, 나머지 slot만 historical keyframe과 dense frame 사이에 배분한다.</p>
+<p>현재 <code>map()</code>은 선택된 view loss를 평균이 아니라 합산한다. 따라서 primary 비교는 모든 arm·모든 paired 시점에서 <b>동일한 총 view slot 수</b>를 사용하고, 후보가 부족하면 같은 arm 공통 규칙으로 keyframe을 채운다. Batch cardinality 자체를 바꾸는 별도 B1/B2/B4 진단은 loss mean 또는 LR 보정을 사용해야 하며, 두 비교를 섞지 않는다.</p>
+<p>기존 Stage E2가 <code>background_polish_step()</code> 기반으로 구현된다면 최종 경로로 사용하지 않는다. E1에서 얻은 원리는 <code>map()</code> 공동 scheduler로 다시 구현·검증하며, E와 F가 같은 native <code>map()</code> run 안에서 위 2×2로 비교되는 EF-C가 최종 acceptance다.</p>
+<div class="box bad"><b>Background hard gate:</b> EF-C의 모든 arm은 <code>background_polish_step()</code> 호출 수=0, background optimizer step=0이어야 한다. Dense frame이 <code>polish_viewpoints</code>라는 legacy container에 저장되는 것은 허용하지만, 그 container를 background worker가 학습에 사용하는 것은 금지한다.</div>
+<div class="box warn"><b>Winner gate:</b> F1 winner가 없으면 EF-C-F/EF를 만들지 않고 Temporal admission을 유지한다. E1에서 공동 batch 구성에 유효한 원리가 없으면 Map-E를 만들지 않고 Map-RR을 유지한다. Offline에서 실패한 복잡한 정책을 incremental이라는 이유로 다시 넣지 않는다.</div>
+
+<h3>10.6 Native 실행 hard gate</h3>
+<pre>demo.py
+  --gsmapping
+  --pure_online
+  --strict_aria_online
+  --realtime_replay --replay_time_scale 1.5
+  --mapping_exclude_fixed_eval_views
+  [causal dense admission flags]
+  [map-internal joint view scheduler flags]
+
+REQUIRED RUNTIME ASSERTION:
+  background_polish_step_calls == 0
+  background_polish_optimizer_steps == 0
+
+FORBIDDEN:
+  --polish_checkpoint_in / post-stream color_refinement
+  background_polish_step() / future manifest
+  MPS trajectory·depth / final BA supervision</pre>
+<p>Offline evaluator와 <code>traj_filler</code>는 stream 종료 뒤 <b>optimizer update 없이 metric 계산에만</b> 사용할 수 있다. 평가 frame은 tracking에는 보일 수 있어도 Gaussian mapping supervision, quality threshold 선택, anchor gradient에는 절대 들어가지 않는다.</p>
+
+<h3>10.7 Budget, zero-tail, curve 측정</h3>
+<div class="equation">Ctotal(T) = Ctrack + Cpose-ready + Cquality + Cmap-schedule + Crender/backward/map-step</div>
+<div class="grid">
+  <div class="card"><b>Primary budget</b>입력 시작부터 마지막 sensor timestamp까지의 실제 wall time과 mapping duty cycle. Quality/gradient probe도 포함한다.</div>
+  <div class="card"><b>Strict deadline</b>recording duration의 1.5배 이내. 이는 30fps 검증이 아니라 현재 프로젝트의 1.5× live-budget 계약이다. GPU별 가능한 update 수 차이도 결과다.</div>
+  <div class="card"><b>Zero-tail</b>마지막 RGB 도착 뒤 optimizer step 0회. queue drain이 update를 실행했다면 실패로 기록한다.</div>
+  <div class="card"><b>Fairness</b>같은 input replay, evaluator exclusion, map iteration 수, step당 총 view slot, admission rate, seed pairing. Arm별 dense/keyframe backward 수를 함께 기록한다.</div>
+</div>
+<p>중간 AUC를 얻기 위해 live loop 안에서 held-out rendering을 끼워 넣지 않는다. 그것은 scheduler의 idle budget을 빼앗는다. 사전에 고정한 sensor-time prefix에서 별도 replay를 종료하고 zero-tail map을 offline metric-only로 평가한다. EF-C1에서는 prefix 길이에 따라 <code>*_frac</code> 경계가 다시 계산되는 구현을 금지하고, 같은 unknown-horizon online policy state를 그대로 사용한다.</p>
+<div class="equation">AUCstream = ∫ MSEheld-out(t) dt / (Tend − Tstart)</div>
+
+<h3>10.8 Incremental acceptance 지표와 gate</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>범주</th><th>필수 지표</th><th>통과 의미</th></tr></thead>
+<tbody>
+<tr><td>Quality</td><td>prefix MSE AUC, final PSNR/SSIM/LPIPS, late temporal bins</td><td>초기·후기 map 모두 개선되는지</td></tr>
+<tr><td>Geometry</td><td>region-GT/floater, depth·normal, Gaussian count</td><td>쉬운 image 편향과 geometry 악화를 배제</td></tr>
+<tr><td>Causality</td><td>arrival/ready/admission/use timestamps, future-read count=0</td><td>정책이 현재 prefix만 사용</td></tr>
+<tr><td>System</td><td>deadline miss, queue backlog, max admission delay, duty cycle</td><td>recorded source-rate strict budget과 공존; 30fps는 EF-C2에서 별도 판정</td></tr>
+<tr><td>Topology</td><td>prefix별 birth/densify/prune count와 origin histogram</td><td>고정 map polish가 아니라 실제 성장 map임을 증명</td></tr>
+<tr><td>Fairness</td><td>bin count, admitted UID, map iteration 수, step별 총 slot, dense/keyframe backward 수, opportunity spread</td><td>한 arm이 단순히 더 많은 view나 더 큰 gradient scale을 사용하지 않았는지</td></tr>
+</tbody></table></div>
+<ul>
+  <li><b>EF-C0 통과:</b> aria1253 최소 3 paired seeds에서 네 arm 모두 causal/fairness gate를 통과하고, 후보 정책이 Base보다 system-time AUC 또는 final quality를 일관되게 개선한다.</li>
+  <li><b>EF-C1 통과:</b> hyperparameter와 threshold를 동결한 뒤 aria1253 외 최소 2개 trajectory/scene에서 재튜닝 없이 같은 방향의 주효과가 나타나고 strict deadline·zero-tail을 모두 지킨다.</li>
+  <li>EF-C0만 통과하면 “aria1253 recorded incremental replay에서 유효”라고만 기록한다.</li>
+  <li>Offline F1/F2는 이기지만 EF-C가 지면, quality 계산비용·admission 지연·성장 중 map interaction 때문에 실용 이득이 사라진 것으로 판정하고 채택하지 않는다.</li>
+</ul>
+
+<h3>10.9 구현 전에 필요한 최소 변경</h3>
+<ol>
+  <li>RGB ingest 시 image-only quality를 CPU에서 계산하는 causal feature cache와 timing log.</li>
+  <li>오른쪽 keyframe/trajectory-filler 완료 뒤 <code>pose_ready</code> 이벤트를 내는 dense record.</li>
+  <li>1초 bin close 후 동일 quota를 확정하는 online admission buffer. 미래 UID manifest 사용 금지.</li>
+  <li><code>register_causal_dense_views()</code>에 quality/reason/admission timestamp metadata 전달.</li>
+  <li><code>map()</code>의 세 candidate stack 조립부를 명시적인 <code>MapViewScheduler</code> interface로 분리하고, frontier minimum + shared historical slots를 반환하게 한다.</li>
+  <li>모든 arm에서 map iteration 수와 총 view slot 수를 고정한다. Slot 수를 바꾸는 진단은 loss mean/LR 보정을 별도 hard gate로 둔다.</li>
+  <li><code>background_polish_step()</code>을 완전히 비활성화하고 호출·optimizer-step counter가 0이 아니면 run을 실패시킨다.</li>
+  <li>optimizer step마다 wall timestamp와 선택 batch UID/type을 남겨 last sensor arrival 이후 update가 0인지 자동 검사. 현재 <code>demo.py</code>의 종료부는 <code>_gs_queue.join()</code>으로 pending mapping packet을 drain하므로, 이 구간에서 실제 optimizer step이 생기는지도 별도 계측하고 생기면 strict 실패로 처리한다.</li>
+  <li>EF-C1 전에는 전체 <code>--length</code> 비율 schedule을 online observable 기반 schedule로 교체하고 baseline 자체를 세 장면에서 먼저 재검증.</li>
+</ol>
+</section>
+
+<section>
+<h2>11. 결과별 해석과 의사결정</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>관측 결과</th><th>해석</th><th>다음 행동</th></tr></thead>
+<tbody>
+<tr><td>Pose만 개선</td><td>영상 blur보다 trajectory confidence가 주 오염원</td><td>pose hard/soft gate를 admission에 우선 적용</td></tr>
+<tr><td>Sharpness만 개선</td><td>natural motion/defocus blur가 수렴을 늦춤</td><td>temporal-relative sharpness를 causal하게 구현</td></tr>
+<tr><td>Combined만 개선</td><td>단일 원인보다 복합 corruption tail이 문제</td><td>equal-weight score 유지 후 cross-scene 검증</td></tr>
+<tr><td>Synthetic에서만 개선</td><td>metric은 작동하지만 natural sequence 오염이 부족하거나 domain mismatch</td><td>natural filtering 채택 금지</td></tr>
+<tr><td>PSNR 개선, coverage/geometry 악화</td><td>쉬운·정적인 view 편향</td><td>quality gate 강도 완화 또는 reject 금지</td></tr>
+<tr><td>F1 개선, F2 interaction 없음</td><td>quality와 representative가 독립적인 작은 주효과</td><td>비용이 낮으면 조합 가능</td></tr>
+<tr><td>F1/F2 개선, EF-C 패배</td><td>고정 map 이득이 admission 지연·계산비용·성장 topology interaction에서 사라짐</td><td>incremental 정책으로 채택하지 않음</td></tr>
+<tr><td>EF-C0만 개선</td><td>aria1253 길이/recipe에 종속된 recorded-replay 효과</td><td>unknown-horizon·cross-scene 주장 금지, EF-C1 blocker 해결</td></tr>
+<tr><td>EF-C1까지 개선</td><td>quality/update 축이 실제 strict incremental 조건에서도 유효</td><td>live Aria integration 후보로 승격</td></tr>
+<tr><td>모두 무효</td><td>현재 데이터 quality가 이미 충분하거나 metric이 부정확</td><td>복잡한 quality selector를 추가하지 않음</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>12. Manifest와 로그에 반드시 남길 값</h2>
+<ul>
+  <li>UID, timestamp, temporal bin, pose validity, source/eval flag</li>
+  <li>RGB arrival, right-keyframe arrival, pose-ready, bin-close, admission, first-use timestamp</li>
+  <li>raw·relative sharpness, exposure/clipping, pose confidence, motion-risk feature</li>
+  <li>각 feature의 bin percentile과 combined score</li>
+  <li>hard reject 여부와 정확한 reason code</li>
+  <li>선택된 frame이 대체한 baseline UID 및 동일-bin replacement UID</li>
+  <li>quality feature code/version/hash, threshold/weight provenance</li>
+  <li>set size, temporal quota, max gap, held-out overlap, view-set SHA-256</li>
+  <li>selection 전처리 wall/CUDA cost와 causal 이용 가능 시점</li>
+  <li>optimizer-step wall timestamp, last-sensor-arrival timestamp, post-tail update count</li>
+  <li>prefix별 keyframe/Gaussian birth·densify·prune 수, queue backlog, deadline miss</li>
+  <li>map iteration별 candidate keyframe/dense 수, selected UID/type, frontier/history 구분, 총 slot 수, selection debt와 scheduler score</li>
+  <li><code>background_polish_step</code> call/optimizer-step count(둘 다 반드시 0)</li>
+</ul>
+<div class="box bad"><b>즉시 실패 처리:</b> arm별 cardinality·temporal quota가 다름, 의도하지 않았는데 map step/view slot 수가 다름, quality를 order score에도 재사용함, held-out 결과로 threshold를 조정함, motion magnitude만으로 hard reject함, selected set이 eval/lockbox와 overlap함, pose-ready 전 사용함, 미래 UID/전체 sequence 통계를 읽음, <code>background_polish_step()</code>이 한 번이라도 실행됨, 마지막 sensor frame 뒤 optimizer update가 발생함.</div>
+</section>
+
+<section>
+<h2>13. 권장 구현 순서</h2>
+<ol>
+  <li>Quality feature extractor와 JSONL audit만 구현한다. 학습 코드는 아직 바꾸지 않는다.</li>
+  <li>F0 synthetic corruption과 natural contact sheet로 metric을 검증한다.</li>
+  <li>Temporal baseline과 RandomDrop control을 생성한다.</li>
+  <li>Sharp/Pose/Exposure 단일축 manifest를 각각 생성해 F1을 수행한다.</li>
+  <li>단일축 결과를 보기 전에 고정한 equal-weight Combined manifest를 함께 생성한다.</li>
+  <li>F1 gate를 통과한 축만 representative 2×2 및 density interaction으로 확장한다.</li>
+  <li>E1/F1 winner를 고정한 뒤 native VIGS 경로에 causal feature cache·pose-ready·bin-close admission과 <code>map()</code> 공동 view scheduler를 구현한다.</li>
+  <li>aria1253에서 EF-C0 2×2를 수행해 성장 map interaction과 system cost를 검증한다.</li>
+  <li>전체 길이 비율 schedule을 제거한 scene-independent baseline을 먼저 검증한 뒤, threshold를 다시 조정하지 않고 최소 세 장면 EF-C1을 수행한다.</li>
+  <li>EF-C1까지 통과한 조합만 실제 Aria live integration 후보로 승격한다.</li>
+</ol>
+</section>
+
+<section>
+<h2>14. 결과 기입란</h2>
+<p class="status">아직 실험 전. 아래 값은 raw artifact 분석으로 자동 생성한다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>완료</th><th>Primary 결과</th><th>Coverage/geometry audit</th><th>Gate</th><th>Artifact</th></tr></thead>
+<tbody><tr><td>F0</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F1</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F2-A</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>F2-B</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>EF-C0</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>EF-C1</td><td>미착수</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+</table></div>
+</section>
+
+<footer>exp66 Stage F + EF-Causal plan · offline mechanism isolation → native strict incremental acceptance · hypothesis/protocol, not a result</footer>
+</main></body></html>

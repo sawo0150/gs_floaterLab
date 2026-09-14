@@ -1,0 +1,78 @@
+{
+  "conclusion": "Earlier initialization reduces the short-sequence rendering deficit, but ego-drive remains a stable public-source mismatch and fails tracking parity before and after final BA.",
+  "created_kst": "2026-09-11",
+  "dataset": "utmm",
+  "paper_targets": {
+    "after_final_ba_ate_rmse_cm": 2.13,
+    "before_final_ba_ate_rmse_cm": 1.45,
+    "before_final_color_refinement": {
+      "lpips": 0.399,
+      "psnr": 21.54,
+      "ssim": 0.696
+    }
+  },
+  "protocol": "exp78_utmm_ego_drive_reproduction_v1",
+  "seed0": {
+    "ate_rmse_cm_prefinal": 5.1759,
+    "first_gaussian_frame": 54,
+    "first_imu_initialized_frame": 131,
+    "fps": 13.69912709040502,
+    "frames": 1399,
+    "gaussians": 130448,
+    "keyframes": 85,
+    "mapping_iterations": 835,
+    "mapping_view_count": 84,
+    "peak_cuda_allocated_bytes": 8246497280,
+    "peak_cuda_reserved_bytes": 11333009408,
+    "prefinal_official_public": {
+      "lpips": 0.3771657919388446,
+      "psnr": 20.324604780421215,
+      "ssim": 0.6647304332358789,
+      "views": 349
+    },
+    "prefinal_self_non_keyframe": {
+      "lpips": 0.3842329993053819,
+      "psnr": 20.24851847778667,
+      "ssim": 0.661096994172443,
+      "views": 264
+    },
+    "recall_at_10cm_percent_prefinal": 100.0,
+    "seconds": 102.1232952119899
+  },
+  "seed1": {
+    "after_ba_before_color": {
+      "ate_rmse_cm": 3.3283,
+      "lpips": 0.41267032865808484,
+      "psnr": 20.163002850333054,
+      "ssim": 0.6539999191945467
+    },
+    "ate_rmse_cm_prefinal": 5.2188,
+    "first_gaussian_frame": 54,
+    "first_imu_initialized_frame": 131,
+    "fps": 13.99299009922715,
+    "frames": 1399,
+    "gaussians": 129566,
+    "keyframes": 85,
+    "mapping_iterations": 835,
+    "mapping_view_count": 84,
+    "prefinal_official_public": {
+      "lpips": 0.37656224696205814,
+      "psnr": 20.377199500884572,
+      "ssim": 0.6664189453794485
+    },
+    "recall_at_10cm_percent_after_ba": 100.0,
+    "recall_at_10cm_percent_prefinal": 100.0,
+    "seconds": 99.9786314489902
+  },
+  "two_seed_prefinal": {
+    "ate_rmse_cm_mean": 5.19735,
+    "ate_rmse_cm_range": 0.042899999999999494,
+    "ate_rmse_cm_gap_to_paper": 3.74735,
+    "lpips_mean": 0.37686401945045135,
+    "psnr_gap_to_paper": -1.189097859347106,
+    "psnr_mean": 20.350902140652894,
+    "psnr_range": 0.05259472046335767,
+    "ssim_mean": 0.6655746893076637
+  }
+}
+

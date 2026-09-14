@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>exp70 — Surface-support preservation과 detached floater 문제 정의</title>
+  <style>
+    :root{
+      --paper:#f3f5f4;--panel:#fcfdfc;--ink:#1f2926;--muted:#66736e;--line:#d8dfdc;
+      --surface:#25745f;--surface-soft:#dceee7;--free:#3c6e9f;--free-soft:#e0ebf5;
+      --detach:#b14e42;--detach-soft:#f5e2df;--warn:#a06d13;--warn-soft:#f6ecd8;
+      --unknown:#7b7483;--code:#e9eeec;--shadow:0 12px 34px rgba(34,55,47,.07)
+    }
+    @media(prefers-color-scheme:dark){
+      :root{
+        --paper:#111715;--panel:#19211e;--ink:#e8eeeb;--muted:#9caaa4;--line:#303c37;
+        --surface:#72c7aa;--surface-soft:#203d34;--free:#82b7e4;--free-soft:#1e3446;
+        --detach:#e28b80;--detach-soft:#472a28;--warn:#e0b460;--warn-soft:#42351f;
+        --unknown:#aaa2b2;--code:#222d29;--shadow:none
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.72 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif}
+    main{max-width:1120px;margin:auto;padding:50px 24px 84px;display:flex;flex-direction:column;gap:38px}
+    header{padding:8px 0 31px;border-bottom:1px solid var(--line)}
+    h1,h2,h3{font-family:ui-serif,Georgia,"Noto Serif KR",serif;letter-spacing:-.018em}
+    h1{max-width:900px;margin:9px 0 14px;font-size:clamp(30px,4.6vw,48px);line-height:1.17}
+    h2{margin:0 0 15px;font-size:24px;line-height:1.34}
+    h3{margin:22px 0 8px;font-size:18px}
+    p{max-width:88ch;margin:7px 0}
+    ul,ol{max-width:91ch;padding-left:23px;margin:10px 0}
+    li{margin:6px 0}
+    b,strong{font-weight:700}
+    a{color:var(--free)}
+    code,.mono,.eyebrow,.status,.eq,.metric{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace}
+    code{padding:1px 5px;border-radius:4px;background:var(--code);font-size:.9em}
+    .eyebrow{color:var(--muted);font-size:12px;letter-spacing:.075em;text-transform:uppercase}
+    .lead{max-width:850px;color:var(--muted);font-size:17px;line-height:1.63}
+    .status{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:6px 10px;border:1px solid var(--warn);border-radius:999px;color:var(--warn);font-size:11px;letter-spacing:.04em}
+    .status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+    .card,.box,.figure,.table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+    .card{padding:17px;min-height:142px;border-top:4px solid var(--line)}
+    .card.surface{border-top-color:var(--surface)}.card.free{border-top-color:var(--free)}.card.detach{border-top-color:var(--detach)}.card.warn{border-top-color:var(--warn)}
+    .card .k{color:var(--muted);font:11px ui-monospace,"SFMono-Regular",monospace;text-transform:uppercase;letter-spacing:.05em}
+    .card .v{margin:7px 0 6px;font:700 19px/1.27 ui-monospace,"SFMono-Regular",monospace}
+    .card p{color:var(--muted);font-size:13px;line-height:1.55}
+    .box{padding:17px 20px;margin:15px 0;box-shadow:none}
+    .box.surface{border-left:5px solid var(--surface)}.box.free{border-left:5px solid var(--free)}.box.detach{border-left:5px solid var(--detach)}.box.warn{border-left:5px solid var(--warn)}
+    .box p{margin:2px 0}.box .label{display:block;margin-bottom:4px;color:var(--muted);font:11px ui-monospace,"SFMono-Regular",monospace;text-transform:uppercase;letter-spacing:.05em}
+    .eq{overflow-x:auto;margin:13px 0;padding:15px 18px;border:1px solid var(--line);border-radius:8px;background:var(--code);font-size:14px;line-height:1.85;white-space:pre}
+    .figure{overflow:hidden;margin:17px 0 8px;box-shadow:none}
+    .figure .canvas{padding:14px;background:linear-gradient(180deg,var(--panel),var(--paper))}
+    .figure svg{display:block;width:100%;height:auto}
+    .figure figcaption{padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+    .legend{display:flex;flex-wrap:wrap;gap:13px;margin:9px 0 2px;color:var(--muted);font-size:12px}
+    .legend span{display:inline-flex;align-items:center;gap:6px}.swatch{width:11px;height:11px;border-radius:3px;background:var(--unknown)}
+    .swatch.surface{background:var(--surface)}.swatch.free{background:var(--free)}.swatch.detach{background:var(--detach)}.swatch.warn{background:var(--warn)}
+    .table-wrap{overflow-x:auto;margin:14px 0;box-shadow:none}
+    table{width:100%;border-collapse:collapse;font-size:13.5px}
+    th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{color:var(--muted);font:650 11px ui-monospace,"SFMono-Regular",monospace;text-transform:uppercase;letter-spacing:.04em}
+    tr:last-child td{border-bottom:0}
+    .surface-t{color:var(--surface);font-weight:700}.free-t{color:var(--free);font-weight:700}.detach-t{color:var(--detach);font-weight:700}.warn-t{color:var(--warn);font-weight:700}.muted{color:var(--muted)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .mini{padding:16px;border:1px solid var(--line);border-radius:9px;background:var(--panel)}
+    .mini h3{margin:0 0 7px;font:700 15px/1.4 ui-monospace,"SFMono-Regular",monospace}
+    .mini p{color:var(--muted);font-size:13px}
+    .flow{display:grid;grid-template-columns:1.15fr 34px 1.15fr 34px 1.15fr;align-items:stretch;gap:8px;margin:15px 0}
+    .flow .node{display:flex;flex-direction:column;justify-content:center;min-height:104px;padding:14px;border:1px solid var(--line);border-radius:9px;background:var(--panel);text-align:center}
+    .flow .node b{font-family:ui-monospace,"SFMono-Regular",monospace;font-size:13px}.flow .node span{margin-top:5px;color:var(--muted);font-size:12px}
+    .flow .arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:23px}
+    .boundary{margin-top:18px;padding:18px;border:2px dashed var(--warn);border-radius:10px;background:var(--warn-soft)}
+    .boundary b{color:var(--warn)}
+    .toc{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}.toc a{padding:5px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);text-decoration:none;font-size:12px}.toc a:hover{color:var(--free);border-color:var(--free)}
+    .note{font-size:12.5px;color:var(--muted)}
+    footer{padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+    @media(max-width:900px){.cards{grid-template-columns:1fr 1fr}.three{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+    @media(max-width:680px){main{padding:32px 15px 60px;gap:31px}.cards{grid-template-columns:1fr}.flow{grid-template-columns:1fr}.flow .arrow{min-height:26px;transform:rotate(90deg)}h2{font-size:21px}.figure .canvas{padding:7px}}
+    @media print{body{background:white}.card,.box,.figure,.table-wrap{box-shadow:none}main{max-width:none;padding:20px}.toc{display:none}section,.figure{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">exp70 · problem formulation / pre-loss design · 2026-09-01</div>
+    <h1>넓게 붙어 있는 surface와<br>떨어진 floater를 구분하기</h1>
+    <p class="lead">빠른 incremental 3D Gaussian Splatting은 초기 surface 주변에 넓은 support를 허용해야 하지만,
+      좋은 geometry는 카메라와 surface 사이에서 독립적인 조기 종료를 만드는 Gaussian을 남겨서는 안 된다.
+      이 문서는 두 요구를 같은 “free-space density 제거” 문제로 취급하지 않기 위한 문제 정의다.</p>
+    <div class="status">CONCEPT · PRE-LOSS · NO EXPERIMENT RESULT</div>
+    <p class="note">후속 최소 loss 설계: <a href="exp70_score_free_detached_termination_loss.html">Score-free Detached Termination Loss</a></p>
+    <div class="cards">
+      <div class="card surface"><div class="k">Preserve</div><div class="v">ATTACHED SPREAD</div><p>surface와 연결된 넓은 support는 초기 capture range와 gradient 전달에 유용할 수 있다.</p></div>
+      <div class="card detach"><div class="k">Remove</div><div class="v">DETACHED MODE</div><p>surface peak와 분리되어 앞쪽에서 독립적인 termination을 만드는 component가 geometry 대상이다.</p></div>
+      <div class="card free"><div class="k">Recover</div><div class="v">TRANSPORTABLE GS</div><p>surface로 정렬될 수 있는 Gaussian은 opacity를 버리기보다 학습된 속성을 보존한 채 이동할 대상이다.</p></div>
+      <div class="card warn"><div class="k">Evidence</div><div class="v">TRANSIT + TERMINAL</div><p>multi-view 3D memory는 비어 있어야 할 공간과 surface support를 함께 보존해야 한다.</p></div>
+    </div>
+    <nav class="toc" aria-label="문서 목차">
+      <a href="#abstract">핵심 주장</a><a href="#ray">Ray 분포</a><a href="#taxonomy">세 현상</a>
+      <a href="#anchor">3D evidence</a><a href="#current">현재 carve</a><a href="#mismatch">불일치</a>
+      <a href="#probability">확률적 관점</a><a href="#requirements">설계 요구</a><a href="#validation">검증 전 질문</a>
+    </nav>
+  </header>
+
+  <section id="abstract">
+    <h2>1. 핵심 주장</h2>
+    <div class="box surface">
+      <span class="label">Problem statement</span>
+      <p><b>free space에 non-zero contribution이 있다는 사실만으로 floater라고 부를 수 없다.</b>
+        Gaussian은 무한 support를 가지며, surface를 설명하는 유효 Gaussian도 카메라 쪽에 꼬리를 남긴다.
+        제거 대상은 그 꼬리가 아니라 surface-supporting component와 분리된 조기 종료 component다.</p>
+    </div>
+    <p>따라서 빠른 수렴과 좋은 geometry를 동시에 달성하려면 서로 다른 두 판단이 필요하다.</p>
+    <ol>
+      <li><b>분리 판정:</b> Gaussian이 surface distribution에 붙어 있는가, 아니면 앞쪽에서 독립 mode를 만드는가?</li>
+      <li><b>회복 가능성 판정:</b> 잘못 놓였지만 surface로 이동해 재사용할 수 있는가, 아니면 억제·삭제해야 하는가?</li>
+    </ol>
+    <p>기존 carve의 multi-view 3D anchor는 버릴 아이디어가 아니다. 오히려 causal streaming에서 귀한 전역 geometry memory다.
+      다만 지금의 단일 free-space score는 위 두 판단을 표현하기에 정보가 부족하다.</p>
+  </section>
+
+  <section id="ray">
+    <h2>2. 3DGS를 ray 위의 유효 termination distribution으로 보기</h2>
+    <p>3DGS rasterizer는 NeRF처럼 한 Gaussian의 연속적인 축 방향 density를 직접 적분하지 않는다.
+      그러나 한 ray <span class="mono">r</span>에서 정렬된 splat들의 alpha-compositing contribution은
+      분석을 위한 이산 termination distribution으로 해석할 수 있다.</p>
+    <div class="eq">wᵢ(r) = Tᵢ(r) · αᵢ(r)
+
+pᵣ(t) = [1 / Σⱼ wⱼ(r)] · Σᵢ wᵢ(r) δ(t − tᵢ)
+
+Dᵣ = Eₚ[t] = Σᵢ pᵣ(tᵢ)tᵢ</div>
+    <p><span class="mono">Tᵢ</span>는 앞선 splat을 통과한 transmittance, <span class="mono">αᵢ</span>는 해당 splat의 유효 alpha다.
+      아래 그림에서는 이해를 위해 이 이산 분포를 부드러운 곡선으로 그린다.</p>
+
+    <figure class="figure">
+      <div class="canvas">
+        <svg viewBox="0 0 1020 350" role="img" aria-labelledby="rayDistTitle rayDistDesc">
+          <title id="rayDistTitle">ray 위 세 가지 Gaussian termination 분포</title>
+          <desc id="rayDistDesc">surface에 붙어 넓은 분포, surface로 이동 가능한 분포, surface 앞에 분리된 floater mode를 비교한다.</desc>
+          <defs>
+            <linearGradient id="surfFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--surface)" stop-opacity=".38"/><stop offset="1" stop-color="var(--surface)" stop-opacity=".03"/></linearGradient>
+            <linearGradient id="detFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--detach)" stop-opacity=".4"/><stop offset="1" stop-color="var(--detach)" stop-opacity=".03"/></linearGradient>
+            <marker id="arrowHead" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="var(--warn)"/></marker>
+          </defs>
+          <g font-family="-apple-system,BlinkMacSystemFont,Apple SD Gothic Neo,sans-serif" fill="var(--ink)">
+            <g transform="translate(15,0)">
+              <text x="150" y="27" text-anchor="middle" font-size="15" font-weight="700">A · attached broad support</text>
+              <line x1="25" y1="280" x2="292" y2="280" stroke="var(--line)" stroke-width="2"/>
+              <line x1="25" y1="280" x2="25" y2="64" stroke="var(--line)" stroke-width="2"/>
+              <rect x="210" y="60" width="35" height="220" fill="var(--surface-soft)"/>
+              <line x1="227" y1="57" x2="227" y2="285" stroke="var(--surface)" stroke-width="2" stroke-dasharray="6 5"/>
+              <path d="M28 278 C75 276,112 252,145 189 C171 139,195 90,225 78 C252 90,273 177,289 276 L289 280 L28 280 Z" fill="url(#surfFill)"/>
+              <path d="M28 278 C75 276,112 252,145 189 C171 139,195 90,225 78 C252 90,273 177,289 276" fill="none" stroke="var(--surface)" stroke-width="4"/>
+              <text x="227" y="304" text-anchor="middle" font-size="12" fill="var(--surface)">surface band</text>
+              <text x="72" y="326" font-size="12" fill="var(--muted)">camera-facing free space</text>
+              <text x="31" y="57" font-size="11" fill="var(--muted)">contribution</text>
+            </g>
+            <g transform="translate(350,0)">
+              <text x="150" y="27" text-anchor="middle" font-size="15" font-weight="700">B · recoverable misalignment</text>
+              <line x1="25" y1="280" x2="292" y2="280" stroke="var(--line)" stroke-width="2"/>
+              <line x1="25" y1="280" x2="25" y2="64" stroke="var(--line)" stroke-width="2"/>
+              <rect x="220" y="60" width="35" height="220" fill="var(--surface-soft)"/>
+              <line x1="237" y1="57" x2="237" y2="285" stroke="var(--surface)" stroke-width="2" stroke-dasharray="6 5"/>
+              <path d="M28 278 C59 276,80 245,105 165 C126 95,158 71,188 106 C209 130,219 192,237 244 C247 265,263 276,289 278 L289 280 L28 280 Z" fill="url(#surfFill)"/>
+              <path d="M28 278 C59 276,80 245,105 165 C126 95,158 71,188 106 C209 130,219 192,237 244 C247 265,263 276,289 278" fill="none" stroke="var(--free)" stroke-width="4"/>
+              <path d="M184 72 C205 73,218 79,228 91" fill="none" stroke="var(--warn)" stroke-width="3" marker-end="url(#arrowHead)"/>
+              <text x="237" y="304" text-anchor="middle" font-size="12" fill="var(--surface)">surface band</text>
+              <text x="122" y="326" font-size="12" fill="var(--muted)">support still reaches surface</text>
+            </g>
+            <g transform="translate(685,0)">
+              <text x="150" y="27" text-anchor="middle" font-size="15" font-weight="700">C · detached early mode</text>
+              <line x1="25" y1="280" x2="292" y2="280" stroke="var(--line)" stroke-width="2"/>
+              <line x1="25" y1="280" x2="25" y2="64" stroke="var(--line)" stroke-width="2"/>
+              <rect x="220" y="60" width="35" height="220" fill="var(--surface-soft)"/>
+              <line x1="237" y1="57" x2="237" y2="285" stroke="var(--surface)" stroke-width="2" stroke-dasharray="6 5"/>
+              <path d="M28 278 C50 276,65 251,80 179 C94 108,116 92,136 174 C146 219,158 260,175 270 C191 273,204 213,217 137 C229 72,247 67,260 132 C270 185,278 246,289 278 L289 280 L28 280 Z" fill="url(#detFill)"/>
+              <path d="M28 278 C50 276,65 251,80 179 C94 108,116 92,136 174 C146 219,158 260,175 270 C191 273,204 213,217 137 C229 72,247 67,260 132 C270 185,278 246,289 278" fill="none" stroke="var(--detach)" stroke-width="4"/>
+              <line x1="158" y1="264" x2="182" y2="264" stroke="var(--detach)" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="169" y="247" text-anchor="middle" font-size="11" fill="var(--detach)">separating valley</text>
+              <text x="237" y="304" text-anchor="middle" font-size="12" fill="var(--surface)">surface band</text>
+              <text x="94" y="326" font-size="12" fill="var(--detach)">premature termination</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>Figure 1.</b> “surface 앞 contribution” 하나만으로 A–C를 구분할 수 없다. 핵심은 tail의 존재가 아니라 surface band와의 연결성, 별도 peak와 valley, 실제 조기 종료 기여다.</figcaption>
+    </figure>
+  </section>
+
+  <section id="taxonomy">
+    <h2>3. 구분해야 할 세 가지 geometry 상태</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>상태</th><th>Ray 분포</th><th>수렴에서의 의미</th><th>geometry 해석</th><th>바람직한 취급</th></tr></thead>
+      <tbody>
+        <tr><td class="surface-t">Surface-attached inflation</td><td>surface peak까지 연속인 넓은 단일 component</td><td>초기 capture range와 여러 view의 gradient overlap을 넓힐 수 있음</td><td>큰 variance 자체만으로 floater가 아님</td><td>초기에는 보존; 최종 thickness는 별도 문제로 평가</td></tr>
+        <tr><td class="free-t">Recoverable misalignment</td><td>중심/peak가 앞쪽으로 치우쳤지만 surface band와 support가 연결됨</td><td>학습된 color·scale·opacity를 재사용할 수 있음</td><td>삭제보다 surface 방향 정렬이 자연스러움</td><td>회복 가능한 surface Gaussian으로 보호</td></tr>
+        <tr><td class="detach-t">Detached floater</td><td>surface component와 valley로 분리된 앞쪽 mode</td><td>이미지 일부를 잘못 선점하고 뒤 surface의 gradient를 가림</td><td>반복 transit과 모순되는 독립 premature termination</td><td>확실한 증거가 쌓인 뒤 억제·제거 후보</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box warn"><p><b>중요한 시간축:</b> surface inflation을 “최종적으로도 크게 유지해야 하는 좋은 geometry”라고 주장하는 것은 아니다.
+      여기서 보존한다는 뜻은 <b>초기·중간 수렴에서 detached floater와 혼동해 조기에 죽이지 않는다</b>는 뜻이다.
+      최종 surface thickness와 covariance anisotropy는 carve와 분리해 다뤄야 한다.</p></div>
+  </section>
+
+  <section>
+    <h2>4. 평균 depth, 분산, detached mass는 같은 양이 아니다</h2>
+    <p>ray distribution의 서로 다른 통계량은 서로 다른 실패를 설명한다.</p>
+    <div class="eq">Bias:       bᵣ = Eₚ[t] − Zᵣ
+
+Spread:     vᵣ = Eₚ[(t − Eₚ[t])²]
+
+Early mass: mᵣ(δ) = ∫₀^(Zᵣ−δ) pᵣ(t) dt
+
+Modality:   early mass가 surface component와 하나의 peak로 연결되는가,
+            아니면 density valley를 사이에 둔 별도 component인가?</div>
+    <div class="two">
+      <div class="mini"><h3 class="surface-t">같은 mean, 다른 geometry</h3><p>4m와 6m에 같은 contribution이 있으면 expected depth는 5m가 될 수 있다. 5m surface reference에 대한 평균 depth 오차가 0이어도 앞쪽 mode는 남는다.</p></div>
+      <div class="mini"><h3 class="free-t">같은 variance, 다른 geometry</h3><p>5m를 중심으로 넓은 단일 peak와, 4m/6m의 두 peak는 비슷한 variance를 가질 수 있다. variance만 줄여서는 “분리”를 직접 표현하지 못한다.</p></div>
+    </div>
+    <p>따라서 depth alignment는 주로 위치 편향을, thickness regularization은 spread를, detached-floater 판정은 component separation을 다룬다.
+      세 항을 한 종류의 free-space penalty로 대신할 수 없다.</p>
+  </section>
+
+  <section>
+    <h2>5. 왜 넓은 surface support가 수렴에 도움을 줄 수 있는가</h2>
+    <div class="three">
+      <div class="mini"><h3>01 · Capture range</h3><p>초기 depth·pose가 부정확할 때 얇고 작은 Gaussian은 관측 ray와 겹치지 않아 gradient를 거의 받지 못한다. 넓은 support는 정렬이 시작될 영역을 넓힌다.</p></div>
+      <div class="mini"><h3>02 · Cross-view overlap</h3><p>여러 시점에서 같은 primitive가 보일 확률이 커져 color와 geometry 신호가 한 Gaussian에 누적될 수 있다.</p></div>
+      <div class="mini"><h3>03 · Occlusion continuity</h3><p>초기 표면이 불완전할 때 작은 구멍을 연속적으로 설명한다. 너무 이른 제거는 지도를 다시 태어나게 만들어 optimizer service를 낭비한다.</p></div>
+    </div>
+    <p class="note">이 항목은 exp70의 연구 가설이다. “variance가 클수록 항상 빠르다”는 확정 사실이 아니며, 동일 wall-clock·동일 초기화에서 별도로 검증해야 한다.</p>
+  </section>
+
+  <section id="anchor">
+    <h2>6. VIGS-SLAM 문맥 — multi-view 3D evidence memory</h2>
+    <p>VIGS-SLAM의 mapping thread는 도착한 keyframe의 pose와 online depth를 이용해 3DGS를 갱신한다.
+      strict streaming에서는 모든 과거 view의 depth를 매 optimization step마다 다시 렌더링·비교하기 어렵다.
+      causal carve는 각 depth ray를 world space에 누적해 재사용 가능한 sparse 3D memory를 만든다.</p>
+    <div class="eq">한 view v, ray 위 world point x의 거리 tᵥ(x), 관측 surface depth ẑᵥ
+
+transit:   tᵥ(x) &lt; ẑᵥ − δᵥ       → ray가 x를 지나 surface까지 도달함
+terminal: |tᵥ(x) − ẑᵥ| ≤ δᵥ       → x가 관측 surface band 안에 있음
+unknown:   tᵥ(x) &gt; ẑᵥ + δᵥ       → surface 뒤이므로 free/occupied를 단정하지 않음</div>
+    <p><span class="mono">ẑᵥ</span>는 학습용 GT가 아니라 그 시점까지 online으로 얻은 surface observation이다.
+      따라서 pose·depth uncertainty와 surface margin은 evidence 의미의 일부다.</p>
+
+    <figure class="figure">
+      <div class="canvas">
+        <svg viewBox="0 0 1040 430" role="img" aria-labelledby="anchorTitle anchorDesc">
+          <title id="anchorTitle">여러 카메라의 transit와 terminal evidence를 world-space anchor에 누적</title>
+          <desc id="anchorDesc">세 카메라 ray가 surface까지 지나간 free space를 파란 transit으로, surface endpoint를 초록 terminal로 기록하고 전역 3D memory로 모은다.</desc>
+          <defs><marker id="arrBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="var(--free)"/></marker></defs>
+          <g font-family="-apple-system,BlinkMacSystemFont,Apple SD Gothic Neo,sans-serif">
+            <rect x="750" y="52" width="228" height="326" rx="22" fill="var(--surface-soft)" opacity=".72"/>
+            <path d="M805 58 C773 118,854 151,814 211 C776 268,852 311,823 374" fill="none" stroke="var(--surface)" stroke-width="8"/>
+            <text x="865" y="90" fill="var(--surface)" font-size="14" font-weight="700">observed surface</text>
+
+            <g fill="var(--panel)" stroke="var(--ink)" stroke-width="2">
+              <path d="M72 105 l48 -23 v46 z"/><rect x="40" y="91" width="35" height="28" rx="4"/>
+              <path d="M86 225 l48 -23 v46 z"/><rect x="54" y="211" width="35" height="28" rx="4"/>
+              <path d="M62 345 l48 -23 v46 z"/><rect x="30" y="331" width="35" height="28" rx="4"/>
+            </g>
+            <text x="35" y="69" fill="var(--muted)" font-size="12">causal keyframes</text>
+
+            <g stroke="var(--free)" stroke-width="3" opacity=".78">
+              <line x1="118" y1="105" x2="798" y2="115"/>
+              <line x1="132" y1="225" x2="810" y2="219"/>
+              <line x1="108" y1="345" x2="817" y2="328"/>
+            </g>
+            <g fill="var(--free)" opacity=".73">
+              <circle cx="220" cy="107" r="6"/><circle cx="310" cy="108" r="6"/><circle cx="400" cy="109" r="6"/><circle cx="490" cy="110" r="6"/><circle cx="580" cy="112" r="6"/><circle cx="670" cy="113" r="6"/>
+              <circle cx="232" cy="224" r="6"/><circle cx="322" cy="223" r="6"/><circle cx="412" cy="222" r="6"/><circle cx="502" cy="222" r="6"/><circle cx="592" cy="221" r="6"/><circle cx="682" cy="220" r="6"/>
+              <circle cx="210" cy="342" r="6"/><circle cx="300" cy="340" r="6"/><circle cx="390" cy="338" r="6"/><circle cx="480" cy="336" r="6"/><circle cx="570" cy="334" r="6"/><circle cx="660" cy="332" r="6"/>
+            </g>
+            <g fill="var(--surface)" stroke="var(--panel)" stroke-width="3">
+              <circle cx="798" cy="115" r="11"/><circle cx="810" cy="219" r="11"/><circle cx="817" cy="328" r="11"/>
+            </g>
+            <g transform="translate(430,170)">
+              <ellipse cx="0" cy="0" rx="38" ry="22" fill="var(--detach-soft)" stroke="var(--detach)" stroke-width="3" transform="rotate(-15)"/>
+              <text x="0" y="-38" text-anchor="middle" fill="var(--detach)" font-size="13" font-weight="700">candidate Gaussian</text>
+              <text x="0" y="49" text-anchor="middle" fill="var(--muted)" font-size="11">여러 ray가 통과한 위치</text>
+            </g>
+            <path d="M270 396 H704" stroke="var(--free)" stroke-width="3" marker-end="url(#arrBlue)"/>
+            <text x="487" y="419" text-anchor="middle" fill="var(--free)" font-size="13" font-weight="700">world-space transit memory accumulates across views</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>Figure 2.</b> 3D anchor는 한 view에 종속된 loss map이 아니라, 도착한 관측을 world 좌표에 저장한 causal memory다. 이후 view와 새 Gaussian도 같은 evidence를 조회할 수 있다.</figcaption>
+    </figure>
+
+    <h3>이 구조가 실제로 좋은 이유</h3>
+    <ul>
+      <li><b>Transit을 명시한다.</b> terminal-only depth supervision과 달리 “surface까지 ray가 비어 있었다”는 negative geometry evidence를 보존한다.</li>
+      <li><b>View 간 재사용이 가능하다.</b> 한번 관측한 free/surface 정보가 특정 pixel에 갇히지 않고 world-space Gaussian에 적용된다.</li>
+      <li><b>Streaming 비용을 통제한다.</b> 모든 과거 depth view를 매 step 다시 렌더링하는 대신 sparse sufficient memory를 점진적으로 갱신할 수 있다.</li>
+      <li><b>새로 태어난 Gaussian에도 적용 가능하다.</b> 과거 ray를 다시 순회하지 않아도 이미 검증된 공간인지 조회할 수 있다.</li>
+    </ul>
+    <div class="box warn"><p><b>“모든 view에서 재사용”과 “모든 frame을 동일한 독립 투표로 누적”은 다르다.</b>
+      가까운 연속 frame은 강하게 상관되어 있다. 전역 memory의 장점은 유지하되, 실제 독립 증거량은 baseline·관측 방향·pose cluster를 고려해야 한다.</p></div>
+  </section>
+
+  <section id="current">
+    <h2>7. 현재 carve가 evidence를 결합하는 방식</h2>
+    <p>현재 VIGS 통합 코드의 sparse field는 camera packet마다 voxel별 transit/terminal count를 누적하고,
+      Gaussian 위치에서 다음 free-space score를 조회한다.</p>
+    <div class="eq">s_old(x) = N_transit(x)
+           ─────────────────────────────────────────
+           N_transit(x) + ω_terminal N_terminal(x) + ε
+
+현재 기본값: ω_terminal = 3
+
+soft action의 핵심 형태:
+L_old ∝ meanᵢ [ s_old(μᵢ) · sigmoid(opacity_logitᵢ) ]</div>
+    <p>이 비율은 “해당 위치가 terminal보다 transit으로 더 자주 관측되었다”는 직관을 갖는다.
+      terminal은 유효 surface를 보호하고 transit은 free-space contradiction을 제공한다. 이 기본 발상은 유지할 가치가 있다.</p>
+    <div class="two">
+      <div class="mini"><h3 class="surface-t">유지할 것</h3><p>causal ray, transit/terminal의 이중 관측, world-space 누적, 새 Gaussian에 대한 재사용, action과 detector의 분리 가능성.</p></div>
+      <div class="mini"><h3 class="detach-t">재검토할 것</h3><p>단일 비율, 수동 terminal weight, center query, whole-opacity suppression, 상관된 view의 동일 투표, 불확실성 없는 hard threshold.</p></div>
+    </div>
+  </section>
+
+  <section id="mismatch">
+    <h2>8. 구조적 불일치 — point free-space와 Gaussian detachment는 다르다</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>현재 score가 묻는 질문</th><th>실제로 필요한 질문</th><th>가능한 실패</th></tr></thead>
+      <tbody>
+        <tr><td>Gaussian 중심 주변은 transit이 많은가?</td><td>Gaussian의 유효 core/component가 surface support와 분리되어 있는가?</td><td>surface까지 뻗은 recoverable Gaussian 전체 opacity를 억제</td></tr>
+        <tr><td>transit/terminal의 비율은 얼마인가?</td><td>증거량이 충분하고 서로 독립적이며 모순이 적은가?</td><td>1:0과 100:0이 거의 같은 score; high/high conflict가 평균 속에 사라짐</td></tr>
+        <tr><td>앞쪽 free-space에 있는가?</td><td>실제로 앞쪽에서 별도 termination mode를 만드는가?</td><td>보이지 않거나 기여가 작은 Gaussian과 실제 floater를 혼동</td></tr>
+        <tr><td>opacity를 낮추면 되는가?</td><td>surface로 이동해 회복할 것인가, 억제할 것인가?</td><td>학습된 color·scale·optimizer state를 조기에 폐기해 수렴 저하</td></tr>
+        <tr><td>terminal은 transit을 상쇄하는가?</td><td>terminal은 surface attachment와 이동 목표를 제공하는가?</td><td>surface 정보가 단순 denominator로만 소비됨</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box detach"><p><b>결론:</b> 기존 carve가 너무 강했다는 말은 단순히 coefficient가 컸다는 뜻이 아니다.
+      <b>point-level free-space contradiction을 primitive-level 삭제 압력으로 바로 변환한 의미상의 강성</b>이 더 근본적인 문제다.</p></div>
+  </section>
+
+  <section>
+    <h2>9. 필요한 두 축 — geometry 정리와 수렴 보존</h2>
+    <div class="flow">
+      <div class="node"><b>Multi-view evidence</b><span>transit · terminal · uncertainty · view diversity</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Latent geometry state</b><span>attached · recoverable · detached · unknown</span></div>
+      <div class="arrow">→</div>
+      <div class="node"><b>Different treatment</b><span>preserve · transport · suppress · abstain</span></div>
+    </div>
+    <div class="two">
+      <div class="box detach">
+        <span class="label">Axis A · geometry integrity</span>
+        <p><b>Detached component만 식별한다.</b> 반복된 transit이 그 위치를 통과하고, terminal surface와 공간적·분포적으로 분리되며,
+          실제로 조기 종료에 기여하는 경우가 대상이다.</p>
+      </div>
+      <div class="box surface">
+        <span class="label">Axis B · convergence efficiency</span>
+        <p><b>Surface-associated state를 보존하고 회복한다.</b> 넓은 support와 학습된 appearance를 유지한 채 surface 쪽으로 정렬될 수 있는 Gaussian을
+          detached action에서 보호해야 한다.</p>
+      </div>
+    </div>
+
+    <figure class="figure">
+      <div class="canvas">
+        <svg viewBox="0 0 980 490" role="img" aria-labelledby="matrixTitle matrixDesc">
+          <title id="matrixTitle">surface attachment와 free-space evidence의 이차원 상태표</title>
+          <desc id="matrixDesc">surface attachment가 높고 free evidence가 낮으면 preserve, 둘 다 높으면 recover or conflict, attachment가 낮고 free evidence가 높으면 detached candidate, 둘 다 낮으면 unknown이다.</desc>
+          <g font-family="-apple-system,BlinkMacSystemFont,Apple SD Gothic Neo,sans-serif">
+            <text x="510" y="35" text-anchor="middle" fill="var(--ink)" font-size="17" font-weight="700">Surface attachment →</text>
+            <text x="32" y="265" text-anchor="middle" fill="var(--ink)" font-size="17" font-weight="700" transform="rotate(-90 32 265)">Multi-view free-space evidence →</text>
+            <rect x="115" y="68" width="390" height="180" rx="14" fill="var(--detach-soft)" stroke="var(--detach)" stroke-width="2"/>
+            <rect x="515" y="68" width="390" height="180" rx="14" fill="var(--warn-soft)" stroke="var(--warn)" stroke-width="2"/>
+            <rect x="115" y="258" width="390" height="180" rx="14" fill="var(--code)" stroke="var(--unknown)" stroke-width="2"/>
+            <rect x="515" y="258" width="390" height="180" rx="14" fill="var(--surface-soft)" stroke="var(--surface)" stroke-width="2"/>
+
+            <text x="310" y="118" text-anchor="middle" fill="var(--detach)" font-size="19" font-weight="700">DETACHED CANDIDATE</text>
+            <text x="310" y="151" text-anchor="middle" fill="var(--ink)" font-size="14">free evidence 높음 · terminal attachment 낮음</text>
+            <text x="310" y="181" text-anchor="middle" fill="var(--muted)" font-size="13">surface와 분리된 core/mode인지 확인</text>
+            <text x="310" y="207" text-anchor="middle" fill="var(--muted)" font-size="13">그 뒤에만 suppression / removal 후보</text>
+
+            <text x="710" y="118" text-anchor="middle" fill="var(--warn)" font-size="19" font-weight="700">RECOVER OR CONFLICT</text>
+            <text x="710" y="151" text-anchor="middle" fill="var(--ink)" font-size="14">free evidence 높음 · attachment도 높음</text>
+            <text x="710" y="181" text-anchor="middle" fill="var(--muted)" font-size="13">misalignment, depth/pose noise, boundary 가능성</text>
+            <text x="710" y="207" text-anchor="middle" fill="var(--muted)" font-size="13">삭제 보류; surface 방향 회복 가능성 평가</text>
+
+            <text x="310" y="309" text-anchor="middle" fill="var(--unknown)" font-size="19" font-weight="700">UNKNOWN / UNSERVED</text>
+            <text x="310" y="342" text-anchor="middle" fill="var(--ink)" font-size="14">free evidence 낮음 · attachment 낮음</text>
+            <text x="310" y="372" text-anchor="middle" fill="var(--muted)" font-size="13">미관측, 가려짐, 또는 render 기여 없음</text>
+            <text x="310" y="398" text-anchor="middle" fill="var(--muted)" font-size="13">carve 판단을 유보</text>
+
+            <text x="710" y="309" text-anchor="middle" fill="var(--surface)" font-size="19" font-weight="700">VALID SURFACE SUPPORT</text>
+            <text x="710" y="342" text-anchor="middle" fill="var(--ink)" font-size="14">free evidence 낮음 · terminal attachment 높음</text>
+            <text x="710" y="372" text-anchor="middle" fill="var(--muted)" font-size="13">surface Gaussian으로 보호</text>
+            <text x="710" y="398" text-anchor="middle" fill="var(--muted)" font-size="13">spread/thickness는 별도 기준으로 평가</text>
+
+            <text x="115" y="466" fill="var(--muted)" font-size="12">low attachment</text>
+            <text x="905" y="466" text-anchor="end" fill="var(--surface)" font-size="12">high attachment</text>
+            <text x="936" y="430" fill="var(--muted)" font-size="12">low free</text>
+            <text x="936" y="87" fill="var(--free)" font-size="12">high free</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><b>Figure 3.</b> transit와 terminal을 하나의 비율로 즉시 접기보다, free-space confidence와 surface attachment를 독립 축으로 보존하면 “제거”와 “회복”의 대상이 분리된다.</figcaption>
+    </figure>
+  </section>
+
+  <section id="probability">
+    <h2>10. 확률 분포적으로 보는 최소 문제 정의</h2>
+    <p>아직 loss를 정하지 않고도 문제를 latent-state inference로 표현할 수 있다. Gaussian <span class="mono">Gᵢ</span>의 숨은 상태를 다음처럼 둔다.</p>
+    <div class="eq">Yᵢ ∈ { surface-attached, recoverable-misaligned, detached, unknown }
+
+관측 evidence Eᵢ:
+  · multi-view transit observations
+  · multi-view terminal observations and surface bands
+  · depth / pose uncertainty
+  · independent view count and direction diversity
+  · Gaussian mean μᵢ and covariance Σᵢ
+  · effective ray contribution Tᵢαᵢ
+
+후속 문제:
+  infer P(Yᵢ | Eᵢ) without using future frames</div>
+    <p>이 관점에서 terminal은 transit의 단순 반대표가 아니다. terminal은 <b>surface component가 어디에 있고 Gaussian support가 거기에 붙어 있는지</b>를 알려준다.
+      transit은 그 앞의 특정 위치가 여러 ray에 의해 통과되었다는 <b>negative occupancy evidence</b>다.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>보존해야 할 evidence</th><th>왜 필요한가</th><th>단일 ratio가 잃는 정보</th></tr></thead>
+      <tbody>
+        <tr><td>Transit support</td><td>카메라와 관측 surface 사이의 모순 위치</td><td>terminal과 섞이면 raw strength를 복원할 수 없음</td></tr>
+        <tr><td>Terminal support</td><td>surface attachment와 가능한 이동 목표</td><td>단순 denominator로 소비됨</td></tr>
+        <tr><td>Evidence amount</td><td>1회 우연과 반복 검증을 구분</td><td>1:0과 100:0이 모두 1에 가까움</td></tr>
+        <tr><td>Conflict</td><td>depth/pose 오류, boundary, dynamic object 신호</td><td>high-transit/high-terminal이 중간 score 하나가 됨</td></tr>
+        <tr><td>View independence</td><td>연속 frame의 중복 증거를 제한</td><td>동일 방향의 많은 frame이 과신을 만듦</td></tr>
+        <tr><td>Gaussian extent</td><td>중심이 아니라 surface와 support가 연결되는지 판정</td><td>point score로 whole primitive를 처리</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="boundary">
+      <b>이 문서의 의도적 정지선</b>
+      <p>여기까지는 어떤 정보를 추정해야 하는지에 대한 problem formulation이다. posterior 결합식, confidence calibration,
+        transport vector, opacity penalty, prune threshold, annealing schedule과 최종 loss는 <b>exp70에서 제안하지 않는다.</b>
+        먼저 위 latent class가 실제 데이터에서 구분 가능한지 확인해야 한다.</p>
+    </div>
+  </section>
+
+  <section id="requirements">
+    <h2>11. 후속 방법이 만족해야 할 설계 요구</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>요구사항</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td class="metric">R1</td><td><b>Tail invariance:</b> surface에 붙은 Gaussian의 비영 density tail만으로 불이익을 주지 않는다.</td><td>Gaussian support는 원칙적으로 0이 아니며 초기 spread는 수렴에 유용할 수 있음</td></tr>
+        <tr><td class="metric">R2</td><td><b>Mode separation:</b> surface와 분리된 premature component를 식별한다.</td><td>floater의 시각적 피해는 단순 variance보다 독립 termination에서 발생</td></tr>
+        <tr><td class="metric">R3</td><td><b>Recoverability:</b> surface로 정렬될 수 있는 Gaussian을 hard deletion에서 보호한다.</td><td>appearance와 optimizer history를 재사용해 online 수렴 예산을 절약</td></tr>
+        <tr><td class="metric">R4</td><td><b>Dual evidence:</b> transit과 terminal을 각자 의미 있는 상태로 유지한다.</td><td>free contradiction과 surface support는 대칭적인 한 표가 아님</td></tr>
+        <tr><td class="metric">R5</td><td><b>Uncertainty and conflict:</b> depth·pose noise와 high/high conflict에서 abstain할 수 있다.</td><td>잘못된 early anchor가 영구 map을 오염시키는 것을 방지</td></tr>
+        <tr><td class="metric">R6</td><td><b>Causal reuse:</b> 미래 frame 없이 world-space evidence를 기존/신규 Gaussian에 재사용한다.</td><td>실제 incremental deployment와 strict 평가 계약 유지</td></tr>
+        <tr><td class="metric">R7</td><td><b>Contribution awareness:</b> 실제 premature rendering에 관여하는지 분리해 본다.</td><td>보이지 않는 free-space dust와 image를 가리는 floater는 영향이 다름</td></tr>
+        <tr><td class="metric">R8</td><td><b>Action reversibility:</b> 불확실한 단계에서는 복구 가능한 상태를 유지한다.</td><td>online evidence는 뒤 관측에 의해 정정될 수 있음</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>12. 현재까지의 코드·실험 사실과 아직 가설인 것</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>구분</th><th>내용</th><th>해석 한계</th></tr></thead>
+      <tbody>
+        <tr><td class="surface-t">코드 사실</td><td>현재 causal field는 transit/terminal을 3D voxel에 누적하고 score를 Gaussian opacity에 적용한다.</td><td>detached-mode posterior로 검증된 것은 아님</td></tr>
+        <tr><td class="surface-t">과거 관측</td><td>exp39b는 MPS track에서 visible dust 96→0, PSNR 33.012→32.913 dB였다.</td><td>특정 offline 조건의 성공이며 streaming 일반성을 보장하지 않음</td></tr>
+        <tr><td class="detach-t">과거 관측</td><td>exp65 M4의 7k checkpoint는 control 28.93 &gt; prune-only 28.86 &gt; force-only 28.65 dB였다.</td><td>단일 seed이며 detector와 action 원인을 분리하지 못함</td></tr>
+        <tr><td class="detach-t">과거 관측</td><td>exp68/69는 center·opacity band·large-splat 지표가 서로 다른 geometry 결론을 줄 수 있음을 확인했다.</td><td>현재 score가 attached/detached를 구분하는지는 직접 라벨링하지 않음</td></tr>
+        <tr><td class="warn-t">연구 가설</td><td>attached spread를 조기 보존하고 recoverable Gaussian을 surface로 이동하면 같은 시간에서 수렴이 빨라질 수 있다.</td><td>동일 wall-clock paired 실험 필요</td></tr>
+        <tr><td class="warn-t">연구 가설</td><td>view-diverse transit와 terminal attachment를 함께 보면 free-only score보다 detached floater를 잘 구분할 수 있다.</td><td>detector-only class audit 필요</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="validation">
+    <h2>13. Loss 설계 전에 답해야 할 진단 질문</h2>
+    <p>다음 단계는 optimizer에 새 gradient를 넣는 것이 아니라, 저장된 map과 ray에서 세 class가 실제로 분리되는지 보는 것이다.</p>
+    <ol>
+      <li><b>분포 확인:</b> 대표 ray에서 broad-attached, recoverable-misaligned, detached-bimodal 패턴이 반복해서 관측되는가?</li>
+      <li><b>현재 score의 혼동:</b> 높은 current carve score를 받은 Gaussian 중 terminal surface와 support가 연결된 비율은 얼마인가?</li>
+      <li><b>Transit의 추가 가치:</b> terminal distance만 쓸 때보다 independent transit count를 추가했을 때 detached class의 precision/recall이 좋아지는가?</li>
+      <li><b>Terminal의 보호 가치:</b> transit가 높아도 terminal attachment가 높은 Gaussian이 이후 optimization에서 surface로 회복되는가?</li>
+      <li><b>View 다양성:</b> 동일 frame 수에서 같은 방향의 연속 view보다 baseline/각도가 다양한 view가 더 신뢰도 높은 판정을 주는가?</li>
+      <li><b>행동 전 counterfactual:</b> 후보를 실제 삭제하지 않고 가상 opacity 0 또는 surface 정렬을 적용한 render가 region GT와 held-out PSNR에 어떤 영향을 주는가?</li>
+    </ol>
+    <div class="box free"><p><b>최소 라벨 단위:</b> 전체 PLY의 모든 floater를 SuperSplat에서 완전 라벨링할 필요는 없다.
+      current-score 상·중·하 구간과 terminal-attachment 상·하를 층화 샘플링하여, 세 class의 소규모 diagnostic set부터 만들면 된다.
+      목적은 최고 AUC 선언이 아니라 현재 문제 분해가 실제 반례를 설명하는지 확인하는 것이다.</p></div>
+  </section>
+
+  <section>
+    <h2>14. 평가 원칙과 범위 밖 항목</h2>
+    <div class="two">
+      <div class="mini">
+        <h3 class="surface-t">반드시 함께 볼 지표</h3>
+        <ul>
+          <li>strict streaming held-out PSNR</li>
+          <li>region GT와 시각적 floater audit</li>
+          <li>동일 wall-clock의 수렴 곡선</li>
+          <li>ray early-mode / surface-attachment 진단</li>
+          <li>Gaussian survival·transport·suppression 이력</li>
+        </ul>
+      </div>
+      <div class="mini">
+        <h3 class="detach-t">이 문서가 주장하지 않는 것</h3>
+        <ul>
+          <li>모든 free-space density가 0이어야 한다</li>
+          <li>작은 covariance가 곧 좋은 geometry다</li>
+          <li>기존 carve 수식의 계수만 낮추면 해결된다</li>
+          <li>terminal-only 또는 transit-only가 충분하다</li>
+          <li>새 loss와 threshold가 이미 결정되었다</li>
+        </ul>
+      </div>
+    </div>
+    <p>strict 조건에서는 timestamp 순 photo+IMU와 그 시점까지 online 추정된 pose/depth만 방법 입력으로 사용한다.
+      held-out GT와 수동 region은 평가에만 사용하며 미래 keyframe evidence, post-stream update, MPS 후처리 입력은 허용하지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>15. 한 문장으로 정리</h2>
+    <div class="box surface"><p><b>exp70의 출발점은 “free space를 비우자”가 아니라,
+      “multi-view transit으로 검증된 앞쪽 termination 중 terminal surface와 분리된 component만 제거하고,
+      surface에 붙어 있거나 이동 가능한 Gaussian의 넓은 support는 수렴 자산으로 보존하자”이다.</b></p></div>
+    <p>이 문제 정의가 detector-only 진단을 통과한 뒤에야 확률 결합 방식과 새 loss를 설계한다.</p>
+  </section>
+
+  <footer>
+    exp70 · conceptual problem formulation · 작성 2026-09-01<br>
+    근거 경로: <code>repos/main/VIGS-SLAM/vigs/gaussian/utils/causal_carve.py</code> ·
+    <code>context/experiments/exp65_status_report.md</code> · <code>exp68/</code> · <code>exp69/</code><br>
+    이 문서는 구현·실험 완료 카드가 아니므로 새로운 성능 수치나 채택 판정을 기록하지 않는다.
+  </footer>
+</main>
+</body>
+</html>

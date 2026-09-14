@@ -1,0 +1,14 @@
+{
+  "protocol": "fixed1x_sensor_eos_zero_tail",
+  "producer_start_monotonic": 216585.74126421,
+  "deadline_monotonic": 216650.841263123,
+  "producer_eos_monotonic": 216650.849340013,
+  "budget_seconds": 65.09999891300686,
+  "margin_seconds": 0.05,
+  "completed_adam_steps": 6895,
+  "skipped_adam_calls": 0,
+  "updates_completed_after_deadline": 0,
+  "updates_completed_after_sensor_eos": 0,
+  "last_completion_monotonic": 216650.79203659,
+  "instrumentation": "CPU upper bound after current CUDA stream synchronize per Adam step"
+}

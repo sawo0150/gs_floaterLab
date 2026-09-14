@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>exp66 후속 — Dense view-set 크기·구성·학습순서 분리 실험계획</title>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --paper: #14121a;
+        --panel: #1c1926;
+        --panel-2: #242030;
+        --ink: #ece8f4;
+        --ink-soft: #aaa2ba;
+        --line: #3b344b;
+        --accent: #aa97e1;
+        --obs: #7fb8a8;
+        --warn: #e1ad63;
+        --plan: #91abe8;
+        --stop: #dc8078;
+        --code: #17141f;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --paper: #14121a;
+      --panel: #1c1926;
+      --panel-2: #242030;
+      --ink: #ece8f4;
+      --ink-soft: #aaa2ba;
+      --line: #3b344b;
+      --accent: #aa97e1;
+      --obs: #7fb8a8;
+      --warn: #e1ad63;
+      --plan: #91abe8;
+      --stop: #dc8078;
+      --code: #17141f;
+    }
+
+    :root {
+      --paper: #f6f4f9;
+      --panel: #fdfbff;
+      --panel-2: #f0edf6;
+      --ink: #24202e;
+      --ink-soft: #6e687b;
+      --line: #dfd9e9;
+      --accent: #674a9e;
+      --obs: #326b5c;
+      --warn: #95610e;
+      --plan: #345eaa;
+      --stop: #a54132;
+      --code: #f1eef6;
+      --serif: ui-serif, Georgia, "Noto Serif KR", "Nanum Myeongjo", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", "D2Coding", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      padding: 52px 24px 84px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.66;
+    }
+    main {
+      width: min(1040px, 100%);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 42px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, h4 { font-family: var(--serif); }
+    h1 {
+      margin: 0;
+      max-width: 27ch;
+      font-size: clamp(28px, 4.5vw, 39px);
+      font-weight: 630;
+      line-height: 1.27;
+      letter-spacing: -.018em;
+      text-wrap: balance;
+    }
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      font-size: 23px;
+      font-weight: 630;
+      line-height: 1.4;
+    }
+    h3 { margin: 5px 0 0; font-size: 18px; font-weight: 630; }
+    h4 { margin: 3px 0 0; font-size: 15.5px; font-weight: 650; }
+    p { margin: 0; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    strong { font-weight: 690; }
+    code {
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: var(--code);
+      font-family: var(--mono);
+      font-size: .9em;
+    }
+    section { display: flex; flex-direction: column; gap: 17px; }
+    .dek { max-width: 78ch; color: var(--ink-soft); font-size: 15.5px; }
+    .prose { max-width: 80ch; font-size: 14.8px; }
+    .small { color: var(--ink-soft); font-size: 12.5px; }
+    .pill {
+      flex: 0 0 auto;
+      padding: 2px 9px;
+      border: 1px solid currentColor;
+      border-radius: 12px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .045em;
+      white-space: nowrap;
+    }
+    .pill.obs { color: var(--obs); }
+    .pill.warn { color: var(--warn); }
+    .pill.plan { color: var(--plan); }
+    .pill.stop { color: var(--stop); }
+
+    .callout {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      padding: 17px 20px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 14.5px;
+    }
+    .callout.obs { border-left-color: var(--obs); }
+    .callout.warn { border-left-color: var(--warn); }
+    .callout.plan { border-left-color: var(--plan); }
+    .callout.stop { border-left-color: var(--stop); }
+    .label {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10.7px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .callout.obs .label { color: var(--obs); }
+    .callout.warn .label { color: var(--warn); }
+    .callout.plan .label { color: var(--plan); }
+    .callout.stop .label { color: var(--stop); }
+
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 14px;
+    }
+    .card .num {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .05em;
+    }
+    .card ul { margin-top: 2px; }
+
+    .equation {
+      overflow-x: auto;
+      padding: 15px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel-2);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.85;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .equation .explain { color: var(--ink-soft); font-size: 12px; }
+    pre {
+      overflow-x: auto;
+      margin: 0;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--code);
+      font: 12.5px/1.65 var(--mono);
+      white-space: pre;
+    }
+    pre code { padding: 0; border: 0; background: transparent; font-size: inherit; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13.4px; }
+    th, td {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 650;
+      letter-spacing: .045em;
+      text-transform: uppercase;
+    }
+    tr:last-child td { border-bottom: 0; }
+    td.yes { color: var(--obs); font-weight: 680; }
+    td.no { color: var(--stop); font-weight: 680; }
+    td.mono { font-family: var(--mono); font-size: 12px; }
+
+    ul, ol { margin: 0; padding-left: 21px; }
+    li + li { margin-top: 7px; }
+    .steps { counter-reset: stage; list-style: none; padding: 0; }
+    .steps > li {
+      counter-increment: stage;
+      position: relative;
+      margin: 0;
+      padding: 0 0 23px 50px;
+      border-left: 1px solid var(--line);
+    }
+    .steps > li:last-child { padding-bottom: 0; border-left-color: transparent; }
+    .steps > li::before {
+      content: counter(stage);
+      position: absolute;
+      left: -17px;
+      top: 0;
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid var(--plan);
+      border-radius: 50%;
+      background: var(--paper);
+      color: var(--plan);
+      font: 650 12px var(--mono);
+    }
+    .steps h3 { margin: 0 0 7px; }
+    .steps p, .steps ul { font-size: 14px; }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 18px;
+      overflow-x: auto;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+    .pipe-node {
+      position: relative;
+      min-width: 120px;
+      padding: 13px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel-2);
+      text-align: center;
+      font-size: 13px;
+    }
+    .pipe-node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -16px;
+      top: 50%;
+      color: var(--ink-soft);
+      transform: translateY(-50%);
+    }
+    .pipe-node b { display: block; margin-bottom: 3px; }
+
+    .checklist {
+      columns: 2;
+      column-gap: 34px;
+      padding: 17px 20px 17px 41px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 13.5px;
+    }
+    .checklist li { break-inside: avoid; margin-bottom: 7px; }
+    footer {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font: 11.8px/1.6 var(--mono);
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 34px 16px 64px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .checklist { columns: 1; }
+      h2 { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">exp66 후속 · controlled identification plan · 2026-08-25</div>
+    <h1>Dense view-set의 크기, 구성, 학습순서를 분리해서 검증한다</h1>
+    <p class="dek">
+      목적은 “dense가 keyframe보다 좋다”를 한 번 더 재현하는 것이 아니다. 동일한 초기 지도와 동일한
+      RGB 목적함수, 동일한 GPU 시간에서 <strong>몇 개의 서로 다른 view를 admission해야 하는지</strong>,
+      <strong>그 set을 어떻게 구성해야 하는지</strong>, <strong>고정된 set을 어떤 순서로 반복해야 하는지</strong>를
+      서로 섞지 않고 식별한다. 이 문서는 실제 VIGS exp66 브랜치의 실행 경로를 감사한 뒤 작성한 구현 전 실험계획이다.
+    </p>
+    <p class="small">
+      코드 기준: private VIGS-SLAM-custom <code>exp66-lmrs-polish-preempt</code>, commit
+      <code>b05e981d6fbc95b7a108515cd3b95492f1151170</code>, 2026-08-25 <code>git pull --ff-only</code> 결과
+      <code>Already up to date</code>. 상위 기록 저장소 gs_floaterLab도 같은 날 fast-forward pull 완료.
+    </p>
+  </header>
+
+  <section>
+    <h2><span class="pill warn">핵심 판정</span> 기존 결과는 강하지만 “fps 효과”로는 아직 식별되지 않았다</h2>
+    <div class="callout obs">
+      <span class="label">현재 실측으로 말할 수 있는 것</span>
+      <p>
+        aria1253, seed 0, 26,000 refinement step에서 <code>dense_geom</code>이 held-out 31.68dB,
+        keyframe-only가 28.38dB였고, refinement 시간도 각각 약 104초와 136초였다. 따라서
+        <strong>현재 구현의 특정 dense RGB pool을 반복하는 arm이 현재 keyframe RGB+depth+normal arm보다 빨리, 더 높게 수렴했다</strong>는 관측은 유효하다.
+      </p>
+    </div>
+    <div class="callout warn">
+      <span class="label">아직 말할 수 없는 것</span>
+      <p>
+        이 결과만으로 “view를 2fps에서 4·8·16·30fps로 늘릴수록 수렴이 빨라진다”, “Fisher novelty가 원인이다”,
+        “최적 fps는 몇이다”라고 말할 수는 없다. 기존 비교는 view-set 크기뿐 아니라 loss 종류, pool 구성,
+        한 frame의 반복 횟수, Phase-1 출발 상태까지 함께 달라진다.
+      </p>
+    </div>
+    <div class="grid-3">
+      <article class="card">
+        <span class="num">QUESTION A</span>
+        <h3>View-set 크기</h3>
+        <p>30fps 중 몇 fps 상당을 admission해야 같은 시간 예산에서 held-out 오차가 가장 빨리 줄어드는가?</p>
+      </article>
+      <article class="card">
+        <span class="num">QUESTION B</span>
+        <h3>View-set 구성</h3>
+        <p>크기 <em>K</em>가 같을 때 temporal-uniform, random, Fisher/coverage, representative coreset 중 무엇이 좋은가?</p>
+      </article>
+      <article class="card">
+        <span class="num">QUESTION C</span>
+        <h3>학습순서</h3>
+        <p>완전히 같은 view-set에서 uniform reshuffle, novelty-first, residual-first 순서가 초기·후기 수렴에 어떤 영향을 주는가?</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill obs">코드 감사</span> exp66이 실제로 수행한 연산</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>확인 항목</th><th>실제 코드</th><th>실험 해석에 주는 영향</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dense pool의 밀도</td>
+            <td><code>--polish_dense_stride 5 --polish_dense_offsets 1,4</code></td>
+            <td>원 스트림의 최대 2/5만 후보가 된다. 30fps 예시라면 명목상 최대 12fps이며, 여기서 tracked keyframe은 다시 제외된다. 즉 “모든 30fps” 실험이 아니다.</td>
+          </tr>
+          <tr>
+            <td>Dense camera supervision</td>
+            <td><code>Camera.init_from_tracking(image, None, None, traj[idx], ...)</code></td>
+            <td>Dense view는 RGB만 있고 depth/normal은 없다. pose는 fixed online trajectory에서 온다.</td>
+          </tr>
+          <tr>
+            <td>Keyframe supervision</td>
+            <td>keyframe camera는 <code>depth</code>와 <code>normal</code>을 보유하고 loss에 자동 추가</td>
+            <td>기존 keyframe arm은 RGB-only가 아니라 RGB+depth+normal이다. “view 밀도”와 “regularization 종류”가 섞였다.</td>
+          </tr>
+          <tr>
+            <td>Gaussian 편집 권한</td>
+            <td><code>dense_geom = --polish_scope gaussian --polish_dense_only</code></td>
+            <td>dense와 keyframe 모두 xyz/scaling/rotation/color/opacity를 갱신할 수 있다. 이 권한 축은 기존 보고서에서 잘 통제됐다.</td>
+          </tr>
+          <tr>
+            <td>Frame sampler</td>
+            <td>batch 1일 때 <code>random.choice(selected_view_values)</code></td>
+            <td>복원추출이다. 같은 26k step에서도 어떤 frame은 과다 반복되고 어떤 frame은 오래 선택되지 않을 수 있어 “성숙 기회”가 보장되지 않는다.</td>
+          </tr>
+          <tr>
+            <td>Mixed sampler</td>
+            <td><code>mixed_free</code>는 population 50:50, <code>weighted_mix</code>는 per-view weighted draw</td>
+            <td>pool의 구성과 sampling distribution을 동시에 바꾼다. admission 효과와 replay 효과를 분리할 수 없다.</td>
+          </tr>
+          <tr>
+            <td>Held-out leakage</td>
+            <td><code>mapping_eval_excluded</code> keyframe을 <code>clean_keyframes</code>에서 제거</td>
+            <td>2026-08-23 수정 이후 idx%5==0 tracked keyframe 22개의 Phase-2 leakage는 제거됐다. 이 필터는 유지해야 한다.</td>
+          </tr>
+          <tr>
+            <td>Topology</td>
+            <td><code>color_refinement()</code> 안에 densify/prune 없음</td>
+            <td>Phase 2에서 Gaussian 개수는 고정이다. view-set 효과를 연구하기에 유리하지만, Phase-1 상태를 정확히 공유해야 한다.</td>
+          </tr>
+          <tr>
+            <td>초기 상태</td>
+            <td>각 arm의 shell script가 Phase 1을 다시 실행한 뒤 같은 process에서 Phase 2 수행</td>
+            <td>설정과 seed는 같아도 동일 checkpoint 파일을 공유한 것은 아니다. 보고서의 Gaussian 수도 149,244~149,680으로 다르다.</td>
+          </tr>
+          <tr>
+            <td>Optimizer 상태</td>
+            <td>Phase-1에서 사용한 <code>self.gaussians.optimizer</code>를 Phase 2가 계속 사용</td>
+            <td>파라미터뿐 아니라 Adam의 <em>m</em>, <em>v</em>, learning-rate state도 출발조건이다. PLY만 같게 해서는 충분하지 않다.</td>
+          </tr>
+          <tr>
+            <td>Timing</td>
+            <td><code>refinement_seconds</code>는 milestone evaluation 구간을 제외해 누적</td>
+            <td>기존 시간축은 유용하다. 다만 depth/normal loss가 keyframe step을 더 비싸게 만드는 효과도 포함한다.</td>
+          </tr>
+          <tr>
+            <td>반복성</td>
+            <td>3-seed batch script는 존재하지만 현재 HTML 보고서는 seed 0 한 번</td>
+            <td>3.3dB 차이는 크지만 fps별 포화점이나 작은 selector 차이를 판단하기에는 seed 1개가 부족하다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">
+      주요 감사 위치: <code>exp66_axes/vanilla_online_then_offline_refine.sh:70–137,177–195</code>,
+      <code>vigs/gs_backend.py:2340–2372,4182–4205,4249–4347,4465–4479,4493–4542</code>,
+      <code>demo.py:1406–1457,1551–1581,2470–2537</code>. 줄 번호는 위 commit 기준이다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill warn">재정의</span> 이번에 검증할 관측사실</h2>
+    <div class="callout plan">
+      <span class="label">Primary scientific question</span>
+      <p>
+        동일한 Phase-1 상태 <em>z</em><sub>0</sub>=(Gaussian 파라미터, topology, Adam state), 동일한 RGB-only loss,
+        동일한 fixed-pose camera 생성법, 동일한 shuffle-without-replacement schedule, 동일한 GPU 시간 <em>B</em>에서,
+        temporal하게 대표적인 view-set의 크기 <em>K</em>를 늘리면 held-out MSE 곡선이 어떻게 변하는가?
+      </p>
+    </div>
+    <div class="equation">
+      E<sub>val</sub>(B; K,S,O,L,z<sub>0</sub>)
+      = (1 / |V|) Σ<sub>u∈V</sub> ℓ<sub>RGB</sub>(u; θ(B))
+      <br>
+      <span class="explain">K=set 크기 · S=set 구성법 · O=학습순서 · L=loss 종류 · B=실측 update GPU 시간</span>
+    </div>
+    <p class="prose">
+      기존 결과는 여러 인자가 함께 바뀐 두 점을 비교했다. 후속 실험에서는 한 단계마다 위 함수의 인자를
+      정확히 하나만 바꾼다. 주 지표는 PSNR이 아니라 평균 MSE다. PSNR은 로그 변환이므로 그래프와 독자 친화적
+      보고에 함께 쓰되, curve fitting과 개선량 비교는 MSE에서 수행한다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">수학 모델</span> “필요 iteration”은 미리 정하는 상수가 아니다</h2>
+    <p class="prose">
+      고정된 view-set <em>D</em><sub>K</sub>의 평균 학습 목적함수와 국소 곡률을 다음처럼 둔다. RGB-only로 고정하면
+      각 step에서 view를 균등 추출할 때 stochastic gradient는 이 set 평균 gradient의 unbiased estimator가 된다.
+    </p>
+    <div class="equation">
+      L<sub>D<sub>K</sub></sub>(θ) = (1/K) Σ<sub>v∈D<sub>K</sub></sub> ℓ<sub>v</sub>(θ), &nbsp;
+      g<sub>D<sub>K</sub></sub> = (1/K) Σ g<sub>v</sub>, &nbsp;
+      H<sub>D<sub>K</sub></sub> ≈ (1/K) Σ J<sub>v</sub><sup>T</sup>W<sub>v</sub>J<sub>v</sub>
+    </div>
+    <div class="grid-2">
+      <article class="card">
+        <h3>View가 너무 적을 때</h3>
+        <p><em>K</em>가 작으면 한 frame은 자주 반복되지만, set 평균 gradient가 전체 장면 목표에서 편향되고 약한 방향이 남을 수 있다. train loss는 빨리 내려가도 held-out ceiling이 낮을 수 있다.</p>
+      </article>
+      <article class="card">
+        <h3>View가 너무 많을 때</h3>
+        <p><em>K</em>가 크면 coverage와 conditioning은 좋아질 가능성이 있지만, 같은 budget에서 각 frame이 받는 반복 횟수와 epoch 수가 줄어 set이 충분히 성숙하지 못할 수 있다.</p>
+      </article>
+    </div>
+    <div class="equation">
+      C<sub>epoch</sub>(D<sub>K</sub>) = Σ<sub>v∈D<sub>K</sub></sub> c<sub>v</sub>, &nbsp;
+      T<sub>req</sub>(K) ≈ E<sub>req</sub>(K) · C<sub>epoch</sub>(D<sub>K</sub>)
+      <br>
+      <span class="explain">E_req(K)는 필요한 epoch 수, c_v는 그 view의 실측 render+backward+Adam 시간</span>
+    </div>
+    <p class="prose">
+      따라서 <code>필요 iter = 고정 상수</code>로 놓고 <code>K ≈ budget / 필요 iter</code>를 계산하면 순환논리가 된다.
+      필요한 epoch 수 자체가 <em>K</em>, set의 조건수, 초기 지도에 따라 달라진다. 먼저 <em>K</em>-sweep 수렴곡선에서
+      <em>E</em><sub>req</sub>(<em>K</em>)를 실측하고, 그 뒤에야 budget에 맞는 최대 성숙 set 크기를 추정한다.
+    </p>
+    <div class="callout warn">
+      <span class="label">λmin과 gradient alignment의 위치</span>
+      <p>
+        큰 λ<sub>min</sub>은 약한 parameter direction을 줄이는 set-level conditioning 설명이고,
+        evaluation gradient와의 정렬은 한 update의 즉시 개선을 설명한다. 둘 다 유용하지만 <strong>이번 첫 sweep의
+        선택 rule로 사용하지 않는다.</strong> 먼저 결과를 만든 뒤 설명변수로 측정해야 Fisher-only 실패를 되풀이하지 않는다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">실험 전 패치</span> VIGS에 필요한 최소 계측·제어 기능</h2>
+    <p class="prose">
+      아래 항목은 새 optimizer나 scheduler가 아니라 실험의 독립변수를 고정하기 위한 장치다. 이 기능들이 없는
+      상태에서 바로 fps sweep을 돌리면, 기존 shell의 stride/offset과 복원추출을 재사용하게 되어 같은 confound가 남는다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>추가 기능</th><th>제안 CLI / artifact</th><th>필요 이유와 assert</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Phase-1 단일 snapshot</td>
+            <td class="mono">--polish_checkpoint_out / --polish_checkpoint_in</td>
+            <td>Gaussian tensors, unique IDs, topology buffers, optimizer state, iteration/LR state, camera/trajectory를 저장한다. 모든 arm 시작 전 SHA와 tensor checksum이 같아야 한다.</td>
+          </tr>
+          <tr>
+            <td>Optimizer 정책</td>
+            <td class="mono">--polish_optimizer_state {restore,reset}</td>
+            <td>주 실험은 <code>reset</code> 권장: 같은 θ<sub>0</sub>에서 동일한 zero-moment Adam으로 Phase 2를 시작해 Phase-1 history를 제거한다. <code>restore</code>는 재현용 보조 arm.</td>
+          </tr>
+          <tr>
+            <td>명시적 view manifest</td>
+            <td class="mono">--polish_view_manifest manifests/K08.json</td>
+            <td>stride/offset 대신 정확한 frame UID 목록을 받는다. 중복, eval UID, 범위 밖 UID가 있으면 즉시 실패한다.</td>
+          </tr>
+          <tr>
+            <td>통일된 camera 생성</td>
+            <td class="mono">--polish_camera_source fixed_trajectory</td>
+            <td>keyframe tag와 무관하게 모든 RGB frame을 동일한 <code>polish_traj[idx]</code>, depth=None, normal=None으로 생성한다.</td>
+          </tr>
+          <tr>
+            <td>Loss 분리</td>
+            <td class="mono">--polish_loss {rgb,rgbdn}</td>
+            <td>Stage A–C는 무조건 RGB-only. 기존 keyframe RGB+depth+normal은 legacy control로만 남긴다.</td>
+          </tr>
+          <tr>
+            <td>Epoch sampler</td>
+            <td class="mono">--polish_sampler shuffle_epoch</td>
+            <td>매 epoch 각 UID를 정확히 한 번 사용하고 다음 epoch에서 다시 shuffle한다. 최소/최대 frame 선택 횟수 차이는 항상 ≤1이어야 한다.</td>
+          </tr>
+          <tr>
+            <td>Phase-2 독립 seed</td>
+            <td class="mono">--polish_seed</td>
+            <td>Phase-1 seed와 sampler seed를 분리한다. 동일 paired seed에서는 각 arm이 가능한 한 동일한 shuffle random stream을 사용한다.</td>
+          </tr>
+          <tr>
+            <td>시간 budget</td>
+            <td class="mono">--polish_budget_seconds 100</td>
+            <td>step 수가 아니라 CUDA update 구간 누적 시간이 budget을 넘으면 epoch 중간이라도 정지한다. eval/save/scoring 시간은 별도 기록한다.</td>
+          </tr>
+          <tr>
+            <td>시간 checkpoint</td>
+            <td class="mono">--polish_time_milestones 0,2,5,10,20,40,60,80,100</td>
+            <td>모든 arm을 같은 x축에서 비교한다. 기존 step milestones도 보조 분석을 위해 함께 유지한다.</td>
+          </tr>
+          <tr>
+            <td>선택 로그</td>
+            <td class="mono">polish_selection.jsonl</td>
+            <td>step, epoch, UID, set hash, RGB loss, loss 구성, update ms, Gaussian 수, nonfinite 여부를 기록한다.</td>
+          </tr>
+          <tr>
+            <td>Epoch audit</td>
+            <td class="mono">polish_epoch_metrics.jsonl</td>
+            <td>epoch 종료 시 train-set audit MSE, held-out은 정해진 milestone에서만 계산한다. audit 연산은 training budget에서 제외하되 따로 계측한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout stop">
+      <span class="label">실행 전 hard gate</span>
+      <p>
+        checkpoint hash, Gaussian count, 모든 Gaussian tensor checksum, Adam reset/restore mode, candidate manifest hash,
+        eval intersection=0, loss mode=RGB-only, pose source, sampler가 run 시작 로그에 모두 찍히지 않으면 결과를 만들지 않는다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">Candidate pool</span> “30fps 전부”의 의미부터 고정한다</h2>
+    <p class="prose">
+      이번 density 실험에서는 keyframe/dense라는 기존 label을 버리고, fixed trajectory pose를 가진 RGB frame의 집합으로
+      통일한다. 그래야 <em>K</em>를 늘리는 행위가 “keyframe이 아닌 frame을 더 넣는 것”이 아니라 실제로 “서로 다른 RGB ray
+      bundle을 더 넣는 것”이 된다.
+    </p>
+    <div class="equation">
+      F<sub>train</sub> = {v : RGB 존재 ∧ pose 유효 ∧ v ∉ V<sub>fixed-eval</sub> ∧ support gate 통과}
+    </div>
+    <h3>Evaluation을 curve용과 lockbox로 나눈다</h3>
+    <p class="prose">
+      기존 idx%5==0 fixed_eval UID를 deterministic hash로 반씩 나눠 <em>V</em><sub>curve</sub>와
+      <em>V</em><sub>lockbox</sub>를 만든다. 둘 다 training candidate에서는 제외한다. Stage A–C의 시간별 곡선,
+      K 선택, Stage D reference gradient는 <em>V</em><sub>curve</sub>만 사용한다. <em>V</em><sub>lockbox</sub>는
+      K·selector·order 규칙을 동결한 뒤 선택된 방법과 사전 지정 baseline에 대해서만 한 번 연다. 기존 보고서와의
+      연결을 위해 전체 fixed_eval 수치는 legacy metric으로 계산할 수 있지만 정책 선택에는 쓰지 않는다.
+    </p>
+    <div class="grid-2">
+      <article class="card">
+        <h3>현재 llffhold-5를 유지할 때</h3>
+        <p>raw input이 30fps여도 idx%5==0을 held-out으로 유지하면 train 가능한 상한은 명목상 24fps다. 따라서 sweep 표기는 raw fps가 아니라 <strong>manifest의 실제 |D|/duration</strong>인 effective train fps로 한다.</p>
+      </article>
+      <article class="card">
+        <h3>진짜 30fps를 모두 학습할 때</h3>
+        <p>같은 stream의 fixed_eval을 침범하면 안 된다. 별도의 평가 sequence 또는 별도의 카메라가 있을 때만 “30fps 전부 train” arm을 사용한다. 현재 aria1253 내부평가에서는 최대 admissible set까지만 쓴다.</p>
+      </article>
+    </div>
+    <h3>Nested temporal set 생성</h3>
+    <ol>
+      <li>각 frame의 실제 timestamp로 1초 bin을 만든다. frame index/30 같은 가정은 사용하지 않는다.</li>
+      <li>각 bin의 admissible frame을 시간축 low-discrepancy 순서로 나열한다. 첫 점은 중앙, 다음은 가장 큰 시간 간격의 중앙을 재귀적으로 추가하고 동률은 작은 UID로 푼다.</li>
+      <li>각 bin에서 첫 <em>K</em>개를 선택해 <code>D_K</code>를 만든다. 이 방식은 pose/Fisher/residual을 보지 않으며 temporal representativeness만 통제한다.</li>
+      <li><code>D_2 ⊂ D_4 ⊂ D_8 ...</code>가 되도록 manifest generator가 subset 관계를 assert한다.</li>
+      <li>각 manifest에 target fps, effective fps, UID/timestamp, eval flag, pose-valid flag, parent manifest hash를 기록한다.</li>
+    </ol>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Density arm</th><th>목표 effective train fps</th><th>역할</th><th>주의</th></tr></thead>
+        <tbody>
+          <tr><td>D02</td><td>2</td><td>사용자 예시의 keyframe rate와 비슷한 cardinality baseline</td><td>motion-based keyframe baseline과는 별도다.</td></tr>
+          <tr><td>D04</td><td>4</td><td>낮은 density에서 두 배 증가 효과</td><td>D02를 포함한다.</td></tr>
+          <tr><td>D08</td><td>8</td><td>중간 density</td><td>D04를 포함한다.</td></tr>
+          <tr><td>D12</td><td>12</td><td>기존 offsets 1,4의 명목상 density와 연결</td><td>기존 코드는 keyframe을 제외하므로 exact set은 다르다.</td></tr>
+          <tr><td>D16</td><td>16</td><td>고밀도 구간 포화 확인</td><td>D12를 포함하도록 generator 순서를 사용한다.</td></tr>
+          <tr><td>Dmax</td><td>실측 admissible max (30fps 예시에서 약 24)</td><td>모든 train-eligible RGB를 포함한 ceiling arm</td><td>fixed_eval은 절대 포함하지 않는다.</td></tr>
+          <tr><td>KF-legacy</td><td>실측 keyframe rate</td><td>기존 exp66 연결용 reference</td><td>Stage A의 K-effect 회귀에는 넣지 않는다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">Stage A</span> View-set 크기만 바꾸는 핵심 실험</h2>
+    <div class="pipeline" aria-label="Stage A flow">
+      <div class="pipe-node"><b>Phase 1 한 번</b>snapshot 생성</div>
+      <div class="pipe-node"><b>Nested D<sub>K</sub></b>manifest 고정</div>
+      <div class="pipe-node"><b>RGB-only</b>fixed pose</div>
+      <div class="pipe-node"><b>Epoch shuffle</b>동일 GPU budget</div>
+      <div class="pipe-node"><b>Held-out MSE</b>K-curve 추정</div>
+    </div>
+    <h3>A0. 기존 결과 연결용 재현</h3>
+    <p class="prose">
+      기존 <code>keyframe</code>와 <code>dense_geom</code> 명령을 commit <code>b05e981d</code>에서 seed 0만 짧게 재현해
+      새 계측이 기존 곡선을 바꾸지 않는지 확인한다. 이 arm은 loss가 다르므로 이후 density curve에는 합치지 않는다.
+    </p>
+    <h3>A1. Loss confound 확인</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Arm</th><th>정확히 같은 것</th><th>다른 것</th><th>답하는 질문</th></tr></thead>
+        <tbody>
+          <tr><td>KF-RGB</td><td>같은 KF manifest, pose, θ<sub>0</sub>, sampler, budget</td><td>RGB-only</td><td>depth/normal을 제거하면 기존 keyframe curve가 얼마나 빨라지는가?</td></tr>
+          <tr><td>KF-RGBDN</td><td>같은 KF manifest, pose, θ<sub>0</sub>, sampler, budget</td><td>RGB+depth+normal</td><td>관측사실 1을 새 통제계에서 재현하는가?</td></tr>
+          <tr><td>D12-RGB</td><td>같은 θ<sub>0</sub>, sampler, budget, Gaussian 권한</td><td>더 큰 temporal RGB set</td><td>loss 차이를 없앤 뒤에도 density 이득이 남는가?</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>A2. K-sweep 본 실험</h3>
+    <ul>
+      <li>Arm: <code>D02, D04, D08, D12, D16, Dmax</code>.</li>
+      <li>고정: exact Phase-1 snapshot, Adam reset mode, RGB-only, fixed trajectory pose, full Gaussian parameter scope, no pose/exposure optimization, no densify/prune, batch=1.</li>
+      <li>순서: set마다 seeded shuffle without replacement. 한 epoch 안에서는 모든 frame이 정확히 한 번씩 등장한다.</li>
+      <li>예산: 100초 update GPU time을 1차 공통 상한으로 사용하고 2/5/10/20/40/60/80/100초에 평가한다. 100초는 기존 dense 26k≈104초 관측에서 정한 사전값이며 결과를 보고 바꾸지 않는다.</li>
+      <li>보조 x축: optimizer step, completed epoch, frame당 평균/최소 update 횟수를 함께 기록한다.</li>
+      <li>반복: paired seed 0/1/2. 각 seed에서 만든 한 Phase-1 snapshot을 모든 K arm이 공유하고, 같은 번호를 Phase-2 sampler seed로 사용한다. 1차 매트릭스는 6×3=18 run이며 seed를 교차해 54 run으로 늘리지 않는다.</li>
+      <li>안전: view 사전 forward audit에서 nonfinite/support failure를 검사한다. 본 실행은 fast loop를 사용하되 epoch 경계에서 numerical audit하고 실패 시 arm 전체를 무효 처리한다.</li>
+    </ul>
+    <div class="callout warn">
+      <span class="label">왜 같은 26,000 step만 보면 안 되나</span>
+      <p>
+        D02와 Dmax는 한 epoch 길이가 크게 다르다. 같은 26k step은 D02에 훨씬 많은 반복 기회를 준다.
+        반대로 같은 epoch 수는 Dmax에 훨씬 큰 시간을 준다. 그래서 <strong>GPU time을 primary</strong>, step과 epoch를
+        보조 축으로 동시에 보고 “coverage 이득”과 “성숙 부족”을 구분한다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">분석</span> 속도, ceiling, 성숙도를 따로 추정한다</h2>
+    <h3>Primary curve</h3>
+    <div class="equation">
+      E<sub>K</sub>(B) = E<sub>∞,K</sub> + A<sub>K</sub> exp[-(B/τ<sub>K</sub>)<sup>β<sub>K</sub></sup>]
+    </div>
+    <p class="prose">
+      이 식은 설명용 근사이며 결과를 강제로 맞추지 않는다. seed별 raw curve, monotone interpolation, AUC를 먼저 보고,
+      fit residual이 작을 때만 τ와 E<sub>∞</sub>를 요약값으로 사용한다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>지표</th><th>정의</th><th>무엇을 구분하는가</th></tr></thead>
+        <tbody>
+          <tr><td>Time-to-X</td><td>27/28/29/30dB 또는 사전 지정 MSE에 처음 도달한 GPU 시간</td><td>절대 품질까지의 실제 수렴속도</td></tr>
+          <tr><td>τ<sub>K</sub></td><td>stretched-exponential time constant</td><td>초기/중기 속도</td></tr>
+          <tr><td>E<sub>∞,K</sub></td><td>곡선의 추정 MSE 하한</td><td>도달 가능한 ceiling</td></tr>
+          <tr><td>AUC@100s</td><td>(1/100)∫<sub>0</sub><sup>100</sup>E<sub>K</sub>(B)dB</td><td>전체 budget 구간에서 빠른 arm; 낮을수록 좋음</td></tr>
+          <tr><td>Epoch-to-90%</td><td>추정 가능한 총 개선량의 90%에 도달한 epoch</td><td>set이 몇 번의 full pass 후 성숙하는가</td></tr>
+          <tr><td>Frame opportunity</td><td>UID별 선택 count의 min/median/max</td><td>sampler starvation이 없는지</td></tr>
+          <tr><td>Train–val gap</td><td>set audit MSE와 fixed_eval MSE 차이</td><td>작은 K의 과적합/대표성 부족</td></tr>
+          <tr><td>Geometry side metric</td><td>가능한 region-GT/floater/depth 지표</td><td>RGB 수렴과 geometry 품질의 trade-off</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Budget에 맞는 set 크기</h3>
+    <div class="equation">
+      K*(B) = argmin<sub>K∈𝒦</sub> E<sub>K</sub>(B)
+      &nbsp;&nbsp; subject to &nbsp;&nbsp;
+      E<sub>completed</sub>(K,B) ≥ E<sub>req</sub>(K)
+    </div>
+    <p class="prose">
+      여기서 <em>E</em><sub>req</sub>(<em>K</em>)는 미리 지정하지 않고 Stage A 곡선에서 추정한다. 예를 들어 D16이
+      D12보다 ceiling은 낮은 MSE를 보이지만 30초 budget에서 아직 1 epoch도 못 돌아 뒤처진다면,
+      “D16이 나쁜 set”이 아니라 “30초에는 성숙 불가능한 set”으로 해석한다. 최종 정책은 fps 하나가 아니라
+      <code>K*(10s), K*(30s), K*(60s), K*(100s)</code>의 Pareto envelope로 남긴다.
+    </p>
+    <h3>통계</h3>
+    <ul>
+      <li>MSE 차이는 seed 내 paired difference로 계산한다. 서로 다른 Phase-1 snapshot끼리 독립 비교하지 않는다.</li>
+      <li>각 시간 milestone의 mean±std, paired bootstrap 95% interval, AUC의 paired interval을 보고한다.</li>
+      <li>여러 K를 비교하므로 단일 final PSNR 최고값만 고르지 않는다. 전체 curve와 사전 지정 primary contrast(D02 vs D12, D12 vs Dmax)를 먼저 판정한다.</li>
+      <li>aria1253에서 찾은 K*는 진단 결과다. 정책 claim 전에는 다른 motion/scene에 threshold 재튜닝 없이 재현해야 한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">Stage B</span> 크기를 고정하고 view-set 구성법만 비교한다</h2>
+    <p class="prose">
+      Stage A에서 budget별로 성숙 가능한 중간 크기 <em>K</em><sub>mid</sub> 하나를 사전 규칙으로 고른다.
+      예: 60초에서 D12와 D16의 차이가 포화되기 시작하면 더 작은 D12를 사용한다. 이후 모든 selector가
+      정확히 같은 크기의 manifest를 만들고, 학습은 동일한 uniform epoch reshuffle만 사용한다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Selector</th><th>Set admission 기준</th><th>의도</th><th>학습 중 변경?</th></tr></thead>
+        <tbody>
+          <tr><td>Temporal-uniform</td><td>Stage A low-discrepancy timestamp subset</td><td>대표성 baseline</td><td class="no">아니오</td></tr>
+          <tr><td>Random coreset</td><td>admissible pool에서 seed별 uniform subset</td><td>선택 알고리즘 없는 baseline</td><td class="no">아니오</td></tr>
+          <tr><td>Fisher/COVER</td><td>고정 θ<sub>0</sub>에서 conditional information/coverage greedy</td><td>약한 eigen-direction/새 관측 보강</td><td class="no">아니오</td></tr>
+          <tr><td>Representative coverage</td><td>coverage gain + temporal/pose-space facility-location 또는 redundancy penalty</td><td>극단적 novelty만 고르는 실패 방지</td><td class="no">아니오</td></tr>
+          <tr><td>Residual coreset</td><td>θ<sub>0</sub> 저해상도 RGB residual의 층화 샘플</td><td>현재 오차가 큰 영역 포함</td><td class="no">아니오</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <span class="label">사용자 제안에 대한 수정</span>
+      <p>
+        “budget 안에서 최대한 novelty 있게 뽑는다”는 방향은 admission 문제를 scheduling과 분리한다는 점에서 맞다.
+        다만 <strong>순수 max-novelty</strong>는 overlap이 약한 극단 view, pose가 불안정한 view, 장면 분포를 대표하지 않는
+        view만 채울 수 있다. 따라서 이것을 정답으로 가정하지 않고 Fisher-only arm으로 그대로 시험하며,
+        representative coverage arm을 별도로 둔다.
+      </p>
+    </div>
+    <p class="prose">
+      모든 selector는 최종 held-out image나 validation gradient를 보지 않는다. pose validity와 최소 raster support는
+      정보 선택 이전의 안전 gate로만 사용한다. selector 계산 시간은 <code>selection_seconds</code>로 따로 측정하고,
+      품질이 같을 때 더 싼 selector를 우선한다.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">Stage C</span> Exact same set에서 학습순서만 비교한다</h2>
+    <p class="prose">
+      Stage B에서 미리 고른 하나의 manifest를 모든 arm이 byte-identical하게 공유한다. 이 단계에서만 “다음 frame”
+      정책을 비교한다. 후보 추가/삭제는 금지한다.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Order arm</th><th>규칙</th><th>검증 목적</th></tr></thead>
+        <tbody>
+          <tr><td>O0 shuffle-epoch</td><td>매 epoch 균등 random permutation</td><td>편향 없는 기준선, 모든 frame 기회 보장</td></tr>
+          <tr><td>O1 with-replacement</td><td>현재 <code>random.choice</code></td><td>기존 exp66 sampler 자체의 starvation/variance 영향</td></tr>
+          <tr><td>O2 novelty-first</td><td>epoch 안에서 conditional Fisher/coverage가 큰 순서</td><td>기존 Fisher 실험의 “새 정보 연속 투입”이 초기 수렴을 늦추는지 재현</td></tr>
+          <tr><td>O3 alternating</td><td>novelty 높은 view와 현재 set에 잘 맞는/대표적인 view를 교대</td><td>새 제약과 gradient 연속성 사이 절충</td></tr>
+          <tr><td>O4 residual-first</td><td>직전 audit residual이 큰 frame을 다음 epoch 앞쪽에 배치</td><td>learning progress가 novelty보다 즉시 수렴을 잘 예측하는지</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout plan">
+      <span class="label">이 단계의 핵심 통제</span>
+      <p>
+        각 epoch가 끝나면 모든 arm이 set의 각 frame을 똑같이 한 번씩 사용한다. 차이는 한 epoch 내부 순서뿐이다.
+        따라서 novelty-first가 초반엔 느리고 epoch 경계에서는 같아진다면 “정보가 나쁜 것”이 아니라
+        <strong>연속된 gradient 방향 변화가 optimizer에 불리한 순서 효과</strong>라고 해석할 수 있다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill warn">Stage D</span> Fisher·λmin·gradient alignment는 사후 진단으로 연결한다</h2>
+    <p class="prose">
+      Stage A–C의 실제 곡선이 확보된 뒤에만 proxy가 무엇을 설명하는지 본다. 여기서 reference gradient는
+      training에 쓰지 않는 작은 audit set <em>R</em>의 평균 gradient다.
+    </p>
+    <div class="equation">
+      g<sub>R</sub> = (1/|R|) Σ<sub>r∈R</sub> ∇<sub>θ</sub>ℓ<sub>r</sub>(θ), &nbsp;
+      align(v) = g<sub>R</sub><sup>T</sup>g<sub>v</sub> / (||g<sub>R</sub>||·||g<sub>v</sub>||+ε)
+    </div>
+    <div class="equation">
+      ΔE<sub>actual</sub>(v) = E<sub>R</sub>(θ) − E<sub>R</sub>(AdamStep(θ,g<sub>v</sub>))
+      <br>
+      <span class="explain">snapshot → candidate 1-step → audit forward → rollback; 진단 전용이며 online scheduler 비용에는 포함하지 않음</span>
+    </div>
+    <ol>
+      <li>초기, 중기, 후기 checkpoint에서 candidate 50~100개를 고정 추출한다.</li>
+      <li>각 candidate의 coverage/Fisher score, residual, gradient alignment, pose confidence, 실제 one-step Δaudit-MSE, update ms를 기록한다.</li>
+      <li>Spearman 상관과 top-decile precision을 시점별로 계산한다. 전체 시점을 섞어 한 상관계수로 만들지 않는다.</li>
+      <li>set-level에서는 randomized Lanczos/JVP 또는 저차원 block Gauss–Newton proxy로 λ<sub>min</sub>, condition proxy를 측정한다. full 3DGS Fisher determinant를 직접 만들지 않는다.</li>
+      <li>λ<sub>min</sub>이 높은 set이 ceiling만 높이는지, τ도 낮추는지 Stage A/B curve와 연결한다.</li>
+    </ol>
+    <div class="callout stop">
+      <span class="label">금지</span>
+      <p>
+        이 diagnostic audit set을 이용해 Stage A의 K나 Stage B selector hyperparameter를 반복 조정하지 않는다.
+        그러면 “왜 빨랐나”를 설명하는 측정이 다시 selection feedback이 되어 final-eval 과적합이 생긴다.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">실행 매트릭스</span> 단계별 비용과 중단 조건</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>단계</th><th>Arm 수</th><th>Seed</th><th>핵심 산출물</th><th>다음 단계 gate</th></tr></thead>
+        <tbody>
+          <tr><td>Preflight</td><td>2–3 smoke</td><td>0</td><td>hash/assert/log 검증, 기존 곡선 회귀 없음</td><td>모든 출발 checksum 동일</td></tr>
+          <tr><td>A1 loss</td><td>3</td><td>0,1,2</td><td>RGB-only vs RGBDN confound 크기</td><td>density 본 실험은 RGB-only 고정 가능</td></tr>
+          <tr><td>A2 K-sweep</td><td>6</td><td>0,1,2</td><td>E<sub>K</sub>(B), τ, E∞, AUC, E<sub>req</sub></td><td>budget별 성숙 가능한 K 구간 식별</td></tr>
+          <tr><td>B selector</td><td>4–5</td><td>0,1,2</td><td>동일 K의 set 구성 효과</td><td>한 selector가 paired AUC에서 안정적 우위</td></tr>
+          <tr><td>C order</td><td>4–5</td><td>0,1,2</td><td>동일 set의 순서 효과</td><td>uniform보다 이득이 있고 epoch 경계에서도 유지</td></tr>
+          <tr><td>D proxy</td><td>checkpoint probe</td><td>대표 seed+재현 seed</td><td>proxy↔actual ΔMSE 상관</td><td>상관과 cost가 모두 충분할 때만 scheduler 후보</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prose">
+      A2는 18 refinement run이지만 Phase 1은 seed당 한 번만 수행한다. 각 run이 최대 100초라면 Phase-2 순수 update는
+      약 30분이며, full held-out evaluation·PLY 저장·checkpoint I/O가 추가된다. B/C는 A 결과를 보기 전 예약하지 않는다.
+      K-effect가 없거나 loss confound로 대부분 설명되면 즉시 중단한다.
+    </p>
+    <div class="grid-2">
+      <article class="card">
+        <h3>Go 조건</h3>
+        <ul>
+          <li>RGB-only에서도 K 증가에 따라 AUC 또는 time-to-X가 paired seed에서 개선된다.</li>
+          <li>중간 K 이후 포화 또는 budget별 교차가 보여 K(B)를 추정할 근거가 생긴다.</li>
+          <li>개선이 iteration뿐 아니라 GPU time에서도 유지된다.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Stop / 재해석 조건</h3>
+        <ul>
+          <li>K 효과가 RGBDN 제거 후 사라지면 기존 결과는 주로 loss regularization 차이였다.</li>
+          <li>E∞만 좋아지고 τ/AUC 초반이 나빠지면 dense는 ceiling 개선이지 속도 개선이 아니다.</li>
+          <li>shuffle-epoch에서 기존 우위가 사라지면 pool보다 복원추출 sampler의 우연이 컸다.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">판정표</span> 가능한 결과를 미리 해석한다</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>관측 패턴</th><th>수학적 해석</th><th>정책 결론</th></tr></thead>
+        <tbody>
+          <tr><td>K가 커질수록 τ↓, E∞↓</td><td>conditioning/gradient 평균화와 coverage가 속도·ceiling 모두 개선</td><td>budget이 허용하는 성숙 가능한 최대 K를 admission</td></tr>
+          <tr><td>초반 작은 K 우세, 후반 큰 K 역전</td><td>repeat maturation vs coverage ceiling의 전형적 trade-off</td><td>짧은 idle budget은 작은 K, 긴 budget은 큰 K; 고정 fps 금지</td></tr>
+          <tr><td>τ 비슷, E∞만 큰 K 우세</td><td>추가 view는 속도보다 generalization ceiling을 올림</td><td>“빠른 수렴” 주장은 수정하고 장기 품질 목적일 때만 admission 확대</td></tr>
+          <tr><td>RGB-only에서 K 효과 소멸</td><td>기존 dense 우위의 큰 부분이 keyframe depth/normal regularization confound</td><td>view scheduler보다 loss budget 분리 연구가 먼저</td></tr>
+          <tr><td>Fisher set은 좋지만 Fisher-first order는 나쁨</td><td>정보량은 admission에 유효하지만 연속 novelty update가 optimizer와 불일치</td><td>Fisher는 set 구성에만, 학습은 reshuffle/교대</td></tr>
+          <tr><td>Fisher set/order 모두 나쁨</td><td>proxy가 현재 map의 실제 held-out 개선을 예측하지 못함</td><td>Fisher 기반 정책 폐기; residual/representativeness 진단으로 이동</td></tr>
+          <tr><td>with-replacement만 variance 큼</td><td>frame opportunity starvation이 기존 arm 변동의 원인</td><td>epoch sampler를 기본으로 채택</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="pill warn">과적합 방지</span> fps를 scene-specific 숫자로 굳히지 않는다</h2>
+    <ol>
+      <li><strong>결과를 보기 전에</strong> K grid, 100초 budget, milestone, primary contrasts, seed를 manifest와 config에 고정한다.</li>
+      <li>aria1253은 mechanism-identification scene으로만 사용한다. 여기서 고른 rule은 aria305/rot/다른 motion regime에 숫자 재조정 없이 적용한다.</li>
+      <li>online scheduler는 fixed_eval/validation MSE를 매 step 읽지 않는다. validation은 offline 분석과 진단에만 쓴다.</li>
+      <li>최종 rule은 “12fps”가 아니라 <code>budget에서 최소 성숙 epoch를 만족하는 가장 큰 대표 set</code>처럼 scale-free하게 쓴다.</li>
+      <li>view rate는 timestamp 기반 effective fps, 비용은 update GPU ms, 성숙도는 completed epoch로 보고해 GPU/해상도가 바뀌어도 해석 가능하게 한다.</li>
+      <li>geometry metric을 별도로 보고 PSNR 향상이 puffy/floater geometry 악화와 교환된 것은 아닌지 확인한다.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">산출물 규격</span> 한 run이 남겨야 할 파일</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>파일</th><th>필수 내용</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">phase1_snapshot.pt + phase1_snapshot.json</td><td>tensor/optimizer state, Gaussian 수, source commit/config/data hash, trajectory/keyframe hash, RNG state, checksum</td></tr>
+          <tr><td class="mono">manifests/Dxx.json</td><td>UID, timestamp, actual fps, parent relation, eval exclusion, camera source, selector name/version/hash</td></tr>
+          <tr><td class="mono">run_config.json</td><td>K/S/O/L/B/z<sub>0</sub>, seed, GPU, CUDA/PyTorch, VIGS commit, CLI 전체</td></tr>
+          <tr><td class="mono">polish_selection.jsonl</td><td>step/epoch/UID/loss/update_ms/count/nonfinite와 cumulative budget</td></tr>
+          <tr><td class="mono">polish_epoch_metrics.jsonl</td><td>epoch 경계 train audit, opportunity distribution, lr, optimizer state summary</td></tr>
+          <tr><td class="mono">polish_timing.jsonl</td><td>step·time milestone의 refinement_seconds, eval time, save time</td></tr>
+          <tr><td class="mono">metrics_curve.json / metrics_lockbox.json</td><td>서로 겹치지 않는 per-view MSE/PSNR/SSIM/LPIPS, mean, UID hash, lockbox open 사유·시각</td></tr>
+          <tr><td class="mono">analysis_density.csv</td><td>seed×K×milestone의 raw metric과 fit-free 요약</td></tr>
+          <tr><td class="mono">exp66_viewset_density_result.html</td><td>실측곡선, paired interval, 판정, 실패/이상 로그, 다음 단계 gate</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="checklist">
+      <li>eval/train UID intersection = 0</li>
+      <li>nested manifest subset assert 통과</li>
+      <li>동일 seed의 snapshot checksum 동일</li>
+      <li>모든 arm Gaussian count 동일</li>
+      <li>RGB-only loss component assert</li>
+      <li>pose/exposure optimizer step = 0</li>
+      <li>densify/prune call = 0</li>
+      <li>selection count max−min ≤ 1</li>
+      <li>evaluation 시간이 budget에서 제외됨</li>
+      <li>nonfinite/skipped count 명시</li>
+      <li>actual effective fps 기록</li>
+      <li>commit/config/data hash 기록</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="pill plan">구현 청사진</span> 제안된 실행 인터페이스</h2>
+    <p class="small">아래 옵션과 스크립트는 아직 구현되지 않은 계획용 인터페이스다. 기존 명령으로 오해하지 말 것.</p>
+    <pre><code># 1) Phase 1은 seed별로 한 번만 실행하고 exact snapshot 생성
+python demo.py ... \
+  --seed 0 \
+  --mapping_exclude_fixed_eval_views \
+  --phase1_only \
+  --polish_checkpoint_out exp66_axes/viewset_density/snapshots/seed0.pt
+
+# 2) 동일한 train-eligible stream에서 nested temporal manifests 생성
+python exp66_axes/build_viewset_manifests.py \
+  --trajectory exp66_axes/viewset_density/snapshots/seed0_trajectory.npz \
+  --exclude-fixed-eval-mod 5 \
+  --target-fps 2,4,8,12,16,max \
+  --method nested_temporal_low_discrepancy \
+  --output exp66_axes/viewset_density/manifests/seed0
+
+# 3) K만 바꾸되 나머지는 모두 동일
+python demo.py ... \
+  --polish_checkpoint_in exp66_axes/viewset_density/snapshots/seed0.pt \
+  --polish_optimizer_state reset \
+  --polish_view_manifest exp66_axes/viewset_density/manifests/seed0/D08.json \
+  --polish_camera_source fixed_trajectory \
+  --polish_loss rgb \
+  --polish_scope gaussian \
+  --polish_sampler shuffle_epoch \
+  --polish_seed 0 \
+  --polish_budget_seconds 100 \
+  --polish_time_milestones 0,2,5,10,20,40,60,80,100</code></pre>
+  </section>
+
+  <section>
+    <h2><span class="pill obs">최종 권고</span> 지금 바로 scheduler를 만들지 말아야 하는 이유</h2>
+    <div class="callout obs">
+      <span class="label">권장 순서</span>
+      <p>
+        먼저 Stage A의 18개 RGB-only paired run으로 <em>E</em>(<em>B</em>;<em>K</em>)를 얻는다. 이것이
+        “dense할수록 빠르다”를 순수한 view-set 크기 효과로 바꾸는 최소 증거다. 그다음에만 같은 <em>K</em>에서
+        novelty/Fisher admission을 시험하고, 마지막에 same-set 순서를 시험한다.
+      </p>
+    </div>
+    <p class="prose">
+      Water-filling이나 frame별 utility는 장기적인 최종 형태일 수 있지만, 현재 단계에서 넣으면 admission과 replay가
+      다시 한 식 안에서 섞인다. v1의 이상적인 학습법은 더 단순하다: <strong>budget으로 감당 가능한 크기의 대표적인
+      fixed set을 만들고, 모든 frame이 동등하게 성숙하도록 epoch reshuffle한다.</strong> 그 baseline을 이기는 proxy만
+      다음 scheduler 구성요소로 승격시킨다.
+    </p>
+  </section>
+
+  <footer>
+    <div>문서 상태: 구현·실행 전 상세 계획. 수식의 함수형과 threshold는 가설/분석 규약이며 실측 결과가 아님.</div>
+    <div>
+      연결 문서:
+      <a href="exp66_convergence_report.html">기존 dense-vs-keyframe 수렴 보고서</a> ·
+      <a href="exp66_viewset_budget_scheduler_working_note.html">view-set/budget scheduler 워킹노트</a> ·
+      <a href="exp66_cover_benchmark_report.html">COVER vs random 벤치마크</a> ·
+      <a href="exp66_cover_scheduling_design.html">COVER 이식 설계</a>
+    </div>
+    <div>코드 provenance: sawo0150/VIGS-SLAM-custom · exp66-lmrs-polish-preempt · b05e981d · pulled 2026-08-25.</div>
+  </footer>
+</main>
+</body>
+</html>
