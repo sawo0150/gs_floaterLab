@@ -135,7 +135,7 @@ tlmgr install cite silence lineno cleveref courier helvetic times \
   (`rpm_math`: `\argmin`/`\argmax` 등, `rpm_acronyms`, `rpm_SIunits`, `rpm_misc`: `\gr{}` = 초록 글씨)
 - **`rpm_packages/string-long.bib`** — 저널명 약어. `\bibliography{rpm_packages/string-long,main}`으로 물려 있음
 - **theorem 환경** — `definition` / `thm` / `corollary` / `lemma` 가 `preamble.tex`에 이미 선언됨.
-  §3.3 Gibbs 유도에 그대로 쓴다
+  필요하면 방법의 불변식이나 보조정리에 쓴다
 - **`algorithm` + `algpseudocode`** — token admission·ERCB block sampling 의사코드용
 - **하이라이트 매크로** — `\hlr{}` 빨강 / `\hlg{}` 초록 / `\hlb{}` 파랑. 서로 코멘트할 때 쓴다
 
