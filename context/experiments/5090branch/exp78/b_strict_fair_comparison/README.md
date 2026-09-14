@@ -1292,3 +1292,51 @@ Evidence:
   `1deb2075` / `af9c5dff` / `ea134475`
 - branch result commit:
   `fd9913c4`
+
+## 2026-09-15 — Stage 3d global-residue C2 isolation: +0.012620 dB, ACCEPT in isolation
+
+Stage3c 사후 trace audit에서 interval-local ERCB가 final generation의 267회
+service를 263개 view에 써서, 아직 856--1,382개의 eligible view가 미서비스인데도
+4개 UID를 반복한 사실을 찾았다. 논문에서 의도한 “random reshuffling 위의
+bounded correction”과 맞추기 위해 파라미터를 바꾸지 않고, 기존
+service-shortfall 확률법칙의 base measure만 아직 서비스되지 않은 global epoch
+residue에 조건부로 제한했다. C1은 계속 꺼서 C2 의미 하나만 검증했다.
+
+Contract `7697e93a` → queue core `5adffabe` → production opt-in wiring
+`f51dc26d` → fail-closed verifier `9c0679d6` → lab harness `c3548b6` 순으로
+분리 저장했다. 관련 scheduler/verifier regression은 97/97 PASS다. 실행 pair는
+283 event/279 packet/269 dense opportunity/Adam2,761/render38,033/210 tracking
+origin/zero-tail을 정확히 공유하며, 269/269 actual candidate·lifecycle trace와
+controller trace도 동일하다. 1,728 arrivals 중 1,690장이 opportunity 전에
+등록됐고 마지막 38장은 양쪽에서 동일 pending이다.
+
+Global-residue verifier는 final generation에서 양 arm 모두 267 service/267 unique
+view임을 재구성했다. Repaired C2는 repeat-before-exhaustion 0, 기존 block 안으로
+새 arrival이 침투한 횟수 0, queue telemetry mismatch 0이며 전체 **13/13 PASS**다.
+모든 269 opportunity와 36 C2 block start는 K8 초과 interval 상태다.
+
+| Arm | PSNR | SSIM | LPIPS | GS |
+|---|---:|---:|---:|---:|
+| Stage1 + full-pool RR | 25.554556 | .847585 | .153467 | 417,671 |
+| Stage1 + global-residue C2 | 25.567176 | .848015 | .153832 | 417,603 |
+| C2 - RR | **+.012620** | **+.000431** | **+.000365** | -68 |
+
+사전 primary gate `C2 - RR PSNR > 0`를 처음 통과했으므로 global residue를
+§3.2의 선택 semantics로 채택한다. 다만 이득이 작고 LPIPS는 악화했으며 C1을
+끈 isolation이므로 최종 Full 확정은 아니다. 마지막 integrated accepted recipe는
+여전히 Stage2b(+1.082609dB)다. 다음은 C1 admission과 repaired C2를 별도 계약과
+커밋으로 결합하고, C1 membership/work/lifecycle을 RR control과 exact하게 맞춘 뒤
+양수 gate를 다시 통과해야 한다.
+
+Evidence:
+
+- RR:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage3d_global_residue_rr_s0/`
+- repaired C2:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage3d_global_residue_ercb_s0/`
+- verifier:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage3d_global_residue_verification.json`
+- paper-branch result:
+  `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage3d_global_residue_result.md`
+- result commit:
+  `b2acecd1`
