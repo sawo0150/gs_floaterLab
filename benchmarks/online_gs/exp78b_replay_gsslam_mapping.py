@@ -805,6 +805,7 @@ def mapper_namespace(
     auto_topology_freeze: bool,
     observation_topology_gate: bool,
     service_shortfall_ercb: bool,
+    service_shortfall_global_epoch: bool,
     dense_max_endpoint_fraction: float,
     include_keyframes_in_replay: bool,
     official_frontier_parity: bool,
@@ -896,6 +897,12 @@ def mapper_namespace(
         argv.append("--mapping_observation_topology_gate")
     if service_shortfall_ercb:
         argv.append("--mapping_replay_service_shortfall_ercb")
+    if service_shortfall_global_epoch:
+        if not service_shortfall_ercb:
+            raise ValueError(
+                "global-residue ERCB mapper mode requires service-shortfall ERCB"
+            )
+        argv.append("--mapping_replay_service_shortfall_global_epoch")
     if profile == "final_v7_scheduler":
         argv.extend(
             (
@@ -1567,6 +1574,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--c2-global-residue-isolation",
+        action="store_true",
+        help=(
+            "Stage-3d only: repeat Stage-3c with the repaired C2 arm "
+            "conditioned on the remaining global reshuffling epoch"
+        ),
+    )
+    parser.add_argument(
         "--density-policy",
         choices=("configured", "disabled", "online_rank"),
         default="configured",
@@ -1894,18 +1909,33 @@ def main() -> int:
             "compute-paced dense admission requires either the fixed-iteration "
             "projected clock or the Stage-1 native independent-dense clock"
         )
+    stage3c_c2_orthogonal_isolation = bool(args.c2_orthogonal_isolation)
+    stage3d_c2_global_residue_isolation = bool(
+        args.c2_global_residue_isolation
+    )
+    if (
+        stage3c_c2_orthogonal_isolation
+        and stage3d_c2_global_residue_isolation
+    ):
+        raise ValueError(
+            "Stage-3c and Stage-3d C2 isolation modes are mutually exclusive"
+        )
+    c2_full_pool_isolation = bool(
+        stage3c_c2_orthogonal_isolation
+        or stage3d_c2_global_residue_isolation
+    )
     if args.service_shortfall_ercb and not (
         native_d1_dense_service_clock
         and not args.include_keyframes_in_replay
         and args.new_view_service_period == 0
         and (
             args.compute_paced_dense_admission
-            or args.c2_orthogonal_isolation
+            or c2_full_pool_isolation
         )
     ):
         raise ValueError(
             "service-shortfall ERCB requires either the isolated Stage-2 C1 "
-            "path or explicit Stage-3c orthogonal isolation, plus native D1 "
+            "path or explicit Stage-3c/3d C2 isolation, plus native D1 "
             "dense-only replay and no ordering adapter"
         )
     if args.fixed_event_dense_opportunities_per_packet not in (0, 1):
@@ -1915,21 +1945,20 @@ def main() -> int:
     fixed_event_dense_isolation = bool(
         args.fixed_event_dense_opportunities_per_packet
     )
-    stage3c_c2_orthogonal_isolation = bool(args.c2_orthogonal_isolation)
-    if stage3c_c2_orthogonal_isolation and not fixed_event_dense_isolation:
+    if c2_full_pool_isolation and not fixed_event_dense_isolation:
         raise ValueError(
-            "Stage-3c C2 orthogonal isolation requires one fixed dense "
+            "Stage-3c/3d C2 isolation requires one fixed dense "
             "opportunity per eligible mapping packet"
         )
     if fixed_event_dense_isolation and not (
         args.time_scale == "unbounded"
         and (
             (
-                stage3c_c2_orthogonal_isolation
+                c2_full_pool_isolation
                 and not args.compute_paced_dense_admission
             )
             or (
-                not stage3c_c2_orthogonal_isolation
+                not c2_full_pool_isolation
                 and args.compute_paced_dense_admission
             )
         )
@@ -1950,7 +1979,7 @@ def main() -> int:
             "fixed-event dense isolation requires unbounded native D1, "
             "observation topology, online-rank birth, independent "
             "appearance-only dense replay, no ordering/work adapter, and "
-            "exactly one of Stage-2 C1 or Stage-3c C2-only mode"
+            "exactly one of Stage-2 C1 or a Stage-3c/3d C2-only mode"
         )
     if args.relative_capacity_prune_closure and not (
         args.time_scale == "unbounded"
@@ -2040,6 +2069,10 @@ def main() -> int:
         args.auto_topology_freeze,
         args.observation_topology_gate,
         args.service_shortfall_ercb,
+        bool(
+            args.service_shortfall_ercb
+            and stage3d_c2_global_residue_isolation
+        ),
         args.dense_max_endpoint_fraction,
         args.include_keyframes_in_replay,
         args.official_frontier_parity,
@@ -2525,9 +2558,9 @@ def main() -> int:
                     fixed_interval_ids.add((int(left), int(right)))
                 lifecycle_before = mapper.mapping_lifecycle_snapshot()
                 selector_before = lifecycle_before.get("selector_block")
-                if stage3c_c2_orthogonal_isolation and selector_before is None:
+                if c2_full_pool_isolation and selector_before is None:
                     raise RuntimeError(
-                        "Stage-3c requires non-mutating selector-block telemetry"
+                        "Stage-3c/3d requires non-mutating selector-block telemetry"
                     )
                 mapper._exp78b_replay_scope_active = True
                 try:
@@ -2786,6 +2819,9 @@ def main() -> int:
         "compute_paced_dense_token_cost": args.compute_paced_dense_token_cost,
         "service_shortfall_ercb_requested": args.service_shortfall_ercb,
         "c2_orthogonal_isolation": stage3c_c2_orthogonal_isolation,
+        "c2_global_residue_isolation": (
+            stage3d_c2_global_residue_isolation
+        ),
         "fixed_event_dense_opportunities_per_packet": (
             args.fixed_event_dense_opportunities_per_packet
         ),
@@ -2799,6 +2835,9 @@ def main() -> int:
                 "relative_floor_ratio": 0.75,
                 "gamma": math.log(1.5),
                 "maximum_bonus": 1.5,
+                "global_epoch_no_repeat": bool(
+                    stage3d_c2_global_residue_isolation
+                ),
             }
             if args.service_shortfall_ercb
             else None
@@ -2899,7 +2938,7 @@ def main() -> int:
         "work_contract": (
             (
                 "d1_stage1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
-                if stage3c_c2_orthogonal_isolation
+                if c2_full_pool_isolation
                 else "d1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
             )
             if fixed_event_dense_isolation
@@ -2912,9 +2951,13 @@ def main() -> int:
         ),
         "comparison_contract": (
             (
-                "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
-                if stage3c_c2_orthogonal_isolation
-                else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                "stage3d_c2_global_residue_fixed_event_ordering_only_v1"
+                if stage3d_c2_global_residue_isolation
+                else (
+                    "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
+                    if stage3c_c2_orthogonal_isolation
+                    else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                )
             )
             if fixed_event_dense_isolation
             else (
