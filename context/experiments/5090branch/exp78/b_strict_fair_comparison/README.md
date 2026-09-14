@@ -1473,3 +1473,52 @@ Evidence:
   `results/experiments/exp78/paper_full_staged_v1/stage6_cross_sequence_confirmation/rpng/table_02/stage6a_native_vanilla_render_matched_s0/`
 - verifier:
   `results/experiments/exp78/paper_full_staged_v1/stage6_cross_sequence_confirmation/rpng/table_02/verification/stage6a_render_match_s0.json`
+
+## 2026-09-15 — Stage 6R R1 broad-coverage reinforcement: PASS, +1.417061 dB retained
+
+Stage6A sentinel에서 C1이 도착 dense RGB 1,999장 중 18장만 admit하고 같은
+작은 pool을 반복 서비스한다는 범위 문제가 드러났으므로, validation cohort를 더
+열기 전에 RPNG `table_01` seed0 development arm에서 C1만 보강했다. 기존
+completed-service token cost `kappa=22`를 `1`로 바꿔 **성공적으로 commit된 dense
+Adam 1회가 새 dense view 1장 admission을 지불**하게 했다. Global bootstrap 1장,
+no-prepurchase/transactional commit 규칙과 C2 `K=8`, `rho=.75`,
+`gamma=log(1.5)`, global without-replacement residue는 그대로 유지했다. Native
+keyframe geometry/frontier, tracker packet, birth, topology, dense opportunity 수,
+loss와 렌더 총량은 바꾸지 않았다.
+
+| Arm | PSNR | SSIM | LPIPS | Dense registered / selected unique | Adam | Renders | GS |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 기존 `kappa=22` Full | 25.618109 | .847057 | .153905 | 13 / 13 | 2,761 | 38,033 | 417,336 |
+| **R1 `kappa=1` Full** | **25.587764** | **.848722** | **.154522** | **270 / 267** | 2,761 | 38,033 | 417,598 |
+| render-matched native vanilla | 24.170703 | .803764 | .191021 | -- | 3,006 | 38,033 | 205,329 |
+
+R1은 기존 Full 대비 **-0.030345dB**로 사전 retention 한계 `-0.10dB` 안에
+들었고, 선택된 고유 dense view는 `13 -> 267`, **20.538배**가 됐다. Native
+vanilla 대비는 **+1.417061dB**, SSIM `+.044958`, LPIPS `-.036499`다. 두 arm은
+동일 archive, 279 mapping event, 210 tracking KF UID, fixed502 evaluator와 정확히
+38,033 physical render를 공유했다. Mapping/eval overlap, future/prepurchase,
+post-EOS update, final BA/color refinement는 모두 0이다. R1 final generation은
+`S=267`, `U=269`인 service-scarce regime이며 ERCB repeat service는 0, terminal
+residue/unserviced는 각각 2장이다.
+
+Generic render-match verifier 10/10과 전용 R1 gate verifier 10/10이 모두
+`valid=true`다. 따라서 **dense-only C1+C2 보강안 R1은 채택**하고 lifecycle R2는
+실행하지 않는다. 다만 이 결과는 fixed-work mapping isolation이지 C strict
+live-time 성과가 아니며, keyframe은 여전히 native 필수 학습만 수행하고 auxiliary
+replay에는 포함되지 않는다. 다음 R3는 native KF geometry를 손대지 않고 KF
+appearance replay를 별도 source ledger/quota로 추가해 dense coverage를 침범하지
+않는 경우에만 비교한다.
+
+Evidence:
+
+- R1:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/c1_service1_global_residue_c2_s0/`
+- native vanilla:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/native_vanilla_render_matched_s0/`
+- R1 gate:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/verification/r1_gate_s0.json`
+- render-match audit:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/verification/r1_render_match_s0.json`
+- predeclared contract:
+  `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage6r_c1_c2_reinforcement_contract.md`
+- verifier implementation commit: `75c6d58`
