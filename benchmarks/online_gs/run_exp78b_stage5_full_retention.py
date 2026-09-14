@@ -173,6 +173,7 @@ def mapping_command(arm: str, seed: int, output: Path, root: Path) -> list[str]:
             "unbounded",
             "--deadline-reserve-ms",
             "20",
+            "--mapping-after-metric-init",
             "--reference-service-runtime",
             str(c2_runtime),
         ]
@@ -275,6 +276,17 @@ def require_predeclared_state() -> dict[str, str]:
         )
     subprocess.run(
         ("git", "-C", str(PAPER_ROOT), "diff", "--quiet", "--ignore-submodules=dirty"),
+        check=True,
+    )
+    subprocess.run(
+        (
+            str(PYTHON_ENV / "bin/python"),
+            str(VANILLA_HARNESS),
+            "--help",
+        ),
+        cwd=WORKSPACE,
+        env=mapping_environment("vanilla"),
+        stdout=subprocess.DEVNULL,
         check=True,
     )
     subprocess.run(

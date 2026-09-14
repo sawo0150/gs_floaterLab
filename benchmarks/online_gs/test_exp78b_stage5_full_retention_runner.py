@@ -46,6 +46,7 @@ class Stage5RunnerTest(unittest.TestCase):
             runner.paths_for(self.root, 3)["c2"]
             / "mapping_replay_runtime.json",
         )
+        self.assertIn("--mapping-after-metric-init", command)
 
     def test_only_predeclared_mapper_seeds_are_exposed(self):
         self.assertEqual(runner.EXPECTED_SEEDS, (1, 2, 3))
