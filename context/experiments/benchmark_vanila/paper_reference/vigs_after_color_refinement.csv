@@ -1,0 +1,17 @@
+family,scene,psnr,ssim,lpips,table
+rpng,table_01,25.20,0.837,0.189,18
+rpng,table_02,21.89,0.780,0.210,18
+rpng,table_03,24.39,0.831,0.193,18
+rpng,table_04,26.03,0.884,0.135,18
+rpng,table_05,24.76,0.846,0.187,18
+rpng,table_06,25.18,0.860,0.187,18
+rpng,table_07,26.11,0.874,0.166,18
+rpng,table_08,27.88,0.902,0.152,18
+utmm,ego-centric-1,21.55,0.773,0.251,19
+utmm,ego-centric-2,22.66,0.792,0.219,19
+utmm,ego-drive,23.47,0.770,0.276,19
+utmm,fast-straight,19.77,0.678,0.314,19
+utmm,slow-straight-1,17.44,0.613,0.426,19
+utmm,slow-straight-2,18.54,0.621,0.402,19
+utmm,square-1,21.90,0.746,0.296,19
+utmm,square-2,22.71,0.761,0.276,19

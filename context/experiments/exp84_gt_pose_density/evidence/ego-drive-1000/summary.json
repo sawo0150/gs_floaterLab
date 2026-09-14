@@ -1,0 +1,387 @@
+{
+  "experiment": "exp84_gt_pose_density",
+  "comparison": "nested GT-pose RGB pools, stride 1/2/4/8/16",
+  "arms_by_stride": {
+    "1": {
+      "status": "complete",
+      "path": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp84_gt_pose_density/evidence/ego-drive-1000/stride01_r4_s0",
+      "train_subset": {
+        "stride": 1,
+        "phase": 0,
+        "selected": 875,
+        "full_train": 875
+      },
+      "milestones": {
+        "500": {
+          "l1": 0.09653359413146972,
+          "psnr": 16.397960075378418
+        },
+        "1000": {
+          "l1": 0.07488146269321441,
+          "psnr": 18.210228240966796
+        },
+        "2000": {
+          "l1": 0.06249900132417679,
+          "psnr": 19.526020019531252
+        },
+        "4000": {
+          "l1": 0.048998736530542375,
+          "psnr": 21.57516015625
+        },
+        "8000": {
+          "l1": 0.03902004943788052,
+          "psnr": 23.267225677490234
+        }
+      },
+      "final_saved_png_metrics": {
+        "method": "ours_8000",
+        "heldout_views": 125,
+        "psnr": 23.246938664721863,
+        "worst_q1_psnr": 20.38838859296079,
+        "source": "8-bit saved render/GT PNG pairs"
+      },
+      "run_manifest": {
+        "experiment": "exp84_gt_pose_density",
+        "arm": "stride01",
+        "train_frame_stride": 1,
+        "train_frame_phase": 0,
+        "iterations": 8000,
+        "resolution": 4,
+        "seed": 0,
+        "test_iterations": [
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+        "wall_seconds_including_final_render": 182
+      },
+      "final_gaussians": 1420175
+    },
+    "2": {
+      "status": "complete",
+      "path": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp84_gt_pose_density/evidence/ego-drive-1000/stride02_r4_s0",
+      "train_subset": {
+        "stride": 2,
+        "phase": 1,
+        "selected": 500,
+        "full_train": 875
+      },
+      "milestones": {
+        "500": {
+          "l1": 0.09651421493291855,
+          "psnr": 16.4207255859375
+        },
+        "1000": {
+          "l1": 0.07510876730084419,
+          "psnr": 18.118734024047853
+        },
+        "2000": {
+          "l1": 0.06152089597284794,
+          "psnr": 19.551650169372557
+        },
+        "4000": {
+          "l1": 0.046842848345637324,
+          "psnr": 21.909012298583985
+        },
+        "8000": {
+          "l1": 0.03812854046374559,
+          "psnr": 23.50659622192383
+        }
+      },
+      "final_saved_png_metrics": {
+        "method": "ours_8000",
+        "heldout_views": 125,
+        "psnr": 23.486378000730024,
+        "worst_q1_psnr": 20.62727816364298,
+        "source": "8-bit saved render/GT PNG pairs"
+      },
+      "run_manifest": {
+        "experiment": "exp84_gt_pose_density",
+        "arm": "stride02",
+        "train_frame_stride": 2,
+        "train_frame_phase": 1,
+        "iterations": 8000,
+        "resolution": 4,
+        "seed": 0,
+        "test_iterations": [
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+        "wall_seconds_including_final_render": 180
+      },
+      "final_gaussians": 1384156
+    },
+    "4": {
+      "status": "complete",
+      "path": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp84_gt_pose_density/evidence/ego-drive-1000/stride04_r4_s0",
+      "train_subset": {
+        "stride": 4,
+        "phase": 1,
+        "selected": 250,
+        "full_train": 875
+      },
+      "milestones": {
+        "500": {
+          "l1": 0.09604188078641891,
+          "psnr": 16.42482543182373
+        },
+        "1000": {
+          "l1": 0.07322329854965211,
+          "psnr": 18.340086921691896
+        },
+        "2000": {
+          "l1": 0.059419151410460475,
+          "psnr": 19.806633163452148
+        },
+        "4000": {
+          "l1": 0.04663315783441067,
+          "psnr": 21.90580467224121
+        },
+        "8000": {
+          "l1": 0.03793791289627552,
+          "psnr": 23.529308792114257
+        }
+      },
+      "final_saved_png_metrics": {
+        "method": "ours_8000",
+        "heldout_views": 125,
+        "psnr": 23.50937612356988,
+        "worst_q1_psnr": 20.62246506482614,
+        "source": "8-bit saved render/GT PNG pairs"
+      },
+      "run_manifest": {
+        "experiment": "exp84_gt_pose_density",
+        "arm": "stride04",
+        "train_frame_stride": 4,
+        "train_frame_phase": 1,
+        "iterations": 8000,
+        "resolution": 4,
+        "seed": 0,
+        "test_iterations": [
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+        "wall_seconds_including_final_render": 179
+      },
+      "final_gaussians": 1372336
+    },
+    "8": {
+      "status": "complete",
+      "path": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp84_gt_pose_density/evidence/ego-drive-1000/stride08_r4_s0",
+      "train_subset": {
+        "stride": 8,
+        "phase": 1,
+        "selected": 125,
+        "full_train": 875
+      },
+      "milestones": {
+        "500": {
+          "l1": 0.09550347772240639,
+          "psnr": 16.47785466003418
+        },
+        "1000": {
+          "l1": 0.07171419894695281,
+          "psnr": 18.484793548583983
+        },
+        "2000": {
+          "l1": 0.057676228180527686,
+          "psnr": 20.03234523010254
+        },
+        "4000": {
+          "l1": 0.045624290943145754,
+          "psnr": 22.101768920898436
+        },
+        "8000": {
+          "l1": 0.038144152835011484,
+          "psnr": 23.475450775146484
+        }
+      },
+      "final_saved_png_metrics": {
+        "method": "ours_8000",
+        "heldout_views": 125,
+        "psnr": 23.45496750909197,
+        "worst_q1_psnr": 20.6418301022365,
+        "source": "8-bit saved render/GT PNG pairs"
+      },
+      "run_manifest": {
+        "experiment": "exp84_gt_pose_density",
+        "arm": "stride08",
+        "train_frame_stride": 8,
+        "train_frame_phase": 1,
+        "iterations": 8000,
+        "resolution": 4,
+        "seed": 0,
+        "test_iterations": [
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+        "wall_seconds_including_final_render": 179
+      },
+      "final_gaussians": 1310938
+    },
+    "16": {
+      "status": "complete",
+      "path": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp84_gt_pose_density/evidence/ego-drive-1000/stride16_r4_s0",
+      "train_subset": {
+        "stride": 16,
+        "phase": 1,
+        "selected": 63,
+        "full_train": 875
+      },
+      "milestones": {
+        "500": {
+          "l1": 0.09472699511051179,
+          "psnr": 16.541930534362795
+        },
+        "1000": {
+          "l1": 0.07227048063278198,
+          "psnr": 18.373031150817873
+        },
+        "2000": {
+          "l1": 0.06265647634863854,
+          "psnr": 19.545452796936036
+        },
+        "4000": {
+          "l1": 0.0546178225427866,
+          "psnr": 20.89977899169922
+        },
+        "8000": {
+          "l1": 0.050148470535874366,
+          "psnr": 21.59901676940918
+        }
+      },
+      "final_saved_png_metrics": {
+        "method": "ours_8000",
+        "heldout_views": 125,
+        "psnr": 21.58545231405626,
+        "worst_q1_psnr": 17.23856373353393,
+        "source": "8-bit saved render/GT PNG pairs"
+      },
+      "run_manifest": {
+        "experiment": "exp84_gt_pose_density",
+        "arm": "stride16",
+        "train_frame_stride": 16,
+        "train_frame_phase": 1,
+        "iterations": 8000,
+        "resolution": 4,
+        "seed": 0,
+        "test_iterations": [
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+        "wall_seconds_including_final_render": 180
+      },
+      "final_gaussians": 1175373
+    }
+  },
+  "adjacent_heldout_psnr_delta_db_by_iteration": {
+    "500": {
+      "stride1_minus_stride2": -0.022765510559082713,
+      "stride2_minus_stride4": -0.004099845886230469,
+      "stride4_minus_stride8": -0.05302922821044831,
+      "stride8_minus_stride16": -0.06407587432861561
+    },
+    "1000": {
+      "stride1_minus_stride2": 0.09149421691894233,
+      "stride2_minus_stride4": -0.2213528976440422,
+      "stride4_minus_stride8": -0.1447066268920878,
+      "stride8_minus_stride16": 0.11176239776611041
+    },
+    "2000": {
+      "stride1_minus_stride2": -0.025630149841305183,
+      "stride2_minus_stride4": -0.25498299407959024,
+      "stride4_minus_stride8": -0.22571206665039156,
+      "stride8_minus_stride16": 0.48689243316650277
+    },
+    "4000": {
+      "stride1_minus_stride2": -0.33385214233398486,
+      "stride2_minus_stride4": 0.0032076263427747165,
+      "stride4_minus_stride8": -0.1959642486572264,
+      "stride8_minus_stride16": 1.2019899291992182
+    },
+    "8000": {
+      "stride1_minus_stride2": -0.2393705444335943,
+      "stride2_minus_stride4": -0.022712570190428494,
+      "stride4_minus_stride8": 0.053858016967772926,
+      "stride8_minus_stride16": 1.8764340057373055
+    }
+  },
+  "stride1_minus_stride16_psnr_db_by_iteration": {
+    "500": -0.1439704589843771,
+    "1000": -0.16280290985107726,
+    "2000": -0.01943277740478422,
+    "4000": 0.6753811645507817,
+    "8000": 1.6682089080810556
+  },
+  "paired_final_png_stats_vs_stride16": {
+    "1": {
+      "mean_psnr_delta_db": 1.6614863506656055,
+      "median_per_view_delta_db": 1.3230804703207575,
+      "wins": 86,
+      "views": 125,
+      "paired_bootstrap_95_ci_db": [
+        1.2446215998070393,
+        2.090586380625236
+      ]
+    },
+    "2": {
+      "mean_psnr_delta_db": 1.9009256866737647,
+      "median_per_view_delta_db": 1.6139326164561005,
+      "wins": 96,
+      "views": 125,
+      "paired_bootstrap_95_ci_db": [
+        1.4992010079039801,
+        2.313546352908413
+      ]
+    },
+    "4": {
+      "mean_psnr_delta_db": 1.9239238095136213,
+      "median_per_view_delta_db": 1.6490379727484097,
+      "wins": 94,
+      "views": 125,
+      "paired_bootstrap_95_ci_db": [
+        1.524239433956664,
+        2.324780039676588
+      ]
+    },
+    "8": {
+      "mean_psnr_delta_db": 1.869515195035712,
+      "median_per_view_delta_db": 1.355368236712522,
+      "wins": 92,
+      "views": 125,
+      "paired_bootstrap_95_ci_db": [
+        1.475822360381423,
+        2.275511268780655
+      ]
+    },
+    "16": {
+      "mean_psnr_delta_db": 0.0,
+      "median_per_view_delta_db": 0.0,
+      "wins": 0,
+      "views": 125,
+      "paired_bootstrap_95_ci_db": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

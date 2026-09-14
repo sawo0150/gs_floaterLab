@@ -44,6 +44,18 @@ exp72가 자기 실패 원인을 **"기존 minimum-count maturity gate를 유지
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-11 — C2 binary ablation 정정: UTMM bundle-tuned ERCB 평균 소폭 우세.**
+  새 benchmark 중 UTMM을 validation bundle로 고정하고 tracking gate를 통과한 6 scene에서
+  seed0 tuning 후 `K=8,rho=.75,gamma=log1.5`를 고정해 seed1/2를 검증했다.
+  18 paired comparison에서 RR→ERCB held-out PSNR은
+  **21.9148→21.9845dB(+.0698)**, worst-Q1 **+.1062dB**, RR-hard-Q1
+  **+.3321dB**, win **11/18**이고 seed 평균은 모두 양수다. Table 3의 standalone
+  ERCB off/on 행에는 사용할 수 있다. 그러나 fast-straight `-.2957dB`, count CV
+  `.8030→.9389` 악화가 있어 count-equality와 universal superiority는 주장하지 않는다.
+  또한 exp80 fixed pose/init scheduler-isolation이며 동일 UTMM bundle에서 tuning/evaluation했으므로
+  strict C1 위 P03 또는 독립 test generalization 완료로 승격하지 않는다.
+  → `context/experiments/ERCB_ablation/UTMM_TUNING_PROTOCOL.md`
+
 - **2026-09-06 — 세 기여를 묶는 논리 확정. 중심 문장 재작성.**
   v02 중심 문장은 C1·C2 를 supervision 배분으로 묶고 **C3 를 "남은 free-space 오류"로 붙여** 놓았다.
   원래 분해가 `cardinality / membership / ordering` 으로 **셋 다 스케줄링**인데 carve 는 loss 항이라

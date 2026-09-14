@@ -47,6 +47,17 @@ localization까지 한 번에 붙이는 건 어려우므로 **strict streaming �
 3. 문서 구조와 갱신 규칙은 `context/README.md`. **실험 완료 시 exp 카드 + INDEX 한 줄 + STATUS 갱신, 이 3개는 필수.**
 4. 실험 전 `context/knowledge/pitfalls.md` 필독.
 
+## 스케줄러 불변조건
+
+- active/채택 recipe에서 장면·데이터셋에 맞춰 정한 절대 frame·iteration·stream
+  fraction·topology-event/Gaussian-count cutoff로 mapping/topology phase를 닫거나 topology
+  event를 강제하지 않는다.
+- `mapping_*topology_freeze*`류 API는 재도입하지 않는다. 정상 frontier densify/prune와
+  final-v7의 관측 기반 unknown-horizon state transition만 사용한다. final-v7 내부의 반복
+  관측·상대 capacity 회복 조건은 장면별 knob로 노출하거나 튜닝하지 않는다.
+- 과거 freeze800/late-map/PGBA cutoff 스크립트는 provenance일 뿐 새 실험의 출발점으로
+  사용하지 않는다.
+
 ## 주요 경로
 
 - 메인 3DGS repo: `/home/wosas/Desktop/26-1_RPM/gsProjects/3dgs-custom` (**dirty worktree — revert 금지**)

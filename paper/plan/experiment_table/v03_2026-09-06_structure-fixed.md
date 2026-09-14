@@ -20,6 +20,19 @@
 pool-independence(B1)는 한 run 안에서 pool 이 커지는 동안 측정되므로 그대로 유효하다.
 근거: [`../../notes/decisions/2026-09-08_single-gpu-realtime.md`](../../notes/decisions/2026-09-08_single-gpu-realtime.md)
 
+## 2026-09-11 — Table 3용 C2 binary ablation 확보 (P03와 구분)
+
+UTMM 6-scene validation bundle에서 seed 0으로 ERCB를 bundle-wide 튜닝하고
+`K=8,rho=.75,gamma=log1.5`를 고정해 seed 1/2를 검증했다. RR 대비 18쌍 평균
+held-out PSNR은 `21.9148→21.9845dB(+.0698)`, worst-Q1은 `+.1062dB`,
+RR-hard-Q1은 `+.3321dB`, win은 `11/18`이다. 이 결과는 Table 3 블록2의
+**ERCB off/on** 행을 채울 수 있다.
+
+다만 exp80 final-online VIGS pose와 geometry init을 고정한 scheduler-isolation이고
+같은 UTMM bundle에서 tuning/evaluation했으므로, 아래 P03(C1 token admission 위 재검증)는
+여전히 미완료다. Selection-count CV도 `.8030→.9389`로 악화했으므로 Table 3에서는
+품질 이득과 함께 count-equality 실패를 그대로 보인다.
+
 ## 크리티컬 패스
 
 ```
@@ -134,6 +147,8 @@ residual-first)에 **"우리와 같은 문제를 다르게 푼" 방법이 없다
 | `κ=22` 품질 보존 후보 | 1253 평균 +0.003dB(2회), 305 −0.119dB(1회) | exp73 카드 |
 | gate-free만으로 count 균등화 실패 | selection CV: 1253 0.373→0.951, 305 0.470→0.942 | exp73 카드 |
 | ERCB 품질 보존 | 1253 −0.084dB / rot +0.362dB, wall +0.04% 미만 | exp72 카드 |
+| **UTMM-tuned ERCB binary ablation** | 6 scene×3 seed: PSNR **+.0698dB**, worst-Q1 +.1062dB, RR-hard-Q1 +.3321dB, 11/18 승 | ERCB ablation 카드 |
+| **UTMM에서 count CV 악화** | RR .8030→ERCB .9389 | ERCB ablation 카드 |
 | conditional entropy 유지 | ρ_H 0.99869 / 0.99842 | exp72 카드 |
 | 짧은 block은 무너짐 | K=1,β=0 −2.863dB / K=32 −2.082dB | exp72 카드 |
 | **ERCB lifetime 균등화 실패** | rot middle/first 0.758→0.520 | exp72 카드 |

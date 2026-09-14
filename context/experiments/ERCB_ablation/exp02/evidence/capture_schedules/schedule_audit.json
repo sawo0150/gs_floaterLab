@@ -1,0 +1,65 @@
+{
+  "clock": "physical RGB capture timestamp",
+  "scenes": {
+    "ego-centric-1": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/ego-centric-1.json",
+      "train_frames": 1343,
+      "optimizer_slots": 1772,
+      "duration_seconds": 51.92720741900848,
+      "optimizer_slots_per_second": 34.12469277813198,
+      "training_frames_per_second": 25.863127765818987,
+      "capacity_ratio_mu_over_lambda": 1.3194341027550263,
+      "right_censored_without_slot": 17
+    },
+    "ego-centric-2": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/ego-centric-2.json",
+      "train_frames": 1135,
+      "optimizer_slots": 1765,
+      "duration_seconds": 43.49487597899861,
+      "optimizer_slots_per_second": 40.579492647644884,
+      "training_frames_per_second": 26.09502784990195,
+      "capacity_ratio_mu_over_lambda": 1.5550660792951543,
+      "right_censored_without_slot": 65
+    },
+    "ego-drive": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/ego-drive.json",
+      "train_frames": 1224,
+      "optimizer_slots": 1968,
+      "duration_seconds": 46.645810789981624,
+      "optimizer_slots_per_second": 42.19028390053578,
+      "training_frames_per_second": 26.240298523503963,
+      "capacity_ratio_mu_over_lambda": 1.6078431372549018,
+      "right_censored_without_slot": 2
+    },
+    "fast-straight": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/fast-straight.json",
+      "train_frames": 290,
+      "optimizer_slots": 65,
+      "duration_seconds": 11.824481229006778,
+      "optimizer_slots_per_second": 5.4970699129318,
+      "training_frames_per_second": 24.52538884231111,
+      "capacity_ratio_mu_over_lambda": 0.22413793103448276,
+      "right_censored_without_slot": 3
+    },
+    "slow-straight-2": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/slow-straight-2.json",
+      "train_frames": 522,
+      "optimizer_slots": 163,
+      "duration_seconds": 19.885553144995356,
+      "optimizer_slots_per_second": 8.196905502778161,
+      "training_frames_per_second": 26.250212714418407,
+      "capacity_ratio_mu_over_lambda": 0.31226053639846746,
+      "right_censored_without_slot": 3
+    },
+    "square-1": {
+      "schedule": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/exp02/evidence/capture_schedules/square-1.json",
+      "train_frames": 1412,
+      "optimizer_slots": 3646,
+      "duration_seconds": 53.82240402000025,
+      "optimizer_slots_per_second": 67.74130710781995,
+      "training_frames_per_second": 26.234428314931918,
+      "capacity_ratio_mu_over_lambda": 2.582152974504249,
+      "right_censored_without_slot": 16
+    }
+  }
+}

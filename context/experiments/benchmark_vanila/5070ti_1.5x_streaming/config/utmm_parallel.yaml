@@ -1,0 +1,7 @@
+inherit_from: /home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-vanilla-check/config/utmm.yaml
+
+# Execution-mode overlay only. Tracking, PGBA, mapping iterations, and losses
+# are inherited unchanged from the upstream UTMM configuration.
+Training:
+  parallel: true
+  queue_size: 2

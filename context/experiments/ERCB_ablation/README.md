@@ -1,8 +1,63 @@
-# ERCB ablation — RPNG-AR / UTMM external transfer
+# ERCB ablation — UTMM bundle tuning, latency reformulation, and transfer
 
-> 날짜: 2026-09-11  
-> 범위: 새 exp 번호를 만들지 않는 ERCB 전용 누적 트랙  
-> 판정: **대표 2-scene fixed-pose/init transfer에서 count/lower-tail은 개선했지만 overall PSNR은 재현 실패.**
+> 날짜: 2026-09-12
+> 범위: ERCB 전용 누적 트랙
+> 최신 판정: **RGB capture-to-service latency를 직접 줄이는 exp02 후보들은 latency는 약 29% 개선했지만 유효 top-2의 held-out PSNR은 RR보다 평균 0.477–0.555dB 낮았다. 최종 품질을 위한 latency-first 대체안은 NO-GO다. 기존 interval ERCB의 +0.070dB 결과는 별도 binary ablation 근거로 유지한다.**
+
+## 최신 결과 — exp02 service-latency 재정식화
+
+연구 폴더의 7개 방법론을 전부 구현하여 `slow-straight-2`와 `ego-drive`에서
+1차 선별하고, 파라미터를 `ego-drive`에서 조정한 뒤 Debt–Utility A와 Service
+Field만 6-scene에 고정 transfer했다. Latency 시작은 물리 RGB 촬영 시각,
+완료는 실제 optimizer update 적용 시각이며 EOS 이후 update는 0이다.
+
+최종 6-scene held-out PSNR은 RR 19.025dB, Debt A 18.548dB(−.477), Service
+Field 18.471dB(−.555)였고 각각 1/6, 2/6 scene에서만 이겼다. 반면 처리용량이
+충분한 4개 scene의 p95 latency는 RR 25.988초에서 Debt 18.526초, Service Field
+18.540초로 줄었다. 따라서 신규 frame direct-service latency는 제어할 수 있지만
+그것이 최종 품질의 주 병목이라는 강한 가설은 기각한다. 구현 결함으로 ticket
+quota를 지키지 않은 Prefix의 일시적 +0.056dB 결과는 무효로 분리했다.
+
+상세 계약·전 방법 결과·수정 이력은 [`exp02/RESULT.md`](exp02/RESULT.md),
+machine summary는 [`exp02/evidence/final_v3_summary.json`](exp02/evidence/final_v3_summary.json)에 있다.
+
+## 최신 결과 — UTMM bundle-wide module ablation
+
+논문용 binary module ablation은 UTMM 묶음 하나를 validation set으로 정하고, 장면별로
+다른 값을 쓰지 않고 bundle-wide 파라미터 하나를 선택했다. Tracking gate를 통과한 6개
+시퀀스에서 seed 0으로 grid search한 뒤 선택값을 고정하여 seed 1, 2를 추가 검증했다.
+
+- 선택값: `K=8`, `rho=0.75`, `gamma=log(1.5)`
+- 비교: causal RR vs 동일 시스템의 ERCB on/off
+- 계약: llffhold-8, 60 updates/keyframe event, sensor-EOS 도착, zero-tail,
+  동일 pose/init/update budget
+- 규모: 6 scenes × 3 seeds = 18 paired comparisons
+
+| Metric | RR | ERCB | Paired delta |
+|---|---:|---:|---:|
+| held-out PSNR | 21.9148 | **21.9845** | **+0.0698dB** |
+| worst-Q1 PSNR | 17.9054 | **18.0117** | **+0.1062dB** |
+| RR-hard-Q1 PSNR | — | — | **+0.3321dB** |
+| selection-count CV | **0.8030** | 0.9389 | +0.1359 |
+
+PSNR은 18쌍 중 11쌍에서 이겼고 seed별 6-scene 평균 delta도
+`+0.1343/+0.0484/+0.0265dB`로 모두 양수였다. 반면 `fast-straight`는
+3 seed 평균 `-0.2957dB`, `square-1`은 `-0.0200dB`였고 selection-count CV도
+악화했다. 따라서 논문에서 허용되는 결론은 **“UTMM validation ablation에서 ERCB가
+평균 및 RR-hard frame 품질을 소폭 개선했다”**까지다. 보편적 우월성, 통계적 유의성,
+global count equalization은 주장하지 않는다.
+
+이 실험은 exp80의 final-online VIGS pose와 누적 geometry initialization을 arm 사이에
+고정한 scheduler-isolation ablation이다. View arrival과 EOS는 인과적이지만 pose/init는
+strict online localization 근거가 아니다. 또한 같은 UTMM bundle에서 튜닝하고 평가했으므로
+독립 test-set generalization 결과로 중복 사용하지 않는다. 상세 protocol과 scene별 결과는
+[`exp01/UTMM_TUNING_PROTOCOL.md`](exp01/UTMM_TUNING_PROTOCOL.md), compact evidence는
+[`exp01/evidence/utmm_tuning_v1_compact.json`](exp01/evidence/utmm_tuning_v1_compact.json)에 있다.
+
+## 이전 진단 — RPNG-AR / UTMM representative transfer
+
+아래 결과는 dataset-native VIGS initialization을 쓰기 전, 기존 파라미터를 대표 2개
+slice에 그대로 옮긴 선행 진단이다. 최신 UTMM bundle-tuned 결과와 섞어 평균하지 않는다.
 
 ## 질문
 
@@ -98,7 +153,7 @@ scheduler 효과다.
 - VIGS replay builder: `scripts/incremental/build_vigs_benchmark_causal_dataset.py`
 - runner: `scripts/incremental/run_ercb_benchmark_ablation.sh`
 - summarizer: `scripts/incremental/summarize_ercb_benchmark.py`
-- corrected VIGS replay 재개 지점: [`HANDOFF_5070TI.md`](HANDOFF_5070TI.md)
-- compact result: [`evidence/representative_1000_summary.json`](evidence/representative_1000_summary.json)
+- corrected VIGS replay 재개 지점: [`exp01/HANDOFF_5070TI.md`](exp01/HANDOFF_5070TI.md)
+- compact result: [`exp01/evidence/representative_1000_summary.json`](exp01/evidence/representative_1000_summary.json)
 - full run artifacts (fastMRI only):
   `/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/runs/`

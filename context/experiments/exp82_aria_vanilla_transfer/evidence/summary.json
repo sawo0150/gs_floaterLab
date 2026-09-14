@@ -1,0 +1,51 @@
+{
+  "experiment": "exp82_aria_vanilla_transfer",
+  "date": "2026-09-13",
+  "custom_commit": "8c094371",
+  "vanilla_commit": "22ffe24c6df81d0bf63bd20057565c00c51d2996",
+  "protocol": "shared_fixed_stride5_plus_last_excluding_vanilla_keyframes",
+  "scenes": [
+    {
+      "scene": "aria1253",
+      "frames": 1303,
+      "shared_views": 237,
+      "custom_fixed_psnr": 23.89787756213705,
+      "custom_shared_psnr": 23.893991397905953,
+      "vanilla_shared_psnr": 22.130572206360377,
+      "delta_db": 1.7634191915455766,
+      "passes_plus_1db": true,
+      "custom_keyframes": 114,
+      "vanilla_keyframes": 128,
+      "strict_budget_seconds": 97.64999836939387,
+      "custom_adam_steps": 12233,
+      "updates_after_deadline": 0,
+      "updates_after_sensor_eos": 0,
+      "vanilla_wall_seconds_including_eval": 253.25
+    },
+    {
+      "scene": "aria301_305",
+      "frames": 2688,
+      "shared_views": 501,
+      "custom_fixed_psnr": 26.053157852399327,
+      "custom_shared_psnr": 26.064821540238615,
+      "vanilla_shared_psnr": 23.32536077975275,
+      "delta_db": 2.7394607604858656,
+      "passes_plus_1db": true,
+      "custom_keyframes": 150,
+      "vanilla_keyframes": 171,
+      "strict_budget_seconds": 201.52499386947602,
+      "custom_adam_steps": 34578,
+      "updates_after_deadline": 0,
+      "updates_after_sensor_eos": 0,
+      "vanilla_wall_seconds_including_eval": 362.47
+    }
+  ],
+  "scene_passes": 2,
+  "scene_count": 2,
+  "weighted_view_count": 738,
+  "custom_weighted_mean_db": 25.367685031115524,
+  "vanilla_weighted_mean_db": 22.941668514313736,
+  "weighted_delta_db": 2.4260165168017878,
+  "scene_mean_delta_db": 2.251439976015721,
+  "verdict": "GO_2_OF_2"
+}

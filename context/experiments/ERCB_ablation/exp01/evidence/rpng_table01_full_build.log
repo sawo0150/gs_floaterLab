@@ -1,0 +1,63 @@
+{
+  "kind": "rpng",
+  "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_01",
+  "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_01/seed0",
+  "pose_source": "VIGS final online full-frame trajectory",
+  "keyframe_source": "VIGS traj_kf_beforeBA keyframe timestamps",
+  "initialization": "VIGS cumulative geometry-only depth-anchor log",
+  "depth_anchor_stride": 40,
+  "depth_anchor_valid_range_m": [
+    0.01,
+    20.0
+  ],
+  "initial_point_color": [
+    128,
+    128,
+    128
+  ],
+  "point_count": 29030,
+  "point_source_sha256": "bce19b70c76833b5cf28d580ba21c1ca31510eb11fadadc5c4eb6da7e96e2158",
+  "pose_source_sha256": "efe7167e6f0267b9e5acd4e3b3f73d2bd6222dd4ad3735670d074f5b204665be",
+  "keyframe_source_sha256": "b07a8aa9a3d1c0bbc3ccc4ae3afbb6f918f7b28b696a0a0f2d4fcde72c8b6918",
+  "raw_vigs_keyframes": 245,
+  "deduplicated_rgb_keyframe_boundaries": 245,
+  "max_full_pose_to_rgb_timestamp_error_seconds": 2.384185791015625e-07,
+  "intrinsics": {
+    "fx": 416.85223429743274,
+    "fy": 414.92069080087543,
+    "cx": 421.02459311003213,
+    "cy": 237.76180565241077,
+    "width": 848,
+    "height": 480
+  },
+  "rpng_undistorted": true,
+  "arrival_group_size_histogram": {
+    "2": 2,
+    "3": 5,
+    "4": 5,
+    "5": 20,
+    "6": 27,
+    "7": 44,
+    "8": 36,
+    "9": 44,
+    "10": 30,
+    "11": 15,
+    "12": 8,
+    "13": 2,
+    "14": 2,
+    "18": 1,
+    "60": 1,
+    "79": 1,
+    "127": 1
+  },
+  "offline_noncausal_fixed_pose_init": true,
+  "total_iterations": 14641,
+  "iters_per_event": 60,
+  "tail_iters": 0,
+  "events": 245,
+  "all_frames": 2506,
+  "train_frames": 2192,
+  "heldout_frames": 314,
+  "heldout_rule": "sorted COLMAP image index modulo 8 equals zero",
+  "interval_definition": "actual VIGS keyframe timestamps mapped to nearest RGB frame"
+}

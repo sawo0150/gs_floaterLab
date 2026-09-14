@@ -1,0 +1,7 @@
+inherit_from: /home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-vanilla-check/config/exp_depth_normal_ablation/aria1253_both_on.yaml
+
+# Execution overlay only: all vanilla tracking, loss, topology, and iteration
+# values are inherited unchanged. The external adapter supplies the hard cutoff.
+Training:
+  parallel: true
+  queue_size: 2

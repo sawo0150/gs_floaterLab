@@ -45,6 +45,13 @@ localization은 나중. 지금은 **strict streaming 매핑 품질 확보**가 �
   llffhold-8 기준으로.
 - **인과 순서(causal order) 유지**: 어떤 청크/프레임도 미래 keyframe 정보를 쓰면 안 됨
   (최종 시스템이 online이므로).
+- **장면별 phase 시점 튜닝 금지**: active/채택 recipe에서 장면·데이터셋에 맞춰 정한 절대
+  frame·iteration·stream fraction·topology-event/Gaussian-count cutoff로 mapping/topology
+  phase를 닫거나 topology event를 강제하지 않는다. `mapping_*topology_freeze*`류 API는
+  재도입하지 말고, 정상 frontier densify/prune와 final-v7의 관측 기반 unknown-horizon
+  state transition만 사용한다. final-v7 내부의 반복 관측·상대 capacity 회복 조건은
+  장면별 knob로 노출하거나 튜닝하지 않는다. 과거 freeze800/late-map/PGBA cutoff 스크립트는
+  provenance일 뿐 새 실험의 출발점으로 사용하지 않는다.
 - **실패는 실패로 정직하게 기록.**
 - 파괴적 작업(git reset --hard, 대용량 삭제)은 사용자 승인 없이 금지.
 - GPU 사용 전 `nvidia-smi`로 타 프로세스 확인 — 있으면 종료하지 말고 대기(사용자 별개 작업일 수 있음).

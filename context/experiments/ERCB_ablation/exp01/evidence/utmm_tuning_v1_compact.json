@@ -1,0 +1,216 @@
+{
+  "dataset_bundle": "UTMM",
+  "expected_scenes": [
+    "ego-centric-1",
+    "ego-centric-2",
+    "ego-drive",
+    "fast-straight",
+    "slow-straight-2",
+    "square-1"
+  ],
+  "selection_rule": "maximum seed-0 equal-scene mean paired held-out PSNR delta; worst-Q1 breaks exact ties",
+  "selected_seed0_config": {
+    "config": "rho=0.75,odds=1.5,K=8",
+    "seed": 0,
+    "complete": true,
+    "scenes": [
+      "ego-centric-1",
+      "ego-centric-2",
+      "ego-drive",
+      "fast-straight",
+      "slow-straight-2",
+      "square-1"
+    ],
+    "mean_delta_psnr_vs_rr": 0.13431428418488936,
+    "mean_delta_worst_q1_vs_rr": 0.2426901780781193,
+    "mean_delta_rr_hard_q1_vs_rr": 0.4969052408655701,
+    "mean_count_cv": 0.935263277052163,
+    "psnr_win_count": 4
+  },
+  "selected_validation_by_seed": [
+    {
+      "config": "rho=0.75,odds=1.5,K=8",
+      "seed": 0,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.13431428418488936,
+      "mean_delta_worst_q1_vs_rr": 0.2426901780781193,
+      "mean_delta_rr_hard_q1_vs_rr": 0.4969052408655701,
+      "mean_count_cv": 0.935263277052163,
+      "psnr_win_count": 4
+    },
+    {
+      "config": "rho=0.75,odds=1.5,K=8",
+      "seed": 1,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.04840337839411587,
+      "mean_delta_worst_q1_vs_rr": 0.0901332346742431,
+      "mean_delta_rr_hard_q1_vs_rr": 0.3434326717879497,
+      "mean_count_cv": 0.9411909919409087,
+      "psnr_win_count": 4
+    },
+    {
+      "config": "rho=0.75,odds=1.5,K=8",
+      "seed": 2,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.026542539880918998,
+      "mean_delta_worst_q1_vs_rr": -0.014184227536502428,
+      "mean_delta_rr_hard_q1_vs_rr": 0.15583572209389285,
+      "mean_count_cv": 0.9401107363504467,
+      "psnr_win_count": 3
+    }
+  ],
+  "final_selected_validation": {
+    "config": "rho=0.75,odds=1.5,K=8",
+    "complete_seeds": [
+      0,
+      1,
+      2
+    ],
+    "scene_seed_pairs": 18,
+    "mean_delta_psnr_vs_rr": 0.06975340081997475,
+    "mean_delta_worst_q1_vs_rr": 0.10621306173861998,
+    "mean_delta_rr_hard_q1_vs_rr": 0.3320578782491375,
+    "mean_count_cv": 0.9388550017811728,
+    "psnr_win_count": 11,
+    "rr_mean_psnr": 21.914759205526895,
+    "ercb_mean_psnr": 21.984512606346872,
+    "rr_mean_count_cv": 0.8029807267283092,
+    "per_scene": [
+      {
+        "scene": "ego-centric-1",
+        "rr_psnr": 22.952977818971974,
+        "ercb_psnr": 23.19648394707876,
+        "delta_psnr_vs_rr": 0.24350612810678976,
+        "delta_worst_q1_vs_rr": -0.07374393564854742,
+        "delta_rr_hard_q1_vs_rr": 0.21440488708164315,
+        "psnr_win_count": 3
+      },
+      {
+        "scene": "ego-centric-2",
+        "rr_psnr": 21.24042831144983,
+        "ercb_psnr": 21.47941492980776,
+        "delta_psnr_vs_rr": 0.23898661835793197,
+        "delta_worst_q1_vs_rr": -0.027361171703762583,
+        "delta_rr_hard_q1_vs_rr": 0.26665208296660836,
+        "psnr_win_count": 2
+      },
+      {
+        "scene": "ego-drive",
+        "rr_psnr": 21.87747575592935,
+        "ercb_psnr": 21.902072350475795,
+        "delta_psnr_vs_rr": 0.02459659454645191,
+        "delta_worst_q1_vs_rr": -0.00916673691709254,
+        "delta_rr_hard_q1_vs_rr": 0.2544936900804693,
+        "psnr_win_count": 2
+      },
+      {
+        "scene": "fast-straight",
+        "rr_psnr": 22.182624293738286,
+        "ercb_psnr": 21.886926874668447,
+        "delta_psnr_vs_rr": -0.2956974190698425,
+        "delta_worst_q1_vs_rr": 0.21198542200704296,
+        "delta_rr_hard_q1_vs_rr": 0.30399078394766593,
+        "psnr_win_count": 0
+      },
+      {
+        "scene": "slow-straight-2",
+        "rr_psnr": 20.907601611946234,
+        "ercb_psnr": 21.134691307093323,
+        "delta_psnr_vs_rr": 0.22708969514708954,
+        "delta_worst_q1_vs_rr": 0.29393946688899203,
+        "delta_rr_hard_q1_vs_rr": 0.5054296689524461,
+        "psnr_win_count": 2
+      },
+      {
+        "scene": "square-1",
+        "rr_psnr": 22.327447441125717,
+        "ercb_psnr": 22.307486228957146,
+        "delta_psnr_vs_rr": -0.019961212168572235,
+        "delta_worst_q1_vs_rr": 0.24162532580508747,
+        "delta_rr_hard_q1_vs_rr": 0.4473761564659924,
+        "psnr_win_count": 2
+      }
+    ]
+  },
+  "k_sensitivity_seed0": [
+    {
+      "config": "rho=0.75,odds=1.5,K=16",
+      "seed": 0,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.013452879957507472,
+      "mean_delta_worst_q1_vs_rr": -0.0056677697355812144,
+      "mean_delta_rr_hard_q1_vs_rr": 0.2777126485717594,
+      "mean_count_cv": 1.0498432476362902,
+      "psnr_win_count": 2
+    },
+    {
+      "config": "rho=0.75,odds=1.5,K=4",
+      "seed": 0,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.10154080782753756,
+      "mean_delta_worst_q1_vs_rr": -0.3005927943889688,
+      "mean_delta_rr_hard_q1_vs_rr": 0.12018943734918608,
+      "mean_count_cv": 0.8941729446647303,
+      "psnr_win_count": 4
+    },
+    {
+      "config": "rho=0.75,odds=1.5,K=8",
+      "seed": 0,
+      "complete": true,
+      "scenes": [
+        "ego-centric-1",
+        "ego-centric-2",
+        "ego-drive",
+        "fast-straight",
+        "slow-straight-2",
+        "square-1"
+      ],
+      "mean_delta_psnr_vs_rr": 0.13431428418488936,
+      "mean_delta_worst_q1_vs_rr": 0.2426901780781193,
+      "mean_delta_rr_hard_q1_vs_rr": 0.4969052408655701,
+      "mean_count_cv": 0.935263277052163,
+      "psnr_win_count": 4
+    }
+  ],
+  "full_summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/utmm_tuning_v1/utmm_tuning_summary.json"
+}

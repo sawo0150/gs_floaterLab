@@ -72,7 +72,7 @@ update 0회이며, fixed evaluator 252장은 Gaussian mapping supervision에서�
 | **참조(별도 아키텍처)** | **exp52 VIGS-SLAM(무수정, 단안 RGB+IMU, DROID-SLAM 트래킹)** | 폴리싱포함 kf 30.90 / **순수온라인 held-out 22.82** | **1253. ⚠ 정정: kf 30.90은 26k-iter 오프라인 색정제 포함 수치(실측 검증됨). `--pure_online` 실측 결과 순수 온라인 held-out PSNR은 22.73dB(1253)/23.53dB(rot) — 우리 exp51(25.29dB)보다 낮음. 실시간 배수는 exp53+54로 1.52배→0.94배까지, exp55(내용-적응 예산+carve)로 **평균 gaussian 수 −35.9%**·**가시 floater −7.5%**(둘 다 PSNR/시간 비용 없음) 추가 확보. **exp56(mapping iters 10→7 + init_itr_num 1050→600 + n_global_views 2→6 + Camera 행렬 캐싱)로 갱신: 59.80s→45.79s(실시간 배수 0.92→0.70배, −23.4%), PSNR 22.61/22.95→23.49/23.88(mean +0.88dB, kf +0.93dB), map() 성사 +64% — "gaussian 수를 줄여도 안 빨라지는" 원인을 기존 계측 재분석으로 규명(픽셀/커널-launch 고정비가 지배적)한 뒤 iters를 낮춰 1차 개선, `map_call` 로그 집계로 "호출 26회 중 2~3회(맵 초기화/IMU 재초기화)가 시간의 49%"를 발견해 init_itr_num으로 2차 개선, 회귀분석으로 "카메라 수(n_view)가 시간을 지배"함을 계수로 확정한 뒤 "프론티어 window는 그대로, 과거-뷰 곁눈질만 늘리기"로 3차 개선(Phase7), rasterizer batch 구현을 프로파일로 조사하다 발견한 "카메라 pose 불변인데 매 view마다 행렬 역산 재계산" 무위험 버그를 캐싱으로 고쳐 4차 개선(Phase8, 이 세션 최고 ROI) — 4단계 전부 시간·품질 동시 개선.
 **Phase 11(renderCUDA 커널 레벨 멀티카메라 batch화, opt-in `kernel_batch_render`)로 5차
 개선: 45.79s→44.00s(−3.9%), PSNR 23.49/23.88→23.46/23.98(무손실), rasterize
-avg/call 139.4ms→66.8ms(−52.1%)** | 
+avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 지금 열려 있는 질문
 
@@ -87,6 +87,658 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 - 표준 지표: region GT(`floater_metric_region.py`) + ray-density 상호보완. 오프라인 청소: `extract_floaters_rulebase.py`(예산 top-K) + 3D 삭제 영역(`build_floater_region.py`).
 
 ## 최근 흐름 (최신순)
+
+- **2026-09-14 (exp86-B work-credit selector family — RR 유지):** exp86-A의
+  `ERCB` 표기가 original count-softmax가 아닌 interval relative-floor였음을 정정하고,
+  cycle work-credit r4 위에서 두 family를 직접 비교했다. Original K128 ERCB는 같은
+  K128 uniform보다 fast/ego-centric에서 **+0.0374/+0.3179dB**였지만 RR 대비
+  **+0.2189/-0.2245dB**로 전이 부호가 갈렸다. K32/K8은 count CV와 dense
+  pool/service를 개선하고도 ego-centric에서 RR보다 **-1.2831/-0.8615dB**였고,
+  interval relative-floor/coverage1도 **-0.4152/-0.4898dB**라 모두 production
+  교체를 기각했다. 모든 run은 matched/counter/zero-tail 통과. 현재 selector는 RR을
+  유지하고 K 숫자 sweep은 종료한다.
+  → [exp86-B](experiments/exp86-B_workcredit_selector_families.md)
+
+- **2026-09-14 (exp86-A unified work-credit admission fast pilot — r4 전이 후보):**
+  matched-time RR/ERCB 주 결과의 dense admission은 work-credit가 아니라 fixed
+  stride5/max1이었다. 기존 mature-service credit가 frontend poll 사이 과거 surplus를
+  후반 multi-view burst로 바꾸는 문제를 확인하고, unified 경로만 global seed1 뒤
+  `현재 pool r회 maturity → paid 1장 → GS registration 확인` cycle로 제한했다.
+  Final-v7 legacy와 RR/ERCB score는 불변이다. UTMM fast-straight 공통 non-KF61장에서
+  r4 RR/ERCB는 vanilla 대비 **+0.2058/+0.2248dB**, r2는
+  **+0.0909/+0.0987dB**라 r2를 기각했다. Physical Adam은 610--646회이고 모두
+  matched budget/counter/zero-tail을 통과했다. r4 ERCB dense p10=4, 마지막 terminal
+  debt 1장만 0회다. Fixed-arrival ERCB +0.3237보다 아직 낮으므로 r4는 긴 대표 장면
+  무재튜닝 전이 전 최종 채택하지 않는다.
+  → [exp86-A](experiments/exp86-A_unified_workcredit_admission.md)
+
+- **2026-09-14 (exp85-Y projected-gradient 진단 — stale residual 발견):**
+  X dense와 동일 동작에서 추가 render/step별 host sync 없이 계측했다.
+  `f_dc/f_rest` dense gradient raw norm은 KF의 0.898/0.879배, conflict는
+  3.72/2.33%, projection 잔존은 99.36/99.79%라 PCGrad가 병목이 아니다.
+  Appearance는 전 step 0.25 cap이지만 Q full-cap도 실패해 cap 확대 역시 기각됐다.
+  재관측555건 progress 평균 -22.80%/양수33.15%였으나, PGBA가 dense pose를
+  고친 뒤에도 이전 pose의 residual/last-loss cache가 남는 오류가 있어 forgetting으로
+  해석하지 않는다. Common463은 **24.4137dB**(vanilla +0.2439, X dense -0.1133),
+  regular2,965/37,635+dense215/860, packet243/224/drop19, loop366.692초,
+  ATE0.04952m, topology20, EOF queue0/final update0이다. 다음 Z는 pose revision된
+  view의 loss cache만 무효화하고 coverage count는 보존한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-X SH1 × dense interaction — dense 가설 기각):**
+  최초 SH1 pilot에서 IMU 초기화 뒤 Gaussian을 비울 때 `GaussianModel(0)`으로
+  재생성되어 요청 SH1이 SH0으로 사라지는 버그를 발견·수정했고, PLY의
+  `f_rest_0..8`을 확인한 유효 pair만 판정했다. Vanilla 동일 non-KF463에서
+  SH1 KF-only/dense는 **24.5224/24.5270dB**, dense 순효과는 **+0.0046dB**다.
+  SSIM은 동률이고 LPIPS만 -0.00083 개선했다. SH1 KF-only 자체는 vanilla보다
+  +0.3525dB라 일반 표현력 이득은 있지만 dense 효과를 키우지 못했다.
+  Regular KF service는 2,975/37,765와 2,965/37,635, dense는 215 step/860 view,
+  loop353.911/367.029초, ATE0.04953/0.04949m, topology20, EOF queue0/final
+  update0이다. X는 +0.15dB transfer gate를 못 넘어 타 장면에 전이하지 않는다.
+  다음은 숫자 sweep 대신 projected gradient 생존율과 pose-confidence별 실현 이득을
+  계측한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-W budgeted KF→dense replacement — 기각):**
+  M의 current-window RGBD+normal과 KF-only topology를 그대로 두고, projected 가능한
+  모든 step에서 historical KF global2 중 한 자리를 U selector의 dense appearance로
+  교체했다. Regular KF-view **35,605**+dense **2,160**=37,765로 M의 총 historical
+  render 수를 정확히 맞췄다. 동일 non-KF463은 **23.9327dB / SSIM0.79408 /
+  LPIPS0.19380**, M보다 -0.3137/U보다 -0.4219/vanilla보다 **-0.2372dB**다.
+  Packet243/224/drop19, loop357.414초, ATE0.04952m, topology20, 222,642GS,
+  EOF queue0/final update0이다. 현재 dense는 KF를 대체할 view당 한계이득이 없고,
+  U의 작은 양수는 소량의 추가 appearance 계산 효과에 가깝다. W는 타 장면에
+  전이하지 않으며 같은 replacement 비율 숫자 sweep도 종료한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-V joint historical marginal selector — 기각):**
+  U의 current-window RGBD+normal/global2/optimizer step/dense U를 고정하고 과거
+  KF2 선택만 residual1+least-served1 한계이득으로 바꿨다. 기존 render loss를
+  map-call 끝에서 한 번만 옮겨 추가 render는 없다. Non-KF463은
+  **23.8075dB / SSIM0.79136 / LPIPS0.19711**, U보다 **-0.5471dB**,
+  vanilla보다 **-0.3624dB**로 모두 악화했다. Regular2965/37635,
+  projected215/860, packet243/223/drop20, loop360.843초, ATE0.04936m,
+  topology20, 206,421GS, EOF queue0/final update0이다. KF249장 모두 residual을
+  얻고 최소10회 선택됐지만 최대90회 집중됐다. KF residual을 dense residual과
+  같은 남은 이득으로 해석하는 통합 score를 기각하고 타 장면에 전이하지 않는다.
+  다음은 global2 고정 render 예산 중 한 자리만 dense appearance로 교체하되
+  current-window geometry/topology는 보존하는 구조다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-U representative panel 완료 — 4/4 양수, +1 실패):**
+  마지막 UTMM fast-straight 동일 UID61장은 **17.4575dB / SSIM0.66481 /
+  LPIPS0.46861**, vanilla보다 PSNR +0.0316dB/SSIM +0.00040/LPIPS +0.00056로
+  사실상 동률이다. Projected dense service가 2 step/8 view뿐인 짧은 장면이다.
+  Regular115 step/1305 KF-view, packet9/7/drop2, loop28.721초, 센서 종료 뒤
+  drain2.935초, ATE0.05736m, topology1, 40,711GS, EOF queue0/final update0이다.
+  U의 table_01/table_04/ego-drive/fast-straight PSNR delta는
+  +0.1847/+0.4615/+0.3148/+0.0316dB로 **4/4 양수, 평균 +0.2482dB**다.
+  사전 sign gate는 통과했지만 대부분 +1 목표에는 부족하므로 전체16/final
+  폴더 생성을 보류한다. 다음은 dense cap/frequency 숫자 sweep이 아니라
+  KF와 dense를 함께 보는 historical-view marginal-utility scheduler 구조다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-U UTMM ego-drive 무재튜닝 전이 — panel 3/3 양수):**
+  RPNG에서 고정한 projected-last1/batch4/cap0.25/geometry0,
+  residual2+coverage2와 한계이득 감쇠를 유지하고 UTMM calibration/IMU adapter만
+  적용했다. Vanilla 동일 UID264장에서 **20.5763dB / SSIM0.67542 /
+  LPIPS0.36600**, vanilla보다 **+0.3148dB / +0.01355 / -0.01904**다.
+  Regular795 step/10105 KF-view, projected66 step/264 view, packet79/73/drop6,
+  selection1--4, loop117.268초, ATE0.06057m, topology5, 149,406GS,
+  EOF queue0/final update0이다. 현재 대표 panel 3/3 양수·평균 +0.3203dB지만
+  +1에는 부족하다. 같은 U를 fast-straight에 적용해 4-scene panel을 닫는다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-U table_04 무재튜닝 전이 — RPNG 2/2 양수, +1 실패):**
+  Table_01에서 선택한 residual2+coverage2와
+  `robust_loss/sqrt(1+prior_services)`를 숫자 변경 없이 RPNG table_04에
+  적용했다. Vanilla 동일 UID 1,134장에서 **21.2274dB / SSIM0.72129 /
+  LPIPS0.18661**, vanilla보다 **+0.4615dB / +0.01743 / -0.02917**이다.
+  Regular5525 step/70195 KF-view, projected dense399 step/1596 view,
+  packet419/409/drop10, selection1--5, loop774.078초, ATE0.06040m,
+  topology37, 318,738GS, EOF queue0/final update0이다. Table_01 +0.1847과
+  합쳐 RPNG 2/2에서 부호는 양수이나 평균 +0.3231dB라 +1 목표는 통과하지
+  못했다. 숫자 재튜닝 없이 동일 U를 UTMM 대표 장면으로 옮겨 family 전이를
+  확인한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-U residual marginal utility — table_01 양수, 전이 진행):**
+  T의 residual2+coverage2/last1/batch4/cap0.25/geometry0을 고정하고 residual rank만
+  `robust_loss/sqrt(1+prior_services)`로 바꿘다. Regular2975/37765, dense216/864,
+  loop364.512초로 service가 같은 상태에서 table_01 non-KF463 **24.3546dB**,
+  T/P/M/vanilla 대비 +0.0566/+0.0921/+0.1082/+0.1847dB이고 SSIM/LPIPS도 개선했다.
+  ATE0.04943m, topology20, EOF queue0/final update0이다. Dense305장 전체 최소1회
+  coverage를 유지하면서 최대 반복은 T 27→U 5회로 줄었다. +1은 미달이므로
+  table_01에서 숫자를 더 튜닝하지 않고 같은 U를 table_04에 전이한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-T projected residual50+coverage50 — 미세 양수):**
+  P의 last1/batch4/cap0.25/geometry0을 고정하고 dense 선택만 cyclic4→robust
+  residual2+least-served2로 바꿘다. Regular2975/37765, dense216/864, loop363.713초로
+  P와 service가 거의 같은 상태에서 non-KF463 **24.2979dB**, P보다
+  +0.0354/M보다 +0.0516/vanilla보다 +0.1281dB였다. ATE0.04940m,
+  topology20, EOF queue0/final update0이다. Dense305장은 전부 1회 이상 보았지만
+  hard view가 최대27회 집중됐으므로 U에서 residual score에만 서비스 횟수
+  제곱근 한계이득 감쇠를 추가한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-S unbounded no-drop dense all-step — absolute gate 실패):**
+  R의 dense recipe를 고정하고 queue만 unbounded no-drop으로 바꿔 timestamp-paced
+  tracking이 만든 causal packet **243/243**, regular3115 step과 projected dense2300 step/9200
+  view를 모두 처리했다. 그럼에도 non-KF463은 **24.1253dB**, M보다
+  -0.1210/vanilla보다 -0.0445dB였다. Loop398.127초, ATE0.04943m, topology21,
+  drop0·EOF queue0·final update0이다. Vanilla+1 absolute gate를 1.0445dB 미달했으므로
+  no-drop control pair는 돌리지 않고 무조건적 dense 빈도 경로를 종료한다.
+  다음은 온라인 잔여 학습 증거로 view를 gate하는 구조다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-R projected dense all-step — 빈도 증가 기각):**
+  P의 batch4/cap0.25/geometry0을 고정하고 projected iteration을 packet당 1→10으로
+  늘렸다. Dense service는 **1,920 step/7,680 view**로 약 9배 늘었지만 packet
+  drop18→25, regular step2975→**2735**로 경쟁이 생겼고 non-KF463은
+  **24.2234dB**, M보다 -0.0230/P보다 -0.0391/vanilla보다 +0.0535dB였다.
+  Loop374.338초, ATE0.04940m, topology18, EOF queue0/final update0이다. Projected dense의
+  batch/cap/frequency 숫자 sweep을 종료하고, 다음은 KF와 경쟁하지 않는 service
+  계약을 우선한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-Q projected dense full cap — cap 부족 가설 기각):**
+  P의 batch4/projected-last1/geometry0을 고정하고 PCGrad norm cap만 0.25→1.0으로
+  높였다. Regular **2,975 step/37,765 KF-view**, projected dense216 step/864 view에서
+  non-KF463은 **24.2413dB**, P보다 -0.0212/M보다 -0.0050/vanilla보다
+  +0.0714dB였다. Loop370.611초, ATE0.04943m, topology20, EOF queue0/final update0이다.
+  따라서 dense projected 신호 크기·cap sweep을 종료하고, 다음은 투입량을 더 늘리기
+  전에 dense training pose와 추가 view의 실질 잔여 정보를 진단한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-P projected dense batch4 — 미세 양수, +1 실패):**
+  O에서 dense batch만 1→4로 바꿨다. Regular frontier **2,965 step/37,635 KF-view**를
+  유지하면서 projected dense 215 step/860 view를 투입했고 topology20이다. Non-KF463은
+  **24.2625dB**, M보다 +0.0162/O보다 +0.0292라 방향은 양수지만 noise 수준이다.
+  Loop364.672초, ATE0.04956m다. 다음 Q는 batch4/geometry0/regular service를 고정하고
+  PCGrad norm cap만 0.25→1.0으로 풀어 신호 세기 부족 여부를 확인한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-O projected dense appearance/opacity — 무손실, gain 없음):**
+  M의 KF RGBD+normal/global2/10step/topology statistics를 보존하고 마지막 regular step에
+  dense batch1 gradient를 parameter-group PCGrad+KF norm의 0.25 cap으로 더했다. Dense
+  xyz/scale/rotation 비율은 0이다. Non-KF463은 **24.2333dB**, M보다 -0.0130인
+  동률이고 LPIPS는 0.00081 개선됐다. Loop359.074초, ATE0.04939m, pool307이다.
+  N의 -0.3484dB 붕괴는 막았지만 PSNR gain은 없으므로 다음 P는 cap/step을 고정하고
+  dense batch를 1→4만 늘려 view coverage를 높인다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-N parity-base dense global1 — 기각):**
+  M의 packet당 10 step/current KF window/총 global2를 고정하고 historical KF 한 자리를
+  causal midpoint dense RGB(stride5 offset2, interval당 1장, IMU rotation bridge)로
+  교체했다. Pool307을 실제 등록·PGBA refresh했지만 동일 non-KF463은 **23.8979dB**로
+  M보다 **-0.3484dB**였다. Loop 357.899초와 KF ATE 0.04941m는 같지만 최종 GS가
+  209,220→217,377로 변했다. Native dense-global이 full Gaussian gradient와 densification
+  statistics까지 바꾸는 경로를 기각하고 slot 수 sweep은 하지 않는다. 다음 O는 M의
+  regular RGBD backward/topology를 그대로 보존하면서 dense appearance/opacity gradient만
+  parameter-group PCGrad와 norm cap으로 추가한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-M complete upstream map parity — 품질 GO, realtime NO):**
+  L에 upstream isotropic scale loss(weight10)를 복구한 exact recipe에서 vanilla 동일
+  non-KF 463장이 **24.2463dB**, vanilla streaming보다 **+0.0764dB**였다. L 대비
+  isotropic 효과는 -0.0289dB뿐이고 KF ATE 0.04933m도 vanilla 0.04950m와 일치한다.
+  Online loop는 **358.004초**, 최종 209,220GS, topology counter20, online-final update0라
+  품질 parity는 복구했지만 realtime acceptance는 아니다. 다음 N은 M의 frontier
+  iteration/view 수를 고정하고 historical KF global2 중 1개를 causal dense RGB로
+  교체해 dense supervision의 순효과를 본다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-L upstream map parity minus isotropic — 품질 GO, telemetry 불완전):**
+  custom 코드에서 final-v7 scheduler/idle/dense를 끄고 upstream frontend·init1050·
+  uniform birth·frontier10/global2·RGBD+normal·drop-oldest를 묶음 복구했다. Isotropic
+  scale loss만 custom 기본값대로 빠진 조건에서 vanilla와 동일한 non-KF 463장이
+  **24.2752dB**, vanilla streaming 24.1699보다 **+0.1054dB**였고 KF ATE도
+  0.04940m로 vanilla 0.04950m와 같았다. 따라서 약 4dB gap은 tracking/custom core가
+  아니라 final-v7 map-path 변경 묶음에서 생긴다. 단, 실행 중 wrapper 수정으로
+  `run.log`가 손상돼 지도·metric만 품질 진단에 쓰고 runtime/packet 계약 증거로는 쓰지
+  않는다. M에서 isotropic까지 복구해 고정 wrapper로 재측정 중이다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85 metric 정정 + K upstream frontend — 기각):**
+  custom JSON의 `mean_psnr`는 fixed+tracking-KF union인데 D–J에서 이를 fixed로 잘못
+  기록한 것을 발견했다. 판정용 `fixed_eval_mean_psnr`로 새로 정정하며 기존 결론의
+  부호는 바뀌지 않는다. H fixed/shared-vanilla-463은 **20.1342/20.1160**, J는
+  **19.1974/19.2192dB**다. H에 장면 튜닝 없이 upstream frontend 전체
+  (window25/radius2/BA4+2/motion2.4)를 복구한 K는 KF221→243·loop181.717초였지만
+  fixed/shared **19.6051/19.6103dB**, H보다 -0.5291/-0.5057이고 KF ATE도
+  0.06548m로 악화했다. 따라서 다음은 scheduler/idle replay를 끈 upstream map-path
+  parity control이며 dense 추가와 panel 확장은 계속 보류한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-J RPNG full-frontier service — 기각):**
+  custom 품질 개발에서는 exact 1.5x hard cutoff를 강제하지 않고 입력 pacing+동시처리+
+  EOF submitted-work drain으로 보되, 시간을 별도 보고하기로 했다. H에서 packet당
+  constant multi-view frontier10을 전부 수행해 packet213/213·drop0·tail update0,
+  online loop **203.751초**, frontier step/view update 532/8,398→2,078/34,686을
+  확보했지만 fixed는 **19.2361dB**로 H보다 -0.9639, vanilla보다 -4.9338dB였다.
+  단순 map-service 부족과 fixed current-window 과반복은 기각하며 K dense pair/전체
+  panel은 실행하지 않는다. 다음은 vanilla/custom evaluator pose·trajectory와 실제
+  global-view sampling 경로의 공통성 감사다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-I RPNG no-drop+dense global3 — 기각):**
+  H에서 native dense slot만 0→3/6으로 바꿨다. Packet은 전부 보존됐고 dense frontier
+  view update 1,389회가 실제 발생했지만 fixed는 **20.1635dB**, H보다 -0.0365dB였다.
+  따라서 dense 무효가 packet drop 때문은 아니다. Vanilla table_01는 약 372초 mapping
+  service를 받은 반면 H/I는 약 130초이고 final-v7이 요청 7회도 상태에 따라 3회로
+  줄이므로, 다음 구조 감사는 vanilla와 map-service 계약을 맞추는 것이다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-H RPNG no-drop mapping queue — 부분 GO):**
+  D에서 queue-full 시 오래된 frontier packet을 버리던 정책만 causal producer
+  backpressure로 바꾸고, PGBA 직전에도 pending packet을 먼저 적용하도록 했다.
+  처리 176/213→**213/213**, drop 37→**0**, idle replay 1,902→2,871회이며 fixed는
+  **20.2000dB**로 D보다 +0.1504dB다. 온라인 작업 보존 방향은 맞지만 vanilla보다
+  -3.9699dB라 단독 해결은 아니다. 다음 I는 동일 no-drop에서 dense global3만 켠다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-G RPNG motion threshold 3.6→2.4 — 기각):**
+  F에서 한 값만 upstream 2.4로 복구해 active candidates 507→662, frontier optimizer
+  520→644로 늘었지만 idle KF replay는 2,394→874로 줄고 online loop는 약 129→150초로
+  느려졌다. Fixed는 **19.9612dB**, F보다 +0.0634dB뿐이라 KF 수 부족도 4dB 격차의
+  원인이 아니다. 다음은 올바른 KF RGBD+normal을 쓰는 D에서 queue-full frontier packet
+  drop을 no-drop backpressure로 바꾸는 구조 단일축이다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-F RPNG vanilla uniform 64/32 birth — 기각):**
+  E에서 point birth만 PPM online-rank 256/64에서 upstream uniform-random 64/32로
+  복구했다. RPNG table_01 fixed는 **19.8979dB**로 E보다 -0.0331dB였다. Map loss,
+  initial iterations, birth policy가 모두 20dB 부근이므로 공통 격차는 frontend가 만든
+  pose/KF stream 쪽이 더 유력하다(custom 221 KF, vanilla 250 KF). 다음은 motion-filter
+  threshold 3.6→2.4 단일축이다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-E RPNG initial map 600→1050 — 기각):**
+  D에서 `init_itr_num`만 upstream vanilla의 1050으로 복구했다. 첫 map 생성 중 수행되는
+  online service이며 terminal post-processing은 없다. RPNG table_01 fixed는
+  **19.9309dB**로 D보다 -0.1187dB였고 SSIM/LPIPS도 0.5747/0.3888로 악화했다.
+  따라서 단순 초기 optimizer 횟수 부족은 원인이 아니며 다음은 point birth policy를
+  vanilla uniform 64/32로 복구한다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85-D RPNG KF RGBD+normal 단일축 — 기각):**
+  exp85-A의 final-v7/online-rank/KF-only/paced-drain과 tracking·초기화를 고정하고
+  keyframe loss만 vanilla와 같은 RGBD `alpha=.95`+normal `.5`로 복구했다. Dense view는
+  depth/normal이 없어서 RGB-only다. RPNG table_01 fixed는 **20.0496dB**로 RGB-only A
+  20.2364보다 **-0.1868dB**, vanilla 24.1699보다 -4.1203dB였다. 따라서 KF objective
+  누락은 설계상 수정했으나 RPNG 격차의 단독 원인은 아니며 다음 단일 축은 initial map
+  service 600→1050 복구다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (exp85 paced-online dense 대표 panel — B gate 실패):**
+  custom 품질 튜닝은 사용자의 결정대로 exact map cutoff 대신 1.5× timestamp 입력 pacing,
+  tracking/mapping 병렬 실행, EOF 뒤 이미 제출된 frontier packet만 drain하는 계약으로
+  측정했다. 이는 strict zero-tail로 부르지 않으며 terminal replay/polish/BA/prune는 없다.
+  Fixed held-out dense B는 UTMM ego-drive **22.2251dB(+1.9636 vs vanilla)**,
+  fast-straight **15.8650(-1.5609)**, RPNG table_01 **20.1401(-4.0298)**로 1승2패다.
+  RPNG 동일-code KF A도 20.2364라 B−A는 -0.0963이고 공통 recipe가 vanilla보다 먼저
+  약하다. B는 3/4 gate가 불가능해 table_04/전체16을 중단했으며 C 비율 sweep도 보류한다.
+  짧은 pre-IMU stream에서 dense가 0이던 구조는 provisional endpoint interpolation을
+  허용하고 실제 IMU map-gauge reset 시 dense pool/pending/seen interval을 폐기·재등록하도록
+  수정했다(유효 fast run dense update 84회, RPNG 1,059회). 그러나 품질 병목은 해소되지
+  않아 다음 단일 축은 vanilla 대비 공통 initialization/loss/density 계약 복구다.
+  → [benchmark custom](experiments/benchmark_custom/README.md)
+
+- **2026-09-14 (vanilla benchmark 3종 완료):**
+  original `origin/main@22ffe24c`의 `synchronous_unbounded` 18/18, RTX5070Ti 1.5×
+  paced-streaming UTMM/RPNG 16/16, 논문 before/after-color reference를 분리 저장하고
+  상위 통합 PSNR 표를 만들었다. 공통 16-scene 평균은 streaming **20.7729**,
+  matched sync **20.8416**, paper-before **21.5400dB**다. Streaming map drain은 평균
+  1.321초, 최대 5.456초였고 tracking hard-deadline pass는 0/16이므로 strict 성과가
+  아니라 1.5× paced-input baseline이다.
+  → [vanilla 통합표](experiments/benchmark_vanila/summary.md)
+
+- **2026-09-13 (exp83-R RPNG original vanilla pure-online 비교 — custom 크게 미달):**
+  `table_01` 첫 1,000장에서 original `origin/main@22ffe24c`를 `--gsmapping
+  --pure_online`으로 실행해 final BA와 26k color refinement를 제외했다. Vanilla가
+  학습한 keyframe을 양쪽에서 제거한 shared held-out 185장은 current final-v7 Q
+  **18.9377** vs vanilla **23.8599dB**, 즉 **−4.9222dB**였다. Vanilla는
+  synchronous/unbounded online map으로 평가 포함 222.74초를 썼으므로 동일 1.5×
+  runtime pair는 아니다. 사용자 요청에 따라 로컬 전체 UTMM 8/RPNG 8/Aria 2의 같은
+  no-polish vanilla 기준선을 `benchmark_vanila`에서 순차 구축 중이다.
+  → [exp83 KF+dense](experiments/exp83_kf_dense_supervision/README.md),
+  [benchmark_vanila](experiments/benchmark_vanila/README.md)
+
+- **2026-09-13 (exp83-Q — final-v7 no-freeze UTMM/RPNG 전이)**:
+  P에서 freeze/forced-trigger API를 삭제한 현재 HEAD의 causal-dense final-v7을 재튜닝 없이
+  UTMM `ego-drive` full과 RPNG `table_01` 첫 1,000장에 전이했다. Fixed held-out은 각각
+  **21.2556/18.9723dB**, deadline/EOS 뒤 update와 online-final update는 모두 0이다.
+  UTMM producer EOS는 deadline +0.012초 경계였고, RPNG는 Adam 763·dense replay 182회에
+  그치며 producer가 **+1.020초 늦어 strict 1.5× 실패**다. 과거 결과는 mapping profile/
+  코드 시점이 달라 paired gain으로 쓰지 않는다. 다음은 topology를 건드리지 않고 동일
+  HEAD에서 두 dataset의 final-v7 KF-only pair를 확보한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-P — final-v7 topology-freeze 제거, 평균 27dB 유지)**:
+  exp57의 scene-tuned freeze800 reference와 exp67 final-v7을 혼동한 계보를 정정했다.
+  실제 final-v7은 고정 frame/iteration freeze 없이 topology/capacity/replay evidence로
+  전환하는 unknown-horizon controller다. 이에 `mapping_auto_topology_freeze`,
+  `mapping_topology_freeze_after_frame`, dense-count topology trigger와 모든 runner wiring을
+  삭제했다. Aria1253 final-v7 2회 fixed는 **26.9449/27.1171dB(평균 27.0310)**,
+  정상 frontier topology event 2회 뒤 `balanced→replay`, freeze log 0, online-final map
+  update 0이었다. 개별 2/2 27 통과는 아니지만 scene별 freeze knob 없이 현재 평균 수준을
+  유지했다. 이후 topology 시점/횟수 튜닝은 금지하고 final-v7 상태 모델 아래 source
+  scheduling만 비교한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-O dense RMSE objective — 기각)**:
+  Native/idle dense가 동일 L1+DSSIM 분기를 공유함을 확인하고 N의 schedule에서 dense만
+  MSE-monotone RMSE로 바꿨다. Fixed **21.4978dB**로 KF보다 +0.2004지만 N보다
+  −0.0877이며 SSIM/LPIPS도 악화했다. Adam 3,542로 N보다 238회 적어 loss 효과의 완전
+  분리는 아니지만 metric mismatch가 주병목이라는 증거는 없다. Loss sweep을 중단하고,
+  다음 P에서 dense 누적 뒤 두 번째 topology event 한 번만 허용하고 즉시 freeze한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-N native-global3 + idle KF75/dense25 — 새 최고/+1 미달)**:
+  Native KF/dense 6,518/1,218회와 pool139를 유지하고 idle을 KF2,244/dense748회로
+  정확히 75/25 배분했다. Fixed **21.5855dB**로 repeat KF보다 **+0.2880**,
+  random-global3보다 +0.0969dB인 native 계열 최고이며 strict tail은 0/0이다. Source 비율
+  sweep은 중단하고, dense100에서 SSIM/LPIPS만 크게 좋아진 metric 분화를 근거로 dense
+  RGB loss와 PSNR=MSE 목적의 정렬을 다음 단일 축으로 감사한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-M native-global3 + idle dense100 — PSNR 기각)**:
+  Native KF/dense 6,420/1,197회는 유지하고 idle replay 3,192회를 모두 dense RGB로
+  바꿨지만 fixed **21.2360dB**로 repeat KF보다 −0.0614, random-global3보다
+  −0.2525였다. Fixed SSIM 0.70093→0.71682·LPIPS 0.33419→0.31502는 개선돼 dense
+  신호는 유효하지만 KF replay 전면 치환은 MSE 색 정확도를 해친다. Dense 총량 단독축을
+  기각하고, 다음 N에서 이미 근거가 있는 idle KF75/dense25만 global3와 결합한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-L hybrid sampler — service 회복 후 기각)**:
+  Batched EMA로 고친 L은 idle KF2,807·Adam3,588·native dense1,197·tail0/0을
+  회복했지만 fixed **21.3731dB**로 repeat KF +0.0757, K −0.0751, random repeat
+  −0.1154였다. Late service는 늘었지만 held-out 품질은 악화해 score/slot sweep을
+  중단한다. 다음 M은 random global3/KF native geometry를 유지하고 idle replay만 compact
+  dense RGB로 바꿔 dense update 총량을 검증한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-L pilot — per-iteration sync invalid)**:
+  Residual1+least-served1+random1은 native dense update 1,197회를 유지했지만 loss EMA의
+  per-iteration GPU→CPU sync가 idle KF replay 2,701→1, Adam 3,482→782로 줄여 fixed
+  20.0983dB였다. Sampler 판정에서 제외한다. K의 map-call batched progress transfer에
+  EMA를 병합해 추가 sync 0회로 고친 뒤 같은 L을 재실행한다(tail 0/0).
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-K native global3 progress — residual proxy 선택)**:
+  Random global3 관측-only K는 native dense update 1,197회와 tail 0/0을 유지했고 fixed
+  **21.4482dB**(repeat KF +0.1508)였다. Dense 129장/912 progress pair의 sequential
+  예측에서 previous progress→next absolute gain Spearman 0.080, previous loss→next gain
+  **0.315**였다. Dense_rr Fisher는 전부 0이다. Progress-only/Fisher 결합은 하지 않고
+  다음 L에서 robust residual1+least-served1+random1 고정 3슬롯을 검증한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-J pure gate-removal — final-v7 admission family 중단)**:
+  Interval bootstrap을 유지하고 paid maturity gate만 token \(\kappa=22\)로 바꿨다.
+  Bootstrap140+paid127=267장, replay3,192·Adam3,708로 I starvation은 해결했지만 fixed
+  **20.9872dB**(A −0.2595, B −0.4994), last/first service 0.271이었다(tail 0/0).
+  Final-v7 adaptive admission과 \(\kappa\) sweep은 중단한다. 다음 exp83-K는 native
+  dense-global3의 고정 1,197 view-update/+0.2115,+0.1911dB 재현 기반에서 selected
+  dense loss/progress만 관측한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-I token-only 전이 — coverage starvation, 기각)**:
+  Exp81의 강제-off wiring을 default-off explicit-opt-in으로 고친 뒤 실제 gate-free
+  \(\kappa=22\)를 UTMM에 전이했다. Global seed만 무료인 exp73 정책은 bootstrap1+
+  paid50=pool51, first/last selection 63.92/4.75, fixed **20.0185dB**(A보다 −1.2283)로
+  붕괴했다. Tail 0/0이다. 잘못 꺼진 pilot은 pool421/fixed21.2030인 work-credit 반복으로만
+  보존한다. \(\kappa\) sweep을 멈추고 exp83-J에서 interval bootstrap을 보존한 채 paid
+  maturity gate만 completed-work token으로 교체한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-H progress 관측 — sampler 전 admission 안정화 필요)**:
+  Final-v7 B의 pose/loss/random selection을 유지한 관측-only 반복 H가 fixed
+  **21.0909dB**로 B보다 −0.3958dB였고, pool 310→543·Adam 3,508→2,715로
+  갈렸다. Same packet count·strict tail 0/0에서도 maturity work-credit가 작은 timing
+  차이를 pool 성장으로 증폭했다. 1,112 paired 행에서 progress↔loss Spearman −0.197,
+  progress↔Fisher −0.095로 신호는 구별되지만 post-PGBA 관측은 대부분 1회뿐이다.
+  Sampler는 보류하고 다음 exp83-I에서 gate-free token-only \(\kappa=22\)로 admission
+  clock부터 안정화한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-G IMU pose source — adaptive residual 버그 수정, 최종 기각)**:
+  Final-v7 adaptive dense record에서 IMU correction residual이 빠져 첫 PGBA 뒤 dense
+  289장 중 0장에 bridge가 남는 버그를 발견했다(pilot fixed 19.6242dB). 일반 경로와
+  동일한 right-multiplied residual 보존을 구현하자 316장 중 312장에 재적용됐고 fixed가
+  **21.1924dB(+1.5682)**로 회복됐다. 그러나 KF-only A보다 −0.0544, optical
+  trajectory-filler B보다 −0.2942dB이고 total Adam도 B 3,508→G 2,887로 줄었다.
+  두 G 모두 deadline/EOS tail 0/0이다. Residual 지속성 수정은 유지하지만 IMU source
+  교체는 기각하고, 다음은 B에서 이미 관측되는 view별 loss/progress 분포를 분석한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83-E/F dense frontier timing — native/pre-frontier 기각)**:
+  Final-v7 dense-only replay B fixed 21.4867dB를 기준으로, native historical-global 세
+  자리를 dense RGB로 교체한 E는 **21.3293dB(−0.1574)**, 같은 interval을 frontier
+  `map()` 전에 등록한 F는 **21.1035dB(E 대비 −0.2258)**였다. E/F의 native dense
+  view-update는 동일 420회이고 둘 다 deadline/EOS tail 0/0이다. F는 pre-frontier
+  59 packet/536 record를 실제 등록했지만 pool 317→552, total Adam 3,466→3,068로
+  admission feedback과 service가 악화했다. 따라서 dense를 native frontier/topology에
+  더 일찍 노출하는 방향은 기각하고, replay-only B를 유지한 채 다음 exp83-G에서 optical
+  trajectory filler만 causal IMU rotation bridge로 교체한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 final-v7 공통-policy 경계 감사 — scheduler 공통/실행 숫자 분리)**:
+  제거된 `background_polish_step()` 없이 current HEAD의 exp67 Aria1253 policy를
+  회귀 실행해 fixed **27.0560dB**로 27dB를 통과했다. 따라서 backpolish 함수 삭제가
+  Aria 고품질 경로를 없애지는 않았다. 다만 과거 exp67 평균 27.8123보다 0.7563dB
+  낮고 active candidate/replay도 308/4,545로 과거 450–553/5,974–6,505보다 작아,
+  현재 admission/worker 변화의 회귀 분리가 남는다. UTMM의 5070 execution profile 위
+  final-v7 pair는 KF-only **21.2468**→dense **21.4867dB(+0.2399)**로 작은 양수지만
+  +1 목표는 미달했다. 반대로 exp67 frontend 실행 숫자까지 UTMM에 그대로 복사한 arm은
+  fixed 17.6878dB, producer EOS가 1.5× deadline보다 5.9389초 늦고 dense replay가
+  329회뿐이라 실패했다. 따라서 하나로 고정할 것은 scheduler/loss 수학이고, calibration과
+  해상도별 engine 및 measured-cost execution budget은 adapter로 분리한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 2× budget 진단 — map-iter 부족 단독가설 기각)**:
+  KF-only와 random global3의 scheduler/loss/topology를 고정하고 replay scale만
+  1.5→2.0으로 늘렸다. Causal sensor-EOS zero-tail은 유지하되 공식 strict 1.5×와
+  구분했다. Fixed는 **21.6809/21.8221dB**, dense gap은 **+0.1412dB**로 1.5×
+  반복 평균 +0.2013보다 0.0601dB 작았다. Total Adam은 7,085/7,991회이고 dense arm이
+  idle KF Adam도 906회 더 받았으므로 +1 미달을 단순 update 부족으로 설명할 수 없다.
+  Common estimated trajectory 교차 렌더에서도 dense map 우위는 +0.0179/+0.2772dB로
+  부호가 유지됐지만, 크기는 map/trajectory coupling에 민감했다. 다음 축은 숫자 budget
+  추가가 아니라 기존 dense render에서 view별 learning progress를 관측하는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 native global3 반복 — 작은 dense 효과 재현/+1 미달)**:
+  KF-only와 최고 random global3를 그대로 반복하자 fixed pair가
+  21.3314→21.5429, 21.2974→21.4886dB로 **+0.2115/+0.1911dB**(평균
+  **+0.2013dB**, range 0.0204)였다. Repeat1은 dense total Adam이 control보다 단 30회
+  많아도 +0.1911이어서 작은 양수 효과는 2/2 재현됐다. 그러나 목표 +1까지 평균
+  0.7987dB가 남는다. Slot/균등화/mixture/topology/상수-weight sweep은 중단하고,
+  다음은 기존 dense render loss에서 view별 loss EMA·learning progress를 관측 전용으로
+  계측한 뒤 선택 신호의 타당성을 먼저 확인한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 native global3 dense RGB weight2 — 기각)**:
+  Random global3의 membership/pose/topology/KF RGBD+normal과 native KF/dense
+  view-update 6,420/1,197회를 고정하고 dense RGB 항만 1→2배로 높였다. Fixed는
+  **21.5252dB**로 KF-only보다 +0.1938이나 weight1 21.5429보다 **−0.0177dB**다.
+  Frame0–599는 weight1보다 좋아졌지만 이후 네 bin은 모두 악화했다. Dense supervision의
+  작은 양수 효과는 재확인됐으나 상수 weight로 +1까지 키울 수 없으므로 weight sweep은
+  중단한다. 다음은 최고 random global3/control 반복 run으로 효과와 비동기 update-count
+  변동의 재현성을 먼저 측정한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 native global3 mix1 — 기각)**:
+  3 dense-global 슬롯 중 1개만 최소방문 catch-up, 2개는 random으로 두었다. First/last
+  quarter service는 13.82/4.09회이고 frame1200+ bin은 control보다 +0.598dB였지만,
+  fixed는 **21.5099dB**로 KF-only 대비 +0.1785, random global3보다 −0.0330dB다.
+  Selection 복잡화는 멈추고 random global3를 유지한다. 다음 단일 축은 KF RGBD+normal을
+  줄이지 않은 채 dense RGB loss weight만 1→2로 높이는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 native global3 all-balanced — late 개선/전체 기각)**:
+  Dense 137개를 최소방문 우선으로 7–9회씩 균등 서비스했고 first/last quarter 평균도
+  8.82/8.53회가 됐다. 그러나 fixed는 **21.3506dB**, random global3보다
+  **−0.1923dB**다. Frame1200+ bin은 control보다 +0.873dB로 random의 +0.428보다
+  좋아졌지만 frame0–599는 −0.370/−0.132/−0.462dB로 악화했다. 무조건 late catch-up은
+  안정된 early/mid dense retention을 잃는다. 다음 단일 축은 3 dense 슬롯 중 1개만
+  balanced catch-up, 2개는 random으로 유지하는 causal mixture다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 native global3 open topology — 기각)**:
+  Auto-freeze global3의 membership/loss/pose는 고정하고 topology만 열어 native event를
+  1→3회로 늘렸다. Fixed는 **21.1846dB**로 같은 open KF-only 21.0161보다
+  +0.1685dB지만 auto-freeze global3 21.5429보다 **−0.3583dB**다. Adam 3,664회,
+  tail 0/0이다. Dense screen-space evidence를 topology에 소비하는 것만으로 gain이 커지지
+  않고 열린 topology 자체가 해롭다. 다음 단일 축은 auto-freeze global3를 복원하고,
+  누적 arrived pool의 early-view 노출 편향을 없애는 최소 선택횟수 우선 dense scheduler다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 unified native-map global3 — 부분 GO·수확체감)**:
+  Current-window KF와 총 6 global 슬롯, KF-only idle replay를 유지하고 native global split만
+  KF5+dense1→KF3+dense3으로 바꿨다. Native dense update는 **406→1,197회**로 2.95배,
+  fixed는 21.4864→**21.5429dB**로 +0.0565dB만 올라 KF-only 대비 +0.2115dB다.
+  Adam 3,643회, deadline/EOS tail 0/0이다. 두 unified arm 모두 dense 등록 뒤 topology
+  event가 없어서 누적 dense screen-space gradient가 생성/분할에 소비되지 않았다. Slot 수
+  증가는 수확체감하므로 멈추고, 다음 단일 축은 global3 membership/loss/pose를 고정한 채
+  auto-freeze를 열어 기존 open-topology KF-only와 비교하는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 unified native-map global1 — 부분 GO, +0.1551dB)**:
+  Dense를 별도 idle replay로 학습하지 않고 native `map()`의 6 historical-global 슬롯 중
+  1개를 causal IMU-midpoint dense RGB로 교체했다. Current-window KF RGBD+normal과 총
+  frontier view cardinality/topology/Adam clock은 유지했다. 새 계측상 native KF/dense는
+  **7,316/406 view-update**, idle replay KF/dense는 **2,787/0**이며 deadline/EOS 뒤
+  update 0/0이다. Fixed 281-view는 **21.4864dB**, KF-only 21.3314보다
+  **+0.1551dB**로 단일 scheduler 통합 방향은 양수지만 +1에는 0.8449dB가 남는다.
+  현재 dense 비율이 전체 view supervision의 약 3.9%뿐이므로 다음 단일 축은 current-window
+  KF와 총 view 수를 유지한 채 dense global slot만 1→3으로 늘리는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 full-GT pair·early topology — pose/idle-trigger 단독축 기각)**:
+  VIGS의 mapping/eval camera를 모두 UTMM GT absolute pose로 바꾼 non-strict pair는
+  KF-only **18.9002dB**, KF75+dense25 **19.0608dB**, 즉 dense gain **+0.1607dB**였다.
+  절대값 저하는 online depth/scale과 GT-pose gauge를 섞은 진단 한계지만, 동일 조건 pair도
+  +1은 아니어서 interpolation 단독 병목 가설은 기각한다. Strict에서는 auto-freeze를
+  dense evidence까지 유예하고 trigger를 64/16 backward로 바꿨지만 fixed는 각각
+  **21.2703/21.2525dB**, KF control보다 −0.0610/−0.0788이었다. trigger16도 dense-owned
+  topology event가 frame654로 frontier의 두 번째 event frame633 뒤였다. 코드상 replay가
+  GS queue idle slot에서만 실행되는 구조가 직접 원인이므로 threshold sweep은 중단한다.
+  다음 단일 축은 causal dense를 별도 idle replay가 아니라 native `map()` view scheduler에
+  합쳐 KF RGBD+normal과 dense RGB가 동일 frontier/topology clock에서 경쟁하게 하는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 28-view compact repeated service — 단독 축 기각)**:
+  Persistent IMU/KF75/B1 strict arm에서 dense pool만 `frame mod 40 = 2`인 28장으로
+  줄였다. 69.9454초 동안 dense update 729회, 약 **26.0회/view**로 기존 139장×약
+  5.5회보다 재방문을 4.7배 집중했고 total Adam 3,704회, deadline/EOS 뒤 update
+  0/0을 통과했다. 하지만 fixed 281-view는 **21.4322dB**로 KF-only 대비
+  +0.1008dB, 기존 139-view best 21.5042보다 **−0.0720dB**다. 따라서 반복 service
+  하나도 +1의 핵심은 아니다. exp84에서는 dense가 초기 densification에 참여했다는 남은
+  구조 차이를 따라, 다음은 causal compact dense의 pre-freeze topology evidence 참여를
+  paired하게 검증하고 pose/quota/pool-size sweep은 중단한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 GT-relative dense-pose oracle — +1 경로 기각)**:
+  KF75/B1/native KF RGBD+normal+dense RGB/topology/69.9454초를 고정하고, 이미 도착한
+  두 KF endpoint 사이의 dense pose만 GT 상대운동으로 치환했다. 최초 pilot 21.0783dB는
+  UTMM robot orientation을 RGB camera orientation으로 오독한 `UTMM_C2R` 누락 run이라
+  invalid로 보존했다. exp84와 동일한 camera-axis 변환을 적용한 corrected oracle은
+  138/139 pose 적용, PGBA 뒤 residual 118개 유지, Adam 3,818회 및 KF/dense replay
+  2,277/760회였지만 fixed 281-view는 **21.3001dB**, KF-only 21.3314보다
+  **−0.0313dB**였다. 따라서 intra-interval pose만 정확히 하는 것으로 +1은 나오지 않는다.
+  다음 strict 단일 축은 dense 후보를 약 30~40장으로 줄여 quota25% 서비스를 후보당
+  20회 이상 집중하는 compact repeated-service이며, oracle 자체는 strict 성과가 아니다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 same-backward dense pose Adam — 기각)**:
+  persistent IMU midpoint arm의 dense RGB backward에서 camera gradient를 추가 계산 없이
+  재사용하고, view당 최대 4회/LR×10/1mm·0.057° trust bound로 Gaussian Adam과 하나의
+  sensor-EOS action 안에서 502회 보정했다. PGBA 뒤 residual 119/119, deadline/EOS 뒤
+  update 0/0은 통과했지만 fixed 281-view는 **21.3792dB**로 KF-only 대비 +0.0479dB,
+  pose-align 없는 최선 21.5042보다 **−0.1250dB**였다. 작은 camera Adam/SE(3) 비용으로
+  total Adam도 3,781→3,415(−9.7%) 감소해 pose 방향과 service 손실이 confound됐다.
+  camera-step sweep은 중단하고 다음은 VIGS 전체를 고정한 dense-pose GT 상대운동 oracle로
+  pose ceiling과 scheduler/topology ceiling을 분리한다. oracle은 strict 성과가 아니다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 IMU bridge PGBA 지속성 버그 수정 — strict +0.1728dB)**:
+  코드 감사에서 IMU bridge가 처음 등록될 때만 적용되고 첫 PGBA가 기존 dense 119장의
+  pose를 단순 interpolation으로 덮어쓰는 것을 발견했다. 보정 pose를 interpolation 대비
+  right-multiplied residual로 저장·재적용하자 118/119개가 PGBA 뒤 유지됐다. 동일
+  KF75/B1/139-view arm의 fixed 281-view가 21.2604→**21.5042dB**(+0.2438),
+  KF-only 21.3314 대비 **+0.1728dB**로 처음 명확한 양수가 됐다. 69.945초,
+  deadline/EOS 뒤 update 0/0이며 KF/dense replay 2,250/750회다. 아직 +1에는
+  0.8272dB가 남는다. 다음은 이미 계산한 dense RGB backward에서 bounded camera
+  translation update를 함께 꺼내 pose를 보정하는 단일 축이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 compact B2 joint update — 기각)**:
+  동일 139-view causal pool/IMU midpoint에서 각 replay Adam에 KF RGBD+normal 1장과
+  dense RGB 1장을 같이 넣었다. 1,503/1,503 view update를 처리했지만 total Adam은
+  2,284회이고 fixed 281-view는 **21.0245dB**, KF-only보다 **−0.3069dB**였다.
+  단순 joint 평균은 KF geometry를 보존하지 못하므로 quota/batch 크기 sweep은 멈춘다.
+  다음은 VIGS의 나머지는 고정하고 dense pose만 GT로 치환하는 oracle 한 축으로,
+  online pose 오차와 KF–dense gradient conflict를 분리한다. oracle은 strict 성과가 아니다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 compact dense service·optical pose — +1 미달, fixed 지표 정정)**:
+  exp84를 따라 post-IMU causal midpoint pool을 139장으로 고정하고 dense quota를
+  10%→25%로 높였다. dense replay는 266→731회, 평균 서비스는 약 1.9→5.3회/view로
+  늘었지만 판정용 fixed 281-view PSNR은 **21.2604dB**, KF-only 21.3314보다
+  **−0.0710dB**였다. 앞서 로그의 전체 non-KF 평균 21.4079를 fixed로 읽은 해석은
+  폐기한다. optical filler pair는 queue 비용 0.553→11.304초와 replay
+  2,922→1,312 감소 때문에 fixed 20.9848dB였으므로 pose 품질이 아니라 synchronous
+  구현의 실시간 비용을 드러낸다. 다음 한 축은 동일 pool/IMU pose에서 매 Adam에
+  KF+dense를 함께 처리하는 B2 joint update다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp84 GT-pose RGB density curve — dense 잠재력 GO, all-frame optimum은 NO)**:
+  UTMM `ego-drive` 앞 1,000 RGB를 GT pose/동일 360,612-point init/RGB L1+DSSIM/8k
+  update로 고정하고, held-out 125장을 완전 제외한 nested stride16/8/4/2/1 pool
+  (63/125/250/500/875장)을 비교했다. 8k float held-out은
+  **21.599/23.475/23.529/23.507/23.267dB**로 stride4가 최고이고 stride16보다
+  **+1.930dB**였다. 최종 PNG paired bootstrap CI도 +1.524~+2.325dB다. 따라서
+  정확한 pose에서 dense RGB 이득은 실재하지만, all-frame은 재방문을 희석해 유한 예산
+  최적이 아니다. exp83의 139 dense 후보/266 replay(~1.9회/view)는 흡수 서비스가
+  부족했을 가능성이 크므로 다음 strict 단일 축은 causal stride8 compact admission과
+  반복 service다. 이 결과는 offline 원인 진단이며 strict 성과로 세지 않는다.
+  → [exp84 GT-pose density](experiments/exp84_gt_pose_density/README.md)
+
+- **2026-09-13 (exp83 KF 서비스 보존·dense topology·shared-pose 진단 — 모두 +1 미달)**:
+  B1/KF90/post-IMU midpoint arm은 replay KF **2,390회**로 KF-only 2,375회를 보존하고
+  dense 266회를 추가했지만 fixed **21.2640 vs 21.3314dB(−0.0673)**였다. 따라서
+  “dense가 KF optimizer 서비스를 빼앗아서 실패” 설명은 기각한다. Auto-freeze를 양쪽
+  끈 paired control은 21.0161dB, dense RGB는 20.9397(−0.0764), dense backward의
+  screen-space gradient 263개를 native densification 통계까지 연결한 arm은
+  20.9245(−0.0916)라 단순 topology 확장도 기각했다. Full-trajectory Sim3 ATE는
+  4.070/4.300cm이고, 서로의 trajectory를 map gauge에 정렬한 교차 렌더에서도 control이
+  +0.0298dB라 숨은 dense-map gain은 없었다. 모든 run은 strict deadline/EOS update
+  0/0. 다음은 추가 loss 계산 없이 첫 dense backward의 residual/progress를 다음 선택에
+  재사용하는 causal scheduler를 감사한다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (exp83 KF+dense B1 공정화 및 IMU rotation bridge — 부분 GO, +1 미달)**:
+  기존 B4는 4-view 평균당 Adam 1회라 KF-only B1과 optimizer granularity가 달랐음을
+  정정하고, 양쪽 B1로 고정했다. `ego-drive` fixed held-out은 KF-only **21.3314dB**,
+  KF75+dense25 endpoint interpolation **20.8272dB(−0.5042)**였다. GT를 학습에 쓰지
+  않은 진단에서 975 dense pose의 회전오차가 endpoint interpolation 2.3856°에서
+  endpoint-corrected gyro bridge 0.0658°로 줄었고, 이를 causal 구현하자 strict fixed가
+  **21.1153dB**, interpolation 대비 **+0.2882dB** 회복했다. 1,252 bridge/109 pre-init
+  fallback/invalid 0, deadline·EOS 뒤 update 0/0이다. IMU 회전은 유효하지만 control 대비
+  −0.2160dB라 +1 acceptance는 미달이며, 다음 단일 축은 같은 B1/KF75/IMU에서 dense
+  appearance+opacity-only gradient로 geometry contamination을 분리하는 것이다.
+  → [exp83 KF+dense supervision](experiments/exp83_kf_dense_supervision/README.md)
+
+- **2026-09-13 (채택 recipe의 Aria 1253/305호 vanilla 전이 2/2 GO)**:
+  `custom/main@8c094371`의 동일 strict 1.5x/KF100/RGB-only recipe를 별도 튜닝 없이
+  aria1253와 aria301_305에 실행했다. `origin/main@22ffe24c` vanilla가 학습한 keyframe을
+  양쪽 fixed set에서 함께 제외한 shared held-out은 각각 **23.8940 vs 22.1306dB
+  (+1.7634)**, **26.0648 vs 23.3254dB(+2.7395)**로 2/2 모두 +1dB를 통과했다.
+  두 custom run은 RGB+IMU only/MPS0/fixed 1.5x(97.650/201.525초)/deadline·EOS 뒤
+  update 0/0이다. 단 KF100 설정이라 RR dense draw는 0회였고, 1253 fixed 23.8979dB는
+  과거 scene-specific freeze800의 27.84dB를 유지한 결과가 아니라 **vanilla 대비 전이
+  acceptance만 통과**한 것이다.
+  → [exp82 Aria vanilla 전이](experiments/exp82_aria_vanilla_transfer/README.md)
 
 - **2026-09-13 (VIGS 채택 recipe 6-scene 전이 closure 4/6 GO)**:
   `custom/main@8c094371`의 동일 recipe로 gate-on이던 `ego-centric-1`/`square-1`을
