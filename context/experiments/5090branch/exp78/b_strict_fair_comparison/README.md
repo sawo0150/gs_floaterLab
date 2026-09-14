@@ -1340,3 +1340,45 @@ Evidence:
   `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage3d_global_residue_result.md`
 - result commit:
   `b2acecd1`
+
+## 2026-09-15 — Stage 4 C1+C2 integration: -0.003491 dB, HOLD
+
+Stage2b의 accepted C1(global seed1, completed dense service 22회당 paid
+admission 1장)과 Stage3d의 repaired global-residue C2를 별도 Stage4 계약으로
+처음 결합했다. Contract `e908b528` → lab harness `6b3c7c3` → verifier
+`8b56bcd4` → pending-field semantic audit fix `321fa0bb` 순으로 분리 저장했다.
+관련 scheduler/verifier 94/94와 C1 controller 5/5가 통과했다.
+
+실행 pair는 1,728 causal arrival에서 동일한 13장(bootstrap1+paid12)을
+등록했고 derived C1 pending은 1,715장이다. Token mint/spend/remain/discard는
+양쪽 모두 269/264/3/2, accounting error와 no-prepurchase violation은 0이다.
+283 event/279 packet/269 dense opportunity/Adam2,761/render38,033/210 tracking
+origin/actual lifecycle·controller trace/zero-tail이 모두 exact하며 전용
+verifier **17/17 PASS**다.
+
+| Arm | PSNR | SSIM | LPIPS | GS |
+|---|---:|---:|---:|---:|
+| Stage1 + C1 + RR | 25.621600 | .847244 | .154738 | 417,262 |
+| Stage1 + C1 + global-residue C2 | 25.618109 | .847057 | .153905 | 417,336 |
+| C2 - RR | **-.003491** | **-.000187** | **-.000833** | +74 |
+
+Primary PSNR gate는 음수여서 C2를 Full에 통합하지 않는다. Final generation은
+양 arm 모두 동일한 13개 view에 267 service를 사용해 66개의 완전한
+without-replacement epoch를 끝내고 residue 2장을 남겼다. 즉 C1이 pool을 매우
+작게 제한한 뒤에는 RR과 C2가 누적 coverage를 똑같이 만들고 C2는 epoch 내부
+순서만 바꾼다. 이는 Stage3d full-pool의 작은 양수 효과가 C1 결합에서 사라진
+구조적 이유이며, K/rho/gamma나 gate를 사후 조정할 근거가 아니다. 마지막
+integrated accepted recipe는 계속 Stage2b(render-matched **+1.082609dB**)다.
+
+Evidence:
+
+- C1+RR:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage4_c1_c2_global_residue_rr_s0/`
+- C1+global-residue C2:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage4_c1_c2_global_residue_ercb_s0/`
+- verifier:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage4_c1_c2_global_residue_verification.json`
+- paper result:
+  `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage4_c1_c2_global_residue_integration_result.md`
+- result commit:
+  `38042c2f`
