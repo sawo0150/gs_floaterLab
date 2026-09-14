@@ -1,0 +1,49 @@
+{
+  "experiment": "exp86-D",
+  "date": "2026-09-15",
+  "protocol": {
+    "device": "RTX 5070 Ti",
+    "seed": 0,
+    "mapping_loop": "single unified KF+dense",
+    "admission": "cycle work-credit r4",
+    "birth_downsample_multiplier": 1.0,
+    "baseline_online_opacity_threshold": 0.7,
+    "prune_half_online_opacity_threshold": 0.35,
+    "initialization_opacity_threshold": 0.005,
+    "size_pruning_changed": false,
+    "densification_changed": false,
+    "zero_tail_passed": true
+  },
+  "pairs": [
+    {
+      "scene": "fast-straight",
+      "selector": "rr",
+      "baseline": {"raw_capacity": 35912, "final_gaussians": 30112, "adam_steps": 612, "keyframe_updates": 426, "dense_updates": 186, "fixed_psnr": 17.662240617415485, "fixed_ssim": 0.6693448590881684, "fixed_lpips": 0.47400858603856144},
+      "prune_half": {"raw_capacity": 35915, "final_gaussians": 44579, "adam_steps": 375, "keyframe_updates": 287, "dense_updates": 88, "fixed_psnr": 17.886890719918643, "fixed_ssim": 0.6799469800556407, "fixed_lpips": 0.4472341156181167},
+      "fixed_psnr_delta": 0.224650102503158
+    },
+    {
+      "scene": "fast-straight",
+      "selector": "ercb_view_count_b002_k128",
+      "baseline": {"raw_capacity": 35910, "final_gaussians": 29671, "adam_steps": 621, "keyframe_updates": 450, "dense_updates": 171, "fixed_psnr": 17.876379321603213, "fixed_ssim": 0.6741971785531324, "fixed_lpips": 0.46488057076931},
+      "prune_half": {"raw_capacity": 35913, "final_gaussians": 44945, "adam_steps": 371, "keyframe_updates": 296, "dense_updates": 75, "fixed_psnr": 17.891958769629984, "fixed_ssim": 0.6780514436609605, "fixed_lpips": 0.4498751763911808},
+      "fixed_psnr_delta": 0.01557944802677
+    },
+    {
+      "scene": "ego-centric-1",
+      "selector": "rr",
+      "baseline": {"raw_capacity": 142180, "final_gaussians": 114923, "adam_steps": 4058, "keyframe_updates": 2849, "dense_updates": 1209, "fixed_psnr": 19.706928048815048, "fixed_ssim": 0.6810359851299942, "fixed_lpips": 0.37960589938349537},
+      "prune_half": {"raw_capacity": 142181, "final_gaussians": 142548, "adam_steps": 2444, "keyframe_updates": 2002, "dense_updates": 442, "fixed_psnr": 19.23414346459624, "fixed_ssim": 0.6661660646076326, "fixed_lpips": 0.38839456313229226},
+      "fixed_psnr_delta": -0.472784584218807
+    },
+    {
+      "scene": "ego-centric-1",
+      "selector": "ercb_view_count_b002_k128",
+      "baseline": {"raw_capacity": 142199, "final_gaussians": 117377, "adam_steps": 3894, "keyframe_updates": 2890, "dense_updates": 1004, "fixed_psnr": 19.485313105892825, "fixed_ssim": 0.673475939441811, "fixed_lpips": 0.38605243504627956},
+      "prune_half": {"raw_capacity": 142196, "final_gaussians": 143934, "adam_steps": 2393, "keyframe_updates": 2019, "dense_updates": 374, "fixed_psnr": 19.348535339553635, "fixed_ssim": 0.6637209762226451, "fixed_lpips": 0.39070279983344014},
+      "fixed_psnr_delta": -0.13677776633919
+    }
+  ],
+  "mean_fixed_psnr_delta": -0.092333200007017,
+  "verdict": "fixed 0.5 opacity-prune multiplier is not a consistent held-out PSNR win; keep default 1.0"
+}

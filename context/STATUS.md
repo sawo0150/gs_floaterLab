@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (exp86-D native opacity pruning 0.5× control — 미채택):** birth
+  1×와 matched wall-time/r4 unified loop를 유지하고 online native opacity prune
+  threshold만 `0.7->0.35`로 낮췄다(init `0.005`, size prune, densify는 불변).
+  Final GS는 기본값보다 `1.23--1.51×` 많아졌지만 per-step 비용으로 Adam service가
+  `38.5--40.3%` 감소했다. Fixed held-out PSNR 변화는 fast RR/ERCB
+  **+0.2247/+0.0156dB**, ego RR/ERCB **-0.4728/-0.1368dB**, 평균
+  **-0.0923dB**였다. 4개 run 모두 zero-tail을 통과했으나 장면 전이가 실패해 고정
+  pruning 완화는 채택하지 않는다. Capacity를 계속 본다면 장면별 cutoff가 아니라
+  observation/service-debt와 measured step cost 기반 적응형 제어만 검토한다.
+  → [exp86-D](experiments/exp86-D_prune_opacity_half.md)
+
 - **2026-09-15 (exp86-C causal Gaussian birth 2× control — 미채택):** 동일
   matched wall-time/r4 unified loop에서 birth downsample만 `1.0->0.5`로 바꿔 raw
   birth를 정확히 2×로 만들었다. Final GS는 fast `1.64--1.65×`, ego-centric
