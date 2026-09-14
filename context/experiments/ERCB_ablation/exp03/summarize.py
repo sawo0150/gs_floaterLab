@@ -61,7 +61,7 @@ def main():
     pairs = []
     for scene in ("utmm_square1_full", "rpng_table01_full"):
         for budget in (15, 30, 60):
-            seeds = (0, 1, 2) if budget == 15 else (0,)
+            seeds = (0, 1, 2) if budget in (15, 60) else (0,)
             for seed in seeds:
                 rr = indexed[(scene, budget, seed, "rr")]
                 ercb = indexed[(scene, budget, seed, "ercb")]
@@ -70,14 +70,26 @@ def main():
                 if set(rr["selection_count"]) != set(ercb["selection_count"]):
                     raise ValueError(f"training membership mismatch: {scene} b{budget} s{seed}")
                 delta = ercb["psnr"] - rr["psnr"]
-                ref_key = (scene, budget, "ercb", seed) if budget == 15 else (scene, budget, "ercb")
-                ref_delta = reference_rows[ref_key]
+                if budget == 15:
+                    ref_delta = reference_rows[(scene, budget, "ercb", seed)]
+                elif seed == 0:
+                    ref_delta = reference_rows[(scene, budget, "ercb")]
+                else:
+                    ref_delta = None
+                # Keep the persisted evidence compact. The full per-view counters
+                # remain in each run's view_scheduler_summary.json and are used
+                # above for contract validation, but add no value when duplicated
+                # in the aggregate summary.
+                rr_compact = {key: value for key, value in rr.items()
+                              if key not in ("selection_count", "arrival_iteration")}
+                ercb_compact = {key: value for key, value in ercb.items()
+                                if key not in ("selection_count", "arrival_iteration")}
                 pairs.append({
                     "scene": scene, "budget": budget, "seed": seed,
                     "total_iterations": max(rr["arrival_iteration"].values()),
-                    "rr": rr, "ercb": ercb, "delta_ercb_minus_rr": delta,
+                    "rr": rr_compact, "ercb": ercb_compact, "delta_ercb_minus_rr": delta,
                     "exp77_reference_delta": ref_delta,
-                    "delta_difference_vs_exp77": delta - ref_delta,
+                    "delta_difference_vs_exp77": None if ref_delta is None else delta - ref_delta,
                 })
     low = {}
     for scene in ("utmm_square1_full", "rpng_table01_full"):
@@ -95,11 +107,23 @@ def main():
                 for budget in (15, 30, 60)]
         for scene in ("utmm_square1_full", "rpng_table01_full")
     }
+    full = {}
+    for scene in ("utmm_square1_full", "rpng_table01_full"):
+        values = [pair["delta_ercb_minus_rr"] for pair in pairs
+                  if pair["scene"] == scene and pair["budget"] == 60]
+        full[scene] = {
+            "mean_delta": statistics.fmean(values),
+            "min_delta": min(values),
+            "max_delta": max(values),
+            "wins": sum(value > 0 for value in values),
+            "values": values,
+        }
     result = {
         "protocol": manifest["protocol"],
         "status": "COMPLETE_VALIDATED",
         "pairs": pairs,
         "budget15_aggregate": low,
+        "budget60_aggregate": full,
         "seed0_delta_by_budget_15_30_60": seed0_trends,
         "reproduction_gates": {
             "budget15_positive_both_scenes": all(row["mean_delta"] > 0 for row in low.values()),
@@ -107,11 +131,16 @@ def main():
             "seed0_delta_decreases_with_budget_both_scenes": all(
                 values[0] > values[1] > values[2] for values in seed0_trends.values()
             ),
+            "budget60_mean_gain_smaller_than_budget15_both_scenes": all(
+                full[scene]["mean_delta"] < low[scene]["mean_delta"]
+                for scene in full
+            ),
         },
     }
     destination = EXP / "evidence/summary.json"
     destination.write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({"budget15_aggregate": low, "seed0_trends": seed0_trends,
+    print(json.dumps({"budget15_aggregate": low, "budget60_aggregate": full,
+                      "seed0_trends": seed0_trends,
                       "gates": result["reproduction_gates"]}, indent=2))
 
 

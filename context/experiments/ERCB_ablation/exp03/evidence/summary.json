@@ -1,0 +1,840 @@
+{
+  "protocol": "exp03_5070ti_exp77_budget_reproduction",
+  "status": "COMPLETE_VALIDATED",
+  "pairs": [
+    {
+      "scene": "utmm_square1_full",
+      "budget": 15,
+      "seed": 0,
+      "total_iterations": 1186,
+      "rr": {
+        "psnr": 16.48909861026424,
+        "heldout_views": 202,
+        "zero_service": 398,
+        "unique_selected": 1014,
+        "training_gpu_ms": 3827.957534790039,
+        "scheduler_cpu_ms": 2.274604,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.785214022834703
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.193103105715005
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.48909861026424
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/rr_s0"
+      },
+      "ercb": {
+        "psnr": 16.80218268857144,
+        "heldout_views": 202,
+        "zero_service": 567,
+        "unique_selected": 845,
+        "training_gpu_ms": 3780.145820379257,
+        "scheduler_cpu_ms": 11.553771,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.82232421459538
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.180111228829563
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.80218268857144
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/ercb_s0"
+      },
+      "delta_ercb_minus_rr": 0.31308407830719887,
+      "exp77_reference_delta": 0.444552926733941,
+      "delta_difference_vs_exp77": -0.1314688484267421
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 15,
+      "seed": 1,
+      "total_iterations": 1186,
+      "rr": {
+        "psnr": 16.505489467394234,
+        "heldout_views": 202,
+        "zero_service": 396,
+        "unique_selected": 1016,
+        "training_gpu_ms": 3895.094366312027,
+        "scheduler_cpu_ms": 2.229607,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.789872778524266
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.133121353564876
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.505489467394234
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/rr_s1"
+      },
+      "ercb": {
+        "psnr": 16.743157330125864,
+        "heldout_views": 202,
+        "zero_service": 564,
+        "unique_selected": 848,
+        "training_gpu_ms": 3836.191551923752,
+        "scheduler_cpu_ms": 12.349562,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.78808601303856
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.261664914612723
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.743157330125864
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/ercb_s1"
+      },
+      "delta_ercb_minus_rr": 0.2376678627316302,
+      "exp77_reference_delta": 0.13084652872368707,
+      "delta_difference_vs_exp77": 0.10682133400794314
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 15,
+      "seed": 2,
+      "total_iterations": 1186,
+      "rr": {
+        "psnr": 16.561577891359235,
+        "heldout_views": 202,
+        "zero_service": 397,
+        "unique_selected": 1015,
+        "training_gpu_ms": 3880.979645013809,
+        "scheduler_cpu_ms": 2.297077,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.83863383472556
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.151856096664277
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.561577891359235
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/rr_s2"
+      },
+      "ercb": {
+        "psnr": 16.789448648396103,
+        "heldout_views": 202,
+        "zero_service": 561,
+        "unique_selected": 851,
+        "training_gpu_ms": 3892.3675582408905,
+        "scheduler_cpu_ms": 11.944797,
+        "curve": [
+          {
+            "iteration": 296,
+            "psnr": 12.815720997234383
+          },
+          {
+            "iteration": 593,
+            "psnr": 14.226044423509352
+          },
+          {
+            "iteration": 1186,
+            "psnr": 16.789448648396107
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event15/ercb_s2"
+      },
+      "delta_ercb_minus_rr": 0.2278707570368681,
+      "exp77_reference_delta": 0.1475870774524033,
+      "delta_difference_vs_exp77": 0.0802836795844648
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 30,
+      "seed": 0,
+      "total_iterations": 2371,
+      "rr": {
+        "psnr": 17.6098790546455,
+        "heldout_views": 202,
+        "zero_service": 46,
+        "unique_selected": 1366,
+        "training_gpu_ms": 7045.385979175568,
+        "scheduler_cpu_ms": 4.805472,
+        "curve": [
+          {
+            "iteration": 592,
+            "psnr": 13.060890655706425
+          },
+          {
+            "iteration": 1185,
+            "psnr": 14.665180994732545
+          },
+          {
+            "iteration": 2371,
+            "psnr": 17.6098790546455
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event30/rr_s0"
+      },
+      "ercb": {
+        "psnr": 17.73112918362759,
+        "heldout_views": 202,
+        "zero_service": 242,
+        "unique_selected": 1170,
+        "training_gpu_ms": 7006.587589502335,
+        "scheduler_cpu_ms": 22.656704,
+        "curve": [
+          {
+            "iteration": 592,
+            "psnr": 12.925718930688236
+          },
+          {
+            "iteration": 1185,
+            "psnr": 14.679558022187488
+          },
+          {
+            "iteration": 2371,
+            "psnr": 17.73112918362759
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event30/ercb_s0"
+      },
+      "delta_ercb_minus_rr": 0.12125012898209064,
+      "exp77_reference_delta": 0.13453984968732868,
+      "delta_difference_vs_exp77": -0.01328972070523804
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 60,
+      "seed": 0,
+      "total_iterations": 4741,
+      "rr": {
+        "psnr": 18.80621081059522,
+        "heldout_views": 202,
+        "zero_service": 136,
+        "unique_selected": 1276,
+        "training_gpu_ms": 13657.827899217606,
+        "scheduler_cpu_ms": 8.849407,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.470297572636369
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.173613699355927
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.80621081059522
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/rr_s0"
+      },
+      "ercb": {
+        "psnr": 18.758084873161692,
+        "heldout_views": 202,
+        "zero_service": 95,
+        "unique_selected": 1317,
+        "training_gpu_ms": 13640.403011322021,
+        "scheduler_cpu_ms": 45.174875,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.380627532996753
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.177271106455587
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.758084873161692
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/ercb_s0"
+      },
+      "delta_ercb_minus_rr": -0.048125937433528776,
+      "exp77_reference_delta": -0.03576959005676983,
+      "delta_difference_vs_exp77": -0.012356347376758947
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 60,
+      "seed": 1,
+      "total_iterations": 4741,
+      "rr": {
+        "psnr": 18.673893725517953,
+        "heldout_views": 202,
+        "zero_service": 137,
+        "unique_selected": 1275,
+        "training_gpu_ms": 14422.431295633316,
+        "scheduler_cpu_ms": 9.714538,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.411247716091648
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.065590787642073
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.673893725517953
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/rr_s1"
+      },
+      "ercb": {
+        "psnr": 18.672961211440587,
+        "heldout_views": 202,
+        "zero_service": 87,
+        "unique_selected": 1325,
+        "training_gpu_ms": 13579.923387765884,
+        "scheduler_cpu_ms": 44.828952,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.34716269993546
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.12946328078166
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.672961211440587
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/ercb_s1"
+      },
+      "delta_ercb_minus_rr": -0.0009325140773661644,
+      "exp77_reference_delta": null,
+      "delta_difference_vs_exp77": null
+    },
+    {
+      "scene": "utmm_square1_full",
+      "budget": 60,
+      "seed": 2,
+      "total_iterations": 4741,
+      "rr": {
+        "psnr": 18.618455310859304,
+        "heldout_views": 202,
+        "zero_service": 147,
+        "unique_selected": 1265,
+        "training_gpu_ms": 13947.527458906174,
+        "scheduler_cpu_ms": 10.50662,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.327009236458505
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.12548604342017
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.618455310859304
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/rr_s2"
+      },
+      "ercb": {
+        "psnr": 18.680442687308435,
+        "heldout_views": 202,
+        "zero_service": 101,
+        "unique_selected": 1311,
+        "training_gpu_ms": 14391.287578582764,
+        "scheduler_cpu_ms": 44.997483,
+        "curve": [
+          {
+            "iteration": 1185,
+            "psnr": 13.35750127074742
+          },
+          {
+            "iteration": 2370,
+            "psnr": 15.005354626343982
+          },
+          {
+            "iteration": 4741,
+            "psnr": 18.680442687308435
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/utmm_square1_full/event60/ercb_s2"
+      },
+      "delta_ercb_minus_rr": 0.06198737644913166,
+      "exp77_reference_delta": null,
+      "delta_difference_vs_exp77": null
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 15,
+      "seed": 0,
+      "total_iterations": 3646,
+      "rr": {
+        "psnr": 22.010993410827247,
+        "heldout_views": 314,
+        "zero_service": 269,
+        "unique_selected": 1923,
+        "training_gpu_ms": 11740.312386989594,
+        "scheduler_cpu_ms": 7.251302,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.316172484379667
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.249691246421474
+          },
+          {
+            "iteration": 3646,
+            "psnr": 22.01099341082725
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/rr_s0"
+      },
+      "ercb": {
+        "psnr": 23.1976547970134,
+        "heldout_views": 314,
+        "zero_service": 501,
+        "unique_selected": 1691,
+        "training_gpu_ms": 11808.806435108185,
+        "scheduler_cpu_ms": 71.169214,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.318074262825547
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.353307960899013
+          },
+          {
+            "iteration": 3646,
+            "psnr": 23.1976547970134
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/ercb_s0"
+      },
+      "delta_ercb_minus_rr": 1.1866613861861524,
+      "exp77_reference_delta": 1.1764939545066504,
+      "delta_difference_vs_exp77": 0.01016743167950196
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 15,
+      "seed": 1,
+      "total_iterations": 3646,
+      "rr": {
+        "psnr": 22.13386490086841,
+        "heldout_views": 314,
+        "zero_service": 270,
+        "unique_selected": 1922,
+        "training_gpu_ms": 11556.149254322052,
+        "scheduler_cpu_ms": 7.165916,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.35243174680479
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.230727207888464
+          },
+          {
+            "iteration": 3646,
+            "psnr": 22.13386490086841
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/rr_s1"
+      },
+      "ercb": {
+        "psnr": 23.146322031689298,
+        "heldout_views": 314,
+        "zero_service": 488,
+        "unique_selected": 1704,
+        "training_gpu_ms": 11729.627681732178,
+        "scheduler_cpu_ms": 69.364794,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.386231331308938
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.346610281877457
+          },
+          {
+            "iteration": 3646,
+            "psnr": 23.146322031689298
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/ercb_s1"
+      },
+      "delta_ercb_minus_rr": 1.0124571308208878,
+      "exp77_reference_delta": 1.0080415519179837,
+      "delta_difference_vs_exp77": 0.004415578902904116
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 15,
+      "seed": 2,
+      "total_iterations": 3646,
+      "rr": {
+        "psnr": 22.118876463288714,
+        "heldout_views": 314,
+        "zero_service": 269,
+        "unique_selected": 1923,
+        "training_gpu_ms": 11509.513981819153,
+        "scheduler_cpu_ms": 7.158467,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.297096027690134
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.252692174000348
+          },
+          {
+            "iteration": 3646,
+            "psnr": 22.118876463288714
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/rr_s2"
+      },
+      "ercb": {
+        "psnr": 23.009304058779577,
+        "heldout_views": 314,
+        "zero_service": 473,
+        "unique_selected": 1719,
+        "training_gpu_ms": 11688.320487976074,
+        "scheduler_cpu_ms": 68.714986,
+        "curve": [
+          {
+            "iteration": 911,
+            "psnr": 21.35082455045858
+          },
+          {
+            "iteration": 1823,
+            "psnr": 22.378948296710945
+          },
+          {
+            "iteration": 3646,
+            "psnr": 23.009304058779577
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event15/ercb_s2"
+      },
+      "delta_ercb_minus_rr": 0.8904275954908627,
+      "exp77_reference_delta": 0.8974871605065218,
+      "delta_difference_vs_exp77": -0.007059565015659075
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 30,
+      "seed": 0,
+      "total_iterations": 7291,
+      "rr": {
+        "psnr": 23.72956801979405,
+        "heldout_views": 314,
+        "zero_service": 355,
+        "unique_selected": 1837,
+        "training_gpu_ms": 22716.174015522003,
+        "scheduler_cpu_ms": 15.241009,
+        "curve": [
+          {
+            "iteration": 1822,
+            "psnr": 21.94932232996461
+          },
+          {
+            "iteration": 3645,
+            "psnr": 23.053000091747116
+          },
+          {
+            "iteration": 7291,
+            "psnr": 23.72956801979405
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event30/rr_s0"
+      },
+      "ercb": {
+        "psnr": 23.714217866302295,
+        "heldout_views": 314,
+        "zero_service": 310,
+        "unique_selected": 1882,
+        "training_gpu_ms": 22577.88836312294,
+        "scheduler_cpu_ms": 138.678393,
+        "curve": [
+          {
+            "iteration": 1822,
+            "psnr": 22.13991268425231
+          },
+          {
+            "iteration": 3645,
+            "psnr": 23.097832078387025
+          },
+          {
+            "iteration": 7291,
+            "psnr": 23.714217866302295
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event30/ercb_s0"
+      },
+      "delta_ercb_minus_rr": -0.015350153491755947,
+      "exp77_reference_delta": -0.022894616339616647,
+      "delta_difference_vs_exp77": 0.0075444628478607
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 60,
+      "seed": 0,
+      "total_iterations": 14581,
+      "rr": {
+        "psnr": 24.033761231003293,
+        "heldout_views": 314,
+        "zero_service": 233,
+        "unique_selected": 1959,
+        "training_gpu_ms": 46486.77029585838,
+        "scheduler_cpu_ms": 28.88385,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.754437155025023
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.59418025290131
+          },
+          {
+            "iteration": 14581,
+            "psnr": 24.033761231003293
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/rr_s0"
+      },
+      "ercb": {
+        "psnr": 23.826813084304714,
+        "heldout_views": 314,
+        "zero_service": 205,
+        "unique_selected": 1987,
+        "training_gpu_ms": 46159.297778606415,
+        "scheduler_cpu_ms": 268.04536,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.66080164453786
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.540181214642374
+          },
+          {
+            "iteration": 14581,
+            "psnr": 23.826813084304714
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/ercb_s0"
+      },
+      "delta_ercb_minus_rr": -0.2069481466985792,
+      "exp77_reference_delta": -0.1988363265991211,
+      "delta_difference_vs_exp77": -0.0081118200994581
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 60,
+      "seed": 1,
+      "total_iterations": 14581,
+      "rr": {
+        "psnr": 23.834527070355264,
+        "heldout_views": 314,
+        "zero_service": 236,
+        "unique_selected": 1956,
+        "training_gpu_ms": 44454.54536294937,
+        "scheduler_cpu_ms": 28.697856,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.72315133756893
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.58082090973095
+          },
+          {
+            "iteration": 14581,
+            "psnr": 23.834527070355264
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/rr_s1"
+      },
+      "ercb": {
+        "psnr": 23.90848632375146,
+        "heldout_views": 314,
+        "zero_service": 208,
+        "unique_selected": 1984,
+        "training_gpu_ms": 48013.48782134056,
+        "scheduler_cpu_ms": 263.81329,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.73597222224922
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.560383085991926
+          },
+          {
+            "iteration": 14581,
+            "psnr": 23.908486323751465
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/ercb_s1"
+      },
+      "delta_ercb_minus_rr": 0.0739592533961968,
+      "exp77_reference_delta": null,
+      "delta_difference_vs_exp77": null
+    },
+    {
+      "scene": "rpng_table01_full",
+      "budget": 60,
+      "seed": 2,
+      "total_iterations": 14581,
+      "rr": {
+        "psnr": 23.888656154559676,
+        "heldout_views": 314,
+        "zero_service": 232,
+        "unique_selected": 1960,
+        "training_gpu_ms": 44970.52102184296,
+        "scheduler_cpu_ms": 29.338418,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.71516026660895
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.569312539070275
+          },
+          {
+            "iteration": 14581,
+            "psnr": 23.888656154559676
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/rr_s2"
+      },
+      "ercb": {
+        "psnr": 23.809747616956187,
+        "heldout_views": 314,
+        "zero_service": 219,
+        "unique_selected": 1973,
+        "training_gpu_ms": 43891.03123378754,
+        "scheduler_cpu_ms": 266.349945,
+        "curve": [
+          {
+            "iteration": 3645,
+            "psnr": 22.598041419011015
+          },
+          {
+            "iteration": 7290,
+            "psnr": 23.480368954360866
+          },
+          {
+            "iteration": 14581,
+            "psnr": 23.80974761695619
+          }
+        ],
+        "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/exp03_5070ti_budget_reproduction/rpng_table01_full/event60/ercb_s2"
+      },
+      "delta_ercb_minus_rr": -0.07890853760348904,
+      "exp77_reference_delta": null,
+      "delta_difference_vs_exp77": null
+    }
+  ],
+  "budget15_aggregate": {
+    "utmm_square1_full": {
+      "mean_delta": 0.2595408993585657,
+      "min_delta": 0.2278707570368681,
+      "wins": 3,
+      "values": [
+        0.31308407830719887,
+        0.2376678627316302,
+        0.2278707570368681
+      ]
+    },
+    "rpng_table01_full": {
+      "mean_delta": 1.0298487041659676,
+      "min_delta": 0.8904275954908627,
+      "wins": 3,
+      "values": [
+        1.1866613861861524,
+        1.0124571308208878,
+        0.8904275954908627
+      ]
+    }
+  },
+  "budget60_aggregate": {
+    "utmm_square1_full": {
+      "mean_delta": 0.004309641646078906,
+      "min_delta": -0.048125937433528776,
+      "max_delta": 0.06198737644913166,
+      "wins": 1,
+      "values": [
+        -0.048125937433528776,
+        -0.0009325140773661644,
+        0.06198737644913166
+      ]
+    },
+    "rpng_table01_full": {
+      "mean_delta": -0.0706324769686238,
+      "min_delta": -0.2069481466985792,
+      "max_delta": 0.0739592533961968,
+      "wins": 1,
+      "values": [
+        -0.2069481466985792,
+        0.0739592533961968,
+        -0.07890853760348904
+      ]
+    }
+  },
+  "seed0_delta_by_budget_15_30_60": {
+    "utmm_square1_full": [
+      0.31308407830719887,
+      0.12125012898209064,
+      -0.048125937433528776
+    ],
+    "rpng_table01_full": [
+      1.1866613861861524,
+      -0.015350153491755947,
+      -0.2069481466985792
+    ]
+  },
+  "reproduction_gates": {
+    "budget15_positive_both_scenes": true,
+    "budget15_all_seed_wins": true,
+    "seed0_delta_decreases_with_budget_both_scenes": true,
+    "budget60_mean_gain_smaller_than_budget15_both_scenes": true
+  }
+}

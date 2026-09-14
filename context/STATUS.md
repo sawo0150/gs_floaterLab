@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB exp03 RTX 5070 Ti budget interaction 재현):** exp77의
+  corrected full VIGS replay, fixed final pose/init, fixed topology, llffhold-8,
+  zero-tail 계약으로 RR과 interval relative-floor ERCB를 28/28 run 비교했다.
+  15 updates/event 3-seed ERCB−RR 평균은 UTMM/RPNG **+0.2595/+1.0298dB**로
+  각각 3/3 승리했다. 사용자 요청으로 확장한 full budget60 3-seed 평균은
+  **+0.0043/−0.0706dB**, 각각 1/3 승으로 이득이 소멸했다. 따라서 ERCB의
+  근거는 service가 부족할 때의 수렴 가속이며, 충분한 budget의 최종 품질 우위가 아니다.
+  이는 strict online/unified VIGS 결과가 아닌 scheduler-isolation 진단이다.
+  → [ERCB exp03](experiments/ERCB_ablation/exp03/RESULT.md)
+
 - **2026-09-15 (exp86-D native opacity pruning 0.5× control — 미채택):** birth
   1×와 matched wall-time/r4 unified loop를 유지하고 online native opacity prune
   threshold만 `0.7->0.35`로 낮췄다(init `0.005`, size prune, densify는 불변).

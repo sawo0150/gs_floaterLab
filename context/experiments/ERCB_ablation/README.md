@@ -1,8 +1,25 @@
 # ERCB ablation — UTMM bundle tuning, latency reformulation, and transfer
 
-> 날짜: 2026-09-12
+> 날짜: 2026-09-15
 > 범위: ERCB 전용 누적 트랙
-> 최신 판정: **RGB capture-to-service latency를 직접 줄이는 exp02 후보들은 latency는 약 29% 개선했지만 유효 top-2의 held-out PSNR은 RR보다 평균 0.477–0.555dB 낮았다. 최종 품질을 위한 latency-first 대체안은 NO-GO다. 기존 interval ERCB의 +0.070dB 결과는 별도 binary ablation 근거로 유지한다.**
+> 최신 판정: **exp77의 budget interaction을 RTX 5070 Ti에서 재현했다. Interval relative-floor ERCB는 15 updates/event에서 UTMM/RPNG 평균 +0.260/+1.030dB(각 3/3 승)였지만, 60 updates/event에서는 +0.004/−0.071dB(각 1/3 승)로 이득이 소멸했다. ERCB는 저예산 수렴 가속용이며 full-budget 최종 품질 우위로 주장하지 않는다.**
+
+## 최신 결과 — exp03 RTX 5070 Ti budget reproduction
+
+Corrected full VIGS replay의 UTMM `square-1`과 RPNG `table_01`에서 causal RR과
+`relative_floor_interval_softmax_rr(K=8,rho=.5,gamma=log3)`를 비교했다. 동일
+pose/init/RGB/arrival/update/LR horizon, fixed topology, llffhold-8, zero-tail 계약이다.
+
+| Budget (updates/event) | UTMM ERCB−RR | RPNG ERCB−RR | Seeds |
+|---:|---:|---:|---:|
+| 15 | **+0.2595dB** | **+1.0298dB** | 3 |
+| 30 | +0.1213dB | −0.0154dB | 1 |
+| 60 | **+0.0043dB** | **−0.0706dB** | 3 |
+
+총 28/28 run의 update/arrival/held-out 계약을 검증했다. 이는 scheduler-isolation
+replay이며 strict online VIGS 성과는 아니다. 상세 결과는
+[`exp03/RESULT.md`](exp03/RESULT.md), compact evidence는
+[`exp03/evidence/summary.json`](exp03/evidence/summary.json)에 있다.
 
 ## 최신 결과 — exp02 service-latency 재정식화
 

@@ -55,9 +55,9 @@ def main():
             schedule_payload = transformed_schedule(source, budget)
             schedule = schedules / f"{scene}_event{budget}.json"
             schedule.write_text(json.dumps(schedule_payload, indent=2) + "\n")
-            seeds = (0, 1, 2) if budget == 15 else (0,)
+            seeds = (0, 1, 2) if budget in (15, 60) else (0,)
             for seed in seeds:
-                arm_order = ("ercb", "rr") if budget == 15 and seed == 1 else ("rr", "ercb")
+                arm_order = ("ercb", "rr") if seed == 1 else ("rr", "ercb")
                 for arm in arm_order:
                     total = schedule_payload["total_iterations"]
                     checkpoints = sorted({max(1, total // 4), max(1, total // 2), total})
@@ -103,7 +103,8 @@ def main():
         "contract": {
             "budgets_per_event": [15, 30, 60],
             "budget15_seeds": [0, 1, 2],
-            "budget30_60_seeds": [0],
+            "budget30_seeds": [0],
+            "budget60_seeds": [0, 1, 2],
             "arms": ["causal_rr", "relative_floor_interval_softmax_rr"],
             "fixed_topology": True,
             "tail_updates": 0,

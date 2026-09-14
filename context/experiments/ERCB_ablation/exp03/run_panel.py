@@ -60,6 +60,8 @@ def main():
             raise RuntimeError(f"post-run contract failed: {output}")
         print(f"DONE {index}/{len(manifest['jobs'])} {job['scene']} "
               f"b{job['budget']} {job['arm']} s{job['seed']}", flush=True)
+    manifest["state"] = f"COMPLETE_{len(manifest['jobs'])}_OF_{len(manifest['jobs'])}"
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")
 
 
 if __name__ == "__main__":
