@@ -9,8 +9,11 @@ admission=${MATCHED_ADMISSION:-arrival}
 required_opportunities=${MATCHED_REQUIRED_OPPORTUNITIES:-4}
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 lab_root=/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab
-repo_root=/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828
+repo_root=${VIGS_REPO_ROOT:-/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828}
+asset_root=${VIGS_ASSET_ROOT:-$repo_root}
+rasterizer_root=${VIGS_RASTERIZER_ROOT:-$repo_root/thirdparty/diff-gaussian-rasterization}
 conda_env=/home/wosas/miniconda3/envs/vigs-slam-5090
+birth_downsample_multiplier=${MAPPING_BIRTH_DOWNSAMPLE_MULTIPLIER:-1.0}
 case "$admission" in
     arrival)
         admission_tag=arrival
@@ -77,16 +80,16 @@ case "$family:$scene" in
         imu_file="$dataset_root/imu_ours.txt"
         calibration="$dataset_root/intrinsics_ours.txt"
         config_file="$script_dir/config/utmm_unified_pool.yaml"
-        trt_dir="$repo_root/pretrained_models/generated_utmm_328x648"
+        trt_dir="$asset_root/pretrained_models/generated_utmm_328x648"
         family_args=(--undistort --IMU_poseinit_after 15 --buffer 1200)
         ;;
     rpng:table_0[1-8])
         dataset_root="$lab_root/data/benchmarks/rpng/prepared/rpngar/$scene"
         image_dir="$dataset_root/rgb"
         imu_file="$dataset_root/imu.txt"
-        calibration="$repo_root/calib/rpngar.txt"
+        calibration="$asset_root/calib/rpngar.txt"
         config_file="$script_dir/config/rpng_unified_pool.yaml"
-        trt_dir="$repo_root/pretrained_models/generated_rpng_344x616"
+        trt_dir="$asset_root/pretrained_models/generated_rpng_344x616"
         family_args=(--undistort --IMU_poseinit_after 20 --buffer 700)
         ;;
     *) echo "unsupported matched-time scene: $family/$scene" >&2; exit 2 ;;
@@ -129,7 +132,7 @@ unset VIGS_DISABLE_FNET_TRT VIGS_DISABLE_UPDATE_TRT
 export VIGS_FNET_TRT_ENGINE="$trt_dir/droidnet_fnet_fp16.engine"
 export VIGS_UPDATE_TRT_ENGINE="$trt_dir/update_module_partial_fp16.engine"
 export VIGS_UPDATE_PGBA_TRT_ENGINE="$trt_dir/update_module_partial_pgba_fp16.engine"
-export PYTHONPATH="$repo_root/thirdparty/diff-gaussian-rasterization${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH="$rasterizer_root${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
 
 conda_root=${conda_env%%/envs/*}
@@ -137,7 +140,7 @@ source "$conda_root/etc/profile.d/conda.sh"
 conda activate "$conda_env"
 
 code_commit=$(git -C "$repo_root" rev-parse HEAD)
-echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities matched_scale=$matched_scale matched_elapsed_s=$matched_elapsed budget_source=vanilla_map_done replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=0 output=$output_dir"
+echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier matched_scale=$matched_scale matched_elapsed_s=$matched_elapsed budget_source=vanilla_map_done replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=0 output=$output_dir"
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader
 
 cd "$repo_root"
@@ -154,6 +157,7 @@ exec /usr/bin/time -v python demo.py \
     --frontend_window 25 --frontend_radius 2 --motion_filter_thresh 2.4 \
     --frontend_iters1 4 --frontend_iters2 2 \
     --enable_isotropic_loss --mapping_after_imu_init \
+    --mapping_birth_downsample_multiplier "$birth_downsample_multiplier" \
     --tracking_stride 1 --seed 0 \
     --idle_map_rr --mapping_work_conserving --mapping_unified_pool \
     --mapping_replay_deadline_guard --gs_dedicated_stream \
