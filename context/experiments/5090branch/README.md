@@ -19,6 +19,12 @@ generated payloads remain on the server and were intentionally excluded:
 - raw `*runs*` evidence directories and `*.log` files
 - individual files larger than 5 MiB
 
+Files that differed on the 5090 server outside `context/experiments` are
+preserved under `workspace_overrides/` with their relative paths. Root-level
+dotfiles/instructions are renamed to `ROOT_*.snapshot*` so that this provenance
+copy cannot change Git ignore rules or agent instructions. These files are
+reference snapshots and are not active project configuration.
+
 The related 5090 VIGS work is preserved by Git commit
 `c8e5df85c2f40618b55700541d715e2388290f07` (`Integrate causal XFeat online
 carve bridge`). It is kept separately from the active VIGS `main` because that
