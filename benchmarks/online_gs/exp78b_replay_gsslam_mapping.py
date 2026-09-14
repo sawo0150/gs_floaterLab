@@ -1582,6 +1582,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--c1-c2-global-residue-integration",
+        action="store_true",
+        help=(
+            "Stage-4 only: enable the accepted C1 admission policy in both "
+            "arms and opt the service-shortfall arm into the repaired "
+            "global-residue C2 semantics"
+        ),
+    )
+    parser.add_argument(
         "--density-policy",
         choices=("configured", "disabled", "online_rank"),
         default="configured",
@@ -1913,17 +1922,40 @@ def main() -> int:
     stage3d_c2_global_residue_isolation = bool(
         args.c2_global_residue_isolation
     )
-    if (
-        stage3c_c2_orthogonal_isolation
-        and stage3d_c2_global_residue_isolation
-    ):
+    stage4_c1_c2_global_residue_integration = bool(
+        args.c1_c2_global_residue_integration
+    )
+    if sum(
+        int(value)
+        for value in (
+            stage3c_c2_orthogonal_isolation,
+            stage3d_c2_global_residue_isolation,
+            stage4_c1_c2_global_residue_integration,
+        )
+    ) > 1:
         raise ValueError(
-            "Stage-3c and Stage-3d C2 isolation modes are mutually exclusive"
+            "Stage-3c, Stage-3d, and Stage-4 modes are mutually exclusive"
         )
     c2_full_pool_isolation = bool(
         stage3c_c2_orthogonal_isolation
         or stage3d_c2_global_residue_isolation
     )
+    c2_global_residue_semantics = bool(
+        stage3d_c2_global_residue_isolation
+        or stage4_c1_c2_global_residue_integration
+    )
+    selector_audit_required = bool(
+        c2_full_pool_isolation
+        or stage4_c1_c2_global_residue_integration
+    )
+    if stage4_c1_c2_global_residue_integration and not (
+        args.compute_paced_dense_admission
+        and args.fixed_event_dense_opportunities_per_packet == 1
+    ):
+        raise ValueError(
+            "Stage-4 C1+C2 integration requires compute-paced C1 and one "
+            "fixed dense opportunity per eligible mapping packet"
+        )
     if args.service_shortfall_ercb and not (
         native_d1_dense_service_clock
         and not args.include_keyframes_in_replay
@@ -1945,10 +1977,10 @@ def main() -> int:
     fixed_event_dense_isolation = bool(
         args.fixed_event_dense_opportunities_per_packet
     )
-    if c2_full_pool_isolation and not fixed_event_dense_isolation:
+    if selector_audit_required and not fixed_event_dense_isolation:
         raise ValueError(
-            "Stage-3c/3d C2 isolation requires one fixed dense "
-            "opportunity per eligible mapping packet"
+            "Stage-3c/3d/4 comparison requires one fixed dense opportunity "
+            "per eligible mapping packet"
         )
     if fixed_event_dense_isolation and not (
         args.time_scale == "unbounded"
@@ -1979,7 +2011,7 @@ def main() -> int:
             "fixed-event dense isolation requires unbounded native D1, "
             "observation topology, online-rank birth, independent "
             "appearance-only dense replay, no ordering/work adapter, and "
-            "exactly one of Stage-2 C1 or a Stage-3c/3d C2-only mode"
+            "exactly one of Stage-2/4 C1 or a Stage-3c/3d C2-only mode"
         )
     if args.relative_capacity_prune_closure and not (
         args.time_scale == "unbounded"
@@ -2071,7 +2103,7 @@ def main() -> int:
         args.service_shortfall_ercb,
         bool(
             args.service_shortfall_ercb
-            and stage3d_c2_global_residue_isolation
+            and c2_global_residue_semantics
         ),
         args.dense_max_endpoint_fraction,
         args.include_keyframes_in_replay,
@@ -2267,7 +2299,7 @@ def main() -> int:
         mapper, "mapping_lifecycle_snapshot"
     ):
         raise RuntimeError(
-            "fixed-event Stage 3b requires lifecycle parity telemetry"
+            "fixed-event Stage 3/4 requires lifecycle parity telemetry"
         )
 
     newborn_consolidation = (
@@ -2558,9 +2590,10 @@ def main() -> int:
                     fixed_interval_ids.add((int(left), int(right)))
                 lifecycle_before = mapper.mapping_lifecycle_snapshot()
                 selector_before = lifecycle_before.get("selector_block")
-                if c2_full_pool_isolation and selector_before is None:
+                if selector_audit_required and selector_before is None:
                     raise RuntimeError(
-                        "Stage-3c/3d requires non-mutating selector-block telemetry"
+                        "Stage-3c/3d/4 requires non-mutating selector-block "
+                        "telemetry"
                     )
                 mapper._exp78b_replay_scope_active = True
                 try:
@@ -2822,6 +2855,9 @@ def main() -> int:
         "c2_global_residue_isolation": (
             stage3d_c2_global_residue_isolation
         ),
+        "c1_c2_global_residue_integration": (
+            stage4_c1_c2_global_residue_integration
+        ),
         "fixed_event_dense_opportunities_per_packet": (
             args.fixed_event_dense_opportunities_per_packet
         ),
@@ -2836,7 +2872,7 @@ def main() -> int:
                 "gamma": math.log(1.5),
                 "maximum_bonus": 1.5,
                 "global_epoch_no_repeat": bool(
-                    stage3d_c2_global_residue_isolation
+                    c2_global_residue_semantics
                 ),
             }
             if args.service_shortfall_ercb
@@ -2951,12 +2987,16 @@ def main() -> int:
         ),
         "comparison_contract": (
             (
-                "stage3d_c2_global_residue_fixed_event_ordering_only_v1"
-                if stage3d_c2_global_residue_isolation
+                "stage4_c1_c2_global_residue_fixed_event_integration_v1"
+                if stage4_c1_c2_global_residue_integration
                 else (
-                    "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
-                    if stage3c_c2_orthogonal_isolation
-                    else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                    "stage3d_c2_global_residue_fixed_event_ordering_only_v1"
+                    if stage3d_c2_global_residue_isolation
+                    else (
+                        "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
+                        if stage3c_c2_orthogonal_isolation
+                        else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                    )
                 )
             )
             if fixed_event_dense_isolation
