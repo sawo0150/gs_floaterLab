@@ -1382,3 +1382,55 @@ Evidence:
   `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage4_c1_c2_global_residue_integration_result.md`
 - result commit:
   `38042c2f`
+
+## 2026-09-15 — Stage 5 seed1/2/3 Full retention replication: +1.333130 dB, original gate HOLD
+
+Stage4 seed0을 판정에서 제외하고, 사전 고정한 mapper seed 1/2/3에 대해
+`C1+RR / C1+global-residue C2 / native vanilla render-match` 3-arm을 모두
+완료했다. Tracker는 동일한 immutable seed0 archive이며, RR/C2는 seed 안에서
+동일 stochastic seed를 쓴다. 각 seed의 RR/C2 arm은 C1 admission 13장,
+arrival 1,728장, terminal C1 pending 1,715장, event 283개, completed packet
+279개, fixed dense opportunity 269개, Adam 2,761회, physical render 38,033회,
+zero-tail을 정확히 공유한다. Native vanilla도 paired C2와 동일한 mapping event,
+tracking KF UID 210개, physical render 38,033회를 사용한다.
+
+모든 seed에서 Stage4 fairness verifier **17/17**, native render-match verifier
+**10/10**이 통과했고 multi-seed aggregate도 immutable input/evaluator와 정확한
+seed set을 확인했다.
+
+| Mapper seed | C1+RR | C1+C2 | C2-RR | worst-Q1 Δ | RR-hard-Q1 Δ | Vanilla | Full-Vanilla |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 25.542154 | 25.546805 | +.004651 | +.004641 | +.004806 | 24.259483 | **+1.287321** |
+| 2 | 25.593264 | 25.596146 | +.002882 | +.003608 | +.004378 | 24.186688 | **+1.409458** |
+| 3 | 25.582025 | 25.568103 | -.013922 | -.018360 | -.016485 | 24.265491 | **+1.302612** |
+| **Mean paired Δ** | — | — | **-.002130** | **-.003370** | **-.002434** | — | **+1.333130** |
+
+따라서 기존 Stage5 사전 규칙 중 `Full-vanilla mean >= +1dB`와
+RR-hard-Q1 2/3 양수는 통과했지만, mean overall/worst-Q1/RR-hard-Q1의
+비음수·양수 조건은 실패했다. 기준을 사후 변경하지 않으므로 Stage5 자체는
+**HOLD**다. 반면 complete C1+C2 구조의 vanilla 대비 이득은 세 seed 모두
+`+1.28dB` 이상이고 평균 **+1.333130dB**여서 D1 계열의 주 이득은 안정적으로
+유지됐다.
+
+이 조건은 C1이 1,728 arrivals를 13-view pool로 줄인 뒤 final generation에서
+267 service로 동일 pool을 66 complete epoch 순회한다. 즉 admitted pool 기준으로
+service가 풍족하여 RR/C2는 cumulative coverage가 같고 within-epoch order만 다르다.
+ERCB가 이겨야 하는 범위를 실제 service-shortfall로 한정한다는 사용자 설명은
+타당하지만, 실행 중 도착한 해석이므로 이번 결과를 사후 PASS로 바꾸지는 않는다.
+다음 실험 전에 workload/service trace만으로 rich/shortfall stratum을 정하는 별도
+cross-scene 계약을 고정한다.
+
+실행 전에 발생한 backend import, legacy dense-render ledger double count, vanilla
+metric-init gate 누락의 pre-GPU 실패 3건은 삭제하지 않고
+`failed_pre_gpu_import/`에 보존했다. 수정 뒤 성공한 artifact만 판정에 사용했다.
+
+Evidence:
+
+- artifact root:
+  `results/experiments/exp78/paper_full_staged_v1/rpng/table_01/stage5_full_retention_replication/`
+- aggregate:
+  `verification/stage5_cohort.json`
+- paper result:
+  `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage5_full_retention_replication_result.md`
+- paper result commit:
+  `bb5707ca`
