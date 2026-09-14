@@ -1434,3 +1434,42 @@ Evidence:
   `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage5_full_retention_replication_result.md`
 - paper result commit:
   `bb5707ca`
+
+## 2026-09-15 — Stage 6A table_02 sentinel: Full +1.761281 dB, C1/C2 attribution unresolved
+
+사전 고정한 cross-sequence runner로 첫 validation sentinel인 RPNG
+`table_02`의 `D1 + C1 + global-residue C2` Full과 native vanilla를 실행했다.
+두 arm은 frozen tracker archive, mapping packet 392개, tracking KF UID 289개,
+physical training render 53,287회, fixed held-out 584뷰, mapping-disjoint와
+zero-tail을 정확히 공유했고 pair verifier **10/10 PASS**다.
+
+| Arm | PSNR | SSIM | LPIPS | Adam | Renders | GS |
+|---|---:|---:|---:|---:|---:|---:|
+| Full | **23.289415** | **.793554** | **.206254** | 3,847 | 53,287 | 592,471 |
+| Native vanilla | 21.528134 | .720678 | .259858 | 4,201 | 53,287 | 269,855 |
+| Full - vanilla | **+1.761281** | **+.072875** | **-.053605** | -- | 0 | +322,616 |
+
+Full의 workload ledger는 final generation `U=18`, `S=380`인 명확한
+service-rich control이다. 더 중요한 사후 구조 감사에서 전체 53,287 render 중
+dense appearance render는 380회(**0.713%**), 전체 3,847 Adam 중 dense Adam은
+380회(**9.878%**)뿐이었다. Causal dense 후보 1,999장 중 C1이 실제 등록한 것은
+18장(**0.900%**)이고, C2는 그 18장을 반복해 74 complete global epoch를
+순회했다. 현재 Full은 `include_keyframes_in_replay=false`이며 C1과 production
+service-shortfall ERCB는 tracker/native keyframe 학습에 적용되지 않는다.
+
+따라서 이 sentinel은 Full의 큰 vanilla 우위는 확인하지만 그 우위를 C1/C2의
+기여로 귀속시키지는 못한다. C1은 현재 정확히는 dense auxiliary view-set growth,
+C2는 dense appearance replay ordering이다. 다음 validation run을 추가하기 전에
+tracker KF/geometry objective를 바꾸지 않고 dense coverage를 넓히는 arm과,
+keyframe appearance replay까지 포함하는 source-controlled 확장 arm을 구분해
+method scope와 ablation 계약을 먼저 결정한다. Sentinel 수치로 기존 파라미터나
+고정 cohort를 사후 변경하지 않는다.
+
+Evidence:
+
+- Full:
+  `results/experiments/exp78/paper_full_staged_v1/stage6_cross_sequence_confirmation/rpng/table_02/stage6a_c1_global_residue_c2_full_s0/`
+- vanilla:
+  `results/experiments/exp78/paper_full_staged_v1/stage6_cross_sequence_confirmation/rpng/table_02/stage6a_native_vanilla_render_matched_s0/`
+- verifier:
+  `results/experiments/exp78/paper_full_staged_v1/stage6_cross_sequence_confirmation/rpng/table_02/verification/stage6a_render_match_s0.json`
