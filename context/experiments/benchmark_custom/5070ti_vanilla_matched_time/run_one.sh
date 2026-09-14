@@ -14,6 +14,7 @@ asset_root=${VIGS_ASSET_ROOT:-$repo_root}
 rasterizer_root=${VIGS_RASTERIZER_ROOT:-$repo_root/thirdparty/diff-gaussian-rasterization}
 conda_env=/home/wosas/miniconda3/envs/vigs-slam-5090
 birth_downsample_multiplier=${MAPPING_BIRTH_DOWNSAMPLE_MULTIPLIER:-1.0}
+prune_opacity_multiplier=${MAPPING_PRUNE_OPACITY_MULTIPLIER:-1.0}
 case "$admission" in
     arrival)
         admission_tag=arrival
@@ -140,7 +141,7 @@ source "$conda_root/etc/profile.d/conda.sh"
 conda activate "$conda_env"
 
 code_commit=$(git -C "$repo_root" rev-parse HEAD)
-echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier matched_scale=$matched_scale matched_elapsed_s=$matched_elapsed budget_source=vanilla_map_done replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=0 output=$output_dir"
+echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier prune_opacity_multiplier=$prune_opacity_multiplier matched_scale=$matched_scale matched_elapsed_s=$matched_elapsed budget_source=vanilla_map_done replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=0 output=$output_dir"
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader
 
 cd "$asset_root"
@@ -158,6 +159,7 @@ exec /usr/bin/time -v python "$repo_root/demo.py" \
     --frontend_iters1 4 --frontend_iters2 2 \
     --enable_isotropic_loss --mapping_after_imu_init \
     --mapping_birth_downsample_multiplier "$birth_downsample_multiplier" \
+    --mapping_prune_opacity_multiplier "$prune_opacity_multiplier" \
     --tracking_stride 1 --seed 0 \
     --idle_map_rr --mapping_work_conserving --mapping_unified_pool \
     --mapping_replay_deadline_guard --gs_dedicated_stream \
