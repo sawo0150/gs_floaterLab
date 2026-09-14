@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-09-13. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-15. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -87,6 +87,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 - 표준 지표: region GT(`floater_metric_region.py`) + ray-density 상호보완. 오프라인 청소: `extract_floaters_rulebase.py`(예산 top-K) + 3D 삭제 영역(`build_floater_region.py`).
 
 ## 최근 흐름 (최신순)
+
+- **2026-09-15 (exp86-C causal Gaussian birth 2× control — 미채택):** 동일
+  matched wall-time/r4 unified loop에서 birth downsample만 `1.0->0.5`로 바꿔 raw
+  birth를 정확히 2×로 만들었다. Final GS는 fast `1.64--1.65×`, ego-centric
+  `1.18×`였지만 더 비싼 map 때문에 Adam service가 `35.6--36.6%` 감소했다. Fixed
+  held-out PSNR 변화는 fast RR/ERCB **-0.0186/-0.1245dB**, ego RR/ERCB
+  **+0.0724/+0.3411dB**로 2승2패(평균 +0.0676)였다. LPIPS는 4/4 개선했으나
+  “GS가 많으면 PSNR 수렴이 빨라진다”는 일관된 인과 증거는 아니므로 2× 기본값은
+  채택하지 않는다. 4개 run 모두 zero-tail을 통과했고 phase/topology cutoff는 없다.
+  → [exp86-C](experiments/exp86-C_birth2x_capacity_control.md)
 
 - **2026-09-14 (exp86-B work-credit selector family — RR 유지):** exp86-A의
   `ERCB` 표기가 original count-softmax가 아닌 interval relative-floor였음을 정정하고,
