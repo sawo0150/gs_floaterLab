@@ -88,6 +88,19 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB exp03-F reliable-keyframe role pilot — 0/2, NO-GO):**
+  exp03-E의 실패가 interpolated dense pose 때문인지 분리하려고, 역할 service는
+  parameter-free causal clock으로 맞추고 dense는 RR로 둔 채 tracked keyframe 안에만
+  동일 interval ERCB를 적용했다. Mapping-excluded fixed held-out은 RPNG table_07 q3
+  **22.8164→21.5779(-1.2385dB)**, UTMM square-1 q15
+  **19.1389→19.0651(-0.0738dB)**로 0/2였다. Adam/KF-dense/topology event는 각 pair에서
+  612/306-306/2와 1009/433-576/3으로 정확히 같고 zero-tail도 통과했다. UTMM KF
+  under-4는 14→10으로 줄었지만 PSNR로 전환되지 않았다. RPNG는 selected KF가 native
+  densification 통계를 소유해 final GS가 499,521→480,353으로 달라졌고, strict 폐루프의
+  실행 시점 변화 때문에 shared dense RR의 causal 가용 집합도 완전히 고정되지 않았다.
+  사전 gate에 따라 seed 확장·K/rho/q sweep을 중단하고 production RR을 유지한다.
+  → [exp03-F](experiments/ERCB_ablation/exp03-F_keyframe_role/RESULT.md)
+
 - **2026-09-15 (ERCB exp03-E causal packet-budget/role-matched 검증 — PSNR 이득 미재현):**
   전체 cap을 초반에 소진하지 않도록 causal mapping packet마다 q physical Adam credit을
   해제했고, heterogeneous KF/dense 역할 혼입을 막기 위해 causal pool 비율 clock으로

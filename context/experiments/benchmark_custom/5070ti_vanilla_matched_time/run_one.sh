@@ -89,6 +89,11 @@ case "$selector" in
         --mapping_interval_ercb relative_floor
         --mapping_interval_ercb_role_stratified
     ) ;;
+    ercb_relative_floor_keyframe_stratified) selector_args=(
+        --mapping_interval_ercb relative_floor
+        --mapping_interval_ercb_role_stratified
+        --mapping_interval_ercb_target_role keyframe
+    ) ;;
     ercb_coverage1) selector_args=(--mapping_interval_ercb coverage1) ;;
     *) echo "unsupported selector: $selector" >&2; exit 2 ;;
 esac

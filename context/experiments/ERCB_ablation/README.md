@@ -2,7 +2,16 @@
 
 > 날짜: 2026-09-15
 > 범위: ERCB 전용 누적 트랙
-> 최신 판정: **fixed-pose/init/topology replay에서는 저예산 ERCB 이득을 재현했지만, strict end-to-end packet-budget에서는 재현하지 못했다. Role-matched UTMM q15는 평균 -0.006dB, exact-service RPNG q3는 -0.794dB였다. Coverage starvation 완화만 확인됐으며 production selector는 RR을 유지한다.**
+> 최신 판정: **fixed-pose/init/topology replay에서는 저예산 ERCB 이득을 재현했지만, strict end-to-end packet-budget에서는 재현하지 못했다. Dense-role ERCB에 이어 reliable-keyframe ERCB도 RPNG/UTMM에서 -1.2385/-0.0738dB였다. Coverage starvation 완화만 확인됐으며 production selector는 RR을 유지한다.**
+
+## 최신 결과 — exp03-F reliable-keyframe role pilot
+
+보간 pose가 불확실한 dense 대신 tracked keyframe 안에서만 같은 interval ERCB를
+적용했다. RPNG table_07 q3 exact-step pair는 `-1.2385dB`, UTMM square-1 q15는
+`-0.0738dB`로 0/2였다. RPNG는 같은 Adam/KF-dense/topology event 수에도 최종 GS가
+499,521→480,353으로 달라져, selected KF가 densification 통계를 소유하는 native
+topology feedback도 확인됐다. 사전 gate에 따라 추가 seed와 숫자 sweep은 중단했다.
+상세 결과는 [`exp03-F/RESULT.md`](exp03-F_keyframe_role/RESULT.md)에 있다.
 
 ## 최신 결과 — exp03-E strict end-to-end packet budget
 
