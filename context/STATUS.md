@@ -88,6 +88,27 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB exp03-H exact frontend packet + shared topology — 이득 미복구, NO-GO):**
+  GT absolute pose에 더해 mapper 입력 packet과 native RR의 stable-ID topology 결정을
+  기록해 두 arm에서 같은 causal packet 경계에 replay했다. UTMM square-1 q15는
+  70 packet/3 event/final 162,792GS가 같고 fixed **17.8230→17.8844(+0.0614dB)**,
+  RPNG table_07 q3는 204 packet/1 event/final 579,323GS가 같고
+  **19.7574→19.6960(-0.0614dB)**였다. 두 장면 평균은 -0.00002dB다. v1/v2의
+  wall-time interleaving stable-ID 실패는 보존했고 v3에서 topology를 causal packet count에
+  결박해 해결했다. 남은 핵심 차이는 current admission이 KF bracket당 dense 최대1장이라
+  interval이 UTMM 112 candidate/110 interval, RPNG 388/388로 singleton화되고, KF
+  RGBD+normal과 dense appearance-only의 학습가치가 다르다는 점이다. Production은 RR을
+  유지하고 K/gamma sweep은 중단한다.
+  → [exp03-H](experiments/ERCB_ablation/exp03-H_frozen_frontend_topology/RESULT.md)
+
+- **2026-09-15 (ERCB exp03-G GT-pose isolation — 3-seed 양수 diagnostic):**
+  online pose/PGBA map correction만 GT absolute로 고정하고 native topology를 남겼을 때
+  RPNG table_07 q3와 UTMM square-1 q15의 dense-role ERCB−RR 3-seed 평균은 각각
+  **+0.2546±0.1852/+0.0588±0.0196dB**, 모두 3/3 승이었다. 이는 pose/topology
+  feedback이 실패 원인의 일부임을 보였지만 arm별 frontend/topology/final GS가 달라 strict
+  근거가 아니다. H에서 packet/topology까지 공유하자 평균 이득은 0으로 줄었다.
+  → [exp03-G](experiments/ERCB_ablation/exp03-G_frozen_tracking_pose/RESULT.md)
+
 - **2026-09-15 (ERCB exp03-F reliable-keyframe role pilot — 0/2, NO-GO):**
   exp03-E의 실패가 interpolated dense pose 때문인지 분리하려고, 역할 service는
   parameter-free causal clock으로 맞추고 dense는 RR로 둔 채 tracked keyframe 안에만

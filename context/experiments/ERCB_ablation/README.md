@@ -2,7 +2,20 @@
 
 > 날짜: 2026-09-15
 > 범위: ERCB 전용 누적 트랙
-> 최신 판정: **fixed-pose/init/topology replay에서는 저예산 ERCB 이득을 재현했지만, strict end-to-end packet-budget에서는 재현하지 못했다. Dense-role ERCB에 이어 reliable-keyframe ERCB도 RPNG/UTMM에서 -1.2385/-0.0738dB였다. Coverage starvation 완화만 확인됐으며 production selector는 RR을 유지한다.**
+> 최신 판정: **GT pose+exact frontend packet+shared packet-driven topology까지 통제해도 UTMM/RPNG fixed ERCB−RR은 +0.0614/−0.0614dB로 평균 0이었다. 과거 fixed replay 이득은 현재 VIGS의 dynamic singleton dense admission과 heterogeneous KF/dense loss로 전이되지 않는다. Production selector는 RR을 유지한다.**
+
+## 최신 결과 — exp03-H frozen frontend + topology
+
+RR/ERCB가 같은 mapper packet과 stable-ID topology 결정을 사용하도록 진단 trace를
+구현했다. UTMM 70 packet/3 event, RPNG 204/1을 exact replay했고 final GS도 pair별로
+동일했다. Fixed held-out delta는 `+0.0614/-0.0614dB`로 이득이 복구되지 않았다.
+상세 결과는 [`exp03-H/RESULT.md`](exp03-H_frozen_frontend_topology/RESULT.md)에 있다.
+
+## 이전 결과 — exp03-G frozen tracking pose
+
+GT pose만 고정했을 때 RPNG/UTMM 3-seed 평균은 `+0.2546/+0.0588dB`로 모두 양수였다.
+그러나 native topology가 arm마다 달랐으므로 H에서 추가 통제했다. 상세 결과는
+[`exp03-G/RESULT.md`](exp03-G_frozen_tracking_pose/RESULT.md)에 있다.
 
 ## 최신 결과 — exp03-F reliable-keyframe role pilot
 

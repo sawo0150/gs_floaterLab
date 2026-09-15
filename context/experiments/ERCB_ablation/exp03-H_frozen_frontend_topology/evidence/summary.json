@@ -1,0 +1,111 @@
+{
+  "experiment": "exp03-H_frozen_frontend_topology",
+  "protocol": "diagnostic_gt_pose_frozen_frontend_packet_driven_shared_topology",
+  "records": [
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "quota": "q15",
+      "seed": 0,
+      "rr": {
+        "fixed_eval_psnr": 17.823035293155247,
+        "fixed_eval_ssim": 0.5584873021752746,
+        "fixed_eval_lpips": 0.5836422708299425,
+        "fixed_eval_views": 324,
+        "mean_psnr": 17.841249750837495,
+        "adam_steps": 1012,
+        "keyframe_updates": 392,
+        "dense_updates": 620,
+        "frontend_packets": 70,
+        "frontend_expected_packets": 70,
+        "topology_events": 3,
+        "topology_expected_events": 3,
+        "pending_keyframe_births": 0,
+        "final_gaussians": 162792,
+        "topology_event_trace": [],
+        "zero_tail": true
+      },
+      "ercb": {
+        "fixed_eval_psnr": 17.884385724126556,
+        "fixed_eval_ssim": 0.5600189338495702,
+        "fixed_eval_lpips": 0.581279642695998,
+        "fixed_eval_views": 324,
+        "mean_psnr": 17.90110033252571,
+        "adam_steps": 1011,
+        "keyframe_updates": 392,
+        "dense_updates": 619,
+        "frontend_packets": 70,
+        "frontend_expected_packets": 70,
+        "topology_events": 3,
+        "topology_expected_events": 3,
+        "pending_keyframe_births": 0,
+        "final_gaussians": 162792,
+        "topology_event_trace": [],
+        "zero_tail": true
+      },
+      "delta_ercb_minus_rr": {
+        "fixed_eval_psnr": 0.06135043097130932,
+        "fixed_eval_ssim": 0.001531631674295597,
+        "fixed_eval_lpips": -0.0023626281339445,
+        "adam_steps": -1,
+        "keyframe_updates": 0,
+        "dense_updates": -1,
+        "final_gaussians": 0
+      },
+      "valid_trace_pair": true
+    },
+    {
+      "family": "rpng",
+      "scene": "table_07",
+      "quota": "q3",
+      "seed": 0,
+      "rr": {
+        "fixed_eval_psnr": 19.757371187707825,
+        "fixed_eval_ssim": 0.6545271458481449,
+        "fixed_eval_lpips": 0.45850137697381116,
+        "fixed_eval_views": 958,
+        "mean_psnr": 19.79189456730765,
+        "adam_steps": 612,
+        "keyframe_updates": 187,
+        "dense_updates": 425,
+        "frontend_packets": 204,
+        "frontend_expected_packets": 204,
+        "topology_events": 1,
+        "topology_expected_events": 1,
+        "pending_keyframe_births": 0,
+        "final_gaussians": 579323,
+        "topology_event_trace": [],
+        "zero_tail": true
+      },
+      "ercb": {
+        "fixed_eval_psnr": 19.695983016665146,
+        "fixed_eval_ssim": 0.654867476797303,
+        "fixed_eval_lpips": 0.4590473781361212,
+        "fixed_eval_views": 958,
+        "mean_psnr": 19.73384162983709,
+        "adam_steps": 612,
+        "keyframe_updates": 186,
+        "dense_updates": 426,
+        "frontend_packets": 204,
+        "frontend_expected_packets": 204,
+        "topology_events": 1,
+        "topology_expected_events": 1,
+        "pending_keyframe_births": 0,
+        "final_gaussians": 579323,
+        "topology_event_trace": [],
+        "zero_tail": true
+      },
+      "delta_ercb_minus_rr": {
+        "fixed_eval_psnr": -0.061388171042679573,
+        "fixed_eval_ssim": 0.00034033094915808526,
+        "fixed_eval_lpips": 0.0005460011623100169,
+        "adam_steps": 0,
+        "keyframe_updates": -1,
+        "dense_updates": 1,
+        "final_gaussians": 0
+      },
+      "valid_trace_pair": true
+    }
+  ],
+  "mean_fixed_eval_psnr_delta": -1.8870035685125686e-05
+}
