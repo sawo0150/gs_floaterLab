@@ -97,3 +97,24 @@ LPIPS는 낮을수록 좋다.
 - 해석과 프로토콜 상세: [`README.md`](README.md)
 
 이 파일은 `build_summary.py`가 원시 verifier artifact에서 생성한다.
+
+## Gaussian 수와 mapping 시간 감사
+
+아래 시간은 기존 unbounded B-track 로그의 `mapping_wall_seconds`를 집계한 것이다. 각 pair는 physical training render 수가 정확히 같지만, R4와 vanilla의 Adam step 및 gradient scope는 같지 않다. 따라서 `ms/Adam`과 `ms/render`는 CUDA kernel 자체의 순수 시간이 아니라 mapping 전체 wall-time proxy다.
+
+| Dataset | Scenes | Mean final GS R4/vanilla | Mapping wall R4/vanilla (s) | Wall ratio | ms/Adam R4/vanilla | ms/render R4/vanilla | map() calls R4/vanilla |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| RPNG | 8 | 2.297× | 2327.993/2273.063 | 1.024× | 64.049/62.653 | 5.067/4.948 | 9,750/3,258 |
+| UTMM | 7 | 0.793× | 198.094/156.331 | 1.267× | 53.467/42.263 | 4.460/3.520 | 918/313 |
+| ARIA | 2 | 1.050× | 90.235/119.908 | 0.753× | 37.614/49.002 | 2.888/3.838 | 711/239 |
+| **전체** | **17** | **1.531×** | **2616.323/2549.302** | **1.026×** | **61.632/60.088** | **4.890/4.764** | **11,379/3,810** |
+
+전체적으로 R4의 scene별 최종 Gaussian 비율 평균은 **1.531×**였지만, mapping wall은 **1.026×**, 즉 **+2.6%**에 그쳤다. R4가 빠른 장면은 6/17개, 느린 장면은 11/17개였다.
+
+최종 Gaussian 수만으로 시간 차이를 설명할 수 없다. RPNG는 최종 GS가 2.297×인데 wall은 1.024×였고, UTMM은 GS가 0.793×로 더 적은데 wall은 1.267×였다. Aria는 GS가 1.050×로 비슷하지만 wall은 0.753×였다.
+
+이유는 (1) 최종 GS 수는 실행 중 평균이나 view별 visible/touched splat 수가 아니고, (2) R4의 dense/KF 보조 update는 appearance-only인 반면 vanilla는 native full-gradient update이며, (3) R4는 frontier/dense/KF service를 분리해 전체 `map()` 호출이 11,379회로 vanilla 3,810회의 약 2.99배이고, (4) PGBA pose refresh, C1/ERCB 장부, densify/prune 및 topology overhead도 wall-time에 포함되기 때문이다.
+
+메모리 영향은 명확하다. RPNG `table_01`은 최종 GS 417,618/182,825 (2.284×), peak CUDA allocated 5.10/2.38 GB였지만, mapping wall은 167.288/194.840초로 오히려 R4가 14.1% 빨랐다. 현재 증거에서 Gaussian 증가는 속도보다 메모리 압력에 더 직접적으로 나타난다.
+
+이 감사만으로 C-track에서 tracking과 GPU를 경쟁할 때의 deadline 영향이나 Gaussian 수의 순수 인과 효과를 증명하지 않는다. 후자를 분리하려면 동일 R4 경로에서 Gaussian capacity만 바꾼 profiler pair가 필요하다.

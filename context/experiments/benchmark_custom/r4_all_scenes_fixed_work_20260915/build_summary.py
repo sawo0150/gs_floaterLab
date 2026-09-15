@@ -97,6 +97,35 @@ def aggregate(rows: list[dict]) -> dict:
     }
 
 
+def aggregate_timing(rows: list[dict]) -> dict:
+    candidate_wall = sum(float(row["candidate_wall_seconds"]) for row in rows)
+    vanilla_wall = sum(float(row["vanilla_wall_seconds"]) for row in rows)
+    candidate_adam = sum(int(row["candidate_optimizer_steps"]) for row in rows)
+    vanilla_adam = sum(int(row["vanilla_optimizer_steps"]) for row in rows)
+    renders = sum(int(row["renders_each"]) for row in rows)
+    return {
+        "valid_scenes": len(rows),
+        "candidate_faster_scenes": sum(
+            float(row["candidate_wall_seconds"])
+            < float(row["vanilla_wall_seconds"])
+            for row in rows
+        ),
+        "mean_final_gaussian_ratio": mean(
+            float(row["candidate_gaussians"]) / float(row["vanilla_gaussians"])
+            for row in rows
+        ),
+        "candidate_wall_seconds": candidate_wall,
+        "vanilla_wall_seconds": vanilla_wall,
+        "wall_ratio": candidate_wall / vanilla_wall,
+        "candidate_ms_per_adam": 1000.0 * candidate_wall / candidate_adam,
+        "vanilla_ms_per_adam": 1000.0 * vanilla_wall / vanilla_adam,
+        "candidate_ms_per_render": 1000.0 * candidate_wall / renders,
+        "vanilla_ms_per_render": 1000.0 * vanilla_wall / renders,
+        "candidate_map_calls": sum(int(row["candidate_map_calls"]) for row in rows),
+        "vanilla_map_calls": sum(int(row["vanilla_map_calls"]) for row in rows),
+    }
+
+
 def fmt(value: float, digits: int = 4) -> str:
     return f"{float(value):.{digits}f}"
 
@@ -110,6 +139,7 @@ def render_summary_markdown(summary: dict) -> str:
     acceptance = summary["acceptance"]
     rows = summary["rows"]
     na = summary["n_a"][0]
+    timing = summary["timing"]
     lines = [
         "# R4 all-scene fixed-work 요약",
         "",
@@ -237,6 +267,92 @@ def render_summary_markdown(summary: dict) -> str:
             "- 해석과 프로토콜 상세: [`README.md`](README.md)",
             "",
             "이 파일은 `build_summary.py`가 원시 verifier artifact에서 생성한다.",
+            "",
+            "## Gaussian 수와 mapping 시간 감사",
+            "",
+            "아래 시간은 기존 unbounded B-track 로그의 `mapping_wall_seconds`를 집계한 "
+            "것이다. 각 pair는 physical training render 수가 정확히 같지만, R4와 "
+            "vanilla의 Adam step 및 gradient scope는 같지 않다. 따라서 `ms/Adam`과 "
+            "`ms/render`는 CUDA kernel 자체의 순수 시간이 아니라 mapping 전체 wall-time "
+            "proxy다.",
+            "",
+            "| Dataset | Scenes | Mean final GS R4/vanilla | Mapping wall R4/vanilla (s) | Wall ratio | ms/Adam R4/vanilla | ms/render R4/vanilla | map() calls R4/vanilla |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for dataset in ("rpng", "utmm", "aria"):
+        item = timing["by_dataset"][dataset]
+        lines.append(
+            f"| {dataset.upper()} | {item['valid_scenes']} | "
+            f"{item['mean_final_gaussian_ratio']:.3f}× | "
+            f"{item['candidate_wall_seconds']:.3f}/{item['vanilla_wall_seconds']:.3f} | "
+            f"{item['wall_ratio']:.3f}× | "
+            f"{item['candidate_ms_per_adam']:.3f}/{item['vanilla_ms_per_adam']:.3f} | "
+            f"{item['candidate_ms_per_render']:.3f}/{item['vanilla_ms_per_render']:.3f} | "
+            f"{item['candidate_map_calls']:,}/{item['vanilla_map_calls']:,} |"
+        )
+    timing_all = timing["overall"]
+    lines.append(
+        f"| **전체** | **{timing_all['valid_scenes']}** | "
+        f"**{timing_all['mean_final_gaussian_ratio']:.3f}×** | "
+        f"**{timing_all['candidate_wall_seconds']:.3f}/"
+        f"{timing_all['vanilla_wall_seconds']:.3f}** | "
+        f"**{timing_all['wall_ratio']:.3f}×** | "
+        f"**{timing_all['candidate_ms_per_adam']:.3f}/"
+        f"{timing_all['vanilla_ms_per_adam']:.3f}** | "
+        f"**{timing_all['candidate_ms_per_render']:.3f}/"
+        f"{timing_all['vanilla_ms_per_render']:.3f}** | "
+        f"**{timing_all['candidate_map_calls']:,}/"
+        f"{timing_all['vanilla_map_calls']:,}** |"
+    )
+    table01 = next(
+        row for row in timing["rows"]
+        if row["dataset"] == "rpng" and row["scene"] == "table_01"
+    )
+    lines.extend(
+        [
+            "",
+            f"전체적으로 R4의 scene별 최종 Gaussian 비율 평균은 "
+            f"**{timing_all['mean_final_gaussian_ratio']:.3f}×**였지만, mapping wall은 "
+            f"**{timing_all['wall_ratio']:.3f}×**, 즉 "
+            f"**{(timing_all['wall_ratio'] - 1.0) * 100:+.1f}%**에 그쳤다. "
+            f"R4가 빠른 장면은 {timing_all['candidate_faster_scenes']}/"
+            f"{timing_all['valid_scenes']}개, 느린 장면은 "
+            f"{timing_all['valid_scenes'] - timing_all['candidate_faster_scenes']}/"
+            f"{timing_all['valid_scenes']}개였다.",
+            "",
+            "최종 Gaussian 수만으로 시간 차이를 설명할 수 없다. RPNG는 최종 GS가 "
+            f"{timing['by_dataset']['rpng']['mean_final_gaussian_ratio']:.3f}×인데 wall은 "
+            f"{timing['by_dataset']['rpng']['wall_ratio']:.3f}×였고, UTMM은 GS가 "
+            f"{timing['by_dataset']['utmm']['mean_final_gaussian_ratio']:.3f}×로 더 적은데 "
+            f"wall은 {timing['by_dataset']['utmm']['wall_ratio']:.3f}×였다. Aria는 GS가 "
+            f"{timing['by_dataset']['aria']['mean_final_gaussian_ratio']:.3f}×로 비슷하지만 "
+            f"wall은 {timing['by_dataset']['aria']['wall_ratio']:.3f}×였다.",
+            "",
+            "이유는 (1) 최종 GS 수는 실행 중 평균이나 view별 visible/touched splat 수가 "
+            "아니고, (2) R4의 dense/KF 보조 update는 appearance-only인 반면 vanilla는 "
+            "native full-gradient update이며, (3) R4는 frontier/dense/KF service를 분리해 "
+            f"전체 `map()` 호출이 {timing_all['candidate_map_calls']:,}회로 vanilla "
+            f"{timing_all['vanilla_map_calls']:,}회의 약 "
+            f"{timing_all['candidate_map_calls'] / timing_all['vanilla_map_calls']:.2f}배이고, "
+            "(4) PGBA pose refresh, C1/ERCB 장부, densify/prune 및 topology overhead도 "
+            "wall-time에 포함되기 때문이다.",
+            "",
+            f"메모리 영향은 명확하다. RPNG `table_01`은 최종 GS "
+            f"{int(table01['candidate_gaussians']):,}/{int(table01['vanilla_gaussians']):,} "
+            f"({float(table01['candidate_gaussians']) / float(table01['vanilla_gaussians']):.3f}×), "
+            f"peak CUDA allocated "
+            f"{float(table01['candidate_peak_cuda_bytes']) / 1e9:.2f}/"
+            f"{float(table01['vanilla_peak_cuda_bytes']) / 1e9:.2f} GB였지만, mapping wall은 "
+            f"{float(table01['candidate_wall_seconds']):.3f}/"
+            f"{float(table01['vanilla_wall_seconds']):.3f}초로 오히려 R4가 "
+            f"{(1.0 - float(table01['candidate_wall_seconds']) / float(table01['vanilla_wall_seconds'])) * 100:.1f}% "
+            "빨랐다. 현재 증거에서 Gaussian 증가는 속도보다 메모리 압력에 더 직접적으로 "
+            "나타난다.",
+            "",
+            "이 감사만으로 C-track에서 tracking과 GPU를 경쟁할 때의 deadline 영향이나 "
+            "Gaussian 수의 순수 인과 효과를 증명하지 않는다. 후자를 분리하려면 동일 R4 "
+            "경로에서 Gaussian capacity만 바꾼 profiler pair가 필요하다.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -244,6 +360,7 @@ def render_summary_markdown(summary: dict) -> str:
 
 def main() -> int:
     rows: list[dict] = []
+    timing_rows: list[dict] = []
     provenance: list[dict] = []
     for dataset, scene, role, relative_report in REPORTS:
         report_path = RAW / relative_report
@@ -258,6 +375,15 @@ def main() -> int:
         delta = result["d1_minus_vanilla"]
         candidate_run = Path(report["d1_run"])
         vanilla_run = Path(report["vanilla_run"])
+        candidate_runtime = read_json(candidate_run / "mapping_replay_runtime.json")
+        vanilla_runtime = read_json(vanilla_run / "mapping_replay_runtime.json")
+        if (
+            int(candidate_runtime["rasterized_view_updates"]) != int(candidate["renders"])
+            or int(vanilla_runtime["rasterized_view_updates"]) != int(vanilla["renders"])
+            or int(candidate_runtime["rasterized_view_updates"])
+            != int(vanilla_runtime["rasterized_view_updates"])
+        ):
+            raise RuntimeError(f"runtime render mismatch: {report_path}")
         evaluation = read_json(
             candidate_run / "psnr/strict_fixed_manifest/final_result.json"
         )["predeclared_fixed_manifest_posthoc"]
@@ -290,6 +416,23 @@ def main() -> int:
             "note": "table_01 exact R4 result reused" if scene == "table_01" else "",
         }
         rows.append(row)
+        timing_rows.append(
+            {
+                "dataset": dataset,
+                "scene": scene,
+                "renders_each": int(candidate_runtime["rasterized_view_updates"]),
+                "candidate_gaussians": int(candidate_runtime["gaussians"]),
+                "vanilla_gaussians": int(vanilla_runtime["gaussians"]),
+                "candidate_wall_seconds": float(candidate_runtime["mapping_wall_seconds"]),
+                "vanilla_wall_seconds": float(vanilla_runtime["mapping_wall_seconds"]),
+                "candidate_optimizer_steps": int(candidate_runtime["optimizer_steps_completed"]),
+                "vanilla_optimizer_steps": int(vanilla_runtime["optimizer_steps_completed"]),
+                "candidate_map_calls": int(candidate_runtime["map_calls"]),
+                "vanilla_map_calls": int(vanilla_runtime["map_calls"]),
+                "candidate_peak_cuda_bytes": int(candidate_runtime["peak_cuda_allocated_bytes"]),
+                "vanilla_peak_cuda_bytes": int(vanilla_runtime["peak_cuda_allocated_bytes"]),
+            }
+        )
         candidate_manifest = candidate_run / "source_manifest.txt"
         vanilla_manifest = vanilla_run / "source_manifest.txt"
         provenance.append(
@@ -340,6 +483,12 @@ def main() -> int:
         for role in sorted({row["role"] for row in rows})
     }
     overall = aggregate(rows)
+    timing_by_dataset = {
+        dataset: aggregate_timing(
+            [row for row in timing_rows if row["dataset"] == dataset]
+        )
+        for dataset in ("rpng", "utmm", "aria")
+    }
     acceptance = {
         "prospective_rule": (
             "valid-scene arithmetic mean delta PSNR >= +0.5 dB, strict majority "
@@ -367,6 +516,11 @@ def main() -> int:
             "overall": overall,
             "by_dataset": by_dataset,
             "by_role": by_role,
+        },
+        "timing": {
+            "overall": aggregate_timing(timing_rows),
+            "by_dataset": timing_by_dataset,
+            "rows": timing_rows,
         },
         "acceptance": acceptance,
         "original_x4_gate_note": (
