@@ -53,6 +53,7 @@ from exp78b_newborn_consolidation import (  # noqa: E402
 )
 from map_scheduler import (  # noqa: E402
     AdaptiveViewsetController,
+    ComputePacedKeyframeServiceShortfallReplayQueue,
     temporal_maximin_order,
 )
 from exp78b_timeline_scheduler import (  # noqa: E402
@@ -64,7 +65,7 @@ from exp78b_timeline_scheduler import (  # noqa: E402
 )
 
 
-PROTOCOL = "exp78b_gsslam_frozen_mapping_replay_v27"
+PROTOCOL = "exp78b_gsslam_frozen_mapping_replay_v28"
 
 
 def install_relative_capacity_prune_closure(controller):
@@ -1591,6 +1592,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--stage6r-keyframe-appearance-replay",
+        action="store_true",
+        help=(
+            "Stage-6R R3: retain the fixed dense C1/C2 step and add one "
+            "independent appearance-only keyframe C1/C2 step per eligible "
+            "completed mapping packet"
+        ),
+    )
+    parser.add_argument(
         "--density-policy",
         choices=("configured", "disabled", "online_rank"),
         default="configured",
@@ -1956,6 +1966,26 @@ def main() -> int:
             "Stage-4 C1+C2 integration requires compute-paced C1 and one "
             "fixed dense opportunity per eligible mapping packet"
         )
+    if args.stage6r_keyframe_appearance_replay and not (
+        stage4_c1_c2_global_residue_integration
+        and args.service_shortfall_ercb
+        and args.compute_paced_dense_admission
+        and args.compute_paced_dense_token_cost == 1
+        and args.fixed_event_dense_opportunities_per_packet == 1
+        and args.time_scale == "unbounded"
+        and args.profile == "dense_rr_imu"
+        and args.observation_topology_gate
+        and args.dense_replay_scope == "appearance"
+        and not args.include_keyframes_in_replay
+        and args.keyframe_replay_fraction < 0.0
+        and not args.keyframe_replay_full_geometry
+        and args.new_view_service_period == 0
+    ):
+        raise ValueError(
+            "Stage-6R keyframe replay requires the accepted R1 dense-only "
+            "C1 service1/global-residue C2 arm and adds only a separate "
+            "appearance keyframe source"
+        )
     if args.service_shortfall_ercb and not (
         native_d1_dense_service_clock
         and not args.include_keyframes_in_replay
@@ -2256,6 +2286,24 @@ def main() -> int:
     mapper._exp78b_current_replay_keys = ()
     mapper._exp78b_adaptive_scope_counts = {"full": 0, "appearance": 0}
     mapper._exp78b_effective_replay_scope_counts = collections.Counter()
+    stage6r_keyframe_queue = None
+    if args.stage6r_keyframe_appearance_replay:
+        stage6r_keyframe_queue = (
+            ComputePacedKeyframeServiceShortfallReplayQueue(
+                seed=int(args.seed) + 104729,
+                gamma=math.log(1.5),
+                relative_floor_ratio=0.75,
+                block_size=8,
+            )
+        )
+        keyframe_draw = stage6r_keyframe_queue.draw
+
+        def captured_keyframe_draw(*draw_args, **draw_kwargs):
+            keys = keyframe_draw(*draw_args, **draw_kwargs)
+            mapper._exp78b_current_replay_keys = tuple(keys)
+            return keys
+
+        stage6r_keyframe_queue.draw = captured_keyframe_draw
     dense_pose_shaper = (
         CausalImuDensePoseShaper(archive)
         if args.profile in ("dense_rr_imu", "d1_fixed_state_rr_imu")
@@ -2331,6 +2379,7 @@ def main() -> int:
     registered_dense_uids: set[int] = set()
     dense_admission_ledger: list[dict[str, object]] = []
     fixed_event_dense_opportunity_ledger: list[dict[str, object]] = []
+    fixed_event_keyframe_opportunity_ledger: list[dict[str, object]] = []
     map_generation = 0
     dense_records_available = 0
     dense_registration_calls = 0
@@ -2436,6 +2485,8 @@ def main() -> int:
             else:
                 mapper.remove_all_gaussians()
                 map_generation += 1
+                if stage6r_keyframe_queue is not None:
+                    stage6r_keyframe_queue.begin_generation(map_generation)
                 if compute_paced_admission is not None:
                     compute_paced_admission.reset_token_service_clock(
                         int(mapper.mapping_replay_dense_updates)
@@ -2549,6 +2600,8 @@ def main() -> int:
         after_frontier_views = before_views
         fixed_dense_steps = 0
         fixed_dense_views = 0
+        fixed_keyframe_steps = 0
+        fixed_keyframe_views = 0
         completed = False
         stop_reason = None
         try:
@@ -2663,6 +2716,110 @@ def main() -> int:
                         "lifecycle": lifecycle_snapshot,
                     }
                 )
+                if stage6r_keyframe_queue is not None:
+                    dense_queue = mapper._mapping_replay_queue
+                    dense_only = mapper._mapping_replay_dense_only
+                    dense_lr_clock = int(mapper.mapping_replay_steps)
+                    fixed_before_keyframe_steps = (
+                        guard.optimizer_steps_completed
+                    )
+                    fixed_before_keyframe_views = telemetry[
+                        "training_rasterized_view_updates"
+                    ]
+                    fixed_before_keyframe_updates = int(
+                        mapper.mapping_replay_keyframe_updates
+                    )
+                    stage6r_keyframe_queue.set_boundary(event_id)
+                    keyframe_selector_before = (
+                        stage6r_keyframe_queue.selector_block_snapshot()
+                    )
+                    mapper._mapping_replay_queue = stage6r_keyframe_queue
+                    mapper._mapping_replay_dense_only = False
+                    # Each source owns its replay LR clock.  Core map() reads
+                    # mapping_replay_steps when selecting the next replay LR,
+                    # so expose the keyframe count only for this isolated step
+                    # and restore the unchanged dense clock immediately after.
+                    mapper.mapping_replay_steps = int(
+                        mapper.mapping_replay_keyframe_updates
+                    )
+                    mapper._exp78b_replay_scope_active = True
+                    try:
+                        keyframe_completed = bool(
+                            mapper.idle_map_rr_step(iters=1, batch_size=1)
+                        )
+                        keyframe_selected_keys = [
+                            [str(key[0]), int(key[1])]
+                            for key in mapper._exp78b_current_replay_keys
+                        ]
+                    finally:
+                        mapper._exp78b_replay_scope_active = False
+                        mapper._exp78b_current_replay_keys = ()
+                        mapper._mapping_replay_queue = dense_queue
+                        mapper._mapping_replay_dense_only = dense_only
+                        mapper.mapping_replay_steps = dense_lr_clock
+                    if not keyframe_completed:
+                        raise RuntimeError(
+                            "Stage-6R keyframe opportunity did not complete"
+                        )
+                    fixed_keyframe_steps = (
+                        guard.optimizer_steps_completed
+                        - fixed_before_keyframe_steps
+                    )
+                    fixed_keyframe_views = (
+                        telemetry["training_rasterized_view_updates"]
+                        - fixed_before_keyframe_views
+                    )
+                    keyframe_delta = (
+                        int(mapper.mapping_replay_keyframe_updates)
+                        - fixed_before_keyframe_updates
+                    )
+                    if (
+                        fixed_keyframe_steps != 1
+                        or fixed_keyframe_views != 1
+                        or keyframe_delta != 1
+                        or len(keyframe_selected_keys) != 1
+                        or keyframe_selected_keys[0][0] != "keyframe"
+                    ):
+                        raise RuntimeError(
+                            "Stage-6R keyframe opportunity must complete "
+                            "one appearance-only keyframe Adam/render: "
+                            f"adam={fixed_keyframe_steps} "
+                            f"renders={fixed_keyframe_views} "
+                            f"keyframe={keyframe_delta} "
+                            f"selected={keyframe_selected_keys!r}"
+                        )
+                    keyframe_selector_after = (
+                        stage6r_keyframe_queue.selector_block_snapshot()
+                    )
+                    fixed_event_keyframe_opportunity_ledger.append(
+                        {
+                            "opportunity_index": len(
+                                fixed_event_keyframe_opportunity_ledger
+                            ),
+                            "event_id": int(event_id),
+                            "map_generation": int(map_generation),
+                            "selected_keys": keyframe_selected_keys,
+                            "optimizer_steps_completed": (
+                                fixed_keyframe_steps
+                            ),
+                            "rasterized_view_updates": (
+                                fixed_keyframe_views
+                            ),
+                            "completed_keyframe_service_before": (
+                                fixed_before_keyframe_updates
+                            ),
+                            "completed_keyframe_service_after": int(
+                                mapper.mapping_replay_keyframe_updates
+                            ),
+                            "selector_block_before": (
+                                keyframe_selector_before
+                            ),
+                            "selector_block_after": keyframe_selector_after,
+                            "dense_lr_clock_restored": int(
+                                mapper.mapping_replay_steps
+                            ),
+                        }
+                    )
                 replay_serviced_since_dispatch = True
                 register_pending_dense(f"event:{event_id}:post_fixed_dense")
             dense_pose_packet_refresh_candidate_packets += 1
@@ -2717,6 +2874,9 @@ def main() -> int:
                         after_frontier_steps - before_steps
                     ),
                     "fixed_dense_optimizer_steps_completed": fixed_dense_steps,
+                    "fixed_keyframe_optimizer_steps_completed": (
+                        fixed_keyframe_steps
+                    ),
                     "rasterized_view_updates": (
                         telemetry["training_rasterized_view_updates"] - before_views
                     ),
@@ -2724,6 +2884,9 @@ def main() -> int:
                         after_frontier_views - before_views
                     ),
                     "fixed_dense_rasterized_view_updates": fixed_dense_views,
+                    "fixed_keyframe_rasterized_view_updates": (
+                        fixed_keyframe_views
+                    ),
                     "completed": completed,
                     "stop_reason": stop_reason,
                     "mapping_worker_saturated": bool(
@@ -2784,6 +2947,30 @@ def main() -> int:
         and key[0] == "dense"
         and int(count) > 0
     }
+    keyframe_replay_candidates = {
+        ("keyframe", int(viewpoint.uid))
+        for viewpoint in mapper.viewpoints.values()
+        if not bool(getattr(viewpoint, "mapping_eval_excluded", False))
+    }
+    stage6r_keyframe_summary = (
+        None
+        if stage6r_keyframe_queue is None
+        else stage6r_keyframe_queue.summary(keyframe_replay_candidates)
+    )
+    keyframe_aux_selected_uids = (
+        set()
+        if stage6r_keyframe_queue is None
+        else {
+            int(key[1])
+            for key, count in stage6r_keyframe_queue.selection_counts.items()
+            if (
+                isinstance(key, tuple)
+                and len(key) >= 2
+                and key[0] == "keyframe"
+                and int(count) > 0
+            )
+        }
+    )
     mapped_uids = sorted(tracking_mapped_uids | dense_selected_uids)
     heldout_overlap = sorted(set(mapped_uids).intersection(archive.heldout_uids))
     origin_uids = sorted(
@@ -2863,6 +3050,32 @@ def main() -> int:
         ),
         "fixed_event_dense_opportunity_ledger": (
             fixed_event_dense_opportunity_ledger
+        ),
+        "stage6r_keyframe_appearance_replay": (
+            args.stage6r_keyframe_appearance_replay
+        ),
+        "stage6r_source_quota_protocol": (
+            "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
+            if args.stage6r_keyframe_appearance_replay
+            else None
+        ),
+        "fixed_event_keyframe_opportunity_ledger": (
+            fixed_event_keyframe_opportunity_ledger
+        ),
+        "stage6r_keyframe_replay_summary": stage6r_keyframe_summary,
+        "stage6r_keyframe_selected_unique_views": len(
+            keyframe_aux_selected_uids
+        ),
+        "stage6r_keyframe_selected_frame_uids": sorted(
+            keyframe_aux_selected_uids
+        ),
+        "stage6r_source_lr_steps": (
+            {
+                "dense": int(mapper.mapping_replay_dense_updates),
+                "keyframe": int(mapper.mapping_replay_keyframe_updates),
+            }
+            if args.stage6r_keyframe_appearance_replay
+            else None
         ),
         "dense_admission_ledger": dense_admission_ledger,
         "service_shortfall_ercb_parameters": (
@@ -2973,9 +3186,13 @@ def main() -> int:
         "deadline_reserve_ms": args.deadline_reserve_ms,
         "work_contract": (
             (
-                "d1_stage1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
-                if c2_full_pool_isolation
-                else "d1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
+                "d1_native_fixed_dense_plus_keyframe_opportunity_pair_v1"
+                if args.stage6r_keyframe_appearance_replay
+                else (
+                    "d1_stage1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
+                    if c2_full_pool_isolation
+                    else "d1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
+                )
             )
             if fixed_event_dense_isolation
             else (
@@ -2987,15 +3204,19 @@ def main() -> int:
         ),
         "comparison_contract": (
             (
-                "stage4_c1_c2_global_residue_fixed_event_integration_v1"
-                if stage4_c1_c2_global_residue_integration
+                "stage6r_r3_dense_plus_keyframe_appearance_c1_c2_v1"
+                if args.stage6r_keyframe_appearance_replay
                 else (
-                    "stage3d_c2_global_residue_fixed_event_ordering_only_v1"
-                    if stage3d_c2_global_residue_isolation
+                    "stage4_c1_c2_global_residue_fixed_event_integration_v1"
+                    if stage4_c1_c2_global_residue_integration
                     else (
-                        "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
-                        if stage3c_c2_orthogonal_isolation
-                        else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                        "stage3d_c2_global_residue_fixed_event_ordering_only_v1"
+                        if stage3d_c2_global_residue_isolation
+                        else (
+                            "stage3c_c2_orthogonal_fixed_event_ordering_only_v1"
+                            if stage3c_c2_orthogonal_isolation
+                            else "stage3_rr_vs_ercb_fixed_event_ordering_only_v2"
+                        )
                     )
                 )
             )
