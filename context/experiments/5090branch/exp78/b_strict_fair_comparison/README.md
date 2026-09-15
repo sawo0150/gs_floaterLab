@@ -1522,3 +1522,59 @@ Evidence:
 - predeclared contract:
   `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage6r_c1_c2_reinforcement_contract.md`
 - verifier implementation commit: `75c6d58`
+
+## 2026-09-15 — Stage 6R R3 separate-source keyframe C1/C2: PASS, R1 loss -0.003313 dB
+
+R1 통과 뒤 사전 고정한 R3를 같은 RPNG `table_01` mapper seed0에서 실행했다.
+R1의 매 completed packet당 dense appearance Adam 1회는 UID trace와 source LR
+clock까지 그대로 두고, 그 뒤에 keyframe appearance Adam 1회를 별도로 추가했다.
+두 source가 한 slot을 경쟁하지 않는 고정 `dense:keyframe=1:1` pair다. KF 쪽은
+map generation별 bootstrap 1장과 성공 KF service 1회당 이미 도착한 KF 1장을
+admit하는 별도 C1 장부를 사용하고, 별도 난수의 C2
+`K8/rho.75/gamma=log(1.5)/global-no-repeat`로 선택했다. Keyframe RGB-D/normal,
+native frontier, topology gradient는 추가하지 않았고 두 auxiliary source 모두
+appearance-only다.
+
+| Arm | PSNR | SSIM | LPIPS | Dense unique | KF auxiliary unique | Adam | Renders | GS |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| accepted dense-only R1 | 25.587764 | .848722 | .154522 | 267 | 0 | 2,761 | 38,033 | 417,598 |
+| **R3 dense+KF C1/C2** | **25.584451** | **.848754** | **.153785** | **267** | **189** | 3,030 | 38,302 | 417,590 |
+| R3-render-matched native vanilla | 23.925241 | .793436 | .199096 | -- | -- | 3,027 | 38,302 | 182,712 |
+
+R3-R1은 PSNR **-.003313dB**, SSIM `+.000032`, LPIPS `-.000737`로 사전
+retention 한계 `-.10dB`를 여유 있게 통과했다. R3-vanilla는
+**+1.659209dB**, SSIM `+.055318`, LPIPS `-.045311`다. Dense admission270,
+selected267, 269개 opportunity의 선택 UID 순서는 R1과 모두 exact다. KF는
+269회 별도 commit했고 final generation의 causal/admitted 210장 중 189장
+(**90.0%**)을 고유 서비스했다. Source별 appearance step은 전체 generation
+기준 dense269/KF269, final source LR clock은 267/267이다. Dense final
+workload도 계속 `S/U=267/269`, repeat0, residue2다.
+
+Generic render-match verifier 10/10과 R3 전용 verifier 10/10이 모두
+`valid=true`다. 동일 archive/283 event/279 mapping event/210 tracking KF UID,
+fixed502 evaluator, mapping-disjoint, causal no-prepurchase와 zero-tail을 통과했다.
+따라서 **R3는 기존 D1 이득을 잃지 않는 complete C1+C2 source extension으로
+채택**한다. 그러나 R3 자체의 R1 대비 PSNR 효과는 사실상 0이므로
+“KF replay가 품질을 향상했다”고 주장하지 않는다. R3-matched vanilla가 R1용
+vanilla보다 낮아져 `+1.659dB` 차이에는 vanilla native work-allocation/topology
+민감성도 포함된다. 순수 KF 기여는 R3-R1이고, 현재 증거는 범위 확장과 무손실이다.
+
+이 결과는 `table_01`을 이미 본 development fixed-work mapping isolation이다.
+Absolute frame/iteration/fraction/count cutoff나 dataset name을 쓰지 않아 구조상
+장면별 튜닝은 없지만, 일반화 증거는 아니다. R3를 Full 후보로 쓰려면 Stage6에서
+이미 metric을 본 `table_01/table_02`를 confirmation에서 제외한 새 cross-sequence
+계약과, 별도 C strict live-time gate가 필요하다.
+
+Evidence:
+
+- R3:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/c1_service1_global_residue_c2_kfappearance_s0/`
+- R3-matched vanilla:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/native_vanilla_render_matched_r3_s0/`
+- R3 gate:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/verification/r3_gate_s0.json`
+- render-match audit:
+  `results/experiments/exp78/paper_full_staged_v1/stage6r_c1_c2_reinforcement/rpng/table_01/verification/r3_render_match_s0.json`
+- contract/result:
+  `/home/intern/VIGS-SLAM-paper-full/paper_full_stages/stage6r_c1_c2_reinforcement_{contract,result}.md`
+- core queue / harness commits: `b11eeb3c` / `d5ee3bf` (`cb75606` verifier alignment)
