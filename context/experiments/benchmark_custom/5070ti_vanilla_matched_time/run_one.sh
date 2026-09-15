@@ -7,6 +7,7 @@ scene=${2:?usage: run_one.sh FAMILY SCENE SELECTOR [OUTPUT_DIR]}
 selector=${3:?usage: run_one.sh FAMILY SCENE SELECTOR [OUTPUT_DIR]}
 admission=${MATCHED_ADMISSION:-arrival}
 required_opportunities=${MATCHED_REQUIRED_OPPORTUNITIES:-4}
+mapping_seed=${MAPPING_SEED:-0}
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 lab_root=/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab
 repo_root=${VIGS_REPO_ROOT:-/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828}
@@ -40,9 +41,9 @@ case "$admission" in
         ;;
     *) echo "unsupported MATCHED_ADMISSION: $admission" >&2; exit 2 ;;
 esac
-default_suffix="${selector}_unified_pool_seed0"
+default_suffix="${selector}_unified_pool_seed${mapping_seed}"
 if [ "$admission" != arrival ]; then
-    default_suffix="${selector}_unified_pool_${admission_tag}_seed0"
+    default_suffix="${selector}_unified_pool_${admission_tag}_seed${mapping_seed}"
 fi
 output_dir=${4:-"$lab_root/results/benchmarks/benchmark_custom/5070ti_vanilla_matched_time/$family/$scene/$default_suffix"}
 case "$output_dir" in
@@ -100,6 +101,11 @@ matched_scale=$(python "$script_dir/build_budget_manifest.py" \
     --lookup "$family" "$scene" --field matched_replay_scale)
 matched_elapsed=$(python "$script_dir/build_budget_manifest.py" \
     --lookup "$family" "$scene" --field vanilla_mapping_elapsed_s)
+replay_scale=${MAPPING_REPLAY_SCALE_OVERRIDE:-$matched_scale}
+budget_source=vanilla_map_done
+if [ -n "${MAPPING_REPLAY_SCALE_OVERRIDE:-}" ]; then
+    budget_source=fixed_replay_scale_override
+fi
 
 required=(
     "$image_dir" "$imu_file" "$calibration" "$config_file"
@@ -141,7 +147,7 @@ source "$conda_root/etc/profile.d/conda.sh"
 conda activate "$conda_env"
 
 code_commit=$(git -C "$repo_root" rev-parse HEAD)
-echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier prune_opacity_multiplier=$prune_opacity_multiplier matched_scale=$matched_scale matched_elapsed_s=$matched_elapsed budget_source=vanilla_map_done replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=0 output=$output_dir"
+echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier prune_opacity_multiplier=$prune_opacity_multiplier replay_scale=$replay_scale matched_scale_reference=$matched_scale matched_elapsed_s_reference=$matched_elapsed budget_source=$budget_source replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=$mapping_seed output=$output_dir"
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader
 
 cd "$asset_root"
@@ -152,7 +158,7 @@ exec /usr/bin/time -v python "$repo_root/demo.py" \
     --config "$config_file" \
     --output "$output_dir" \
     --gsmapping --pure_online --realtime_replay \
-    --replay_time_scale "$matched_scale" \
+    --replay_time_scale "$replay_scale" \
     --eval_online_final --eval_metrics_only \
     --mapping_exclude_fixed_eval_views --report_online_mapping_summary \
     --frontend_window 25 --frontend_radius 2 --motion_filter_thresh 2.4 \
@@ -160,14 +166,14 @@ exec /usr/bin/time -v python "$repo_root/demo.py" \
     --enable_isotropic_loss --mapping_after_imu_init \
     --mapping_birth_downsample_multiplier "$birth_downsample_multiplier" \
     --mapping_prune_opacity_multiplier "$prune_opacity_multiplier" \
-    --tracking_stride 1 --seed 0 \
+    --tracking_stride 1 --seed "$mapping_seed" \
     --idle_map_rr --mapping_work_conserving --mapping_unified_pool \
     --mapping_replay_deadline_guard --gs_dedicated_stream \
     --mapping_replay_overlap_tracking --mapping_replay_pack_tracking_slack \
     --mapping_replay_iters 1 --mapping_replay_batch_size 1 \
     --mapping_idle_replay_batch_size 1 \
     --mapping_replay_dense_gradient_scope appearance_opacity \
-    --mapping_replay_seed 0 --mapping_idle_guard_ms 0 \
+    --mapping_replay_seed "$mapping_seed" --mapping_idle_guard_ms 0 \
     --mapping_idle_fast_loop \
     --background_dense_pose_source imu_rotation_bridge \
     --mapping_dense_preinit_interpolate \
