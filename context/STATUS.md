@@ -88,6 +88,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB benchmark-A historical low-budget broad transfer — 12/13 양수):**
+  exp03의 `15 updates/event`, seed0, fixed final VIGS pose/init, RGB-only, fixed topology,
+  llffhold-8, zero-tail 조건을 장면별 knob 없이 16-scene inventory에 확장했다. 원 exp80
+  source가 완전한 13 scene의 26/26 arm이 완료됐고 ERCB−RR은 전체
+  **+0.5909dB(12/13)**, UTMM **+0.2638dB(6/7)**, RPNG
+  **+0.9725dB(6/6)**였다. Slow-straight-1/table_07/table_08은 원 VIGS 실패로
+  pose/init source가 없어 unavailable로 기록했다. ERCB가 11/13 scene에서 zero-service
+  view를 늘렸으므로 view-level fairness가 아니라 interval 집중에 의한 저예산 수렴 신호다.
+  단 seed0·offline fixed replay이며 마지막 KF 뒤 RGB를 마지막 event에 묶는 historical
+  tail admission까지 재현하므로 strict streaming/current unified VIGS 근거는 아니다.
+  → [benchmark-A](experiments/ERCB_ablation/benchmark-A/summary.md)
+
 - **2026-09-15 (ERCB exp03-H exact frontend packet + shared topology — 이득 미복구, NO-GO):**
   GT absolute pose에 더해 mapper 입력 packet과 native RR의 stable-ID topology 결정을
   기록해 두 arm에서 같은 causal packet 경계에 replay했다. UTMM square-1 q15는

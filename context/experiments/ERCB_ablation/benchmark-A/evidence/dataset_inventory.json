@@ -1,0 +1,157 @@
+{
+  "protocol": "benchmark-A historical exp03 replay dataset",
+  "builder": "/home/wosas/Desktop/26-1_RPM/gsProjects/3dgs-custom-exp77-budget-5070ti-repro/scripts/incremental/build_vigs_benchmark_causal_dataset.py",
+  "builder_sha256": "1038012565294e0686e74da47337082eb047825f35ebf98e79ad65f35c951524",
+  "builder_repo_head": "2debc8af513287520ddd9ab963320c766f36d000",
+  "historical_tail_admission_semantics": true,
+  "records": [
+    {
+      "family": "utmm",
+      "scene": "ego-centric-1",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/ego-centric-1",
+      "events": 56,
+      "train_frames": 1343,
+      "heldout_frames": 192,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-1",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/ego-centric-1/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "ego-centric-2",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/ego-centric-2",
+      "events": 65,
+      "train_frames": 1135,
+      "heldout_frames": 163,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-2",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/ego-centric-2/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "ego-drive",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/ego-drive",
+      "events": 87,
+      "train_frames": 1224,
+      "heldout_frames": 175,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-drive",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/ego-drive/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "fast-straight",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/fast-straight",
+      "events": 18,
+      "train_frames": 290,
+      "heldout_frames": 42,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/fast-straight",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/fast-straight/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "slow-straight-2",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/slow-straight-2",
+      "events": 16,
+      "train_frames": 522,
+      "heldout_frames": 75,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/slow-straight-2",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/slow-straight-2/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/square-1",
+      "events": 80,
+      "train_frames": 1412,
+      "heldout_frames": 202,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-1",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/square-1/seed0"
+    },
+    {
+      "family": "utmm",
+      "scene": "square-2",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/utmm/square-2",
+      "events": 73,
+      "train_frames": 1066,
+      "heldout_frames": 153,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-2",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/utmm/square-2/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_01",
+      "events": 244,
+      "train_frames": 2192,
+      "heldout_frames": 314,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_01",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_01/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_02",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_02",
+      "events": 330,
+      "train_frames": 2549,
+      "heldout_frames": 365,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_02",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_02/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_03",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_03",
+      "events": 506,
+      "train_frames": 6130,
+      "heldout_frames": 876,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_03",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_03/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_04",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_04",
+      "events": 413,
+      "train_frames": 5309,
+      "heldout_frames": 759,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_04",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_04/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_05",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_05",
+      "events": 332,
+      "train_frames": 5393,
+      "heldout_frames": 771,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_05",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_05/seed0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_06",
+      "state": "built",
+      "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_benchmark_A_replay_v2/rpng/table_06",
+      "events": 224,
+      "train_frames": 2421,
+      "heldout_frames": 346,
+      "source": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_06",
+      "vigs_run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/vigs_sources/fixed1x_5090_exp80/rpng/table_06/seed0"
+    }
+  ],
+  "unavailable": {
+    "utmm/slow-straight-1": "VIGS mapping initialization failed; no full pose/init export",
+    "rpng/table_07": "VIGS PGBA failed; no full pose trajectory/keyframe export",
+    "rpng/table_08": "VIGS OOM; no full pose trajectory/keyframe export"
+  }
+}
