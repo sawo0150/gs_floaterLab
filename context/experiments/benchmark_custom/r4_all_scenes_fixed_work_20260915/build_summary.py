@@ -97,6 +97,151 @@ def aggregate(rows: list[dict]) -> dict:
     }
 
 
+def fmt(value: float, digits: int = 4) -> str:
+    return f"{float(value):.{digits}f}"
+
+
+def signed(value: float, digits: int = 4) -> str:
+    return f"{float(value):+.{digits}f}"
+
+
+def render_summary_markdown(summary: dict) -> str:
+    overall = summary["aggregates"]["overall"]
+    acceptance = summary["acceptance"]
+    rows = summary["rows"]
+    na = summary["n_a"][0]
+    lines = [
+        "# R4 all-scene fixed-work 요약",
+        "",
+        f"날짜: {summary['date']}",
+        "",
+        f"범위: {summary['scope']}",
+        "",
+        "## 결론",
+        "",
+        f"- 계획 {summary['planned_scenes']}개 중 유효 {summary['valid_scenes']}개, "
+        f"N/A {summary['n_a_scenes']}개",
+        f"- 유효 장면 PSNR 승리: {overall['positive_scenes']}/{overall['valid_scenes']}",
+        f"- scene-mean PSNR: R4 **{fmt(overall['candidate_psnr_scene_mean'])} dB**, "
+        f"vanilla **{fmt(overall['vanilla_psnr_scene_mean'])} dB**, "
+        f"delta **{signed(overall['delta_psnr_scene_mean'])} dB**",
+        f"- view-weighted PSNR delta: **{signed(overall['delta_psnr_view_weighted'])} dB** "
+        f"({overall['views']:,} views)",
+        f"- scene-mean SSIM/LPIPS delta: "
+        f"**{signed(overall['delta_ssim_scene_mean'], 5)} / "
+        f"{signed(overall['delta_lpips_scene_mean'], 5)}**",
+        f"- prospective all-scene acceptance: **{'PASS' if acceptance['passed'] else 'HOLD'}**",
+        "",
+        "## 데이터셋별 집계",
+        "",
+        "| Dataset | 유효 | 승리 | Views | R4 PSNR | Vanilla PSNR | ΔPSNR | View-weighted ΔPSNR | ΔSSIM | ΔLPIPS |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for dataset in ("rpng", "utmm", "aria"):
+        item = summary["aggregates"]["by_dataset"][dataset]
+        lines.append(
+            f"| {dataset.upper()} | {item['valid_scenes']} | {item['positive_scenes']} | "
+            f"{item['views']:,} | {fmt(item['candidate_psnr_scene_mean'])} | "
+            f"{fmt(item['vanilla_psnr_scene_mean'])} | "
+            f"**{signed(item['delta_psnr_scene_mean'])}** | "
+            f"{signed(item['delta_psnr_view_weighted'])} | "
+            f"{signed(item['delta_ssim_scene_mean'], 5)} | "
+            f"{signed(item['delta_lpips_scene_mean'], 5)} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Role별 집계",
+            "",
+            "| Role | 유효 | 승리 | Views | R4 PSNR | Vanilla PSNR | ΔPSNR |",
+            "|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for role, item in summary["aggregates"]["by_role"].items():
+        lines.append(
+            f"| `{role}` | {item['valid_scenes']} | {item['positive_scenes']} | "
+            f"{item['views']:,} | {fmt(item['candidate_psnr_scene_mean'])} | "
+            f"{fmt(item['vanilla_psnr_scene_mean'])} | "
+            f"**{signed(item['delta_psnr_scene_mean'])}** |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## 장면별 품질",
+            "",
+            "LPIPS는 낮을수록 좋다.",
+            "",
+            "| Dataset | Scene | Role | Views | R4 PSNR | Vanilla PSNR | ΔPSNR | ΔSSIM | ΔLPIPS |",
+            "|---|---|---|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in rows:
+        lines.append(
+            f"| {row['dataset'].upper()} | `{row['scene']}` | `{row['role']}` | "
+            f"{int(row['views']):,} | {fmt(row['candidate_psnr'])} | "
+            f"{fmt(row['vanilla_psnr'])} | **{signed(row['delta_psnr'])}** | "
+            f"{signed(row['delta_ssim'], 5)} | {signed(row['delta_lpips'], 5)} |"
+        )
+    lines.append(
+        f"| {na['dataset'].upper()} | `{na['scene']}` | `{na['role']}` | "
+        f"{int(na['views']):,} | N/A | N/A | N/A | N/A | N/A |"
+    )
+
+    lines.extend(
+        [
+            "",
+            "## 장면별 work와 모델 규모",
+            "",
+            "| Dataset | Scene | Renders/arm | Adam R4/vanilla | GS R4/vanilla | Mapping services | Verifier |",
+            "|---|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in rows:
+        lines.append(
+            f"| {row['dataset'].upper()} | `{row['scene']}` | "
+            f"{int(row['renders_each']):,} | "
+            f"{int(row['candidate_optimizer_steps']):,}/{int(row['vanilla_optimizer_steps']):,} | "
+            f"{int(row['candidate_gaussians']):,}/{int(row['vanilla_gaussians']):,} | "
+            f"{int(row['mapping_services_each']):,} | "
+            f"{int(row['verifier_checks_passed'])}/{int(row['verifier_checks_total'])} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Acceptance와 예외",
+            "",
+            f"적용한 사전 기준은 `{acceptance['prospective_rule']}`이다.",
+            "",
+            f"- 평균 ΔPSNR ≥ {acceptance['mean_delta_threshold_db']:.1f} dB: "
+            f"**{'PASS' if acceptance['mean_delta_pass'] else 'HOLD'}**",
+            f"- strict majority positive: "
+            f"**{'PASS' if acceptance['strict_majority_pass'] else 'HOLD'}**",
+            f"- 모든 포함 pair fairness valid: "
+            f"**{'PASS' if acceptance['fairness_pass'] else 'HOLD'}**",
+            f"- UTMM `{na['scene']}` N/A: {na['note']}.",
+            "",
+            "원래 X4 gate는 사후 변경하지 않았다. 유효 confirmation 10개 평균은 "
+            "+0.951601 dB였지만 UTMM confirmation 5개 평균은 +0.468676 dB였고, "
+            "`slow-straight-1`은 N/A였으므로 원래 gate는 HOLD다.",
+            "",
+            "## 범위와 원본",
+            "",
+            "이 결과는 B-track mapping-only fixed-work 결과다. C-track strict live-time, "
+            "27 dB milestone, region-GT/floater 개선을 증명하지 않는다.",
+            "",
+            "- 장면별 정규화 행: [`summary.csv`](summary.csv)",
+            "- verifier, source manifest, 실행 경로와 SHA: [`provenance.json`](provenance.json)",
+            "- 해석과 프로토콜 상세: [`README.md`](README.md)",
+            "",
+            "이 파일은 `build_summary.py`가 원시 verifier artifact에서 생성한다.",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def main() -> int:
     rows: list[dict] = []
     provenance: list[dict] = []
@@ -230,8 +375,8 @@ def main() -> int:
             "the five-scene UTMM confirmation mean was +0.4686755789 dB."
         ),
     }
-    (OUTPUT / "summary.json").write_text(
-        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    (OUTPUT / "summary.md").write_text(
+        render_summary_markdown(summary), encoding="utf-8"
     )
     (OUTPUT / "provenance.json").write_text(
         json.dumps(
@@ -250,8 +395,8 @@ def main() -> int:
         ) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps(summary["aggregates"], indent=2, sort_keys=True))
-    print(json.dumps(acceptance, indent=2, sort_keys=True))
+    print(f"wrote {OUTPUT / 'summary.md'}")
+    print(f"acceptance={'PASS' if acceptance['passed'] else 'HOLD'}")
     return 0
 
 

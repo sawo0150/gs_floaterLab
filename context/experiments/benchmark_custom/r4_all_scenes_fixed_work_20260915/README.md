@@ -138,7 +138,7 @@ prospective하게 적용한 결과다.
 ## Artifact와 재생성
 
 - 정규화 전체 행: [`summary.csv`](summary.csv)
-- 기계 판독 결과와 acceptance: [`summary.json`](summary.json)
+- 사람이 읽는 전체 집계와 acceptance: [`summary.md`](summary.md)
 - 각 verifier/source manifest SHA와 raw run: [`provenance.json`](provenance.json)
 - 집계기: [`build_summary.py`](build_summary.py)
 - RPNG/UTMM raw confirmation:
