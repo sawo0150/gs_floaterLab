@@ -88,6 +88,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB exp03-E causal packet-budget/role-matched 검증 — PSNR 이득 미재현):**
+  전체 cap을 초반에 소진하지 않도록 causal mapping packet마다 q physical Adam credit을
+  해제했고, heterogeneous KF/dense 역할 혼입을 막기 위해 causal pool 비율 clock으로
+  source 역할을 pair-matching했다. Keyframe RR은 공유하고 dense 내부 순서만 RR/interval
+  ERCB로 바꿨다. UTMM square-1 q15 3-seed fixed delta는
+  **-0.1005/+0.0720/+0.0107dB**, 평균 **-0.0059dB**였다. ERCB는 late dense service를
+  평균 0.82→1.39회로 늘렸지만 PSNR은 동률이다. RPNG table_07 q3는 Adam612/612,
+  KF/dense306/306, topology2/2, Gaussian471,560/472,750의 exact-service pair였으나
+  **-0.7943dB**였다. q5 +0.7337은 Adam819/979 혼입이라 제외했다. 모든 유효 run은
+  zero-tail을 통과했다. 따라서 fixed-pose/init/topology replay의 저예산 ERCB 우위는
+  strict end-to-end VIGS로 전이되지 않았고, K/rho/q 장면별 sweep 대신 pose 신뢰도나
+  residual/learning-progress utility가 필요한 것으로 판정한다.
+  → [exp03-E](experiments/ERCB_ablation/exp03-E_packet_budget_interaction/RESULT.md)
+
 - **2026-09-15 (ERCB exp03-A--D strict end-to-end 관측 — 일관 우위 미확립):**
   unified B1/KF RGBD+normal/dense appearance+opacity/fixed1.5x/zero-tail에서
   interval relative-floor ERCB를 RR과 비교했다. Work-credit는 selector service가 다음

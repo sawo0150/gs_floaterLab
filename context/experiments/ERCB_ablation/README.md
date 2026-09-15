@@ -2,9 +2,18 @@
 
 > 날짜: 2026-09-15
 > 범위: ERCB 전용 누적 트랙
-> 최신 판정: **exp77의 budget interaction을 RTX 5070 Ti에서 재현했다. Interval relative-floor ERCB는 15 updates/event에서 UTMM/RPNG 평균 +0.260/+1.030dB(각 3/3 승)였지만, 60 updates/event에서는 +0.004/−0.071dB(각 1/3 승)로 이득이 소멸했다. ERCB는 저예산 수렴 가속용이며 full-budget 최종 품질 우위로 주장하지 않는다.**
+> 최신 판정: **fixed-pose/init/topology replay에서는 저예산 ERCB 이득을 재현했지만, strict end-to-end packet-budget에서는 재현하지 못했다. Role-matched UTMM q15는 평균 -0.006dB, exact-service RPNG q3는 -0.794dB였다. Coverage starvation 완화만 확인됐으며 production selector는 RR을 유지한다.**
 
-## 최신 결과 — exp03 RTX 5070 Ti budget reproduction
+## 최신 결과 — exp03-E strict end-to-end packet budget
+
+Causal mapping packet마다 physical Adam credit을 해제하고, KF/dense 역할을 두 arm에서
+맞춘 뒤 dense 내부 RR/ERCB 순서만 비교했다. UTMM square-1 q15 3-seed delta는
+`-0.1005/+0.0720/+0.0107dB`(평균 `-0.0059dB`)였고, RPNG table_07 q3의
+Adam612/612·KF/dense306/306 exact-service pair는 `-0.7943dB`였다. ERCB는 late dense
+service를 개선했지만 held-out PSNR 수렴 가속으로 이어지지 않았다. 상세 결과는
+[`exp03-E/RESULT.md`](exp03-E_packet_budget_interaction/RESULT.md)에 있다.
+
+## 이전 결과 — exp03 RTX 5070 Ti fixed-replay budget reproduction
 
 Corrected full VIGS replay의 UTMM `square-1`과 RPNG `table_01`에서 causal RR과
 `relative_floor_interval_softmax_rr(K=8,rho=.5,gamma=log3)`를 비교했다. 동일

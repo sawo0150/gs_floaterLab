@@ -8,6 +8,7 @@ selector=${3:?usage: run_one.sh FAMILY SCENE SELECTOR [OUTPUT_DIR]}
 admission=${MATCHED_ADMISSION:-arrival}
 required_opportunities=${MATCHED_REQUIRED_OPPORTUNITIES:-4}
 mapping_seed=${MAPPING_SEED:-0}
+mapping_steps_per_packet=${MAPPING_STEPS_PER_PACKET:-0}
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 lab_root=/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab
 repo_root=${VIGS_REPO_ROOT:-/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828}
@@ -50,9 +51,22 @@ case "$output_dir" in
     /*) ;;
     *) output_dir="$(pwd)/$output_dir" ;;
 esac
+if ! [[ "$mapping_steps_per_packet" =~ ^[0-9]+$ ]]; then
+    echo "MAPPING_STEPS_PER_PACKET must be a non-negative integer" >&2
+    exit 2
+fi
+packet_budget_args=()
+if [ "$mapping_steps_per_packet" -gt 0 ]; then
+    packet_budget_args=(
+        --mapping_replay_steps_per_packet "$mapping_steps_per_packet"
+    )
+fi
 
 case "$selector" in
     rr) selector_args=() ;;
+    rr_role_stratified) selector_args=(
+        --mapping_interval_ercb_role_stratified
+    ) ;;
     view_uniform_k128) selector_args=(
         --mapping_replay_count_softmax_beta 0
         --mapping_replay_count_softmax_block_size 128
@@ -71,6 +85,10 @@ case "$selector" in
     ) ;;
     ercb_base) selector_args=(--mapping_interval_ercb base) ;;
     ercb_relative_floor) selector_args=(--mapping_interval_ercb relative_floor) ;;
+    ercb_relative_floor_role_stratified) selector_args=(
+        --mapping_interval_ercb relative_floor
+        --mapping_interval_ercb_role_stratified
+    ) ;;
     ercb_coverage1) selector_args=(--mapping_interval_ercb coverage1) ;;
     *) echo "unsupported selector: $selector" >&2; exit 2 ;;
 esac
@@ -147,7 +165,7 @@ source "$conda_root/etc/profile.d/conda.sh"
 conda activate "$conda_env"
 
 code_commit=$(git -C "$repo_root" rev-parse HEAD)
-echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier prune_opacity_multiplier=$prune_opacity_multiplier replay_scale=$replay_scale matched_scale_reference=$matched_scale matched_elapsed_s_reference=$matched_elapsed budget_source=$budget_source replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=$mapping_seed output=$output_dir"
+echo "MATCHED_TIME_CONTRACT family=$family scene=$scene selector=$selector admission=$admission_tag required_opportunities=$required_opportunities birth_downsample_multiplier=$birth_downsample_multiplier prune_opacity_multiplier=$prune_opacity_multiplier replay_scale=$replay_scale matched_scale_reference=$matched_scale matched_elapsed_s_reference=$matched_elapsed budget_source=$budget_source replay=uniform_scaled zero_tail=1 mapping_loop=one pool=kf+dense physical_batch=1 tracking_stride=1 kf_action=rgbd_normal_full_topology dense_action=rgb_appearance_opacity mapping_steps_per_packet=$mapping_steps_per_packet phase_cutoff=0 background_polish=0 code_commit=$code_commit seed=$mapping_seed output=$output_dir"
 nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader
 
 cd "$asset_root"
@@ -180,4 +198,5 @@ exec /usr/bin/time -v python "$repo_root/demo.py" \
     "${family_args[@]}" \
     "${dense_membership_args[@]}" \
     "${admission_args[@]}" \
-    "${selector_args[@]}"
+    "${selector_args[@]}" \
+    "${packet_budget_args[@]}"
