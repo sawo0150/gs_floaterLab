@@ -9,10 +9,12 @@
 \skel{AUDIT THE ASSUMPTION LEDGER OF \S\ref{sec:method}}
 \begin{itemize}\itemsep2pt \parskip0pt
   \item $\kappa$ was chosen on a single scene and is not automated. (assumption of \S\ref{ssec:growth})
-  \item Count balancing equalizes selection counts but not lifetime exposure.
-        (failure noted in \S\ref{ssec:ercb})
-  \item $\beta{=}0$ coincides with random reshuffling only when $K \ge N_t$.
-        (equality condition of \S\ref{ssec:ercb})
+  \item Service-shortfall ERCB is intended for structurally scarce service ($S<U$); in a rich
+        pool, random reshuffling may already complete the same coverage. (scope of
+        \S\ref{ssec:ercb})
+  \item $K$, $\rho$, and $\gamma$ are fixed scheduler values rather than automatically adapted
+        to scene content; their cross-sequence transfer is tested explicitly.
+        (assumption of \S\ref{ssec:ercb})
   \item \pend{carving assumptions \textemdash\ pending teammate} (\S\ref{ssec:carve})
 \end{itemize}
 

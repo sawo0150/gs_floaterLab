@@ -1,7 +1,13 @@
 # benchmark_custom — dense-supervision VIGS tuning
 
 날짜: 2026-09-14
-상태: **대표 장면 튜닝 진행 중; final 16-scene 미생성**
+상태: **R4 fixed-work B-track 전체 local scene 완료; tuning loop 중단**
+
+최종 all-scene 결과는
+[`r4_all_scenes_fixed_work_20260915`](r4_all_scenes_fixed_work_20260915/README.md)에
+고정했다. 18개 계획 중 17개가 유효하고 1개는 tracker-ineligible N/A이며,
+유효 17/17 PSNR 양수·scene-mean **+1.2609 dB**다. 이 결과는 mapping-only
+fixed-work이고 strict live-time C-track은 아니다.
 
 ## 목표
 

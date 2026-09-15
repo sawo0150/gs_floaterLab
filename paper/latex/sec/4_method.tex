@@ -75,8 +75,9 @@
   let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
   independent of the size of the set.
   (5) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
-  set is not, so we draw each block by a count-balanced rule without replacement, \textbf{which}
-  evens out exposure without giving up random order.
+  set is not, so we apply a bounded interval-service-shortfall correction over global
+  without-replacement reshuffling, \textbf{which} prioritizes lagging coverage when one pass is
+  infeasible without introducing repeated views.
   (6) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
   space is not yet determined --- floaters are that indeterminacy made visible --- so we
   constrain it with causal carve evidence, \textbf{which} removes them without future frames.
@@ -190,109 +191,73 @@
   trajectory. The measured gain is $+0.35\%$ --- the bottleneck is \emph{how many} views can be
   admitted, not \emph{which} ones, which is why this subsection is about the rate.}
 
-% ---------- 3.2 (5문단, 91줄) ----------
-\subsection{Entropy-Regularized Count Balancing}
+% ---------- 3.2 ----------
+% 2026-09-15 authority correction: the old per-view raw-count Gibbs prototype
+% exp(-beta n_i) is not the production/paper-Full method.  The source of truth
+% is Stage 3d: interval completed-service shortfall, a bounded Gibbs bonus,
+% transactional accounting, and a global without-replacement residue.
+\subsection{Service-Shortfall Entropy-Regularized Count Balancing}
 \label{ssec:ercb}
 
-% 문단 구성 (2026-09-06 개정). 5문단, 수식 2개, 90줄 0.82p — §3.1(0.83p)과 대등.
-%   늘린 이유는 코퍼스가 아니다. 우리 유도는 4단계로 chen(수식 20+)보다 진짜로 짧다.
-%   P3·P4 가 각각 5가지를 해야 하는데 16/14줄이면 항목당 3줄이라 "선언만 하고 근거를 못 단다".
-%   그리고 §3 에서 유도가 있는 소절이 제일 짧은 건 뒤집힌 배치다.
-%
-% 구조: 정확한 대상 → 완화1(greedy) → 완화2(entropy) → 완화3(block snapshot)
-%   chen2026cover §4 의 "정확 → 완화 → 실용" 을 한 소절로 압축한 것.
-%   ★ 등식 감사는 별도 문단으로 빼지 않고 깨지는 자리(P3 끝)에 붙인다 — chen §4.1 형식.
-%   ★ 도구 이름(Plackett--Luce)은 도입하는 자리(P4 첫 문장)에서 밝힌다.
-%
-% 뺀 것:
-%   - Δ_iΦ 전개식 display → 본문 inline. "마지막 항이 i 에 무관"이라 할 거면 display 를 줄 이유가 없다
-%   - ρ_H 정의 → §4 Metrics. 이건 방법이 아니라 평가 지표이고 Table 3 의 열이다
-%   - Lagrangian 전개 → Supplementary. 본문은 결과와 조건만
-%   - experience replay 선행 → §2.3 Related Work. 선행 소개는 거기가 자리다
+\slot{P1 \textemdash\ THE REGIME AND THE SCHEDULING FAILURE}{15}{%
+  Random reshuffling is already sufficient when every admitted view can receive at least one
+  service before the map is read.  The failure appears in the opposite regime.  Let $U$ be the
+  number of unique views eligible before a dense-service opportunity and $S$ the number of
+  completed dense-view Adam services.  If $S<U$, one global pass is infeasible: a growing pool can
+  leave whole causal intervals untouched even though the order inside the serviced subset is
+  random.  We therefore correct \emph{interval service shortfall}, rather than trying to equalize
+  every view's lifetime count.  This is a conditional claim about structurally scarce service, not
+  a claim that the correction must outperform reshuffling when $S\ge U$.}
 
-\slot{P1 \textemdash\ WHAT AN IDEAL SCHEDULE WOULD WANT}{16}{%
-  The set grows without bound (\S\ref{ssec:growth}) while the updates available per unit time do
-  not, so per-view exposure decays and the \emph{order} matters more as the run goes on. An ideal
-  schedule wants two things.
-  \textbf{(a) Mixing}: consecutive updates should see decorrelated gradients. Fed in trajectory
-  order, successive steps see nearly the same scene content, so the optimizer chases a local
-  region while global progress stalls --- this is what shuffling is for.
-  \textbf{(b) A bounded early-to-late spread}: sampling uniformly from a growing set gives the
-  earliest views far more total exposure, leaving a map that is sharp where the camera started and
-  blurry where it ended. Exact equality is not needed; the spread has to be compressed.
-  \textbf{These pull against each other} --- maximum mixing is uniform sampling, which maximizes
-  the spread; perfect balance is a deterministic least-count rule, which destroys the mixing.
-  What follows is a principled knob between them rather than a blend of two heuristics.
-  \pend{counts are the proxy we optimize for (b); P5 reports where proxy and goal part ways}}
+\slot{P2 \textemdash\ COMPLETED-SERVICE SHORTFALL}{18}{%
+  Partition the currently admitted causal set $A_t$ by the keyframe bracket known when each view
+  was admitted.  For interval $G_j$, let $m_j=|G_j\cap A_t|$ and let $c_j$ count only selections
+  whose Adam update has completed in the current map generation.  Its per-member service rate is
+  $r_j=c_j/m_j$, and the frame-weighted global mean is
+  $\mu=\sum_j c_j/\sum_j m_j$.  Equation~(\ref{eq:ercb-shortfall}) measures only shortage below a
+  relative floor $\rho\mu$; when the target is zero we set every deficit to zero.  Hence
+  $d_j\in[0,1]$, the statistic is invariant to a common scaling of all completed counts, and an
+  interval at or above the floor receives no correction.}
 
-\slot{P2 \textemdash\ FORMULATING (b) AS A POTENTIAL}{10}{%
-  Formalize (b). Let $n_i$ be how many times view $i$ has been selected and define the potential
-  Eq.~(\ref{eq:phi}), a monotone function of the count variance. Selecting $i$ raises $n_i$ by
-  one, and the increase is $\Delta_i\Phi = n_i - \bar n + \tfrac12(1-\tfrac1N)$
-  \emph{(inline, not displayed)}; the last term does not depend on $i$, so the greedy step is
-  simply \textbf{pick the least-selected view} --- deterministic, and therefore exactly the loss
-  of (a) that P1 warned about.}
-
-\begin{equation}\label{eq:phi}
-  \Phi(\mathbf{n}) \;=\; \tfrac12\sum_i \big(n_i-\bar n\big)^2
+\begin{equation}\label{eq:ercb-shortfall}
+ d_j=\begin{cases}
+  \left[1-\dfrac{r_j}{\rho\mu}\right]_+, & \rho\mu>0,\\[2pt]
+  0, & \rho\mu=0.
+ \end{cases}
 \end{equation}
 
-\slot{P3 \textemdash\ DERIVING (relaxation 2) + EQUALITY AUDIT}{20}{%
-  \textbf{Put (a) back as a term, not as a patch.} Eq.~(\ref{eq:objective}): the first term is
-  (b), the second is (a), and $\tau$ is the knob P1 asked for --- $\tau\!\to\!0$ recovers the
-  deterministic rule, $\tau\!\to\!\infty$ recovers uniform. \textbf{At a given step the counts are
-  fixed}, so the objective is linear in $p$ plus $\tau$ times negative entropy: strictly convex on
-  the simplex, hence a \emph{unique} minimizer of Gibbs form \pend{cite --- standard; candidates
-  in refs/10\_maxent\_control}. \textbf{The step that is ours is the cancellation}: $\Delta_i\Phi$
-  differs from $n_i$ only by terms common to every $i$, which drop out in the normalization,
-  leaving Eq.~(\ref{eq:gibbs}) with $\beta=1/\tau$. \emph{The Lagrangian algebra is standard and
-  goes to the supplement} --- say so in half a clause, the way chen2026cover writes ``automatic by
-  Rayleigh quotients''.
-  \textbf{Equality audit, here and not later}: at $\beta=0$ the distribution is uniform, and
-  drawing $K$ views without replacement is then exactly a uniform permutation of the pool ---
-  i.e.\ random reshuffling --- \emph{but only when} $K \ge N_t$. For $K<N_t$ a block is a subset,
-  not a permutation, and no view is guaranteed one appearance per pass. Even at $K \ge N_t$ we do
-  not inherit the convergence guarantees, since the set grows during training and the objective is
-  non-convex.}
+\slot{P3 \textemdash\ BOUNDED ENTROPY-REGULARIZED MEASURE}{17}{%
+  Let $E_t\subseteq A_t$ be the unserved residue of the current global reshuffling epoch and
+  $a_j=|G_j\cap E_t|$.  At an outer-block boundary, interval $j$ receives the frame-uniform base
+  mass $a_j$ multiplied by the bounded Gibbs bonus in Eq.~(\ref{eq:ercb-weight}).  The factor
+  $a_j$ preserves uniform-per-frame reshuffling when $\gamma=0$; the exponential term changes only
+  the interval order and is bounded by $1\le\exp(\gamma d_j)\le\exp(\gamma)$.  We use
+  $\rho=0.75$ and $\exp(\gamma)=1.5$, fixed before the cross-sequence confirmation.}
 
-\begin{equation}\label{eq:objective}
-  \min_{p \in \Delta}\;\; \underbrace{\sum_i p_i\,\Delta_i\Phi}_{\text{(b) balance}}
-  \;-\; \tau \underbrace{H(p)}_{\text{(a) mixing}}
+\begin{equation}\label{eq:ercb-weight}
+ w_j=a_j\exp(\gamma d_j),\qquad
+ p_t(j)=\frac{w_j}{\sum_{\ell:a_\ell>0}w_\ell}.
 \end{equation}
 
-\begin{equation}\label{eq:gibbs}
-  p_t(i) \;=\; \frac{\exp(-\beta n_i)}{\sum_{j}\exp(-\beta n_j)},\qquad \beta = 1/\tau
-\end{equation}
+\slot{P4 \textemdash\ BLOCK DRAW AND GLOBAL RESIDUE}{19}{%
+  We draw up to $K=8$ distinct intervals from $p_t$ without replacement using a
+  Plackett--Luce (equivalently, Gumbel-Top-$k$) block.  A persistent shuffled inner queue chooses
+  one member of $G_j\cap E_t$ for each selected interval.  Crucially, without replacement is
+  global rather than merely interval-local: a committed view leaves $E_t$, and no view may repeat
+  until the current residue is exhausted.  Already-arrived candidates may join the residue while
+  an epoch grows, but cannot enter an outer block that has already been materialized.  When
+  $E_t$ becomes empty, the next draw starts a new epoch from the then-current $A_t$.  This retains
+  reshuffling's coverage invariant while allowing a bounded reordering toward lagging intervals.}
 
-\slot{P4 \textemdash\ EXTENSION (relaxation 3) + WHEN IT IS EXACT}{22}{%
-  \textbf{Name the tool in the first sentence}: drawing $K$ views one after another with weights
-  $\exp(-\beta n_i)$ and no replacement is a \emph{Plackett--Luce} draw (equivalently
-  Gumbel-Top-$k$, which is how it is implemented). No display for it --- name and cite, as with
-  the Gibbs form. That form is also what makes the audit in P3 work: with equal weights a
-  Plackett--Luce draw \emph{is} a uniform permutation.
-  Applying Eq.~(\ref{eq:gibbs}) exactly would mean recomputing $p$ after every single selection;
-  we instead freeze the counts at the start of a block, $n_i^{(b)}$, and draw all $K$ under that.
-  \pend{DO NOT call this a first-order approximation until checked. Drawn views leave the
-  candidate set, so their count updates cannot change the relative weights of the remaining
-  candidates, and the common terms cancel anyway --- under the model as written the frozen draw
-  looks \textbf{exact}, which is a stronger statement than the one we were making. It could still
-  break if $K$ exceeds the candidate count and wraps, or if $n_i$ increments on \emph{use} rather
-  than on selection. Verify against exp72 code, then state the condition.}
-  How much randomness survives is measured by $\rho_H$, defined with the metrics in
-  \S\ref{sec:exp}.}
-
-\slot{P5 \textemdash\ WHERE THE PROXY AND THE GOAL PART WAYS}{16}{%
-  Counts are a proxy for (b), and the two can disagree. On one trajectory the middle-to-first
-  lifetime ratio \emph{worsened}, $0.758 \to 0.520$, while held-out PSNR still improved by
-  $+0.362$\,dB; on another it was $0.971$, close to even. Larger $\beta$ recovered only to $0.605$
-  and cost entropy. \textbf{We therefore do not claim this family improves lifetime-count equality
-  in general.}
-  \textbf{Offer a hypothesis and label it as one}: balancing raw counts pulls late-admitted views
-  up, but a view admitted very late has few updates left to be pulled up \emph{in}, so on a
-  trajectory whose content is back-loaded that shortfall can dominate --- \emph{we have not tested
-  this}. Saying we lack a verified explanation is better than inventing one.
-  \textbf{Then tell the reader what it means}: if lifetime equality is itself the objective, this
-  is not the tool for it (\S\ref{sec:exp}).}
+\slot{P5 \textemdash\ TRANSACTION AND CAUSALITY CONTRACT}{17}{%
+  Selection is a proposal, not service.  The scheduler increments $c_j$ and removes a view from
+  $E_t$ only after the owning Adam step commits; a deadline rejection cancels the proposal and
+  restores the same concrete block without advancing the service clock.  Interval identity is
+  frozen from already-observed admission endpoints, so later pose-graph refreshes cannot rewrite
+  scheduler history.  A map reset clears the service counts and residue.  Thus C1 controls which
+  views enter, whereas ERCB changes only the order in which the shared eligible set is serviced.
+  We report rich sequences as controls and test the ERCB advantage only on workload-ledger-defined
+  $S<U$ sequences; no image-quality metric is used to choose that label.}
 
 % ---------- 3.3 (팀원, 110줄) ----------
 \subsection{Causal Free-Space Carving}

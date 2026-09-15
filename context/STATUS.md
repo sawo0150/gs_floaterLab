@@ -118,6 +118,292 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
   “GS가 많으면 PSNR 수렴이 빨라진다”는 일관된 인과 증거는 아니므로 2× 기본값은
   채택하지 않는다. 4개 run 모두 zero-tail을 통과했고 phase/topology cutoff는 없다.
   → [exp86-C](experiments/exp86-C_birth2x_capacity_control.md)
+- **2026-09-15 exp78 R4 all-local-scene fixed-work B-track 완료 — 17/17 양수, 평균 +1.2609dB, 사용자 지시로 loop STOP:** 고정 R4 Full을 RPNG 8, UTMM 8, Aria 2 scene에 확장했다. UTMM `slow-straight-1`은 official frozen tracker가 IMU metric initialization/rescale에 도달하지 않아 두 mapper 모두 map이 없는 N/A이고, 나머지 17 pair는 same archive/KF/service, exact physical-render match, mapping-disjoint fixed held-out, zero-tail/no-final-refinement verifier 10/10을 통과했다. R4/vanilla scene-mean은 **22.2592/20.9983dB(+1.2609)**, RPNG +1.5991, UTMM +0.5411, Aria +2.4274이며 17/17 PSNR 양수다. Aria `aria1253`/transfer `aria301_305`는 +1.6872/+3.1677dB지만 절대 25.7274/25.1420이라 27dB milestone은 미달이다. 원래 X4의 validity/family +0.9 gate HOLD는 사후 변경하지 않았고, 이번 PASS는 이후 정한 all-scene 평균 +0.5/majority/fairness 기준이다. 이는 B mapping-only fixed-work이며 C strict-live/floater 증거가 아니다. 결과·CSV·JSON·provenance를 새 폴더에 고정하고 추가 tuning/seed/run을 시작하지 않는다. [all-scene result](experiments/benchmark_custom/r4_all_scenes_fixed_work_20260915/README.md)
+
+- **2026-09-15 Stage 6R-X4 table_03 host OOM 원인 확정 및 source-neutral repair PASS — quality gate는 계속 OPEN:** Frozen R4 candidate가 causal dense415에서 SIGKILL됐고 kernel은 python anon RSS **25,640,424kB**의 global OOM을 기록했다. 23GB archive의 29,900 geometry ref/26,996 unique PGBA version을 공통 reader가 영구 캐시한 것이 원인이었다. 실패 artifact를 보존하고 legacy reader `c0d79f4`, 32-entry LRU+bit-exact regression 2/2 `03426c6`, runner hash pin+test9/9/preflight `5a210f8`로 분리 저장했다. Method/config/RNG/cohort/gate는 불변이고 candidate/vanilla 공통 infrastructure만 수리했다. [X4 OOM repair](experiments/exp78/d_dataset_general_optimization/stage6rx4_frozen_archive_geometry_cache_oom_repair.md)
+
+- **2026-09-15 Stage 6R R4 native historical-keyframe ERCB PASS — auxiliary-only 문제 해소, Full candidate 승격:** R3에서 dense269+aux-KF269회의 보조 selector에만 있던 global-residue ERCB를 BALANCED/REPLAY outside-window native historical slot에 적용했다. FRONTIER/local window/dense·aux UID trace/Adam3,030/render38,302는 exact이고, 1,400행의 8,400 historical service 모두 ERCB active다. Stable-anchor 33장의 service spread는 **34→1**, unique는 **197→199**이며, fixed502 R4 **25.624315**, uniform control **25.580154(+.044161)**, fresh render-matched vanilla **23.929422(+1.694893)dB**다. Hard-Q1과 temporal thirds도 모두 양수, final/render-match verifier 각 10/10, zero-tail이다. SSIM/LPIPS는 control 대비 극미세 악화해 ERCB 단독 전 지표 개선 주장은 하지 않는다. R4를 Full candidate로 승격하되 단일 개발 장면/seed이므로 다음은 무튜닝 untouched cross-sequence gate다. Paper result commit `e62cd6b1`. [exp78-D R4](experiments/exp78/d_dataset_general_optimization/stage6r_r4_native_keyframe_ercb_result.md)
+
+- **2026-09-15 Stage 6R R3 KF-source C1/C2 10/10 PASS — complete source extension에서 이득 보존:** R1 dense 1-step/packet과 admission270/selected267/269개 UID trace/LR clock을 exact 보존하고 별도 C1 service1+global-residue C2로 KF appearance 1-step/packet만 추가했다. Fixed502 R3 **25.584451**, R1 **25.587764(-.003313)**, exact38,302-render native vanilla **23.925241(+1.659209)dB**다. KF는 admitted210 중 189 unique(90%), dense/KF appearance269/269, final source LR267/267, zero-tail이고 두 verifier 각 10/10을 통과했다. R3의 R1 대비 품질 효과는 사실상 0이므로 KF가 PSNR을 올렸다고 주장하지 않으며, 기존 이득을 잃지 않고 C1/C2 범위를 KF appearance까지 확장한 Full 후보로 채택한다. 다음 cross-sequence 계약은 이미 본 table_01/table_02를 confirmation에서 제외하고, C strict live-time은 별도로 검증한다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 Stage 6R R1 C1/C2 broad-coverage reinforcement 10/10 PASS — 기존 이득 보존:** validation cohort 재개 전에 RPNG table_01 seed0에서 C1 completed-service cost만 `kappa22->1`로 변경하고 C2/global residue와 native KF/frontier/birth/topology/269 dense opportunity를 고정했다. 동일 38,033 render/fixed502에서 R1 **25.587764**, 기존 kappa22 Full **25.618109(-.030345)**, native vanilla **24.170703(+1.417061)dB**다. Dense selected unique는 13->267(**20.538x**), final S/U=267/269 scarcity, ERCB repeat0이고 archive/event/210 KF/evaluator/zero-tail/render-match와 causal no-prepurchase를 모두 통과했다. Dense-only R1을 채택하고 lifecycle R2는 생략한다. 다음은 native KF geometry를 보존하고 별도 source quota/ledger로 KF appearance만 보조 replay하는 R3 gate이며, 이후 새 cross-sequence contract로 이동한다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 Stage 6A table_02 sentinel 10/10 PASS — Full-vanilla +1.761281dB, C1/C2 attribution은 미확정:** 사전 고정한 첫 validation sentinel에서 frozen archive/392 packet/289 KF UID/53,287 physical render/fixed584/mapping-disjoint/zero-tail을 exact match했다. Full **23.289415**, native vanilla **21.528134dB**로 큰 이득은 유지됐다. 그러나 Full의 dense work는 380 render(전체 **0.713%**)·18 admitted/1,999 arrival뿐이고 final workload는 `S=380>U=18` rich다. 현재 `include_keyframes_in_replay=false`라 C1/C2는 dense auxiliary admission/appearance order에만 적용되며 tracker/native KF 학습에는 적용되지 않는다. 따라서 이 결과를 C1/C2 기여로 해석하지 않고, 다음 cohort 전에 KF/geometry를 보존한 dense-coverage 확대와 keyframe-appearance 확장 arm을 분리해 method scope/ablation 계약을 먼저 결정한다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 5 seed1/2/3 완료 — original gate HOLD / Full-vanilla 평균 +1.333130dB:** 동일 immutable tracker seed0에서 mapper seed1/2/3의 C1+RR/C1+C2/native-vanilla 9 run을 끝냈다. 각 RR/C2 pair는 C1 admission13/arrival1728/pending1715, event283/packet279/fixed dense opportunity269/Adam2,761/render38,033/actual lifecycle·controller/zero-tail exact이고 17/17 verifier를, vanilla는 동일 render/event/210 tracking KF UID로 10/10 render-match verifier를 통과했다. C2-RR은 **+.004651/+.002882/-.013922dB**, mean **-.002130dB**이며 mean worst-Q1/RR-hard-Q1도 -.003370/-.002434라 사전 Stage5 gate는 정직하게 HOLD한다. 반면 Full-vanilla는 **+1.287321/+1.409458/+1.302612dB**, mean **+1.333130dB**로 D1 계열의 큰 이득은 3/3 유지됐다. 현재 C1 조건은 13-view pool을 267 service로 66 epoch 도는 service-rich regime이므로 ERCB가 RR을 반드시 이겨야 하는 조건으로 보지 않는다. 이 method-scope 해석은 결과 중 도착했으므로 사후 PASS에는 쓰지 않고, 다음 GPU 실행 전에 workload trace만으로 rich/shortfall을 나누는 cross-scene 계약을 별도 고정한다. Result commit `bb5707ca`. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 4 C1+C2 integration 17/17 PASS / C2-RR -0.003491dB로 HOLD:** Stage2b의 C1(global seed1+completed-service κ22)과 Stage3d global-residue C2를 별도 계약·harness·verifier commit으로 처음 결합했다. 양 arm은 C1 admission 13장/1,728 arrival/1,715 derived pending, 283 event/279 packet/269 opportunity/Adam2,761/render38,033/actual causal membership·lifecycle·controller/zero-tail exact이며 global-residue invariant도 valid다. Fixed502는 C1+RR **25.621600dB**, C1+C2 **25.618109dB**, delta **-0.003491dB**(SSIM -.000187, LPIPS -.000833)다. Final generation에서 같은 13-view set을 양쪽 모두 267회 서비스해 66 full epoch를 끝냈으므로 C2가 cumulative coverage가 아니라 within-epoch order만 바꾸는 구조적 중복이 확인됐다. 사전 PSNR gate에 따라 C2는 Full에 미통합하며 Stage2b의 render-matched **+1.082609dB**가 마지막 integrated accepted다. Result commit `38042c2f`. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3d global-residue C2 isolation 13/13 PASS / C2-RR +0.012620dB로 isolation 채택:** Stage3c의 interval-local ERCB가 final generation 267 service를 263 unique view에 써서 아직 856--1,382 eligible view가 미서비스인데 4개 UID를 반복한 semantic gap을 찾았다. K8/rho.75/gamma=log1.5는 유지하고 base measure만 remaining global reshuffling residue에 조건화했다. C1-off pair는 283 event/279 packet/269 opportunity/Adam2,761/render38,033/actual lifecycle·controller trace/zero-tail이 exact하고, 양 arm 모두 final 267 service=267 unique다. Repaired C2는 fixed502 **25.567176dB**, RR **25.554556dB**, delta **+0.012620dB**로 사전 양수 gate를 통과했다. §3.2 semantics는 isolation에서 채택하지만 LPIPS는 +.000365 악화했고 C1 미결합이므로 final Full은 아니다. Stage2b의 render-matched **+1.082609dB**가 마지막 integrated accepted이며 다음은 별도 C1+C2 integration gate다. Result commit `b2acecd1`. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3c C2 orthogonal isolation 12/12 PASS / ERCB-RR -0.004557dB로 §3.2 HOLD:** C1을 완전히 끄고 accepted Stage1 위에서 causally arrived dense pool 전체를 RR/ERCB에 동일 노출했다. 양 arm은 283 event/279 packet/269 dense opportunity/Adam2,761/render38,033/actual lifecycle membership/zero-tail이 exact다. 1,728 arrivals 중 마지막 opportunity 뒤 도착한 38장은 동일 pending이고 optimizer가 만지지 않았다. Candidate interval은 269/269 모두 K8 초과(36--541), ERCB block start 36회도 모두 K 초과였지만 fixed502는 RR **25.572639**, ERCB **25.568082dB**, delta **-0.004557dB**이고 SSIM/LPIPS도 악화했다. 따라서 C1 small-pool은 C2 실패의 유일 원인이 아니며, §3.2는 승격하지 않고 Stage2b의 render-matched **+1.082609dB**를 마지막 accepted로 유지한다. 파라미터를 바꾸지 않고 growing stream의 late-arrival service 의미를 감사한다. Result commit `fd9913c4`. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3b lifecycle integration repair PASS / ERCB-RR -0.003189dB로 §3.2 HOLD:** Stage3a의 clock 설명을 정정한다. Active RR은 native shuffle-refill epoch(최종 66/origin25), ERCB raw 진단값은 fractional pool-pass epoch(69/27)였으므로 selector-only 비교가 아니었다. ERCB에 successful Adam commit만 따르는 private RR shadow를 이식한 v2 pair는 269/269 opportunity에서 candidate membership·completed service·shared lifecycle clock exact, controller trace exact, Adam2,761/render38,033/zero-tail이며 verifier **12/12**다. Fixed502는 RR **25.617258**, ERCB **25.614069dB**라 primary delta **-0.003189dB**이고 SSIM/LPIPS만 소폭 개선됐다. Integration fix는 채택하되 §3.2 ordering은 미채택, Stage2b가 마지막 accepted이며 파라미터를 바꾸지 않는다. Result commit `f907cfed`; 다음은 논문 §3.2의 수식과 production queue 의미를 대조해 단일 semantic repair가 있는지 감사한다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3a fixed-event isolation — ERCB-RR -0.008303dB/HOLD:** RR과 ERCB에 complete causal timeline, packet-paid dense 269회, 동일 C1 admission 13개, Adam2,761, render38,033, zero-tail을 정확히 맞췄다. Fixed502는 RR **25.624185**, ERCB **25.615882dB**이며 기록된 verifier 10/10에도 사전 양수 gate를 실패해 §3.2는 미채택, Stage2b가 마지막 accepted recipe다. Post-run audit에서 controller lifecycle clock 의미가 RR `draw/current pool`, ERCB `epochs_started`로 달라 final clock/origin이 66/25 vs69/27임을 찾았다. 기존 artifact는 보존하고, selector-independent completed-opportunity clock 및 transition-trace parity를 별도 stage로 사전 고정해 다시 비교한다. Result commit `a01e74b1`; final Full은 미완료다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3 corrected repeat — 평균 +0.965844dB로 HOLD 재현:** 동일 completed-service source/고정 K8/rho.75/gamma=log1.5 두 번째 strict run은 custom **25.259935dB**, exact 22,732-render native vanilla **24.326188dB**, delta **+0.933746dB**, verifier 10/10/zero-tail이다. 첫 corrected +0.997941과 합친 평균은 **+0.965844dB**라 사전 +1 gate를 통과하지 않는다. 같은 설정인데 C1 pool11→15, dense424→528, completed packet169→159로 wall-realized work가 달랐으므로 파라미터를 사후 튜닝하지 않고 membership/admission/service를 고정한 RR↔ERCB ordering-only 진단으로 이동한다. Result commit `e0c747e7`; Stage2b가 마지막 accepted recipe이며 final Full은 미완료다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3 completed-service 정정 — verifier 10/10, +0.997941dB로 HOLD:** 기존 ERCB가 draw 선택 순간 count를 올려 deadline-rejected Adam 1회를 완료 service로 잘못 센 것을 발견했다. Branch에서 transactional commit/cancel `8c4fefa5`와 rejected physical-render telemetry `98e4f30b`를 분리 commit했고 regression 81/81 PASS. 수정 strict run은 dense=draw=424, pending render1, C1 241/220/21, physical render22,971, zero-tail이며 fixed custom **25.282680dB** 대 exact native vanilla **24.284738dB**, delta **+0.997941dB**(SSIM +.023069/LPIPS -.012355), verifier 10/10이다. 사전 +1 gate를 0.002059dB 못 넘어 반올림 없이 HOLD, 결과 commit `6521519d`; Stage2b가 마지막 accepted recipe이고 cross-scene/final Full은 미완료다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 3 — ERCB production/causality PASS, +0.9809dB로 HOLD:** accepted Stage2b 위에 §3.2를 contract `2e17c12a`→isolated queue `b7a3f5bf`→opt-in wiring `7426858a`→immutable causal-admission interval fix `34b85d70`로 나눠 저장했고 관련 scheduler 80/80 test를 통과했다. Frozen K8/rho.75/gamma=log1.5 strict 반복 custom은 **25.2929/25.2971dB**, exact 22,760/22,824-render native vanilla는 **24.3095/24.3187dB**, delta **+0.9834/+0.9784dB(평균 +0.9809)**이며 두 verifier 모두 10/10·zero-tail이다. RR sibling은 더 많은 render/dense/admission/packet에도 ERCB보다 0.0366dB 낮아 방향은 양수지만 wall-realized work가 달라 ordering-only 비교는 아니다. 사전 +1.0 gate를 평균 0.0191dB 못 넘었으므로 threshold/parameter를 사후 변경하지 않고 result commit `d245363e`로 HOLD를 고정했다. Stage2b가 마지막 accepted recipe이며 cross-scene/final Full은 미완료다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 2b — C1 production wiring 후 +1.0826dB 유지:** 외부 replay controller의 global-seed/κ22 completed-service/no-prepurchase 장부를 core scheduler에 이식하고, full `mapping_model_scheduler` 없이 Stage-1 observation topology gate와 조합 가능한 production 경로를 commit `8b4f00a6`으로 분리했다. Core test 59/59와 기존 controller 5/5 통과. Core를 실제 frozen replay에서 사용한 반복은 wall 변동으로 dense413/pool11이었으나 fixed **25.2586dB**, 동일 163 service trace/210 KF/22,369 render vanilla **24.1760dB**, delta **+1.0826dB**(SSIM +.02348/LPIPS -.01296), verifier 10/10과 zero-tail을 통과했다. 외부 Stage2 대비 절대 -0.0263dB/gain -0.0046dB라 §3.1 production 이식을 채택한다. §3.2 ERCB는 아직 off이며 cross-scene/final Full은 미완료다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 paper Full Stage 2 C1 개발 gate 완료 — +1.0872dB 유지:** Stage 1의 native D1 구조와 관측 topology gate를 고정하고 §3.1 compute-paced causal admission만 추가했다. Global seed1+completed dense service 22회당 paid1 규칙으로 1,728 arrivals 중 13장을 등록했으며 token 284/264/20(mint/spend/remain), accounting error와 future prepurchase violation은 0이다. 동일 frozen archive/162 service trace/210 KF UID/22,210 physical render/fixed502/zero-tail verifier 10/10을 통과했고 custom **25.2849dB**, vanilla **24.1978dB**, delta **+1.0872dB**(SSIM +.02600, LPIPS -.01708)다. Stage 1보다 절대 -0.1337dB이나 +1 retention 기준은 통과했다. 현재 C1은 frozen-replay 외부 controller 개발 경로이므로 production wiring parity와 cross-scene 전이는 미완료이며 final Full 확정이 아니다. [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (paper Full Stage 1 — cadence freeze 제거 후 +1.2482dB 유지):**
+  격리 Git branch `paper/d1-full-staged`에 Stage0/구현/결과를
+  `f3945298`/`78892a6f`/`7973d126`으로 분리 저장했다. D1 native frontier,
+  별도 appearance dense Adam, causal IMU pose, online-rank birth, PGBA는
+  그대로 두고 auto-freeze만 반복 topology+상대 pre-prune capacity 회복을
+  보는 unknown-horizon gate로 치환했다. 1.5x/reserve20ms/zero-tail에서
+  frame286/501 topology 뒤 frame607에 관측 전환했으며 fixed 502-view는
+  candidate **25.4187dB**, 동일 159 service trace/210 KF/**21,751 render**
+  official vanilla **24.1705dB**, 즉 **+1.2482dB**다. Verifier 10/10 통과,
+  Stage0 D1 대비 절대 품질 차이는 -0.0086dB다. §3.1/§3.2는 아직 off이며
+  다음은 이 채택 commit 위에 C1 admission을 더 작은 단위로 이식한다.
+  → [exp78-B Stage 1](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B 기준 정정 — native D1 render-match로 +1.1127dB 복원):**
+  fixed-Adam/same-step dense가 원본 D1을 hybrid scheduler로 바꾼다는 사용자 지적에 따라
+  B primary를 총 physical training render matching으로 정정했다. Exact D1은 그대로 두고
+  official vanilla가 동일 158 mapping event/210 KF UID와 **21,116 render**를 자기 native
+  KF RGB-D/normal 경로로 소비했다. 미완료 D1 render 12회도 vanilla에는 유효 학습으로 줬다.
+  Verifier 전 항목/502-view held-out/zero-tail 통과, vanilla **24.3145dB** 대 D1
+  **25.4272dB**, 즉 **+1.1127dB**다. 원본 D1 이득은 복원됐지만 cadence auto-freeze 때문에
+  provenance diagnostic이며, 다음은 native frontier+independent dense 의미를 유지하면서
+  final-v7 관측 기반 unknown-horizon lifecycle만 이식한 active Full을 같은 방식으로 판정한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 full-frontier fixed port RPNG — +0.7856dB 복원):**
+  Square에서 고정한 arm을 historical 기준 장면 table_01에 무변경 전이했다.
+  B1 Adam3,305/regular41,675 view/279 packet을 전부 보존하고 same-step causal
+  IMU RR dense690개만 추가해 verifier 전 항목/zero-tail을 통과했다. Held-out은
+  **24.9065dB(B1 +0.7856)**, SSIM +.03159/LPIPS -.02788, GS429,755로
+  과거437,714에 근접했다. Old-rule +1.1995 대비 남은 gap은 0.4139dB다.
+  이는 단순 채점 차이가 아니다. 과거 wall run은 vanilla131/145,
+  D1 153/124 packet done/drop, independent dense Adam, topology1/auto-freeze였고,
+  fixed arm은 양쪽279/0, dense 결합 gradient, topology2와 반복 final-v7
+  pose-rematuration이다. Count는 이미 복원됐으므로 다음은 fair event ledger를
+  유지한 채 독립 dense update 의미와 pose-revision recovery를 분리한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 full-frontier fixed port square — +0.3836dB/목표 미달):**
+  B1의 Adam832와 regular RGB-D/normal 9,858 view를 전부 보존하고, 마지막
+  3 iteration에 causal IMU RR appearance dense 180개를 같은 Adam step 안에서
+  추가했다. Auto-freeze나 scene/time/count cutoff 없이 final-v7 관측 상태로
+  topology를 2회 뒤 닫았고 verifier 전 항목/zero-tail을 통과했다. Square-2
+  held-out은 **20.9976dB(B1 +0.3836)**, SSIM +.00703, LPIPS +.00074,
+  GS113,910이다. 기존 음수 상호작용은 해소됐지만 +1에는 부족하다. 과거
+  D1은 독립 dense Adam과 wall-cadence auto-freeze였던 반면 현재 arm은 결합
+  gradient와 final-v7 state라 optimizer/lifecycle이 아직 동등하지 않다.
+  다음은 숫자 변경 없이 historical 기준 장면 RPNG table_01을 직접 판정한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B exact historical D1 mapper restore — +1dB 재현 성공):**
+  격리 worktree `9c1e2767`에서 과거 provenance의 mapper 5개 SHA를 모두
+  바이트 단위로 복원해 동일 frozen RPNG table_01, 1.5x/reserve20ms,
+  dense_rr_imu+appearance replay+online-rank2.5/span2+auto-freeze로 돌렸다.
+  125.296/125.305초, zero-tail, 최종 **437,714 GS**였고 fixed held-out은
+  **25.4272dB**로 과거 D1 25.3631과 정합(+0.0641), 당시 vanilla
+  24.2278 대비 **+1.1995dB**였다. 즉 +1dB 신호/원본 코드는 살아 있고
+  최근 state/count 모사가 다른 work path였던 것이 문제다. 단 과거 v13
+  replay runner는 유실되어 current v23 harness를 썼고 Adam/dense가
+  1,735/360 vs 과거 1,908/535라 final fair-B claim은 아니다. 다음은 이
+  exact mapper behavior를 common fixed-iteration ledger에 보존 이식한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 최소-prune RPNG — 기각):**
+  square에서 +0.1136dB였던 동일 상대-capacity rule을 RPNG table_01에
+  무변경 전이했다. Verifier valid/Adam3,305/zero-tail, topology1, 최종
+  **437,816 GS**로 과거 D1 437,702와 사실상 정확히 맞았지만 held-out은
+  v4 **23.7050→23.2756(-0.4294)**, B1 대비 **-0.8453dB**로 악화했다.
+  Final Gaussian 수·topology 수를 과거 +1.135dB의 원인에서 제외하고 pruning
+  변형을 중단한다. 다음은 현재 frontier credit을 dense로 치환하는 오류를 없애
+  historical `frontier7 + independent dense` 작업 구성을 공정하게 복원한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 최소-prune square 대조 — 부분 GO/+1 미달):**
+  첫 net-prune 직전 capacity를 상대 target으로 삼고 서로 다른 두 관측에서
+  회복되면 topology만 닫도록 했다. Frame/iter/horizon/count cutoff 없이
+  verifier valid/Adam832/zero-tail을 유지하며 square-2 topology2→1,
+  GS113,965→116,268, **20.7450→20.8586dB(+0.1136)**, B1 대비
+  **+0.2447dB**였다. 반복 prune이 손실 일부임은 확인했지만 +1에는 부족하고
+  조기 전환으로 dense가 350→399회 늘었다. RPNG table_01 직접 gate 뒤 효과가
+  작으면 pruning 변형을 멈추고 frontier 비잠식 dense 배분을 복원한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 state-replay reconstruction v4 — RPNG capacity-only/품질 기각):**
+  RPNG `table_01` fixed-work verifier 전 항목을 통과했고 topology2 뒤 최종
+  GS를 **429,801**로 과거 D1 437,702 수준까지 복원했지만 held-out은
+  **23.7050dB**, B1 대비 **-0.4159dB**였다. 따라서 final capacity 단독가설은
+  기각한다. 현재 두 번째 prune 8,004개를 없애면 예상 GS437,805로 과거와 거의
+  같아 관측 기반 최소-prune 대조는 수행 가치가 있다. 동시에 현재 dense는
+  1,512/3,305(45.7%)로 과거 535/1,908(28.0%)보다 많고 fixed frontier를
+  잠식하므로, 다음은 최소-prune와 frontier 비잠식 independent dense를 분리한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 state-replay reconstruction v3 — square GO):**
+  final-v7 controller의 BALANCED가 post-topology overlap인데 backend가 그
+  sublinear frontier에서 native topology를 계속 허용하던 state 연결 누락을
+  찾았다. FRONTIER에서만 topology mutation을 허용하되 BALANCED의 causal birth,
+  frontier Adam, replay는 유지했고 scheduler test **71/71 PASS**. 같은 fixed
+  Adam832에서 topology3→2, GS80,335→113,965, square-2 **20.2245→20.7450dB**,
+  B1 대비 **+0.1311dB**로 부호가 복원됐다. Verifier는 exact ledger/causal IMU/
+  online density/no-auto-freeze/drop/overlap/tail을 전부 통과했다. 다음은 D1이
+  원래 +1.135dB였던 RPNG table_01 직접 gate이며, 그 전에 scalar sweep은 하지 않는다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 state-replay reconstruction v2 — 계약 PASS/capacity 기각):**
+  기존 BALANCED 정의인 `sqrt(window)` frontier+remaining independent replay로
+  fixed Adam832를 배분했고 verifier의 event/KF/origin exact, causal IMU,
+  online density, no-freeze/drop/overlap/tail을 모두 통과했다. 그러나 dense가
+  350/832(42.1%)였고, 계속 성장하는 causal pool 때문에 BALANCED에 머무는 동안
+  세 번째 정상 topology가 104,059→70,375 GS를 제거했다. 최종 80,335 GS,
+  square-2 **20.2245dB(B1 -0.3895)**로 기각한다. Birth/dense knob를 더 바꾸기
+  전에 final-v7의 반복 topology+capacity 관측 상태가 topology cadence를 닫도록
+  의도됐는지 controller 테스트와 Git 이력을 감사한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-15 (exp78-B D1 state-replay reconstruction v1 — 계약 PASS/배분 기각):**
+  exact D1 backend/scheduler/Gaussian/content-budget/demo/config가 Git object와
+  현재 보존 파일로 모두 복구 가능함을 확인했다. Fixed-event arm은
+  online-rank birth+causal IMU RR+final-v7 관측 상태로 Adam832/832, event
+  ledger exact, topology2, auto-freeze/drop/overlap/tail0을 통과했다. 그러나
+  topology2 뒤 work를 전부 replay로 넘겨 dense가 510/832(61.3%)였고
+  square-2는 **20.2397dB(B1 -0.3743)**, final GS114,030이었다. 과거
+  table_01 D1의 dense 비중 535/1,908(28.0%)보다 과도하므로, 새 knob 없이
+  기존 BALANCED 정의의 `sqrt(window)` frontier+remaining replay로 고친다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B stable point-ID service — 기각/forensic 전환):**
+  lineage 대신 stable Gaussian `point_id`별로 visible+nonzero projected
+  appearance gradient를 서로 다른 dense UID의 두 committed Adam step에서
+  요구했다. Verifier valid/Adam832/regular9,858+dense240/zero-tail이나
+  square-2는 **20.6189dB(B1 +0.0050)**, SSIM -0.00569/LPIPS +0.01744,
+  final GS 101,464였다. 119,741 points가 직접 mature되어 세 번째 topology
+  때 보호 point가 3,421개뿐이었다. 두-view 직접 maturity를 기각하고 신규
+  보호-controller 발명은 멈춘 채 historical D1 source/state의 최초
+  topology/capacity divergence forensic으로 전환한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B uniform Gaussian birth 2× — 단독 기각):**
+  모든 causal KF에 PPM birth multiplier 2.0을 동일 적용하고 dense/protection을
+  끈 square-2 control은 verifier valid/Adam832/regular9,858/zero-tail이나
+  **20.3848dB(B1 -0.2292)**, SSIM -0.01838/LPIPS +0.04562였다. 최종 GS도
+  B1 126,711보다 작은 86,648이라 더 많이 출생해도 정상 prune/cap 뒤 더 적게
+  생존했다. Birth 수량 단독은 기각하고 causal dense service와 point별 생존
+  조건의 결합을 계속한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B actual row service + lineage release — granularity 기각):**
+  endpoint draw 대신 visible row+nonzero projected `f_dc` gradient를 Adam
+  commit 뒤 기록했지만, 한 row의 2-view service로 같은 origin 전체를 release해
+  protected lineage가 10→1로 급락했다. Verifier valid/Adam832/
+  regular9,858+dense240/zero-tail이나 square-2는 **20.6704dB(B1 +0.0564,
+  이전 full-cap보다 -0.1140)**, final GS 100,622였다. Service 신호 자체가
+  아니라 lineage-wide release가 너무 거친 것이므로, stable `point_id`별 두
+  distinct committed service로 바꾸고 immature point 각각을 topology/reset/cap에서
+  보호한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B dense strength/allocation 진단 — 단순 확대·치환 기각):**
+  newborn-protection square-2에서 projected appearance cap을 0.25→1.0으로
+  풀어도 **20.7844dB(B1 +0.1705, cap0.25보다 +0.0339)**였고 final GS는
+  110,445로 더 줄었다. 고정 Adam832 안에서 event당 3회를 dense-only로
+  배정하면 regular RGB-D/normal view가 9,858→7,527로 줄며
+  **20.3630dB(B1 -0.2510)**로 악화했다. 둘 다 verifier valid/zero-tail이다.
+  Dense 세기 부족과 KF work 치환을 기각하고, B1 regular work+full-cap
+  projected dense를 유지한 채 실제 newborn row visibility와 committed
+  appearance gradient가 확인될 때만 lineage 보호를 해제한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B newborn protection 결합 — 부분 GO/+1 미달):**
+  online-rank birth+RR dense에서 출생 lineage를 causal dense endpoint 2회
+  관측 전까지만 prune/cap에서 보호하고, mature lineage의 정상
+  topology는 계속 실행하는 unknown-horizon 컨트롤러를 검증했다.
+  Fixed-iteration verifier는 2/2 valid, no global freeze/drop/overlap/tail이다.
+  UTMM square-2는 **20.7506dB(B1 +0.1366, 기존 joint +0.1435)**,
+  RPNG table_01은 **24.2187dB(B1 +0.0977, 기존 joint +0.1065)**로
+  birth×dense 결합의 부호는 복구했다. 다만 final GS가 110,872/181,927로
+  여전히 B1보다 적고 LPIPS도 악화해 과거 D1 +1--2dB는 미달이다.
+  Validation/recipe freeze는 보류하고, 다음은 endpoint draw가 아닌 newborn row의
+  실제 visibility/gradient service로 maturity와 dense 우선순위를 결합한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B birth×dense 상호작용 — 현재 조합 기각):** RPNG
+  `table_01` fixed-iteration B1 24.1209dB에서 dense RR 단독은
+  **24.1717(+0.0507)**, online-rank birth 단독은 **24.1064(-0.0145)**,
+  birth+dense는 **24.1122(-0.0088)**였다. 모두 Adam3,305/regular41,675,
+  정상 topology/no-freeze, zero-tail, verifier valid이며 joint interaction은
+  -0.0450dB다. Birth/birth+dense 최종 GS가 152,084/151,727로 줄어 현재
+  appearance-only dense가 newborn capacity를 보존하지 못했다. 과거 D1 +1--2dB는
+  reserve만이 아니라 broad dense coverage와 cadence-dependent global topology stop
+  뒤 큰 map capacity 보존이 공통 신호였다. 전역 freeze는 재도입하지 않고 다음
+  후보를 final-v7 관측 상태 기반 newborn consolidation으로 한정한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B corrected D1-style Full — 새 기준 이득 소멸):**
+  첫 B3 square-2의 21.0267dB(+0.4127)는 C1/IMU/ERCB 계약은 통과했지만
+  official YAML의 PPM off로 online-density 관측이 0인 불완전 Full이었다.
+  D1의 PPM+256/64+causal rank2.5/span2를 강제하고 관측0을 fail-closed로
+  수정한 v2는 fixed-iteration verifier 전 항목을 통과했으나 square-2
+  **20.6070dB(B1 -0.0069)**, RPNG table_01 **24.0568dB(B1 -0.0641)**였고
+  SSIM/LPIPS도 모두 악화했다. 양쪽 모두 B1 Adam832/3305와 regular view를
+  보존하고 aux144/824를 추가했다. 따라서 역사적 D1 +1.598dB(최대 +2.282)는
+  asymmetric reserve·method별 상이한 완료 work·더 큰 dense service가 섞인
+  결과로만 유지하며 새 B claim에서 제외한다. B3 freeze/validation은 중단하고
+  dev에서 topology/birth와 C1+IMU+ERCB를 분리한다.
+
+- **2026-09-14 (exp78-B fixed-iteration B2 RR pilot):** event별 Adam과
+  vanilla KF RGB-D/normal gradient를 보존하고 같은 마지막 step에
+  appearance-only projected dense batch4를 추가하는 B primary로 정정했다.
+  UTMM `square-2` B2는 **20.6456dB**, B1 20.6140 대비 **+0.0316dB**,
+  Adam **832/832**, regular view **9,858/9,858**+aux dense240이었고
+  verifier `valid=true`, drop·overlap·tail0이다. 반면 총 view까지 맞추며
+  KF slot을 dense로 대체한 control은 **-0.1336dB**라 primary에서 제외했다.
+  이번 B2는 `dense_rr`라 별도 IMU dense-pose shaper가 빠진 최소 backbone이다.
+  다음 B3는 `dense_rr_imu`+global seed1/완료 dense-view22회당 admission1+
+  ERCB+online-rank birth/adaptive topology를 dev에서 검증하며 C3는 27dB
+  전까지 계속 금지한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B fixed-work vanilla parity 2/2 완료):** corrected
+  `official_event_credit_v1`에서 UTMM `square-2` official/custom는
+  **20.6260/20.6140dB**(−0.0121), Adam **832/832**, view-update
+  **9,858/9,858**이었다. RPNG `table_01`도 **24.1523/24.1209dB**
+  (−0.0313), Adam **3,305/3,305**, view-update **41,675/41,675**로
+  일치했다. 두 장면 모두 event/packet/mapped UID exact, drop·preemption·
+  held-out overlap·tail update 0이고 machine verifier `valid=true`다.
+  Custom path에는 official frontier10/isotropic/PGBA를 복원하고 모든 custom
+  contribution을 껐다. **B0/B1 parity는 완료**, 다음은 validation을 보지
+  않고 dev 장면에서 fixed-credit B2/B3와 pre-carve Full recipe를 정의한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B parity 실패 → fixed-work B로 protocol 정정):** UTMM
+  `square-2` 동일 frozen archive와 mapper-only 1.5×에서 official/custom
+  vanilla fixed held-out는 **20.3068/19.9218dB**(−0.3850), optimizer
+  **908/529**, rasterized view-update **9,993/6,414**, completed packet
+  **63/65**였다. 사전 parity gate 실패의 첫 원인은 custom regular frontier가
+  official 10이 아닌 hard-coded 7 iter였던 것. 또한 frozen tracker는 실제
+  tracker--mapper CPU/GPU 경쟁을 제거하므로 mapper-only wall-clock을 실시간
+  근거로 쓰지 않는다. 이후 **B primary는 동일 event별 optimizer step+view
+  credit의 fixed-work causal isolation**, 1.5×/1.0× mapper-only는 throughput
+  진단이며, 실제 실시간 주장은 동시 실행 C에서만 판정한다. 이 실패 pair는
+  protocol 정정 근거로 보존하며 fixed-work cross-dataset parity부터 다시 한다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
+
+- **2026-09-14 (exp78-B frozen causal input lock 완료):** official VIGS
+  `22ffe24` + RTX 5090 TensorRT tracker로 RPNG 8/8, UTMM 8/8 seed0 archive를
+  생성·검증했다. Validator v2에서 **16/16 valid**, 총 49,080 frame,
+  3,729 event, 36,005 causal dense unique이며 held-out mapping overlap,
+  future-order violation, geometry hash mismatch, capture/EOS 뒤 Gaussian
+  update는 모두 0이다. 기존 D1은 vanilla/gsslam deadline reserve가
+  50/20ms로 달라 최종 공정 B 결과가 아니며, 이후 B0--B3는 동일 archive와
+  공통 1.5× service deadline/reserve로 재실행한다. 현재 `gsslam` arm은
+  D1 backbone 후보일 뿐 C1+C2+C3 최종 구조는 아직 freeze 전이다.
+  → [exp78-B](experiments/5090branch/exp78/b_strict_fair_comparison/README.md)
 
 - **2026-09-14 (exp86-B work-credit selector family — RR 유지):** exp86-A의
   `ERCB` 표기가 original count-softmax가 아닌 interval relative-floor였음을 정정하고,
