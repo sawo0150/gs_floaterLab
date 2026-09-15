@@ -123,6 +123,13 @@ class Stage6RX4RunnerTest(unittest.TestCase):
         self.assertEqual(environment["EXP78B_CUSTOM_ROOT"], str(runner.PAPER_ROOT))
         self.assertIn(str(runner.PAPER_ROOT), environment["PYTHONPATH"].split(":"))
 
+    def test_archive_reader_is_hash_pinned_and_git_critical(self):
+        self.assertIn(runner.ARCHIVE_READER, runner.EXPECTED_HASHES)
+        self.assertEqual(
+            runner.sha256(runner.ARCHIVE_READER),
+            runner.EXPECTED_HASHES[runner.ARCHIVE_READER],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -43,6 +43,7 @@ DEFAULT_ROOT = (
 
 CUSTOM_HARNESS = WORKSPACE / "benchmarks/online_gs/exp78b_replay_gsslam_mapping.py"
 VANILLA_HARNESS = WORKSPACE / "benchmarks/online_gs/exp78b_replay_vanilla_mapping.py"
+ARCHIVE_READER = WORKSPACE / "benchmarks/online_gs/exp78b_frozen_archive.py"
 EVALUATOR = WORKSPACE / "benchmarks/online_gs/exp78_evaluate_vigs_ply.py"
 ARCHIVE_VALIDATOR = WORKSPACE / "benchmarks/online_gs/validate_exp78b_frozen_tracker.py"
 RENDER_VERIFIER = WORKSPACE / "benchmarks/online_gs/verify_exp78b_d1_render_match.py"
@@ -71,6 +72,7 @@ SEQUENCES: dict[tuple[str, str], tuple[str, int, str, str]] = {
 SENTINELS = (("utmm", "fast-straight"), ("rpng", "table_07"))
 
 EXPECTED_HASHES = {
+    ARCHIVE_READER: "19ebd0f5c296e6fe59c5927b92a6c2d961689367d8bb8407797823c51a622432",
     CUSTOM_HARNESS: "e0a2bcf50ae1354bb79efe79009f1e23567243942a6d358b95a8c5937c16bf16",
     VANILLA_HARNESS: "cabdb4df902bfb278b0b590af5dcf31b40921bd76a09d3225991a4f9b3741765",
     EVALUATOR: "f854084b249cea724b7be65a1655088ce8906203110f52c6503b052ec3b51c3c",
@@ -290,7 +292,7 @@ def require_predeclared_state() -> dict[str, Any]:
             ("git", "-C", str(repository), "diff", "--cached", "--quiet", "--ignore-submodules=dirty"),
             check=True,
         )
-    for critical in (Path(__file__).resolve(), CUSTOM_HARNESS):
+    for critical in (Path(__file__).resolve(), CUSTOM_HARNESS, ARCHIVE_READER):
         subprocess.run(
             ("git", "-C", str(WORKSPACE), "ls-files", "--error-unmatch", str(critical)),
             stdout=subprocess.DEVNULL,
@@ -481,6 +483,7 @@ def write_manifest(
         "config_sha256": sha256(config),
         "fixed_manifest_sha256": sha256(paths["fixed_manifest"]),
         "harness_sha256": sha256(harness),
+        "archive_reader_sha256": sha256(ARCHIVE_READER),
         "runner_sha256": sha256(Path(__file__).resolve()),
         "evaluator_sha256": sha256(EVALUATOR),
         "mapping_flags": shlex.join(command[2:]),
