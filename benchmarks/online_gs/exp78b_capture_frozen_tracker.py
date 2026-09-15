@@ -518,7 +518,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--weights", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--heldout-manifest", required=True)
-    parser.add_argument("--dataset", required=True, choices=("rpng", "utmm"))
+    parser.add_argument(
+        "--dataset", required=True, choices=("rpng", "utmm", "aria")
+    )
     parser.add_argument("--sequence", required=True)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--stride", type=int, default=1)

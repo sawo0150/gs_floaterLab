@@ -1,0 +1,84 @@
+# Mapper-neutral Aria adapter for the official VIGS tracker used by exp78 B.
+# Tracking parameters are the pre-existing exp66 Aria operational contract;
+# only physical IMU/timestamp calibration differs from upstream VIGS defaults.
+# The same frozen tracker archive is replayed by both mapping arms.
+Dataset:
+  pcd_downsample: 64
+  pcd_downsample_init: 32
+  adaptive_pointsize: true
+  point_size: 0.05
+  scale_multiplier: 2.0
+
+mono_model: omnidata
+
+IMU:
+  frequency: 998.4
+  accelerometer_noise_density: 0.01
+  accelerometer_random_walk: 0.001
+  gyroscope_noise_density: 0.0001
+  gyroscope_random_walk: 1.0e-05
+  imu_time_offset: 0.0
+  rgb_file_in_nanoseconds: true
+  imu_in_nanoseconds: true
+  init_g: [0.0, 0.0, -9.81]
+  init_bg: [0.0, 0.0, 0.0]
+  init_ba: [0.0, 0.0, 0.0]
+  Tcb_np:
+    - [0.98970893, 0.10712973, -0.09486550, 0.00615684]
+    - [0.14270221, -0.78802158, 0.59888068, -0.12580182]
+    - [-0.01059813, -0.60625507, -0.79519964, -0.00704653]
+    - [0.0, 0.0, 0.0, 1.0]
+
+Tracking:
+  disable_mono: false
+  motion_filter:
+    init_thresh: 4.0
+    thresh: 3.6
+  frontend:
+    keyframe_thresh: 4.0
+    keep_kf_once_deleted: false
+    frontend_thresh: 16.0
+    frontend_window: 25
+    frontend_radius: 2
+    frontend_nms: 1
+    mono_depth_alpha: 0.01
+    imu_late_init_from: 20
+  backend:
+    backend_thresh: 22.0
+    backend_radius: 2
+    backend_nms: 3
+    covis_thresh: 0.3
+  pgba:
+    active: true
+    pgba_thresh: 22.0
+
+Training:
+  init_itr_num: 1050
+  init_gaussian_update: 100
+  init_gaussian_reset: 500
+  init_gaussian_th: 0.005
+  init_gaussian_extent: 30
+  gaussian_update_every: 150
+  gaussian_update_offset: 50
+  gaussian_th: 0.7
+  gaussian_extent: 1.0
+  gaussian_reset: 2000000001
+  size_threshold: 20
+  window_size: 10
+  rgb_boundary_threshold: 0.01
+  lambda_dnormal: 0.5
+  compensate_exposure: true
+
+opt_params:
+  pose_lr: 0.0001
+  position_lr_init: 0.00016
+  position_lr_final: 0.0000016
+  position_lr_max_steps: 26000
+  feature_lr: 0.0025
+  opacity_lr: 0.05
+  scaling_lr: 0.001
+  rotation_lr: 0.001
+  exposure_lr: 0.01
+  percent_dense: 0.01
+  lambda_dssim: 0.2
+  densify_grad_threshold: 0.0002
