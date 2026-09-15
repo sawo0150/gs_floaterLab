@@ -66,6 +66,7 @@ from exp78b_timeline_scheduler import (  # noqa: E402
 
 
 PROTOCOL = "exp78b_gsslam_frozen_mapping_replay_v28"
+R4_PROTOCOL = "exp78b_gsslam_frozen_mapping_replay_v29"
 
 
 def install_relative_capacity_prune_closure(controller):
@@ -823,6 +824,8 @@ def mapper_namespace(
     fixed_iteration_dedicated_dense_iters: int,
     fixed_iteration_dedicated_dense_batch_size: int,
     fixed_iteration_dedicated_dense_scope: str,
+    native_global_keyframe_selection_audit: bool,
+    native_global_keyframe_ercb: bool,
 ) -> argparse.Namespace:
     image_dir = Path(archive.manifest["input_image_directory"])
     imu_file = Path(
@@ -904,6 +907,10 @@ def mapper_namespace(
                 "global-residue ERCB mapper mode requires service-shortfall ERCB"
             )
         argv.append("--mapping_replay_service_shortfall_global_epoch")
+    if native_global_keyframe_selection_audit:
+        argv.append("--mapping_global_keyframe_selection_audit")
+    if native_global_keyframe_ercb:
+        argv.append("--mapping_global_keyframe_ercb_after_balanced")
     if profile == "final_v7_scheduler":
         argv.extend(
             (
@@ -1601,6 +1608,22 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--stage6r-native-global-keyframe-selection-audit",
+        action="store_true",
+        help=(
+            "Stage-6R R4 control/candidate: audit the native historical "
+            "keyframe identities selected by every regular mapping update"
+        ),
+    )
+    parser.add_argument(
+        "--stage6r-native-global-keyframe-ercb",
+        action="store_true",
+        help=(
+            "Stage-6R R4 candidate: replace only BALANCED/REPLAY native "
+            "historical-keyframe uniform selection with transactional ERCB"
+        ),
+    )
+    parser.add_argument(
         "--density-policy",
         choices=("configured", "disabled", "online_rank"),
         default="configured",
@@ -1986,6 +2009,33 @@ def main() -> int:
             "C1 service1/global-residue C2 arm and adds only a separate "
             "appearance keyframe source"
         )
+    if args.stage6r_native_global_keyframe_selection_audit and not (
+        args.stage6r_keyframe_appearance_replay
+        and stage4_c1_c2_global_residue_integration
+        and args.service_shortfall_ercb
+        and args.compute_paced_dense_admission
+        and args.compute_paced_dense_token_cost == 1
+        and args.fixed_event_dense_opportunities_per_packet == 1
+        and args.time_scale == "unbounded"
+        and args.profile == "dense_rr_imu"
+        and args.observation_topology_gate
+        and args.dense_replay_scope == "appearance"
+        and not args.include_keyframes_in_replay
+        and args.keyframe_replay_fraction < 0.0
+        and not args.keyframe_replay_full_geometry
+        and args.new_view_service_period == 0
+    ):
+        raise ValueError(
+            "Stage-6R native-global audit requires the exact accepted R3 "
+            "dense-plus-keyframe C1/C2 arm"
+        )
+    if (
+        args.stage6r_native_global_keyframe_ercb
+        and not args.stage6r_native_global_keyframe_selection_audit
+    ):
+        raise ValueError(
+            "Stage-6R native-global ERCB requires its uniform-shadow audit"
+        )
     if args.service_shortfall_ercb and not (
         native_d1_dense_service_clock
         and not args.include_keyframes_in_replay
@@ -2151,6 +2201,8 @@ def main() -> int:
         args.fixed_iteration_dedicated_dense_iters,
         args.fixed_iteration_dedicated_dense_batch_size,
         args.fixed_iteration_dedicated_dense_scope,
+        args.stage6r_native_global_keyframe_selection_audit,
+        args.stage6r_native_global_keyframe_ercb,
     )
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     relative_capacity_prune_state = None
@@ -2989,6 +3041,16 @@ def main() -> int:
     mapper.gaussians.save_ply(output / "3dgs_before_final.ply")
     save_shared_trajectories(archive, output)
     replay_summary = mapper.mapping_replay_summary()
+    native_global_keyframe_selection_summary = (
+        mapper.mapping_global_keyframe_selection_summary()
+        if args.stage6r_native_global_keyframe_selection_audit
+        else None
+    )
+    native_global_keyframe_selection_ledger = (
+        list(mapper._mapping_global_keyframe_selection_ledger)
+        if args.stage6r_native_global_keyframe_selection_audit
+        else None
+    )
     online_density_summary = (
         None if online_density is None else online_density.summary()
     )
@@ -3001,7 +3063,11 @@ def main() -> int:
         )
 
     runtime = {
-        "protocol": PROTOCOL,
+        "protocol": (
+            R4_PROTOCOL
+            if args.stage6r_native_global_keyframe_selection_audit
+            else PROTOCOL
+        ),
         "method": f"gsslam_{args.profile}_quality_first_no_carve",
         "mapping_profile": args.profile,
         "fixed_work_dense_global_views": args.fixed_work_dense_global_views,
@@ -3053,6 +3119,18 @@ def main() -> int:
         ),
         "stage6r_keyframe_appearance_replay": (
             args.stage6r_keyframe_appearance_replay
+        ),
+        "stage6r_native_global_keyframe_selection_audit": (
+            args.stage6r_native_global_keyframe_selection_audit
+        ),
+        "stage6r_native_global_keyframe_ercb": (
+            args.stage6r_native_global_keyframe_ercb
+        ),
+        "stage6r_native_global_keyframe_selection_summary": (
+            native_global_keyframe_selection_summary
+        ),
+        "stage6r_native_global_keyframe_selection_ledger": (
+            native_global_keyframe_selection_ledger
         ),
         "stage6r_source_quota_protocol": (
             "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
@@ -3186,7 +3264,12 @@ def main() -> int:
         "deadline_reserve_ms": args.deadline_reserve_ms,
         "work_contract": (
             (
-                "d1_native_fixed_dense_plus_keyframe_opportunity_pair_v1"
+                (
+                    "d1_native_fixed_dense_plus_keyframe_opportunity_pair_"
+                    "with_native_global_audit_v1"
+                    if args.stage6r_native_global_keyframe_selection_audit
+                    else "d1_native_fixed_dense_plus_keyframe_opportunity_pair_v1"
+                )
                 if args.stage6r_keyframe_appearance_replay
                 else (
                     "d1_stage1_native_fixed_one_dense_opportunity_per_completed_packet_v1"
@@ -3204,7 +3287,13 @@ def main() -> int:
         ),
         "comparison_contract": (
             (
-                "stage6r_r3_dense_plus_keyframe_appearance_c1_c2_v1"
+                (
+                    "stage6r_r4_native_global_keyframe_ercb_v1"
+                    if args.stage6r_native_global_keyframe_ercb
+                    else "stage6r_r4_native_global_uniform_control_v1"
+                )
+                if args.stage6r_native_global_keyframe_selection_audit
+                else "stage6r_r3_dense_plus_keyframe_appearance_c1_c2_v1"
                 if args.stage6r_keyframe_appearance_replay
                 else (
                     "stage4_c1_c2_global_residue_fixed_event_integration_v1"
