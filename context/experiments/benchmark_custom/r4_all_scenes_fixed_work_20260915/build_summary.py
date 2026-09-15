@@ -126,6 +126,50 @@ def aggregate_timing(rows: list[dict]) -> dict:
     }
 
 
+def aggregate_workload(rows: list[dict]) -> dict:
+    fields = (
+        "candidate_optimizer_steps",
+        "vanilla_optimizer_steps",
+        "frontier_optimizer_steps",
+        "dense_optimizer_steps",
+        "keyframe_optimizer_steps",
+        "frontier_renders",
+        "dense_renders",
+        "keyframe_renders",
+        "dense_arrived",
+        "dense_admitted",
+        "dense_selected_unique",
+        "keyframes_tracked",
+        "keyframes_admitted",
+        "keyframes_selected_unique",
+    )
+    result = {field: sum(int(row[field]) for row in rows) for field in fields}
+    result["valid_scenes"] = len(rows)
+    result["dense_admission_rate"] = (
+        result["dense_admitted"] / result["dense_arrived"]
+    )
+    result["aux_keyframe_to_dense_ratio"] = (
+        result["keyframe_optimizer_steps"] / result["dense_optimizer_steps"]
+    )
+    result["keyframe_side_to_dense_adam_ratio"] = (
+        (result["frontier_optimizer_steps"] + result["keyframe_optimizer_steps"])
+        / result["dense_optimizer_steps"]
+    )
+    result["keyframe_side_to_dense_render_ratio"] = (
+        (result["frontier_renders"] + result["keyframe_renders"])
+        / result["dense_renders"]
+    )
+    result["dense_render_fraction"] = (
+        result["dense_renders"]
+        / (
+            result["frontier_renders"]
+            + result["dense_renders"]
+            + result["keyframe_renders"]
+        )
+    )
+    return result
+
+
 def fmt(value: float, digits: int = 4) -> str:
     return f"{float(value):.{digits}f}"
 
@@ -140,6 +184,7 @@ def render_summary_markdown(summary: dict) -> str:
     rows = summary["rows"]
     na = summary["n_a"][0]
     timing = summary["timing"]
+    workload = summary["workload"]
     lines = [
         "# R4 all-scene fixed-work 요약",
         "",
@@ -353,6 +398,105 @@ def render_summary_markdown(summary: dict) -> str:
             "이 감사만으로 C-track에서 tracking과 GPU를 경쟁할 때의 deadline 영향이나 "
             "Gaussian 수의 순수 인과 효과를 증명하지 않는다. 후자를 분리하려면 동일 R4 "
             "경로에서 Gaussian capacity만 바꾼 profiler pair가 필요하다.",
+            "",
+            "## 장면별 mapping iteration과 admission",
+            "",
+            "여기서 iteration은 양 arm에 공통으로 정의할 수 있는 **완료된 Gaussian Adam "
+            "step**이다. R4의 `F/D/K`는 각각 native frontier full-gradient Adam, dense "
+            "appearance-only Adam, 별도 KF appearance-only Adam이며 항상 "
+            "`R4 total = F + D + K`다. Frontier 한 step은 여러 keyframe view를 "
+            "render하므로 iteration 수와 physical rendered-view 수는 구분한다.",
+            "",
+            "| Dataset | Scene | Total Adam R4/vanilla | R4 F/D/K Adam | Dense arrived→admitted (rate) | Dense selected unique | KF tracked→admitted→selected unique |",
+            "|---|---|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for row in workload["rows"]:
+        lines.append(
+            f"| {row['dataset'].upper()} | `{row['scene']}` | "
+            f"{row['candidate_optimizer_steps']:,}/{row['vanilla_optimizer_steps']:,} | "
+            f"{row['frontier_optimizer_steps']:,}/{row['dense_optimizer_steps']:,}/"
+            f"{row['keyframe_optimizer_steps']:,} | "
+            f"{row['dense_arrived']:,}→{row['dense_admitted']:,} "
+            f"({100.0 * row['dense_admitted'] / row['dense_arrived']:.2f}%) | "
+            f"{row['dense_selected_unique']:,} | "
+            f"{row['keyframes_tracked']:,}→{row['keyframes_admitted']:,}→"
+            f"{row['keyframes_selected_unique']:,} |"
+        )
+    workload_all = workload["overall"]
+    lines.append(
+        f"| **전체** | **17 valid** | "
+        f"**{workload_all['candidate_optimizer_steps']:,}/"
+        f"{workload_all['vanilla_optimizer_steps']:,}** | "
+        f"**{workload_all['frontier_optimizer_steps']:,}/"
+        f"{workload_all['dense_optimizer_steps']:,}/"
+        f"{workload_all['keyframe_optimizer_steps']:,}** | "
+        f"**{workload_all['dense_arrived']:,}→{workload_all['dense_admitted']:,} "
+        f"({100.0 * workload_all['dense_admission_rate']:.2f}%)** | "
+        f"**{workload_all['dense_selected_unique']:,}** | "
+        f"**{workload_all['keyframes_tracked']:,}→"
+        f"{workload_all['keyframes_admitted']:,}→"
+        f"{workload_all['keyframes_selected_unique']:,}** |"
+    )
+    lines.extend(
+        [
+            "",
+            "## 장면별 KF:dense 학습 비율",
+            "",
+            "`KF-side`는 native frontier와 별도 KF appearance를 합친 값이다. "
+            "`Aux K:D`는 별도 KF appearance와 dense appearance만 비교한다. "
+            "`KF-side:D rendered views`는 실제로 rasterize된 keyframe-origin view와 "
+            "dense view의 비율이라, multi-view frontier 때문에 Adam 비율보다 훨씬 크다.",
+            "",
+            "| Dataset | Scene | Aux K:D Adam | KF-side:D Adam | KF-side:D rendered views | Dense share of all renders |",
+            "|---|---|---:|---:|---:|---:|",
+        ]
+    )
+    for row in workload["rows"]:
+        keyframe_side_adam = (
+            row["frontier_optimizer_steps"] + row["keyframe_optimizer_steps"]
+        )
+        keyframe_side_renders = row["frontier_renders"] + row["keyframe_renders"]
+        total_renders = keyframe_side_renders + row["dense_renders"]
+        lines.append(
+            f"| {row['dataset'].upper()} | `{row['scene']}` | "
+            f"{row['keyframe_optimizer_steps']:,}:{row['dense_optimizer_steps']:,} "
+            f"({row['keyframe_optimizer_steps'] / row['dense_optimizer_steps']:.2f}:1) | "
+            f"{keyframe_side_adam:,}:{row['dense_optimizer_steps']:,} "
+            f"({keyframe_side_adam / row['dense_optimizer_steps']:.2f}:1) | "
+            f"{keyframe_side_renders:,}:{row['dense_renders']:,} "
+            f"({keyframe_side_renders / row['dense_renders']:.2f}:1) | "
+            f"{100.0 * row['dense_renders'] / total_renders:.3f}% |"
+        )
+    keyframe_side_adam_all = (
+        workload_all["frontier_optimizer_steps"]
+        + workload_all["keyframe_optimizer_steps"]
+    )
+    keyframe_side_renders_all = (
+        workload_all["frontier_renders"] + workload_all["keyframe_renders"]
+    )
+    lines.extend(
+        [
+            f"| **전체** | **17 valid** | "
+            f"**{workload_all['keyframe_optimizer_steps']:,}:"
+            f"{workload_all['dense_optimizer_steps']:,} "
+            f"({workload_all['aux_keyframe_to_dense_ratio']:.2f}:1)** | "
+            f"**{keyframe_side_adam_all:,}:{workload_all['dense_optimizer_steps']:,} "
+            f"({workload_all['keyframe_side_to_dense_adam_ratio']:.2f}:1)** | "
+            f"**{keyframe_side_renders_all:,}:{workload_all['dense_renders']:,} "
+            f"({workload_all['keyframe_side_to_dense_render_ratio']:.2f}:1)** | "
+            f"**{100.0 * workload_all['dense_render_fraction']:.3f}%** |",
+            "",
+            "보조 appearance scheduler 자체는 모든 장면에서 KF:Dense가 정확히 "
+            "1:1이다. 하지만 native frontier를 포함하면 전체 17개에서 KF-side:Dense는 "
+            f"Adam 기준 **{workload_all['keyframe_side_to_dense_adam_ratio']:.2f}:1**, "
+            f"physical render 기준 **{workload_all['keyframe_side_to_dense_render_ratio']:.2f}:1**이며, "
+            f"dense view는 전체 physical render의 **{100.0 * workload_all['dense_render_fraction']:.3f}%**다. "
+            "즉 dense가 보조 slot 안에서는 KF와 동등하지만, 전체 native keyframe 학습량과 "
+            "비교하면 작은 비중이라는 점을 함께 봐야 한다.",
+            "",
+            "UTMM `slow-straight-1`은 tracker metric initialization 실패로 양 arm 모두 "
+            "map이 없어 위 두 표에서 제외했다.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -384,6 +528,38 @@ def main() -> int:
             != int(vanilla_runtime["rasterized_view_updates"])
         ):
             raise RuntimeError(f"runtime render mismatch: {report_path}")
+        candidate_events = candidate_runtime["events"]
+        frontier_optimizer_steps = sum(
+            int(event.get("frontier_optimizer_steps_completed", 0))
+            for event in candidate_events
+        )
+        dense_optimizer_steps = sum(
+            int(event.get("fixed_dense_optimizer_steps_completed", 0))
+            for event in candidate_events
+        )
+        keyframe_optimizer_steps = sum(
+            int(event.get("fixed_keyframe_optimizer_steps_completed", 0))
+            for event in candidate_events
+        )
+        frontier_renders = sum(
+            int(event.get("frontier_rasterized_view_updates", 0))
+            for event in candidate_events
+        )
+        dense_renders = sum(
+            int(event.get("fixed_dense_rasterized_view_updates", 0))
+            for event in candidate_events
+        )
+        keyframe_renders = sum(
+            int(event.get("fixed_keyframe_rasterized_view_updates", 0))
+            for event in candidate_events
+        )
+        if (
+            frontier_optimizer_steps + dense_optimizer_steps + keyframe_optimizer_steps
+            != int(candidate_runtime["optimizer_steps_completed"])
+            or frontier_renders + dense_renders + keyframe_renders
+            != int(candidate_runtime["rasterized_view_updates"])
+        ):
+            raise RuntimeError(f"R4 F/D/K decomposition mismatch: {report_path}")
         evaluation = read_json(
             candidate_run / "psnr/strict_fixed_manifest/final_result.json"
         )["predeclared_fixed_manifest_posthoc"]
@@ -431,6 +607,22 @@ def main() -> int:
                 "vanilla_map_calls": int(vanilla_runtime["map_calls"]),
                 "candidate_peak_cuda_bytes": int(candidate_runtime["peak_cuda_allocated_bytes"]),
                 "vanilla_peak_cuda_bytes": int(vanilla_runtime["peak_cuda_allocated_bytes"]),
+                "frontier_optimizer_steps": frontier_optimizer_steps,
+                "dense_optimizer_steps": dense_optimizer_steps,
+                "keyframe_optimizer_steps": keyframe_optimizer_steps,
+                "frontier_renders": frontier_renders,
+                "dense_renders": dense_renders,
+                "keyframe_renders": keyframe_renders,
+                "dense_arrived": int(candidate_runtime["dense_arrived_unique_views"]),
+                "dense_admitted": int(candidate_runtime["dense_registered_unique_views"]),
+                "dense_selected_unique": int(candidate_runtime["dense_selected_unique_views"]),
+                "keyframes_tracked": int(candidate_runtime["tracking_mapped_unique_views"]),
+                "keyframes_admitted": int(
+                    candidate_runtime["stage6r_keyframe_replay_summary"]["admitted_candidates"]
+                ),
+                "keyframes_selected_unique": int(
+                    candidate_runtime["stage6r_keyframe_replay_summary"]["selected_unique_candidates"]
+                ),
             }
         )
         candidate_manifest = candidate_run / "source_manifest.txt"
@@ -520,6 +712,10 @@ def main() -> int:
         "timing": {
             "overall": aggregate_timing(timing_rows),
             "by_dataset": timing_by_dataset,
+            "rows": timing_rows,
+        },
+        "workload": {
+            "overall": aggregate_workload(timing_rows),
             "rows": timing_rows,
         },
         "acceptance": acceptance,
