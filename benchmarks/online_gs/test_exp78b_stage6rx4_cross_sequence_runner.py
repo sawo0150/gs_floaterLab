@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+from pathlib import Path
+import sys
+import unittest
+
+
+TEST_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(TEST_DIR))
+
+import run_exp78b_stage6rx4_cross_sequence as runner
+
+
+class Stage6RX4RunnerTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.root = Path("/tmp/stage6rx4-synthetic")
+
+    def test_exact_confirmation_cohort_and_sentinel_order_are_frozen(self):
+        self.assertEqual(len(runner.SEQUENCES), 11)
+        self.assertNotIn(("rpng", "table_01"), runner.SEQUENCES)
+        self.assertNotIn(("rpng", "table_02"), runner.SEQUENCES)
+        self.assertEqual(
+            runner.SENTINELS,
+            (("utmm", "fast-straight"), ("rpng", "table_07")),
+        )
+
+    def test_candidate_has_complete_r4_full_flags(self):
+        command = runner.mapping_command(
+            "candidate", "utmm", "fast-straight", self.root
+        )
+        for flag in (
+            "--compute-paced-dense-admission",
+            "--c1-c2-global-residue-integration",
+            "--service-shortfall-ercb",
+            "--stage6r-keyframe-appearance-replay",
+            "--stage6r-native-global-keyframe-selection-audit",
+            "--stage6r-native-global-keyframe-ercb",
+            "--observation-topology-gate",
+        ):
+            self.assertIn(flag, command)
+        token = command.index("--compute-paced-dense-token-cost")
+        self.assertEqual(command[token + 1], "1")
+
+    def test_vanilla_is_render_matched_to_same_sequence_candidate(self):
+        command = runner.mapping_command(
+            "vanilla", "rpng", "table_07", self.root
+        )
+        reference = command[command.index("--reference-service-runtime") + 1]
+        self.assertEqual(
+            Path(reference),
+            runner.run_paths(self.root, "rpng", "table_07")["candidate"]
+            / "mapping_replay_runtime.json",
+        )
+        self.assertIn("--mapping-after-metric-init", command)
+
+    def test_candidate_structure_precedes_quality_in_dry_run_payload(self):
+        output = runner.run_paths(
+            self.root, "utmm", "fast-straight"
+        )["candidate"]
+        command = runner.structure_command(
+            output,
+            runner.run_paths(self.root, "utmm", "fast-straight")["structure"],
+        )
+        self.assertIn(str(runner.STRUCTURE_VERIFIER), command)
+        self.assertIn("--run", command)
+
+    def test_entries_cover_only_the_frozen_cohort(self):
+        entries = runner.cohort_entries(self.root)
+        self.assertEqual(
+            {(row["dataset"], row["sequence"]) for row in entries},
+            set(runner.SEQUENCES),
+        )
+        self.assertTrue(
+            all("stage6rx4" in row["candidate_run"] for row in entries)
+        )
+
+    def test_custom_environment_uses_paper_source(self):
+        environment = runner.mapping_environment(True)
+        self.assertEqual(environment["EXP78B_CUSTOM_ROOT"], str(runner.PAPER_ROOT))
+        self.assertIn(str(runner.PAPER_ROOT), environment["PYTHONPATH"].split(":"))
+
+
+if __name__ == "__main__":
+    unittest.main()
