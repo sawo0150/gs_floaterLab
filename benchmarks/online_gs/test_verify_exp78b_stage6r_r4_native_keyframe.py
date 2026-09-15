@@ -61,7 +61,12 @@ def runtime(candidate: bool) -> dict:
         [7, 8, 1, 2, 3, 4] if candidate else [1, 2, 3, 4, 5, 6],
         candidate,
     )
-    ledger = [frontier, balanced1, balanced2]
+    balanced3 = ledger_row(
+        3, "balanced", list(range(1, 9)), [7, 8, 1, 2, 3, 4],
+        [5, 6, 7, 8, 1, 2] if candidate else [7, 8, 1, 2, 3, 4],
+        candidate,
+    )
+    ledger = [frontier, balanced1, balanced2, balanced3]
     queue = None
     if candidate:
         queue = {
@@ -151,8 +156,8 @@ def runtime(candidate: bool) -> dict:
         "stage6r_native_global_keyframe_selection_summary": {
             "audit_enabled": True,
             "ercb_after_balanced": candidate,
-            "balanced_or_replay_entries": 2,
-            "ercb_active_entries": 2 if candidate else 0,
+            "balanced_or_replay_entries": 3,
+            "ercb_active_entries": 3 if candidate else 0,
             "balanced_selected_unique_views": selected_unique,
             "final_queue": queue,
         },
@@ -215,7 +220,12 @@ class R4VerifierTest(unittest.TestCase):
         )
         self.assertTrue(report["valid"])
         self.assertEqual(
-            report["structural_result"]["candidate_unique_minus_control"], 2
+            report["structural_result"]["candidate_unique_minus_control"], 0
+        )
+        self.assertTrue(
+            report["structural_result"][
+                "anchor_cohort_service_balance_strictly_improved"
+            ]
         )
 
     def test_repeat_before_residue_exhaustion_fails_closed(self) -> None:

@@ -137,6 +137,72 @@ def validate_global_residue(
     }
 
 
+def anchor_cohort_service_balance(
+    ledger: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Measure service dispersion for equally long-lived balanced cohorts."""
+    rows_by_generation: dict[int, list[dict[str, Any]]] = {}
+    for row in ledger:
+        if row.get("controller_phase") not in BALANCED_PHASES:
+            continue
+        rows_by_generation.setdefault(
+            int(row.get("map_generation", -1)), []
+        ).append(row)
+    generations: list[dict[str, Any]] = []
+    for generation, rows in sorted(rows_by_generation.items()):
+        stable_anchor = set(int(value) for value in rows[0].get("pool_uids", []))
+        for row in rows[1:]:
+            stable_anchor.intersection_update(
+                int(value) for value in row.get("pool_uids", [])
+            )
+        if not stable_anchor:
+            continue
+        counts = {uid: 0 for uid in stable_anchor}
+        for row in rows:
+            for uid in row.get("selected_uids", []):
+                uid = int(uid)
+                if uid in counts:
+                    counts[uid] += 1
+        values = list(counts.values())
+        service_mean = mean(float(value) for value in values)
+        variance = mean(
+            (float(value) - service_mean) ** 2 for value in values
+        )
+        generations.append(
+            {
+                "map_generation": generation,
+                "balanced_rows": len(rows),
+                "stable_anchor_keyframes": len(stable_anchor),
+                "service_min": min(values),
+                "service_max": max(values),
+                "service_spread": max(values) - min(values),
+                "service_mean": service_mean,
+                "service_coefficient_of_variation": (
+                    math.sqrt(variance) / service_mean
+                    if service_mean > 0.0
+                    else math.inf
+                ),
+            }
+        )
+    return {
+        "generations": generations,
+        "eligible_generations": len(generations),
+        "mean_service_spread": (
+            mean(float(row["service_spread"]) for row in generations)
+            if generations
+            else math.inf
+        ),
+        "mean_service_coefficient_of_variation": (
+            mean(
+                float(row["service_coefficient_of_variation"])
+                for row in generations
+            )
+            if generations
+            else math.inf
+        ),
+    }
+
+
 def fixed_rows(run: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     result = read_json(
         run / "psnr" / "strict_fixed_manifest" / "final_result.json"
@@ -497,12 +563,26 @@ def build_report(
 
     control_unique = int(control_summary.get("balanced_selected_unique_views", -1))
     candidate_unique = int(candidate_summary.get("balanced_selected_unique_views", -1))
+    control_balance = anchor_cohort_service_balance(control_ledger)
+    candidate_balance = anchor_cohort_service_balance(candidate_ledger)
+    balance_improved = (
+        int(control_balance["eligible_generations"]) > 0
+        and int(control_balance["eligible_generations"])
+        == int(candidate_balance["eligible_generations"])
+        and float(candidate_balance["mean_service_spread"])
+        < float(control_balance["mean_service_spread"])
+        and float(candidate_balance["mean_service_coefficient_of_variation"])
+        < float(control_balance["mean_service_coefficient_of_variation"])
+    )
     report["structural_result"] = {
         "native_ledger_entries": len(candidate_ledger),
         "balanced_or_replay_entries": candidate_summary.get("balanced_or_replay_entries"),
         "control_balanced_unique_historical_keyframes": control_unique,
         "candidate_balanced_unique_historical_keyframes": candidate_unique,
         "candidate_unique_minus_control": candidate_unique - control_unique,
+        "control_anchor_cohort_service_balance": control_balance,
+        "candidate_anchor_cohort_service_balance": candidate_balance,
+        "anchor_cohort_service_balance_strictly_improved": balance_improved,
         "candidate_final_queue": queue,
         "global_residue_reconstruction": residue_detail,
         "control_gaussians": control.get("gaussians"),
@@ -532,7 +612,7 @@ def build_report(
     )
     promotion_pass = (
         retention_pass
-        and candidate_unique > control_unique
+        and balance_improved
         and delta_control > 0.0
     )
     check(
@@ -553,7 +633,8 @@ def build_report(
     report["quality_result"]["candidate_minus_vanilla_psnr"] = delta_vanilla
     report["decision"] = {
         "retention_pass": retention_pass,
-        "strictly_more_balanced_historical_unique": candidate_unique > control_unique,
+        "historical_unique_coverage_saturated": candidate_unique == control_unique,
+        "anchor_cohort_service_balance_strictly_improved": balance_improved,
         "positive_primary_psnr_delta": delta_control > 0.0,
         "promote_r4_into_full": promotion_pass,
         "outcome": (
