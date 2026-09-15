@@ -1,0 +1,51 @@
+{
+  "experiment": "exp03-F_keyframe_role",
+  "date": "2026-09-15",
+  "verdict": "no_go",
+  "code_commit": "a3c04e43",
+  "primary_metric": "fixed_eval_mean_psnr",
+  "seed_extension_gate": "both_scene_deltas_positive",
+  "seed_extension_passed": false,
+  "runs": [
+    {
+      "family": "rpng",
+      "scene": "table_07",
+      "quota": 3,
+      "seed": 0,
+      "rr_psnr": 22.816405226641756,
+      "ercb_psnr": 21.57794573112918,
+      "delta_psnr": -1.238459495512576,
+      "rr_ssim": 0.7574603429418019,
+      "ercb_ssim": 0.7252285921623414,
+      "rr_lpips": 0.3412257847930295,
+      "ercb_lpips": 0.3845157572894604,
+      "adam_steps_each": 612,
+      "keyframe_updates_each": 306,
+      "dense_updates_each": 306,
+      "topology_events_each": 2,
+      "rr_final_gaussians": 499521,
+      "ercb_final_gaussians": 480353,
+      "zero_tail": true
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "quota": 15,
+      "seed": 0,
+      "rr_psnr": 19.138929549558664,
+      "ercb_psnr": 19.06513978228157,
+      "delta_psnr": -0.07378976727709485,
+      "rr_ssim": 0.6343862737218539,
+      "ercb_ssim": 0.6336145588645229,
+      "rr_lpips": 0.503940040498604,
+      "ercb_lpips": 0.5040064659199597,
+      "adam_steps_each": 1009,
+      "keyframe_updates_each": 433,
+      "dense_updates_each": 576,
+      "topology_events_each": 3,
+      "rr_final_gaussians": 152351,
+      "ercb_final_gaussians": 152167,
+      "zero_tail": true
+    }
+  ]
+}

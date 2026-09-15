@@ -2,9 +2,40 @@
 
 > 날짜: 2026-09-15
 > 범위: ERCB 전용 누적 트랙
-> 최신 판정: **exp77의 budget interaction을 RTX 5070 Ti에서 재현했다. Interval relative-floor ERCB는 15 updates/event에서 UTMM/RPNG 평균 +0.260/+1.030dB(각 3/3 승)였지만, 60 updates/event에서는 +0.004/−0.071dB(각 1/3 승)로 이득이 소멸했다. ERCB는 저예산 수렴 가속용이며 full-budget 최종 품질 우위로 주장하지 않는다.**
+> 최신 판정: **GT pose+exact frontend packet+shared packet-driven topology까지 통제해도 UTMM/RPNG fixed ERCB−RR은 +0.0614/−0.0614dB로 평균 0이었다. 과거 fixed replay 이득은 현재 VIGS의 dynamic singleton dense admission과 heterogeneous KF/dense loss로 전이되지 않는다. Production selector는 RR을 유지한다.**
 
-## 최신 결과 — exp03 RTX 5070 Ti budget reproduction
+## 최신 결과 — exp03-H frozen frontend + topology
+
+RR/ERCB가 같은 mapper packet과 stable-ID topology 결정을 사용하도록 진단 trace를
+구현했다. UTMM 70 packet/3 event, RPNG 204/1을 exact replay했고 final GS도 pair별로
+동일했다. Fixed held-out delta는 `+0.0614/-0.0614dB`로 이득이 복구되지 않았다.
+상세 결과는 [`exp03-H/RESULT.md`](exp03-H_frozen_frontend_topology/RESULT.md)에 있다.
+
+## 이전 결과 — exp03-G frozen tracking pose
+
+GT pose만 고정했을 때 RPNG/UTMM 3-seed 평균은 `+0.2546/+0.0588dB`로 모두 양수였다.
+그러나 native topology가 arm마다 달랐으므로 H에서 추가 통제했다. 상세 결과는
+[`exp03-G/RESULT.md`](exp03-G_frozen_tracking_pose/RESULT.md)에 있다.
+
+## 최신 결과 — exp03-F reliable-keyframe role pilot
+
+보간 pose가 불확실한 dense 대신 tracked keyframe 안에서만 같은 interval ERCB를
+적용했다. RPNG table_07 q3 exact-step pair는 `-1.2385dB`, UTMM square-1 q15는
+`-0.0738dB`로 0/2였다. RPNG는 같은 Adam/KF-dense/topology event 수에도 최종 GS가
+499,521→480,353으로 달라져, selected KF가 densification 통계를 소유하는 native
+topology feedback도 확인됐다. 사전 gate에 따라 추가 seed와 숫자 sweep은 중단했다.
+상세 결과는 [`exp03-F/RESULT.md`](exp03-F_keyframe_role/RESULT.md)에 있다.
+
+## 최신 결과 — exp03-E strict end-to-end packet budget
+
+Causal mapping packet마다 physical Adam credit을 해제하고, KF/dense 역할을 두 arm에서
+맞춘 뒤 dense 내부 RR/ERCB 순서만 비교했다. UTMM square-1 q15 3-seed delta는
+`-0.1005/+0.0720/+0.0107dB`(평균 `-0.0059dB`)였고, RPNG table_07 q3의
+Adam612/612·KF/dense306/306 exact-service pair는 `-0.7943dB`였다. ERCB는 late dense
+service를 개선했지만 held-out PSNR 수렴 가속으로 이어지지 않았다. 상세 결과는
+[`exp03-E/RESULT.md`](exp03-E_packet_budget_interaction/RESULT.md)에 있다.
+
+## 이전 결과 — exp03 RTX 5070 Ti fixed-replay budget reproduction
 
 Corrected full VIGS replay의 UTMM `square-1`과 RPNG `table_01`에서 causal RR과
 `relative_floor_interval_softmax_rr(K=8,rho=.5,gamma=log3)`를 비교했다. 동일

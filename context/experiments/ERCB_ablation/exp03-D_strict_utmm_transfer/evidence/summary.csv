@@ -1,0 +1,3 @@
+scene,seed,selector,fixed_psnr,fixed_ssim,fixed_lpips,adam_steps,keyframe_updates,dense_updates,topology_events,late_cohort_mean,zero_tail
+utmm_ego-centric-1,0,rr,18.8775948363,0.6622434156,0.4285798008,2447,903,1544,6,10.8947368421,1
+utmm_ego-centric-1,0,ercb_relative_floor,18.5470097375,0.6491834755,0.4512526551,2438,887,1551,6,13.9473684211,1

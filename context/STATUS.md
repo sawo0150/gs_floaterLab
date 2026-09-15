@@ -88,6 +88,85 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-15 (ERCB benchmark-A historical low-budget broad transfer — 12/13 양수):**
+  exp03의 `15 updates/event`, seed0, fixed final VIGS pose/init, RGB-only, fixed topology,
+  llffhold-8, zero-tail 조건을 장면별 knob 없이 16-scene inventory에 확장했다. 원 exp80
+  source가 완전한 13 scene의 26/26 arm이 완료됐고 ERCB−RR은 전체
+  **+0.5909dB(12/13)**, UTMM **+0.2638dB(6/7)**, RPNG
+  **+0.9725dB(6/6)**였다. Slow-straight-1/table_07/table_08은 원 VIGS 실패로
+  pose/init source가 없어 unavailable로 기록했다. ERCB가 11/13 scene에서 zero-service
+  view를 늘렸으므로 view-level fairness가 아니라 interval 집중에 의한 저예산 수렴 신호다.
+  단 seed0·offline fixed replay이며 마지막 KF 뒤 RGB를 마지막 event에 묶는 historical
+  tail admission까지 재현하므로 strict streaming/current unified VIGS 근거는 아니다.
+  → [benchmark-A](experiments/ERCB_ablation/benchmark-A/summary.md)
+
+- **2026-09-15 (ERCB exp03-H exact frontend packet + shared topology — 이득 미복구, NO-GO):**
+  GT absolute pose에 더해 mapper 입력 packet과 native RR의 stable-ID topology 결정을
+  기록해 두 arm에서 같은 causal packet 경계에 replay했다. UTMM square-1 q15는
+  70 packet/3 event/final 162,792GS가 같고 fixed **17.8230→17.8844(+0.0614dB)**,
+  RPNG table_07 q3는 204 packet/1 event/final 579,323GS가 같고
+  **19.7574→19.6960(-0.0614dB)**였다. 두 장면 평균은 -0.00002dB다. v1/v2의
+  wall-time interleaving stable-ID 실패는 보존했고 v3에서 topology를 causal packet count에
+  결박해 해결했다. 남은 핵심 차이는 current admission이 KF bracket당 dense 최대1장이라
+  interval이 UTMM 112 candidate/110 interval, RPNG 388/388로 singleton화되고, KF
+  RGBD+normal과 dense appearance-only의 학습가치가 다르다는 점이다. Production은 RR을
+  유지하고 K/gamma sweep은 중단한다.
+  → [exp03-H](experiments/ERCB_ablation/exp03-H_frozen_frontend_topology/RESULT.md)
+
+- **2026-09-15 (ERCB exp03-G GT-pose isolation — 3-seed 양수 diagnostic):**
+  online pose/PGBA map correction만 GT absolute로 고정하고 native topology를 남겼을 때
+  RPNG table_07 q3와 UTMM square-1 q15의 dense-role ERCB−RR 3-seed 평균은 각각
+  **+0.2546±0.1852/+0.0588±0.0196dB**, 모두 3/3 승이었다. 이는 pose/topology
+  feedback이 실패 원인의 일부임을 보였지만 arm별 frontend/topology/final GS가 달라 strict
+  근거가 아니다. H에서 packet/topology까지 공유하자 평균 이득은 0으로 줄었다.
+  → [exp03-G](experiments/ERCB_ablation/exp03-G_frozen_tracking_pose/RESULT.md)
+
+- **2026-09-15 (ERCB exp03-F reliable-keyframe role pilot — 0/2, NO-GO):**
+  exp03-E의 실패가 interpolated dense pose 때문인지 분리하려고, 역할 service는
+  parameter-free causal clock으로 맞추고 dense는 RR로 둔 채 tracked keyframe 안에만
+  동일 interval ERCB를 적용했다. Mapping-excluded fixed held-out은 RPNG table_07 q3
+  **22.8164→21.5779(-1.2385dB)**, UTMM square-1 q15
+  **19.1389→19.0651(-0.0738dB)**로 0/2였다. Adam/KF-dense/topology event는 각 pair에서
+  612/306-306/2와 1009/433-576/3으로 정확히 같고 zero-tail도 통과했다. UTMM KF
+  under-4는 14→10으로 줄었지만 PSNR로 전환되지 않았다. RPNG는 selected KF가 native
+  densification 통계를 소유해 final GS가 499,521→480,353으로 달라졌고, strict 폐루프의
+  실행 시점 변화 때문에 shared dense RR의 causal 가용 집합도 완전히 고정되지 않았다.
+  사전 gate에 따라 seed 확장·K/rho/q sweep을 중단하고 production RR을 유지한다.
+  → [exp03-F](experiments/ERCB_ablation/exp03-F_keyframe_role/RESULT.md)
+
+- **2026-09-15 (ERCB exp03-E causal packet-budget/role-matched 검증 — PSNR 이득 미재현):**
+  전체 cap을 초반에 소진하지 않도록 causal mapping packet마다 q physical Adam credit을
+  해제했고, heterogeneous KF/dense 역할 혼입을 막기 위해 causal pool 비율 clock으로
+  source 역할을 pair-matching했다. Keyframe RR은 공유하고 dense 내부 순서만 RR/interval
+  ERCB로 바꿨다. UTMM square-1 q15 3-seed fixed delta는
+  **-0.1005/+0.0720/+0.0107dB**, 평균 **-0.0059dB**였다. ERCB는 late dense service를
+  평균 0.82→1.39회로 늘렸지만 PSNR은 동률이다. RPNG table_07 q3는 Adam612/612,
+  KF/dense306/306, topology2/2, Gaussian471,560/472,750의 exact-service pair였으나
+  **-0.7943dB**였다. q5 +0.7337은 Adam819/979 혼입이라 제외했다. 모든 유효 run은
+  zero-tail을 통과했다. 따라서 fixed-pose/init/topology replay의 저예산 ERCB 우위는
+  strict end-to-end VIGS로 전이되지 않았고, K/rho/q 장면별 sweep 대신 pose 신뢰도나
+  residual/learning-progress utility가 필요한 것으로 판정한다.
+  → [exp03-E](experiments/ERCB_ablation/exp03-E_packet_budget_interaction/RESULT.md)
+
+- **2026-09-15 (ERCB exp03-A--D strict end-to-end 관측 — 일관 우위 미확립):**
+  unified B1/KF RGBD+normal/dense appearance+opacity/fixed1.5x/zero-tail에서
+  interval relative-floor ERCB를 RR과 비교했다. Work-credit는 selector service가 다음
+  admission을 바꿔 square-1 dense pool이 23/32장으로 갈리는 혼입을 확인했다(A).
+  Causal fixed-arrival로 membership을 고정한 square-1 3-seed fixed delta는
+  **+0.3418/-0.6498/+0.2994dB**, 평균 **-0.0029dB**였다(B). ERCB는 late cohort
+  service를 3/3 개선했지만 topology/처리량 feedback으로 Adam 차이가
+  -161/-590/+922회 발생했다. Ego-centric-1은 Adam 2447/2438, topology 6/6의
+  잘 맞은 pair에서도 **-0.3306dB**라 coverage fairness만으로는 학습가치를 보장하지
+  못했다(D). RPNG table_01은 strict1.5 deadline 전에 tracking이 크게 밀리고 RR pose
+  rotation SVD가 붕괴해 pair 자체가 성립하지 않았다(C). 따라서 fixed replay의 저예산
+  ERCB 이득은 실재하지만 현 strict production selector 우위로 일반화하지 않는다.
+  다음 구조 축은 scene knob/K sweep이 아니라 measured scarcity gate와
+  residual/learning-progress utility의 결합이다.
+  → [A](experiments/ERCB_ablation/exp03-A_strict_e2e/RESULT.md),
+  [B](experiments/ERCB_ablation/exp03-B_strict_fixed_arrival/RESULT.md),
+  [C](experiments/ERCB_ablation/exp03-C_strict_rpng_transfer/RESULT.md),
+  [D](experiments/ERCB_ablation/exp03-D_strict_utmm_transfer/RESULT.md)
+
 - **2026-09-15 (ERCB exp03 RTX 5070 Ti budget interaction 재현):** exp77의
   corrected full VIGS replay, fixed final pose/init, fixed topology, llffhold-8,
   zero-tail 계약으로 RR과 interval relative-floor ERCB를 28/28 run 비교했다.

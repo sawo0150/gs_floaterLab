@@ -1,0 +1,6 @@
+inherit_from: /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/benchmark_custom/5070ti_vanilla_matched_time/config/rpng_unified_pool.yaml
+
+Training:
+  parallel: true
+  queue_size: 2
+  drop_oldest_mapping_packets: false
