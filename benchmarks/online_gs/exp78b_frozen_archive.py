@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections import OrderedDict
 import hashlib
 import json
 from pathlib import Path
@@ -21,6 +22,12 @@ SUPPORTED_SCHEMA_VERSIONS = {
     SCHEMA_VERSION,
 }
 TARGET_PIXELS = 341 * 640
+# Mapping packets can revisit a recent geometry snapshot, but PGBA emits a new
+# depth/normal version for many already-mapped keyframes.  Retaining every
+# immutable version makes memory grow with the complete event history (the
+# RPNG table_03 archive alone contains about 27k unique geometry references).
+# A small LRU preserves nearby reuse without keeping obsolete PGBA snapshots.
+GEOMETRY_CACHE_MAX_ENTRIES = 32
 
 
 def sha256_file(path: Path) -> str:
@@ -69,7 +76,8 @@ class FrozenTrackerArchive:
         )
         self.preprocessing = self.manifest["preprocessing"]
         self._rgb_cache: dict[int, torch.Tensor] = {}
-        self._geometry_cache: dict[str, dict[str, Any]] = {}
+        self._geometry_cache: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        self._geometry_cache_max_entries = GEOMETRY_CACHE_MAX_ENTRIES
 
     @property
     def events(self) -> list[dict[str, Any]]:
@@ -136,6 +144,7 @@ class FrozenTrackerArchive:
         cache_key = self.geometry_cache_key(relative)
         cached = self._geometry_cache.get(cache_key)
         if cached is not None:
+            self._geometry_cache.move_to_end(cache_key)
             return cached
         if isinstance(relative, dict):
             depth_item = torch.load(
@@ -158,15 +167,29 @@ class FrozenTrackerArchive:
                 "depth": depth_item["tensor"],
                 "normal": normal_item["tensor"],
             }
-            self._geometry_cache[cache_key] = value
+            self._remember_geometry(cache_key, value)
             return value
         value = torch.load(
             self.root / relative, map_location="cpu", weights_only=False
         )
         if value.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS:
             raise ValueError(f"geometry schema mismatch: {relative}")
-        self._geometry_cache[cache_key] = value
+        self._remember_geometry(cache_key, value)
         return value
+
+    def _remember_geometry(
+        self, cache_key: str, value: dict[str, Any]
+    ) -> None:
+        """Keep only recent immutable geometry versions.
+
+        Returned tensors remain owned by the active mapping packet or Camera,
+        so evicting a cache entry cannot invalidate mapper state.  It only
+        releases the archive reader's otherwise-unbounded extra reference.
+        """
+        self._geometry_cache[cache_key] = value
+        self._geometry_cache.move_to_end(cache_key)
+        while len(self._geometry_cache) > self._geometry_cache_max_entries:
+            self._geometry_cache.popitem(last=False)
 
     def load_event_payload(self, metadata: dict[str, Any]) -> dict[str, Any]:
         path = self.root / metadata["payload"]
