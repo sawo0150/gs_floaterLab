@@ -76,6 +76,48 @@ class Stage6RX4RunnerTest(unittest.TestCase):
             all("stage6rx4" in row["candidate_run"] for row in entries)
         )
 
+    def test_repaired_report_is_additive_and_preferred(self):
+        paths = runner.run_paths(self.root, "rpng", "table_07")
+        paths["render"].parent.mkdir(parents=True, exist_ok=True)
+        paths["render"].unlink(missing_ok=True)
+        paths["render_repaired"].unlink(missing_ok=True)
+        paths["render"].write_text("{}\n", encoding="utf-8")
+        self.assertEqual(runner.active_render_report(paths), paths["render"])
+        paths["render_repaired"].write_text("{}\n", encoding="utf-8")
+        self.assertEqual(
+            runner.active_render_report(paths), paths["render_repaired"]
+        )
+
+    def test_source_neutral_reverification_is_fail_closed(self):
+        tracking_only_failure = {
+            "valid": False,
+            "checks": {
+                "same_tracking_kf_uids": {"passed": False},
+                "same_frozen_archive": {"passed": True},
+            },
+        }
+        valid_legacy = {
+            "valid": True,
+            "checks": {"same_frozen_archive": {"passed": True}},
+        }
+        unrelated_failure = {
+            "valid": False,
+            "checks": {"same_frozen_archive": {"passed": False}},
+        }
+        self.assertTrue(
+            runner._eligible_for_source_neutral_reverification(
+                tracking_only_failure
+            )
+        )
+        self.assertTrue(
+            runner._eligible_for_source_neutral_reverification(valid_legacy)
+        )
+        self.assertFalse(
+            runner._eligible_for_source_neutral_reverification(
+                unrelated_failure
+            )
+        )
+
     def test_custom_environment_uses_paper_source(self):
         environment = runner.mapping_environment(True)
         self.assertEqual(environment["EXP78B_CUSTOM_ROOT"], str(runner.PAPER_ROOT))

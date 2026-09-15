@@ -22,6 +22,91 @@ def check(report: dict, name: str, condition: bool, detail: object) -> None:
         report["valid"] = False
 
 
+def _uid_set(value: object) -> tuple[set[int], bool]:
+    """Return an integer UID set and whether the source is a valid UID list."""
+    if not isinstance(value, list):
+        return set(), False
+    try:
+        return {int(uid) for uid in value}, True
+    except (TypeError, ValueError):
+        return set(), False
+
+
+def tracking_keyframe_identity(
+    d1: dict, vanilla: dict
+) -> tuple[bool, dict[str, object]]:
+    """Audit tracker-input identity without using surviving Gaussian origins.
+
+    Custom runs append dense-supervision UIDs to ``mapped_frame_uids`` whereas
+    native vanilla records only tracking keyframes.  New runtimes may expose a
+    direct ``tracking_mapped_frame_uids`` list.  For legacy runtimes, recover
+    the tracker set from the custom mapped-union minus dense-selected set, but
+    fail closed when a dense UID is also a vanilla tracking UID because that
+    decomposition would then be ambiguous.
+
+    ``gaussian_origin_uids`` is deliberately diagnostic only: pruning can
+    remove every Gaussian born from a valid input keyframe, so survivor
+    provenance cannot prove which tracking packets entered the mapper.
+    """
+    vanilla_tracking, vanilla_valid = _uid_set(vanilla.get("mapped_frame_uids"))
+    direct = d1.get("tracking_mapped_frame_uids")
+    mapped_union, mapped_valid = _uid_set(d1.get("mapped_frame_uids"))
+    dense_selected, dense_valid = _uid_set(d1.get("dense_selected_frame_uids"))
+
+    ambiguous_overlap: set[int] = set()
+    direct_within_mapped_union = True
+    if direct is not None:
+        d1_tracking, source_valid = _uid_set(direct)
+        source = "direct_tracking_mapped_frame_uids"
+        direct_within_mapped_union = mapped_valid and d1_tracking <= mapped_union
+    else:
+        source = "legacy_mapped_union_minus_dense_selected"
+        source_valid = mapped_valid and dense_valid
+        ambiguous_overlap = dense_selected & vanilla_tracking
+        d1_tracking = mapped_union - dense_selected if source_valid else set()
+
+    declared_count = d1.get("tracking_mapped_unique_views")
+    count_valid = True
+    if declared_count is not None:
+        try:
+            count_valid = int(declared_count) == len(d1_tracking)
+        except (TypeError, ValueError):
+            count_valid = False
+
+    survivor_origins, survivor_valid = _uid_set(
+        d1.get("gaussian_origin_uids", [])
+    )
+    missing_from_d1 = vanilla_tracking - d1_tracking
+    extra_in_d1 = d1_tracking - vanilla_tracking
+    valid = (
+        vanilla_valid
+        and source_valid
+        and direct_within_mapped_union
+        and not ambiguous_overlap
+        and count_valid
+        and not missing_from_d1
+        and not extra_in_d1
+    )
+    detail: dict[str, object] = {
+        "identity_source": source,
+        "d1_count": len(d1_tracking),
+        "vanilla_count": len(vanilla_tracking),
+        "missing_from_d1": sorted(missing_from_d1),
+        "extra_in_d1": sorted(extra_in_d1),
+        "ambiguous_dense_tracking_overlap": sorted(ambiguous_overlap),
+        "declared_tracking_count": declared_count,
+        "declared_tracking_count_valid": count_valid,
+        "direct_within_mapped_union": direct_within_mapped_union,
+        "gaussian_origin_role": "diagnostic_survivors_only",
+        "gaussian_origin_list_valid": survivor_valid,
+        "surviving_origin_count": len(survivor_origins),
+        "tracking_uids_without_surviving_origin": sorted(
+            d1_tracking - survivor_origins
+        ),
+    }
+    return valid, detail
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--d1-run", type=Path, required=True)
@@ -52,6 +137,9 @@ def main() -> int:
 
     report = {
         "protocol": "exp78b_d1_native_render_match_verifier_v1",
+        "tracking_identity_protocol": (
+            "direct_or_fail_closed_mapped_union_decomposition_v2"
+        ),
         "valid": True,
         "d1_run": str(args.d1_run.resolve()),
         "vanilla_run": str(args.vanilla_run.resolve()),
@@ -115,20 +203,12 @@ def main() -> int:
             "extra": sorted(vanilla_selected - d1_selected),
         },
     )
-    d1_tracking_uids = set(int(v) for v in d1.get("gaussian_origin_uids", []))
-    vanilla_tracking_uids = set(
-        int(v) for v in vanilla.get("mapped_frame_uids", [])
-    )
+    same_tracking, tracking_detail = tracking_keyframe_identity(d1, vanilla)
     check(
         report,
         "same_tracking_kf_uids",
-        d1_tracking_uids == vanilla_tracking_uids,
-        {
-            "d1_count": len(d1_tracking_uids),
-            "vanilla_count": len(vanilla_tracking_uids),
-            "missing": sorted(d1_tracking_uids - vanilla_tracking_uids),
-            "extra": sorted(vanilla_tracking_uids - d1_tracking_uids),
-        },
+        same_tracking,
+        tracking_detail,
     )
 
     d1_renders = int(d1.get("rasterized_view_updates", -1))

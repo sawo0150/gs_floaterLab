@@ -75,7 +75,7 @@ EXPECTED_HASHES = {
     VANILLA_HARNESS: "cabdb4df902bfb278b0b590af5dcf31b40921bd76a09d3225991a4f9b3741765",
     EVALUATOR: "f854084b249cea724b7be65a1655088ce8906203110f52c6503b052ec3b51c3c",
     ARCHIVE_VALIDATOR: "b2c2e050ddff373cd5e4062460fa021a141d206673a98d87fe531d3b917afccc",
-    RENDER_VERIFIER: "e3364d6e6fa21e90ef29ad35fe2b802e11edce993302d0156012bf742c739840",
+    RENDER_VERIFIER: "6ced1153ccf985653617c74b1085af1a589d214f7035275744739cfe5f6130a3",
     WORKLOAD_ANALYZER: "2dcc65a6b6610408e3b80328ad15709fcb0c1721f0187425fa5e432c381f569d",
     STRUCTURE_VERIFIER: "dbd38b76d23c6fbcca45b677884df0a84b26541b1f8cd5005e96ed8499f0d088",
     COHORT_VERIFIER: "0daf822dbb0b746fbe756db72a537bcc93676862a09c1a9cbe881555a30d0678",
@@ -158,11 +158,18 @@ def run_paths(root: Path, dataset: str, sequence: str) -> dict[str, Path]:
         "vanilla": base / "stage6rx4_native_vanilla_render_matched_s0",
         "structure": verification / "stage6rx4_r4_structure_s0.json",
         "render": verification / "stage6rx4_render_match_s0.json",
+        "render_repaired": verification / "stage6rx4_render_match_s0_v2.json",
     }
 
 
 def workload_path(candidate: Path) -> Path:
     return candidate / "stage6_service_regime.json"
+
+
+def active_render_report(paths: dict[str, Path]) -> Path:
+    """Prefer an additive source-neutral repair while retaining the v1 report."""
+    repaired = paths["render_repaired"]
+    return repaired if repaired.is_file() else paths["render"]
 
 
 def mapping_command(
@@ -500,6 +507,7 @@ def write_manifest(
         if render_report is None:
             raise ValueError("vanilla manifest requires render-match report")
         values["render_report_sha256"] = sha256(render_report)
+        values["render_verifier_sha256"] = sha256(RENDER_VERIFIER)
     manifest = output / "source_manifest.txt"
     if manifest.exists():
         raise FileExistsError(f"refusing to overwrite {manifest}")
@@ -590,7 +598,65 @@ def run_arm(
         )
 
 
-def verify_pair(root: Path, dataset: str, sequence: str) -> bool:
+def _failed_checks(report: dict[str, Any]) -> set[str]:
+    checks = report.get("checks")
+    if not isinstance(checks, dict):
+        return {"__malformed_checks__"}
+    return {
+        str(name)
+        for name, value in checks.items()
+        if not isinstance(value, dict) or value.get("passed") is not True
+    }
+
+
+def _eligible_for_source_neutral_reverification(report: dict[str, Any]) -> bool:
+    failures = _failed_checks(report)
+    return (
+        report.get("valid") is True and not failures
+    ) or (
+        report.get("valid") is False
+        and failures == {"same_tracking_kf_uids"}
+    )
+
+
+def _repair_vanilla_manifest(
+    manifest: Path, original_report: Path, repaired_report: Path
+) -> None:
+    """Preserve the original manifest, then point its live copy at v2 evidence."""
+    preserved = manifest.with_name("source_manifest_pre_render_verifier_v2.txt")
+    if preserved.exists():
+        raise FileExistsError(f"refusing to overwrite {preserved}")
+    original_text = manifest.read_text(encoding="utf-8")
+    original_manifest_hash = sha256(manifest)
+    original_report_hash = sha256(original_report)
+    lines = original_text.splitlines()
+    indices = [
+        index
+        for index, line in enumerate(lines)
+        if line.startswith("render_report_sha256=")
+    ]
+    if len(indices) != 1:
+        raise RuntimeError("expected exactly one render_report_sha256 field")
+    lines[indices[0]] = f"render_report_sha256={sha256(repaired_report)}"
+    lines.extend(
+        (
+            "render_verifier_revalidation_protocol=tracking_identity_provenance_v2",
+            f"render_verifier_sha256={sha256(RENDER_VERIFIER)}",
+            f"pre_repair_report_sha256={original_report_hash}",
+            f"pre_repair_source_manifest_sha256={original_manifest_hash}",
+        )
+    )
+    shutil.copy2(manifest, preserved)
+    manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def verify_pair(
+    root: Path,
+    dataset: str,
+    sequence: str,
+    *,
+    reverify_source_neutral: bool = False,
+) -> bool:
     source = require_predeclared_state()
     paths = run_paths(root, dataset, sequence)
     validate_mapping(paths["candidate"], "candidate", dataset, sequence)
@@ -600,31 +666,58 @@ def verify_pair(root: Path, dataset: str, sequence: str) -> bool:
     structure = read_json(paths["structure"])
     if structure.get("valid") is not True:
         raise RuntimeError("candidate structural verifier is invalid")
-    if paths["render"].exists():
-        raise FileExistsError(f"refusing to overwrite {paths['render']}")
-    paths["render"].parent.mkdir(parents=True, exist_ok=True)
+    original_report: dict[str, Any] | None = None
+    render_output = paths["render"]
+    if reverify_source_neutral:
+        if not paths["render"].is_file():
+            raise FileNotFoundError(
+                "source-neutral reverification requires a v1 report"
+            )
+        original_report = read_json(paths["render"])
+        if not _eligible_for_source_neutral_reverification(original_report):
+            raise RuntimeError(
+                "reverification accepts only a valid legacy report or the "
+                "known tracking-identity-only failure"
+            )
+        render_output = paths["render_repaired"]
+    if render_output.exists():
+        raise FileExistsError(f"refusing to overwrite {render_output}")
+    render_output.parent.mkdir(parents=True, exist_ok=True)
     completed = subprocess.run(
         [
             str(PYTHON_ENV / "bin/python"),
             str(RENDER_VERIFIER),
             "--d1-run", str(paths["candidate"]),
             "--vanilla-run", str(paths["vanilla"]),
-            "--output", str(paths["render"]),
+            "--output", str(render_output),
         ],
         cwd=WORKSPACE,
         check=False,
     )
-    write_manifest(
-        paths["vanilla"],
-        "vanilla",
-        dataset,
-        sequence,
-        mapping_command("vanilla", dataset, sequence, root),
-        source,
-        render_report=paths["render"],
-    )
-    report = read_json(paths["render"])
-    return completed.returncode == 0 and report.get("valid") is True
+    report = read_json(render_output)
+    valid = completed.returncode == 0 and report.get("valid") is True
+    if reverify_source_neutral:
+        assert original_report is not None
+        if not valid:
+            return False
+        if report.get("result") != original_report.get("result"):
+            raise RuntimeError("source-neutral reverification changed quality results")
+        _repair_vanilla_manifest(
+            paths["vanilla"] / "source_manifest.txt",
+            paths["render"],
+            render_output,
+        )
+    else:
+        write_manifest(
+            paths["vanilla"],
+            "vanilla",
+            dataset,
+            sequence,
+            mapping_command("vanilla", dataset, sequence, root),
+            source,
+            render_report=render_output,
+        )
+    return valid
 
 
 def cohort_entries(root: Path) -> list[dict[str, str]]:
@@ -637,7 +730,7 @@ def cohort_entries(root: Path) -> list[dict[str, str]]:
                 "sequence": sequence,
                 "candidate_run": str(paths["candidate"]),
                 "vanilla_run": str(paths["vanilla"]),
-                "render_report": str(paths["render"]),
+                "render_report": str(active_render_report(paths)),
                 "structure_report": str(paths["structure"]),
                 "workload_report": str(workload_path(paths["candidate"])),
             }
@@ -689,6 +782,7 @@ def parse_args() -> argparse.Namespace:
     pair = subparsers.add_parser("verify-pair")
     pair.add_argument("--dataset", choices=("rpng", "utmm"), required=True)
     pair.add_argument("--sequence", required=True)
+    pair.add_argument("--reverify-source-neutral", action="store_true")
     subparsers.add_parser("verify-cohort")
     return parser.parse_args()
 
@@ -713,7 +807,12 @@ def main() -> int:
     if args.action == "verify-pair":
         if (args.dataset, args.sequence) not in SEQUENCES:
             raise ValueError("sequence is not in the frozen X4 cohort")
-        return 0 if verify_pair(root, args.dataset, args.sequence) else 1
+        return 0 if verify_pair(
+            root,
+            args.dataset,
+            args.sequence,
+            reverify_source_neutral=args.reverify_source_neutral,
+        ) else 1
     if args.action == "verify-cohort":
         return 0 if verify_cohort(root) else 1
     raise AssertionError(args.action)
