@@ -137,14 +137,17 @@ def main() -> int:
         int(candidate.get("rasterized_view_updates", -1))
         == int(r1.get("rasterized_view_updates", -2)) + expected_extra
         and int(candidate.get("optimizer_steps_completed", -1))
-        == int(r1.get("optimizer_steps_completed", -2)) + expected_extra
-        and int(candidate.get("gaussians", -1)) == int(r1.get("gaussians", -2)),
+        == int(r1.get("optimizer_steps_completed", -2)) + expected_extra,
         {
             "candidate_renders": candidate.get("rasterized_view_updates"),
             "r1_renders": r1.get("rasterized_view_updates"),
             "candidate_adam": candidate.get("optimizer_steps_completed"),
             "r1_adam": r1.get("optimizer_steps_completed"),
             "extra_keyframe_steps": expected_extra,
+            # Appearance replay does not directly update geometry groups, but
+            # it can change later native frontier residuals and therefore the
+            # data-dependent topology outcome.  GS count is reported, not
+            # equality-gated; the contract gates work paths and gradients.
             "candidate_gaussians": candidate.get("gaussians"),
             "r1_gaussians": r1.get("gaussians"),
         },
