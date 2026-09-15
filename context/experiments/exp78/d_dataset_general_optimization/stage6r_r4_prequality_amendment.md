@@ -38,3 +38,15 @@ At lock time the uniform control's sole balanced generation has 33 stable
 anchor keyframes, service-count range 75--109, spread 34 and coefficient of
 variation 0.0969352. These are scheduling telemetry only; no rendering-quality
 metric was read.
+
+## Correction after candidate mapping, still before quality
+
+The statement above that 197 was the complete causal pool was incorrect: 197
+was the number the uniform selector happened to service, while the aligned
+ledger's balanced-pool union contains 199 UIDs. The R4 candidate serviced all
+199. Therefore the original paper-side “strictly more unique historical
+keyframes” promotion gate is feasible and remains binding. The balance metrics
+remain useful descriptive scheduler evidence but do not replace or add a
+post-hoc promotion gate. This correction was made after both mapping ledgers
+existed but before either arm was evaluated; no PSNR/SSIM/LPIPS value had been
+generated or inspected.

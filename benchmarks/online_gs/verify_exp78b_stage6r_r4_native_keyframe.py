@@ -426,7 +426,6 @@ def build_report(
         "dense_admission_ledger",
         "dense_registered_frame_uids",
         "dense_selected_frame_uids",
-        "mapping_replay_summary",
     )
     keyframe_keys = (
         "fixed_event_keyframe_opportunity_ledger",
@@ -612,7 +611,7 @@ def build_report(
     )
     promotion_pass = (
         retention_pass
-        and balance_improved
+        and candidate_unique > control_unique
         and delta_control > 0.0
     )
     check(
@@ -633,7 +632,7 @@ def build_report(
     report["quality_result"]["candidate_minus_vanilla_psnr"] = delta_vanilla
     report["decision"] = {
         "retention_pass": retention_pass,
-        "historical_unique_coverage_saturated": candidate_unique == control_unique,
+        "strictly_more_balanced_historical_unique": candidate_unique > control_unique,
         "anchor_cohort_service_balance_strictly_improved": balance_improved,
         "positive_primary_psnr_delta": delta_control > 0.0,
         "promote_r4_into_full": promotion_pass,

@@ -57,7 +57,7 @@ EXPECTED_HASHES = {
     VANILLA_HARNESS: "cabdb4df902bfb278b0b590af5dcf31b40921bd76a09d3225991a4f9b3741765",
     EVALUATOR: "f854084b249cea724b7be65a1655088ce8906203110f52c6503b052ec3b51c3c",
     ARCHIVE_VALIDATOR: "b2c2e050ddff373cd5e4062460fa021a141d206673a98d87fe531d3b917afccc",
-    R4_VERIFIER: "11563a4f2149118e63518a4c84fc8e2fb8e9587650e4f999ddde8f4c4ae47493",
+    R4_VERIFIER: "3cc9da551d5fdb08155afbd5c3ae37a74ba3d73a84550ca93c6184a12a259bc6",
     RENDER_VERIFIER: "e3364d6e6fa21e90ef29ad35fe2b802e11edce993302d0156012bf742c739840",
     CUSTOM_CONFIG: "138fdd26a99be125fab900ba9e731d38660ee7d2dd8e5f6833496a16045ccf54",
     VANILLA_CONFIG: "cd1713e83927cf84a4d841b0661207fa6da0c4ba56bcbc3540830b9fcc5421c3",
@@ -105,7 +105,7 @@ def paths_for(root: Path) -> dict[str, Path]:
         "control": root / "r3_uniform_audited_s0",
         "candidate": root / "r4_native_global_keyframe_ercb_s0",
         "vanilla": root / "native_vanilla_render_matched_r4_s0",
-        "structure": verification / "r4_structural_prequality.json",
+        "structure": verification / "r4_structural_prequality_v2.json",
         "render": verification / "r4_render_match.json",
         "final": verification / "r4_final_gate.json",
     }
