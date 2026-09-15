@@ -1,0 +1,126 @@
+{
+  "datasets": {
+    "rpng": {
+      "table_01": {
+        "eval_count": 502,
+        "eval_uids_sha256": "8f7793a876e1e057f95fdcc7375d311988be108c30616bfb4b00b3701eb1fca0",
+        "frame_count": 2506,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_01.json",
+        "role": "development"
+      },
+      "table_02": {
+        "eval_count": 584,
+        "eval_uids_sha256": "49fa4f38f7dd99b1f6196c3abbcccf0f5fcf9d08516930b9b5ec79861b191eb2",
+        "frame_count": 2914,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_02.json",
+        "role": "validation"
+      },
+      "table_03": {
+        "eval_count": 1402,
+        "eval_uids_sha256": "c2bd97b4985d668359cebb283d23848bd293b5649f131bd25d448c10799a7626",
+        "frame_count": 7006,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_03.json",
+        "role": "validation"
+      },
+      "table_04": {
+        "eval_count": 1215,
+        "eval_uids_sha256": "9f731e347c36c227bcbf34c4e11527fd93b82c02fda8dfb4f90409f2d1899f76",
+        "frame_count": 6068,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_04.json",
+        "role": "validation"
+      },
+      "table_05": {
+        "eval_count": 1234,
+        "eval_uids_sha256": "db134eedb2ba6c87a50019ea91569664144576ecd740d659c66770a93112fbf6",
+        "frame_count": 6164,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_05.json",
+        "role": "validation"
+      },
+      "table_06": {
+        "eval_count": 555,
+        "eval_uids_sha256": "dda0656f86e29cd0e53338d5411e9f36dd16f0e463db2d4bbae3671e2d26752d",
+        "frame_count": 2767,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_06.json",
+        "role": "development"
+      },
+      "table_07": {
+        "eval_count": 958,
+        "eval_uids_sha256": "a1f4afc43d24dcab836e404ef025d94ab71f41e650edbf43506d0485a8e70f1e",
+        "frame_count": 4784,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_07.json",
+        "role": "validation"
+      },
+      "table_08": {
+        "eval_count": 1698,
+        "eval_uids_sha256": "8884400f9417f3ff165465d2aa17a3172831520a6a2fce28364f9bcb09e339aa",
+        "frame_count": 8484,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/rpng_table_08.json",
+        "role": "validation"
+      }
+    },
+    "utmm": {
+      "ego-centric-1": {
+        "eval_count": 308,
+        "eval_uids_sha256": "6ca25ed74aa3bb04a55b10a4a0b6cac67ea6ea4a234f2140775208b68844ca5f",
+        "frame_count": 1535,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_ego-centric-1.json",
+        "role": "validation"
+      },
+      "ego-centric-2": {
+        "eval_count": 261,
+        "eval_uids_sha256": "b33300fa6ac5119ada11f0a49a2b33d224328dfece9419ca05600e94f40ab922",
+        "frame_count": 1298,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_ego-centric-2.json",
+        "role": "validation"
+      },
+      "ego-drive": {
+        "eval_count": 281,
+        "eval_uids_sha256": "8b6d71f6f3157ef147b35a9740d2c3b21e6cc7b6983e1baa24ef01422621b28a",
+        "frame_count": 1399,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_ego-drive.json",
+        "role": "development"
+      },
+      "fast-straight": {
+        "eval_count": 68,
+        "eval_uids_sha256": "b3050b0e1fd78fe013de2e30f1f65951762d862844b3073c1423db8560042850",
+        "frame_count": 332,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_fast-straight.json",
+        "role": "validation"
+      },
+      "slow-straight-1": {
+        "eval_count": 80,
+        "eval_uids_sha256": "f4e5d38cf821e1d581105dad8dc21f93c2cb1f2e19cc990fcb5c6cab2ec99196",
+        "frame_count": 393,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_slow-straight-1.json",
+        "role": "validation"
+      },
+      "slow-straight-2": {
+        "eval_count": 121,
+        "eval_uids_sha256": "0fd9ee8f4b2896d8aab3ff255e9acf9e020d0addca7c40cd37b9695674f464a1",
+        "frame_count": 597,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_slow-straight-2.json",
+        "role": "validation"
+      },
+      "square-1": {
+        "eval_count": 324,
+        "eval_uids_sha256": "dc42e234a055ae1a5286fe2d33a97501b67a8c61b0a7c73117d43f9039c849e7",
+        "frame_count": 1614,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_square-1.json",
+        "role": "validation"
+      },
+      "square-2": {
+        "eval_count": 245,
+        "eval_uids_sha256": "e8b48c7e47b1b555ece82462c14e738788379604789e373884b7e344b644f96e",
+        "frame_count": 1219,
+        "manifest": "context/experiments/exp78/b_strict_fair_comparison/manifests/utmm_square-2.json",
+        "role": "development"
+      }
+    }
+  },
+  "mapping_contract": "all listed UIDs must be excluded from GS supervision and birth",
+  "modulus": 5,
+  "prospective_split_note": "Legacy experiments exposed all sequences; validation is untouched only relative to exp78 tuning after this lock.",
+  "protocol": "fixed_mod5_plus_last_uid_v1",
+  "selection_rule": "zero_based_frame_index % 5 == 0 OR final frame",
+  "tracking_contract": "tracking may observe listed RGB frames; rendering metrics are mapping-held-out"
+}
