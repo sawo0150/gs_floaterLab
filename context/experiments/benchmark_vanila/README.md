@@ -4,6 +4,15 @@
 tracking/frontend/PGBA/GS loss와 dataset 파라미터는 동일하게 유지하고, GPU와
 입력/budget 계약이 다른 결과를 같은 표로 덮어쓰지 않는다.
 
+논문의 `online` 정의, Table 18/19 metric split, baseline별 저자 수정, 공개 코드와
+paper protocol의 차이, 우리 1.0×/1.5× 계약 선택지는
+[`paper_online_metric_protocol_and_baseline_modifications.md`](paper_online_metric_protocol_and_baseline_modifications.md)에
+정리한다.
+
+실제 논문에서 실행할 B(mapping-only isolation)와 C(strict streaming system)의 세부 제약,
+KF 처리, work ledger, metric 표와 실행 순서는
+[`bc_metric_comparison_plan.md`](bc_metric_comparison_plan.md)에 고정한다.
+
 ## 디렉터리
 
 - [`synchronous_unbounded/`](synchronous_unbounded/README.md): RTX 5070 Ti,
@@ -15,7 +24,9 @@ tracking/frontend/PGBA/GS loss와 dataset 파라미터는 동일하게 유지하
 - [`5070ti_1.5x_strict/`](5070ti_1.5x_strict/README.md): RTX 5070 Ti,
   Aria/UTMM/RPNG 20-scene hard-deadline 재측정. final capture deadline 뒤 Gaussian
   optimizer와 topology update를 0회로 강제하고, map strict와 tracking deadline을
-  각각 audit한다. 새 custom 비교의 vanilla 기준은 이 폴더다.
+  각각 audit한다. 다만 harness의 drop-oldest ingress로 완료 16개 기준 RGB의 69.74%가
+  버려졌고 end-to-end strict pass는 0/20이므로, live-drop stress 진단으로 사용하되
+  동일-input gsSLAM 품질 비교의 유일한 vanilla 기준으로 사용하지 않는다.
 - [`paper_reference/`](paper_reference/README.md): VIGS-SLAM 논문 Table 18/19의
   장면별 PSNR/SSIM/LPIPS 원문 전사와 protocol 주의.
 

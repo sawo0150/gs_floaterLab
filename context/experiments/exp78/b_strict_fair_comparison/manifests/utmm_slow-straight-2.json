@@ -1,0 +1,618 @@
+{
+  "all_input_uids_sha256": "d94c600b4f71c26852adeda0bf51944ae088296aa1f5bef944bf5d7f58014313",
+  "dataset": "utmm",
+  "eval_count": 121,
+  "eval_uids_sha256": "0fd9ee8f4b2896d8aab3ff255e9acf9e020d0addca7c40cd37b9695674f464a1",
+  "frame_count": 597,
+  "mapping_disjoint_required": true,
+  "role": "validation",
+  "selection_rule": "zero_based_frame_index % 5 == 0 OR final frame",
+  "sequence": "slow-straight-2",
+  "views": [
+    {
+      "frame_index": 0,
+      "timestamp_token": "1706737562258097887",
+      "uid": "1706737562258097887.png"
+    },
+    {
+      "frame_index": 5,
+      "timestamp_token": "1706737562426587343",
+      "uid": "1706737562426587343.png"
+    },
+    {
+      "frame_index": 10,
+      "timestamp_token": "1706737562594172955",
+      "uid": "1706737562594172955.png"
+    },
+    {
+      "frame_index": 15,
+      "timestamp_token": "1706737562760348320",
+      "uid": "1706737562760348320.png"
+    },
+    {
+      "frame_index": 20,
+      "timestamp_token": "1706737562926498890",
+      "uid": "1706737562926498890.png"
+    },
+    {
+      "frame_index": 25,
+      "timestamp_token": "1706737563092626333",
+      "uid": "1706737563092626333.png"
+    },
+    {
+      "frame_index": 30,
+      "timestamp_token": "1706737563258728504",
+      "uid": "1706737563258728504.png"
+    },
+    {
+      "frame_index": 35,
+      "timestamp_token": "1706737563424807787",
+      "uid": "1706737563424807787.png"
+    },
+    {
+      "frame_index": 40,
+      "timestamp_token": "1706737563590918541",
+      "uid": "1706737563590918541.png"
+    },
+    {
+      "frame_index": 45,
+      "timestamp_token": "1706737563757086039",
+      "uid": "1706737563757086039.png"
+    },
+    {
+      "frame_index": 50,
+      "timestamp_token": "1706737563923227549",
+      "uid": "1706737563923227549.png"
+    },
+    {
+      "frame_index": 55,
+      "timestamp_token": "1706737564089345932",
+      "uid": "1706737564089345932.png"
+    },
+    {
+      "frame_index": 60,
+      "timestamp_token": "1706737564255438566",
+      "uid": "1706737564255438566.png"
+    },
+    {
+      "frame_index": 65,
+      "timestamp_token": "1706737564421507597",
+      "uid": "1706737564421507597.png"
+    },
+    {
+      "frame_index": 70,
+      "timestamp_token": "1706737564587612152",
+      "uid": "1706737564587612152.png"
+    },
+    {
+      "frame_index": 75,
+      "timestamp_token": "1706737564753780365",
+      "uid": "1706737564753780365.png"
+    },
+    {
+      "frame_index": 80,
+      "timestamp_token": "1706737564919923067",
+      "uid": "1706737564919923067.png"
+    },
+    {
+      "frame_index": 85,
+      "timestamp_token": "1706737565086042166",
+      "uid": "1706737565086042166.png"
+    },
+    {
+      "frame_index": 90,
+      "timestamp_token": "1706737565252135754",
+      "uid": "1706737565252135754.png"
+    },
+    {
+      "frame_index": 95,
+      "timestamp_token": "1706737565418205738",
+      "uid": "1706737565418205738.png"
+    },
+    {
+      "frame_index": 100,
+      "timestamp_token": "1706737565584731102",
+      "uid": "1706737565584731102.png"
+    },
+    {
+      "frame_index": 105,
+      "timestamp_token": "1706737565751998663",
+      "uid": "1706737565751998663.png"
+    },
+    {
+      "frame_index": 110,
+      "timestamp_token": "1706737565919310331",
+      "uid": "1706737565919310331.png"
+    },
+    {
+      "frame_index": 115,
+      "timestamp_token": "1706737566086667299",
+      "uid": "1706737566086667299.png"
+    },
+    {
+      "frame_index": 120,
+      "timestamp_token": "1706737566254067898",
+      "uid": "1706737566254067898.png"
+    },
+    {
+      "frame_index": 125,
+      "timestamp_token": "1706737566421514273",
+      "uid": "1706737566421514273.png"
+    },
+    {
+      "frame_index": 130,
+      "timestamp_token": "1706737566588544846",
+      "uid": "1706737566588544846.png"
+    },
+    {
+      "frame_index": 135,
+      "timestamp_token": "1706737566754896641",
+      "uid": "1706737566754896641.png"
+    },
+    {
+      "frame_index": 140,
+      "timestamp_token": "1706737566921231031",
+      "uid": "1706737566921231031.png"
+    },
+    {
+      "frame_index": 145,
+      "timestamp_token": "1706737567087549448",
+      "uid": "1706737567087549448.png"
+    },
+    {
+      "frame_index": 150,
+      "timestamp_token": "1706737567253850460",
+      "uid": "1706737567253850460.png"
+    },
+    {
+      "frame_index": 155,
+      "timestamp_token": "1706737567420135736",
+      "uid": "1706737567420135736.png"
+    },
+    {
+      "frame_index": 160,
+      "timestamp_token": "1706737567586867332",
+      "uid": "1706737567586867332.png"
+    },
+    {
+      "frame_index": 165,
+      "timestamp_token": "1706737567754325390",
+      "uid": "1706737567754325390.png"
+    },
+    {
+      "frame_index": 170,
+      "timestamp_token": "1706737567921835423",
+      "uid": "1706737567921835423.png"
+    },
+    {
+      "frame_index": 175,
+      "timestamp_token": "1706737568089399576",
+      "uid": "1706737568089399576.png"
+    },
+    {
+      "frame_index": 180,
+      "timestamp_token": "1706737568257015944",
+      "uid": "1706737568257015944.png"
+    },
+    {
+      "frame_index": 185,
+      "timestamp_token": "1706737568424685955",
+      "uid": "1706737568424685955.png"
+    },
+    {
+      "frame_index": 190,
+      "timestamp_token": "1706737568591929197",
+      "uid": "1706737568591929197.png"
+    },
+    {
+      "frame_index": 195,
+      "timestamp_token": "1706737568758471966",
+      "uid": "1706737568758471966.png"
+    },
+    {
+      "frame_index": 200,
+      "timestamp_token": "1706737568925005198",
+      "uid": "1706737568925005198.png"
+    },
+    {
+      "frame_index": 205,
+      "timestamp_token": "1706737569091531277",
+      "uid": "1706737569091531277.png"
+    },
+    {
+      "frame_index": 210,
+      "timestamp_token": "1706737569258048058",
+      "uid": "1706737569258048058.png"
+    },
+    {
+      "frame_index": 215,
+      "timestamp_token": "1706737569424557686",
+      "uid": "1706737569424557686.png"
+    },
+    {
+      "frame_index": 220,
+      "timestamp_token": "1706737569591078520",
+      "uid": "1706737569591078520.png"
+    },
+    {
+      "frame_index": 225,
+      "timestamp_token": "1706737569757621288",
+      "uid": "1706737569757621288.png"
+    },
+    {
+      "frame_index": 230,
+      "timestamp_token": "1706737569924154520",
+      "uid": "1706737569924154520.png"
+    },
+    {
+      "frame_index": 235,
+      "timestamp_token": "1706737570090680361",
+      "uid": "1706737570090680361.png"
+    },
+    {
+      "frame_index": 240,
+      "timestamp_token": "1706737570257196903",
+      "uid": "1706737570257196903.png"
+    },
+    {
+      "frame_index": 245,
+      "timestamp_token": "1706737570423706293",
+      "uid": "1706737570423706293.png"
+    },
+    {
+      "frame_index": 250,
+      "timestamp_token": "1706737570590223789",
+      "uid": "1706737570590223789.png"
+    },
+    {
+      "frame_index": 255,
+      "timestamp_token": "1706737570756758690",
+      "uid": "1706737570756758690.png"
+    },
+    {
+      "frame_index": 260,
+      "timestamp_token": "1706737570923284054",
+      "uid": "1706737570923284054.png"
+    },
+    {
+      "frame_index": 265,
+      "timestamp_token": "1706737571089801550",
+      "uid": "1706737571089801550.png"
+    },
+    {
+      "frame_index": 270,
+      "timestamp_token": "1706737571256309509",
+      "uid": "1706737571256309509.png"
+    },
+    {
+      "frame_index": 275,
+      "timestamp_token": "1706737571422809839",
+      "uid": "1706737571422809839.png"
+    },
+    {
+      "frame_index": 280,
+      "timestamp_token": "1706737571589323759",
+      "uid": "1706737571589323759.png"
+    },
+    {
+      "frame_index": 285,
+      "timestamp_token": "1706737571755863190",
+      "uid": "1706737571755863190.png"
+    },
+    {
+      "frame_index": 290,
+      "timestamp_token": "1706737571922393560",
+      "uid": "1706737571922393560.png"
+    },
+    {
+      "frame_index": 295,
+      "timestamp_token": "1706737572088916540",
+      "uid": "1706737572088916540.png"
+    },
+    {
+      "frame_index": 300,
+      "timestamp_token": "1706737572255429983",
+      "uid": "1706737572255429983.png"
+    },
+    {
+      "frame_index": 305,
+      "timestamp_token": "1706737572421935797",
+      "uid": "1706737572421935797.png"
+    },
+    {
+      "frame_index": 310,
+      "timestamp_token": "1706737572588452339",
+      "uid": "1706737572588452339.png"
+    },
+    {
+      "frame_index": 315,
+      "timestamp_token": "1706737572754990816",
+      "uid": "1706737572754990816.png"
+    },
+    {
+      "frame_index": 320,
+      "timestamp_token": "1706737572921519518",
+      "uid": "1706737572921519518.png"
+    },
+    {
+      "frame_index": 325,
+      "timestamp_token": "1706737573088040590",
+      "uid": "1706737573088040590.png"
+    },
+    {
+      "frame_index": 330,
+      "timestamp_token": "1706737573254552364",
+      "uid": "1706737573254552364.png"
+    },
+    {
+      "frame_index": 335,
+      "timestamp_token": "1706737573421056509",
+      "uid": "1706737573421056509.png"
+    },
+    {
+      "frame_index": 340,
+      "timestamp_token": "1706737573587573290",
+      "uid": "1706737573587573290.png"
+    },
+    {
+      "frame_index": 345,
+      "timestamp_token": "1706737573754115105",
+      "uid": "1706737573754115105.png"
+    },
+    {
+      "frame_index": 350,
+      "timestamp_token": "1706737573920647621",
+      "uid": "1706737573920647621.png"
+    },
+    {
+      "frame_index": 355,
+      "timestamp_token": "1706737574087172747",
+      "uid": "1706737574087172747.png"
+    },
+    {
+      "frame_index": 360,
+      "timestamp_token": "1706737574253688574",
+      "uid": "1706737574253688574.png"
+    },
+    {
+      "frame_index": 365,
+      "timestamp_token": "1706737574420197010",
+      "uid": "1706737574420197010.png"
+    },
+    {
+      "frame_index": 370,
+      "timestamp_token": "1706737574586715221",
+      "uid": "1706737574586715221.png"
+    },
+    {
+      "frame_index": 375,
+      "timestamp_token": "1706737574753254175",
+      "uid": "1706737574753254175.png"
+    },
+    {
+      "frame_index": 380,
+      "timestamp_token": "1706737574919783354",
+      "uid": "1706737574919783354.png"
+    },
+    {
+      "frame_index": 385,
+      "timestamp_token": "1706737575086305141",
+      "uid": "1706737575086305141.png"
+    },
+    {
+      "frame_index": 390,
+      "timestamp_token": "1706737575252817392",
+      "uid": "1706737575252817392.png"
+    },
+    {
+      "frame_index": 395,
+      "timestamp_token": "1706737575419322252",
+      "uid": "1706737575419322252.png"
+    },
+    {
+      "frame_index": 400,
+      "timestamp_token": "1706737575585839272",
+      "uid": "1706737575585839272.png"
+    },
+    {
+      "frame_index": 405,
+      "timestamp_token": "1706737575752380610",
+      "uid": "1706737575752380610.png"
+    },
+    {
+      "frame_index": 410,
+      "timestamp_token": "1706737575918912411",
+      "uid": "1706737575918912411.png"
+    },
+    {
+      "frame_index": 415,
+      "timestamp_token": "1706737576085436821",
+      "uid": "1706737576085436821.png"
+    },
+    {
+      "frame_index": 420,
+      "timestamp_token": "1706737576251951694",
+      "uid": "1706737576251951694.png"
+    },
+    {
+      "frame_index": 425,
+      "timestamp_token": "1706737576418458939",
+      "uid": "1706737576418458939.png"
+    },
+    {
+      "frame_index": 430,
+      "timestamp_token": "1706737576584975481",
+      "uid": "1706737576584975481.png"
+    },
+    {
+      "frame_index": 435,
+      "timestamp_token": "1706737576751512051",
+      "uid": "1706737576751512051.png"
+    },
+    {
+      "frame_index": 440,
+      "timestamp_token": "1706737576918038845",
+      "uid": "1706737576918038845.png"
+    },
+    {
+      "frame_index": 445,
+      "timestamp_token": "1706737577084558249",
+      "uid": "1706737577084558249.png"
+    },
+    {
+      "frame_index": 450,
+      "timestamp_token": "1706737577251068115",
+      "uid": "1706737577251068115.png"
+    },
+    {
+      "frame_index": 455,
+      "timestamp_token": "1706737577417570829",
+      "uid": "1706737577417570829.png"
+    },
+    {
+      "frame_index": 460,
+      "timestamp_token": "1706737577584034681",
+      "uid": "1706737577584034681.png"
+    },
+    {
+      "frame_index": 465,
+      "timestamp_token": "1706737577752171993",
+      "uid": "1706737577752171993.png"
+    },
+    {
+      "frame_index": 470,
+      "timestamp_token": "1706737577920385838",
+      "uid": "1706737577920385838.png"
+    },
+    {
+      "frame_index": 475,
+      "timestamp_token": "1706737578088678122",
+      "uid": "1706737578088678122.png"
+    },
+    {
+      "frame_index": 480,
+      "timestamp_token": "1706737578257047176",
+      "uid": "1706737578257047176.png"
+    },
+    {
+      "frame_index": 485,
+      "timestamp_token": "1706737578425494671",
+      "uid": "1706737578425494671.png"
+    },
+    {
+      "frame_index": 490,
+      "timestamp_token": "1706737578594075918",
+      "uid": "1706737578594075918.png"
+    },
+    {
+      "frame_index": 495,
+      "timestamp_token": "1706737578760761261",
+      "uid": "1706737578760761261.png"
+    },
+    {
+      "frame_index": 500,
+      "timestamp_token": "1706737578927443743",
+      "uid": "1706737578927443743.png"
+    },
+    {
+      "frame_index": 505,
+      "timestamp_token": "1706737579094125271",
+      "uid": "1706737579094125271.png"
+    },
+    {
+      "frame_index": 510,
+      "timestamp_token": "1706737579260803461",
+      "uid": "1706737579260803461.png"
+    },
+    {
+      "frame_index": 515,
+      "timestamp_token": "1706737579427480698",
+      "uid": "1706737579427480698.png"
+    },
+    {
+      "frame_index": 520,
+      "timestamp_token": "1706737579594155073",
+      "uid": "1706737579594155073.png"
+    },
+    {
+      "frame_index": 525,
+      "timestamp_token": "1706737579760833502",
+      "uid": "1706737579760833502.png"
+    },
+    {
+      "frame_index": 530,
+      "timestamp_token": "1706737579927508593",
+      "uid": "1706737579927508593.png"
+    },
+    {
+      "frame_index": 535,
+      "timestamp_token": "1706737580094182491",
+      "uid": "1706737580094182491.png"
+    },
+    {
+      "frame_index": 540,
+      "timestamp_token": "1706737580260852814",
+      "uid": "1706737580260852814.png"
+    },
+    {
+      "frame_index": 545,
+      "timestamp_token": "1706737580427521944",
+      "uid": "1706737580427521944.png"
+    },
+    {
+      "frame_index": 550,
+      "timestamp_token": "1706737580594187498",
+      "uid": "1706737580594187498.png"
+    },
+    {
+      "frame_index": 555,
+      "timestamp_token": "1706737580760872126",
+      "uid": "1706737580760872126.png"
+    },
+    {
+      "frame_index": 560,
+      "timestamp_token": "1706737580927553415",
+      "uid": "1706737580927553415.png"
+    },
+    {
+      "frame_index": 565,
+      "timestamp_token": "1706737581094233990",
+      "uid": "1706737581094233990.png"
+    },
+    {
+      "frame_index": 570,
+      "timestamp_token": "1706737581260911226",
+      "uid": "1706737581260911226.png"
+    },
+    {
+      "frame_index": 575,
+      "timestamp_token": "1706737581427587509",
+      "uid": "1706737581427587509.png"
+    },
+    {
+      "frame_index": 580,
+      "timestamp_token": "1706737581594260454",
+      "uid": "1706737581594260454.png"
+    },
+    {
+      "frame_index": 585,
+      "timestamp_token": "1706737581760945082",
+      "uid": "1706737581760945082.png"
+    },
+    {
+      "frame_index": 590,
+      "timestamp_token": "1706737581927626610",
+      "uid": "1706737581927626610.png"
+    },
+    {
+      "frame_index": 595,
+      "timestamp_token": "1706737582094306946",
+      "uid": "1706737582094306946.png"
+    },
+    {
+      "frame_index": 596,
+      "timestamp_token": "1706737582127642393",
+      "uid": "1706737582127642393.png"
+    }
+  ]
+}
