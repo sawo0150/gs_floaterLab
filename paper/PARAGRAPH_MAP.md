@@ -27,29 +27,54 @@
 
 # §3 Method
 
-## 도입 — Roadmap (19줄, 7문장)
+## 도입 — Roadmap (실제 문장, 135 words ≈ 11줄)
 
-> **① 전제.** 온라인 매핑은 아직 **도착 중인** 데이터셋에 모델을 맞춘다.
->
-> **② 대비.** offline 3DGS 는 세 가지 가정 위에 서 있는데, 이 하나의 사실이 셋을 각각 깨뜨린다.
-> 그리고 기존 온라인 시스템은 그 셋을 **keyframe 규칙 하나로** 물려받는다.
->
-> **③ 세 지점을 절 번호 없이 평범한 말로 먼저 준다.** 우리는 세 곳을 본다 —
-> **얼마나** supervision 이 들어와도 되는가, **어떤 순서로** 그것을 다시 보는가,
-> 아직 결정되지 않은 기하를 **무엇이** 붙잡는가.
->
-> **④ §3.1** — *고정된 집합 위의 고정된 예산*이 더는 성립하지 않는다. 그래서 **완료된 GPU
-> service** 가 집합이 자라는 속도를 정하게 하고, 그 결과 속도가 집합 크기와 무관해진다.
->
-> **⑤ §3.2** — *유한한 고정합 위의 셔플링*이 더는 성립하지 않는다.
->
-> **⑥ §3.3** — *가진 뷰로 기하가 결정된다*가 더는 성립하지 않는다.
->
-> **⑦ 그림.** Fig.2 가 한 원인에서 나온 세 결과를 그림 하나로 보인다.
+**EDGS §3 도입의 꼴을 따랐다.** 그쪽 원문:
 
-세 소절의 이름과 순서는 ③에서 예고한 그대로다.
+> *Our goal is to initialize a dense set of Gaussian splats (Sec. 3.1). **Instead of**
+> incrementally adding information via photometric loss, we leverage all available 2D image
+> information from the start (Sec. 3.2). We **first** triangulate … (Sec. 3.3). **Then**, we
+> aggregate … (Sec. 3.4). **Finally**, we initialize spherical harmonics … (Sec. 3.5).*
 
----
+움직임이 셋뿐이다 — ① 목표 한 문장 + 즉시 절 번호 → ② `Instead of` 대비 → ③ first/Then/Finally.
+
+### 우리 것
+
+> **①목표** Our goal is a map that **converges quickly** — in photometric quality and in geometry
+> alike — under the compute that a live stream leaves available.
+>
+> **②대비** **Instead of** letting a single keyframe rule decide how supervision reaches the map,
+> we set three decisions separately, each from what the optimizer has actually completed (Fig. 2).
+>
+> **③§3.1** We **first** let completed GPU service, rather than the keyframe rule, set how fast
+> the training view set grows, *which makes that rate independent of the size of the set* (§3.1).
+>
+> **③§3.2** **Then**, we draw each block of views from a count-balanced distribution obtained from
+> an entropy-regularized objective, *which evens out exposure across the trajectory without giving
+> up random order* (§3.2).
+>
+> **③§3.3** **Finally**, we constrain the free space that photometric loss alone leaves
+> undetermined, using carve evidence taken only from frames already seen (§3.3).
+>
+> 🔴 문장 5 는 carving 이 **관측 부족**으로 생긴 floater 를 다룬다고 전제한다 — 팀원 확인.
+
+**목표를 "빠른 수렴"으로 잡으면 세 소절이 한 줄에 꿰인다.**
+
+| | 무엇의 수렴인가 |
+|---|---|
+| §3.1 | 단위 계산당 **얼마나** supervision 이 들어오나 |
+| §3.2 | 그것을 **어떤 순서로** 소비하나 |
+| §3.3 | photometric loss 만으로는 느리거나 끝내 수렴하지 않는 **기하** |
+
+앞의 둘이 photometric 수렴, 셋째가 geometric 수렴이다.
+*(이전 틀은 "아직 도착 중인 데이터셋이 offline 3DGS 의 세 가정을 깬다"였는데, 거기서는 §3.3 이
+셋 중 혼자 이질적이었다. 이 틀에서는 안 그렇다.)*
+
+**한 가지 EDGS 와 다르게 한 것**: EDGS 도입에는 *which …* 이득 절이 하나도 없다. 우리는 §3.1·§3.2
+에만 짧게 달았다 — 그쪽은 파이프라인 단계라 이득이 자명하지만, 우리 셋은 **정책 선택**이라 무엇을
+얻는지가 곧 논지이기 때문이다. 빼면 2줄이 더 는다.
+
+**분량**: 계획 19줄 → 실제 **11줄**. 8줄이 남았다.
 
 ## 3.1 Compute-Paced View Growth (95줄 · 0.86p)
 

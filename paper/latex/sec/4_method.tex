@@ -62,26 +62,38 @@
 %   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
 % 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
 % 원본은 plan/outline/CURRENT.md.
-\slot{ROADMAP \textemdash\ the whole opening, 7 sentences}{19}{%
-  (1) \emph{Premise}: online mapping fits a model to a dataset that is \textbf{still arriving} —
-  new views keep entering while the model is being optimized.
-  (2) \emph{Contrast}: offline 3DGS rests on three assumptions that this one fact breaks, and
-  existing online systems inherit all three through a single keyframe rule.
-  (3) \emph{The three points}, named in plain terms before any section reference: we therefore
-  look at the three places in the mapping loop where that inheritance shows ---
-  \textbf{how much} supervision may enter, \textbf{in which order} it is revisited, and
-  \textbf{what constrains} the geometry it does not yet determine.
-  (4) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
-  let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
-  independent of the size of the set.
-  (5) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
-  set is not, so we draw each block by a count-balanced rule without replacement, \textbf{which}
-  evens out exposure without giving up random order.
-  (6) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
-  space is not yet determined --- floaters are that indeterminacy made visible --- so we
-  constrain it with causal carve evidence, \textbf{which} removes them without future frames.
-  (7) \emph{Figure}: Fig.~2 shows the three consequences of the one cause in a single pass of the
-  mapper.}
+% ★ 2026-09-16: greeking → 실제 문장. 7문장 그대로, 계획된 자리도 그대로다.
+%   1 전제 / 2 대비 / 3 셋을 평이한 말로 세어줌 / 4·5·6 같은 꼴 / 7 그림 지목
+%   4·5·6 의 꼴: [깨지는 offline 가정] → [무엇을 하는가, \S ref] → ["which …" 얻는 것]
+%   'which …' 절은 lmrs §4 도입의 thereby / which results in / which eliminates 자리다.
+% ⚠ claims A1 제약: 이 분해가 **유일하거나 최적**이라고 말하지 않는다.
+%   그래서 "the three decisions that determine …" 가 아니라 "three points … where"로 쓴다.
+\begin{figure}[t]
+  \centering
+  \fcolorbox{slotgray}{slotbg}{\parbox[c][3.4cm][c]{0.92\linewidth}{\centering
+    {\sffamily\scriptsize\bfseries\color{skelblue}FIG.\,2 \textemdash\ SYSTEM DIAGRAM}\\[3pt]
+    {\sffamily\scriptsize\color{slotgray}one pass of the mapper\\
+     completed service $\rightarrow$ credit $\rightarrow$ quota $\rightarrow$ admitted views
+     $\rightarrow$ block order\\
+     three decisions drawn as three separate boxes \quad\textbullet\quad claim A1}}}
+  \caption{One pass of the mapper. The three consequences of a single cause enter at three
+           separate points, and nothing routes them through a shared keyframe test.}
+  \label{fig:system}
+\end{figure}
+
+Our goal is a map that converges quickly --- in photometric quality and in geometry alike ---
+under the compute that a live stream leaves available.
+Instead of letting a single keyframe rule decide how supervision reaches the map, we set three
+decisions separately, each from what the optimizer has actually completed
+(Fig.~\ref{fig:system}).
+We first let completed GPU service, rather than the keyframe rule, set how fast the training view
+set grows, which makes that rate independent of the size of the set (\S\ref{ssec:growth}).
+Then, we draw each block of views from a count-balanced distribution obtained from an
+entropy-regularized objective, which evens out exposure across the trajectory without giving up
+random order (\S\ref{ssec:ercb}).
+Finally, we constrain the free space that photometric loss alone leaves undetermined, using carve
+evidence taken only from frames already seen (\S\ref{ssec:carve}).
+\pend{sentence 5 assumes carving addresses \emph{under-observation} floaters --- teammate}
 
 % ---------- 3.1 (5문단, 86줄) ----------
 \subsection{Compute-Paced View Growth}
