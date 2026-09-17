@@ -3,6 +3,13 @@
 날짜: 2026-09-14
 상태: **R4 fixed-work B-track 전체 local scene 완료; tuning loop 중단**
 
+> **2026-09-17 metric benchmark v2 갱신:** normalized-variance ERCB로 R4를
+> 교체하는 검증은 첫 RPNG `table_01` direct-file gate에서
+> **25.6197→20.7874dB(−4.8324)**로 급락해 사전 규칙대로 중단했다.
+> normalized-vs-vanilla 정식 v2 pair는 0/17이며, 아래의 기존 R4
+> all-scene 결과를 normalized 모델의 성과로 전용할 수 없다.
+> [v2 계약·결과](metric_benchmark_v2_normalized_variance_20260917/README.md).
+
 최종 all-scene 결과는
 [`r4_all_scenes_fixed_work_20260915`](r4_all_scenes_fixed_work_20260915/README.md)에
 고정했다. 18개 계획 중 17개가 유효하고 1개는 tracker-ineligible N/A이며,

@@ -1,0 +1,266 @@
+{
+  "status": "downloaded_extracted_crc_verified",
+  "archive_manifests": [
+    {
+      "dataset": "rpng",
+      "source_url": "https://cvg-data.inf.ethz.ch/vigs-slam/rpngar.zip",
+      "source_identity": {
+        "ETag": "\"6844edc75-64d070ed39c06\"",
+        "Last-Modified": "Sun, 15 Mar 2026 02:42:49 GMT"
+      },
+      "archive": "data/benchmarks/rpng/raw/rpngar.zip",
+      "archive_bytes": 27989564533,
+      "sha256": "fce52736e5c4037f297dbf013ca0a96bce21a6d1c7ec0def7863f806c2f9bdf0",
+      "checksum_note": "locally computed; publisher checksum unavailable",
+      "download_complete": true,
+      "zip_crc_verified": true,
+      "expanded_bytes": 29368942028,
+      "zip_members": 40726,
+      "top_level_members": [
+        "rpngar"
+      ],
+      "prepared": "data/benchmarks/rpng/prepared",
+      "completed": "2026-09-10T15:03:01+0900"
+    },
+    {
+      "dataset": "utmm",
+      "source_url": "https://cvg-data.inf.ethz.ch/vigs-slam/UTMM_Dataset.zip",
+      "source_identity": {
+        "ETag": "\"528bc5860-644ff0c77555a\"",
+        "Last-Modified": "Tue, 02 Dec 2025 21:47:56 GMT"
+      },
+      "archive": "data/benchmarks/utmm/raw/UTMM_Dataset.zip",
+      "archive_bytes": 22158268512,
+      "sha256": "c52a27ccd29ba48f7202883b3431857de18d80180a918615794ca2f7e1bf2cd0",
+      "checksum_note": "locally computed; publisher checksum unavailable",
+      "download_complete": true,
+      "zip_crc_verified": true,
+      "expanded_bytes": 22837838319,
+      "zip_members": 25254,
+      "top_level_members": [
+        "UTMM_Dataset"
+      ],
+      "prepared": "data/benchmarks/utmm/prepared",
+      "completed": "2026-09-10T14:51:24+0900"
+    }
+  ],
+  "sequences": [
+    {
+      "dataset": "rpng",
+      "sequence": "table_01",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_01",
+      "rgb_directory": "rgb",
+      "rgb_frames": 2506,
+      "timestamp_filename_min": 1.6629157313338995e+18,
+      "timestamp_filename_max": 1.662915814870829e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_02",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_02",
+      "rgb_directory": "rgb",
+      "rgb_frames": 2914,
+      "timestamp_filename_min": 1.6629173628335237e+18,
+      "timestamp_filename_max": 1.6629174599991598e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_03",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_03",
+      "rgb_directory": "rgb",
+      "rgb_frames": 7006,
+      "timestamp_filename_min": 1.6629184624013747e+18,
+      "timestamp_filename_max": 1.6629186960061215e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_04",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_04",
+      "rgb_directory": "rgb",
+      "rgb_frames": 6068,
+      "timestamp_filename_min": 1.6629191557266924e+18,
+      "timestamp_filename_max": 1.6629193580665198e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_05",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_05",
+      "rgb_directory": "rgb",
+      "rgb_frames": 6164,
+      "timestamp_filename_min": 1.6629237685128804e+18,
+      "timestamp_filename_max": 1.6629239740293783e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_06",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_06",
+      "rgb_directory": "rgb",
+      "rgb_frames": 2767,
+      "timestamp_filename_min": 1.6629240069728067e+18,
+      "timestamp_filename_max": 1.6629240992174774e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_07",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_07",
+      "rgb_directory": "rgb",
+      "rgb_frames": 4784,
+      "timestamp_filename_min": 1.6629241556056358e+18,
+      "timestamp_filename_max": 1.6629243151183199e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "sequence": "table_08",
+      "root": "data/benchmarks/rpng/prepared/rpngar/table_08",
+      "rgb_directory": "rgb",
+      "rgb_frames": 8484,
+      "timestamp_filename_min": 1.6629257923102405e+18,
+      "timestamp_filename_max": 1.6629260752021245e+18,
+      "required_files_present": [
+        "imu.txt",
+        "gt.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "ego-centric-1",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-1",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 1535,
+      "timestamp_filename_min": 1.7067394084980744e+18,
+      "timestamp_filename_max": 1.7067394596447386e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "ego-centric-2",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-2",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 1298,
+      "timestamp_filename_min": 1.7067382305473316e+18,
+      "timestamp_filename_max": 1.7067382737899638e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "ego-drive",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/ego-drive",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 1399,
+      "timestamp_filename_min": 1.706738434801179e+18,
+      "timestamp_filename_max": 1.7067384814314452e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "fast-straight",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/fast-straight",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 332,
+      "timestamp_filename_min": 1.706737612407937e+18,
+      "timestamp_filename_max": 1.7067376234472717e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "slow-straight-1",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/slow-straight-1",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 393,
+      "timestamp_filename_min": 1.7067375132737457e+18,
+      "timestamp_filename_max": 1.7067375263492513e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "slow-straight-2",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/slow-straight-2",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 597,
+      "timestamp_filename_min": 1.706737562258098e+18,
+      "timestamp_filename_max": 1.7067375821276424e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "square-1",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/square-1",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 1614,
+      "timestamp_filename_min": 1.7067377368159224e+18,
+      "timestamp_filename_max": 1.7067377906253394e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "sequence": "square-2",
+      "root": "data/benchmarks/utmm/prepared/UTMM_Dataset/square-2",
+      "rgb_directory": "rgb_timestamp",
+      "rgb_frames": 1219,
+      "timestamp_filename_min": 1.7067395326580733e+18,
+      "timestamp_filename_max": 1.7067395732741005e+18,
+      "required_files_present": [
+        "imu_ours.txt",
+        "groundtruth.txt",
+        "intrinsics_ours.txt"
+      ]
+    }
+  ],
+  "note": "File presence and timestamp filenames checked. No SLAM run, calibration validation, held-out split, repository installation or benchmark metric evaluation performed."
+}

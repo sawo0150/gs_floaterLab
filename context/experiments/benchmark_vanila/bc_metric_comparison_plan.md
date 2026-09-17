@@ -3,6 +3,14 @@
 작성: 2026-09-14  
 상태: **입력 lock 완료 — D1-native render-matched B protocol로 정정, active Full 확정 전**
 
+> **2026-09-17 metric benchmark v2 상태:** R4 shortfall을
+> normalized-variance ERCB로 교체하는 전체 17-scene B-track 검증은
+> RPNG `table_01` 첫 direct-file gate에서 **25.6197→20.7874dB**로
+> 급락해 중단했다. 동일 work/held-out 불변 검증은 통과했지만 새 vanilla
+> pair와 후속 scene은 실행하지 않았으므로 normalized 모델의 전체 benchmark
+> 이득은 주장하지 않는다. 이 문서의 B/C 정의는 유지하며 v2 실행 계약·결과는
+> [별도 기록](../benchmark_custom/metric_benchmark_v2_normalized_variance_20260917/README.md)에 둔다.
+
 ## 0. 결론
 
 논문 본문의 핵심 비교는 다음 두 실험으로 제한한다.

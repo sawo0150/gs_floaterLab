@@ -826,6 +826,7 @@ def mapper_namespace(
     fixed_iteration_dedicated_dense_scope: str,
     native_global_keyframe_selection_audit: bool,
     native_global_keyframe_ercb: bool,
+    ercb_selection_potential: str,
 ) -> argparse.Namespace:
     image_dir = Path(archive.manifest["input_image_directory"])
     imu_file = Path(
@@ -936,6 +937,7 @@ def mapper_namespace(
     parsed.start = 0
     parsed.stride = 1
     parsed.seed = seed
+    parsed.mapping_replay_ercb_selection_potential = ercb_selection_potential
     parsed.mapping_dense_global_views = int(fixed_work_dense_global_views)
     parsed.mapping_dense_global_replay_scheduler = bool(
         fixed_work_dense_selector != "off"
@@ -1433,6 +1435,12 @@ def scale_pending_dense(records: list[tuple], scale: float) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
+    parser.add_argument(
+        "--archive-cache-max-entries",
+        type=int,
+        default=None,
+        help="Diagnostic override of the frozen geometry reader LRU capacity",
+    )
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=0)
@@ -1622,6 +1630,19 @@ def main() -> int:
             "Stage-6R R4 candidate: replace only BALANCED/REPLAY native "
             "historical-keyframe uniform selection with transactional ERCB"
         ),
+    )
+    parser.add_argument(
+        "--ercb-selection-potential",
+        choices=("service_shortfall", "normalized_variance"),
+        default="service_shortfall",
+        help="Ablation: use the per-view Var(count)/mean(count) Gibbs law in all three ERCB selectors",
+    )
+    parser.add_argument(
+        "--ercb-normalized-family",
+        action="append",
+        choices=("dense", "aux_kf", "native_kf"),
+        default=[],
+        help="Diagnostic only: normalize just this R4 selector family; repeat for multiple families",
     )
     parser.add_argument(
         "--density-policy",
@@ -2036,6 +2057,14 @@ def main() -> int:
         raise ValueError(
             "Stage-6R native-global ERCB requires its uniform-shadow audit"
         )
+    if args.ercb_normalized_family and args.ercb_selection_potential != "service_shortfall":
+        raise ValueError("per-family normalized diagnostic cannot mix with all-family potential")
+    if (args.ercb_selection_potential == "normalized_variance" or args.ercb_normalized_family) and not (
+        args.service_shortfall_ercb
+        and args.stage6r_keyframe_appearance_replay
+        and args.stage6r_native_global_keyframe_ercb
+    ):
+        raise ValueError("normalized-variance ablation requires all R4 ERCB selectors")
     if args.service_shortfall_ercb and not (
         native_d1_dense_service_clock
         and not args.include_keyframes_in_replay
@@ -2152,6 +2181,10 @@ def main() -> int:
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     archive = FrozenTrackerArchive(args.archive)
+    if args.archive_cache_max_entries is not None:
+        if args.archive_cache_max_entries < 1:
+            raise ValueError("archive cache capacity must be positive")
+        archive._geometry_cache_max_entries = args.archive_cache_max_entries
     config_path = args.config.resolve()
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -2203,8 +2236,14 @@ def main() -> int:
         args.fixed_iteration_dedicated_dense_scope,
         args.stage6r_native_global_keyframe_selection_audit,
         args.stage6r_native_global_keyframe_ercb,
+        args.ercb_selection_potential,
     )
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
+    normalized_families = set(args.ercb_normalized_family)
+    if "dense" in normalized_families:
+        mapper._mapping_replay_queue.selection_potential = "normalized_variance"
+    if "native_kf" in normalized_families:
+        mapper._mapping_global_keyframe_ercb.selection_potential = "normalized_variance"
     relative_capacity_prune_state = None
     if args.relative_capacity_prune_closure:
         relative_capacity_prune_state = install_relative_capacity_prune_closure(
@@ -2346,6 +2385,11 @@ def main() -> int:
                 gamma=math.log(1.5),
                 relative_floor_ratio=0.75,
                 block_size=8,
+                selection_potential=(
+                    "normalized_variance"
+                    if "aux_kf" in normalized_families
+                    else args.ercb_selection_potential
+                ),
             )
         )
         keyframe_draw = stage6r_keyframe_queue.draw
@@ -3104,6 +3148,16 @@ def main() -> int:
         "compute_paced_dense_admission": args.compute_paced_dense_admission,
         "compute_paced_dense_token_cost": args.compute_paced_dense_token_cost,
         "service_shortfall_ercb_requested": args.service_shortfall_ercb,
+        "ercb_selection_potential": args.ercb_selection_potential,
+        "ercb_selection_potential_by_family": {
+            family: (
+                "normalized_variance"
+                if args.ercb_selection_potential == "normalized_variance"
+                or family in normalized_families
+                else "service_shortfall"
+            )
+            for family in ("dense", "aux_kf", "native_kf")
+        },
         "c2_orthogonal_isolation": stage3c_c2_orthogonal_isolation,
         "c2_global_residue_isolation": (
             stage3d_c2_global_residue_isolation
@@ -3244,6 +3298,7 @@ def main() -> int:
             ["git", "-C", str(CUSTOM_ROOT), "rev-parse", "HEAD"], text=True
         ).strip(),
         "archive": str(archive.root),
+        "archive_cache_max_entries": archive._geometry_cache_max_entries,
         "archive_manifest_sha256": hashlib.sha256(
             (archive.root / "archive_manifest.json").read_bytes()
         ).hexdigest(),
@@ -3288,7 +3343,11 @@ def main() -> int:
         "comparison_contract": (
             (
                 (
-                    "stage6r_r4_native_global_keyframe_ercb_v1"
+                    (
+                        "stage6r_r4_normalized_variance_ercb_v1"
+                        if args.ercb_selection_potential == "normalized_variance"
+                        else "stage6r_r4_native_global_keyframe_ercb_v1"
+                    )
                     if args.stage6r_native_global_keyframe_ercb
                     else "stage6r_r4_native_global_uniform_control_v1"
                 )
