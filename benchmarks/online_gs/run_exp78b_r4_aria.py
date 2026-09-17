@@ -42,6 +42,7 @@ ARIA_SEQUENCES = {
 }
 
 ORIGINAL_SEQUENCE_PATHS = base.sequence_paths
+ORIGINAL_EVALUATION_COMMAND = base.evaluation_command
 
 
 def sha256(path: Path) -> str:
@@ -64,6 +65,10 @@ def sequence_paths(dataset: str, sequence: str) -> dict[str, Path]:
 
 
 def evaluation_command(output: Path, dataset: str, sequence: str) -> list[str]:
+    if (dataset, sequence) not in ARIA_SEQUENCES:
+        # The Aria adapter must not replace RPNG/UTMM's distortion-aware
+        # evaluator contract when a mixed-dataset inventory is installed.
+        return ORIGINAL_EVALUATION_COMMAND(output, dataset, sequence)
     paths = sequence_paths(dataset, sequence)
     return [
         str(base.PYTHON_ENV / "bin/python"),
