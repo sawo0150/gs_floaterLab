@@ -1,0 +1,518 @@
+{
+  "protocol": "benchmark-B keyframe-only RR candidate pool derivation",
+  "records": [
+    {
+      "family": "utmm",
+      "scene": "ego-centric-1",
+      "raw_keyframe_boundaries": 56,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1343,
+          "keyframe_only_pool_size": 50,
+          "populated_events": 50
+        },
+        "stride20_event15": {
+          "full_pool_size": 1343,
+          "keyframe_only_pool_size": 50,
+          "populated_events": 50
+        },
+        "stride20_event30": {
+          "full_pool_size": 1343,
+          "keyframe_only_pool_size": 50,
+          "populated_events": 50
+        },
+        "stride20_event60": {
+          "full_pool_size": 1343,
+          "keyframe_only_pool_size": 50,
+          "populated_events": 50
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "ego-centric-2",
+      "raw_keyframe_boundaries": 65,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1135,
+          "keyframe_only_pool_size": 62,
+          "populated_events": 62
+        },
+        "stride20_event15": {
+          "full_pool_size": 1135,
+          "keyframe_only_pool_size": 62,
+          "populated_events": 62
+        },
+        "stride20_event30": {
+          "full_pool_size": 1135,
+          "keyframe_only_pool_size": 62,
+          "populated_events": 62
+        },
+        "stride20_event60": {
+          "full_pool_size": 1135,
+          "keyframe_only_pool_size": 62,
+          "populated_events": 62
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "ego-drive",
+      "raw_keyframe_boundaries": 87,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1224,
+          "keyframe_only_pool_size": 76,
+          "populated_events": 76
+        },
+        "stride20_event15": {
+          "full_pool_size": 1224,
+          "keyframe_only_pool_size": 76,
+          "populated_events": 76
+        },
+        "stride20_event30": {
+          "full_pool_size": 1224,
+          "keyframe_only_pool_size": 76,
+          "populated_events": 76
+        },
+        "stride20_event60": {
+          "full_pool_size": 1224,
+          "keyframe_only_pool_size": 76,
+          "populated_events": 76
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "fast-straight",
+      "raw_keyframe_boundaries": 18,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 290,
+          "keyframe_only_pool_size": 17,
+          "populated_events": 17
+        },
+        "stride20_event15": {
+          "full_pool_size": 290,
+          "keyframe_only_pool_size": 17,
+          "populated_events": 17
+        },
+        "stride20_event30": {
+          "full_pool_size": 290,
+          "keyframe_only_pool_size": 17,
+          "populated_events": 17
+        },
+        "stride20_event60": {
+          "full_pool_size": 290,
+          "keyframe_only_pool_size": 17,
+          "populated_events": 17
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "slow-straight-2",
+      "raw_keyframe_boundaries": 16,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 522,
+          "keyframe_only_pool_size": 14,
+          "populated_events": 14
+        },
+        "stride20_event15": {
+          "full_pool_size": 522,
+          "keyframe_only_pool_size": 14,
+          "populated_events": 14
+        },
+        "stride20_event30": {
+          "full_pool_size": 522,
+          "keyframe_only_pool_size": 14,
+          "populated_events": 14
+        },
+        "stride20_event60": {
+          "full_pool_size": 522,
+          "keyframe_only_pool_size": 14,
+          "populated_events": 14
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "raw_keyframe_boundaries": 80,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1412,
+          "keyframe_only_pool_size": 72,
+          "populated_events": 72
+        },
+        "stride20_event15": {
+          "full_pool_size": 1412,
+          "keyframe_only_pool_size": 72,
+          "populated_events": 72
+        },
+        "stride20_event30": {
+          "full_pool_size": 1412,
+          "keyframe_only_pool_size": 72,
+          "populated_events": 72
+        },
+        "stride20_event60": {
+          "full_pool_size": 1412,
+          "keyframe_only_pool_size": 72,
+          "populated_events": 72
+        }
+      }
+    },
+    {
+      "family": "utmm",
+      "scene": "square-2",
+      "raw_keyframe_boundaries": 73,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1066,
+          "keyframe_only_pool_size": 65,
+          "populated_events": 65
+        },
+        "stride20_event15": {
+          "full_pool_size": 1066,
+          "keyframe_only_pool_size": 65,
+          "populated_events": 65
+        },
+        "stride20_event30": {
+          "full_pool_size": 1066,
+          "keyframe_only_pool_size": 65,
+          "populated_events": 65
+        },
+        "stride20_event60": {
+          "full_pool_size": 1066,
+          "keyframe_only_pool_size": 65,
+          "populated_events": 65
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "raw_keyframe_boundaries": 242,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 2192,
+          "keyframe_only_pool_size": 212,
+          "populated_events": 212
+        },
+        "stride20_event15": {
+          "full_pool_size": 2192,
+          "keyframe_only_pool_size": 212,
+          "populated_events": 212
+        },
+        "stride20_event30": {
+          "full_pool_size": 2192,
+          "keyframe_only_pool_size": 212,
+          "populated_events": 212
+        },
+        "stride20_event60": {
+          "full_pool_size": 2192,
+          "keyframe_only_pool_size": 212,
+          "populated_events": 212
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_02",
+      "raw_keyframe_boundaries": 333,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 2549,
+          "keyframe_only_pool_size": 290,
+          "populated_events": 290
+        },
+        "stride20_event15": {
+          "full_pool_size": 2549,
+          "keyframe_only_pool_size": 290,
+          "populated_events": 290
+        },
+        "stride20_event30": {
+          "full_pool_size": 2549,
+          "keyframe_only_pool_size": 290,
+          "populated_events": 290
+        },
+        "stride20_event60": {
+          "full_pool_size": 2549,
+          "keyframe_only_pool_size": 290,
+          "populated_events": 290
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_03",
+      "raw_keyframe_boundaries": 512,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 6130,
+          "keyframe_only_pool_size": 451,
+          "populated_events": 451
+        },
+        "stride20_event15": {
+          "full_pool_size": 6130,
+          "keyframe_only_pool_size": 451,
+          "populated_events": 451
+        },
+        "stride20_event30": {
+          "full_pool_size": 6130,
+          "keyframe_only_pool_size": 451,
+          "populated_events": 451
+        },
+        "stride20_event60": {
+          "full_pool_size": 6130,
+          "keyframe_only_pool_size": 451,
+          "populated_events": 451
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_04",
+      "raw_keyframe_boundaries": 414,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 5309,
+          "keyframe_only_pool_size": 362,
+          "populated_events": 362
+        },
+        "stride20_event15": {
+          "full_pool_size": 5309,
+          "keyframe_only_pool_size": 362,
+          "populated_events": 362
+        },
+        "stride20_event30": {
+          "full_pool_size": 5309,
+          "keyframe_only_pool_size": 362,
+          "populated_events": 362
+        },
+        "stride20_event60": {
+          "full_pool_size": 5309,
+          "keyframe_only_pool_size": 362,
+          "populated_events": 362
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_05",
+      "raw_keyframe_boundaries": 328,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 5393,
+          "keyframe_only_pool_size": 293,
+          "populated_events": 293
+        },
+        "stride20_event15": {
+          "full_pool_size": 5393,
+          "keyframe_only_pool_size": 293,
+          "populated_events": 293
+        },
+        "stride20_event30": {
+          "full_pool_size": 5393,
+          "keyframe_only_pool_size": 293,
+          "populated_events": 293
+        },
+        "stride20_event60": {
+          "full_pool_size": 5393,
+          "keyframe_only_pool_size": 293,
+          "populated_events": 293
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_06",
+      "raw_keyframe_boundaries": 227,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 2421,
+          "keyframe_only_pool_size": 201,
+          "populated_events": 201
+        },
+        "stride20_event15": {
+          "full_pool_size": 2421,
+          "keyframe_only_pool_size": 201,
+          "populated_events": 201
+        },
+        "stride20_event30": {
+          "full_pool_size": 2421,
+          "keyframe_only_pool_size": 201,
+          "populated_events": 201
+        },
+        "stride20_event60": {
+          "full_pool_size": 2421,
+          "keyframe_only_pool_size": 201,
+          "populated_events": 201
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_07",
+      "raw_keyframe_boundaries": 218,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 4186,
+          "keyframe_only_pool_size": 188,
+          "populated_events": 188
+        },
+        "stride20_event15": {
+          "full_pool_size": 4186,
+          "keyframe_only_pool_size": 188,
+          "populated_events": 188
+        },
+        "stride20_event30": {
+          "full_pool_size": 4186,
+          "keyframe_only_pool_size": 188,
+          "populated_events": 188
+        },
+        "stride20_event60": {
+          "full_pool_size": 4186,
+          "keyframe_only_pool_size": 188,
+          "populated_events": 188
+        }
+      }
+    },
+    {
+      "family": "rpng",
+      "scene": "table_08",
+      "raw_keyframe_boundaries": 566,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 7423,
+          "keyframe_only_pool_size": 496,
+          "populated_events": 496
+        },
+        "stride20_event15": {
+          "full_pool_size": 7423,
+          "keyframe_only_pool_size": 496,
+          "populated_events": 496
+        },
+        "stride20_event30": {
+          "full_pool_size": 7423,
+          "keyframe_only_pool_size": 496,
+          "populated_events": 496
+        },
+        "stride20_event60": {
+          "full_pool_size": 7423,
+          "keyframe_only_pool_size": 496,
+          "populated_events": 496
+        }
+      }
+    },
+    {
+      "family": "aria",
+      "scene": "aria1253",
+      "raw_keyframe_boundaries": 123,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1140,
+          "keyframe_only_pool_size": 115,
+          "populated_events": 115
+        },
+        "stride20_event15": {
+          "full_pool_size": 1140,
+          "keyframe_only_pool_size": 115,
+          "populated_events": 115
+        },
+        "stride20_event30": {
+          "full_pool_size": 1140,
+          "keyframe_only_pool_size": 115,
+          "populated_events": 115
+        },
+        "stride20_event60": {
+          "full_pool_size": 1140,
+          "keyframe_only_pool_size": 115,
+          "populated_events": 115
+        }
+      }
+    },
+    {
+      "family": "aria",
+      "scene": "aria1253rot",
+      "raw_keyframe_boundaries": 185,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1310,
+          "keyframe_only_pool_size": 169,
+          "populated_events": 169
+        },
+        "stride20_event15": {
+          "full_pool_size": 1310,
+          "keyframe_only_pool_size": 169,
+          "populated_events": 169
+        },
+        "stride20_event30": {
+          "full_pool_size": 1310,
+          "keyframe_only_pool_size": 169,
+          "populated_events": 169
+        },
+        "stride20_event60": {
+          "full_pool_size": 1310,
+          "keyframe_only_pool_size": 169,
+          "populated_events": 169
+        }
+      }
+    },
+    {
+      "family": "aria",
+      "scene": "aria301_305",
+      "raw_keyframe_boundaries": 169,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 2352,
+          "keyframe_only_pool_size": 150,
+          "populated_events": 150
+        },
+        "stride20_event15": {
+          "full_pool_size": 2352,
+          "keyframe_only_pool_size": 150,
+          "populated_events": 150
+        },
+        "stride20_event30": {
+          "full_pool_size": 2352,
+          "keyframe_only_pool_size": 150,
+          "populated_events": 150
+        },
+        "stride20_event60": {
+          "full_pool_size": 2352,
+          "keyframe_only_pool_size": 150,
+          "populated_events": 150
+        }
+      }
+    },
+    {
+      "family": "aria",
+      "scene": "aria301_12F",
+      "raw_keyframe_boundaries": 349,
+      "conditions": {
+        "stride40_event15": {
+          "full_pool_size": 1925,
+          "keyframe_only_pool_size": 306,
+          "populated_events": 306
+        },
+        "stride20_event15": {
+          "full_pool_size": 1925,
+          "keyframe_only_pool_size": 306,
+          "populated_events": 306
+        },
+        "stride20_event30": {
+          "full_pool_size": 1925,
+          "keyframe_only_pool_size": 306,
+          "populated_events": 306
+        },
+        "stride20_event60": {
+          "full_pool_size": 1925,
+          "keyframe_only_pool_size": 306,
+          "populated_events": 306
+        }
+      }
+    }
+  ]
+}

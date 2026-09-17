@@ -112,6 +112,84 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 - **2026-09-17 (exp87 RPNG R4 실행 경로 진단 — R4 모델 복원, 평가 경로 재현성 OPEN):** archived R4 PLY를 현재 evaluator로 다시 평가해도 **25.624315dB**이고, 9/15 exact source/하네스 직접 재실행 **25.626920**, 현재 source 직접 재실행 **25.619726–25.630379dB**였다. 반면 exp87 래퍼의 current-source 재실행은 **20.810871dB**(기존 두 회 20.806748/20.804699과 같은 낮은 군집). 특히 동일 source/seed/archive/config/502 fixed held-out/3,030 Adam/38,302 render/선택 UID trace에서 exp87 폴더의 래퍼 **20.810871** vs 직접 실행 **25.619726dB**라 저장 경로·mapper 코드 단독 원인은 아니다. 래퍼의 자식 프로세스 실행/로그 경로에 민감한 대규모 품질 분기까지 좁혔지만 pipe/CUDA/timing 중 정확한 메커니즘은 미확정. RPNG normalized 상대값은 낮은 군집 내부 결과로 한정하고 기존 17-scene 평균의 현재 실행 재현 주장은 보류한다. → [exp87 정정 카드](experiments/exp87_normalized_variance_ercb_r4.md)
 - **2026-09-17 (exp87 primary source-hash 정정):** 아래 exp87 초기 집계 뒤 진단용 미사용 cache CLI가 harness에 추가된 사실을 반영해, UTMM fast/square-1 및 Aria의 normalized arm을 동일 source hash로 재실행했다. Fresh pair normalized−shortfall은 **+.0188/−.0155/−.0144/−.0457dB**, 4-scene mean **−.0142dB**, 최대 손실 **.0457dB**다. 결론(시험 범위에서 대폭 하락 없음·RPNG archival R4 재현 실패 OPEN)은 불변이며 초회 수치는 provenance로 아래에 유지한다. → [exp87 정정 카드](experiments/exp87_normalized_variance_ercb_r4.md)
 - **2026-09-17 (exp87 normalized-variance ERCB R4 pilot — 큰 하락 미관측, historical RPNG 재현성 OPEN):** 최종 R4의 shortfall Gibbs를 사용자 제안 `Var(count)/mean(count)`의 per-view law `p_i∝exp[-log(1.5)n_i/(T+1)]`로 opt-in 교체해 dense/aux-KF/native-KF에 적용했다. Frozen B-track fresh same-source seed0, 동일 archive/admission/Adam/render/zero-tail 4-scene에서 normalized−shortfall held-out Δ는 UTMM fast **+.0252**, square-1 **−.0093**, RPNG table_01 **−.0144**, Aria1253 **−.0436dB**(mean **−.0105**). 대폭 하락은 관측되지 않았으나 다중 seed/17-scene 근거는 아니며 default R4는 유지한다. 별도 심각한 발견: archived table_01 R4 **25.6243**이 현재 shortfall repeat **20.8067/20.8047**로 재현되지 않고 과거식 unbounded geometry cache도 **20.8058**이었다. 선택 dense/aux/native UID trace·tracking trajectory는 archival과 exact라 원인은 미확정; 이 차이를 normalized 효과로 귀속하거나 기존 all-scene gain 재현으로 주장하지 않는다. → [exp87](experiments/exp87_normalized_variance_ercb_r4.md)
+- **2026-09-17 (exp87 — dense supervision 이득을 incremental에서 최초 재현, 3/3):**
+  배치에서만 보이던 "dense supervision이 keyframe-only보다 빨리 수렴한다"(exp66,
+  aria1253 26k에서 dense 31.68 vs keyframe 28.38dB)가 ERCB 하네스(benchmark-A/B)에서는
+  안 보이거나 역전됐던 원인을 실측으로 규명했다. `--fixed_topology_step_before_report`가
+  `densify_until_iter=0`을 강제해(train.py:82-83) **Gaussian 수가 init에 영구 고정**
+  (31,185/100,157/54,373 — init 점 개수와 정확히 일치)되고, view당 update가
+  **0.84–6.6회**(exp66 ~23회)뿐이며, init은 균일 회색 `[128,128,128]`, 종료 시점에도
+  곡선이 마지막 구간에서 +4–5dB씩 상승 중이었다. 저예산 dense arm은 view의 **28–40%를
+  한 번도 뽑지 않아** dense supervision이라 부를 수도 없었다. Pose 보간 오차는
+  0.000000s로 pose는 원인이 아니다. densify를 표준 3DGS 설정(500–15,000)으로 켜고
+  예산을 30k(view당 13.6–26.3회)로 맞춘 exp87에서, 총 update·init·pose·selector·seed·
+  llffhold-8 held-out을 고정하고 **후보 pool만** KF-only vs KF+dense로 바꾼 결과 held-out
+  PSNR Δ는 aria1253 **+2.34**, square-1 **+3.38**, table_01 **+0.52dB**로 3/3 양수였고,
+  @3k부터 final까지 모든 milestone에서 3/3 양수다. KF-only가 전체 예산을 다 써서 도달한
+  품질에 KF+dense는 **1.42×/1.53×/2.95×** 적은 update로 도달한다. 최종 Gaussian 비는
+  **1.06/0.86/1.01×**로 dense arm에 체계적 용량 이점이 없어 "Gaussian을 더 많이 만들어서"
+  confound가 닫힌다(square-1은 14% 적은 Gaussian으로 이겼다). 19-scene 확장 실행 중이며,
+  pose/init는 사전 VIGS run 고정 replay라 strict online localization 근거는 아니다.
+  → [exp87](experiments/exp87_dense_vs_kf_incremental/README.md)
+
+- **2026-09-17 (dense-supervision 19-scene panel — 15/19 양수, budget interaction 확인):**
+  stride20 fixed replay에서 KF-only와 도착한 모든 RGB를 쓰는 KF+dense를 동일
+  causal arrival/총 update/pose/init/selector/seed/held-out으로 비교했다. Event당 60 update에서
+  dense−KF held-out PSNR은 전체 **+0.33dB(15/19)**, Aria **+0.75(4/4)**,
+  UTMM **+0.87(7/7)**, RPNG **−0.34(4/8)**였다. RPNG 음수 장면은 budget을
+  120으로 늘리거나 interval당 pool을 K=2/4/8로 제한하면 일부가 양수로 바뀌어,
+  dense 신호 자체보다 frame 수 대비 service 부족과 admission density의 상호작용이 핵심임을
+  확인했다. Densification은 켰지만 pose/init은 사전 VIGS 고정 replay이고 seed0이므로 strict
+  end-to-end 근거는 아니다.
+  → [dense-supervision](experiments/ERCB_ablation/dense-supervision/README.md)
+
+- **2026-09-17 (benchmark-B stride20 full-family — 19/20 scene·152/152 완료):**
+  동일 VIGS source pose에서 depth-anchor stride40→20만 바꾼 paired replay를 UTMM 7,
+  RPNG 8, Aria 4 scene에 확장했다. Stride20의 저예산 init 이득은 RR
+  **+0.6180dB(19/19)**, ERCB **+0.7342dB(19/19)**였다. Stride20에서
+  ERCB−RR은 event당 15/30/60 update에 **+0.6154/+0.1137/+0.2313dB**,
+  승률 **16/19·7/19·9/19**로 저예산에서 가장 일관됐다. `slow-straight-1`은
+  source export 실패를 unavailable로 남겼다. Gaussian 수 약 4배의 wall-time 비용이 있고,
+  final pose/init 고정 scheduler-isolation이므로 strict VIGS 결과로 해석하지 않는다.
+  → [benchmark-B](experiments/ERCB_ablation/benchmark-B/summary.md)
+
+- **2026-09-16 (benchmark-A 동일 depth/pose paired init-density pilot — 4/4 양수, GO):**
+  한 strict VIGS source run에서 BA-refined depth/pose를 공유한 stride40/20 anchor를 동시에
+  export해 복제·jitter 없이 초기점만 3.65×/3.89× 늘렸다. RGB/camera/trajectory/KF
+  boundary/arrival/update/RGB-only/fixed topology/llffhold-8을 고정한 event당15 저예산에서
+  dense init의 held-out PSNR 변화는 square-1 RR/ERCB **+1.4275/+0.9215dB**,
+  table_01 **+0.2685/+0.5474dB**로 4/4 양수였고 장면 평균은 각각
+  **+0.8480/+0.7345dB**다. Sparse fixed init이 낮은 절대 PSNR에 기여한다는 pilot 가설은
+  통과했지만 training GPU time이 square-1 1.17×, table_01 1.69–1.71×라 공짜 이득은
+  아니다. 2장면 seed0 offline fixed replay이며 strict end-to-end 근거가 아니다.
+  → [init-density pilot](experiments/ERCB_ablation/benchmark-A/init-density-pilot/RESULT.md)
+
+- **2026-09-15 (ERCB benchmark-A recent-10-keyframe-window RR — hard window 기각):**
+  기존 full-pool RR/ERCB 78개 결과를 보존하고, 각 도착 `add()`를 VIGS keyframe interval로
+  정의해 최근 10 interval의 RGB frame 합집합에서만 causal RR하는 39개 arm을 추가했다.
+  전체 manifest는 **117/117 complete, 0 failed**다. Window10−full RR의 scene-unweighted
+  held-out PSNR은 event당 `15/30/60` update에서 **−1.3113/−2.1064/−2.7869dB**,
+  승률은 **1/13→0/13→0/13**이었다. UTMM 평균도 −0.7006/−1.2222/−1.8919dB,
+  RPNG는 −2.0238/−3.1381/−3.8312dB로 모두 악화했다. Event 수와 window delta의
+  Pearson 상관은 **−0.6398/−0.7207/−0.6659**라 긴 장면일수록 historical eviction
+  손실이 컸다. 따라서 ERCB의 저예산 이득은 단순 recent-view 집중이 아니며, 전체 historical
+  pool을 유지하면서 keyframe interval service를 조절하는 구조가 필요하다. Seed0·fixed final
+  pose/init·fixed topology·RGB-only·historical tail admission 한정으로 strict VIGS 증거는 아니다.
+  → [benchmark-A](experiments/ERCB_ablation/benchmark-A/summary.md)
+
+- **2026-09-15 (ERCB benchmark-A 저·중·고예산 interaction — 저예산 전용 이득 확인):**
+  기존 13-scene seed0 fixed-replay panel을 동일 schedule/pose/init/topology/loss로 두고
+  event당 update만 `15/30/60`으로 확장해 78/78 arm을 완료했다. Scene-unweighted
+  ERCB−RR 평균은 **+0.5909/+0.2283/−0.0478dB**, 승률은
+  **12/13→7/13→5/13**, median은 **+0.3112/+0.0037/−0.0698dB**로
+  예산이 증가할수록 이득이 소멸했다. 중예산 평균은 table_05의 +2.5334dB가 지배해
+  일반적인 우위가 아니며, 고예산은 평균·median 모두 RR보다 낮다. 따라서 ERCB의 근거는
+  optimizer service가 부족한 구간의 수렴 가속이고 충분한 budget의 최종 품질 우위는
+  다시 기각한다. Slow-straight-1/table_07/table_08은 원 VIGS source 실패로 계속
+  unavailable이다. Seed0·offline fixed pose/init·RGB-only·historical tail admission이므로
+  strict streaming/current unified VIGS 성공으로 해석하지 않는다.
+  → [benchmark-A](experiments/ERCB_ablation/benchmark-A/summary.md)
+
 - **2026-09-15 (ERCB benchmark-A historical low-budget broad transfer — 12/13 양수):**
   exp03의 `15 updates/event`, seed0, fixed final VIGS pose/init, RGB-only, fixed topology,
   llffhold-8, zero-tail 조건을 장면별 knob 없이 16-scene inventory에 확장했다. 원 exp80

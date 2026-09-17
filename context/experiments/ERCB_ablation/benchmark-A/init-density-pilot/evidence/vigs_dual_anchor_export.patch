@@ -1,0 +1,70 @@
+diff --git a/vigs/gs_backend.py b/vigs/gs_backend.py
+index 23fc06ad..432d70b0 100644
+--- a/vigs/gs_backend.py
++++ b/vigs/gs_backend.py
+@@ -2239,6 +2239,10 @@ class GSBackEnd(mp.Process):
+         self._dense_pose_optimizers = {}
+         self._dense_pose_alignment_count = 0
+         self._anchor_export_id = 0  # exp55 carve verification: running COLMAP POINT3D_ID counter
++        # Optional paired initialization-density diagnostic.  This counter is
++        # independent because the secondary log can contain a different number
++        # of samples from exactly the same depth/pose packet.
++        self._anchor_secondary_export_id = 0
+         self._mapping_causal_carve_enabled = bool(
+             getattr(self.args, "mapping_causal_carve", False)
+         )
+@@ -5496,6 +5500,12 @@ class GSBackEnd(mp.Process):
+         explicit_stride = os.environ.get("VIGS_DEPTH_ANCHOR_STRIDE")
+         if explicit_stride is not None:
+             stride = int(explicit_stride)
++        secondary_pts_log = os.environ.get("VIGS_DEPTH_ANCHOR_SECONDARY_LOG")
++        secondary_stride = int(
++            os.environ.get("VIGS_DEPTH_ANCHOR_SECONDARY_STRIDE", "20")
++        )
++        if secondary_pts_log and secondary_stride < 1:
++            raise ValueError("VIGS_DEPTH_ANCHOR_SECONDARY_STRIDE must be positive")
+         write_color = bool(os.environ.get("VIGS_DEPTH_ANCHOR_WITH_COLOR"))
+         stop_after_first = bool(os.environ.get("VIGS_DEPTH_ANCHOR_STOP_AFTER_FIRST"))
+         R = viewpoint.R.detach().cpu().numpy().astype(np.float64)
+@@ -5659,6 +5669,41 @@ class GSBackEnd(mp.Process):
+                             f"{int(c[0])} {int(c[1])} {int(c[2])} 0\n"
+                         )
+                         self._anchor_export_id += 1
++            if secondary_pts_log:
++                # A second grid is evaluated from the same BA-refined depth,
++                # camera intrinsics, and pose.  This makes stride the only
++                # initialization variable; no point duplication or jitter is
++                # introduced.  Colors are intentionally neutral because the
++                # replay dataset builder applies the same neutral initialization
++                # color to both arms.
++                secondary_ys = np.arange(0, H, secondary_stride)
++                secondary_xs = np.arange(0, W, secondary_stride)
++                secondary_grid_y, secondary_grid_x = np.meshgrid(
++                    secondary_ys, secondary_xs, indexing="ij"
++                )
++                secondary_depth = depth_np[secondary_grid_y, secondary_grid_x]
++                secondary_valid = (
++                    (secondary_depth > 0.01)
++                    & (secondary_depth < 20.0)
++                    & np.isfinite(secondary_depth)
++                )
++                secondary_py = secondary_grid_y[secondary_valid].astype(np.float64)
++                secondary_px = secondary_grid_x[secondary_valid].astype(np.float64)
++                secondary_z = secondary_depth[secondary_valid].astype(np.float64)
++                if len(secondary_z):
++                    secondary_x = (secondary_px - cx) / fx * secondary_z
++                    secondary_y = (secondary_py - cy) / fy * secondary_z
++                    secondary_cam = np.stack(
++                        [secondary_x, secondary_y, secondary_z], axis=1
++                    )
++                    secondary_world = (secondary_cam - T[None, :]) @ R
++                    with open(secondary_pts_log, "a") as secondary_file:
++                        for point in secondary_world:
++                            secondary_file.write(
++                                f"{self._anchor_secondary_export_id} "
++                                f"{point[0]} {point[1]} {point[2]} 0 0 0 0\n"
++                            )
++                            self._anchor_secondary_export_id += 1
+         if stop_after_first:
+             import sys
+             sys.stdout.flush()

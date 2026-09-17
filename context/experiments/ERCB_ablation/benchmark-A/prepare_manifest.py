@@ -60,10 +60,13 @@ def main() -> None:
             schedule = schedules / family / f"{scene}_event{budget}.json"
             total = transform_schedule(dataset / "causal_arrivals.json", schedule, budget)
             checkpoints = sorted({max(1, total // 4), max(1, total // 2), total})
-            for arm in ("rr", "ercb"):
-                scheduler = (
-                    "causal_rr" if arm == "rr" else "relative_floor_interval_softmax_rr"
-                )
+            for arm in ("rr", "window10_rr", "ercb"):
+                scheduler = {
+                    "rr": "causal_rr",
+                    "window10_rr": "recent_interval_window_rr",
+                    "ercb": "relative_floor_interval_softmax_rr",
+                }[arm]
+                scheduler_block_size = 10 if arm == "window10_rr" else 8
                 output = RESULT_ROOT / family / scene / f"event{budget}" / f"{arm}_s{SEED}"
                 argv = [
                     PYTHON,
@@ -77,7 +80,7 @@ def main() -> None:
                     "--view_scheduler", scheduler,
                     "--scheduler_seed", str(SEED),
                     "--scheduler_beta", str(math.log(3.0)),
-                    "--scheduler_block_size", "8",
+                    "--scheduler_block_size", str(scheduler_block_size),
                     "--position_lr_max_steps", str(total),
                     "--densify_until_iter", "0",
                     "--data_device", "cpu",
@@ -93,17 +96,31 @@ def main() -> None:
                     "output": str(output), "argv": argv, "state": "pending",
                 })
     manifest = {
-        "protocol": "benchmark-A_exp03_budget_sweep_all_valid_exp80_scenes",
+        "protocol": "benchmark-A_exp03_budget_sweep_full_rr_window10_rr_ercb",
         "state": "PREPARED_NOT_RUN",
         "device": "NVIDIA GeForce RTX 5070 Ti",
         "repo_head": subprocess.check_output(
             ["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True
         ).strip(),
+        "implementation_sha256": {
+            "train.py": sha256(REPO / "train.py"),
+            "runtime/scheduler.py": sha256(REPO / "runtime/scheduler.py"),
+            "exp77/run_training.py": sha256(ROOT / "context/experiments/exp77/run_training.py"),
+        },
         "contract": {
             "updates_per_event": list(BUDGETS),
             "seed": SEED,
-            "arms": ["causal_rr", "relative_floor_interval_softmax_rr"],
+            "arms": [
+                "causal_rr",
+                "recent_interval_window_rr(window=10)",
+                "relative_floor_interval_softmax_rr",
+            ],
             "ercb": {"K": 8, "rho": 0.5, "gamma": "log(3)"},
+            "window10_rr": {
+                "window_intervals": 10,
+                "active_pool": "union of frames in latest 10 non-empty keyframe intervals",
+                "inner_policy": "causal random reshuffling",
+            },
             "resolution": 4,
             "loss": "RGB-only",
             "fixed_topology": True,
@@ -117,7 +134,7 @@ def main() -> None:
     }
     destination = HERE / "evidence/manifest.json"
     destination.write_text(json.dumps(manifest, indent=2) + "\n")
-    print(f"{destination}: {len(jobs)} jobs, {len(jobs)//2} valid scenes")
+    print(f"{destination}: {len(jobs)} jobs, {len(jobs)//3} valid scene-budget groups")
 
 
 if __name__ == "__main__":

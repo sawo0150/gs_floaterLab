@@ -1,0 +1,223 @@
+{
+  "protocol": "benchmark-A_same-depth-pose_stride40_vs_stride20_low-budget",
+  "manifest_state": "FINISHED_8_COMPLETE_0_FAILED",
+  "datasets": [
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "control_points": 8554,
+      "dense_points": 31185,
+      "density_ratio": 3.6456628477905073,
+      "pose_source_sha256": "7cbb804be4e340edfc355bf278ce50c6fb912b8162388038555062bf3a53429b",
+      "keyframe_source_sha256": "a8300321b1181e4443dd1e43bf571a5e05dbcd74db62a339fedec43cfc8d47e3"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "control_points": 25762,
+      "dense_points": 100157,
+      "density_ratio": 3.887780451828274,
+      "pose_source_sha256": "6ee9798d1db76850d9a5d40a7ae28535dc0015c90d3c22d43e84b0ed22e5ab12",
+      "keyframe_source_sha256": "ca50b05fe67132a906fb1807580b6c541212ac3ac9bbd3db2942e4e2da315a9f"
+    }
+  ],
+  "runs": [
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride40",
+      "arm": "rr",
+      "seed": 0,
+      "updates": 1186,
+      "initial_gaussians": 8554,
+      "heldout_psnr_db": 16.190722734621257,
+      "training_gpu_seconds": 3.37666476893425,
+      "wall_seconds": 36.04815912246704,
+      "unique_selected": 1014,
+      "zero_service_views": 398,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/utmm/square-1/stride40/rr_s0"
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride40",
+      "arm": "ercb",
+      "seed": 0,
+      "updates": 1186,
+      "initial_gaussians": 8554,
+      "heldout_psnr_db": 16.83665614553017,
+      "training_gpu_seconds": 3.3462474246025087,
+      "wall_seconds": 35.303696393966675,
+      "unique_selected": 845,
+      "zero_service_views": 567,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/utmm/square-1/stride40/ercb_s0"
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride20",
+      "arm": "rr",
+      "seed": 0,
+      "updates": 1186,
+      "initial_gaussians": 31185,
+      "heldout_psnr_db": 17.61820082617278,
+      "training_gpu_seconds": 3.9407694404125215,
+      "wall_seconds": 36.41412711143494,
+      "unique_selected": 1014,
+      "zero_service_views": 398,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/utmm/square-1/stride20/rr_s0"
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride20",
+      "arm": "ercb",
+      "seed": 0,
+      "updates": 1186,
+      "initial_gaussians": 31185,
+      "heldout_psnr_db": 17.758130437076684,
+      "training_gpu_seconds": 3.935917310714722,
+      "wall_seconds": 36.133415937423706,
+      "unique_selected": 845,
+      "zero_service_views": 567,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/utmm/square-1/stride20/ercb_s0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride40",
+      "arm": "rr",
+      "seed": 0,
+      "updates": 3616,
+      "initial_gaussians": 25762,
+      "heldout_psnr_db": 21.395126518929843,
+      "training_gpu_seconds": 9.90683725118637,
+      "wall_seconds": 38.368245363235474,
+      "unique_selected": 1862,
+      "zero_service_views": 330,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/rpng/table_01/stride40/rr_s0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride40",
+      "arm": "ercb",
+      "seed": 0,
+      "updates": 3616,
+      "initial_gaussians": 25762,
+      "heldout_psnr_db": 22.187006263975885,
+      "training_gpu_seconds": 10.022032090902329,
+      "wall_seconds": 38.11876845359802,
+      "unique_selected": 1700,
+      "zero_service_views": 492,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/rpng/table_01/stride40/ercb_s0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride20",
+      "arm": "rr",
+      "seed": 0,
+      "updates": 3616,
+      "initial_gaussians": 100157,
+      "heldout_psnr_db": 21.663620171273593,
+      "training_gpu_seconds": 16.793964176654814,
+      "wall_seconds": 46.71571707725525,
+      "unique_selected": 1862,
+      "zero_service_views": 330,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/rpng/table_01/stride20/rr_s0"
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride20",
+      "arm": "ercb",
+      "seed": 0,
+      "updates": 3616,
+      "initial_gaussians": 100157,
+      "heldout_psnr_db": 22.734450583245344,
+      "training_gpu_seconds": 16.96656163740158,
+      "wall_seconds": 46.47367715835571,
+      "unique_selected": 1700,
+      "zero_service_views": 492,
+      "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/ERCB_ablation/benchmark-A_init_density_pilot/rpng/table_01/stride20/ercb_s0"
+    }
+  ],
+  "density_comparisons": [
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "arm": "rr",
+      "control_psnr_db": 16.190722734621257,
+      "dense_psnr_db": 17.61820082617278,
+      "dense_minus_control_db": 1.4274780915515244,
+      "training_gpu_ratio": 1.1670597201913875,
+      "wall_ratio": 1.0101521963361453
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "arm": "ercb",
+      "control_psnr_db": 16.83665614553017,
+      "dense_psnr_db": 17.758130437076684,
+      "dense_minus_control_db": 0.9214742915465131,
+      "training_gpu_ratio": 1.1762182562403491,
+      "wall_ratio": 1.0235023419133762
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "arm": "rr",
+      "control_psnr_db": 21.395126518929843,
+      "dense_psnr_db": 21.663620171273593,
+      "dense_minus_control_db": 0.26849365234375,
+      "training_gpu_ratio": 1.6951892668514053,
+      "wall_ratio": 1.217561987393313
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "arm": "ercb",
+      "control_psnr_db": 22.187006263975885,
+      "dense_psnr_db": 22.734450583245344,
+      "dense_minus_control_db": 0.5474443192694594,
+      "training_gpu_ratio": 1.6929262931420133,
+      "wall_ratio": 1.2191809715712123
+    }
+  ],
+  "scheduler_effect": [
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride40",
+      "ercb_minus_rr_db": 0.6459334109089134
+    },
+    {
+      "family": "utmm",
+      "scene": "square-1",
+      "density": "stride20",
+      "ercb_minus_rr_db": 0.1399296109039021
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride40",
+      "ercb_minus_rr_db": 0.7918797450460424
+    },
+    {
+      "family": "rpng",
+      "scene": "table_01",
+      "density": "stride20",
+      "ercb_minus_rr_db": 1.0708304119717518
+    }
+  ],
+  "aggregate": {
+    "dense_positive_pairs": 4,
+    "dense_total_pairs": 4,
+    "mean_dense_minus_control_db_by_arm": {
+      "rr": 0.8479858719476372,
+      "ercb": 0.7344593054079862
+    }
+  },
+  "interpretation": "GO for broader initialization-density validation; this is fixed-replay diagnostic evidence, not strict end-to-end VIGS evidence."
+}

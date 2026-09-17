@@ -12,7 +12,7 @@ from pathlib import Path
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, required=True)
-    parser.add_argument("--arm", choices=("rr", "ercb", "packet", "interval_base", "coverage1", "coverage2", "window", "window_control"), required=True)
+    parser.add_argument("--arm", choices=("rr", "ercb", "window10_rr", "packet", "interval_base", "coverage1", "coverage2", "window", "window_control"), required=True)
     parser.add_argument("--packet-size", type=int, default=4)
     parser.add_argument("--repeats", type=int, default=2)
     args, training_args = parser.parse_known_args()
@@ -48,7 +48,10 @@ def main():
 
     def make(name, seed=0, beta=1.0, block_size=128, phase_start=0, loss_alpha=.5):
         nonlocal draws
-        expected = "causal_rr" if args.arm == "rr" else "relative_floor_interval_softmax_rr"
+        expected = {
+            "rr": "causal_rr",
+            "window10_rr": "recent_interval_window_rr",
+        }.get(args.arm, "relative_floor_interval_softmax_rr")
         if name != expected:
             raise ValueError(f"arm {args.arm} requires {expected}, got {name}")
         sampler = (PacketIntervalRandomReshuffling(seed, beta, block_size, args.packet_size, args.repeats)
@@ -97,6 +100,7 @@ def main():
                 "includes_loading_and_evaluation": True,
                 "repo_head": subprocess.check_output(["git", "-C", str(args.repo), "rev-parse", "HEAD"], text=True).strip(),
                 "train_py_sha256": hashlib.sha256((args.repo / "train.py").read_bytes()).hexdigest(),
+                "scheduler_py_sha256": hashlib.sha256((args.repo / "runtime/scheduler.py").read_bytes()).hexdigest(),
                 "packet_py_sha256": hashlib.sha256((args.repo / "runtime/packet_scheduler.py").read_bytes()).hexdigest(),
                 "argv": training_args}, indent=2) + "\n")
 
