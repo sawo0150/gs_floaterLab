@@ -72,6 +72,11 @@ SEQUENCES: dict[tuple[str, str], tuple[str, int, str, str]] = {
 SENTINELS = (("utmm", "fast-straight"), ("rpng", "table_07"))
 
 EXPECTED_HASHES = {
+    PAPER_ROOT / "vigs/gaussian/renderer/__init__.py": "a9ea3d2701ad6b4382a3a1a6c6099559043a3a1300b539ba542f4fd2192f0a9c",
+    PAPER_ROOT / "vigs/gaussian/scene/gaussian_model.py": "9e42b1c100817ee9a01672cbbcc3b7fb2a97ac42ddc6e7a50e4fd14369e6ed2a",
+    PAPER_ROOT / "vigs/gaussian/utils/camera_utils.py": "0698ca062fa62a1be388cc841897534754af80237b4fbb1b8b9b36a85847b810",
+    PAPER_ROOT / "vigs/gs_backend.py": "97fbc00b85b9241ea73b7b97e152fbf8ed7b83bc142990a01fa9ae81b15c5853",
+    PAPER_ROOT / "vigs/map_scheduler.py": "7495509ff5bd784d82782b48085f5c76c3e40e9ad875f1fa67b854d8f9c0d050",
     ARCHIVE_READER: "19ebd0f5c296e6fe59c5927b92a6c2d961689367d8bb8407797823c51a622432",
     CUSTOM_HARNESS: "e0a2bcf50ae1354bb79efe79009f1e23567243942a6d358b95a8c5937c16bf16",
     VANILLA_HARNESS: "cabdb4df902bfb278b0b590af5dcf31b40921bd76a09d3225991a4f9b3741765",
@@ -275,9 +280,17 @@ def require_predeclared_state() -> dict[str, Any]:
 
     paper_commit = git_output(PAPER_ROOT, "rev-parse", "HEAD")
     official_commit = git_output(OFFICIAL_ROOT, "rev-parse", "HEAD")
-    if paper_commit != PAPER_COMMIT:
+    paper_contains_snapshot = subprocess.run(
+        (
+            "git", "-C", str(PAPER_ROOT), "merge-base", "--is-ancestor",
+            PAPER_COMMIT, paper_commit,
+        ),
+        check=False,
+    ).returncode == 0
+    if not paper_contains_snapshot:
         raise RuntimeError(
-            f"paper source moved: expected {PAPER_COMMIT}, got {paper_commit}"
+            "paper source does not contain the committed ERCB snapshot: "
+            f"required ancestor {PAPER_COMMIT}, got {paper_commit}"
         )
     if official_commit != OFFICIAL_COMMIT:
         raise RuntimeError(
