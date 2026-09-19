@@ -1,43 +1,96 @@
-% ============================================================
-% 1. Introduction  —  계획: sections/01_intro/plan/CURRENT.md
-% 5문단: 문제 / 간극 / 왜 단순한 답이 안 되나 / 우리 방법 / 기여 목록
-% ============================================================
 \section{Introduction}
 \label{sec:intro}
 
-\begin{figure*}[t]
-  \centering
-  \fbox{\parbox[c][3.2cm][c]{0.96\textwidth}{\centering
-    \textbf{Fig.\,1 \textemdash\ Teaser}\\[2pt]
-    \small left: concept \quad|\quad middle: renders \quad|\quad right: PSNR vs.\ wall-time}}
-  \caption{\skel{FIG.1} View growth and count balancing, separated, give a better map at the
-           same wall-clock budget. (P02, P03)}
-  \label{fig:teaser}
-\end{figure*}
+Robots and wearable augmented-reality systems often need a map before data
+collection is complete. Reconstructing scene appearance supports visualization
+from new viewpoints, while reconstructing geometry supports occlusion and
+spatial interaction. For these applications, the map must be refined as new
+observations arrive. High reconstruction quality achieved only after an
+offline refinement stage does not meet this online requirement.
 
-% 문단 1 · 문제: GS-SLAM은 Gaussian 초기화를 상당 부분 풀었다. 남은 것은 제한된
-%   mapping update를 어떤 supervision에 배분할지다.
-\skel{P1 PROBLEM}\; \lipsum[1-2]
+A map represented by explicit, colored Gaussian primitives can be rendered
+efficiently and refined through image-based optimization. This representation,
+3D Gaussian Splatting (3DGS), combines high-quality view synthesis with fast
+rendering~\cite{kerbl20233dgs}. Recent SLAM systems have extended it to map
+construction during camera tracking~\cite{matsuki2024monogs,splatam2024,
+huang2024photoslam,rtgslam2024}. However, fast rendering does not imply fast
+map refinement. A system can display its current map at a high frame rate
+while recently observed regions remain poorly reconstructed. Online mapping
+must also share computation with tracking, limiting the number of map
+optimization steps, or \emph{mapping updates}, that can be completed as the
+stream arrives. The challenge is therefore to obtain a useful map from these
+limited updates, not merely to render it quickly.
 
-% 문단 2 · 간극: tracker keyframe은 tracking 기준으로 골라진 표본이며, photometric map
-%   optimization에 좋은 집합과 같아야 할 이유가 없다. keyframe 사이 RGB는 이미 도착해 있다.
-\skel{P2 GAP}\; \lipsum[3-4]
+Existing methods improve the use of online computation in several ways.
+Photo-SLAM progressively refines scene appearance using geometry-based
+densification and Gaussian-pyramid learning~\cite{huang2024photoslam}.
+CaRtGS accelerates backpropagation and addresses uneven keyframe optimization
+by assigning additional iterations according to rendering loss~\cite{cartgs}.
+These advances establish that both the cost of each update and its allocation
+matter. A further question concerns the observations used for mapping:
+\emph{when should additional images enter optimization, and how should updates
+be distributed across the resulting growing set?}
 
-% 문단 3 · 왜 단순한 답이 안 되나: 전부 버리면 coverage 손실, 전부 넣으면 update 희석.
-%   고정 FPS는 GPU가 실제로 감당한 service를 반영 못 하고, maturity gate는 growth와
-%   ordering을 하나로 묶어 버린다.
-\skel{P3 WHY NOT SIMPLE}\; \lipsum[5-6]
+Images selected for camera tracking, called \emph{keyframes}, need not provide
+all the observations useful for appearance reconstruction. Frames between
+keyframes can supply additional viewpoints and texture evidence. We refer to
+the images used for map optimization as \emph{training views}. Adding more
+training views provides more supervision, but also distributes the available
+mapping updates over a larger set. Moreover, uniform selection from the
+current set does not equalize accumulated training: views added early remain
+eligible for longer, whereas later views have fewer opportunities to be
+selected. CaRtGS addresses uneven optimization within a keyframe
+pool~\cite{cartgs}; here, we consider both expansion beyond tracking keyframes
+and update allocation within that expanded training-view set. These decisions
+must be made without knowing the remaining stream length or future
+optimization capacity.
 
-% 문단 4 · 우리 방법: 세 결정으로 분해. §3.0에서 붙인 문제 이름과 같은 이름을 쓴다.
-\skel{P4 OURS}\; \lipsum[7]
+Better appearance alone is not sufficient for a reliable map. Gaussians at
+incorrect depths can reproduce observed colors, leaving spurious structure
+between the camera and a real surface~\cite{deng2022dsnerf,stablegs}. Depth
+and normal constraints help resolve this ambiguity~\cite{huang20242dgs,
+chen2024pgsr}. However, matching a single average rendered depth can still
+leave incorrect contributions in front of and behind the surface. This
+motivates directly constraining where the map places opacity along a viewing
+ray. In an online system, such constraints must use depth evidence already
+available at the current time.
 
-% 문단 5 · 기여 목록
-\skel{P5 CONTRIBUTIONS}
-\begin{itemize}\itemsep1pt \parskip0pt \topsep2pt
-  \item \textbf{Compute-Paced View Growth.} Completed GPU service sets how fast the training
-        view set grows. \pend{verb: propose vs.\ show \textemdash\ pending P01/P02}
-  \item \textbf{Entropy-Regularized Count Balancing (ERCB).} Posing selection-count imbalance
-        as an entropy-regularized problem makes the solution unique:
-        $p(i)\propto\exp(-\beta n_i)$.
-  \item \textbf{Causal Free-Space Carving.} \pend{title and content pending teammate}
+Our aim is to improve map appearance and geometry under the limited mapping
+updates available during online operation. We build on the visual--inertial
+tracking and Gaussian mapping pipeline of VIGS-SLAM~\cite{vigsslam}.
+First, we expand the training-view set beyond tracking keyframes only as
+mapping updates are completed. This rule, \emph{Optimization-Guided View
+Growth}, ties the addition of observations to completed optimization work.
+Second, we give higher selection probabilities to views that have received
+fewer updates. We retain randomness so that this preference does not reduce
+selection to a deterministic least-count rule. Our \emph{Entropy-Regularized
+View Sampling} expresses this trade-off through a count-dispersion objective
+and an entropy term. Sampling without replacement further prevents repeated
+selection of the same view within a group of updates. Finally, we use
+available depth evidence to distinguish empty space in front of observed
+surfaces from the surfaces themselves. We formulate corresponding constraints
+on Gaussian opacity along viewing rays, rather than relying on color
+agreement alone.
+
+We compare rendering quality with VIGS-SLAM on RPNG, UTMM, and Aria.
+Separate ablations examine the use of frames between keyframes at a fixed
+update budget and compare view-selection policies at several update budgets.
+These experiments assess how the choice and allocation of training views
+affect the quality obtained from limited mapping updates.
+
+Our contributions are:
+\begin{itemize}
+    \item Optimization-Guided View Growth, which expands the training-view
+    set beyond tracking keyframes according to completed mapping updates.
+    \item Entropy-Regularized View Sampling, which favors less frequently
+    selected training views while retaining randomized selection and avoiding
+    repetition within each group of updates.
+    \item Depth-supported constraints on Gaussian opacity along viewing
+    rays, formulated to distinguish observed free space from surface evidence
+    using only observations available at the current time.
 \end{itemize}
+
+% AUTHOR NOTE: Sec. 3.3 still contains Carve, Hit, and Carve+Hit candidates.
+% Specify the selected geometry objective here after that choice is finalized.
+% Do not claim faster geometric convergence or time-resolved quality gains
+% until the corresponding measurements are reported in the experiments.

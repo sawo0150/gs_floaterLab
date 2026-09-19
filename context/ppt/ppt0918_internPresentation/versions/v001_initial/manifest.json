@@ -1,0 +1,10 @@
+{
+  "version": "v001_initial",
+  "created_utc": "2026-09-17T08:37:13.036042+00:00",
+  "message": "Initial deck. Incorrect presenter emphasis. Historical binary files only; exact source was not preserved.",
+  "source_available": false,
+  "sha256": {
+    "Internship_20260918.pdf": "1ffc61b606fa2da3a60c85179e33f04a9cdffb1d3cb1324d8c5c3dfecd1195c9",
+    "Internship_20260918.pptx": "0b2eb937fbcca888a6f9a42be20c6f0cf1ac713d691b3b005893e1e744e578f3"
+  }
+}
