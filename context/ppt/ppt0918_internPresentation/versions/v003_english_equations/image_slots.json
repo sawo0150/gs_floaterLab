@@ -1,0 +1,68 @@
+[
+  {
+    "slide": 3,
+    "key": "online_map",
+    "label": "ONLINE MAP / DEMO FRAME",
+    "bounds_inches": [
+      5.05,
+      1.82,
+      4.45,
+      2.12
+    ]
+  },
+  {
+    "slide": 5,
+    "key": "underoptimized_crop",
+    "label": "RECENT REGION / BLURRY RENDER",
+    "bounds_inches": [
+      0.55,
+      2.19,
+      4.1,
+      1.65
+    ]
+  },
+  {
+    "slide": 5,
+    "key": "floater_crop",
+    "label": "FLOATER CLOSE-UP",
+    "bounds_inches": [
+      5.3,
+      2.19,
+      4.1,
+      1.65
+    ]
+  },
+  {
+    "slide": 9,
+    "key": "result_baseline",
+    "label": "MATCHED VIEW / BASELINE",
+    "bounds_inches": [
+      0.55,
+      2.13,
+      4.1,
+      1.73
+    ]
+  },
+  {
+    "slide": 9,
+    "key": "result_proposed",
+    "label": "MATCHED VIEW / PROPOSED",
+    "bounds_inches": [
+      5.3,
+      2.13,
+      4.1,
+      1.73
+    ]
+  },
+  {
+    "slide": 9,
+    "key": "result_metric",
+    "label": "KEY METRIC / EVALUATION CONDITIONS",
+    "bounds_inches": [
+      0.55,
+      4.08,
+      8.85,
+      0.48
+    ]
+  }
+]

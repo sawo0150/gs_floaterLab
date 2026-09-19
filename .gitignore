@@ -71,3 +71,42 @@ paper/refs/**
 # 로컬 LaTeX 빌드 (paper/scripts/tex.sh)
 paper/build/
 paper/.sync-snapshot/
+
+# Machine-local worktrees, third-party checkouts, and raw experiment exports.
+/.codex-work/
+/outputs/
+/tmp/
+/repos/reference/*/
+/repos/reference/VIGS-SLAM-custom
+/repos/reference/VIGS-SLAM-visible-lazy-carve
+/repos/reference/gsSLAM_lab
+/context-pre-exp66-68-reorg-20260826.tar.gz
+*.prepull-untracked-*.py
+
+# Reproducible presentation intermediates; source decks and final videos stay tracked.
+/context/ppt/ppt0918_internPresentation/**/rendered/
+/context/ppt/ppt0918_internPresentation/**/segments/
+/context/ppt/ppt0918_internPresentation/**/slides/
+
+# Raw evidence is retained on its originating machine, not uploaded to Git.
+/context/**/evidence/**/*.ply
+/context/**/evidence/**/*.pkl
+/context/**/evidence/**/*.pt
+/context/**/evidence/**/*.pth
+/context/**/evidence/**/*.npz
+/context/**/evidence/**/*.npy
+/context/**/evidence/**/*.png
+/context/**/evidence/**/*.jpg
+/context/**/evidence/**/*.log
+/context/**/evidence/**/test/
+/context/**/evidence/**/train/
+/context/**/evidence/**/cameras.json
+/context/**/evidence/**/exposure.json
+/context/**/evidence/**/cfg_args
+/context/**/evidence/**/gaussian_metrics/
+/context/**/evidence/**/schedules/
+/context/**/evidence/**/schedules_fps/
+/context/**/evidence/**/schedules_kfrr/
+/context/**/evidence/**/schedules_budget/
+/context/**/evidence/**/k_pools/
+/context/**/evidence/**/eligible/

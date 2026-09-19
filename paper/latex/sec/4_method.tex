@@ -2,22 +2,8 @@
 \section{Method}
 \label{sec:method}
 
-Our goal is to make the Gaussian map converge faster in 3DGS SLAM,
-in both rendering quality and geometry.
-Instead of letting keyframe selection fix both the set of training views
-and which of them each mapping iteration sees, we decouple the two and
-drive each from what optimization has already done---the total work completed,
-and how many times each view has been selected.
-We first add the frames between keyframes to the training views, and let
-the amount of GPU work already completed, rather than the keyframe rule,
-determine how fast that set grows (\S\ref{ssec:growth}).
-We then select views in blocks, drawn from a distribution that solves a
-single objective: it both evens out how many times each view has been selected
-and retains enough randomness that gradients from successive iterations stay
-uncorrelated (\S\ref{ssec:ercb}).
-Finally, we constrain the free space that photometric loss alone is slow to
-resolve, using a carve term built only from frames that have already arrived,
-so that geometry converges sooner (\S\ref{ssec:carve} -  Detailed sentences need to be modified).
+Our goal is to improve the rendering and geometric quality of the Gaussian map under the limited mapping updates available in online 3DGS SLAM. Instead of letting keyframe selection fix both the set of training views
+and which of them each mapping iteration sees, we decouple the two and drive each from optimization progress already observed---the number of completed mapping updates and how many times each view has been selected. We first add the frames between keyframes to the training views and let the number of completed mapping updates, rather than the keyframe rule, determine how fast that set grows (\S\ref{ssec:growth}). We then sample views from a distribution that favors under-selected views while retaining stochasticity, and use sampling without replacement to reduce repetitive view selections across consecutive mapping updates (\S\ref{ssec:ercb}). Finally, we constrain free-space violations that photometric supervision does not directly constrain, using only observations that have already arrived, so that geometry converges sooner (\S\ref{ssec:carve} -  Detailed sentences need to be modified).
 
 
 
@@ -55,31 +41,31 @@ where $M(t)$ is the number of views available by time $t$. The minimum prevents 
 
 The training-view set grows over time as new observations become available and mapping optimization proceeds. A simple strategy is to sample uniformly from the views currently in the set. Although this gives every available view the same probability at a given time, it does not account for when each view entered the training set. Views added early remain eligible for selection for longer and can therefore receive substantially more mapping updates, whereas views added later have fewer opportunities to be selected. If this difference accumulates, optimization can become unevenly distributed along the trajectory, leaving less frequently optimized regions with lower reconstruction quality. We therefore want to give more opportunities to views that have received fewer updates. A purely deterministic least-count rule, however, removes the randomization commonly used in stochastic optimization to reduce systematic ordering effects~[cite]. This is particularly relevant for SLAM, where nearby camera frames often contain highly similar observations. Our goal is therefore to favor under-selected views while retaining randomness in the selection process.
 
-Let \(N_t\) be the number of views in the training set at time \(t\), and let \(n_i\) denote the number of times view \(i\) has been selected for a mapping update. We denote the mean selection count by
+Let \(s\) index mapping-view selections, and let \(N_s\) be the number of views available for training at selection step \(s\). Let \(n_i\) denote the number of times view \(i\) has been selected for a mapping update. We denote the mean selection count by
 
 $$
-\bar n = \frac{1}{N_t}\sum_i n_i.
+\bar n = \frac{1}{N_s}\sum_i n_i.
 $$
 
 Because the scale of the raw count variance changes as selections accumulate, we measure the dispersion relative to the current mean count:
 \begin{equation}
 \Phi(\mathbf n)
 =
-\frac{1}{2N_t\bar n}
-\sum_{i=1}^{N_t}
+\frac{1}{2N_s\bar n}
+\sum_{i=1}^{N_s}
 (n_i-\bar n)^2.
 \label{eq:count_dispersion}
 \end{equation}
-A smaller \(\Phi\) indicates that the accumulated selection counts are more evenly distributed across the current training views. Let \(T=\sum_i n_i=N_t\bar n\) be the total number of selections made so far. For a single selection step, with the training set held fixed, selecting view \(i\) once more changes the dispersion by
+A smaller \(\Phi\) indicates that the accumulated selection counts are more evenly distributed across the current training views. Let \(T=\sum_i n_i=N_s\bar n\) be the total number of selections made so far. For a single selection step, with the training set held fixed, selecting view \(i\) once more changes the dispersion by
 \begin{equation}
 \Delta_i\Phi
 =
 \Phi(\mathbf n+\mathbf e_i)-\Phi(\mathbf n)
 =
-\frac{n_i}{T+1}+C_t,
+\frac{n_i}{T+1}+C_s,
 \label{eq:count_dispersion_increment}
 \end{equation}
-where \(C_t\) is independent of the selected view. Thus, views with smaller selection counts produce a smaller increase in \(\Phi\). Greedily minimizing this change would recover a deterministic least-count rule. Instead, we use \(\Delta_i\Phi\) to define a probability distribution over the available views.
+where \(C_s\) is independent of the selected view. Thus, views with smaller selection counts produce a smaller increase in \(\Phi\). Greedily minimizing this change would recover a deterministic least-count rule. Instead, we use \(\Delta_i\Phi\) to define a probability distribution over the available views.
 
 Let \(p_i\) denote the probability of selecting view \(i\) for the next mapping update. We seek a distribution that favors views with smaller \(\Delta_i\Phi\) without concentrating all probability on a single view. We express these two objectives jointly as
 \begin{equation}
@@ -91,7 +77,7 @@ Let \(p_i\) denote the probability of selecting view \(i\) for the next mapping 
 \end{equation}
 where \(H(\mathbf p)=-\sum_i p_i\log p_i\), \(\Delta\) denotes the probability simplex, and \(\tau>0\) controls the strength of the entropy term. The first term favors views that have been selected less often, while the second discourages the distribution from becoming overly concentrated. Solving Eq.~\eqref{eq:entropy_sampling_objective} under the constraint \(\sum_i p_i=1\) gives
 \begin{equation}
-p_t(i)
+p_s(i)
 =
 \frac{
 \exp!\left(-\Delta_i\Phi/\tau\right)
@@ -102,20 +88,20 @@ p_t(i)
 \end{equation}
 Substituting Eq.~\eqref{eq:count_dispersion_increment} removes the term shared by all views and yields
 \begin{equation}
-p_t(i)
+p_s(i)
 =
 \frac{
-\exp(-\beta_t n_i)
+\exp(-\beta_s n_i)
 }{
-\sum_j \exp(-\beta_t n_j)
+\sum_j \exp(-\beta_s n_j)
 },
 \qquad
-\beta_t
+\beta_s
 =
 \frac{1}{\tau(T+1)}.
 \label{eq:entropy_view_sampling}
 \end{equation}
-Views with fewer previous selections therefore receive higher probability, while every available view retains a nonzero probability of being selected. For a fixed \(\tau\), \(\beta_t\) decreases as the total number of selections grows, so the influence of a fixed count difference is gradually reduced relative to the accumulated selection history.
+Views with fewer previous selections therefore receive higher probability, while every available view retains a nonzero probability of being selected. For a fixed \(\tau\), \(\beta_s\) decreases as the total number of selections grows, so the influence of a fixed count difference is gradually reduced relative to the accumulated selection history.
 
 Equation~\eqref{eq:entropy_view_sampling} defines the distribution for a single view selection. If each mapping update samples independently with replacement, however, a small number of high-probability views can be selected repeatedly over a short interval while other views receive no update. To reduce such short-term repetition, we select \(K\) distinct views without replacement for the next \(K\) mapping updates. At the beginning of each group, we compute the sampling probabilities from the current selection counts and use them to select \(K\) distinct views. Each selected view is then used once, and the updated counts are used to compute the distribution for the next group. This preserves the preference for under-selected views while ensuring that the same view is not repeatedly selected within the group. The parameter \(K\) therefore determines the interval over which repeated selections are prevented: \(K=1\) reduces to single-view sampling, whereas larger \(K\) increases the variety of views used over consecutive mapping updates. We evaluate the effect of \(K\) in Sec.~\ref{sec:exp}.
 

@@ -1,104 +1,96 @@
-% Introduction draft: fast photometric/geometric convergence is the thesis.
-% The Carve paragraph and the third contribution are intentionally modular.
-
 \section{Introduction}
 \label{sec:intro}
 
-Robots and wearable augmented-reality systems must use a map while the
-environment is still being observed. A visually convincing map is needed for
-view synthesis, while accurate geometry is needed for interaction, occlusion,
-and spatial reasoning. Final reconstruction quality is therefore not the only
-criterion: a region that becomes accurate only after the camera has moved on
-is of limited use to an online agent. This motivates our central question:
-\emph{how quickly can an online mapper make the appearance and geometry of a
-newly observed region reliable?}
+Robots and wearable augmented-reality systems often need a map before data
+collection is complete. Reconstructing scene appearance supports visualization
+from new viewpoints, while reconstructing geometry supports occlusion and
+spatial interaction. For these applications, the map must be refined as new
+observations arrive. High reconstruction quality achieved only after an
+offline refinement stage does not meet this online requirement.
 
-3D Gaussian Splatting (3DGS) is a compelling representation for this problem.
-Its explicit primitives and differentiable rasterizer support high-quality
-rendering and incremental optimization~\cite{kerbl20233dgs}, and have enabled
-several photorealistic SLAM systems~\cite{matsuki2024monogs,splatam2024,
-huang2024photoslam,rtgslam2024}. However, rendering speed, input-processing
-rate, and map convergence describe different properties. A system may render
-an inaccurate map at high frame rate or keep pace with a camera stream while
-leaving recently observed areas under-optimized. Real-time operation is thus a
-necessary system constraint, but it does not by itself establish that a useful
-map is formed quickly.
+A map represented by explicit, colored Gaussian primitives can be rendered
+efficiently and refined through image-based optimization. This representation,
+3D Gaussian Splatting (3DGS), combines high-quality view synthesis with fast
+rendering~\cite{kerbl20233dgs}. Recent SLAM systems have extended it to map
+construction during camera tracking~\cite{matsuki2024monogs,splatam2024,
+huang2024photoslam,rtgslam2024}. However, fast rendering does not imply fast
+map refinement. A system can display its current map at a high frame rate
+while recently observed regions remain poorly reconstructed. Online mapping
+must also share computation with tracking, limiting the number of map
+optimization steps, or \emph{mapping updates}, that can be completed as the
+stream arrives. The challenge is therefore to obtain a useful map from these
+limited updates, not merely to render it quickly.
 
-We focus on \emph{fast photometric and geometric convergence}. Because an
-online map grows as new observations arrive, convergence here does not mean
-asymptotic convergence to a single fixed-scene optimum. We use the term
-operationally: after a region is first observed, photometric convergence is the
-rate at which its held-out rendering error decreases, and geometric convergence
-is the rate at which its surface and free-space errors decrease. Both are
-measured against elapsed time and completed mapping updates. This view exposes
-a distinction that final-only evaluation hides: two systems can reach similar
-endpoint quality while making that quality available at very different times.
+Existing methods improve the use of online computation in several ways.
+Photo-SLAM progressively refines scene appearance using geometry-based
+densification and Gaussian-pyramid learning~\cite{huang2024photoslam}.
+CaRtGS accelerates backpropagation and addresses uneven keyframe optimization
+by assigning additional iterations according to rendering loss~\cite{cartgs}.
+These advances establish that both the cost of each update and its allocation
+matter. A further question concerns the observations used for mapping:
+\emph{when should additional images enter optimization, and how should updates
+be distributed across the resulting growing set?}
 
-Fast photometric convergence first requires the mapper to use observations for
-their mapping value rather than inherit the tracking policy unchanged. In a
-DROID-SLAM-style frontend, keyframes are selected to maintain pose and dense
-correspondence estimation~\cite{teed2021droid}. They are indispensable for
-tracking, but they are not the only images that constrain scene appearance.
-Frames between keyframes supply additional viewpoints and texture evidence.
-Adding all such frames immediately, however, enlarges the optimization set
-faster than a fixed mapping budget can refine it; uniform sampling from the
-growing set can also leave newly available temporal regions with substantially
-fewer updates. The relevant problem is therefore not simply to use more
-frames, but to control when they enter mapping and how the available updates
-are distributed across them.
+Images selected for camera tracking, called \emph{keyframes}, need not provide
+all the observations useful for appearance reconstruction. Frames between
+keyframes can supply additional viewpoints and texture evidence. We refer to
+the images used for map optimization as \emph{training views}. Adding more
+training views provides more supervision, but also distributes the available
+mapping updates over a larger set. Moreover, uniform selection from the
+current set does not equalize accumulated training: views added early remain
+eligible for longer, whereas later views have fewer opportunities to be
+selected. CaRtGS addresses uneven optimization within a keyframe
+pool~\cite{cartgs}; here, we consider both expansion beyond tracking keyframes
+and update allocation within that expanded training-view set. These decisions
+must be made without knowing the remaining stream length or future
+optimization capacity.
 
-Fast photometric improvement does not guarantee fast geometric improvement.
-Alpha compositing allows color, opacity, scale, and position to compensate for
-one another, so photometric loss can be small even when opacity lies at an
-incorrect depth~\cite{deng2022dsnerf,stablegs}. Depth and normal supervision
-reduce this ambiguity~\cite{huang20242dgs,chen2024pgsr}, but a loss on a single
-rendered depth statistic need not identify separated opacity modes along the
-ray. In particular, Gaussian opacity in front of an observed surface can
-survive when color gradients become weak. An online method therefore needs a
-geometric signal that acts directly on such free-space violations without
-requiring expensive global reconstruction or post-processing.
+Better appearance alone is not sufficient for a reliable map. Gaussians at
+incorrect depths can reproduce observed colors, leaving spurious structure
+between the camera and a real surface~\cite{deng2022dsnerf,stablegs}. Depth
+and normal constraints help resolve this ambiguity~\cite{huang20242dgs,
+chen2024pgsr}. However, matching a single average rendered depth can still
+leave incorrect contributions in front of and behind the surface. This
+motivates directly constraining where the map places opacity along a viewing
+ray. In an online system, such constraints must use depth evidence already
+available at the current time.
 
-We address the two convergence bottlenecks within a DROID-SLAM-based Gaussian
-SLAM architecture. To accelerate photometric convergence, we decouple the
-mapping-view set from the tracking keyframe set. Additional, causally available
-frames are incorporated at a rate paced by completed mapping updates, and our
-Entropy-Regularized Count Balancing (ERCB) sampler applies a bounded correction
-to temporal groups that have received substantially fewer updates than the
-current average. Sampling without replacement is retained to maintain view
-diversity. To accelerate geometric convergence, we currently instantiate the
-framework with a one-sided Carve loss: depth-supported free-space evidence
-reduces the opacity of Gaussians that lie in front of observed surfaces, while
-leaving unobserved space unconstrained. The two components share one objective:
-to make each unit of online optimization produce useful appearance and geometry
-earlier in the trajectory.
+Our aim is to improve map appearance and geometry under the limited mapping
+updates available during online operation. We build on the visual--inertial
+tracking and Gaussian mapping pipeline of VIGS-SLAM~\cite{vigsslam}.
+First, we expand the training-view set beyond tracking keyframes only as
+mapping updates are completed. This rule, \emph{Optimization-Guided View
+Growth}, ties the addition of observations to completed optimization work.
+Second, we give higher selection probabilities to views that have received
+fewer updates. We retain randomness so that this preference does not reduce
+selection to a deterministic least-count rule. Our \emph{Entropy-Regularized
+View Sampling} expresses this trade-off through a count-dispersion objective
+and an entropy term. Sampling without replacement further prevents repeated
+selection of the same view within a group of updates. Finally, we use
+available depth evidence to distinguish empty space in front of observed
+surfaces from the surfaces themselves. We formulate corresponding constraints
+on Gaussian opacity along viewing rays, rather than relying on color
+agreement alone.
 
-We evaluate this objective directly rather than infer it from a final map.
-Controlled incremental experiments hold poses, depths, initialization, input
-order, and optimization budgets fixed to isolate mapping behavior. We report
-held-out photometric and geometric quality as functions of both wall-clock time
-and completed updates, including free-space violations and completeness so that
-removing geometry cannot be mistaken for reconstructing it. End-to-end
-experiments then test whether the same gains survive competition with the
-tracking frontend at the native input rate.
+We compare rendering quality with VIGS-SLAM on RPNG, UTMM, and Aria.
+Separate ablations examine the use of frames between keyframes at a fixed
+update budget and compare view-selection policies at several update budgets.
+These experiments assess how the choice and allocation of training views
+affect the quality obtained from limited mapping updates.
 
 Our contributions are:
 \begin{itemize}
-    \item We formulate online 3DGS mapping around \emph{fast photometric and
-    geometric convergence}, separating the rate at which map quality improves
-    from rendering speed and stream-processing throughput.
-    \item We introduce a mapping-view policy that expands supervision beyond
-    tracking keyframes according to completed mapping work, together with ERCB,
-    which corrects severe update-count deficits while preserving randomized
-    sampling without replacement.
-    \item Under the current Carve instantiation, we introduce opacity-directed
-    free-space supervision from causal depth evidence to suppress premature ray
-    termination without forcing all Gaussians onto the first visible surface.
-    \item We establish an evaluation protocol based on appearance and geometry
-    convergence curves under matched update and wall-clock budgets, followed by
-    a separate end-to-end online test.
+    \item Optimization-Guided View Growth, which expands the training-view
+    set beyond tracking keyframes according to completed mapping updates.
+    \item Entropy-Regularized View Sampling, which favors less frequently
+    selected training views while retaining randomized selection and avoiding
+    repetition within each group of updates.
+    \item Depth-supported constraints on Gaussian opacity along viewing
+    rays, formulated to distinguish observed free space from surface evidence
+    using only observations available at the current time.
 \end{itemize}
 
-% GEOMETRY-MODULE SWITCH:
-% If fixed opacity or another controller wins the final ablation, replace only
-% the geometry sentences in paragraphs 5--6 and contribution 3. The problem
-% statement, photometric path, and convergence-based evaluation remain valid.
+% AUTHOR NOTE: Sec. 3.3 still contains Carve, Hit, and Carve+Hit candidates.
+% Specify the selected geometry objective here after that choice is finalized.
+% Do not claim faster geometric convergence or time-resolved quality gains
+% until the corresponding measurements are reported in the experiments.

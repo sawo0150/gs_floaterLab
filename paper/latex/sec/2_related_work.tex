@@ -59,9 +59,10 @@ fixed causal stream: the question is which already observed images should be
 used by the mapper, and how a fixed number of updates should be distributed
 among them. We expand the mapping-view set beyond tracking keyframes according
 to completed mapping work and use update counts as an inexpensive coverage
-signal. ERCB does not estimate information gain or guarantee non-convex 3DGS
-convergence; it is a bounded correction for severe optimization imbalance in a
-growing view set. Its use of sampling without replacement is motivated by
+signal. Entropy-Regularized View Sampling favors less frequently selected
+views while discouraging an overly concentrated sampling distribution. It
+does not estimate information gain or guarantee non-convex 3DGS convergence.
+Its use of sampling without replacement is motivated by
 random-reshuffling methods~\cite{shamir2016without,mishchenko2020random}, while
 the changing online objective prevents directly inheriting their fixed-sum
 convergence guarantees.

@@ -1,0 +1,22 @@
+[
+  {
+    "slide": 6,
+    "key": "view_growth",
+    "latex": "N(t)-N_0\\;\\approx\\;\\frac{S(t)}{\\kappa}"
+  },
+  {
+    "slide": 7,
+    "key": "ercb_objective",
+    "latex": "\\min_{p\\in\\Delta_N}\\;\\mathbb{E}_{i\\sim p}\\!\\left[\\Delta_i V_{\\mathrm{norm}}(\\mathbf{n})\\right]-\\tau H(p)"
+  },
+  {
+    "slide": 7,
+    "key": "ercb_softmax",
+    "latex": "p_i^*=\\operatorname{softmax}_i(-\\beta n_i)=\\frac{e^{-\\beta n_i}}{\\sum_j e^{-\\beta n_j}}"
+  },
+  {
+    "slide": 7,
+    "key": "ercb_variance",
+    "latex": "V_{\\mathrm{norm}}(\\mathbf{n})=\\frac{1}{2N}\\sum_i(n_i-\\bar n)^2"
+  }
+]

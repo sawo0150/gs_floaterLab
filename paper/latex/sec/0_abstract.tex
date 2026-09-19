@@ -15,8 +15,8 @@ incorrect depth or opacity, leaving spurious structure in observed free space.
 We address these bottlenecks in a DROID-SLAM-based Gaussian mapping pipeline.
 For photometric convergence, we expand the mapping-view set beyond tracking
 keyframes at a rate determined by completed mapping updates, and introduce
-Entropy-Regularized Count Balancing (ERCB) to correct severe imbalances in
-per-view optimization while preserving sampling without replacement. For
+Entropy-Regularized View Sampling to favor less frequently selected views
+while preserving sampling without replacement. For
 geometric convergence, a causal free-space Carve loss uses available depth
 evidence to suppress opacity in front of observed surfaces. We evaluate both
 forms of convergence through held-out appearance and geometry curves against

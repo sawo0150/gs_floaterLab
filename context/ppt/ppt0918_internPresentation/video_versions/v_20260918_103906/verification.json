@@ -1,0 +1,145 @@
+{
+  "source": "Internship_20260918_final.pptx",
+  "source_sha256": "51ea92d4f1de80dc1575d48530cf3cc99f4466996e89980138f1926c69af2fa6",
+  "duration_seconds": 300,
+  "audio_streams": 0,
+  "resolution": "1920x1080",
+  "fps": 30,
+  "frames": 9000,
+  "timeline": [
+    {
+      "slide": 1,
+      "start_seconds": 0,
+      "end_seconds": 15,
+      "duration_seconds": 15
+    },
+    {
+      "slide": 2,
+      "start_seconds": 15,
+      "end_seconds": 45,
+      "duration_seconds": 30
+    },
+    {
+      "slide": 3,
+      "start_seconds": 45,
+      "end_seconds": 70,
+      "duration_seconds": 25
+    },
+    {
+      "slide": 4,
+      "start_seconds": 70,
+      "end_seconds": 100,
+      "duration_seconds": 30
+    },
+    {
+      "slide": 5,
+      "start_seconds": 100,
+      "end_seconds": 125,
+      "duration_seconds": 25
+    },
+    {
+      "slide": 6,
+      "start_seconds": 125,
+      "end_seconds": 160,
+      "duration_seconds": 35
+    },
+    {
+      "slide": 7,
+      "start_seconds": 160,
+      "end_seconds": 200,
+      "duration_seconds": 40
+    },
+    {
+      "slide": 8,
+      "start_seconds": 200,
+      "end_seconds": 230,
+      "duration_seconds": 30
+    },
+    {
+      "slide": 9,
+      "start_seconds": 230,
+      "end_seconds": 275,
+      "duration_seconds": 45
+    },
+    {
+      "slide": 10,
+      "start_seconds": 275,
+      "end_seconds": 300,
+      "duration_seconds": 25
+    }
+  ],
+  "ffprobe": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "width": 1920,
+        "height": 1080,
+        "coded_width": 1920,
+        "coded_height": 1080,
+        "closed_captions": 0,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "7559:7519",
+        "display_aspect_ratio": "120944:67671",
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "refs": 1,
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "time_base": "1/15360",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 4608000,
+        "duration": "300.000000",
+        "bit_rate": "127269",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "9000",
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler",
+          "vendor_id": "[0][0][0][0]"
+        }
+      }
+    ],
+    "format": {
+      "filename": "/home/wosasa/Desktop/Incremental_mapping/gs_floaterLab/context/ppt/ppt0918_internPresentation/video_versions/v_20260918_103906/박상원.mp4",
+      "nb_streams": 1,
+      "nb_programs": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "300.000000",
+      "size": "4881413",
+      "bit_rate": "130171",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf58.76.100"
+      }
+    }
+  }
+}

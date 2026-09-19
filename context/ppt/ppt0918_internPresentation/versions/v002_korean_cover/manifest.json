@@ -1,0 +1,29 @@
+{
+  "version": "v002_korean_cover",
+  "created_utc": "2026-09-17T08:37:13.091354+00:00",
+  "message": "Names corrected to 박상원, 김동휘, 송채현. Source and render snapshot before equation revision.",
+  "source_available": true,
+  "sha256": {
+    "Internship_20260918.pdf": "ccdca779c26198e6309674f0a6238d9aaac068d1aab41c1f60294c2ea02629f8",
+    "Internship_20260918.pptx": "74b1638bb1015e27b8f919bb2eb1ee46a3dda98a0a4cdb26fee8785ea5fd03a8",
+    "README.md": "3367670e31c5f59998d1d0126b268204fb31818d14b89e89c3b6b0af5ffec5bf",
+    "assets/README.md": "5a3aaf3d6ba2e6f258a2e3ead30f7d9b757be2384c8a7753abd0ac0a3fc2e21e",
+    "build_ppt.py": "71f5f7b966b80b6dee186c895b518110309bf7aa299538ab6e86349f0fac7bf2",
+    "image_slots.json": "82a6064b175ec4e8734bf4e6cf0ad9151162ac646ffbf9339f28279d28ef90a4",
+    "reference/Realtime_GS_Mapping.pdf": "02d33e3f2f4d6a98576b2a91a98a96b9bd8bde4646057cae3f24616f11560ad5",
+    "reference/Realtime_GS_Mapping.pptx": "474383b45ec266c11959dc3a9f7ab3d255686d5091436c3e199aeaeefbf8d439",
+    "rendered/contact_sheet.png": "33752d56d2bc046ee26f9ab69e43c8318af38679851fa2e6d40dbe1e910e9808",
+    "rendered/slide-01.png": "389ce276dc7084d4f75f5a7352f75e1e184091d8a6d069eac505d152f62d21a9",
+    "rendered/slide-02.png": "8343df8c0b480e9ae9a09055a7ee3f10b9df96e5ca14a437fa861c83c2835550",
+    "rendered/slide-03.png": "9515761d8ddfdcf65a039abe07387694e52fe784d98051838d83e8b54656df14",
+    "rendered/slide-04.png": "1d5e66dcbf503991f30d851282b6dad4667c0c74d661eb8f09faa8e1a8087e26",
+    "rendered/slide-05.png": "c212bb7978bba53808bc9bfb1f2a4b1465ef75a343b639f299d1f41d005cf019",
+    "rendered/slide-06.png": "e77ba608a8e30990cf8e29baf924ea198eb8b7ee3659a06dea4f8a63bf80781d",
+    "rendered/slide-07.png": "ce11ab562675f1b8391b7e7b08769a981220673b8800d86fde64ff9a91e33168",
+    "rendered/slide-08.png": "829cb5c0dd2a16c188ccc3e2b8f609b12e4460094f4074f20400107072121498",
+    "rendered/slide-09.png": "7b23bfa277138f713577fac8e58016f9558ddb4ee3cef4a3fcabf2f1f37746c2",
+    "rendered/slide-10.png": "dd3612cff3f0bce76e298f574a43930d1bb26da69bf265e44dfd1960cae9884c",
+    "rendered/validation.json": "ff92be83511aa0a292ec3e106b45bdb15b01f2de7c59ff80e0356c9afb3b5dc9",
+    "version_deck.py": "518dec98a69ea67285427b12deac2bdcd46c0d158d2afb0dd249226057adda20"
+  }
+}

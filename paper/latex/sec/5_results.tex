@@ -147,25 +147,7 @@ Metric & Method & RPNG & UTMM & Aria \\
 }
 \end{table}
 
-% 4.2 문단 구성 (2026-09-08). 코퍼스는 결과를 세 가지 축 중 하나로 나눈다:
-%   ① 능력별  MonoGS 4.2 (Camera Tracking Accuracy → Novel View Rendering), vigsslam 4.1
-%   ② 데이터셋별  CoMapGS 4.2 (LLFF. → Mip-NeRF 360.), cartgs IV.B
-%   ③ 시나리오별  taming3dgs 5.2 (같은 예산→품질 / 같은 품질→예산, 표 상하 분할)
-% 우리는 1× 하나뿐이라 ③이 안 맞고, tracking 이 기여가 아니라 ①도 안 맞는다 → ②로 간다.
-%
-% 문단마다 같은 꼴 (MonoGS):
-%   [표 지목] → [결과] → [무엇을 안 쓰고 얻었는지] → [어디까지만] → [그래서 무슨 뜻인가]
-%
-% 코퍼스가 반복해서 하는 것:
-%   · "without requiring any deep priors" (MonoGS) — 안 쓰고 얻었음을 결과 문단에서 회수
-%   · 진 항목을 먼저 짚고 이유를 댄다 (CoMapGS: "second only to ReconFusion … likely due to")
-%   · 재현 수치임을 밝히고 표에 † (CoMapGS)
-%
-% 2026-09-08 변경: `Compute and latency.` 문단 폐지 → P2 에 흡수.
-%   Table 1 이 이미 자원 열을 들고 있어 그걸 "풀어 설명"하는 문단은 표를 반복한다.
-%   대신 P2 를 고정 예산 논거로 닫는다 (chen2026cover 5.3 이 그렇게 끝낸다).
-% 2026-09-08 변경: "장면별 재튜닝 없음"은 문단이 아니라 Implementation details 한 문장으로.
-%   Table 2 는 P3 이 읽는다.
+
 
 \slot{P1 \textemdash\ RESULTS POINTER}{7}{%
   Point at Table~\ref{tab:main} and Table~\ref{tab:scene} at once, state the highlighting
@@ -213,57 +195,112 @@ Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 % ============================================================
 \subsection{Ablations}
 \label{ssec:abl}
-
-% ============================================================
-% 2026-09-08 개정. 코퍼스 8편의 ablation 소절을 실측하고 다시 짰다.
-% (taming 5.3 / lmrs 5.2 / sparsegs 4.3 / vigsslam 4.3 / chen 5.2 / comapgs 4.3 /
-%  edgs 4.5 / tidigs F)  분량 ~180~440 words. 우리 42줄 ≈ 365 words → 길이는 이미 적정.
-%   고친 것은 길이가 아니라 구조다.
-%
-% [1] 여는 문단은 항상 네 가지 일을 2~3문장에 한다 — 무엇을 바꾸는지 / 어느 데이터로 /
-%     무엇을 붙잡아 뒀는지(seal) / 어디를 보라(표·그림 지목).
-%     seal 은 taming("all configurations yield the same number of Gaussians") 하나가 아니라
-%     tidigs 도 한다("keeping the training budget and camera paths identical across all runs").
-%     2/8 이지만 우리처럼 '예산이 곧 주장'인 논문에는 필수. 다만 seal 만 있고 나머지 셋이
-%     없던 게 이전 버전의 문제였다 → 한 슬롯으로 합쳤다.
-%
-% [2] run-in 은 4/8 이 쓰고(lmrs·sparsegs·vigsslam·edgs), 쓸 때는 예외 없이
-%     "끌 수 있는 것 하나 = run-in 하나", 이름은 §3 소절 이름 그대로, 순서도 그대로.
-%     lmrs 는 아예 절 번호를 본문에 박는다("in Sec. 4.3", "in Sec. 4.4", "(Sec. 4.5)").
-%     → 우리 View growth / Count balancing / Carving 은 이미 맞다. 유지.
-%
-% [3] 항목 문단의 꼴은 lmrs 가 가장 정확하다: (a) 목적 재진술 + §역참조 →
-%     (b) 표 지목 → (c) 행을 이름 대며 순서대로 읽음 → (d) 숫자 하나로 닫음.
-%     sparsegs 는 (d)를 세 항목 전부에서 지킨다(1.37dB / 0.33dB / 0.28dB).
-%     → 우리 세 항목도 각각 숫자 하나로 끝나야 한다.
-%
-% [4] 표 전체를 한 문장으로 읽는 종합 문장이 따로 있다 —
-%     vigsslam("removing any component will degrade ... while our full system achieves the best"),
-%     tidigs("These ablations trace a clear causal chain" 이후 한 문단).
-%     우리에겐 이게 §3의 '한 원인, 세 결과'를 회수하는 자리다 → 맨 끝에 3줄 신설.
-%
-% [5] 자기보다 나은 행을 지우지 않는다.
-%     taming: -reduce SH frequency 가 PSNR 25.39 > 우리 25.20 인데 그대로 싣고
-%             "그래도 속도 50% 손해"로 답한다.
-%     lmrs Tab.2: Random MBS=32 (21.68) 가 Clustering MBS=16 (21.37) 을 이긴다 — 교란축이
-%             기여축을 이기는 표를 스스로 싣는다. Tab.3 은 자기가 고른 N=32 가 품질에서 열세.
-%     chen: "only as good as the random baseline in very sparse initialization regimes".
-%     → κ=16 이상치와 K=128,β=0 부재는 표 안 \pend 로 숨길 게 아니라 본문에 자리를 줘야 한다.
-%
-% [6] ★ 표 형태 — 여기가 이전 버전의 진짜 결함이었다.
-%     코퍼스의 ablation 표는 두 종류뿐이다:
-%       (i) 제거축 한 개 — 행 = "무엇을 뺐나". taming·edgs·tidigs·vigsslam·sparsegs
-%       (ii) setting × method — chen Tab.2 (+ oracle 행)
-%     세 개의 독립 축을 \multirow 로 한 표에 겹친 예는 8편 중 0편이다.
-%     lmrs 는 항목이 3개라 표를 3개로 나눠 각 문단 옆에 둔다.
-%     이전 우리 Table 3 은 growth/ordering/carve 세 축을 겹쳐 놓고 ρ_H·sel.CV·lifetime 열을
-%     공유시켰는데, 그 세 열은 ordering 축에만 정의된다 — 셀 2/3 이 무의미해진다.
-%     → 표를 둘로 쪼갠다: Table 3 은 전 행에 정의되는 열만 가진 제거축 표(taming 꼴),
-%       Table 4 는 ordering 축에만 있는 진단 열을 K×β 로 놓는다(lmrs Tab.2 꼴 — 교란축 K 를
-%       기여축 β 옆에 둔다). κ sweep 은 표에서 뺀다: 코퍼스에서 하이퍼파라미터 sweep 은
-%       ablation 표가 아니라 별도 그림/표로 간다(taming Fig.1, tidigs Tab.II) → 본문 숫자 + 보충자료.
 % ============================================================
 
+\begin{table}[t]
+\centering
+\caption{
+Ablation on the source of mapping supervision.
+Both policies use 60 mapping updates per keyframe.
+Results are averaged over 19 scenes.
+Best results are shown in bold.
+}
+\label{tab:abl}
+
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clcccc}
+\toprule
+Metric & Policy
+& RPNG (8)
+& UTMM (7)
+& Aria (4)
+& All (19) \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& Keyframes only
+& \textbf{23.41}
+& 20.25
+& 28.50
+& 23.31 \\
+& \textbf{+ in-between frames}
+& 23.06
+& \textbf{21.12}
+& \textbf{29.25}
+& \textbf{23.65} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& Keyframes only
+& -- & -- & -- & -- \\
+& \textbf{+ in-between frames}
+& -- & -- & -- & -- \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Keyframes only
+& -- & -- & -- & -- \\
+& \textbf{+ in-between frames}
+& -- & -- & -- & -- \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{
+Ablation on view ordering under different mapping budgets.
+The budget denotes the number of mapping updates per interval.
+Results are averaged over 19 scenes.
+Best results are shown in bold.
+}
+\label{tab:order}
+
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clccc}
+\toprule
+Metric & Policy
+& 15 upd./interval
+& 30 upd./interval
+& 60 upd./interval \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& Random reshuffling
+& 20.77
+& 22.22
+& 22.88 \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& \textbf{21.39}
+& \textbf{22.33}
+& \textbf{23.11} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& Random reshuffling
+& -- & -- & -- \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& -- & -- & -- \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Random reshuffling
+& -- & -- & -- \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& -- & -- & -- \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 \slot{OPENER \textemdash\ scope, data, seal, pointer (3 sentences)}{5}{%
   \textbf{What varies and on what data} --- one sentence, as SparseGS opens (``We ablate our
   method on the Mip-NeRF360 dataset 12-view setting'').
@@ -274,34 +311,7 @@ Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
   \textbf{Then point at Table~\ref{tab:abl}, Table~\ref{tab:order} and Fig.~\ref{fig:carve}
   at once.}}
 
-\begin{table}[t]
-\centering\small
-\caption{\skel{TABLE 3} Ablations: one axis, \emph{what replaced our policy}. Every column is
-  defined for every row --- the arrangement Taming3DGS and EDGS use. Diagnostics that exist only
-  for the ordering axis are in Table~\ref{tab:order}, not here.
-  \pend{rows that beat the full system stay in the table and are answered in the text, as
-  Taming3DGS does with \texttt{-reduce SH frequency}}}
-\label{tab:abl}
-\resizebox{0.99\columnwidth}{!}{
-\begin{tabular}{l|ccc|cc}
-\hline
-Configuration & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & updates & final \\
-\hline
-\textbf{Ours (full)}                & -- & -- & -- & -- & -- \\
-\hline
-$-$growth: keyframe rule            & -- & -- & -- & -- & -- \\
-$-$growth: fixed-FPS dense          & -- & -- & -- & -- & -- \\
-\hline
-$-$order: random full-pool          & -- & -- & -- & -- & -- \\
-$-$order: covisibility window       & -- & -- & -- & -- & -- \\
-$-$order: novelty-first             & -- & -- & -- & -- & -- \\
-$-$order: residual-first            & -- & -- & -- & -- & -- \\
-\hline
-$-$carving                          & -- & -- & -- & -- & -- \\
-\hline
-\end{tabular}
-}
-\end{table}
+
 
 \noindent\textbf{View growth.}\;
 \slot{ITEM 1 \textemdash\ lmrs shape: purpose+\S ref, table, rows in order, one number}{11}{%
@@ -314,28 +324,8 @@ $-$carving                          & -- & -- & -- & -- & -- \\
   \textbf{state the $\kappa{=}16$ anomaly here rather than omitting it} \pend{22.163\,dB,
   $-5.545$ against trend; full sweep in the supplement}. Close on one number.}
 
-\begin{table}[t]
-\centering\footnotesize
-\caption{\skel{TABLE 4} Ordering axis only, since $\rho_H$, selection CV and lifetime are
-  undefined for the other two. $K$ runs down the rows so the confounding axis (block length) sits
-  beside the contribution axis ($\beta$) --- lmrs's Table~2 arrangement, which is what lets a
-  reader see that the confound can be the larger effect.
-  \pend{$\rho_H$, sel.\ CV and lifetime must be defined in \S\ref{ssec:setup}; only $\rho_H$ is}}
-\label{tab:order}
-\begin{tabular}{ll|cccc}
-\hline
-$K$ & $\beta$ & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first \\
-\hline
-1   & 0                          & -- & -- & -- & -- \\
-32  & 0                          & -- & -- & -- & -- \\
-32  & \textbf{ours}              & -- & -- & -- & -- \\
-128 & 0 \pend{NOT MEASURED}      & -- & -- & -- & -- \\
-128 & \textbf{ours}              & -- & -- & -- & -- \\
-\hline
-\end{tabular}
-\end{table}
 
-\noindent\textbf{Count balancing.}\;
+\noindent\textbf{Entropy-Regularized View Sampling.}\;
 \slot{ITEM 2 \textemdash\ REGIME FRAMING first, matches \S\ref{ssec:ercb}}{15}{%
   \textbf{Concede the regime first}, as chen2026cover does (``only as good as the random baseline
   in very sparse initialization regimes''): where blocks are long, random reshuffling is already
