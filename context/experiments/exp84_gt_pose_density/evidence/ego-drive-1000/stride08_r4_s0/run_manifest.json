@@ -1,0 +1,18 @@
+{
+  "experiment": "exp84_gt_pose_density",
+  "arm": "stride08",
+  "train_frame_stride": 8,
+  "train_frame_phase": 1,
+  "iterations": 8000,
+  "resolution": 4,
+  "seed": 0,
+  "test_iterations": [
+    500,
+    1000,
+    2000,
+    4000,
+    8000
+  ],
+  "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/exp84_gt_pose_density/ego-drive-1000",
+  "wall_seconds_including_final_render": 179
+}
