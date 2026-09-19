@@ -110,3 +110,19 @@ paper/.sync-snapshot/
 /context/**/evidence/**/schedules_budget/
 /context/**/evidence/**/k_pools/
 /context/**/evidence/**/eligible/
+/context/**/evidence/**/work_credit_brackets/
+/context/**/evidence/**/events.out.tfevents.*
+/context/**/evidence/**/*.stdout
+/context/**/evidence/**/*.stderr
+/context/experiments/**/queue.log
+/context/experiments/**/panel.log
+/context/experiments/**/prunehalf_panel.log
+/context/reference/papers/*.pdf
+/paper/ref/**/*.pdf
+/context/research/**/*.png
+/context/research/**/sweep_runs.csv
+/context/research/intern_cleanup_*.csv.gz
+/context/research/intern_cleanup_*/actions.jsonl.gz
+# Colin intentionally has a skip-worktree local directory at this tracked symlink.
+# Keep its external training source local; do not accidentally vendor it.
+/repos/main/3dgs-custom/
