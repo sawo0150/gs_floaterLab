@@ -256,11 +256,31 @@ def write_summary(rows: list[dict]) -> None:
 
 
 def main() -> int:
+    global ROOT, DOCS
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=("preflight", "run-one", "run-all"))
     parser.add_argument("--dataset", choices=("rpng", "utmm", "aria"))
     parser.add_argument("--scene")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        help=(
+            "fresh output root; omit only when intentionally resuming the "
+            "runner-defined root"
+        ),
+    )
+    parser.add_argument(
+        "--docs",
+        type=Path,
+        help="summary output directory paired with --root",
+    )
     args = parser.parse_args()
+    if (args.root is None) != (args.docs is None):
+        parser.error("--root and --docs must be provided together")
+    if args.root is not None:
+        ROOT = args.root.resolve()
+    if args.docs is not None:
+        DOCS = args.docs.resolve()
     rows = v2.install_inventory()
     if args.action == "preflight":
         for row in rows:

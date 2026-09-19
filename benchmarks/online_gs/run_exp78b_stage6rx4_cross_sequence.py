@@ -21,7 +21,7 @@ OFFICIAL_ROOT = Path("/home/intern/VIGS-SLAM-official-exp78")
 BUILT_THIRDPARTY_ROOT = Path("/home/intern/VIGS-SLAM-visible-lazy-carve")
 PYTHON_ENV = Path("/home/colin/miniconda3/envs/vigs-slam-5090")
 
-PAPER_COMMIT = "07a09aa7d3a1461f9d67106e45dc094f6c9724ee"
+PAPER_COMMIT = "ce25ad7fee5dbbccaf01f3190b3c78344039afdd"
 OFFICIAL_COMMIT = "22ffe24c6df81d0bf63bd20057565c00c51d2996"
 MAPPER_SEED = 0
 RUN_PROTOCOL = "stage6rx4_cross_sequence_confirmation_runner_v1"
