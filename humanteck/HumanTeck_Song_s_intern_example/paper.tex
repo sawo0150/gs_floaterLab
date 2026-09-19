@@ -1,0 +1,115 @@
+\documentclass[nth=33]{humantech}
+
+\usepackage{blindtext}
+\usepackage{ragged2e}
+
+\begin{document}
+\title{Communication-Efficient and Robust Multi-Robot Mapping Framework}
+\twocolumn[
+\begin{@twocolumnfalse}
+\begin{flushleft}
+\maketitle
+\begin{abstract}
+\justifying
+Multi-robot mapping across multiple robots accelerates exploration and improves coverage efficiency by maintaining global consistency.
+However, multi-robot mapping requires exchanging massive sensor data between robots, making communication the bottleneck, especially in communication-constrained environments. 
+Therefore, we present a hybrid framework combining centralized coordination with distributed selective data exchange that reduces inter-robot communication by up to 1,000× while maintaining alignment accuracy.
+Our key insight is that only a small subset of carefully selected scans is sufficient for robust multi-robot mapping. 
+We formulate this as solving a three-stage cascade problem on an exchange graph, where vertices represent robot keyframes and edges denote candidate inter-robot loops.
+Through three cascade stages, we select a sequentially overlapped, minimal-transmission-cost, and mutually consistent optimal scan subset that preserves alignment quality while reducing communication.
+Unlike existing approaches that transmit whole scans, which require GB-scale data exchange, or employ na\"ive downsampling, our approach exchanges only MB-scale data while achieving comparable alignment accuracy. 
+The evaluation shows up to 99.98\,\% reduction in data exchange (e.g., from 7.0\,GB to 1.7\,MB in the large-scale HeLiPR dataset), while maintaining real-time performance.
+\end{abstract}
+\vspace{20pt}
+\end{flushleft}
+\end{@twocolumnfalse}
+]
+\thispagestyle{firstpage}
+
+\section{Introduction}
+Multi-robot systems achieve remarkable collective intelligence by seamlessly merging their individual maps into unified environmental representations. 
+Similar to solving a puzzle, this requires aligning each robot's map piece and merging them to form a unified global map.
+Light detection and ranging (LiDAR)-based multi-robot mapping addresses this by estimating alignments through the association of metadata (i.e., global descriptors) and full data (i.e., scans) of each robot's map piece.
+A central entity, known as a server~(or central robot), typically coordinates these frameworks, managing not only global descriptors matching and loop closure detection but also allocating shared resources such as bandwidth, battery power, memory, and computational capacity.
+Such frameworks are essential for large-scale missions where maintaining a consistent global frame boosts exploration efficiency.
+
+However, one major challenge still hinders practical deployment: servers must exchange massive amounts of data, exhausting bandwidth and battery. 
+To address these issues, existing approaches follow two main strategies: (i) centralized or (ii) distributed frameworks. 
+The centralized frameworks aggregate all robot data on a server for global optimization, providing effective coordination. 
+However, they require continuous high-bandwidth communication and create scalability bottlenecks as data volume grows.
+The distributed frameworks reduce server reliance through peer-to-peer data exchange during robot encounters, offering better scalability. 
+However, they often transmit entire data backlogs at each encounter, creating a bursty communications load.
+
+\begin{figure*}[t]
+  \centering
+  \captionsetup{justification=justified}
+  \includegraphics[width=\linewidth, trim=155 120 120 65, clip]{figure/main.pdf}
+  \vspace{-0.7cm}
+  \caption{Overall pipeline of our proposed communication-efficient and robust multi-robot mapping.}
+  \label{fig:main}
+  \vspace{-0.6cm}
+\end{figure*}
+
+Although these frameworks adopt resource-saving techniques, such as downsampling or keyframing, to mitigate these problems, they often sacrifice geometric detail or discard informative loops, thereby degrading map quality. 
+Moreover, most works assume stable communication links, overlooking bandwidth constraints common in real-world operations.
+This creates a gap between experimental demonstrations and field-deployable systems.
+
+To bridge this gap, we propose a LiDAR-based multi-robot mapping specifically designed for bandwidth-constrained environments. 
+Unlike existing approaches that strictly follow either a centralized or a distributed paradigm, our proposed method blends the advantages of centralized and distributed approaches by employing a centralized server for global coordination while using selective and bandwidth-efficient data sharing to reduce communication load.
+
+The main contributions of this work are as follows. 
+First, we propose a multi-robot mapping that achieves high mapping accuracy with lower communication and computation costs, making it practical for communication-constrained field deployments. 
+Second, we formulate a communication-efficient exchange graph to select an optimal scan subset and suppress redundant scan transfers.
+
+\section{Communication-Efficient and Robust Multi-Robot Mapping Framework }
+The entire process of our proposed framework proceeds in six stages: (i) intra-robot SLAM, (ii) inter-robot place recognition, (iii) inter-robot sequential matching, (iv) balanced minimum vertex cover in the exchange graph, (v) maximum edge-weighted clique selection in the exchange graph, and (vi) submap-based map merging.
+From intra-robot SLAM at the local robot-level to multi-robot mapping at the server-level, each robot and the server communicate organically and refine candidate loops incrementally, ensuring that only the most informative and mutually consistent data are exchanged.
+ 
+\begin{figure}[t]
+  \centering
+  \captionsetup{justification=justified}
+  \includegraphics[width=\linewidth, clip]{figure/exchange.pdf}
+  \vspace{-0.6cm}
+  \caption{Five robot mapping comparison between LT-Mapper \cite{kim2022lt} and our method on the Kimera-Multi dataset \cite{tian23arxiv_kimeramultiexperiments} with data exchange.}
+  \label{fig:exchange}
+  \vspace{-0.5cm}
+\end{figure}
+
+First, each robot runs intra-robot SLAM to generate descriptors, poses, and scans, producing local maps (Fig.~\ref{fig:main}.(a)). 
+Second, the server receives descriptors and poses via communication and performs descriptor-based similarity checking to assess the strength of place matches between robots (Fig.~\ref{fig:main}.(b)).
+Based on the inter-robot place recognition loop set, the server forms an exchange graph and initiates a three-stage cascade optimization problem (i.e., step (A), step (B), and step (C)).
+In step~(A), the server introduces sequential matching for robust inter-robot place recognition by detecting temporally contiguous correspondence (Fig.~\ref{fig:main}.(c)).
+In step~(B), the server applies balanced minimum vertex cover to the sequentially matched scans to select scans that maintain minimal overall communication cost while ensuring balanced cost distribution between robots (Fig.~\ref{fig:main}.(d)).
+In step~(C), the server selects the final optimal scans from the minimal cost scans by maintaining geometrically and perceptually consistent correspondences (Fig.~\ref{fig:main}.(e)).
+Subsequently, the server creates a policy instructing the robots to transmit only these optimal scans, and the robots transmit partial scans according to this policy instead of whole scans. 
+Finally, the server constructs submaps from these partial scans and generates a globally consistent map through final submap merging (Fig.~\ref{fig:main}.(f)).
+
+Fig.~\ref{fig:exchange} and Fig.~\ref{fig:merging} shows robust multi-robot map merging, reducing data exchange while maintaining mapping quality.
+These results validate that our method achieves communication reduction while preserving global consistency.
+
+% As shown in Fig.~\ref{fig:exchange}, while existing method \cite{kim2022lt} requires transmitting 7,000\,MB + 7,200\,MB = 14,200\,MB of scans, our approach transmits only 1.7\,MB + 1.7\,MB = 3.4\,MB, achieving substantial communication efficiency. 
+% Furthermore, as demonstrated in Fig.~\ref{fig:merging}, our merging process produces robust map merging without visual distortions, as evidenced by the well-aligned blue, pink, and yellow regions.
+
+\section{Conclusion}
+We present a communication-efficient multi-robot mapping that reduces data exchange by up to 99.98\% while maintaining mapping accuracy.
+Our novel exchange graph formulation enables systematic identification of minimal scan subsets through three-stage cascade optimization, achieving robust map merging with only MB-scale communication instead of GB-scale data exchange.
+The framework successfully bridges the gap between experimental demonstrations and real-world deployments in bandwidth-limited environments or large-scale missions.
+
+\begin{figure}[t]
+  \centering
+  \captionsetup{justification=justified}
+  \includegraphics[width=\linewidth, clip]{figure/merged_map.pdf}
+  \vspace{-0.6cm}
+  \caption{Top: robot $\alpha$'s maps from whole transmission (left) vs our selective transmission (right). 
+           Bottom: our unified map from estimated alignments using selective scans on the HeLiPR dataset \cite{jung2024helipr}, demonstrating robust three robot integration without visual distortions.}
+  \label{fig:merging}
+  \vspace{-0.5cm}
+\end{figure}
+
+
+\small{
+\nocite{*}
+\bibliographystyle{abbrv}
+\bibliography{bibliography}
+}
+\end{document}

@@ -1,0 +1,318 @@
+{
+  "reference_uid": 786,
+  "reference_candidate": "C07",
+  "run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0",
+  "map_sha256": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766",
+  "source_gaussians": 177099,
+  "displayed_gaussians": 30587,
+  "operation": "Display-only spatial cutaway. Original map unchanged; no floater pruning or quality/opacity filter.",
+  "section_coordinate_origin": [
+    -1.2506127801609441,
+    -8.219792023084022,
+    2.7863085699394885
+  ],
+  "section_coordinate_basis_columns_right_up_forward": [
+    [
+      0.2773444752938186,
+      -0.911715792277107,
+      0.3030748358681788
+    ],
+    [
+      0.7365468493461179,
+      -0.0007879628429392495,
+      -0.6763860715840215
+    ],
+    [
+      -0.6169106748487203,
+      -0.41082075559431663,
+      -0.6713028571595767
+    ]
+  ],
+  "section_low_m": [
+    -4.0,
+    -1.8,
+    -1.9
+  ],
+  "section_high_m": [
+    4.0,
+    0.6,
+    0.48
+  ],
+  "section_rule": "Keep Gaussian centers inside this box; primitives can extend slightly across the planes.",
+  "parameters_unchanged": [
+    "position",
+    "rotation",
+    "scale",
+    "opacity",
+    "SH color"
+  ],
+  "wall_plane_fit": {
+    "method": "600 seeded RANSAC trials, 4cm support, SVD refinement; upper wall-band Gaussian centers",
+    "sample_count": 6000,
+    "support_count": 1510,
+    "reference_local_normal": [
+      -0.4042544734153827,
+      0.050893426998580904,
+      0.9132295329280542
+    ],
+    "reference_local_center": [
+      -0.7639441299344384,
+      0.14207295546694243,
+      1.908670589915951
+    ],
+    "world_normal": [
+      0.3030748358681788,
+      -0.6763860715840215,
+      -0.6713028571595767
+    ],
+    "rms_m": 0.022346629898181324,
+    "interpretation": "dominant wall-plane estimate for display, not ground-truth surface normals"
+  },
+  "camera_intrinsics": [
+    850.0,
+    850.0,
+    600.0,
+    360.0,
+    1200,
+    720
+  ],
+  "variants": [
+    {
+      "id": "S1",
+      "path": "assets/cutaway/S1.png",
+      "sha256": "298ff03d1358bbf1344b09cbb1594980e7e2fc57cd97a7c09ce0287c7dfa87b0",
+      "camera_world_to_view": [
+        [
+          0.24414520639073065,
+          0.8032135652775542,
+          -0.5433609175773941,
+          8.33792798263055
+        ],
+        [
+          0.7951347358211636,
+          0.1549371982551267,
+          0.5863064185965049,
+          -0.19944614280375605
+        ],
+        [
+          0.555116087036789,
+          -0.5751890412299002,
+          -0.6008358317893435,
+          8.240690134815928
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        -1.009667422525347,
+        1.9381904510252075,
+        -10.406343835461698
+      ],
+      "wall_relative_yaw_deg": -6,
+      "wall_relative_elevation_deg": 15
+    },
+    {
+      "id": "S2",
+      "path": "assets/cutaway/S2.png",
+      "sha256": "12b739e378b65b2d1e028a9d780a629836e38a85e4c25352fb194004fc3c9816",
+      "camera_world_to_view": [
+        [
+          0.27734447529381856,
+          0.7365468493461178,
+          -0.6169106748487203,
+          8.12001596241051
+        ],
+        [
+          0.8022082903820517,
+          0.17582271082817302,
+          0.5705683422687752,
+          0.023791571275714084
+        ],
+        [
+          0.5287172220254435,
+          -0.6531348352946271,
+          -0.5421005313208594,
+          7.407555643705814
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        0.0,
+        1.9381904510252075,
+        -10.459258262890684
+      ],
+      "wall_relative_yaw_deg": 0,
+      "wall_relative_elevation_deg": 15
+    },
+    {
+      "id": "S3",
+      "path": "assets/cutaway/S3.png",
+      "sha256": "c67de4923f9d99987fa1fea6b709c98f96a52d792ab3f07d0b4cdc06624d1b53",
+      "camera_world_to_view": [
+        [
+          0.3075051000875248,
+          0.6618103720009084,
+          -0.6837014296695455,
+          7.813139348083722
+        ],
+        [
+          0.8101412668658985,
+          0.19479021190865176,
+          0.5529266687956905,
+          0.23991098336421993
+        ],
+        [
+          0.499110950732478,
+          -0.7239225130195922,
+          -0.47626090958876743,
+          6.6009870172895875
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        1.009667422525347,
+        1.9381904510252075,
+        -10.406343835461698
+      ],
+      "wall_relative_yaw_deg": 6,
+      "wall_relative_elevation_deg": 15
+    },
+    {
+      "id": "S4",
+      "path": "assets/cutaway/S4.png",
+      "sha256": "9859060b6bfd81f281016054448fabdf5f8cc1243c10a74f2a9a4031e540f15b",
+      "camera_world_to_view": [
+        [
+          0.24414520639073067,
+          0.8032135652775542,
+          -0.5433609175773942,
+          8.33792798263055
+        ],
+        [
+          0.6985060196619317,
+          0.2430090542028688,
+          0.6730794455868282,
+          0.07822606777612835
+        ],
+        [
+          0.6726681638761213,
+          -0.5438699919369954,
+          -0.5017200147273179,
+          8.231149908009844
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        -0.9549150281252629,
+        3.4173664307580025,
+        -9.88540960039796
+      ],
+      "wall_relative_yaw_deg": -6,
+      "wall_relative_elevation_deg": 24
+    },
+    {
+      "id": "S5",
+      "path": "assets/cutaway/S5.png",
+      "sha256": "4631dd7a01e95cd1fe73159e863d8d75c424e3dc5cb44465ce52e6d02a3ac8ff",
+      "camera_world_to_view": [
+        [
+          0.2773444752938186,
+          0.7365468493461179,
+          -0.6169106748487204,
+          8.120015962410513
+        ],
+        [
+          0.7096221793540038,
+          0.27583084005527125,
+          0.6483469057867688,
+          0.42904630357690726
+        ],
+        [
+          0.6477008604231357,
+          -0.6175889299467003,
+          -0.446169820824335,
+          7.443194757371549
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        0.0,
+        3.4173664307580025,
+        -9.93545457642601
+      ],
+      "wall_relative_yaw_deg": 0,
+      "wall_relative_elevation_deg": 24
+    },
+    {
+      "id": "S6",
+      "path": "assets/cutaway/S6.png",
+      "sha256": "05cfc7a85adaff9a1a5e8c569dbe7bd0a7841874e198f4ac2fb021706840363d",
+      "camera_world_to_view": [
+        [
+          0.3075051000875248,
+          0.6618103720009084,
+          -0.6837014296695456,
+          7.813139348083723
+        ],
+        [
+          0.7220889289448658,
+          0.3056384522190312,
+          0.6206228445847056,
+          0.7686800586646583
+        ],
+        [
+          0.6197000823910047,
+          -0.6845379230087798,
+          -0.3839005598425298,
+          6.680364853785281
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "inspection_camera_offset_local": [
+        0.9549150281252629,
+        3.4173664307580025,
+        -9.88540960039796
+      ],
+      "wall_relative_yaw_deg": 6,
+      "wall_relative_elevation_deg": 24
+    }
+  ],
+  "selected_variant": "S5",
+  "empty_canvas_crop_xyxy": [
+    190,
+    182,
+    1008,
+    541
+  ],
+  "selected_path": "assets/cutaway/selected.png",
+  "selected_sha256": "b530afa01d5419078ef3416e0ea4cade820af8c47d82d01ef0c70444b90ed1b9"
+}

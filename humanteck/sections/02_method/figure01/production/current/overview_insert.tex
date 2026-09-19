@@ -1,0 +1,24 @@
+% Overview illustration using the user-approved exp94 Aria 1253 run.
+% Copy the PDF into your own manuscript's figure/ directory first.
+% Requires graphicx in the host manuscript. Original winner TeX is untouched.
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figure/overview.pdf}
+  \caption{Overview of online Gaussian mapping.
+  The frontend supplies camera poses and keyframe geometry priors.
+  (a) Optimization-Guided View Growth retains admitted views and expands
+  the training set according to completed mapping updates.
+  (b) Entropy-Regularized View Sampling favors under-selected views while
+  retaining stochasticity; sampled views are used in consecutive updates.
+  (c) Ray-space geometry supervision complements the base mapping losses.
+  Images, map renders, and estimated keyframe poses are from Aria 1253;
+  the camera frusta use estimated orientations with a display-only size.
+  The shared map is an external cutaway of the C07 region (reference UID 786),
+  with spatial clipping for visualization only. The RGB, depth, and normal
+  examples use C10 (UID 1091) and the uncut saved map.
+  Pool stages,
+  selection counts, probabilities, and the ray illustration are schematic.
+  The illustrative saved map was obtained without the ray-space loss
+  and is not evidence of that loss's effect.}
+  \label{fig:overview}
+\end{figure*}

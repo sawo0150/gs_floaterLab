@@ -1,0 +1,95 @@
+{
+  "candidate": "F04",
+  "dataset": "rpng",
+  "scene": "table_06",
+  "frame_index": 1420,
+  "source_provenance": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/frames/F04/provenance.json",
+  "source_png_sha256": {
+    "baseline": "c7a26ac2a191e9d0c4f6f43249bcecc10f829834bbff047d2084ac28f412b184",
+    "ours": "239b2c48047bb44ec058399537d180536be74c43e18d5eecc68b6c3a9225f1cf",
+    "gt": "cdc51070e3a2444495377af52f69169d51587e142166746fa222204149b9a0b0"
+  },
+  "crop_xyxy": [
+    440,
+    40,
+    564,
+    164
+  ],
+  "crop_matches_candidate_exactly": true,
+  "layout": [
+    {
+      "method": "baseline",
+      "main_box": [
+        12,
+        76,
+        576,
+        321.6623376623377
+      ],
+      "roi_box": [
+        423.42857142857144,
+        113.4025974025974,
+        115.94805194805194,
+        115.94805194805194
+      ],
+      "inset_box": [
+        14,
+        310,
+        320,
+        320.0
+      ]
+    },
+    {
+      "method": "ours",
+      "main_box": [
+        612,
+        76,
+        576,
+        321.6623376623377
+      ],
+      "roi_box": [
+        1023.4285714285714,
+        113.4025974025974,
+        115.94805194805194,
+        115.94805194805194
+      ],
+      "inset_box": [
+        614,
+        310,
+        320,
+        320.0
+      ]
+    },
+    {
+      "method": "gt",
+      "main_box": [
+        1212,
+        76,
+        576,
+        321.6623376623377
+      ],
+      "roi_box": [
+        1623.4285714285716,
+        113.4025974025974,
+        115.94805194805194,
+        115.94805194805194
+      ],
+      "inset_box": [
+        1214,
+        310,
+        320,
+        320.0
+      ]
+    }
+  ],
+  "width_mm": 86.48540196485402,
+  "height_mm": 30.750365143059206,
+  "font": "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf",
+  "label_size_pt": 7.0822691372793845,
+  "physical_training_renders_each": 34437,
+  "baseline_psnr_full_image": 26.12710189819336,
+  "ours_psnr_full_image": 31.253232955932617,
+  "carve_enabled": false,
+  "postprocessing": "No sharpening, recoloring, denoising or generative edits. Identical display scaling only.",
+  "pdf_sha256": "2d8916da0723e45fa55a4a5953c11477104cf1deb61102411662e2b9e6e8778b",
+  "svg_sha256": "e4451483e4c1902338e07ed9a4a850c0040aa4925467d5bfe622b15d64dea124"
+}

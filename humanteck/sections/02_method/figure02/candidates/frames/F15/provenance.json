@@ -1,0 +1,48 @@
+{
+  "dataset": "rpng",
+  "scene": "table_04",
+  "uid": "1662919287949297905.png",
+  "frame_index": 3965,
+  "baseline_psnr": 20.885421752929688,
+  "ours_psnr": 24.415863037109375,
+  "delta_psnr": 3.5304412841796875,
+  "scene_delta_psnr": 1.1251944239738059,
+  "scene_baseline_psnr": 21.27662220786138,
+  "scene_ours_psnr": 22.401816631835185,
+  "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_04/native_vanilla_render_matched_s0",
+  "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_04/normalized_variance_s0",
+  "physical_renders": 67793,
+  "baseline_adam": 5343,
+  "ours_adam": 5359,
+  "held_out": true,
+  "carve_enabled": false,
+  "candidate": "F15",
+  "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_04/rgb/1662919287949297905.png",
+  "source_rgb_sha256": "7f0c262946a4ba106fa697761c18c0d75c860b690a0e9324652493781726fb79",
+  "source_map_sha256": {
+    "baseline": "c886ef8748b7391654748cc780225de87b4264af3c8e75dbf1501b0b5d467514",
+    "ours": "5b31bdf6147cd8b238463ca4a14590fba458121243b0d2251c1fca519b3ed91e"
+  },
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_04/seed0",
+  "same_pose_checked": true,
+  "rendered_psnr_check": {
+    "baseline": 20.885421752929688,
+    "ours": 24.415863037109375
+  },
+  "display_rotation_clockwise_degrees": 0,
+  "crop_xyxy_display_pixels": [
+    328,
+    216,
+    452,
+    340
+  ],
+  "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+  "files": {
+    "baseline.png": "27e0c237cda695706a1a98e5ef88ff90951ff398af3c79fe0557163098344599",
+    "ours_crop.png": "1c5f7cf8fb29f30a92ab43e70a1f649c01c8ae2d0bb7c0a048c5c4405a2d666b",
+    "ours.png": "fce6358675b987038299d35558885c34d9bf5432ff1afbb397ed764cebe3cb6b",
+    "gt_crop.png": "626647a4bff0f18bc2db81632ee61ca5fdf10d1beef4c84588a87f4045bda956",
+    "baseline_crop.png": "23ae775e29cea7dd2594b1c786087a9dbcd6191af449a785012eccdeb6cdb507",
+    "gt.png": "f2c033176f74e443a326cfdc716ef96170c5f0607ab7c643c80daf77c7c827ac"
+  }
+}

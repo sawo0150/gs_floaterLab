@@ -1,0 +1,1154 @@
+[
+  {
+    "dataset": "aria",
+    "scene": "aria301_305",
+    "uid": "1477350689150.jpg",
+    "frame_index": 1220,
+    "baseline_psnr": 17.492645263671875,
+    "ours_psnr": 29.202289581298828,
+    "delta_psnr": 11.709644317626953,
+    "scene_delta_psnr": 3.185685308169788,
+    "scene_baseline_psnr": 21.92672535572512,
+    "scene_ours_psnr": 25.11241066389491,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/normalized_variance_s0",
+    "physical_renders": 17620,
+    "baseline_adam": 1376,
+    "ours_adam": 1344,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F01",
+    "source_rgb": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria301_305/rgb/1477350689150.jpg",
+    "source_rgb_sha256": "f5e91126aa3d9ef0d68591474e84cae2d0eea12125a20f390317e8f69a92bc1c",
+    "source_map_sha256": {
+      "baseline": "3354a012b35e7203af23dcbae9c4116662edbb7f8432b36f6d7cfd44ff103cb9",
+      "ours": "f8f45d3960d3027d6a24e7a4f8093141670f3c0f52994b3c9061714cbc1d339c"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/aria/aria301_305/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 17.492645263671875,
+      "ours": 29.202289581298828
+    },
+    "display_rotation_clockwise_degrees": 90,
+    "crop_xyxy_display_pixels": [
+      272,
+      0,
+      439,
+      167
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "26d834a3c6a75684ac79013f0a393c0b73781a81bad8dc8e46923e15073c2010",
+      "ours_crop.png": "c30062ba348a55787d14de69eda4cfc76a1580f055c80b2fbe6955b67ebaaa53",
+      "ours.png": "511c9bbf57f7f72c5e3d11e3a7b2e98a5e6366a6c91dcd85fde4b22ee7da7987",
+      "gt_crop.png": "c1a35021c001ff6ae307339637a0fc39b94d28fe8dae3910d0482a93d6dfdd33",
+      "baseline_crop.png": "4c6c4c56bef53408ce87efc7b823347800d356f7b21094431cf299cd1e717bac",
+      "gt.png": "3eac97a09a8d1150e640447ee2e9d5c29002a084511dbd1dd9bc92e6610d6a23"
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria301_305",
+    "uid": "1458350686812.jpg",
+    "frame_index": 840,
+    "baseline_psnr": 18.284709930419922,
+    "ours_psnr": 25.3347225189209,
+    "delta_psnr": 7.050012588500977,
+    "scene_delta_psnr": 3.185685308169788,
+    "scene_baseline_psnr": 21.92672535572512,
+    "scene_ours_psnr": 25.11241066389491,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/normalized_variance_s0",
+    "physical_renders": 17620,
+    "baseline_adam": 1376,
+    "ours_adam": 1344,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F02",
+    "source_rgb": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria301_305/rgb/1458350686812.jpg",
+    "source_rgb_sha256": "29f154d079e69b7d51cf8b52dfd61b0917a2c8b7ca31de5a954b8ee52b1a8d56",
+    "source_map_sha256": {
+      "baseline": "3354a012b35e7203af23dcbae9c4116662edbb7f8432b36f6d7cfd44ff103cb9",
+      "ours": "f8f45d3960d3027d6a24e7a4f8093141670f3c0f52994b3c9061714cbc1d339c"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/aria/aria301_305/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 18.284709930419922,
+      "ours": 25.3347225189209
+    },
+    "display_rotation_clockwise_degrees": 90,
+    "crop_xyxy_display_pixels": [
+      0,
+      48,
+      167,
+      215
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "8eb2aca01e770d06c6192eac307f2b5ac2e0b1eb4665ef9cdf58eeac2c12d822",
+      "ours_crop.png": "3ba6526e6fb12a0de2fe8a28e5a2be49c77c6537f8c3cce84b72c8910b01fb22",
+      "ours.png": "6bee958ccc7adb4d3df4ec0d520bd4cc8df7450e2a135786d2fbf135f33a0810",
+      "gt_crop.png": "324bdf04375498830eb4d6c81b3a5d6f7e52e4a064ed0f090158b9f86b8377f8",
+      "baseline_crop.png": "fa013d32fdfb5e61e9e8c0c92f86d9875180d949a0d46888ee54c3a1179dbba3",
+      "gt.png": "e8897f46a4a31c396b0307804af61112e527a32b32d755619bd2933a3f110313"
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "uid": "3828269937137.jpg",
+    "frame_index": 270,
+    "baseline_psnr": 22.670936584472656,
+    "ours_psnr": 27.818359375,
+    "delta_psnr": 5.147422790527344,
+    "scene_delta_psnr": 1.7197942733764648,
+    "scene_baseline_psnr": 24.05590786096704,
+    "scene_ours_psnr": 25.775702134343504,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0",
+    "physical_renders": 13620,
+    "baseline_adam": 1071,
+    "ours_adam": 1055,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F03",
+    "source_rgb": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3828269937137.jpg",
+    "source_rgb_sha256": "a6504c6107c78a9dd6b179054c301ed155afb7e65ff23dcae7229ca49ff9baf2",
+    "source_map_sha256": {
+      "baseline": "a2fbba21bf952883594a929e58143203222587a049796007bcfeff9f4bac7e62",
+      "ours": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/aria/aria1253/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 22.670936584472656,
+      "ours": 27.818359375
+    },
+    "display_rotation_clockwise_degrees": 90,
+    "crop_xyxy_display_pixels": [
+      112,
+      112,
+      279,
+      279
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "e4114bb27da405e825a44e021ab489307d268e5e3ebd9e7e22602fad44755e4e",
+      "ours_crop.png": "8362d143fde6ca3e6d206c678f3a3af2984804c921de0dd6e39e74b077a56655",
+      "ours.png": "ce3f646bd60e9c95d303abade7d461a9d8214c1262337bb56c691105b4ba6e4e",
+      "gt_crop.png": "f33d43e0c8d73122f7abc1b55a81638fb4dd80f4ffa6915a090172f7bba2900f",
+      "baseline_crop.png": "152850279e21114abb7be9f62985d20aa834038bb3b34f5b27c2d4f58ef75022",
+      "gt.png": "c165ae1ee0a17bfcbcceb95fd586f71657e2a3d648dacde08d012e284daa34db"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "uid": "1662924054353375673.png",
+    "frame_index": 1420,
+    "baseline_psnr": 26.12710189819336,
+    "ours_psnr": 31.253232955932617,
+    "delta_psnr": 5.126131057739258,
+    "scene_delta_psnr": 1.7908915442389421,
+    "scene_baseline_psnr": 22.682195690945463,
+    "scene_ours_psnr": 24.473087235184405,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/normalized_variance_s0",
+    "physical_renders": 34437,
+    "baseline_adam": 2719,
+    "ours_adam": 2714,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F04",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_06/rgb/1662924054353375673.png",
+    "source_rgb_sha256": "364a9f1c77c64a3fdb5daca24ddc797f671d523b3939f4bfe7ddeb2fdd781030",
+    "source_map_sha256": {
+      "baseline": "6efa69b42828c89ab03cc79c29d57f063a19b6baef841eafe3a7792675ca3a5f",
+      "ours": "724b0316d4c982285ed50111412493336c6e82d26e5fa2eea696ce4ba8cb06b2"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_06/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 26.12710189819336,
+      "ours": 31.253232955932617
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      440,
+      40,
+      564,
+      164
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "c7a26ac2a191e9d0c4f6f43249bcecc10f829834bbff047d2084ac28f412b184",
+      "ours_crop.png": "c89adf251b11b1a9a6eefdb7876042d7ef896738d558fc00735485aa87047638",
+      "ours.png": "239b2c48047bb44ec058399537d180536be74c43e18d5eecc68b6c3a9225f1cf",
+      "gt_crop.png": "d08745e1c04d2f4759f2561965df24fc104d984d21f16885c0b5044470d7d3ac",
+      "baseline_crop.png": "bf8468eca21e818578c23b8c2a5aa685195c64bc54c05e923a6e05f91506b754",
+      "gt.png": "cdc51070e3a2444495377af52f69169d51587e142166746fa222204149b9a0b0"
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "uid": "3859519943925.jpg",
+    "frame_index": 895,
+    "baseline_psnr": 22.093427658081055,
+    "ours_psnr": 26.8638973236084,
+    "delta_psnr": 4.770469665527344,
+    "scene_delta_psnr": 1.7197942733764648,
+    "scene_baseline_psnr": 24.05590786096704,
+    "scene_ours_psnr": 25.775702134343504,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0",
+    "physical_renders": 13620,
+    "baseline_adam": 1071,
+    "ours_adam": 1055,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F05",
+    "source_rgb": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3859519943925.jpg",
+    "source_rgb_sha256": "f6969bb206c39fca3e535ef5f00097240e4656d0855f00d77eb36958c48ef801",
+    "source_map_sha256": {
+      "baseline": "a2fbba21bf952883594a929e58143203222587a049796007bcfeff9f4bac7e62",
+      "ours": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/aria/aria1253/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 22.093427658081055,
+      "ours": 26.8638973236084
+    },
+    "display_rotation_clockwise_degrees": 90,
+    "crop_xyxy_display_pixels": [
+      0,
+      0,
+      167,
+      167
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "777f916ad2703b4dbd0ac8ce3f6d1d42b0f913707bb13d2c6aace39b5af9af08",
+      "ours_crop.png": "cb6002f653cff10704e8135e05c8acbb8570c227b885e2a0cfd9423a9fd48805",
+      "ours.png": "4a183d57f6a916341e023060d8dc9f22e66a8082cca5926df0ac038cdd60caf6",
+      "gt_crop.png": "6ab36a3da357202db1daefc2363957bc7ad8518cef1b58cb04a87a4c7ed8c429",
+      "baseline_crop.png": "a94550b9b5d4a91b7c42d5ae8b2f4018456c549a0f22ee5466826c4661ab4a44",
+      "gt.png": "49b1aebc42790738fefb31011b6ffd9ad4ad7e30746dc4f1af9c8cecaa16e5d3"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "uid": "1662924081509467125.png",
+    "frame_index": 2235,
+    "baseline_psnr": 25.53356170654297,
+    "ours_psnr": 30.250423431396484,
+    "delta_psnr": 4.716861724853516,
+    "scene_delta_psnr": 1.7908915442389421,
+    "scene_baseline_psnr": 22.682195690945463,
+    "scene_ours_psnr": 24.473087235184405,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/normalized_variance_s0",
+    "physical_renders": 34437,
+    "baseline_adam": 2719,
+    "ours_adam": 2714,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F06",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_06/rgb/1662924081509467125.png",
+    "source_rgb_sha256": "458d76bf4baa8b63a9b29a4469da0305390bf68b82d889dd59ca11ee35575458",
+    "source_map_sha256": {
+      "baseline": "6efa69b42828c89ab03cc79c29d57f063a19b6baef841eafe3a7792675ca3a5f",
+      "ours": "724b0316d4c982285ed50111412493336c6e82d26e5fa2eea696ce4ba8cb06b2"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_06/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 25.53356170654297,
+      "ours": 30.250423431396484
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      40,
+      0,
+      164,
+      124
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "41742f587fa080b04bd0c12184816de2a8ec3f8263197ce9d1718c31791197b5",
+      "ours_crop.png": "4087b7ef6dff16358338ccc78d349ca9382a68422888eb544b2d8da993335a7d",
+      "ours.png": "06748eaef898b17ef4d777a7fd05bd816ce4061305ff60d65905916a47aae29f",
+      "gt_crop.png": "b9c684c771c37d6194aecb7da112cb4328ba0695d91378e16e36894acc11443a",
+      "baseline_crop.png": "ccebf117f869021083095fa01cdc94ef704afb67012a6e1f303e438a68e46742",
+      "gt.png": "a1c01ea0b8c87ad1182abe06d27ccd124e5cd96d0b2fb7c634be2cdd54f38c4b"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_08",
+    "uid": "1662925806490018845.png",
+    "frame_index": 425,
+    "baseline_psnr": 23.340185165405273,
+    "ours_psnr": 27.7738037109375,
+    "delta_psnr": 4.433618545532227,
+    "scene_delta_psnr": 1.692766843330734,
+    "scene_baseline_psnr": 22.10043133554807,
+    "scene_ours_psnr": 23.793198178878804,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/normalized_variance_s0",
+    "physical_renders": 94283,
+    "baseline_adam": 7436,
+    "ours_adam": 7465,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F07",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_08/rgb/1662925806490018845.png",
+    "source_rgb_sha256": "ec12c884137c311443859a53bb3404eb7f8a766006698070b382b0bc087ca194",
+    "source_map_sha256": {
+      "baseline": "cbcfea69c8352c03f21605b9255b7086c523c71cda91de1756fcc23581172073",
+      "ours": "e10c712c68fff272311c460210f104dfe66ada1ff635a79a009245cb9f5d9b89"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_08/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 23.340185165405273,
+      "ours": 27.7738037109375
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      96,
+      144,
+      220,
+      268
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "8f3b51581e79963c85e7399147d9d712dc62eb10793a72ed0b5035f5e48d1b10",
+      "ours_crop.png": "eccfeafdaa4610348554eda489f016e02232de7081e4334040cbfdb8d92113b0",
+      "ours.png": "4c45f310f2e0c02c292585b1c6029dc8c6484cd716fafeddb44ce7ffb054087a",
+      "gt_crop.png": "156e300cba27e6d9c2bd6c760e311ab2e717835b22ce502d46654ab2b902fd57",
+      "baseline_crop.png": "a8062201a1428a89a292a0d760942e09cb04aae4351b93899708dff86fdd7b19",
+      "gt.png": "417ece46af6fa9724aa9c85e2d26b58c638bead832dd0721898dbfab0189915b"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_08",
+    "uid": "1662926042577159882.png",
+    "frame_index": 7505,
+    "baseline_psnr": 21.933557510375977,
+    "ours_psnr": 26.3475399017334,
+    "delta_psnr": 4.413982391357422,
+    "scene_delta_psnr": 1.692766843330734,
+    "scene_baseline_psnr": 22.10043133554807,
+    "scene_ours_psnr": 23.793198178878804,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/normalized_variance_s0",
+    "physical_renders": 94283,
+    "baseline_adam": 7436,
+    "ours_adam": 7465,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F08",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_08/rgb/1662926042577159882.png",
+    "source_rgb_sha256": "2ab1c36960dcd75d9c4d73a24f48024e4a5294204a66c9ad30a06e5dc8cf95d6",
+    "source_map_sha256": {
+      "baseline": "cbcfea69c8352c03f21605b9255b7086c523c71cda91de1756fcc23581172073",
+      "ours": "e10c712c68fff272311c460210f104dfe66ada1ff635a79a009245cb9f5d9b89"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_08/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 21.933557510375977,
+      "ours": 26.3475399017334
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      264,
+      72,
+      388,
+      196
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "aa91645f819f57d49440bc99cbbe730e9f7b02c8bab6718aadeb9e56abb8887c",
+      "ours_crop.png": "ab7c1b5b99456636bd53e1660f5b274d53d367d87e5472406e9c7cfebff0e0cb",
+      "ours.png": "f9cb62963d5e7e5bd679df89ad14baa6a33920c53149a5362b25abf1404ae9d6",
+      "gt_crop.png": "fb6a7f54474857c28345eedf35f058770f6f762edd61b6335c8b4ad3c726af04",
+      "baseline_crop.png": "1e920c4ee36a57206ebf3d4f1233b686ca398880366c4fe7f729fe2d15099138",
+      "gt.png": "7ad3e72c4a518e9a364c0199da328b4192f4364f1224513cb29415cabdf486ac"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "uid": "1662918598121584892.png",
+    "frame_index": 4070,
+    "baseline_psnr": 20.792692184448242,
+    "ours_psnr": 24.92630958557129,
+    "delta_psnr": 4.133617401123047,
+    "scene_delta_psnr": 1.7509620873292064,
+    "scene_baseline_psnr": 21.80453405910824,
+    "scene_ours_psnr": 23.555496146437445,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/normalized_variance_s0",
+    "physical_renders": 85029,
+    "baseline_adam": 6706,
+    "ours_adam": 6724,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F09",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_03/rgb/1662918598121584892.png",
+    "source_rgb_sha256": "692f641a821a4bb09125e1f58932c38e6824e507b1f5e32088a9b5851bad3dd9",
+    "source_map_sha256": {
+      "baseline": "a1335d11360bf6cb196a24bf8328bf3daa092d715df2a6402a19c5bd8c9db0f9",
+      "ours": "b9c2469a04f3b611882bbaae2b4a073ec30c168eeaf3da2164b8974d885c684b"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_03/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 20.792692184448242,
+      "ours": 24.92630958557129
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      24,
+      144,
+      148,
+      268
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "c7f0e1bbec7b562d773957e1959b449349dcda306895f1778c5c38d03884e371",
+      "ours_crop.png": "3f39ec279bbd8c423b132fe7704916a87b25d5c97a894f43af68b9731ce61d1f",
+      "ours.png": "9fecebc5b60d6308c5170c0e772d4e435be1a5126427e3bf7a5f4589acd2dd09",
+      "gt_crop.png": "19a3f603d3572063a91f89c1f7c2287b4bdd2f937f33eaa77acf17bfe4e6402e",
+      "baseline_crop.png": "78d7bca5549e852f5699144e1feff07c0ccf850c51843367650b0113eb9995a8",
+      "gt.png": "efc5f46dd0faf8c24e7739a5c6a76a1105050b3b7bec25c3f187079969ac21d7"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "uid": "1662917391680708885.png",
+    "frame_index": 865,
+    "baseline_psnr": 19.349611282348633,
+    "ours_psnr": 23.33409309387207,
+    "delta_psnr": 3.9844818115234375,
+    "scene_delta_psnr": 2.1988808030951503,
+    "scene_baseline_psnr": 21.18882799801761,
+    "scene_ours_psnr": 23.387708801112762,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_02/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_02/normalized_variance_s0",
+    "physical_renders": 53669,
+    "baseline_adam": 4231,
+    "ours_adam": 4229,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F10",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_02/rgb/1662917391680708885.png",
+    "source_rgb_sha256": "f65aecf3b7841fc18ae3083140ba31fdc0b02865e7eaee40f7e15cf425bdfb26",
+    "source_map_sha256": {
+      "baseline": "35580c940fd0686a604a54a65b8f11901a671912e3e396d01ea3fdd82be3feb9",
+      "ours": "8f22b707b89c6f8e4fe3f3e39c6a0cd774d2633cb974cddfb0c4074bc2164297"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_02/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 19.349611282348633,
+      "ours": 23.33409309387207
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      472,
+      120,
+      596,
+      244
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "9bc3685215ac78d000d141c91bb4163c4c8e4f3e7eee80559f4aeed715d9eff5",
+      "ours_crop.png": "2fa325cceaab4f837ac47e07123720ace50eb0a9085a8f342f59d02bf6c8f6af",
+      "ours.png": "e3994df6d4957d97ffc768aac44e47f5d7fc037d3822bb03c007a76790cb672c",
+      "gt_crop.png": "6918417578b5c6c4490866e878fddb1153853eb5ddb32cab75144d9c103658c7",
+      "baseline_crop.png": "20bc5a6dbc92086d08cf3845eb32533a2e9bbc18333b9c5aeacd535fb35125a2",
+      "gt.png": "11e5b63ff6b7f6fbe8def962061ec4cfe1f9334d8946e94c8f031dbf15e52a6c"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "uid": "1662918527933262348.png",
+    "frame_index": 1965,
+    "baseline_psnr": 20.26302719116211,
+    "ours_psnr": 24.03357696533203,
+    "delta_psnr": 3.770549774169922,
+    "scene_delta_psnr": 1.7509620873292064,
+    "scene_baseline_psnr": 21.80453405910824,
+    "scene_ours_psnr": 23.555496146437445,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/normalized_variance_s0",
+    "physical_renders": 85029,
+    "baseline_adam": 6706,
+    "ours_adam": 6724,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F11",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_03/rgb/1662918527933262348.png",
+    "source_rgb_sha256": "2b9db8df6c2a406e9b82c2b3fafdc814069429acb805dd3398661c0a92ed9e50",
+    "source_map_sha256": {
+      "baseline": "a1335d11360bf6cb196a24bf8328bf3daa092d715df2a6402a19c5bd8c9db0f9",
+      "ours": "b9c2469a04f3b611882bbaae2b4a073ec30c168eeaf3da2164b8974d885c684b"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_03/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 20.26302719116211,
+      "ours": 24.03357696533203
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      48,
+      0,
+      172,
+      124
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "8b9b1ae3346f74bc70dd51aac285d2e2ff27243d435edf01ce69d596382ae697",
+      "ours_crop.png": "a6e026192d8a7abf3d39cedfd8915bd883809350409cd7121e93528308fc687b",
+      "ours.png": "353d43c47ac853b05d53f124baf68475200b3ef77a5ccb79ae23c0a0c303651f",
+      "gt_crop.png": "2c1a4b718f788f9669a6f511178387eaf475fb4a506993a3f4525c144a445832",
+      "baseline_crop.png": "e433a416abf02fbb05940f5387e3430b3e370d0fbf1a23e4c0777df54aa67e9d",
+      "gt.png": "831bbadba5a3afac27d0e9d1449c4652611a6a7666af6d04f50fa9d60edd4308"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_07",
+    "uid": "1662924284166840315.png",
+    "frame_index": 3855,
+    "baseline_psnr": 24.680316925048828,
+    "ours_psnr": 28.390844345092773,
+    "delta_psnr": 3.7105274200439453,
+    "scene_delta_psnr": 1.4890395942958747,
+    "scene_baseline_psnr": 25.270524285780365,
+    "scene_ours_psnr": 26.75956388007624,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_07/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_07/normalized_variance_s0",
+    "physical_renders": 33422,
+    "baseline_adam": 2680,
+    "ours_adam": 2691,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F12",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_07/rgb/1662924284166840315.png",
+    "source_rgb_sha256": "3cdde37a52957734223d4a91dfdf9568e7a168fb5a200cff5f025c0939f037d3",
+    "source_map_sha256": {
+      "baseline": "4a41e95bb98d5e39f75c7cbdfbbe85f6d9a220f9f5e98c12dde28f25c760b940",
+      "ours": "435a8f748f6deafeae7383ef1fc1ef9502d10013c91f0823669eaf6a268ca421"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_07/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 24.680316925048828,
+      "ours": 28.390844345092773
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      0,
+      208,
+      124,
+      332
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "88589b8325c9b8943d5e67a75af38dde0bd186275ee26dd1fe0c900aa6003f40",
+      "ours_crop.png": "15efee251eb282358ed5af0a1913efca81be9be1042d943ba43e9bc637fbba9e",
+      "ours.png": "f8fba02616bd56b48a68c5ec5d3405b87fbb599958717d2314a6b65bf3cbaa34",
+      "gt_crop.png": "cfad5736c7980778a451bd48b1b44e6184ad694b3e2f0a3a8344b3436e3c030d",
+      "baseline_crop.png": "cc1e2598e0f64fb724cf1f7890268bbb63e3a8e9be18f27e9b51effef88c5c4b",
+      "gt.png": "bac9cef0d3965fa467eae2c89cd1b71b4730ecd4cdf1e06574fa04dbba7a26dd"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "uid": "1662917405035649300.png",
+    "frame_index": 1265,
+    "baseline_psnr": 20.51772689819336,
+    "ours_psnr": 24.16614532470703,
+    "delta_psnr": 3.648418426513672,
+    "scene_delta_psnr": 2.1988808030951503,
+    "scene_baseline_psnr": 21.18882799801761,
+    "scene_ours_psnr": 23.387708801112762,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_02/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_02/normalized_variance_s0",
+    "physical_renders": 53669,
+    "baseline_adam": 4231,
+    "ours_adam": 4229,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F13",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_02/rgb/1662917405035649300.png",
+    "source_rgb_sha256": "837ee13c7e7bf113c17f162874296114fa61a22ab09769745e828f6261fe6fe8",
+    "source_map_sha256": {
+      "baseline": "35580c940fd0686a604a54a65b8f11901a671912e3e396d01ea3fdd82be3feb9",
+      "ours": "8f22b707b89c6f8e4fe3f3e39c6a0cd774d2633cb974cddfb0c4074bc2164297"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_02/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 20.51772689819336,
+      "ours": 24.16614532470703
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      456,
+      216,
+      580,
+      340
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "6f3766fb6b7da175282bb873aaa76cd61e2a7481d584ba5bfa282f2c4b42b609",
+      "ours_crop.png": "b9a6e1e484642ad1bcc9e4f8457c2aa4ccbe14589e0ce36fb09fa45522d5ddbf",
+      "ours.png": "d73b03d04166e2d1a3627f8c9f4062458489a1450d89b7ef7f990e13bace7556",
+      "gt_crop.png": "3575e3736104d07fb6a82b311b331a94d4eab7b605c2fddc30d384cf689a430e",
+      "baseline_crop.png": "dee9ec860e249f839ee4b1924f7f0bd991f56864f38737b4694fbc5e898e722c",
+      "gt.png": "8f78081dd2887ff3d305d2086b053fe8abb533acd74f8bd21f43d6f062cfe56d"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "uid": "1706737779026069880.png",
+    "frame_index": 1265,
+    "baseline_psnr": 19.80567169189453,
+    "ours_psnr": 23.442279815673828,
+    "delta_psnr": 3.636608123779297,
+    "scene_delta_psnr": 1.0429959974171226,
+    "scene_baseline_psnr": 20.18177710344762,
+    "scene_ours_psnr": 21.22477310086474,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/square-1/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/square-1/normalized_variance_s0",
+    "physical_renders": 9345,
+    "baseline_adam": 763,
+    "ours_adam": 757,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F14",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-1/rgb_timestamp/1706737779026069880.png",
+    "source_rgb_sha256": "2cd447a946262df17c6a80a4b563b32e3ebe7eb620e3fecb8dbba0c3d2a12eac",
+    "source_map_sha256": {
+      "baseline": "1295d6b350a87e18d83dd9a5dcd7c1bbe6aa8c9adea5479f2a6ffc3da54a5dab",
+      "ours": "e4b7bb9543c3ef6c1aa1dd82e8047714f3a2e61b018954d842d9844358501f37"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/square-1/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 19.80567169189453,
+      "ours": 23.442279815673828
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      528,
+      8,
+      646,
+      126
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "41f96d923995ff200e37924670c08fe57ca51bf00f3bc844e2c3f5b2571b65b2",
+      "ours_crop.png": "69840eb3e7f757e7e30a07cdd4fbfbbdd8239f8f60228fde1a5115a0f48301e1",
+      "ours.png": "8bdc554379da765317ce140bf5e8d6318b025f81d3a2cdc7ab434d3f2308591e",
+      "gt_crop.png": "223661bb25a17e25640e5fa80355ab649a31b91a60f676113c888be3ff0587d5",
+      "baseline_crop.png": "6b5d1f53df7887de1376d76717a645e6ae26dd10076ec2da7f8d85102c074822",
+      "gt.png": "529ec6cdbbe32eb23a32e1fb2f55d0b5d8dc55a6d7af55268d981deab649861e"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_04",
+    "uid": "1662919287949297905.png",
+    "frame_index": 3965,
+    "baseline_psnr": 20.885421752929688,
+    "ours_psnr": 24.415863037109375,
+    "delta_psnr": 3.5304412841796875,
+    "scene_delta_psnr": 1.1251944239738059,
+    "scene_baseline_psnr": 21.27662220786138,
+    "scene_ours_psnr": 22.401816631835185,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_04/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_04/normalized_variance_s0",
+    "physical_renders": 67793,
+    "baseline_adam": 5343,
+    "ours_adam": 5359,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F15",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_04/rgb/1662919287949297905.png",
+    "source_rgb_sha256": "7f0c262946a4ba106fa697761c18c0d75c860b690a0e9324652493781726fb79",
+    "source_map_sha256": {
+      "baseline": "c886ef8748b7391654748cc780225de87b4264af3c8e75dbf1501b0b5d467514",
+      "ours": "5b31bdf6147cd8b238463ca4a14590fba458121243b0d2251c1fca519b3ed91e"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_04/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 20.885421752929688,
+      "ours": 24.415863037109375
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      328,
+      216,
+      452,
+      340
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "27e0c237cda695706a1a98e5ef88ff90951ff398af3c79fe0557163098344599",
+      "ours_crop.png": "1c5f7cf8fb29f30a92ab43e70a1f649c01c8ae2d0bb7c0a048c5c4405a2d666b",
+      "ours.png": "fce6358675b987038299d35558885c34d9bf5432ff1afbb397ed764cebe3cb6b",
+      "gt_crop.png": "626647a4bff0f18bc2db81632ee61ca5fdf10d1beef4c84588a87f4045bda956",
+      "baseline_crop.png": "23ae775e29cea7dd2594b1c786087a9dbcd6191af449a785012eccdeb6cdb507",
+      "gt.png": "f2c033176f74e443a326cfdc716ef96170c5f0607ab7c643c80daf77c7c827ac"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_05",
+    "uid": "1662923957433355570.png",
+    "frame_index": 5665,
+    "baseline_psnr": 26.237586975097656,
+    "ours_psnr": 29.72669219970703,
+    "delta_psnr": 3.489105224609375,
+    "scene_delta_psnr": 1.0883580475224477,
+    "scene_baseline_psnr": 21.700924438247803,
+    "scene_ours_psnr": 22.78928248577025,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_05/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_05/normalized_variance_s0",
+    "physical_renders": 52480,
+    "baseline_adam": 4138,
+    "ours_adam": 4135,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F16",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_05/rgb/1662923957433355570.png",
+    "source_rgb_sha256": "c46ddceafb8f068270512d348bfe86258f4012c88f7da858f40cf9d997b61876",
+    "source_map_sha256": {
+      "baseline": "d78ed29cc9264c6010fdbe76e5ec6aff30699b363ec46a10dc82c20b08d7a4ab",
+      "ours": "f1f37e336682d650868ac09a1b85b866b971dd1285ba2beb3a8a95014c7169d5"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_05/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 26.237586975097656,
+      "ours": 29.72669219970703
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      488,
+      40,
+      612,
+      164
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "5eed59101154188ad62f6aaed017a064578e2048e5bb6eb4052fa88b656eac4c",
+      "ours_crop.png": "9d388821ecba075c31ea94b803e83a6b4596378b61c8eb91118bc0f67f6aa083",
+      "ours.png": "b7400c8c38dcf2a143ff8e26fb055d455ffa39824a521a153ebbe7dae6e8350c",
+      "gt_crop.png": "05f6c8de7591be4c706626701dbfa003e9f2f5a2bde605342c87eef7e9f2be96",
+      "baseline_crop.png": "8acd6b344bdcaacf3b59278fc7e0043547b91c4b2bbc62d515ab648a9b9623f0",
+      "gt.png": "81a08c4684bb91d1d6650d3d8effb6f603b21aaecb919a7da87e0020fdef9c14"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_05",
+    "uid": "1662923866714571238.png",
+    "frame_index": 2945,
+    "baseline_psnr": 25.20549774169922,
+    "ours_psnr": 28.67321014404297,
+    "delta_psnr": 3.46771240234375,
+    "scene_delta_psnr": 1.0883580475224477,
+    "scene_baseline_psnr": 21.700924438247803,
+    "scene_ours_psnr": 22.78928248577025,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_05/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_05/normalized_variance_s0",
+    "physical_renders": 52480,
+    "baseline_adam": 4138,
+    "ours_adam": 4135,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F17",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_05/rgb/1662923866714571238.png",
+    "source_rgb_sha256": "57a2af92d175ccbc0f3b8cfd328374de56fb43ef523c10b7db7860307716d27c",
+    "source_map_sha256": {
+      "baseline": "d78ed29cc9264c6010fdbe76e5ec6aff30699b363ec46a10dc82c20b08d7a4ab",
+      "ours": "f1f37e336682d650868ac09a1b85b866b971dd1285ba2beb3a8a95014c7169d5"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_05/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 25.20549774169922,
+      "ours": 28.67321014404297
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      488,
+      88,
+      612,
+      212
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "0e786a44df11a481800cab3e4bc1aef3bf02b86cfe4d5ef49624367732210266",
+      "ours_crop.png": "b26c8aeab2d564068c2e2a865fb6f647593805717b622d61ea74f29ce346b27e",
+      "ours.png": "b52713a491252d3e15949a173de9054f5bc920686aa2923de08e54a9af3899f3",
+      "gt_crop.png": "cfffbd7b34cb3450bbc2d16b1ea7c1bd6587d456fe891e30b5bfd24d2534ee20",
+      "baseline_crop.png": "f95ba47733fbe24d27f520bd1ae9cbd8f47953a5936c7bfb16bae3ba03bbbc4c",
+      "gt.png": "ec2146f727dd70f0cd6a851f62184307d30ee586f1b297644a99333f7fec2d41"
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "uid": "1662915742346800804.png",
+    "frame_index": 330,
+    "baseline_psnr": 23.782581329345703,
+    "ours_psnr": 27.217042922973633,
+    "delta_psnr": 3.4344615936279297,
+    "scene_delta_psnr": 1.652589399026212,
+    "scene_baseline_psnr": 23.928826286498293,
+    "scene_ours_psnr": 25.581415685524505,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_01/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_01/normalized_variance_s0",
+    "physical_renders": 38302,
+    "baseline_adam": 3027,
+    "ours_adam": 3030,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F18",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_01/rgb/1662915742346800804.png",
+    "source_rgb_sha256": "427ace18f3931b6dbb74cec1c6fe189420e3d5c4d3ca7ea295e1d16b99a452d8",
+    "source_map_sha256": {
+      "baseline": "63f55a59e2abf5170cedb58a708bcbfac31608f15cd19ec7c675fee3db96b5dc",
+      "ours": "af4bc36a637e23343053bc2411071bdb06b44831ed2f6b6fe0e2d92d2fd9c5bb"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_01/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 23.782581329345703,
+      "ours": 27.217042922973633
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      384,
+      208,
+      508,
+      332
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "8d84a55ea32420453692433104b7f757a32cbf0fd000cae8f835924cf1ae11ee",
+      "ours_crop.png": "5a7d2fc9b2d4b8f42649367d145fd93877853af34f401fcd81fb1ea04e23574d",
+      "ours.png": "124774954e679c3c664472da256a2cbcaaf597241378d8dbc9e8248f1a6353f8",
+      "gt_crop.png": "abed68ceed0803cccdb55a2ab3ea1877bea646db32f39416824a1f032d34dff9",
+      "baseline_crop.png": "49839117223d471136977cf82031ed63a2689ab02d57b47643bfd7091c660f96",
+      "gt.png": "c08d1886c526a0a48a6ac292f6685b04c6b2b586f6fe17a87ecd3402198c2f48"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-2",
+    "uid": "1706739537642005920.png",
+    "frame_index": 150,
+    "baseline_psnr": 19.44480323791504,
+    "ours_psnr": 21.756601333618164,
+    "delta_psnr": 2.311798095703125,
+    "scene_delta_psnr": 0.7855286812295716,
+    "scene_baseline_psnr": 20.63065157131273,
+    "scene_ours_psnr": 21.4161802525423,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/square-2/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/square-2/normalized_variance_s0",
+    "physical_renders": 8277,
+    "baseline_adam": 679,
+    "ours_adam": 676,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F19",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-2/rgb_timestamp/1706739537642005920.png",
+    "source_rgb_sha256": "f77686cc70e0e499b4858ae33b77c0c886518cfa668d26d10b9ea8b2848fb9e3",
+    "source_map_sha256": {
+      "baseline": "5e1c4127ca9dbc67978b46234a20043dca3621a44b173661b25e1767da1622f0",
+      "ours": "30083b81f7842b9c75a349e68b264b00a1f7d721b38c228e1c09869a1e06f28a"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/square-2/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 19.44480323791504,
+      "ours": 21.756601333618164
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      520,
+      104,
+      638,
+      222
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "fa4b960fb3d2d57d6403708eeec4cd860da2e77ae2618fef8f6c0c792bb67a0a",
+      "ours_crop.png": "807e493323074d12d6c09fa4a8c08fb4d1f42e6dfadf3959ec32f597dad5bb1e",
+      "ours.png": "8a1d5a3fee1ece533dfa4a7d20e833a730b1ca459270a20d09301b166d4837ec",
+      "gt_crop.png": "4d9a64a48a45ea65762993a898d37ae02f467bb5ef9be23ddd4dc272c7c6e5cf",
+      "baseline_crop.png": "a503a971818245d89d796c8e9d0547007c4e77cc99c9bbbbe2774f5b2f415bc6",
+      "gt.png": "335b1765286d90842d847e938ae0b148027a3ae743874d31e10a6746292c619a"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "ego-drive",
+    "uid": "1706738452799477339.png",
+    "frame_index": 540,
+    "baseline_psnr": 16.947668075561523,
+    "ours_psnr": 19.257953643798828,
+    "delta_psnr": 2.3102855682373047,
+    "scene_delta_psnr": 0.7035961286877388,
+    "scene_baseline_psnr": 20.56058109867191,
+    "scene_ours_psnr": 21.26417722735965,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-drive/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-drive/normalized_variance_s0",
+    "physical_renders": 11226,
+    "baseline_adam": 900,
+    "ours_adam": 898,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F20",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-drive/rgb_timestamp/1706738452799477339.png",
+    "source_rgb_sha256": "efb0a4d5b3c7b577bc87f90584d50de0bdebc4623dad9b34701a528bf3af3000",
+    "source_map_sha256": {
+      "baseline": "5c9f8b5d91468eb33b268c6792542173340c74e1b16982271a46435e54b60180",
+      "ours": "2043d4696625923aea84ab3aa01eade0ffd0b3eef40e087a8f2a5a923555f84d"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/ego-drive/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 16.947668075561523,
+      "ours": 19.257953643798828
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      528,
+      32,
+      646,
+      150
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "eae3a22ccd0aff04ce42d7ea1cbca24af6c362579186cfae65b8f6565aaf0fe2",
+      "ours_crop.png": "b0f89a0c8f4f9a07fe84ac8fbf272e8eca6a5f6f0ba7da4718ce1b0c5c478c84",
+      "ours.png": "42748e7a98ef536f91cb7f06f0ba4cb64d334f8b813cef98726d06aca66f26dc",
+      "gt_crop.png": "fd6bf05db09606e5bd04ca71e6377ab17ebe3343384effd658aeb8d3c2e9bf7a",
+      "baseline_crop.png": "a6578c0357c19b27abd90f599a193afb965f32ed0df58556ea633d0b95a2bf3b",
+      "gt.png": "9067cae62f7a6573a8d9f4d5023064e8d2df547b3f64e46b997a27e4d3c011fe"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "ego-centric-1",
+    "uid": "1706739438024312019.png",
+    "frame_index": 885,
+    "baseline_psnr": 18.439071655273438,
+    "ours_psnr": 20.499122619628906,
+    "delta_psnr": 2.0600509643554688,
+    "scene_delta_psnr": 0.5462428439747207,
+    "scene_baseline_psnr": 17.212575971306144,
+    "scene_ours_psnr": 17.758818815280865,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-1/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-1/normalized_variance_s0",
+    "physical_renders": 5676,
+    "baseline_adam": 465,
+    "ours_adam": 466,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F21",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-1/rgb_timestamp/1706739438024312019.png",
+    "source_rgb_sha256": "cb873a41e1a6d4a7eda6f33b3e62eb914ab12e966f1b28d565813a2371d4e952",
+    "source_map_sha256": {
+      "baseline": "dfb3fe86b9bf3e9266bce8db48fe54fe61aebb6d381c454f8be16db668766eb0",
+      "ours": "f24ee6e75f37d7adb231897210ec78750e7dcba3019a7f98341c35d8553ddb83"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/ego-centric-1/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 18.439071655273438,
+      "ours": 20.499122619628906
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      528,
+      0,
+      646,
+      118
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "bb618c88a4254f796bb531b1a84802d54570fc95a3a5903e7ecefb760e0de4a1",
+      "ours_crop.png": "08c354bc2e4d2c135a95112b64097d99cba79b5288a3d776883fdef0c71c069f",
+      "ours.png": "d59bcd104a32300baa17d5eeb98f7d4700a767e040cdbfc17694afd05fb12765",
+      "gt_crop.png": "a6a186e35c7e37e392c6f4eb03583f5426350e009d8341f521285aa482deb712",
+      "baseline_crop.png": "e19f513efd9a2d90bc8c69b9e1be96567d54a82ef62f5b147593513d2c0c75c2",
+      "gt.png": "6672edd5549e32a7d9fdbcc52f2c8d597f7ec3cf7368ae9104086d88a5d6a6e1"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "ego-centric-2",
+    "uid": "1706738252727924347.png",
+    "frame_index": 665,
+    "baseline_psnr": 18.998151779174805,
+    "ours_psnr": 21.04526138305664,
+    "delta_psnr": 2.047109603881836,
+    "scene_delta_psnr": 0.23656785168410366,
+    "scene_baseline_psnr": 19.2556121577705,
+    "scene_ours_psnr": 19.492180009454604,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-2/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-2/normalized_variance_s0",
+    "physical_renders": 6655,
+    "baseline_adam": 556,
+    "ours_adam": 559,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F22",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-2/rgb_timestamp/1706738252727924347.png",
+    "source_rgb_sha256": "bc6918738adf41f67b2fe5cbec025d4d5ece31d042bf70e5fa69851addbe9d6a",
+    "source_map_sha256": {
+      "baseline": "e1eb0ef41df209fe6f4789f317a657dbaa07093e298199e4d2dfcda2488aaddd",
+      "ours": "dce15c4b2bcf9cc7b44cd2f45c7acc2ebe15c705dc911cd7b84a6ad716bbe600"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/ego-centric-2/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 18.998151779174805,
+      "ours": 21.04526138305664
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      480,
+      8,
+      598,
+      126
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "97b9c5974bb807046e629278b1f15b336a523ad6e6999f0e0641a8072ddb7b17",
+      "ours_crop.png": "6ce2fda95a80fd5d025b5abc0d0173557cb71fb4cb649ed53bd78ee7fb885ea9",
+      "ours.png": "c9f1e928e4a0e39c4e3a8e94d5256907567b8055161e38b896d85819e5157cfa",
+      "gt_crop.png": "7b79cf0530a12060a84c63de2e5b067f3091be6ae9ae170965dff94607764207",
+      "baseline_crop.png": "24720b1d7b25949403bf65a77f56f14c5be10932ec12c7d74da85228d5c1b247",
+      "gt.png": "7546fce29de3988a27b91cf236d19a532557fe25471a5354e2699e756268785a"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "fast-straight",
+    "uid": "1706737616242625713.png",
+    "frame_index": 115,
+    "baseline_psnr": 14.413522720336914,
+    "ours_psnr": 16.451072692871094,
+    "delta_psnr": 2.0375499725341797,
+    "scene_delta_psnr": 0.4315227620741915,
+    "scene_baseline_psnr": 15.948412909227258,
+    "scene_ours_psnr": 16.37993567130145,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/fast-straight/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/fast-straight/normalized_variance_s0",
+    "physical_renders": 1348,
+    "baseline_adam": 165,
+    "ours_adam": 172,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F23",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/fast-straight/rgb_timestamp/1706737616242625713.png",
+    "source_rgb_sha256": "6129470264d2e644c02499f13bb1b16f7e91b454bc22bdd1f0a5891de171795b",
+    "source_map_sha256": {
+      "baseline": "9d9352ff498ebd35c538d6e5ade58f0eea9eea7a12607303f762f6c609b226ea",
+      "ours": "8b123125571099deb32e6284c4a1921c95ec3cb11714ed2fb980c1369db0a337"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/fast-straight/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 14.413522720336914,
+      "ours": 16.451072692871094
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      8,
+      208,
+      126,
+      326
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "17b72e5fdde41423de7dc8dd2357ebcd04cdbe315233a4af8a7c7dd9314f7640",
+      "ours_crop.png": "6db3334e3bfa63f00c6dbd45540f41452677891b3a832db5e0e715fc96718ced",
+      "ours.png": "6fae4051a40058f3b19d6094ee6a5f08b8299bc4cfa79aa43bc8eacc8cc98c7f",
+      "gt_crop.png": "b68d681cbd111d0e9480850e3b248c8d42298f2fcdd31720f7de66c02d1cb638",
+      "baseline_crop.png": "d4b980e614dde05cd22c31af4e91e45fee8b8c43ea8ddfe34d8b06196913c3a5",
+      "gt.png": "381ee059144bba62ed65de9409a365892279ec88ee014fa0fbcf529ef8841f06"
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "slow-straight-2",
+    "uid": "1706737566254067898.png",
+    "frame_index": 120,
+    "baseline_psnr": 15.974235534667969,
+    "ours_psnr": 17.981264114379883,
+    "delta_psnr": 2.007028579711914,
+    "scene_delta_psnr": -0.1262298142614462,
+    "scene_baseline_psnr": 17.34967332635044,
+    "scene_ours_psnr": 17.223443512088995,
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/slow-straight-2/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/slow-straight-2/normalized_variance_s0",
+    "physical_renders": 1888,
+    "baseline_adam": 171,
+    "ours_adam": 177,
+    "held_out": true,
+    "carve_enabled": false,
+    "candidate": "F24",
+    "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/slow-straight-2/rgb_timestamp/1706737566254067898.png",
+    "source_rgb_sha256": "a23548f18b4ace2ddf797f18b40325c831d8e1374a2bf96771e3f3e61bfc1de6",
+    "source_map_sha256": {
+      "baseline": "b72b0cb109103555bd2779d0b385b5178dfc997267ef0ebca2e3b6043a9898a1",
+      "ours": "e0a97e6551000acfa9b8d8cae65ca19890ef0d17bc3c367ca9713666da4d3980"
+    },
+    "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/slow-straight-2/seed0",
+    "same_pose_checked": true,
+    "rendered_psnr_check": {
+      "baseline": 15.974235534667969,
+      "ours": 17.981264114379883
+    },
+    "display_rotation_clockwise_degrees": 0,
+    "crop_xyxy_display_pixels": [
+      528,
+      208,
+      646,
+      326
+    ],
+    "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+    "files": {
+      "baseline.png": "c43f03732682d03d97b1347555443ad66a2fd515dfce3cb5f1934acbbc5a7134",
+      "ours_crop.png": "e6e616e78f63f9acc260ba841944432d2e8de6dca038b552adb7cd8c4efb8578",
+      "ours.png": "b7416ae3d89858f4adc4be0a920bc96205d7fa627e712370985784412a09efeb",
+      "gt_crop.png": "e97a3743f52879efc86db7bb8cf7d742893b0632afe979dbe578a942b71ce0a5",
+      "baseline_crop.png": "830653146c9660bdd72206c136cb95b320976a8a66ad3bed47ace99080c079b2",
+      "gt.png": "dde3685368e01cd6e1987c488c353df94fa414f5a056b53c74ee44cfce50b56a"
+    }
+  }
+]
