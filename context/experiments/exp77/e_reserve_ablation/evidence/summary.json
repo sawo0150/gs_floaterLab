@@ -1,0 +1,51 @@
+{
+  "experiment": "exp77 E",
+  "raw_results": "results/experiments/exp78_reserve_ablation_20260911",
+  "runs": [
+    {
+      "run": "run0_reserve40",
+      "reserve_ms": 40,
+      "psnr": 21.002451410379496,
+      "ate_cm": 2.7639,
+      "completed_adam": 2247,
+      "tail_deadline": 0,
+      "tail_eos": 0,
+      "gate_allowed_tracking": 0
+    },
+    {
+      "run": "run1_reserve20",
+      "reserve_ms": 20,
+      "psnr": 21.351960970904376,
+      "ate_cm": 2.7842,
+      "completed_adam": 2402,
+      "tail_deadline": 0,
+      "tail_eos": 0,
+      "gate_allowed_tracking": 380
+    },
+    {
+      "run": "run2_reserve20",
+      "reserve_ms": 20,
+      "psnr": 21.430628802325273,
+      "ate_cm": 2.7249,
+      "completed_adam": 2466,
+      "tail_deadline": 0,
+      "tail_eos": 0,
+      "gate_allowed_tracking": 403
+    },
+    {
+      "run": "run3_reserve40",
+      "reserve_ms": 40,
+      "psnr": 21.232302416552294,
+      "ate_cm": 2.752,
+      "completed_adam": 2273,
+      "tail_deadline": 0,
+      "tail_eos": 0,
+      "gate_allowed_tracking": 0
+    }
+  ],
+  "mean_psnr": {
+    "40": 21.117376913465897,
+    "20": 21.391294886614823
+  },
+  "delta_psnr": 0.27391797314892585
+}

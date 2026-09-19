@@ -1,0 +1,121 @@
+{
+  "protocol": "original1x_finalmap_queue_drain_terminal_rematuration",
+  "rows": [
+    {
+      "label": "old0",
+      "path": "/home/intern/VIGS-SLAM-main-integration-20260828/exp72_axes/results/full_baseline_aria1253_seed0",
+      "mean_psnr": 27.69331823984782,
+      "fixed_eval_mean_psnr": 27.631508033694203,
+      "fixed_eval_mean_ssim": 0.8721618499919659,
+      "fixed_eval_mean_lpips": 0.23539224494504565,
+      "fixed_eval_view_count": 262,
+      "fixed_eval_mapping_excluded": true,
+      "ONLINE_LOOP_START_EPOCH": 1788464150.942199,
+      "TRACK_LOOP_DONE_EPOCH": 1788464218.8452985,
+      "ONLINE_LOOP_DONE_EPOCH": 1788464221.0303292,
+      "post_track_seconds": 2.185030698776245,
+      "online_seconds": 70.088130235672,
+      "replay": {
+        "steps": "6229",
+        "view_updates": "6229",
+        "active_candidates": "405",
+        "selection_count_mean": "15.380246913580248",
+        "selection_count_cv": "0.37331313177680325",
+        "selection_count_last_to_first": null
+      },
+      "terminal_logs": [
+        "MAP_TERMINAL_POSE_REMATURATION start_epoch=24 target_epoch=25 end_epoch=25 pool=405 added_steps=328 wall_seconds=1.034953 streaming_budget=false completed=true",
+        "EXP69_DUST_GC_TERMINAL_DONE enabled=True rows=4301 spent=0.001447519762063413 events=1 remaining=91330",
+        "ONLINE_FINAL_EVAL map_updates=0"
+      ]
+    },
+    {
+      "label": "old1",
+      "path": "/home/intern/VIGS-SLAM-main-integration-20260828/exp72_axes/results/full_baseline_repeat_aria1253_seed0",
+      "mean_psnr": 27.722738303078547,
+      "fixed_eval_mean_psnr": 27.661029691914564,
+      "fixed_eval_mean_ssim": 0.8743973781589334,
+      "fixed_eval_mean_lpips": 0.2332716891328797,
+      "fixed_eval_view_count": 262,
+      "fixed_eval_mapping_excluded": true,
+      "ONLINE_LOOP_START_EPOCH": 1788464706.2274423,
+      "TRACK_LOOP_DONE_EPOCH": 1788464774.2194037,
+      "ONLINE_LOOP_DONE_EPOCH": 1788464776.589664,
+      "post_track_seconds": 2.370260238647461,
+      "online_seconds": 70.36222171783447,
+      "replay": {
+        "steps": "6125",
+        "view_updates": "6125",
+        "active_candidates": "428",
+        "selection_count_mean": "14.310747663551401",
+        "selection_count_cv": "0.37205906568023867",
+        "selection_count_last_to_first": "0.4637260591990714"
+      },
+      "terminal_logs": [
+        "MAP_TERMINAL_POSE_REMATURATION start_epoch=23 target_epoch=24 end_epoch=24 pool=428 added_steps=384 wall_seconds=1.217290 streaming_budget=false completed=true",
+        "EXP69_DUST_GC_TERMINAL_DONE enabled=True rows=3593 spent=0.0014303310776387888 events=1 remaining=91812",
+        "ONLINE_FINAL_EVAL map_updates=0"
+      ]
+    },
+    {
+      "label": "new0",
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78_aria_reproduction_20260910/baseline_repeat0",
+      "mean_psnr": 28.033681880073864,
+      "fixed_eval_mean_psnr": 27.986899572474357,
+      "fixed_eval_mean_ssim": 0.8825363557757312,
+      "fixed_eval_mean_lpips": 0.21877244029563803,
+      "fixed_eval_view_count": 262,
+      "fixed_eval_mapping_excluded": true,
+      "ONLINE_LOOP_START_EPOCH": 1789048249.431543,
+      "TRACK_LOOP_DONE_EPOCH": 1789048317.3325264,
+      "ONLINE_LOOP_DONE_EPOCH": 1789048321.334815,
+      "post_track_seconds": 4.002288579940796,
+      "online_seconds": 71.90327191352844,
+      "replay": {
+        "steps": "7372",
+        "view_updates": "7372",
+        "active_candidates": "403",
+        "selection_count_mean": "18.292803970223325",
+        "selection_count_cv": "0.38261034746698375",
+        "selection_count_last_to_first": "0.34284440481497996"
+      },
+      "terminal_logs": [
+        "MAP_TERMINAL_POSE_REMATURATION start_epoch=26 target_epoch=29 end_epoch=29 pool=403 added_steps=904 wall_seconds=2.865598 streaming_budget=false completed=true",
+        "EXP69_DUST_GC_TERMINAL_DONE enabled=True rows=4169 spent=0.0014594271369660786 events=1 remaining=92300",
+        "ONLINE_FINAL_EVAL map_updates=0"
+      ]
+    },
+    {
+      "label": "new1",
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78_aria_reproduction_20260910/baseline_repeat1",
+      "mean_psnr": 27.933224393517932,
+      "fixed_eval_mean_psnr": 27.86177029500481,
+      "fixed_eval_mean_ssim": 0.8747143031076621,
+      "fixed_eval_mean_lpips": 0.23236006947646615,
+      "fixed_eval_view_count": 262,
+      "fixed_eval_mapping_excluded": true,
+      "ONLINE_LOOP_START_EPOCH": 1789048349.5310693,
+      "TRACK_LOOP_DONE_EPOCH": 1789048417.3935778,
+      "ONLINE_LOOP_DONE_EPOCH": 1789048418.6597118,
+      "post_track_seconds": 1.2661340236663818,
+      "online_seconds": 69.12864255905151,
+      "replay": {
+        "steps": "6395",
+        "view_updates": "6395",
+        "active_candidates": "464",
+        "selection_count_mean": "13.782327586206897",
+        "selection_count_cv": "0.4557754544023198",
+        "selection_count_last_to_first": "0.4436842105263158"
+      },
+      "terminal_logs": [
+        "MAP_TERMINAL_POSE_REMATURATION start_epoch=25 target_epoch=26 end_epoch=26 pool=464 added_steps=40 wall_seconds=0.136348 streaming_budget=false completed=true",
+        "EXP69_DUST_GC_TERMINAL_DONE enabled=True rows=4334 spent=0.001355382116069959 events=1 remaining=93135",
+        "ONLINE_FINAL_EVAL map_updates=0"
+      ]
+    }
+  ],
+  "old_heldout_mean": 27.646268862804384,
+  "old_mixed_eval_mean": 27.708028271463185,
+  "new_heldout_mean": 27.924334933739583,
+  "new_mixed_eval_mean": 27.983453136795898
+}

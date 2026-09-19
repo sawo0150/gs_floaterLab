@@ -1,0 +1,303 @@
+{
+  "configuration": {
+    "base_seed": 710904,
+    "batch_size": 32,
+    "betas": [
+      0.0,
+      0.0025,
+      0.005,
+      0.0075,
+      0.01,
+      0.0125,
+      0.015,
+      0.02,
+      0.03,
+      0.05,
+      0.075,
+      0.1,
+      0.15,
+      0.2,
+      0.3,
+      0.5,
+      1.0,
+      "inf"
+    ],
+    "gradient_dim": 8,
+    "kappas": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256,
+      384,
+      512,
+      768,
+      1024,
+      1536,
+      2048,
+      3072,
+      4096
+    ],
+    "policies": [
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.0,
+        "name": "ercb_beta_0",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.0025,
+        "name": "ercb_beta_0p0025",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.005,
+        "name": "ercb_beta_0p005",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.0075,
+        "name": "ercb_beta_0p0075",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.01,
+        "name": "ercb_beta_0p01",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.0125,
+        "name": "ercb_beta_0p0125",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.015,
+        "name": "ercb_beta_0p015",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.02,
+        "name": "ercb_beta_0p02",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.03,
+        "name": "ercb_beta_0p03",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.05,
+        "name": "ercb_beta_0p05",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.075,
+        "name": "ercb_beta_0p075",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.1,
+        "name": "ercb_beta_0p1",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.15,
+        "name": "ercb_beta_0p15",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.2,
+        "name": "ercb_beta_0p2",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.3,
+        "name": "ercb_beta_0p3",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.5,
+        "name": "ercb_beta_0p5",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 1.0,
+        "name": "ercb_beta_1",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": Infinity,
+        "name": "ercb_beta_inf",
+        "sampler": "least_count"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": null,
+        "name": "active_bonus3",
+        "sampler": "active_bonus"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "gate_r2",
+        "beta": 0.0,
+        "name": "gate_r2_uniform",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "gate_r2",
+        "beta": null,
+        "name": "gate_r2_active_bonus3",
+        "sampler": "active_bonus"
+      }
+    ],
+    "scenarios": [
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "short_stream",
+        "steps": 6000
+      },
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "base_stream",
+        "steps": 12000
+      },
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "long_stream",
+        "steps": 18000
+      }
+    ],
+    "seeds": 16,
+    "steps": 12000
+  },
+  "recommendation": {
+    "admission_pool_rate_cv_worst_scenario": 0.2014012566940555,
+    "admission_tracking_nrmse_worst_scenario": 0.0,
+    "algorithm": "ercb_beta_1",
+    "beta": "1.0",
+    "budget_violation_worst_scenario": 0.0,
+    "cohort_ratio_max_scenario": 0.7181094504966838,
+    "cohort_ratio_min_scenario": 0.5487077534791253,
+    "constraint_violation_factor": 1.6402173913043478,
+    "constraints": {
+      "cohort_ratio_max": 1.1,
+      "cohort_ratio_min": 0.9,
+      "entropy_ratio_min": 0.95,
+      "fairness_nrmse_max": 0.1,
+      "gradient_ratio_field_max": 3.0,
+      "gradient_ratio_mean_max": 2.0,
+      "jain_regret_max": 0.01,
+      "temporal_w1_ratio_max": 2.0
+    },
+    "entropy_ratio_min_scenario": 0.6432685720271982,
+    "fairness_nrmse_worst_scenario": 0.002297229571793587,
+    "fairness_rmse_updates_worst_scenario": 0.5552755897668271,
+    "feasible_point_count": 0,
+    "gradient_ratio_field_worst_scenario": 4.610208309395798,
+    "gradient_ratio_mean_worst_scenario": 3.223296255031036,
+    "is_valid_recommendation": false,
+    "jain_min_scenario": 0.9054862911334387,
+    "jain_regret_worst_scenario": 7.81863951793138e-06,
+    "kappa": 768,
+    "meets_all_quality_constraints": false,
+    "oracle_cohort_ratio_max_scenario": 0.7161458333333334,
+    "oracle_cohort_ratio_min_scenario": 0.5476190476190477,
+    "scenarios": 3,
+    "searched_kappas": [
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256,
+      384,
+      512,
+      768,
+      1024,
+      1536,
+      2048,
+      3072,
+      4096
+    ],
+    "selection_status": "no_point_met_predeclared_constraints",
+    "shuffle_kl_worst_scenario": 0.3558219451587933,
+    "temporal_w1_ratio_worst_scenario": 1.922837028682432
+  },
+  "selection_rule": {
+    "admission_tracking_nrmse_max": 0.0,
+    "budget_violation": 0.0,
+    "cohort_ratio_max": 1.1,
+    "cohort_ratio_min": 0.9,
+    "entropy_ratio_min": 0.95,
+    "fairness_nrmse_max": 0.1,
+    "gradient_ratio_field_max": 3.0,
+    "gradient_ratio_mean_max": 2.0,
+    "jain_regret_max": 0.01,
+    "temporal_w1_ratio_max": 2.0,
+    "then": "minimize kappa (maximize feasible admission rate), then maximize worst-scenario entropy"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "repeat": 0,
+      "mean_psnr": 26.256358404844505,
+      "fixed_eval_mean_psnr": 26.177473403115307,
+      "fixed_eval_mean_ssim": 0.8629933340858867,
+      "fixed_eval_mean_lpips": 0.2533855643549948,
+      "fixed_eval_view_count": 262,
+      "audit": {
+        "protocol": "fixed1x_sensor_eos_zero_tail",
+        "producer_start_monotonic": 216485.745072064,
+        "deadline_monotonic": 216550.845070977,
+        "producer_eos_monotonic": 216550.860939988,
+        "budget_seconds": 65.09999891300686,
+        "margin_seconds": 0.05,
+        "completed_adam_steps": 6537,
+        "skipped_adam_calls": 1,
+        "updates_completed_after_deadline": 0,
+        "updates_completed_after_sensor_eos": 0,
+        "last_completion_monotonic": 216550.794762142,
+        "instrumentation": "CPU upper bound after current CUDA stream synchronize per Adam step"
+      },
+      "same_eval_ids_as_exp78": true,
+      "terminal_rematuration": false,
+      "terminal_pruning": false,
+      "ONLINE_LOOP_START_EPOCH": 1789048931.6806908,
+      "TRACK_LOOP_DONE_EPOCH": 1789048999.5697463,
+      "ONLINE_LOOP_DONE_EPOCH": 1789049000.6255975,
+      "online_loop_seconds": 68.94490671157837,
+      "training_last_completion_from_producer_start": 65.04969007801265
+    },
+    {
+      "repeat": 1,
+      "mean_psnr": 27.563761031430072,
+      "fixed_eval_mean_psnr": 27.498560810817107,
+      "fixed_eval_mean_ssim": 0.8696549298199079,
+      "fixed_eval_mean_lpips": 0.23422106389553493,
+      "fixed_eval_view_count": 262,
+      "audit": {
+        "protocol": "fixed1x_sensor_eos_zero_tail",
+        "producer_start_monotonic": 216585.74126421,
+        "deadline_monotonic": 216650.841263123,
+        "producer_eos_monotonic": 216650.849340013,
+        "budget_seconds": 65.09999891300686,
+        "margin_seconds": 0.05,
+        "completed_adam_steps": 6895,
+        "skipped_adam_calls": 0,
+        "updates_completed_after_deadline": 0,
+        "updates_completed_after_sensor_eos": 0,
+        "last_completion_monotonic": 216650.79203659,
+        "instrumentation": "CPU upper bound after current CUDA stream synchronize per Adam step"
+      },
+      "same_eval_ids_as_exp78": true,
+      "terminal_rematuration": false,
+      "terminal_pruning": false,
+      "ONLINE_LOOP_START_EPOCH": 1789049031.6896462,
+      "TRACK_LOOP_DONE_EPOCH": 1789049099.5549371,
+      "ONLINE_LOOP_DONE_EPOCH": 1789049100.5832584,
+      "online_loop_seconds": 68.89361214637756,
+      "training_last_completion_from_producer_start": 65.05077237999649
+    }
+  ],
+  "protocol": "fixed1x_sensor_eos_zero_tail",
+  "completed": 2,
+  "heldout_mean": 26.838017106966205
+}
