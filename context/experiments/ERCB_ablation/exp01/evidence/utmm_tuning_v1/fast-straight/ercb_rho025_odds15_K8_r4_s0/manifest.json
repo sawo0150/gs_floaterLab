@@ -1,0 +1,44 @@
+{
+  "protocol": "ercb_utmm_tuning_v1",
+  "generated_utc": "2026-09-11T09:11:08.318708+00:00",
+  "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/utmm_tuning_v1/fast-straight/ercb_rho025_odds15_K8_r4_s0",
+  "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_utmm_tuning_v1/fast-straight",
+  "dataset_schedule_sha256": "16a29da5c8f1d303bd517c65fc2c280a157ef4e9073d1c4154b7401e1983acae",
+  "dataset_metadata_sha256": "5554eff87220368b4f17974dcbd829e8951b7172371f0be91e1b6707a987b327",
+  "vigs_sources": {
+    "pose_sha256": "9faff4ee55f8d9d51f74c43778dda5b4651c5fe26b71a4d3e053e17488a7412b",
+    "keyframe_sha256": "ac5a8f8f7489266081df39f1e90088c20f4245d7223ccea8ebd6fc289e5f8a1e",
+    "points_sha256": "d94d85915941b021b12a13f07b02b874f7886bf17a4a7666896531dc161228d3"
+  },
+  "code": {
+    "git_head": "8568fd64fc02c45fa89a909567cad10260672b17",
+    "file_sha256": {
+      "train.py": "f3123f5e2ca8ec7a3188544e5f7b02532c486c7ce5e6d7e21af115ccc684820e",
+      "runtime/scheduler.py": "a0df0faa87842a59fe9799a1320a4dc2cb723ede95d6827c9266fc0a8acf56d9",
+      "scripts/incremental/build_vigs_benchmark_causal_dataset.py": "deb7d1abb7866c9ccecb81e6f488cc7f3ac4b9e9e590b10613ee51e45e65b9ee",
+      "scripts/incremental/run_ercb_utmm_tuning.sh": "516722852be334d83185f48a7d5616a674f095341644ab26c5978fc557a2f523",
+      "scripts/incremental/compute_heldout_psnr.py": "e3b1571cf85f30761d86129490fae8736ab44781eeb414d1ca07c94689bb40dc"
+    }
+  },
+  "scheduler": {
+    "name": "relative_floor_interval_softmax_rr",
+    "seed": 0,
+    "beta": 0.4054651081081644,
+    "relative_floor_ratio": 0.25,
+    "block_size": 8
+  },
+  "heldout": {
+    "rule": "sorted COLMAP image index modulo 8 equals zero",
+    "views": 42,
+    "psnr": 22.01405591602328,
+    "worst_q1_psnr": 19.011106953651254
+  },
+  "contract": {
+    "iterations": 1081,
+    "selection_count_sum": 1081,
+    "last_arrival_iteration": 1081,
+    "tail_iters": 0,
+    "sensor_eos_boundary_appended": true,
+    "zero_tail_pass": true
+  }
+}

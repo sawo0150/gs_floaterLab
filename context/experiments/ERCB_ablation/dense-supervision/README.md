@@ -23,7 +23,29 @@ benchmark-B와 다른 것은 **densification을 켠 것 하나**뿐이며, 그 �
 | `kf_dense` | 도착한 모든 train frame (keyframe 포함) |
 | `k{K}` | interval당 keyframe + 중간 frame `K-1`장 (keyframe 시드 farthest-point-in-time) |
 
-## 결과 1 — keyframe당 60 iteration, 19 scene (`TABLE_X.md`)
+## 최종 결과 — keyframe당 120 iteration, 19 scene (논문 Table A, `TABLES.tex`)
+
+| Metric | Policy | RPNG (8) | UTMM (7) | Aria (4) | All (19) |
+|---|---|---:|---:|---:|---:|
+| PSNR ↑ | Keyframes only | 23.71 | 21.18 | 29.43 | 23.98 |
+| | **+ in-between frames** | **24.16** | **22.85** | **30.89** | **25.09** |
+| SSIM ↑ | Keyframes only | 0.7928 | 0.7352 | 0.8867 | 0.7913 |
+| | **+ in-between frames** | **0.8085** | **0.7786** | **0.9019** | **0.8171** |
+| LPIPS ↓ | Keyframes only | 0.1656 | 0.2676 | 0.2064 | 0.2118 |
+| | **+ in-between frames** | **0.1567** | **0.2476** | **0.2014** | **0.1996** |
+| final #G | Keyframes only | 685,209 | 316,407 | 333,327 | 475,254 |
+| | + in-between frames | 710,420 | 304,566 | 354,106 | 485,881 |
+
+Scene별 Δ는 **18/19 양수, 평균 +1.11dB**다(Aria +1.46 4/4, UTMM +1.67 7/7,
+RPNG +0.45 7/8). 유일한 음수는 `table_07` **−0.11**로, 프로젝트 run-to-run 분산
+±0.33dB 안쪽이라 단일 seed로는 부호를 확정할 수 없다. UTMM은 Gaussian을 더 적게
+쓰고도(316,407 → 304,566) 이긴다.
+
+Table B(view ordering, benchmark-B의 RR vs ERCB)는 예산을 열로 놓아 승자가 예산에
+따라 달라지는 것을 보인다: PSNR은 15/30/60 updates/interval에서 RR `20.77/22.22/22.88`
+대 ERCB `21.39/22.33/23.11`이다. SSIM/LPIPS는 미계산이다.
+
+## 참고 — keyframe당 60 iteration, 19 scene (`TABLE_X.md`)
 
 전체 **+0.33dB, 15/19 승**. family별로 갈린다.
 

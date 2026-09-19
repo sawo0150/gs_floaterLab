@@ -1,0 +1,57 @@
+\begin{table}[t]
+\centering
+\caption{Supervision source. Both rows receive the identical stream, the same number of optimizer iterations per keyframe interval, the same initial point cloud, poses, seed and densification policy; only which arrived frames may be drawn differs. Averaged over the scenes of each dataset; scene counts in parentheses.}
+\label{tab:supervision}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clcccc}
+\toprule
+Metric & Policy & RPNG (8) & UTMM (7) & ARIA (4) & All \\
+\midrule
+\multirow{2}{*}{PSNR $\uparrow$}
+& Keyframes only & 23.71 & 21.18 & 29.43 & 23.98 \\
+& \textbf{+ in-between frames} & \textbf{24.16} & \textbf{22.85} & \textbf{30.89} & \textbf{25.09} \\
+\midrule
+\multirow{2}{*}{SSIM $\uparrow$}
+& Keyframes only & 0.7928 & 0.7352 & 0.8867 & 0.7913 \\
+& \textbf{+ in-between frames} & \textbf{0.8085} & \textbf{0.7786} & \textbf{0.9019} & \textbf{0.8171} \\
+\midrule
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Keyframes only & 0.1656 & 0.2676 & 0.2064 & 0.2118 \\
+& \textbf{+ in-between frames} & \textbf{0.1567} & \textbf{0.2476} & \textbf{0.2014} & \textbf{0.1996} \\
+\midrule
+\multirow{2}{*}{final \#G}
+& Keyframes only & 685,209 & 316,407 & 333,327 & 475,254 \\
+& \textbf{+ in-between frames} & \textbf{710,420} & \textbf{304,566} & \textbf{354,106} & \textbf{485,881} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{View ordering over the same pool, as a function of how many optimizer iterations each keyframe interval receives. Both rows see the identical causal stream with the same seed, initialisation and iteration count; only the draw order differs. The advantage belongs to ERCB exactly where the selector must choose what not to serve, and disappears once every view can be served anyway.}
+\label{tab:ordering}
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clccc}
+\toprule
+Metric & Policy & 15 upd./interval & 30 upd./interval & 60 upd./interval \\
+\midrule
+\multirow{2}{*}{PSNR $\uparrow$}
+& Random reshuffling & 20.77 & 22.22 & 22.88 \\
+& ERCB & \textbf{21.39} & \textbf{22.33} & \textbf{23.11} \\
+\midrule
+\multirow{2}{*}{SSIM $\uparrow$}
+& Random reshuffling & -- & -- & -- \\
+& ERCB & -- & -- & -- \\
+\midrule
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Random reshuffling & -- & -- & -- \\
+& ERCB & -- & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

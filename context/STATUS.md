@@ -88,6 +88,23 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-18 (dense-supervision — 논문 Table A 확정, 19 scene 18/19 양수):**
+  keyframe interval당 동일한 optimizer iteration을 배정하는 online incremental 축에서
+  KF-only와 KF+dense를 19 scene 비교했다. 두 arm은 dataset·init·pose·causal arrival·
+  selector(`causal_rr`)·seed·해상도·RGB-only loss·densification 정책·**총 iteration 수**·
+  llffhold-8 held-out을 전부 공유하고 **후보 pool만** 다르다. benchmark-B와 다른 점은
+  densification을 켠 것 하나이며 그 스케줄은 각 run 예산의 고정 비율이다.
+  **keyframe당 120 iteration에서 PSNR `23.98→25.09`(+1.11dB, 18/19), SSIM
+  `0.7913→0.8171`, LPIPS `0.2118→0.1996`**이고 family별로 Aria +1.46(4/4),
+  UTMM +1.67(7/7), RPNG +0.45(7/8)다. UTMM은 Gaussian을 더 적게 쓰고도 이긴다
+  (316,407→304,566). 유일한 음수 `table_07` −0.11은 ±0.33dB 분산 안쪽이다.
+  **keyframe당 60 iteration에서는 +0.33dB(15/19)로 RPNG 4 scene이 음수였고, 예산을
+  120으로 올리자 그 4개가 전부 양수로 뒤집혔다**(table_03 −0.72→+0.45, table_04
+  −0.94→+0.56, table_05 −2.08→+0.83, table_06 −0.74→+0.22) — RPNG 역전의 원인은
+  dense frame 품질이 아니라 예산 부족이다. 기각된 가설: dense frame당 update 임계,
+  데이터셋 구분, 중간 frame 블러(Pearson r=0.298). 단일 seed이며 pose/init은 사전 VIGS
+  run의 고정 replay라 strict online 근거는 아니다.
+  → [dense-supervision](experiments/ERCB_ablation/dense-supervision/README.md)
 - **2026-09-17 (exp94 normalized ERCB B-track 최종 17/17):** RPNG 8/8·UTMM 6/7·Aria 2/2, 총 **16승1패·평균 +1.253787dB**로 fresh official vanilla 대비 사전 최소 성공 기준(평균≥+0.5dB·과반 승리·전 pair fairness) **PASS**. 같은 frozen causal tracker·held-out·zero-tail·physical render, 구조 12/12·이중 평가·fairness 10/10·독립 감사 17/17 PASS. 유일한 패배 UTMM `slow-straight-2` −0.126230dB, 최악 R4 대비 손실 RPNG `table_07` 0.080468dB로 >0.5dB 급락 중단선 미발동. 기존 R4의 17/17·평균 +1.260888dB 추가 목표는 **FAIL**. 원래 RPNG 20.79dB 급락은 혼합 inventory Aria adapter가 `--undistort`를 누락한 평가 GT 전처리 오류였고 수정 후 새 pair를 전부 재실행했다. 이는 mapping-only fixed-work 결과이며 strict live-time 판정은 아니다. → [exp94](experiments/exp94_fixed_evaluator_normalized_panel.md), [공식 표](experiments/benchmark_custom/metric_benchmark_v2_fixed_eval_20260917/summary.md)
 - **2026-09-17 (exp94 RPNG+UTMM 15/17 완료·Aria 진행):** UTMM `square-2` normalized **21.416180**, fresh vanilla **20.630652**, Δ **+0.785529dB**. 양 arm render 8,277/8,277, Adam 676/679, GS 104,883/131,291; 구조 12/12·이중 평가·fairness 10/10 PASS. 기존 R4 21.416009 대비 **+0.000171dB**. UTMM 전체 **6승1패·평균 +0.517175dB**, RPNG **8승0패·평균 +1.598585dB**; 현재 15/17·14승1패·독립 감사 오류 0. Aria 2개가 남아 최소 17-scene 평균+전체 fairness는 **미판정**, 17/17 stretch 승리 목표는 실패 확정. → [exp94](experiments/exp94_fixed_evaluator_normalized_panel.md)
 - **2026-09-17 (exp94 normalized-vs-vanilla 14/17 진행):** UTMM `square-1` normalized **21.224773**, fresh vanilla **20.181777**, Δ **+1.042996dB**. 양 arm render 9,345/9,345, Adam 757/763, GS 119,976/149,638; 구조 12/12·이중 평가·fairness 10/10 PASS. 기존 R4 21.239715 대비 **−0.014942dB**로 중단선 이내. 현재 13승1패·독립 감사 오류 0, 3개 pending이며 최소 17-scene 기준은 **미판정**. → [exp94](experiments/exp94_fixed_evaluator_normalized_panel.md)

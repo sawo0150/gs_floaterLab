@@ -62,7 +62,7 @@
   organization={IEEE}
 }
 
--------------------------
+% -------------------------
 
 @inproceedings{ICPR-2000-yang,
   title={Planar conic based camera calibration},
@@ -364,33 +364,48 @@
 % ⚠ 아래 항목 다수가 서지정보 미확인(연도/페이지/venue). 인용 전 반드시 확인할 것.
 
 %%%%%%%%%%%%%%%%% 3DGS / GS-SLAM %%%%%%%%%%%%%%%%%
-@inproceedings{kerbl20233dgs,
-  title     = {3D Gaussian Splatting for Real-Time Radiance Field Rendering},
-  author    = {Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
-  booktitle = {ACM Transactions on Graphics (SIGGRAPH)},
-  year      = {2023}
+@article{kerbl20233dgs,
+  author  = {Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
+  title   = {{3D Gaussian Splatting for Real-Time Radiance Field Rendering}},
+  journal = {ACM Transactions on Graphics},
+  volume  = {42},
+  number  = {4},
+  pages   = {1--14},
+  year    = {2023},
+  doi     = {10.1145/3592433}
 }
+
 @misc{vigsslam,
-  title  = {VIGS-SLAM: Visual Inertial Gaussian Splatting SLAM},
-  note   = {arXiv:2512.02293. 서지정보 확인 필요},
-  year   = {2025}
+  author        = {Zhu, Zihan and Zhang, Wei and Li, Moyang and Haala, Norbert and Pollefeys, Marc and Barath, Daniel},
+  title         = {{VIGS-SLAM}: Visual Inertial Gaussian Splatting SLAM},
+  year          = {2025},
+  eprint        = {2512.02293},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2512.02293},
+  primaryClass  = {cs.RO}
 }
+
 @inproceedings{matsuki2024monogs,
-  title     = {Gaussian Splatting SLAM},
   author    = {Matsuki, Hidenobu and Murai, Riku and Kelly, Paul H. J. and Davison, Andrew J.},
-  booktitle = {CVPR},
+  title     = {Gaussian Splatting SLAM},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages     = {18039--18048},
   year      = {2024}
 }
-@article{huang2024photoslam,
-  title  = {Photo-SLAM: Real-time Simultaneous Localization and Photorealistic Mapping},
-  note   = {서지정보 확인 필요},
-  year   = {2024}
+
+@inproceedings{huang2024photoslam,
+  author    = {Huang, Huajian and Li, Longwei and Cheng, Hui and Yeung, Sai-Kit},
+  title     = {{Photo-SLAM}: Real-Time Simultaneous Localization and Photorealistic Mapping for Monocular, Stereo, and {RGB-D} Cameras},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages     = {21584--21593},
+  year      = {2024}
 }
+
 @inproceedings{mallick2024taming3dgs,
-  title  = {Taming 3DGS: High-Quality Radiance Fields with Limited Resources},
-  author = {Mallick, Saswat Subhajyoti and others},
-  note   = {서지정보 확인 필요},
-  year   = {2024}
+  author    = {Mallick, Saswat Subhajyoti and Goel, Rahul and Kerbl, Bernhard and Carrasco, Francisco Vicente and Steinberger, Markus and De La Torre, Fernando},
+  title     = {Taming {3DGS}: High-Quality Radiance Fields with Limited Resources},
+  booktitle = {European Conference on Computer Vision},
+  year      = {2024}
 }
 
 %%%%%%%%%%%%%%%%% Neural / implicit SLAM %%%%%%%%%%%%%%%%%
@@ -415,10 +430,12 @@
 
 %%%%%%%%%%%%%%%%% View selection / active vision %%%%%%%%%%%%%%%%%
 @inproceedings{jiang2024fisherrf,
-  title  = {FisherRF: Active View Selection and Uncertainty Quantification for Radiance Fields using Fisher Information},
-  note   = {서지정보 확인 필요},
-  year   = {2024}
+  author    = {Jiang, Wen and Lei, Boshu and Daniilidis, Kostas},
+  title     = {{FisherRF}: Active View Selection and Mapping with Radiance Fields Using Fisher Information},
+  booktitle = {European Conference on Computer Vision},
+  year      = {2024}
 }
+
 @inproceedings{chen2026cover,
   title     = {Coverage Optimization for Camera View Selection},
   author    = {Chen and others},
@@ -461,32 +478,45 @@
 }
 
 %%%%%%%%%%%%%%%%% Floater / geometry regularization %%%%%%%%%%%%%%%%%
-@inproceedings{fan2024trimgs,
-  title  = {TrimGS: Trimming Gaussian Splatting for Accurate Geometry Representation},
-  note   = {서지정보 확인 필요},
-  year   = {2024}
+@misc{fan2024trimgs,
+  author        = {Fan, Lue and Yang, Yuxue and Li, Minxing and Li, Hongsheng and Zhang, Zhaoxiang},
+  title         = {Trim {3D} Gaussian Splatting for Accurate Geometry Representation},
+  year          = {2024},
+  eprint        = {2406.07499},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2406.07499},
+  primaryClass  = {cs.CV}
 }
-@article{stablegs,
-  title  = {StableGS},
-  note   = {서지정보 확인 필요 — cross-view depth consistency, dual opacity}
+
+@misc{stablegs,
+  author        = {Wang, Luchao and Ren, Qian and He, Kaiming and Wang, Hua and Chen, Zhi and Tang, Yaohua},
+  title         = {{StableGS}: A Floater-Free Framework for {3D} Gaussian Splatting},
+  year          = {2025},
+  eprint        = {2503.18458},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2503.18458},
+  primaryClass  = {cs.CV}
 }
-@inproceedings{huang20242dgs,
-  title     = {2D Gaussian Splatting for Geometrically Accurate Radiance Fields},
-  author    = {Huang, Binbin and Yu, Zehao and Chen, Anpei and Geiger, Andreas and Gao, Shenghua},
-  booktitle = {SIGGRAPH},
-  year      = {2024}
+
+@article{huang20242dgs,
+  author  = {Huang, Binbin and Yu, Zehao and Chen, Anpei and Geiger, Andreas and Gao, Shenghua},
+  title   = {{2D} Gaussian Splatting for Geometrically Accurate Radiance Fields},
+  journal = {ACM Transactions on Graphics},
+  year    = {2024}
 }
+
 @inproceedings{yu2024gof,
   title  = {Gaussian Opacity Fields},
   note   = {서지정보 확인 필요},
   year   = {2024}
 }
 @inproceedings{deng2022dsnerf,
-  title     = {Depth-supervised NeRF: Fewer Views and Faster Training for Free},
   author    = {Deng, Kangle and Liu, Andrew and Zhu, Jun-Yan and Ramanan, Deva},
-  booktitle = {CVPR},
+  title     = {Depth-Supervised {NeRF}: Fewer Views and Faster Training for Free},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
   year      = {2022}
 }
+
 @inproceedings{wang2023coslam,
   title     = {Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM},
   author    = {Wang, Hengyi and Wang, Jingwen and Agapito, Lourdes},
@@ -502,11 +532,13 @@
 % ⚠ 아래 항목은 파일에서 확인한 제목 기준. venue/연도/저자는 인용 전 확인 필요.
 
 @article{cartgs,
-  title   = {CaRtGS: Computational Alignment for Real-Time Gaussian Splatting SLAM},
+  author  = {Feng, Dapeng and Chen, Zhiqiang and Yin, Yizhen and Zhong, Shipeng and Qi, Yuhua and Chen, Hongbo},
+  title   = {{CaRtGS}: Computational Alignment for Real-Time Gaussian Splatting SLAM},
   journal = {IEEE Robotics and Automation Letters},
   year    = {2025},
-  note    = {refs/05_budget_system/cartgs.pdf (8p). 서지정보 확인 필요}
+  eprint  = {2410.00486}
 }
+
 @article{lmrs,
   title = {Matrix-free Second-order Optimization of Gaussian Splats with Residual Scores},
   note  = {refs/05_budget_system/lmrs.pdf (17p). 서지정보 확인 필요}
@@ -527,11 +559,68 @@
   title = {TIDI-GS},
   note  = {refs/04_geometry_floater/tidigs.pdf (15p). 제목·서지정보 확인 필요}
 }
-@article{chen2024pgsr,
-  title = {PGSR: Planar-based Gaussian Splatting for Efficient and High-Fidelity Surface Reconstruction},
-  note  = {refs/04_geometry_floater/chen2024pgsr.pdf (20p). 서지정보 확인 필요}
+@inproceedings{chen2024pgsr,
+  author    = {Chen, Danpeng and Li, Hai and Ye, Weicai and Wang, Yifan and Xie, Weijian and Zhai, Shangjin and Wang, Nan and Liu, Haomin and Bao, Hujun and Zhang, Guofeng},
+  title     = {{PGSR}: Planar-Based Gaussian Splatting for Efficient and High-Fidelity Surface Reconstruction},
+  booktitle = {European Conference on Computer Vision},
+  year      = {2024}
 }
+
 @article{splatface,
   title = {SplatFace: Gaussian Splat Face Reconstruction Leveraging an Optimizable Surface},
   note  = {refs/04_geometry_floater/splatface.pdf (10p). 서지정보 확인 필요}
+}
+
+@inproceedings{splatam2024,
+  author    = {Keetha, Nikhil and Karhade, Jay and Jatavallabhula, Krishna Murthy and Yang, Gengshan and Scherer, Sebastian and Ramanan, Deva and Luiten, Jonathon},
+  title     = {{SplaTAM}: Splat, Track \& Map {3D} Gaussians for Dense {RGB-D} SLAM},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages     = {21357--21366},
+  year      = {2024}
+}
+
+@inproceedings{rtgslam2024,
+  author    = {Peng, Zhexi and Shao, Tianjia and Liu, Yong and Zhou, Jingke and Yang, Yin and Wang, Jingdong and Zhou, Kun},
+  title     = {{RTG-SLAM}: Real-Time {3D} Reconstruction at Scale Using Gaussian Splatting},
+  booktitle = {ACM SIGGRAPH 2024 Conference Papers},
+  year      = {2024},
+  doi       = {10.1145/3641519.3657455}
+}
+
+@misc{splatslam2024,
+  author        = {Sandstr{\"o}m, Erik and Tateno, Keisuke and Oechsle, Michael and Niemeyer, Michael and Van Gool, Luc and Oswald, Martin R. and Tombari, Federico},
+  title         = {{Splat-SLAM}: Globally Optimized {RGB}-Only SLAM with {3D} Gaussians},
+  year          = {2024},
+  eprint        = {2405.16544},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2405.16544},
+  primaryClass  = {cs.CV}
+}
+
+@misc{geometryOnline2026,
+  author        = {Luu, Thai and Tran, Quan and Phan, Hieu and Dang, Tuan},
+  title         = {Geometry-Aware Online Mapping for {3D} Gaussian Splatting SLAM},
+  year          = {2026},
+  eprint        = {2608.14902},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2608.14902},
+  primaryClass  = {cs.RO}
+}
+
+@inproceedings{mipnerf360,
+  author    = {Barron, Jonathan T. and Mildenhall, Ben and Verbin, Dor and Srinivasan, Pratul P. and Hedman, Peter},
+  title     = {{Mip-NeRF 360}: Unbounded Anti-Aliased Neural Radiance Fields},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages     = {5470--5479},
+  year      = {2022}
+}
+
+@misc{wang2025efags,
+  author        = {Wang, Jianchao and Zhou, Peng and Li, Cen and Quan, Rong and Qin, Jie},
+  title         = {Low-Frequency First: Eliminating Floating Artifacts in {3D} Gaussian Splatting},
+  year          = {2025},
+  eprint        = {2508.02493},
+  archivePrefix = {arXiv},
+  note          = {arXiv:2508.02493},
+  primaryClass  = {cs.CV}
 }

@@ -1,7 +1,30 @@
-% ============================================================
-% Abstract  —  계획: sections/00_abstract/plan/CURRENT.md
-% 뼈대: 문제 → 간극 → 우리 방법 세 줄 → 결과 한 줄
-% ============================================================
+% Draft centered on fast photometric and geometric convergence.
+% Keep the result sentence below as a placeholder until the cross-sequence
+% convergence curves and native-rate evaluation are complete.
 \begin{abstract}
-\skel{ABSTRACT}\; \dummytxt
+3D Gaussian Splatting (3DGS) enables fast rendering, but a fast renderer does
+not imply that an incrementally built map becomes accurate quickly. We study
+\emph{fast photometric and geometric convergence} in 3DGS SLAM: the rate at
+which the appearance and structure of newly observed regions improve under a
+sequential input stream and a bounded mapping budget. Two bottlenecks prevent
+these objectives from being achieved together. Tracking-oriented keyframes do
+not necessarily provide the observations required for rapid appearance
+refinement, whereas naively adding every frame dilutes the updates available
+to each view. Moreover, photometric loss can be reduced by Gaussians with
+incorrect depth or opacity, leaving spurious structure in observed free space.
+We address these bottlenecks in a DROID-SLAM-based Gaussian mapping pipeline.
+For photometric convergence, we expand the mapping-view set beyond tracking
+keyframes at a rate determined by completed mapping updates, and introduce
+Entropy-Regularized Count Balancing (ERCB) to correct severe imbalances in
+per-view optimization while preserving sampling without replacement. For
+geometric convergence, a causal free-space Carve loss uses available depth
+evidence to suppress opacity in front of observed surfaces. We evaluate both
+forms of convergence through held-out appearance and geometry curves against
+elapsed time and completed updates, and separately measure end-to-end online
+throughput. This formulation treats real-time operation as the constraint
+under which fast map convergence must be achieved, rather than as a substitute
+for map quality.
+% RESULT SLOT: Add one quantitative sentence only after multi-sequence results
+% are frozen. If geometry is preserved but not accelerated, replace "geometric
+% convergence" by "geometric consistency" throughout the final paper.
 \end{abstract}

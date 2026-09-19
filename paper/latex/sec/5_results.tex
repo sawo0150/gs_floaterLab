@@ -49,11 +49,10 @@
   \emph{Quality}: PSNR, SSIM, LPIPS on held-out views. \emph{Resources}: wall-clock time, number
   of streaming updates, number of admitted views, and peak and final model size --- peak matters
   because a method that oversamples and prunes is otherwise indistinguishable from one that stays
-  within budget (Taming3DGS's \texttt{Peak \#G}). \emph{Scheduling}: report the workload-ledger
-  regime ($S<U$ scarce or $S\ge U$ rich), completed dense services, unique eligible views, and
-  the worst-quartile deltas defined from the RR control. Name the tools (\texttt{evo},
-  \texttt{torchmetrics}) the way cartgs does, with footnote URLs. All numbers are
-  mean\,$\pm$\,std over three seeds.
+  within budget (Taming3DGS's \texttt{Peak \#G}). \textbf{Define $\rho_H$ here}, as cartgs defines
+  IPF in its setup: the entropy of the draw normalised by that of an unweighted draw, so $1.0$
+  means no randomness was given up. Name the tools (\texttt{evo}, \texttt{torchmetrics}) the way
+  cartgs does, with footnote URLs. All numbers are mean\,$\pm$\,std over three seeds.
   Numbers reported under a post-processed-pose protocol \emph{are not directly comparable to
   ours}.}
 
@@ -66,7 +65,7 @@
 \noindent\textbf{Implementation details.}\;
 \slot{IMPLEMENTATION DETAILS}{9}{%
   Hardware in one clause (a single RTX 5090). \textbf{Retain the VIGS-SLAM defaults and list only
-  what changed} --- $\kappa$, $K$, $\rho$, and $\gamma$ --- which is how cartgs writes it; these values
+  what changed} --- $\kappa$, $\beta$, $K$ --- which is how cartgs writes it; these three values
   appear nowhere else in the paper. \textbf{Then the contract, in one sentence}: each method
   receives the sensor stream in real time and performs \emph{zero optimizer updates after the last
   frame}, so the compute budget is the duration of the stream itself; poses and depths are the
@@ -93,27 +92,60 @@
 \subsection{Main Results}
 \label{ssec:main}
 
-\begin{table*}[t]
-\centering\small
-\caption{\skel{TABLE 1} Main results. Quality and resource columns in one table, so the claim is
-  \emph{at equal compute}, not merely \emph{better} (cartgs puts ATE/FPS/IPF/PSNR/Points together;
-  Taming3DGS puts quality beside train time and \texttt{Peak \#G}).
-  \pend{caption carries the provenance marks (reproduced / cited / F) and states the
-  admission-law agreement in one line}}
-\label{tab:main}
-\begin{tabular}{l|ccc|cccc}
-\hline
-Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$
-       & wall-time & updates & peak & final \\
-\hline
-Photo-SLAM                 & -- & -- & -- & -- & -- & -- & -- \\
-MonoGS                     & -- & -- & -- & -- & -- & -- & -- \\
-CaRtGS                     & -- & -- & -- & -- & -- & -- & -- \\
-VIGS-SLAM                  & -- & -- & -- & -- & -- & -- & -- \\
-\textbf{Ours}              & -- & -- & -- & -- & -- & -- & -- \\
-\hline
-\end{tabular}
-\end{table*}
+\begin{table}[t]
+\centering
+\caption{
+Quantitative rendering comparison on RPNG, UTMM, and Aria.
+Values are averaged over the valid scenes of each dataset.
+Best results are shown in bold.
+}
+\label{tab:rendering_comparison}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clccc}
+\toprule
+Metric & Method & RPNG & UTMM & Aria \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& VIGS-SLAM
+& 22.49
+& 18.73
+& 22.99 \\
+& \textbf{Ours}
+& \textbf{24.09}
+& \textbf{19.25}
+& \textbf{25.44} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& VIGS-SLAM
+& 0.7460
+& 0.6441
+& 0.7840 \\
+& \textbf{Ours}
+& \textbf{0.8052}
+& \textbf{0.6634}
+& \textbf{0.8331} \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& VIGS-SLAM
+& 0.2426
+& 0.4216
+& 0.4555 \\
+& \textbf{Ours}
+& \textbf{0.1789}
+& \textbf{0.4123}
+& \textbf{0.3451} \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 % 4.2 문단 구성 (2026-09-08). 코퍼스는 결과를 세 가지 축 중 하나로 나눈다:
 %   ① 능력별  MonoGS 4.2 (Camera Tracking Accuracy → Novel View Rendering), vigsslam 4.1
@@ -250,6 +282,7 @@ Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
   \pend{rows that beat the full system stay in the table and are answered in the text, as
   Taming3DGS does with \texttt{-reduce SH frequency}}}
 \label{tab:abl}
+\resizebox{0.99\columnwidth}{!}{
 \begin{tabular}{l|ccc|cc}
 \hline
 Configuration & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & updates & final \\
@@ -267,6 +300,7 @@ $-$order: residual-first            & -- & -- & -- & -- & -- \\
 $-$carving                          & -- & -- & -- & -- & -- \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 \noindent\textbf{View growth.}\;
@@ -282,31 +316,36 @@ $-$carving                          & -- & -- & -- & -- & -- \\
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{\skel{TABLE 4} Selector-only ablation under exact candidate membership and completed
-  work.  Workload-ledger scarcity is assigned before inspecting image quality; rich sequences are
-  reported as controls rather than used to demand an ERCB win.}
+\caption{\skel{TABLE 4} Ordering axis only, since $\rho_H$, selection CV and lifetime are
+  undefined for the other two. $K$ runs down the rows so the confounding axis (block length) sits
+  beside the contribution axis ($\beta$) --- lmrs's Table~2 arrangement, which is what lets a
+  reader see that the confound can be the larger effect.
+  \pend{$\rho_H$, sel.\ CV and lifetime must be defined in \S\ref{ssec:setup}; only $\rho_H$ is}}
 \label{tab:order}
-\begin{tabular}{lll|ccc}
+\begin{tabular}{ll|cccc}
 \hline
-selector & $\rho$ & $\exp(\gamma)$ & PSNR$\uparrow$ & worst-Q1$\uparrow$ & RR-hard-Q1$\uparrow$ \\
+$K$ & $\beta$ & PSNR$\uparrow$ & $\rho_H$ & sel.\ CV & life mid/first \\
 \hline
-RR                 & --            & --            & -- & -- & -- \\
-ERCB, interval only& 0.75          & 1.5           & -- & -- & -- \\
-ERCB, global residue& \textbf{0.75}& \textbf{1.5}  & -- & -- & -- \\
+1   & 0                          & -- & -- & -- & -- \\
+32  & 0                          & -- & -- & -- & -- \\
+32  & \textbf{ours}              & -- & -- & -- & -- \\
+128 & 0 \pend{NOT MEASURED}      & -- & -- & -- & -- \\
+128 & \textbf{ours}              & -- & -- & -- & -- \\
 \hline
 \end{tabular}
 \end{table}
 
-\noindent\textbf{Service-shortfall ERCB.}\;
+\noindent\textbf{Count balancing.}\;
 \slot{ITEM 2 \textemdash\ REGIME FRAMING first, matches \S\ref{ssec:ercb}}{15}{%
-  Assign service regime from the workload ledger before opening PSNR: $S<U$ is structurally
-  scarce and $S\ge U$ is rich.  In rich C1 pools, report ERCB versus RR as a control without a
-  mandatory win; both selectors may complete the same global coverage.  The primary module test
-  disables C1, holds candidate membership and work exact, and reports sequence-equal overall and
-  RR-hard-Q1 deltas on scarce sequences.  Table~\ref{tab:order} separates the old interval-local
-  queue from the global-residue repair, so repeated service cannot be mistaken for coverage.
-  Report every sequence, including negative results, and do not mix the Full-versus-vanilla gate
-  with this selector-only ablation.}
+  \textbf{Concede the regime first}, as chen2026cover does (``only as good as the random baseline
+  in very sparse initialization regimes''): where blocks are long, random reshuffling is already
+  strong, and the gain appears where $K \ll N_t$. Read Table~\ref{tab:order} down $K$ before
+  across $\beta$, so the reader sees which of the two axes is the larger effect --- lmrs prints
+  the table in which its own contribution loses to batch size and says so.
+  Then the proxy-versus-goal divergence from \S\ref{ssec:ercb}, with both numbers.
+  \pend{the $K{=}128,\beta{=}0$ arm does not exist yet, so the effect of $\beta$ alone is
+  unmeasured; say this in the text --- an empty cell alone will read as an oversight}
+  Close on one number.}
 
 \begin{figure}[t]
   \centering
