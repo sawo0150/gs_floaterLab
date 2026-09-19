@@ -1,0 +1,8 @@
+path,allocated_bytes,condition
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_openmavis_datasets_20260813T1951_JST.tar.zst,1821581312,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_mapper_inputs_20260813T1951_JST.tar.zst,1565388800,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_aria_vrs_mps_20260813T1951_JST.tar.zst,2949017600,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_rgb1024_20260813T1951_JST.tar.zst,6885548032,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_frontend_artifacts_20260813T1951_JST.tar.zst,66576384,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_omnidata_depth_20260813T1951_JST.tar.zst,1777102848,extracted inventory exists; full content verification and backup policy pending
+/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_reference_runs_20260813T1951_JST.tar.zst,1392885760,extracted inventory exists; full content verification and backup policy pending

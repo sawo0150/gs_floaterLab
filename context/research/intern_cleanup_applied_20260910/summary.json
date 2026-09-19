@@ -1,0 +1,18 @@
+{
+  "started": "2026-09-10T13:49:29+0900",
+  "gt_shared": 60007,
+  "ply_deleted": 106,
+  "archives_deleted": 5,
+  "freed_allocated_bytes": 32637149184,
+  "skipped": [
+    {
+      "path": "/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_mapper_inputs_20260813T1951_JST.tar.zst",
+      "reason": "5079 extraction mismatches"
+    },
+    {
+      "path": "/home/intern/transfers/baseline_repro_20260813T1951_JST/baseline_frontend_artifacts_20260813T1951_JST.tar.zst",
+      "reason": "36 extraction mismatches"
+    }
+  ],
+  "finished": "2026-09-10T13:50:49+0900"
+}

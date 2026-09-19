@@ -1,0 +1,136 @@
+{
+  "configuration": {
+    "base_seed": 710904,
+    "batch_size": 32,
+    "betas": [
+      0.0,
+      0.006,
+      "inf"
+    ],
+    "gradient_dim": 8,
+    "kappas": [
+      816
+    ],
+    "policies": [
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.0,
+        "name": "ercb_beta_0",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": 0.006,
+        "name": "ercb_beta_0p006",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": Infinity,
+        "name": "ercb_beta_inf",
+        "sampler": "least_count"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "token",
+        "beta": null,
+        "name": "active_bonus3",
+        "sampler": "active_bonus"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "gate_r2",
+        "beta": 0.0,
+        "name": "gate_r2_uniform",
+        "sampler": "softmax"
+      },
+      {
+        "active_multiplier": 3.0,
+        "active_size": 16,
+        "admission": "gate_r2",
+        "beta": null,
+        "name": "gate_r2_active_bonus3",
+        "sampler": "active_bonus"
+      }
+    ],
+    "scenarios": [
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "short_stream",
+        "steps": 6000
+      },
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "base_stream",
+        "steps": 12000
+      },
+      {
+        "batch_size": 32,
+        "initial_views": 32,
+        "name": "long_stream",
+        "steps": 18000
+      }
+    ],
+    "seeds": 32,
+    "steps": 12000
+  },
+  "recommendation": {
+    "admission_pool_rate_cv_worst_scenario": 0.459279326771846,
+    "admission_tracking_nrmse_worst_scenario": 0.0,
+    "algorithm": "ercb_beta_0p006",
+    "beta": "0.006",
+    "budget_violation_worst_scenario": 0.0,
+    "cohort_ratio_max_scenario": 1.0248796743101536,
+    "cohort_ratio_min_scenario": 0.9656545671588999,
+    "constraint_violation_factor": 0.9750219955502701,
+    "constraints": {
+      "cohort_ratio_max": 1.1,
+      "cohort_ratio_min": 0.9,
+      "entropy_ratio_min": 0.95,
+      "fairness_nrmse_max": 0.1,
+      "gradient_ratio_field_max": 3.0,
+      "gradient_ratio_mean_max": 2.0,
+      "jain_regret_max": 0.01,
+      "temporal_w1_ratio_max": 2.0
+    },
+    "entropy_ratio_min_scenario": 0.974336993765819,
+    "fairness_nrmse_worst_scenario": 0.06366224164619738,
+    "fairness_rmse_updates_worst_scenario": 21.220747215399125,
+    "gradient_ratio_field_worst_scenario": 2.8106078585002634,
+    "gradient_ratio_mean_worst_scenario": 1.866857828630047,
+    "jain_min_scenario": 0.8909409526339572,
+    "jain_regret_worst_scenario": 0.008776536074588254,
+    "kappa": 816,
+    "meets_all_quality_constraints": true,
+    "scenarios": 3,
+    "searched_kappas": [
+      816
+    ],
+    "selection_status": "meets_all_predeclared_constraints",
+    "shuffle_kl_worst_scenario": 0.024099581034141726,
+    "temporal_w1_ratio_worst_scenario": 1.5140516335308987
+  },
+  "selection_rule": {
+    "admission_tracking_nrmse_max": 0.0,
+    "budget_violation": 0.0,
+    "cohort_ratio_max": 1.1,
+    "cohort_ratio_min": 0.9,
+    "entropy_ratio_min": 0.95,
+    "fairness_nrmse_max": 0.1,
+    "gradient_ratio_field_max": 3.0,
+    "gradient_ratio_mean_max": 2.0,
+    "jain_regret_max": 0.01,
+    "temporal_w1_ratio_max": 2.0,
+    "then": "minimize kappa, then maximize worst-scenario entropy"
+  }
+}
