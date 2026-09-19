@@ -1,0 +1,44 @@
+{
+  "protocol": "ercb_utmm_tuning_v1",
+  "generated_utc": "2026-09-11T09:11:07.885089+00:00",
+  "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/utmm_tuning_v1/ego-centric-2/rr_r4_s0",
+  "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_utmm_tuning_v1/ego-centric-2",
+  "dataset_schedule_sha256": "461a083fb5603807cce42ad40feda6dbb9db347210f790602c071b8c6f84ed91",
+  "dataset_metadata_sha256": "2799a3b2deb3d0d9428b7261b1a060d4727e2d433b210305bd242c1942941909",
+  "vigs_sources": {
+    "pose_sha256": "ba66802aa515665d9b7ec244ff380e301d80a245a04aa3046a2845d441be58a0",
+    "keyframe_sha256": "902df0e5151209e2cbaa423dbefe1f8d88cae85e85247c1de9d6c57e5cf81549",
+    "points_sha256": "968e0566030906f93dbd5f8ca8fa0f28e1770dc9daa8d8b2c71250d96d239704"
+  },
+  "code": {
+    "git_head": "8568fd64fc02c45fa89a909567cad10260672b17",
+    "file_sha256": {
+      "train.py": "f3123f5e2ca8ec7a3188544e5f7b02532c486c7ce5e6d7e21af115ccc684820e",
+      "runtime/scheduler.py": "a0df0faa87842a59fe9799a1320a4dc2cb723ede95d6827c9266fc0a8acf56d9",
+      "scripts/incremental/build_vigs_benchmark_causal_dataset.py": "deb7d1abb7866c9ccecb81e6f488cc7f3ac4b9e9e590b10613ee51e45e65b9ee",
+      "scripts/incremental/run_ercb_utmm_tuning.sh": "516722852be334d83185f48a7d5616a674f095341644ab26c5978fc557a2f523",
+      "scripts/incremental/compute_heldout_psnr.py": "e3b1571cf85f30761d86129490fae8736ab44781eeb414d1ca07c94689bb40dc"
+    }
+  },
+  "scheduler": {
+    "name": "causal_rr",
+    "seed": 0,
+    "beta": 0.0,
+    "relative_floor_ratio": 0.5,
+    "block_size": 8
+  },
+  "heldout": {
+    "rule": "sorted COLMAP image index modulo 8 equals zero",
+    "views": 163,
+    "psnr": 21.51996383711448,
+    "worst_q1_psnr": 15.793465719810223
+  },
+  "contract": {
+    "iterations": 3901,
+    "selection_count_sum": 3901,
+    "last_arrival_iteration": 3901,
+    "tail_iters": 0,
+    "sensor_eos_boundary_appended": true,
+    "zero_tail_pass": true
+  }
+}

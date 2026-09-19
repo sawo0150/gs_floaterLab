@@ -1,0 +1,44 @@
+{
+  "protocol": "ercb_utmm_tuning_v1",
+  "generated_utc": "2026-09-11T09:11:09.214801+00:00",
+  "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/ERCB_ablation/evidence/utmm_tuning_v1/square-1/rr_r4_s0",
+  "dataset": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/ercb_utmm_tuning_v1/square-1",
+  "dataset_schedule_sha256": "31ea0d354659add3894770c559c47a2165a4ede75a8d240aaa0bf4db59bd795e",
+  "dataset_metadata_sha256": "cd782db9f6bdefa84369e1b935b91c1113d658c2fbca72a99b73f53b077a244a",
+  "vigs_sources": {
+    "pose_sha256": "300fab3e35a43c51b074a77079af2ae252b729f140690734c96495e443809c08",
+    "keyframe_sha256": "00298529cf280df06d003cc41bf9646ca13b6990ac55d1e33ac633e869cec620",
+    "points_sha256": "a8f009bc0418408663412665fcf66287f896eecceda96568200f582f6af152b5"
+  },
+  "code": {
+    "git_head": "8568fd64fc02c45fa89a909567cad10260672b17",
+    "file_sha256": {
+      "train.py": "f3123f5e2ca8ec7a3188544e5f7b02532c486c7ce5e6d7e21af115ccc684820e",
+      "runtime/scheduler.py": "a0df0faa87842a59fe9799a1320a4dc2cb723ede95d6827c9266fc0a8acf56d9",
+      "scripts/incremental/build_vigs_benchmark_causal_dataset.py": "deb7d1abb7866c9ccecb81e6f488cc7f3ac4b9e9e590b10613ee51e45e65b9ee",
+      "scripts/incremental/run_ercb_utmm_tuning.sh": "516722852be334d83185f48a7d5616a674f095341644ab26c5978fc557a2f523",
+      "scripts/incremental/compute_heldout_psnr.py": "e3b1571cf85f30761d86129490fae8736ab44781eeb414d1ca07c94689bb40dc"
+    }
+  },
+  "scheduler": {
+    "name": "causal_rr",
+    "seed": 0,
+    "beta": 0.0,
+    "relative_floor_ratio": 0.5,
+    "block_size": 8
+  },
+  "heldout": {
+    "rule": "sorted COLMAP image index modulo 8 equals zero",
+    "views": 202,
+    "psnr": 21.99935723920508,
+    "worst_q1_psnr": 17.40781780421827
+  },
+  "contract": {
+    "iterations": 4801,
+    "selection_count_sum": 4801,
+    "last_arrival_iteration": 4801,
+    "tail_iters": 0,
+    "sensor_eos_boundary_appended": true,
+    "zero_tail_pass": true
+  }
+}

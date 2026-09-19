@@ -1,27 +1,107 @@
-% ============================================================
-% 2. Related Work  —  sections/02_related/
-% 분류가 아니라 대비로 쓴다. 각 소절 마지막 문장은 반드시
-% "따라서 X는 우리 설정에 그대로 적용되지 않는다"로 끝난다.
-% ============================================================
 \section{Related Work}
-\label{sec:related}
+\label{sec:related_work}
 
-\subsection{Gaussian Splatting SLAM}
-% 대비: KF heuristic이 아니라 완료된 GPU service가 학습 뷰 증가를 정한다.
-\skel{CONTRAST}\; \lipsum[1-2]
+\subsection{Efficient Convergence under Limited Optimization Budgets}
+The cost of radiance-field reconstruction can be reduced either by making each
+update cheaper or by reducing the number of updates needed to obtain a useful
+representation. Explicit grids and compact encodings accelerated neural-field
+optimization, while 3DGS made full-resolution differentiable rendering
+practical through an explicit primitive representation~\cite{kerbl20233dgs}.
+Depth supervision can further reduce ambiguity and training time when only a
+small set of observations is available~\cite{deng2022dsnerf}. Within 3DGS,
+Taming 3DGS controls primitive growth and improves the optimization kernels
+under explicit resource limits~\cite{mallick2024taming3dgs}. Photo-SLAM uses
+geometry-based densification and Gaussian-pyramid learning to improve
+photorealistic mapping under incremental optimization~\cite{huang2024photoslam}.
+Recent geometry-aware online mapping revisits scale initialization and
+densification because offline 3DGS heuristics are brittle under short online
+budgets~\cite{geometryOnline2026}.
 
-\subsection{View Selection and Active Vision}
-% 대비: active capture가 아니라 arrived-only streaming replay.
-\skel{CONTRAST}\; \lipsum[3-4]
+These works establish that initialization, representation capacity, and the
+cost of an optimization step strongly affect attainable quality. Our focus is
+complementary: we study the joint \emph{trajectory} of photometric and
+geometric quality after observations arrive. We therefore compare methods not
+only at a fixed endpoint, but also at matched elapsed time and matched completed
+updates. This operational definition is important in a growing map, for which
+there is no single static objective whose asymptotic convergence fully
+describes online behavior.
 
-\subsection{Shuffling and Without-Replacement SGD}
-% ★ experience replay 선행(Curious Replay 의 p_i = β^{v_i})이 여기로 왔다 (§3.2 P5 에서 이동).
-%   선행 소개는 Related Work 의 자리다. count 기반 우선순위가 이미 있다는 것을 먼저 밝히고,
-%   우리 목적이 loss 우선 data selection 과 반대(집중이 아니라 균등)임을 대비로 쓴다.
-% 대비: 이론을 배경으로 인용하되 성장하는 비볼록 pool에 보장을 가져오지 않는다.
-%   β=0 ≡ random reshuffling은 K ≥ N_t 일 때뿐.
-\skel{CONTRAST}\; \lipsum[5-6]
+\subsection{Online 3DGS SLAM and Observation Allocation}
+Neural dense SLAM systems introduced continuous optimization of a scene
+representation during camera tracking. iMAP selects rays using information
+gain~\cite{sucar2021imap}, NICE-SLAM improves scalability with hierarchical
+features~\cite{zhu2022nice}, and Co-SLAM combines coordinate and sparse
+parametric encodings with global ray sampling~\cite{wang2023coslam}.
+DROID-SLAM instead estimates pose and dense depth through recurrent updates and
+differentiable dense bundle adjustment~\cite{teed2021droid}; this frontend is
+particularly useful for initializing Gaussian maps from dense geometric
+estimates.
 
-\subsection{Floater Suppression and Geometry Regularization}
-% 대비: offline batch clean-up이 아니라 strict causal + rate-limited online 적용.
-\skel{CONTRAST}\; \lipsum[7-8]
+3DGS-SLAM systems differ in how tracking, geometry, and appearance mapping are
+coupled. Gaussian Splatting SLAM and SplaTAM track against Gaussian maps and
+select local or overlapping keyframes for mapping~\cite{matsuki2024monogs,
+splatam2024}. Photo-SLAM decouples conventional localization from progressive
+photorealistic Gaussian mapping~\cite{huang2024photoslam}, RTG-SLAM restricts
+updates to unstable primitives for scalable reconstruction~\cite{rtgslam2024},
+and Splat-SLAM jointly refines poses, depth, and Gaussians~\cite{splatslam2024}.
+VIGS-SLAM combines a DROID-style recurrent visual--inertial frontend with a
+Gaussian mapping backend~\cite{vigsslam}. These systems primarily use
+keyframes and local visibility to determine which observations participate in
+mapping, reflecting the close historical coupling between tracking and map
+optimization.
+
+The closest observation-allocation work is CaRtGS, which identifies uneven
+keyframe re-optimization in a growing keyframe pool and assigns additional
+iterations using per-keyframe loss~\cite{cartgs}. Active-view methods such as
+FisherRF instead choose which camera observation should be acquired from
+expected information gain~\cite{jiang2024fisherrf}. Our setting assumes a
+fixed causal stream: the question is which already observed images should be
+used by the mapper, and how a fixed number of updates should be distributed
+among them. We expand the mapping-view set beyond tracking keyframes according
+to completed mapping work and use update counts as an inexpensive coverage
+signal. ERCB does not estimate information gain or guarantee non-convex 3DGS
+convergence; it is a bounded correction for severe optimization imbalance in a
+growing view set. Its use of sampling without replacement is motivated by
+random-reshuffling methods~\cite{shamir2016without,mishchenko2020random}, while
+the changing online objective prevents directly inheriting their fixed-sum
+convergence guarantees.
+
+\subsection{Geometric Convergence and Floater Suppression}
+Photometric reconstruction is geometrically under-constrained because many
+opacity and depth configurations can explain similar colors. DS-NeRF treats
+sparse depth as a distributional constraint along each ray~\cite{deng2022dsnerf},
+and Mip-NeRF~360 regularizes the distribution of rendering weights with a
+distortion loss~\cite{mipnerf360}. For Gaussian reconstruction, 2DGS uses
+surface-oriented disks together with depth-distortion and normal-consistency
+terms~\cite{huang20242dgs}, while PGSR introduces planar depth and multi-view
+geometric consistency~\cite{chen2024pgsr}. These methods improve geometric
+accuracy, but are chiefly evaluated in offline reconstruction where long
+optimization schedules and global access to posed images are available.
+
+Floater-removal methods intervene in primitive selection or in the coupling
+between geometry and appearance. TrimGS prunes Gaussians using multi-view
+contribution and geometric criteria~\cite{fan2024trimgs}. EFA-GS emphasizes
+low-frequency structure to reduce floating artifacts caused by poor
+initialization~\cite{wang2025efags}. StableGS attributes persistent floaters to
+weak opacity gradients under color supervision and separates geometry and
+appearance opacity paths so that stronger depth constraints do not erase
+visual detail~\cite{stablegs}. Online systems also use scale, opacity, and
+visibility constraints: RTG-SLAM distinguishes stable opaque primitives from
+low-opacity ones~\cite{rtgslam2024}, and CaRtGS combines adaptive optimization
+with opacity regularization~\cite{cartgs}.
+
+Our geometry objective is designed for the shorter horizon and restricted
+compute of online mapping. Rather than globally relocating or pruning every
+suspect primitive, the current Carve instantiation uses causal depth to ask a
+one-sided question: is a Gaussian's opacity supported in space known to be
+free? Contradicted opacity is suppressed, while unobserved space and possible
+surfaces behind the first hit are left unconstrained. Because this operation
+can improve free-space precision by deleting structure, we evaluate it jointly
+with surface accuracy, completeness, and held-out appearance. This distinguishes
+fast geometric convergence from aggressive opacity removal.
+
+% TERMINOLOGY NOTE:
+% The main text deliberately uses "keyframe re-optimization", "mapping-view
+% set", "completed mapping updates", and "sampling without replacement".
+% "Replay", "service", and "admission" are implementation terms and are not
+% used as unexplained field terminology.

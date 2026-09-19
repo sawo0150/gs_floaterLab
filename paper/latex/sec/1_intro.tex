@@ -1,43 +1,104 @@
-% ============================================================
-% 1. Introduction  —  계획: sections/01_intro/plan/CURRENT.md
-% 5문단: 문제 / 간극 / 왜 단순한 답이 안 되나 / 우리 방법 / 기여 목록
-% ============================================================
+% Introduction draft: fast photometric/geometric convergence is the thesis.
+% The Carve paragraph and the third contribution are intentionally modular.
+
 \section{Introduction}
 \label{sec:intro}
 
-\begin{figure*}[t]
-  \centering
-  \fbox{\parbox[c][3.2cm][c]{0.96\textwidth}{\centering
-    \textbf{Fig.\,1 \textemdash\ Teaser}\\[2pt]
-    \small left: concept \quad|\quad middle: renders \quad|\quad right: PSNR vs.\ wall-time}}
-  \caption{\skel{FIG.1} View growth and service-shortfall scheduling, separated, give a better map at the
-           same wall-clock budget. (P02, P03)}
-  \label{fig:teaser}
-\end{figure*}
+Robots and wearable augmented-reality systems must use a map while the
+environment is still being observed. A visually convincing map is needed for
+view synthesis, while accurate geometry is needed for interaction, occlusion,
+and spatial reasoning. Final reconstruction quality is therefore not the only
+criterion: a region that becomes accurate only after the camera has moved on
+is of limited use to an online agent. This motivates our central question:
+\emph{how quickly can an online mapper make the appearance and geometry of a
+newly observed region reliable?}
 
-% 문단 1 · 문제: GS-SLAM은 Gaussian 초기화를 상당 부분 풀었다. 남은 것은 제한된
-%   mapping update를 어떤 supervision에 배분할지다.
-\skel{P1 PROBLEM}\; \lipsum[1-2]
+3D Gaussian Splatting (3DGS) is a compelling representation for this problem.
+Its explicit primitives and differentiable rasterizer support high-quality
+rendering and incremental optimization~\cite{kerbl20233dgs}, and have enabled
+several photorealistic SLAM systems~\cite{matsuki2024monogs,splatam2024,
+huang2024photoslam,rtgslam2024}. However, rendering speed, input-processing
+rate, and map convergence describe different properties. A system may render
+an inaccurate map at high frame rate or keep pace with a camera stream while
+leaving recently observed areas under-optimized. Real-time operation is thus a
+necessary system constraint, but it does not by itself establish that a useful
+map is formed quickly.
 
-% 문단 2 · 간극: tracker keyframe은 tracking 기준으로 골라진 표본이며, photometric map
-%   optimization에 좋은 집합과 같아야 할 이유가 없다. keyframe 사이 RGB는 이미 도착해 있다.
-\skel{P2 GAP}\; \lipsum[3-4]
+We focus on \emph{fast photometric and geometric convergence}. Because an
+online map grows as new observations arrive, convergence here does not mean
+asymptotic convergence to a single fixed-scene optimum. We use the term
+operationally: after a region is first observed, photometric convergence is the
+rate at which its held-out rendering error decreases, and geometric convergence
+is the rate at which its surface and free-space errors decrease. Both are
+measured against elapsed time and completed mapping updates. This view exposes
+a distinction that final-only evaluation hides: two systems can reach similar
+endpoint quality while making that quality available at very different times.
 
-% 문단 3 · 왜 단순한 답이 안 되나: 전부 버리면 coverage 손실, 전부 넣으면 update 희석.
-%   고정 FPS는 GPU가 실제로 감당한 service를 반영 못 하고, maturity gate는 growth와
-%   ordering을 하나로 묶어 버린다.
-\skel{P3 WHY NOT SIMPLE}\; \lipsum[5-6]
+Fast photometric convergence first requires the mapper to use observations for
+their mapping value rather than inherit the tracking policy unchanged. In a
+DROID-SLAM-style frontend, keyframes are selected to maintain pose and dense
+correspondence estimation~\cite{teed2021droid}. They are indispensable for
+tracking, but they are not the only images that constrain scene appearance.
+Frames between keyframes supply additional viewpoints and texture evidence.
+Adding all such frames immediately, however, enlarges the optimization set
+faster than a fixed mapping budget can refine it; uniform sampling from the
+growing set can also leave newly available temporal regions with substantially
+fewer updates. The relevant problem is therefore not simply to use more
+frames, but to control when they enter mapping and how the available updates
+are distributed across them.
 
-% 문단 4 · 우리 방법: 세 결정으로 분해. §3.0에서 붙인 문제 이름과 같은 이름을 쓴다.
-\skel{P4 OURS}\; \lipsum[7]
+Fast photometric improvement does not guarantee fast geometric improvement.
+Alpha compositing allows color, opacity, scale, and position to compensate for
+one another, so photometric loss can be small even when opacity lies at an
+incorrect depth~\cite{deng2022dsnerf,stablegs}. Depth and normal supervision
+reduce this ambiguity~\cite{huang20242dgs,chen2024pgsr}, but a loss on a single
+rendered depth statistic need not identify separated opacity modes along the
+ray. In particular, Gaussian opacity in front of an observed surface can
+survive when color gradients become weak. An online method therefore needs a
+geometric signal that acts directly on such free-space violations without
+requiring expensive global reconstruction or post-processing.
 
-% 문단 5 · 기여 목록
-\skel{P5 CONTRIBUTIONS}
-\begin{itemize}\itemsep1pt \parskip0pt \topsep2pt
-  \item \textbf{Compute-Paced View Growth.} Completed GPU service sets how fast the training
-        view set grows. \pend{verb: propose vs.\ show \textemdash\ pending P01/P02}
-  \item \textbf{Service-Shortfall ERCB.} A bounded entropy-regularized correction prioritizes
-        under-served causal intervals inside a global without-replacement residue, while completed
-        Adam service rather than a proposed draw advances its accounting.
-  \item \textbf{Causal Free-Space Carving.} \pend{title and content pending teammate}
+We address the two convergence bottlenecks within a DROID-SLAM-based Gaussian
+SLAM architecture. To accelerate photometric convergence, we decouple the
+mapping-view set from the tracking keyframe set. Additional, causally available
+frames are incorporated at a rate paced by completed mapping updates, and our
+Entropy-Regularized Count Balancing (ERCB) sampler applies a bounded correction
+to temporal groups that have received substantially fewer updates than the
+current average. Sampling without replacement is retained to maintain view
+diversity. To accelerate geometric convergence, we currently instantiate the
+framework with a one-sided Carve loss: depth-supported free-space evidence
+reduces the opacity of Gaussians that lie in front of observed surfaces, while
+leaving unobserved space unconstrained. The two components share one objective:
+to make each unit of online optimization produce useful appearance and geometry
+earlier in the trajectory.
+
+We evaluate this objective directly rather than infer it from a final map.
+Controlled incremental experiments hold poses, depths, initialization, input
+order, and optimization budgets fixed to isolate mapping behavior. We report
+held-out photometric and geometric quality as functions of both wall-clock time
+and completed updates, including free-space violations and completeness so that
+removing geometry cannot be mistaken for reconstructing it. End-to-end
+experiments then test whether the same gains survive competition with the
+tracking frontend at the native input rate.
+
+Our contributions are:
+\begin{itemize}
+    \item We formulate online 3DGS mapping around \emph{fast photometric and
+    geometric convergence}, separating the rate at which map quality improves
+    from rendering speed and stream-processing throughput.
+    \item We introduce a mapping-view policy that expands supervision beyond
+    tracking keyframes according to completed mapping work, together with ERCB,
+    which corrects severe update-count deficits while preserving randomized
+    sampling without replacement.
+    \item Under the current Carve instantiation, we introduce opacity-directed
+    free-space supervision from causal depth evidence to suppress premature ray
+    termination without forcing all Gaussians onto the first visible surface.
+    \item We establish an evaluation protocol based on appearance and geometry
+    convergence curves under matched update and wall-clock budgets, followed by
+    a separate end-to-end online test.
 \end{itemize}
+
+% GEOMETRY-MODULE SWITCH:
+% If fixed opacity or another controller wins the final ablation, replace only
+% the geometry sentences in paragraphs 5--6 and contribution 3. The problem
+% statement, photometric path, and convergence-based evaluation remain valid.

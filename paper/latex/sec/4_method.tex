@@ -1,271 +1,313 @@
-% ============================================================
-% 3. Method   ← 이 파일이 §3이다 (파일명은 Overleaf 템플릿 것을 그대로 둠)
-% 계획: sections/03_method/README.md
-%
-% 구조 (2026-09-06 확정, 코퍼스 11편 조사 반영):
-%   도입 = roadmap 한 문단. Notation·배경식은 두지 않는다.
-%   세 소절은 "데이터셋이 아직 도착 중"이라는 한 원인의 세 결과다 (도입 주석 참조).
-%   3.1 / 3.2 / 3.3  세 소절. 진단 소절은 두지 않는다.
-%   진단은 각 소절 첫 문단(P1)에 분산한다 — taming3dgs §3.2 형식.
-%   ※ 진단에 소절을 준 논문은 조사한 11편 중 cartgs 하나뿐이다.
-%     "세 결정으로 분해"라는 우리 중심 주장은 §1 이 진다 (taming3dgs 도 그렇게 한다).
-%
-% \slot{move}{줄수}{할 일} = greeking. 계획 분량만큼 자리를 잡는 빈 칸.
-%   초고가 들어오면 해당 \slot 을 실제 문단으로 갈아끼운다.
-%   박스 안 글은 영어 (kotex 미사용). 한국어 상세는 각 slot 위 주석에.
-%
-% 분량 (2026-09-06 재산정). CVPR 2단 10pt, 한 쪽 ≈ 110줄.
-%   ⚠ 이전 주석의 숫자(1.05p/1.0p/1.05p)는 실제 slot 합과 맞지 않았다. 아래는 실측 기준이다.
-%
-%   코퍼스 실측 — 같은 성격(메커니즘 명세) 소절의 총 줄수, 2단 기준:
-%     CoMapGS 3.3            29 (수식2)      LM-RS 4.5              88 (수식1)
-%     Taming3DGS 3.2         31 (수식1) ★    chen2026cover 4.2     101 (수식5)
-%     Taming3DGS 3.4         38 (수식0)      Point-SLAM 3.1        106 (수식3)
-%     LM-RS 4.3              55 (수식1)      Taming3DGS 3.3        136 (수식3)
-%     SparseGS 3.2           60 (수식2)      LM-RS 4.1              67 (수식1)
-%   중앙값 ≈ 63. ★ 우리 §3.1 과 문제가 가장 가까운 Taming3DGS 3.2 는 4문단 31줄로 끝낸다.
-%
-%   우리 배분 (수식 1개 ≈ 3줄, 그림 1개 ≈ 14줄):
-%     도입  19줄 0.17p   roadmap 한 문단
-%     §3.1  95줄 0.86p   문단 66 (16/12/16/10/12) + run-in 6 + 수식3 9 + Fig.3 14
-%                        ※ 5문단 + run-in. taming3dgs 는 4문단이지만 그쪽은 "왜 densify 하나"를
-%                          설명할 필요가 없다. 우리는 A2·A3(왜 keyframe 밖까지)가 한 문단 더 든다.
-%     §3.2  101줄 0.92p  문단 84 (16/10/20/22/16) + 수식3 9
-%                        ※ 최적화 문제를 display 로 올렸다. 두 항이 (a)(b) 라는 게 이 소절의 논지다.
-%                        ※ P3·P4 가 각각 5가지를 해야 해서 24줄씩 준다. §3.1(0.83p)과 대등.
-%     §3.3  40줄 0.36p   팀원 (채워지면 §3.1 수준으로 늘어날 것)
-%   → §3 ≈ 240줄 2.18p. 팀원 §3.3 이 채워지면 ≈ 2.7p.
-%   중앙값보다 조금 위에 두되 chen2026cover 4.2(101)·Point-SLAM 3.1(106) 아래로 유지한다.
-%
-% ============================================================
+
 \section{Method}
 \label{sec:method}
 
-% ---------- 도입: roadmap 한 문단 (§3 도입은 이것뿐) ----------
-% 묶는 논리 (2026-09-06 확정, 안 ②):
-%   "데이터셋이 아직 도착 중"이라는 하나의 사실에서 세 문제가 파생된다.
-%   offline 3DGS 가 딛고 선 세 가정이 그 사실 때문에 각각 깨진다:
-%     (1) 고정 집합 위의 고정 예산      → 집합이 자라면 update 가 희석된다      → §3.1
-%     (2) 셔플링은 유한 고정합 위에 있다 → pool 이 자라면 그 전제가 깨진다        → §3.2
-%     (3) 기하는 가진 뷰로 결정된다      → free space 는 충분히 관측되기 전엔 미결정 → §3.3
-%   ★ 이 틀에서 C3 는 "남은 것"이 아니라 같은 원인의 세 번째 결과다.
-%   ★ §3.2 의 scope guard("pool 이 자라서 RR 보장을 못 가져온다")가 변명이 아니라
-%     주제의 재확인이 된다.
-%
-% ⚠ 이 묶음은 carve 가 "관측 부족으로 생긴 floater"를 다룰 때 성립한다.
-%   관측이 충분해도 최적화가 만든 floater 를 다루는 것이라면 이 틀은 무너지고,
-%   "학습 루프의 세 손잡이(데이터/순서/목적함수)"로 되돌아가야 한다. 팀원 확인 필요.
-%
-% 문장 3 = 셋을 독자의 말로 먼저 세어준다 (sparsegs "consists of three key components: A, B, and C").
-%   §ref 를 꺼내기 전에 "무엇을 셋으로 보는가"를 평이한 말로 심어둔다.
-% 문장 4·5·6 은 같은 꼴: [깨지는 offline 가정] → [무엇을 하는가 §ref] → [무엇을 얻는가]
-%   '얻는 것' 절은 lmrs 의 thereby / which results in / which eliminates.
-% 코퍼스 조사: Method 도입은 5~7문장 8~13줄 한 문단이 관행.
-% 원본은 plan/outline/CURRENT.md.
-\slot{ROADMAP \textemdash\ the whole opening, 7 sentences}{19}{%
-  (1) \emph{Premise}: online mapping fits a model to a dataset that is \textbf{still arriving} —
-  new views keep entering while the model is being optimized.
-  (2) \emph{Contrast}: offline 3DGS rests on three assumptions that this one fact breaks, and
-  existing online systems inherit all three through a single keyframe rule.
-  (3) \emph{The three points}, named in plain terms before any section reference: we therefore
-  look at the three places in the mapping loop where that inheritance shows ---
-  \textbf{how much} supervision may enter, \textbf{in which order} it is revisited, and
-  \textbf{what constrains} the geometry it does not yet determine.
-  (4) \emph{\S\ref{ssec:growth}}: \textbf{a fixed budget over a fixed set} no longer holds, so we
-  let completed GPU service set how fast the set may grow, \textbf{which makes} that rate
-  independent of the size of the set.
-  (5) \emph{\S\ref{ssec:ercb}}: \textbf{shuffling is defined over a finite sum}, which a growing
-  set is not, so we apply a bounded interval-service-shortfall correction over global
-  without-replacement reshuffling, \textbf{which} prioritizes lagging coverage when one pass is
-  infeasible without introducing repeated views.
-  (6) \emph{\S\ref{ssec:carve}}: \textbf{geometry is determined by the views one has}, and free
-  space is not yet determined --- floaters are that indeterminacy made visible --- so we
-  constrain it with causal carve evidence, \textbf{which} removes them without future frames.
-  (7) \emph{Figure}: Fig.~2 shows the three consequences of the one cause in a single pass of the
-  mapper.}
+Our goal is to make the Gaussian map converge faster in 3DGS SLAM,
+in both rendering quality and geometry.
+Instead of letting keyframe selection fix both the set of training views
+and which of them each mapping iteration sees, we decouple the two and
+drive each from what optimization has already done---the total work completed,
+and how many times each view has been selected.
+We first add the frames between keyframes to the training views, and let
+the amount of GPU work already completed, rather than the keyframe rule,
+determine how fast that set grows (\S\ref{ssec:growth}).
+We then select views in blocks, drawn from a distribution that solves a
+single objective: it both evens out how many times each view has been selected
+and retains enough randomness that gradients from successive iterations stay
+uncorrelated (\S\ref{ssec:ercb}).
+Finally, we constrain the free space that photometric loss alone is slow to
+resolve, using a carve term built only from frames that have already arrived,
+so that geometry converges sooner (\S\ref{ssec:carve} -  Detailed sentences need to be modified).
 
-% ---------- 3.1 (5문단, 86줄) ----------
-\subsection{Compute-Paced View Growth}
+
+
+% ---------- 3.1 (3문단) ----------```latex
+\subsection{Optimization-Guided View Growth}
 \label{ssec:growth}
 
-% 문단 구성 (2026-09-06 개정). 5문단 + run-in.
-%   taming3dgs §3.2 는 4문단이지만 그쪽은 "왜 densify 하나"를 설명할 필요가 없다.
-%   우리는 keyframe 밖 프레임을 쓴다는 것 자체가 설명이 필요한 선택이라 한 문단이 더 든다.
-%   근거는 claims A2·A3 (둘 다 ✅).
-%
-%   논증: 더 쓰면 좋다(A2) → 공짜가 아니다, 최적 밀도가 예산 따라 움직인다(A3)
-%         → 속도를 정해야 한다. baseline 의 답은 keyframe 이고 그건 속도를 집합 크기·
-%           하드웨어에 용접한다 → 그럼 무엇이 속도를 정해야 하나 → 완료된 service(P3, 기여)
-%         → 계량이 정해지면 나머지는 장부(P4, P5) → 어디에 둘지는 +0.35%(run-in, P2 로 회귀)
+Offline 3DGS optimizes a fixed set of views, whereas GS-SLAM must update the map as new observations arrive while sharing computation with tracking. Mapping can therefore perform only a limited amount of optimization during an online run. Several real-time GS-SLAM systems optimize the map using a bounded set of keyframes~[15,16,17]. However, keyframe selection is not designed solely to provide dense photometric supervision for map optimization~[cite]. Our results in Table~X show that including frames between keyframes improves map quality under the same number of mapping updates. At the same time, removing earlier views can reduce supervision for regions that are weakly covered by the remaining set and makes it harder to distribute optimization across the full trajectory. We therefore retain previously added training views and allow the training set to grow as new observations become available.
 
-\begin{figure}[t]
-  \centering
-  \fcolorbox{slotgray}{slotbg}{\parbox[c][3.2cm][c]{0.92\linewidth}{\centering
-    {\sffamily\scriptsize\bfseries\color{skelblue}FIG.\,3 \textemdash\ IN-METHOD EVIDENCE}\\[3pt]
-    {\sffamily\scriptsize\color{slotgray}$x$: wall time \quad $y$: cumulative admissions\\
-     law + measured + baseline (gate) \quad\textbullet\quad P01}}}
-  \caption{Measured growth follows the law and is independent of the size of the training view
-           set. Placed here rather than in \S\ref{sec:exp}, so the reader meets the law and its
-           verification in the same place.}
-  \label{fig:growthtrace}
-\end{figure}
+Growing the training set introduces a competing effect. Adding views provides more supervision, but the same mapping updates must then be distributed over a larger set, reducing how often each view can be revisited. The appropriate rate at which views should be added therefore depends on how much optimization can actually be performed. In an online setting, this amount cannot be determined exactly in advance: when a new frame arrives, both the remaining length of the sequence and the number of mapping updates that will eventually be completed are unknown. The decision to include that frame must nevertheless be made online. We therefore make the growth of the training set follow the optimization work that has actually been completed, rather than a schedule fixed before the run.
 
-% P1 — 왜 학습 집합이 자라는가, 그리고 왜 상한을 둘 수 없는가.
-%   근거: claims A2 (exp51/exp66) + neural SLAM 의 forgetting 문헌(iMAP, Point-SLAM).
-%   ★ "무한정 자란다"를 여기서 세워야 §3.2 가 "그러면 어떤 순서가 이상적인가"를 물을 수 있다.
-\slot{P1 \textemdash\ WHY THE SET GROWS, AND WHY IT CANNOT BE CAPPED}{16}{%
-  Keyframes are selected for tracking, not for photometric supervision. Under the same objective a
-  view set that includes frames between keyframes reaches a lower held-out loss, and those frames
-  have \emph{already arrived}: nothing is spent to acquire them \emph{(claims A2, exp51/exp66)}.
-  \textbf{Nor can the set be capped by a sliding window.} Evicting a view stops supervision for
-  the region it covers, and the parameters are shared, so continued optimization elsewhere
-  degrades it --- this is why keyframe replay exists in neural SLAM at all [iMAP, Point-SLAM].
-  \textbf{The training set therefore grows monotonically with the trajectory}, which is the
-  premise \S\ref{ssec:ercb} has to schedule against.}
-
-% P2 — 왜 keyframe 규칙이 틀린 답인가. 근거: claims A3 (exp66 viewset density).
-%   ⚠ A2 의 경계를 여기서 밝힌다: dense 를 쓴다는 것 자체는 전제이지 우리 주장이 아니다.
-\slot{P2 \textemdash\ WHY THE KEYFRAME RULE IS THE WRONG ANSWER}{12}{%
-  Using them is not free, however: every admitted view competes for the same fixed number of
-  optimizer updates, so the best view-set density moves with the compute budget
-  \emph{(claims A3, exp66)}. A rate must therefore be chosen. The baseline chooses it by keyframe
-  --- ``For each new keyframe, we run 10 mapping iterations'' --- which welds that rate to the
-  size of the set and to hardware speed. \textbf{Say here that using dense supervision is the
-  premise, not the claim} \emph{(boundary of A2)}; what we claim is the rule that sets the rate.}
-
-% P3 — 이 절의 기여. 세 후보를 비교하고 계보를 밝힌다.
-%   ⚠ 2026-09-08: 단일 GPU·pace 스윕 없음으로 정하면서 "하드웨어 속도와 무관" 주장은
-%     검증할 실험이 사라졌다(claims B2, Fig.4, P02 폐기). 집합 크기 독립성만 말한다 —
-%     그건 한 run 안에서 pool 이 커지는 동안 측정된다(B1, exp73 526 poll).
-%     근거: notes/decisions/2026-09-08_single-gpu-realtime.md
-\slot{P3 \textemdash\ WHAT TO METER (the contribution)}{16}{%
-  Three candidates. \emph{Wall-clock time} advances whether or not the GPU finished anything, so
-  under a slow or stalled optimizer admission outruns it and the new views dilute the updates ---
-  open loop. \emph{Iteration count} is closer, but the cost of an iteration grows with the set,
-  so metering iterations keeps the coupling we are trying to remove. \emph{Completed GPU service}
-  is the only closed loop: it advances only when the optimizer does. Lineage: this is a token
-  bucket [RFC 2212] whose tokens are minted by completed service rather than by elapsed time,
-  which makes it credit-based rather than rate-based. A consequence: during a stall the meter
-  does not advance, so no credit accrues and no burst can build --- a time-metered bucket needs a
-  depth cap for that, ours cannot fill in the first place.
-  \pend{claim set-size independence only. "hardware speed" dropped 2026-09-08: single GPU, no
-  pace sweep, so B2 has no experiment --- notes/decisions/2026-09-08\_single-gpu-realtime.md}}
-
-% P4 — 불변식이 먼저, 상한이 그로부터 따라온다.
-\slot{P4 \textemdash\ INVARIANT, AND THE CAP THAT FOLLOWS}{10}{%
-  One invariant: credit spent may never exceed credit earned, Eq.~(\ref{eq:invariant}).
-  Solving it for the number of admissions gives the cap, Eq.~(\ref{eq:astar}) --- the floor
-  because admissions are integral, the $\min$ because views that have not arrived cannot be
-  admitted. Two free parameters only: $\kappa$, the cost of one admission, and $\gamma$, the
-  conversion from service to credit. \pend{$\kappa$ was fixed on one scene and reused; say so}
-  \pend{decide: is (\ref{eq:astar}) stated on cumulative $S(t)$, or on credit remaining after the
-  discards of P5? The two differ once a discard fires, and a reviewer will check}}
-
-\begin{equation}\label{eq:invariant}
-  \kappa\big(|A_t| - A_0\big) \;\le\; B_0 + \gamma S(t)
+Let $S(t)$ denote the number of mapping updates completed by time $t$, counting an update only after it has finished. Let $\mathcal{A}_t$ be the training-view set at time $t$, and let $N_0=|\mathcal{A}_0|$ be the number of initial views. We use a single parameter, $\kappa$, to specify the number of completed mapping updates required for each additional view. The number of views added by time $t$ is then constrained by
+\begin{equation}
+    \kappa\left(|\mathcal{A}_t|-N_0\right)
+    \leq S(t).
+    \label{eq:view_growth_constraint}
 \end{equation}
-\begin{equation}\label{eq:astar}
-  A^{*}(t) \;=\; \min\!\Big(M(t),\; A_0 + \Big\lfloor \tfrac{B_0+\gamma S(t)}{\kappa} \Big\rfloor \Big)
+Solving Eq.~\eqref{eq:view_growth_constraint} for the training-set size gives
+\begin{equation}
+    N_{\max}(t)
+    =
+    \min\left(
+        M(t),
+        N_0+\left\lfloor\frac{S(t)}{\kappa}\right\rfloor
+    \right),
+    \label{eq:view_growth_bound}
 \end{equation}
+where $M(t)$ is the number of views available by time $t$. The minimum prevents the training set from exceeding the views that have already arrived, and the floor accounts for views being added one at a time. When additional views are available, one view can therefore be added for every $\kappa$ completed mapping updates. Measured in completed mapping updates, this growth rate is determined only by $\kappa$: it does not decrease as the training set becomes larger and does not depend on how views already in the set are selected for optimization. This separates the decision of when to add new views from the decision of which existing views to optimize; Section~3.2 addresses the latter.
+```
 
-% P5 — 현실이 어긋나는 두 지점 + 정책 선언 + forward pointer.
-%   ⚠ claims B5: no-prepurchase 는 구현된 정책이다. carry 보다 낫다는 주장은 금지.
-\slot{P5 \textemdash\ REALIZED QUOTA, DISCARD, POLICY}{12}{%
-  Reality diverges twice. Only views that have arrived and are not yet admitted are candidates,
-  giving the realized quota Eq.~(\ref{eq:quota}). And when nothing is pending, credit is
-  \emph{discarded} rather than banked --- a second guard against bursts, and what keeps admission
-  causal, since credit never crosses an interval boundary to be spent on views that arrive later.
-  The implemented policy is therefore \emph{no-prepurchase}.
-  \pend{report it as the policy we implement, NOT as one shown better than carry --- B5}
-  \S\ref{sec:exp} shows the realized count matches Eq.~(\ref{eq:astar}) with zero integer error,
-  and how quality degrades as $\kappa$ falls (Fig.~\ref{fig:growthtrace}).}
 
-\begin{equation}\label{eq:quota}
-  Q_t \;=\; \min\!\big(|C_t|,\; [\,A^{*}(t) - |A_{t^-}|\,]_+\big)
-\end{equation}
-
-% run-in — 기여 아님. 약하다는 사실 자체가 P2 의 논거를 되받는다.
-\noindent\textbf{Slot placement.}\;
-\slot{RUN-IN \textemdash\ NOT A CONTRIBUTION}{6}{%
-  The quota says how many; temporal maximin and interval water filling say where along the
-  trajectory. The measured gain is $+0.35\%$ --- the bottleneck is \emph{how many} views can be
-  admitted, not \emph{which} ones, which is why this subsection is about the rate.}
-
-% ---------- 3.2 ----------
-% 2026-09-15 authority correction: the old per-view raw-count Gibbs prototype
-% exp(-beta n_i) is not the production/paper-Full method.  The source of truth
-% is Stage 3d: interval completed-service shortfall, a bounded Gibbs bonus,
-% transactional accounting, and a global without-replacement residue.
-\subsection{Service-Shortfall Entropy-Regularized Count Balancing}
+% ---------- 3.2 (5문단) ----------
+\subsection{Entropy-Regularized View Sampling}
 \label{ssec:ercb}
 
-\slot{P1 \textemdash\ THE REGIME AND THE SCHEDULING FAILURE}{15}{%
-  Random reshuffling is already sufficient when every admitted view can receive at least one
-  service before the map is read.  The failure appears in the opposite regime.  Let $U$ be the
-  number of unique views eligible before a dense-service opportunity and $S$ the number of
-  completed dense-view Adam services.  If $S<U$, one global pass is infeasible: a growing pool can
-  leave whole causal intervals untouched even though the order inside the serviced subset is
-  random.  We therefore correct \emph{interval service shortfall}, rather than trying to equalize
-  every view's lifetime count.  This is a conditional claim about structurally scarce service, not
-  a claim that the correction must outperform reshuffling when $S\ge U$.}
+The training-view set grows over time as new observations become available and mapping optimization proceeds. A simple strategy is to sample uniformly from the views currently in the set. Although this gives every available view the same probability at a given time, it does not account for when each view entered the training set. Views added early remain eligible for selection for longer and can therefore receive substantially more mapping updates, whereas views added later have fewer opportunities to be selected. If this difference accumulates, optimization can become unevenly distributed along the trajectory, leaving less frequently optimized regions with lower reconstruction quality. We therefore want to give more opportunities to views that have received fewer updates. A purely deterministic least-count rule, however, removes the randomization commonly used in stochastic optimization to reduce systematic ordering effects~[cite]. This is particularly relevant for SLAM, where nearby camera frames often contain highly similar observations. Our goal is therefore to favor under-selected views while retaining randomness in the selection process.
 
-\slot{P2 \textemdash\ COMPLETED-SERVICE SHORTFALL}{18}{%
-  Partition the currently admitted causal set $A_t$ by the keyframe bracket known when each view
-  was admitted.  For interval $G_j$, let $m_j=|G_j\cap A_t|$ and let $c_j$ count only selections
-  whose Adam update has completed in the current map generation.  Its per-member service rate is
-  $r_j=c_j/m_j$, and the frame-weighted global mean is
-  $\mu=\sum_j c_j/\sum_j m_j$.  Equation~(\ref{eq:ercb-shortfall}) measures only shortage below a
-  relative floor $\rho\mu$; when the target is zero we set every deficit to zero.  Hence
-  $d_j\in[0,1]$, the statistic is invariant to a common scaling of all completed counts, and an
-  interval at or above the floor receives no correction.}
+Let \(N_t\) be the number of views in the training set at time \(t\), and let \(n_i\) denote the number of times view \(i\) has been selected for a mapping update. We denote the mean selection count by
 
-\begin{equation}\label{eq:ercb-shortfall}
- d_j=\begin{cases}
-  \left[1-\dfrac{r_j}{\rho\mu}\right]_+, & \rho\mu>0,\\[2pt]
-  0, & \rho\mu=0.
- \end{cases}
+$$
+\bar n = \frac{1}{N_t}\sum_i n_i.
+$$
+
+Because the scale of the raw count variance changes as selections accumulate, we measure the dispersion relative to the current mean count:
+\begin{equation}
+\Phi(\mathbf n)
+=
+\frac{1}{2N_t\bar n}
+\sum_{i=1}^{N_t}
+(n_i-\bar n)^2.
+\label{eq:count_dispersion}
 \end{equation}
-
-\slot{P3 \textemdash\ BOUNDED ENTROPY-REGULARIZED MEASURE}{17}{%
-  Let $E_t\subseteq A_t$ be the unserved residue of the current global reshuffling epoch and
-  $a_j=|G_j\cap E_t|$.  At an outer-block boundary, interval $j$ receives the frame-uniform base
-  mass $a_j$ multiplied by the bounded Gibbs bonus in Eq.~(\ref{eq:ercb-weight}).  The factor
-  $a_j$ preserves uniform-per-frame reshuffling when $\gamma=0$; the exponential term changes only
-  the interval order and is bounded by $1\le\exp(\gamma d_j)\le\exp(\gamma)$.  We use
-  $\rho=0.75$ and $\exp(\gamma)=1.5$, fixed before the cross-sequence confirmation.}
-
-\begin{equation}\label{eq:ercb-weight}
- w_j=a_j\exp(\gamma d_j),\qquad
- p_t(j)=\frac{w_j}{\sum_{\ell:a_\ell>0}w_\ell}.
+A smaller \(\Phi\) indicates that the accumulated selection counts are more evenly distributed across the current training views. Let \(T=\sum_i n_i=N_t\bar n\) be the total number of selections made so far. For a single selection step, with the training set held fixed, selecting view \(i\) once more changes the dispersion by
+\begin{equation}
+\Delta_i\Phi
+=
+\Phi(\mathbf n+\mathbf e_i)-\Phi(\mathbf n)
+=
+\frac{n_i}{T+1}+C_t,
+\label{eq:count_dispersion_increment}
 \end{equation}
+where \(C_t\) is independent of the selected view. Thus, views with smaller selection counts produce a smaller increase in \(\Phi\). Greedily minimizing this change would recover a deterministic least-count rule. Instead, we use \(\Delta_i\Phi\) to define a probability distribution over the available views.
 
-\slot{P4 \textemdash\ BLOCK DRAW AND GLOBAL RESIDUE}{19}{%
-  We draw up to $K=8$ distinct intervals from $p_t$ without replacement using a
-  Plackett--Luce (equivalently, Gumbel-Top-$k$) block.  A persistent shuffled inner queue chooses
-  one member of $G_j\cap E_t$ for each selected interval.  Crucially, without replacement is
-  global rather than merely interval-local: a committed view leaves $E_t$, and no view may repeat
-  until the current residue is exhausted.  Already-arrived candidates may join the residue while
-  an epoch grows, but cannot enter an outer block that has already been materialized.  When
-  $E_t$ becomes empty, the next draw starts a new epoch from the then-current $A_t$.  This retains
-  reshuffling's coverage invariant while allowing a bounded reordering toward lagging intervals.}
+Let \(p_i\) denote the probability of selecting view \(i\) for the next mapping update. We seek a distribution that favors views with smaller \(\Delta_i\Phi\) without concentrating all probability on a single view. We express these two objectives jointly as
+\begin{equation}
+\min_{\mathbf p\in\Delta}
+\sum_i p_i \Delta_i\Phi
+-
+\tau H(\mathbf p),
+\label{eq:entropy_sampling_objective}
+\end{equation}
+where \(H(\mathbf p)=-\sum_i p_i\log p_i\), \(\Delta\) denotes the probability simplex, and \(\tau>0\) controls the strength of the entropy term. The first term favors views that have been selected less often, while the second discourages the distribution from becoming overly concentrated. Solving Eq.~\eqref{eq:entropy_sampling_objective} under the constraint \(\sum_i p_i=1\) gives
+\begin{equation}
+p_t(i)
+=
+\frac{
+\exp!\left(-\Delta_i\Phi/\tau\right)
+}{
+\sum_j \exp!\left(-\Delta_j\Phi/\tau\right)
+}.
+\label{eq:entropy_sampling_general}
+\end{equation}
+Substituting Eq.~\eqref{eq:count_dispersion_increment} removes the term shared by all views and yields
+\begin{equation}
+p_t(i)
+=
+\frac{
+\exp(-\beta_t n_i)
+}{
+\sum_j \exp(-\beta_t n_j)
+},
+\qquad
+\beta_t
+=
+\frac{1}{\tau(T+1)}.
+\label{eq:entropy_view_sampling}
+\end{equation}
+Views with fewer previous selections therefore receive higher probability, while every available view retains a nonzero probability of being selected. For a fixed \(\tau\), \(\beta_t\) decreases as the total number of selections grows, so the influence of a fixed count difference is gradually reduced relative to the accumulated selection history.
 
-\slot{P5 \textemdash\ TRANSACTION AND CAUSALITY CONTRACT}{17}{%
-  Selection is a proposal, not service.  The scheduler increments $c_j$ and removes a view from
-  $E_t$ only after the owning Adam step commits; a deadline rejection cancels the proposal and
-  restores the same concrete block without advancing the service clock.  Interval identity is
-  frozen from already-observed admission endpoints, so later pose-graph refreshes cannot rewrite
-  scheduler history.  A map reset clears the service counts and residue.  Thus C1 controls which
-  views enter, whereas ERCB changes only the order in which the shared eligible set is serviced.
-  We report rich sequences as controls and test the ERCB advantage only on workload-ledger-defined
-  $S<U$ sequences; no image-quality metric is used to choose that label.}
+Equation~\eqref{eq:entropy_view_sampling} defines the distribution for a single view selection. If each mapping update samples independently with replacement, however, a small number of high-probability views can be selected repeatedly over a short interval while other views receive no update. To reduce such short-term repetition, we select \(K\) distinct views without replacement for the next \(K\) mapping updates. At the beginning of each group, we compute the sampling probabilities from the current selection counts and use them to select \(K\) distinct views. Each selected view is then used once, and the updated counts are used to compute the distribution for the next group. This preserves the preference for under-selected views while ensuring that the same view is not repeatedly selected within the group. The parameter \(K\) therefore determines the interval over which repeated selections are prevented: \(K=1\) reduces to single-view sampling, whereas larger \(K\) increases the variety of views used over consecutive mapping updates. We evaluate the effect of \(K\) in Sec.~\ref{sec:exp}.
 
-% ---------- 3.3 (팀원, 110줄) ----------
-\subsection{Causal Free-Space Carving}
+
+% ---------- 3.3 ----------
+% AUTHOR NOTE: this draft contains the Carve, Hit, and factorized Carve+Hit
+% candidates. Once the controlled ablation is complete, keep the common
+% ray model and only the winning objective; move the other derivations to
+% the supplementary material.
+\subsection{Causal Ray-Space Geometry Supervision}
 \label{ssec:carve}
 
-\slot{\color{red}P1--P4 \textemdash\ TEAMMATE}{40}{%
-  Match the shape of the two subsections above:
-  Diagnosis $\to$ Mechanism $\to$ assumption ledger $\to$ forward pointer to
-  \S\ref{sec:exp} (\texttt{Carving.}).
-  \textbf{Use the same name announced in P3 of the section opening.}
-  The subsection title is the teammate's to fix.}
+Photometric supervision constrains the composited color but does not uniquely
+determine where opacity lies along a ray: a premature Gaussian can reproduce
+the observed color while occupying known free space. A conventional rendered
+depth loss is also insufficient because it first compresses all contributors
+to one mean depth, allowing separated front and back modes to cancel. We
+therefore supervise the first-termination process induced by Gaussian
+compositing using only depth observations available at the current time. This
+gives two complementary constraints: \emph{Carve} suppresses termination before
+the observed surface, while \emph{Hit} places termination mass at that surface.
+
+\paragraph{Ray termination.}
+For a depth-ordered set of Gaussian contributors to ray $r$, let
+$\alpha_i^0$ be the base opacity, $G_{ri}^{\mathrm{2D}}$ the projected
+Gaussian value at the pixel, and $z_{ri}$ its camera-space depth. The effective
+alpha, incoming transmittance, and termination weight are
+\begin{equation}\label{eq:ray_termination}
+  a_{ri}=\alpha_i^0G_{ri}^{\mathrm{2D}},\qquad
+  T_{ri}=\prod_{j<i}(1-a_{rj}),\qquad
+  w_{ri}=T_{ri}a_{ri}.
+\end{equation}
+The remaining no-hit mass is
+$T_{\mathrm{end},r}=\prod_i(1-a_{ri})$, and
+$\sum_iw_{ri}+T_{\mathrm{end},r}=1$. We equivalently introduce a categorical
+first-termination index $I_r$ with
+$p(I_r=i\mid\Theta)=w_{ri}$ and
+$p(I_r=\varnothing\mid\Theta)=T_{\mathrm{end},r}$. This is an interpretation
+of deterministic alpha-compositing mass, not a stochastic renderer.
+
+For each multi-view-verified keyframe ray, VIGS provides a BA-refined depth
+$D_r$. Its latent first-surface depth $Z_r^\star$ is represented by an
+external posterior
+\begin{equation}\label{eq:surface_posterior}
+  \begin{aligned}
+  q_r(z)&=p(Z_r^\star=z\mid\mathcal O_r)
+  =\mathcal N(z;D_r,\tau_r^2),\\
+  F_r(b)&=\Phi\!\left(\frac{b-D_r}{\tau_r}\right).
+  \end{aligned}
+\end{equation}
+where $\mathcal O_r$ denotes the front-end observations. We stop gradients
+through $D_r$ and $\tau_r$, keeping this evidence independent of the Gaussian
+map parameters $\Theta$.
+
+\paragraph{Free-space likelihood (Carve).}
+Given a surface at $z$ and a safety margin $m_r$, the target event is
+\begin{equation}\label{eq:carve_event}
+  \mathcal E_r^{\mathrm F}(z)
+  =\{\text{no model termination before }z-m_r\}.
+\end{equation}
+Its conditional likelihood is exactly the transmittance
+$p(\mathcal E_r^{\mathrm F}(z)\mid Z_r^\star=z,\Theta)
+=T_\Theta(r,z-m_r)$. Taking the posterior expectation of its conditional NLL
+gives
+\begin{align}
+  \mathcal L_{\mathrm{C\text{-}ENLL}}
+  &=\frac{1}{|\mathcal R_D|}\sum_{r\in\mathcal R_D}\sum_i
+    \gamma_{ri}\big[-\log(1-a_{ri})\big], \label{eq:carve_enll}\\
+  \gamma_{ri}
+  &=p(Z_r^\star>z_{ri}+m_r\mid\mathcal O_r)
+    =1-F_r(z_{ri}+m_r), \nonumber
+\end{align}
+where $\mathcal R_D$ is the set of verified depth rays. Thus, a Gaussian is
+penalized in proportion to the posterior probability that it lies in observed
+free space. With geometry detached, minimizing Eq.~(\ref{eq:carve_enll})
+monotonically decreases only its opacity.
+
+Alternatively, marginalizing the compatibility event before taking the NLL
+gives
+\begin{align}
+  P_{\mathrm{C\text{-}MARG},r}
+  &=\int q_r(z)T_\Theta(r,z-m_r)\,\mathrm dz \nonumber\\
+  &=T_{\mathrm{end},r}+\sum_iw_{ri}F_r(z_{ri}+m_r), \label{eq:carve_marg}\\
+  \mathcal L_{\mathrm{C\text{-}MARG}}
+  &=-\frac{1}{|\mathcal R_D|}\sum_{r\in\mathcal R_D}
+  \log(P_{\mathrm{C\text{-}MARG},r}+\epsilon). \nonumber
+\end{align}
+Equation~(\ref{eq:carve_marg}) is the exact NLL of the stated compatibility
+event under an external $q_r$, whereas Eq.~(\ref{eq:carve_enll}) is its
+posterior-expected conditional NLL. Jensen's inequality gives
+$\mathcal L_{\mathrm{C\text{-}MARG}}
+\leq\mathcal L_{\mathrm{C\text{-}ENLL}}$, so the latter is more conservative.
+Both objectives permit a no-hit solution and therefore remove free-space
+violations without, by themselves, creating surface coverage.
+
+\paragraph{First-hit likelihood (Hit).}
+Carve specifies where termination should not occur; Hit additionally explains
+the measured surface. Conditioned on termination at Gaussian $i$, we use the
+forward observation model
+\begin{equation}\label{eq:hit_observation}
+  k_{ri}=p(D_r\mid I_r=i,\Theta)
+  =\mathcal N(D_r;z_{ri},\sigma_r^2),
+\end{equation}
+where $\sigma_r$ is calibrated measurement noise, not Gaussian thickness.
+Marginalizing the latent termination index yields
+\begin{align}
+  p(D_r,I_r\neq\varnothing\mid\Theta)
+  &=\sum_i p(D_r\mid I_r=i,\Theta)p(I_r=i\mid\Theta) \nonumber\\
+  &=\sum_iw_{ri}k_{ri}, \label{eq:hit_likelihood}\\
+  \mathcal L_{\mathrm{HIT}}
+  &=-\frac{1}{|\mathcal R_D|}\sum_{r\in\mathcal R_D}
+  \log\!\left(\sum_iw_{ri}k_{ri}+\epsilon\right). \nonumber
+\end{align}
+Writing $A_r=\sum_iw_{ri}$ decomposes each ray loss into
+$-\log A_r-\log\sum_i(w_{ri}/A_r)k_{ri}$: the first term demands a finite hit,
+and the second aligns the complete termination distribution with $D_r$.
+Consequently, near-surface components gain termination mass, premature
+occluders lose opacity when they block a better downstream explanation, and
+components with nonzero mixture responsibility receive position gradients
+toward $D_r$. Unlike Carve, the canonical Hit objective therefore optimizes
+opacity, position, and projected shape.
+
+\paragraph{Non-overlapping Carve--Hit objective.}
+Adding global Carve and Hit losses independently can count the same front
+transmittance twice because every $w_{ri}$ already contains $T_{ri}$. For an
+exact factorization, define a free-space boundary $B_r=D_r-m_r$, an upper
+surface boundary $U_r$, and
+\begin{equation}\label{eq:carve_hit_partition}
+  \mathcal F_r=\{i:z_{ri}<B_r\},\qquad
+  \mathcal S_r=\{i:B_r\leq z_{ri}\leq U_r\}.
+\end{equation}
+Let
+$T_r^{\mathrm F}=\prod_{i\in\mathcal F_r}(1-a_{ri})$ and reset
+transmittance inside the surface set,
+\begin{equation}\label{eq:local_hit_weight}
+  \widetilde w_{ri}^{\mathrm S}
+  =a_{ri}\!\!\prod_{\substack{j\in\mathcal S_r\\z_{rj}<z_{ri}}}
+  (1-a_{rj}).
+\end{equation}
+Since $w_{ri}=T_r^{\mathrm F}\widetilde w_{ri}^{\mathrm S}$ for
+$i\in\mathcal S_r$, the restricted first-hit NLL factorizes as
+\begin{equation}\label{eq:carve_hit}
+  \mathcal L_{\mathrm{C+H}}(r)
+  =-\log T_r^{\mathrm F}
+  -\log\!\left(
+  \sum_{i\in\mathcal S_r}\widetilde w_{ri}^{\mathrm S}k_{ri}
+  +\epsilon\right).
+\end{equation}
+The first term suppresses opacity only in front of the surface boundary; the
+second creates and aligns termination mass only in the local surface region.
+Resetting transmittance at $B_r$ prevents double penalization. Replacing the
+hard first term with Eq.~(\ref{eq:carve_enll}) gives an uncertainty-aware
+composite objective, but no longer the exact factorization in
+Eq.~(\ref{eq:carve_hit}).
+
+\paragraph{Online integration.}
+We evaluate these objectives only on spatially balanced, multi-view-verified
+depth rays. The existing rasterizer already computes
+$(z_{ri},G_{ri}^{\mathrm{2D}},a_{ri},T_{ri},w_{ri})$ in its front-to-back
+contributor loop; we accumulate the required likelihood in the same pass and
+combine it with the mapping loss before a single backward pass. The additional
+work is therefore linear in the number of selected ray--Gaussian pairs and
+does not require a second full-frame render. Carve stops gradients through
+depth, ordering, and footprint and updates opacity only, avoiding unreliable
+position updates across sorting discontinuities. Hit retains full gradients
+for surface contributors. The factorized objective applies these routes
+separately to $\mathcal F_r$ and $\mathcal S_r$.
+
+% AUTHOR NOTE: after the ablation, retain exactly one line below and remove
+% the words "candidate objectives" from the surrounding text.
+With the unchanged VIGS mapping loss $\mathcal L_{\mathrm{base}}$, the three
+candidate objectives are
+\begin{equation}\label{eq:geometry_objectives}
+  \begin{aligned}
+  \mathcal L_{\mathrm{map}}^{\mathrm C}
+    &=\mathcal L_{\mathrm{base}}+\lambda_{\mathrm C}\mathcal L_{\mathrm C},\\
+  \mathcal L_{\mathrm{map}}^{\mathrm H}
+    &=\mathcal L_{\mathrm{base}}+\lambda_{\mathrm H}\mathcal L_{\mathrm{HIT}},\\
+  \mathcal L_{\mathrm{map}}^{\mathrm{C+H}}
+    &=\mathcal L_{\mathrm{base}}+\lambda_{\mathrm{C+H}}\mathcal L_{\mathrm{C+H}},
+  \end{aligned}
+\end{equation}
+where $\mathcal L_{\mathrm C}$ denotes either
+$\mathcal L_{\mathrm{C\text{-}ENLL}}$ or
+$\mathcal L_{\mathrm{C\text{-}MARG}}$ as selected by the controlled ablation.
+
+% AUTHOR NOTES -- resolve before submission:
+% 1. If Carve wins, keep Ray termination + Carve + Online integration.
+% 2. If Hit wins, keep Ray termination + Hit + Online integration; move Carve
+%    and the hybrid factorization to the supplementary material.
+% 3. If Carve+Hit wins, keep short Carve/Hit definitions and make the
+%    factorization the main contribution.
+% 4. Do not identify tau_r with sigma_r unless calibration validates it.
+% 5. State whether the conventional rendered-depth loss remains inside
+%    L_base or is replaced by Hit, and keep that choice fixed in all arms.
