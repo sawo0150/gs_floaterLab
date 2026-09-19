@@ -1,0 +1,90 @@
+{
+  "experiment": "exp77 E2",
+  "raw_results": "results/experiments/exp77e2_reserve_zero_20260911",
+  "protocol": "table_06, fixed 1x, sensor-EOS optimizer zero-tail, seed0, order 20->0->0->20 ms",
+  "runs": [
+    {
+      "run": "run0_reserve20",
+      "reserve_ms": 20,
+      "psnr": 21.00447842709653,
+      "ssim": 0.6898047412300969,
+      "lpips": 0.3413857708643149,
+      "ate_cm": 2.7463,
+      "dense_replay_updates": 1875,
+      "completed_adam": 2256,
+      "gate_allowed_tracking": 326,
+      "tail_deadline": 0,
+      "tail_eos": 0
+    },
+    {
+      "run": "run1_reserve0",
+      "reserve_ms": 0,
+      "psnr": 21.482816373120556,
+      "ssim": 0.7045882794771109,
+      "lpips": 0.3241232446990572,
+      "ate_cm": 2.7268,
+      "dense_replay_updates": 2105,
+      "completed_adam": 2484,
+      "gate_allowed_tracking": 635,
+      "tail_deadline": 0,
+      "tail_eos": 0
+    },
+    {
+      "run": "run2_reserve0",
+      "reserve_ms": 0,
+      "psnr": 21.368897965577272,
+      "ssim": 0.6975523210860587,
+      "lpips": 0.3322230533436612,
+      "ate_cm": 2.7519,
+      "dense_replay_updates": 2105,
+      "completed_adam": 2486,
+      "gate_allowed_tracking": 634,
+      "tail_deadline": 0,
+      "tail_eos": 0
+    },
+    {
+      "run": "run3_reserve20",
+      "reserve_ms": 20,
+      "psnr": 20.9909599613499,
+      "ssim": 0.6939860443811159,
+      "lpips": 0.34259736443962063,
+      "ate_cm": 2.7517,
+      "dense_replay_updates": 1872,
+      "completed_adam": 2233,
+      "gate_allowed_tracking": 324,
+      "tail_deadline": 0,
+      "tail_eos": 0
+    }
+  ],
+  "means": {
+    "reserve20": {
+      "psnr": 20.997719194223215,
+      "ssim": 0.6918953928056064,
+      "lpips": 0.34199156765196775,
+      "ate_cm": 2.749,
+      "dense_replay_updates": 1873.5,
+      "completed_adam": 2244.5,
+      "gate_allowed_tracking": 325
+    },
+    "reserve0": {
+      "psnr": 21.425857169348916,
+      "ssim": 0.7010703002815848,
+      "lpips": 0.3281731490213592,
+      "ate_cm": 2.73935,
+      "dense_replay_updates": 2105,
+      "completed_adam": 2485,
+      "gate_allowed_tracking": 634.5
+    }
+  },
+  "delta_reserve0_minus_reserve20": {
+    "psnr": 0.4281379751257013,
+    "ssim": 0.009174907475978378,
+    "lpips": -0.013818418630608565,
+    "ate_cm": -0.009650000000000158,
+    "dense_replay_updates": 231.5,
+    "dense_replay_percent": 12.356551907926341,
+    "completed_adam": 240.5,
+    "completed_adam_percent": 10.715081309868567
+  },
+  "zero_tail_pass": "4/4"
+}

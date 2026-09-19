@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-04",
+  "scene": "aria301_305",
+  "condition": "final-v7 RTX5090 original-timestamp 1x, seed 0, EOS rematuration included",
+  "baseline": {
+    "psnr": 28.9338981161665,
+    "ssim": 0.9040688974079408,
+    "lpips": 0.24833239504667928,
+    "online_wall_s": 134.35625,
+    "streaming_replay_updates": 14246,
+    "total_replay_updates": 14270,
+    "admitted_pool": 674,
+    "selection_cv": 0.4696353226338571,
+    "middle_to_first": 0.7744451109778044,
+    "last_to_first": 0.26334733053389325
+  },
+  "block128_beta002": {
+    "psnr": 28.557884425971345,
+    "ssim": 0.9010351433098771,
+    "lpips": 0.24891632952307927,
+    "online_wall_s": 134.360988,
+    "streaming_replay_updates": 10859,
+    "total_replay_updates": 10919,
+    "admitted_pool": 528,
+    "selection_cv": 0.6430096558902881,
+    "middle_to_first": 0.5922396187882913,
+    "last_to_first": 0.16110732924892218,
+    "conditional_entropy_ratio": 0.9969012934381207
+  },
+  "delta": {
+    "psnr_db": -0.37601369019515474,
+    "ssim": -0.0030337540980637234,
+    "lpips": 0.0005839344763999832,
+    "online_wall_fraction": 1.0000352644555055,
+    "streaming_replay_updates_fraction": 0.7622083384816789,
+    "admitted_pool_fraction": 0.7833827893175074
+  },
+  "verdict": "NO-GO: quality regression and worse lifetime exposure; high one-step entropy did not decouple the maturity gate from admission."
+}

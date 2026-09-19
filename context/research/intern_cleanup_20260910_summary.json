@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-10",
+  "scope": "/home/intern; no symlink traversal; no deletion",
+  "regular_file_entries": 633796,
+  "symlinks": 21151,
+  "scan_errors": [],
+  "conditional_archives": {
+    "count": 7,
+    "GiB": 15.327800750732422
+  },
+  "intermediate_ply": {
+    "count": 106,
+    "GiB": 11.5025634765625
+  },
+  "exact_duplicate_gt": {
+    "count": 60007,
+    "GiB": 5.085235595703125
+  },
+  "combined_candidate_GiB": 31.915599822998047,
+  "not_a_deletion_authorization": true
+}

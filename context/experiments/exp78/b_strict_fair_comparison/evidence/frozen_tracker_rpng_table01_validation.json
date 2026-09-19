@@ -1,0 +1,23 @@
+{
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_01/seed0",
+  "causal_event_order": true,
+  "dense_candidate_occurrences": 2609,
+  "dense_duplicate_occurrences": 881,
+  "dense_heldout_overlap": 0,
+  "dense_intervals": 549,
+  "dense_unique_candidate_uids": 1728,
+  "event_unique_uids": 249,
+  "events": 283,
+  "filtered_mapping_heldout_overlap": 0,
+  "filtered_mapping_unique_uids": 210,
+  "frames": 2506,
+  "geometry_tensor_hash_mismatches": 0,
+  "geometry_versions": 6364,
+  "heldout_count": 502,
+  "mapping_disjoint_filter_valid": true,
+  "raw_packet_heldout_count": 39,
+  "schema_version": "exp78b_frozen_tracker_v2",
+  "valid": true,
+  "violations": [],
+  "zero_mapping_updates_during_capture": true
+}
