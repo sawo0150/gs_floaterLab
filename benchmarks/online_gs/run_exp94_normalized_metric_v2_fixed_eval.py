@@ -21,6 +21,8 @@ panel.DOCS = (
     base.WORKSPACE / "context/experiments/benchmark_custom"
     / "metric_benchmark_v2_fixed_eval_20260917"
 )
+panel.BENCHMARK_LABEL = "v2.2"
+panel.SUMMARY_TITLE = "Metric benchmark v2.2 — normalized ERCB vs official vanilla"
 panel.SOURCE_PATHS = (
     *panel.SOURCE_PATHS,
     Path(base.__file__),

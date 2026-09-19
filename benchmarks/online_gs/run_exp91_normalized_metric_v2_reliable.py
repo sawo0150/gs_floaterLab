@@ -29,6 +29,8 @@ COOLDOWN_SECONDS = 15
 PSNR_TOLERANCE_DB = 0.01
 SSIM_TOLERANCE = 0.001
 LPIPS_TOLERANCE = 0.001
+BENCHMARK_LABEL = "v2.1"
+SUMMARY_TITLE = "Metric benchmark v2.1 — normalized ERCB vs official vanilla"
 SOURCE_PATHS = (
     *v2.SOURCE_PATHS,
     base.PAPER_ROOT / "vigs/gaussian/renderer/__init__.py",
@@ -210,7 +212,7 @@ def run_one(row: dict) -> dict:
 
 def write_summary(rows: list[dict]) -> None:
     lines = [
-        "# Metric benchmark v2.1 — normalized ERCB vs official vanilla",
+        f"# {SUMMARY_TITLE}",
         "",
         "Predeclared valid inventory: 17 scenes; UTMM slow-straight-1 tracker-ineligible N/A.",
         "Both arms: same frozen tracker, zero-tail, render-matched B-track, 15 s",
@@ -286,7 +288,10 @@ def main() -> int:
         for row in rows:
             v2.preflight(row, scene_paths(row))
         check_source_lock()
-        print(f"v2.1 preflight PASS: {len(rows)} valid scenes; evaluator double-pass")
+        print(
+            f"{BENCHMARK_LABEL} preflight PASS: {len(rows)} valid scenes; "
+            "evaluator double-pass"
+        )
         return 0
     if args.action == "run-one":
         rows_to_run = [
