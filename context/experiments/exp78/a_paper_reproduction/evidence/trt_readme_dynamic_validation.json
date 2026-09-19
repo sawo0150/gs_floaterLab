@@ -1,0 +1,740 @@
+{
+  "schema": "exp78a-official-readme-trt-validation-v1",
+  "official_source": "/home/intern/VIGS-SLAM-official-exp78",
+  "official_commit": "22ffe24c6df81d0bf63bd20057565c00c51d2996",
+  "environment": {
+    "python": "3.11.13",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "tensorrt": "10.13.0.35",
+    "gpu": "NVIDIA GeForce RTX 5090"
+  },
+  "engines": {
+    "omnidata_depth_512_simplified_fp16.engine": {
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78/a_paper_reproduction/trt_profiles/official_readme_dynamic_rtx5090/pretrained_models/omnidata_depth_512_simplified_fp16.engine",
+      "bytes": 256371588,
+      "sha256": "2f9802ebab3b8891bdbb6c176575882911cc95615682fc9fb3faeb40113e9491",
+      "profiles": 1,
+      "tensors": [
+        {
+          "name": "input",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            3,
+            512,
+            512
+          ],
+          "profile": {
+            "min": [
+              1,
+              3,
+              512,
+              512
+            ],
+            "opt": [
+              1,
+              3,
+              512,
+              512
+            ],
+            "max": [
+              1,
+              3,
+              512,
+              512
+            ]
+          }
+        },
+        {
+          "name": "output",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            512,
+            512
+          ]
+        }
+      ]
+    },
+    "omnidata_normal_512_simplified_fp16.engine": {
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78/a_paper_reproduction/trt_profiles/official_readme_dynamic_rtx5090/pretrained_models/omnidata_normal_512_simplified_fp16.engine",
+      "bytes": 255709332,
+      "sha256": "5feb3e02516eef54679fdfeae1816f52a2f217b32b58bd782168be7f95449d2f",
+      "profiles": 1,
+      "tensors": [
+        {
+          "name": "input",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            3,
+            512,
+            512
+          ],
+          "profile": {
+            "min": [
+              1,
+              3,
+              512,
+              512
+            ],
+            "opt": [
+              1,
+              3,
+              512,
+              512
+            ],
+            "max": [
+              1,
+              3,
+              512,
+              512
+            ]
+          }
+        },
+        {
+          "name": "output",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            3,
+            512,
+            512
+          ]
+        }
+      ]
+    },
+    "droidnet_fnet_fp16.engine": {
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78/a_paper_reproduction/trt_profiles/official_readme_dynamic_rtx5090/pretrained_models/droidnet_fnet_fp16.engine",
+      "bytes": 4030124,
+      "sha256": "0717a52c78361e108fc2f397a3791c1907401b2270bf3ebb6f7400f901448d4a",
+      "profiles": 1,
+      "tensors": [
+        {
+          "name": "input",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            1,
+            3,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              3,
+              328,
+              328
+            ],
+            "opt": [
+              1,
+              1,
+              3,
+              368,
+              584
+            ],
+            "max": [
+              1,
+              1,
+              3,
+              656,
+              656
+            ]
+          }
+        },
+        {
+          "name": "output",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            1,
+            128,
+            -1,
+            -1
+          ]
+        }
+      ]
+    },
+    "update_module_partial_fp16.engine": {
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78/a_paper_reproduction/trt_profiles/official_readme_dynamic_rtx5090/pretrained_models/update_module_partial_fp16.engine",
+      "bytes": 6221596,
+      "sha256": "497c9c427c0f8129409f5dcd305648de2a7a3616ff3b44207550e44f1f889162",
+      "profiles": 1,
+      "tensors": [
+        {
+          "name": "net",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              128,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              24,
+              128,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              60,
+              128,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "inp",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              128,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              24,
+              128,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              60,
+              128,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "corr",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            196,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              196,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              24,
+              196,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              60,
+              196,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "flow",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            4,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              4,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              24,
+              4,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              60,
+              4,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "net_out",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ]
+        },
+        {
+          "name": "delta",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            -1,
+            -1,
+            2
+          ]
+        },
+        {
+          "name": "weight",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            -1,
+            -1,
+            2
+          ]
+        }
+      ]
+    },
+    "update_module_partial_pgba_fp16.engine": {
+      "path": "/home/intern/gs_floaterLab/results/experiments/exp78/a_paper_reproduction/trt_profiles/official_readme_dynamic_rtx5090/pretrained_models/update_module_partial_pgba_fp16.engine",
+      "bytes": 6160524,
+      "sha256": "872956ab7b84efe1dd59959433ddb37f199769b7db53eab81c03962b935543f5",
+      "profiles": 1,
+      "tensors": [
+        {
+          "name": "net",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              128,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              85,
+              128,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              120,
+              128,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "inp",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              128,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              85,
+              128,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              120,
+              128,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "corr",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            196,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              196,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              85,
+              196,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              120,
+              196,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "flow",
+          "mode": "input",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            4,
+            -1,
+            -1
+          ],
+          "profile": {
+            "min": [
+              1,
+              1,
+              4,
+              41,
+              41
+            ],
+            "opt": [
+              1,
+              85,
+              4,
+              43,
+              77
+            ],
+            "max": [
+              1,
+              120,
+              4,
+              82,
+              82
+            ]
+          }
+        },
+        {
+          "name": "net_out",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            128,
+            -1,
+            -1
+          ]
+        },
+        {
+          "name": "delta",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            -1,
+            -1,
+            2
+          ]
+        },
+        {
+          "name": "weight",
+          "mode": "output",
+          "dtype": "DataType.FLOAT",
+          "shape": [
+            1,
+            -1,
+            -1,
+            -1,
+            2
+          ]
+        }
+      ]
+    }
+  },
+  "comparisons": {
+    "fnet_rpng_344x616": {
+      "shape": [
+        423808
+      ],
+      "elements": 423808,
+      "reference_rms": 1.3293606042861938,
+      "rmse": 0.0031343272421509027,
+      "relative_rmse": 0.0023577704560011625,
+      "mean_abs": 0.002459720941260457,
+      "max_abs": 0.01953125,
+      "cosine": 0.9999973177909851,
+      "reference_finite": true,
+      "candidate_finite": true,
+      "logical_shape": [
+        1,
+        1,
+        128,
+        43,
+        77
+      ],
+      "pytorch_ms": 0.8902294997824356,
+      "tensorrt_ms": 0.2728932478930801
+    },
+    "update_24_edges": {
+      "net_out": {
+        "shape": [
+          10171392
+        ],
+        "elements": 10171392,
+        "reference_rms": 0.7409204840660095,
+        "rmse": 0.0011613663518801332,
+        "relative_rmse": 0.0015674642054364085,
+        "mean_abs": 0.0007449645199812949,
+        "max_abs": 0.03145184367895126,
+        "cosine": 0.9999987483024597,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          24,
+          128,
+          43,
+          77
+        ]
+      },
+      "delta": {
+        "shape": [
+          158928
+        ],
+        "elements": 158928,
+        "reference_rms": 4.703300476074219,
+        "rmse": 0.008765686303377151,
+        "relative_rmse": 0.001863730838522315,
+        "mean_abs": 0.006198015529662371,
+        "max_abs": 0.078125,
+        "cosine": 0.9999982118606567,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          24,
+          43,
+          77,
+          2
+        ]
+      },
+      "weight": {
+        "shape": [
+          158928
+        ],
+        "elements": 158928,
+        "reference_rms": 0.007517211604863405,
+        "rmse": 2.152911292796489e-05,
+        "relative_rmse": 0.002863975940272212,
+        "mean_abs": 7.1672548074275255e-06,
+        "max_abs": 0.0009765625,
+        "cosine": 0.9999959468841553,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          24,
+          43,
+          77,
+          2
+        ]
+      },
+      "pytorch_ms": 6.63185139419511,
+      "tensorrt_ms": 1.4046443975530565,
+      "edges": 24
+    },
+    "update_pgba_85_edges": {
+      "net_out": {
+        "shape": [
+          36023680
+        ],
+        "elements": 36023680,
+        "reference_rms": 0.7407448291778564,
+        "rmse": 0.0011614158283919096,
+        "relative_rmse": 0.0015679027419537306,
+        "mean_abs": 0.0007446676027029753,
+        "max_abs": 0.030924618244171143,
+        "cosine": 0.9999988675117493,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          85,
+          128,
+          43,
+          77
+        ]
+      },
+      "delta": {
+        "shape": [
+          562870
+        ],
+        "elements": 562870,
+        "reference_rms": 4.636307239532471,
+        "rmse": 0.008802622556686401,
+        "relative_rmse": 0.0018986279610544443,
+        "mean_abs": 0.006225545424968004,
+        "max_abs": 0.078125,
+        "cosine": 0.999998152256012,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          85,
+          43,
+          77,
+          2
+        ]
+      },
+      "weight": {
+        "shape": [
+          562870
+        ],
+        "elements": 562870,
+        "reference_rms": 0.0071570356376469135,
+        "rmse": 2.1449766791192815e-05,
+        "relative_rmse": 0.0029970183968544006,
+        "mean_abs": 7.23912171451957e-06,
+        "max_abs": 0.0010986328125,
+        "cosine": 0.9999955892562866,
+        "reference_finite": true,
+        "candidate_finite": true,
+        "logical_shape": [
+          1,
+          85,
+          43,
+          77,
+          2
+        ]
+      },
+      "pytorch_ms": 24.400798801798373,
+      "tensorrt_ms": 4.850413196254522,
+      "edges": 85
+    },
+    "omnidata_depth": {
+      "shape": [
+        262144
+      ],
+      "elements": 262144,
+      "reference_rms": 0.03119400143623352,
+      "rmse": 2.8568771085701883e-05,
+      "relative_rmse": 0.0009158418397419155,
+      "mean_abs": 2.0719424355775118e-05,
+      "max_abs": 0.0001220703125,
+      "cosine": 0.9999995827674866,
+      "reference_finite": true,
+      "candidate_finite": true,
+      "logical_shape": [
+        1,
+        512,
+        512
+      ],
+      "pytorch_ms": 16.213803668506444,
+      "tensorrt_ms": 3.164910012856126
+    },
+    "omnidata_normal": {
+      "shape": [
+        786432
+      ],
+      "elements": 786432,
+      "reference_rms": 0.39676326513290405,
+      "rmse": 0.00016935146413743496,
+      "relative_rmse": 0.0004268325283192098,
+      "mean_abs": 0.00011378883937140927,
+      "max_abs": 0.0009765625,
+      "cosine": 0.9999999403953552,
+      "reference_finite": true,
+      "candidate_finite": true,
+      "logical_shape": [
+        1,
+        3,
+        512,
+        512
+      ],
+      "pytorch_ms": 16.400993685238063,
+      "tensorrt_ms": 3.905910338896016
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "rpng/table_01": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "rpng/table_02": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "rpng/table_03": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "rpng/table_04": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "rpng/table_05": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "rpng/table_06": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/ego-centric-1": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/ego-centric-2": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/ego-drive": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/fast-straight": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/slow-straight-2": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/square-1": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "utmm/square-2": {
+    "same_exp77_heldout_ids": true,
+    "heldout_mapping_excluded": true,
+    "terminal_actions_absent": true
+  },
+  "source_tracked_diff_unchanged": true
+}

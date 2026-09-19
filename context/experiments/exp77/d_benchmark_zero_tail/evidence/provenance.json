@@ -1,0 +1,14 @@
+{
+  "files": {
+    "demo.py": "7ddbda09e22d2cac428a3f685c32cf0e11eb17e06b3192d4b4bd0916207081c0",
+    "vigs/vigs.py": "dc014b2bb283b08d6835db67fcff5f4dfa1075b9694ffc6e5ba053b61614e7d6",
+    "vigs/sensor_eos_guard.py": "b33120d57ff4abf0e862f539b46fc67064c0d45449b3371fff44982db4b93c7f",
+    "exp72_axes/run_scheduler_ablation.sh": "645e780dea5e4c04be6beb56a71c03f2dcd2cd37ce89624773ed42a748441be6",
+    "exp70_axes/run_v7_1x_no_legacy_carve.sh": "4ea1bd3f0e62410639829e1c1254fde93c2978d6bf34ab88815b5cc7931504cb",
+    "exp69_axes/hardware_profiles.sh": "1cc4f12049f16beedaa89ae7290767e243bffe8612ee89123b351d5edfb524e5",
+    "exp69_axes/run_decoupled_geometry.sh": "1c1cfb7a20677b91593759cd55b0192460769681cc3e6df028fe45241b752ff1"
+  },
+  "reference": "exp79",
+  "comparison": "exp77",
+  "guard_identical_to_exp79": true
+}

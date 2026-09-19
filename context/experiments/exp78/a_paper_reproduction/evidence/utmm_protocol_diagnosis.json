@@ -1,0 +1,72 @@
+{
+  "conclusion": "The public release underdetermines the exact UTMM paper rendering protocol. The nearest clean public-source mapping-enabled pre-final result is reproducible but misses fast-straight by 3.9600 dB across three seeds.",
+  "created_kst": "2026-09-11",
+  "dataset": "utmm",
+  "diagnostics": {
+    "after_visual_ba_before_color_seed2": {
+      "lpips": 0.41307488962625843,
+      "psnr": 19.105830962841328,
+      "psnr_delta_from_prefinal": 1.101280982677754,
+      "psnr_gap_to_paper": -2.874169037158671,
+      "ssim": 0.7018446364463904
+    },
+    "fast_straight_three_seed_prefinal": {
+      "lpips_mean": 0.45633580987779504,
+      "paper_lpips": 0.458,
+      "paper_psnr": 21.98,
+      "paper_ssim": 0.685,
+      "psnr_gap_to_paper": -3.959990421197354,
+      "psnr_max": 18.031059497442,
+      "psnr_mean": 18.020009578802647,
+      "psnr_min": 18.004549980163574,
+      "psnr_range": 0.026509517278426,
+      "seeds": [0, 1, 2],
+      "ssim_mean": 0.6736531242346152
+    },
+    "inprocess_vs_reloaded_seed1": {
+      "absolute_lpips_difference": 6.036880689119118e-8,
+      "absolute_psnr_difference_db": 2.445318767474891e-7,
+      "absolute_ssim_difference": 2.139653921817918e-8,
+      "official_inprocess_psnr": 18.031059497442,
+      "reloaded_ply_psnr": 18.031059741973877
+    },
+    "pose_consistency_seed2_prefinal": {
+      "camera_center_error_max_m": 0.0012072446988895535,
+      "camera_center_error_mean_m": 0.0006951330778974807,
+      "compared_mapping_views": 16,
+      "rotation_error_degrees_max": 0.03956468030810356,
+      "rotation_error_degrees_mean": 0.0024727925192564726
+    },
+    "slow_straight_1_seed0": {
+      "ate_rmse_cm": 0.8853,
+      "keyframes": 12,
+      "lpips": 0.4981814789217572,
+      "paper_psnr": 20.66,
+      "psnr": 19.145873590957287,
+      "psnr_gap_to_paper": -1.514126409042714,
+      "recall_at_10cm_percent": 100.0,
+      "ssim": 0.6082654148340225
+    },
+    "tracking_fast_straight_seed0": {
+      "ate_rmse_cm": 0.9421999999999999,
+      "paper_ate_rmse_cm": 1.2,
+      "recall_at_10cm_percent": 100.0,
+      "sim3_scale": 1.0304814486269958
+    }
+  },
+  "official_source": {
+    "commit": "22ffe24c6df81d0bf63bd20057565c00c51d2996",
+    "path": "/home/intern/VIGS-SLAM-official-exp78"
+  },
+  "paper_pdf_sha256": "fab7563104394477474033efb3377a05c35bb49970148ec2e096671b0b1423b6",
+  "protocol": "exp78_utmm_public_artifact_diagnosis_v1",
+  "public_artifact_limitations": [
+    "eval_utmm_mono.py publishes gsmapping=False, so its default batch command cannot generate the rendering maps reported in the paper.",
+    "The public evaluator includes VIGS keyframes and the final frame in addition to stride-5 views; its keyframe exclusion is commented out.",
+    "The union of all methods' keyframes required by the paper split is not published.",
+    "The current terminate path performs visual BA, a final mapping update, and color refinement before evaluation, conflicting with the paper's stated pre-final primary result.",
+    "The official README warns that the refactored public code may not reproduce paper results exactly."
+  ],
+  "status": "source_level_limitation_established_nearest_reproduction_continues"
+}
+
