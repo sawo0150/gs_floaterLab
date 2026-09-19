@@ -95,9 +95,17 @@ def audit_pair(dataset: str, scene: str) -> tuple[dict | None, list[str]]:
 
 
 def main() -> int:
+    global ROOT
     parser = argparse.ArgumentParser()
     parser.add_argument("--require-complete", action="store_true")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        help="exp94 result root to audit instead of the preserved main-result root",
+    )
     args = parser.parse_args()
+    if args.root is not None:
+        ROOT = args.root.resolve()
     inventory = read(INVENTORY)["pairs"]
     if len(inventory) != 17 or len({(x["dataset"], x["scene"]) for x in inventory}) != 17:
         raise RuntimeError("predeclared inventory is not 17 unique scenes")
