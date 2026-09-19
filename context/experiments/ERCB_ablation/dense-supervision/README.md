@@ -45,6 +45,19 @@ Table B(view ordering, benchmark-B의 RR vs ERCB)는 예산을 열로 놓아 승
 따라 달라지는 것을 보인다: PSNR은 15/30/60 updates/interval에서 RR `20.77/22.22/22.88`
 대 ERCB `21.39/22.33/23.11`이다. SSIM/LPIPS는 미계산이다.
 
+## 수렴 곡선 — keyframe당 60 iteration
+
+동일한 38개 run을 24개 checkpoint로 다시 측정했다. KF+dense는 19/19 scene에서
+KF-only의 최종 PSNR에 더 적은 optimizer iteration으로 한 번 이상 도달했고, 선형 보간한
+iteration 절감률의 중앙값은 **21.4%**다. 이는 실제 wall-clock 가속이 아니라 동일
+optimizer-iteration 축의 crossing이며, 일부 곡선은 이후 다시 하락한다. 실제로 event60
+최종값은 위 `TABLE_X.md`와 같이 15/19만 양수이므로, early crossing을 endpoint 우위나
+단조 수렴으로 해석하지 않는다.
+
+- [대표 6 scene 수렴 곡선](figure_convergence.pdf): family별 final Δ 중앙 장면과 최저 장면
+- [전체 실행 manifest](evidence/manifest_curve.json): 38/38 완료, 동일 seed·arrival·총 update
+- 재생성: `python plot_convergence.py`
+
 ## 참고 — keyframe당 60 iteration, 19 scene (`TABLE_X.md`)
 
 전체 **+0.33dB, 15/19 승**. family별로 갈린다.
@@ -107,6 +120,10 @@ view가 나눠 가져 학습이 임계 아래로 떨어진다.
 DS_BUDGETS=60 python prepare_manifest.py --all   # 19 scene x 2 arm
 python run_panel.py
 python summarize_headline.py                     # -> TABLE_X.md
+
+python prepare_manifest_curve.py                 # event60, 24 checkpoints
+python run_panel_curve.py
+python plot_convergence.py                       # -> figure_convergence.pdf/png
 
 K_SCENES="rpng/table_03" K_BUDGETS=60 python build_k_pools.py 2 4 8   # 밀도 스윕
 B_SCENES="rpng/table_06" B_BUDGETS=120 python prepare_manifest_budget.py  # 예산 스윕

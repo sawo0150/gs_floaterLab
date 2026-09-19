@@ -88,6 +88,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-20 (dense-supervision event60 수렴 곡선, 38/38 완료):** 기존
+  19-scene KF-only/KF+dense fixed-replay 비교를 training 조건은 그대로 두고 24개
+  checkpoint에서 재평가했다. KF+dense는 **19/19 scene에서 KF-only 최종 PSNR에 더 적은
+  optimizer iteration으로 한 번 이상 도달**했고, 선형 보간 iteration 절감률 중앙값은
+  **21.4%**였다. 다만 곡선은 비단조이며 event60 최종 우위는 기존과 같은 15/19이므로,
+  이를 wall-clock 가속·endpoint 전승·strict end-to-end 결과로 확장하지 않는다. pose/init는
+  사전 VIGS 고정 replay이고 단일 seed라는 제한도 유지한다.
+  → [dense-supervision](experiments/ERCB_ablation/dense-supervision/README.md)
 - **2026-09-18 (dense-supervision — 논문 Table A 확정, 19 scene 18/19 양수):**
   keyframe interval당 동일한 optimizer iteration을 배정하는 online incremental 축에서
   KF-only와 KF+dense를 19 scene 비교했다. 두 arm은 dataset·init·pose·causal arrival·
