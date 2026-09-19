@@ -1,0 +1,135 @@
+{
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_06/seed0",
+  "candidate_occurrences_skipped_missing_surviving_final_endpoint": 1273,
+  "causal_candidate_inputs": [
+    "raw IMU through right keyframe timestamp",
+    "fixed Tcb calibration",
+    "left and right tracker keyframe orientations",
+    "source RGB timestamps"
+  ],
+  "dataset": "rpng",
+  "evaluation_label_only": "evaluation_only_post_eos_trajectory.pt",
+  "evaluation_trajectory_mapping_supervision_allowed": false,
+  "protocol": "exp78b_dense_imu_pose_diagnostic_v1",
+  "seed": 0,
+  "sequence": "table_06",
+  "summary": {
+    "endpoint_rotation_deg_per_second": {
+      "count": 1989,
+      "max": 55.30059461313249,
+      "mean": 21.78384824984052,
+      "p50": 20.694712536454873,
+      "p90": 37.238238416375225,
+      "p95": 41.68763809458164
+    },
+    "final_endpoint_imu_left_rotation_error_deg": {
+      "count": 1989,
+      "max": 1.3759615955161695,
+      "mean": 0.07926770411570477,
+      "p50": 0.06055346336374497,
+      "p90": 0.14310166292238435,
+      "p95": 0.18834614084266393
+    },
+    "final_endpoint_imu_right_rotation_error_deg": {
+      "count": 1989,
+      "max": 1.374546575304883,
+      "mean": 0.07950289970969525,
+      "p50": 0.06056099102565957,
+      "p90": 0.14453031185811852,
+      "p95": 0.19327395799017066
+    },
+    "final_endpoint_imu_shape_left_rotation_error_deg": {
+      "count": 1989,
+      "max": 1.3754077504857536,
+      "mean": 0.07937347034993016,
+      "p50": 0.06072553930333863,
+      "p90": 0.14387315636949993,
+      "p95": 0.19281334799630245
+    },
+    "final_endpoint_imu_shape_right_rotation_error_deg": {
+      "count": 1989,
+      "max": 1.3752579175174602,
+      "mean": 0.07930860591022734,
+      "p50": 0.060274096388471886,
+      "p90": 0.1434874071572494,
+      "p95": 0.19087142170556123
+    },
+    "final_endpoint_slerp_rotation_error_deg": {
+      "count": 1989,
+      "max": 7.473166094817769,
+      "mean": 1.3031704511778213,
+      "p50": 1.0254017285433108,
+      "p90": 2.647724326407564,
+      "p95": 3.1834122872548742
+    },
+    "gyro_curvature_deg": {
+      "count": 1989,
+      "max": 7.976641644896075,
+      "mean": 1.2989675920249466,
+      "p50": 1.0105579061970236,
+      "p90": 2.639973495147543,
+      "p95": 3.171791061678504
+    },
+    "gyro_endpoint_disagreement_deg": {
+      "count": 1989,
+      "max": 1.6445296057966912,
+      "mean": 0.2201427420183161,
+      "p50": 0.17727803125056765,
+      "p90": 0.3760079224025698,
+      "p95": 0.4418801260775961
+    },
+    "imu_left_fraction_improved": 0.9622926093514329,
+    "imu_left_improvement_deg": {
+      "count": 1989,
+      "max": 7.06365932796022,
+      "mean": 1.2239027470621167,
+      "p50": 0.9585404737194951,
+      "p90": 2.554740793305339,
+      "p95": 3.0859647593558015
+    },
+    "imu_right_fraction_improved": 0.9622926093514329,
+    "imu_right_improvement_deg": {
+      "count": 1989,
+      "max": 7.066400047949609,
+      "mean": 1.2236675514681261,
+      "p50": 0.9593412812215177,
+      "p90": 2.5506630288739944,
+      "p95": 3.0843583603329567
+    },
+    "imu_shape_left_fraction_improved": 0.9622926093514329,
+    "imu_shape_left_improvement_deg": {
+      "count": 1989,
+      "max": 7.064738103372012,
+      "mean": 1.2237969808278912,
+      "p50": 0.9588322948246204,
+      "p90": 2.5533807641137396,
+      "p95": 3.085830490780233
+    },
+    "imu_shape_right_fraction_improved": 0.9622926093514329,
+    "imu_shape_right_improvement_deg": {
+      "count": 1989,
+      "max": 7.064636452429839,
+      "mean": 1.2238618452675938,
+      "p50": 0.9588158231509785,
+      "p90": 2.5533482788156814,
+      "p95": 3.08442693410055
+    },
+    "original_rotation_error_deg": {
+      "count": 1989,
+      "max": 9.439702916706564,
+      "mean": 1.3894326501643095,
+      "p50": 1.0650851426957624,
+      "p90": 2.7691920201203106,
+      "p95": 3.5990926951532387
+    },
+    "original_translation_error_m": {
+      "count": 1989,
+      "max": 0.6223814475421923,
+      "mean": 0.0449228125607461,
+      "p50": 0.016079951890135957,
+      "p90": 0.05418537718625757,
+      "p95": 0.24781723811119688
+    }
+  },
+  "unique_candidates_evaluated": 1989
+}

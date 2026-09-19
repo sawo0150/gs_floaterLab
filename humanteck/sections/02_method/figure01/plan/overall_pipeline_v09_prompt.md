@@ -1,0 +1,12 @@
+# v09: 오른쪽 supervision 경로 교정
+
+내장 imagegen 편집. 입력은 `overall_pipeline_v08.png` 하나다. v08에서 반영되지 않은 map-to-ray 확대선과 keyframe-prior 연결, depth-derived normal 표기를 수정한다. v08을 보존한다.
+
+```text
+Use case: precise-object-edit. Image 1 is the edit target: our latest academic overview. Change ONLY the connections and two labels inside the RIGHTMOST Gaussian map optimization territory. Preserve everything else exactly, especially the two left territories, pool snapshots, counts/probabilities, sampled image, shared map, typography, colors and footer.
+1. Delete the existing dashed "Ray detail" callout that ends at the Rendered Normal thumbnail. Replace it with a thin dashed NON-ARROW callout from the existing marked point on the room map, routed in the free gutter just LEFT of the outer Update arrow, ending precisely at the purple Gaussian inside the bottom ray-space geometry illustration. Avoid crossing thumbnails, Map objective, text or loss inputs. Label it "Ray detail" once in clear free space.
+2. Keep all three thumbnails and their downward arrows to Base supervision, but change the third label from "Rendered Normal" to "Depth-derived normal". The shared map Render path must visibly feed RGB and Depth; the Depth thumbnail must have a short horizontal arrow to Depth-derived normal. Do not draw ray-detail into any thumbnail.
+3. The bottom Verified keyframe depth evidence already enters the bottom geometry illustration. Add a clean gray evidence branch from that bottom incoming line up along the LEFT EDGE of the rightmost territory into the LEFT EDGE of Base supervision. Label this small branch "Keyframe priors" once. It must not come from the geometry-loss output or the sampled intermediate RGB. The incoming sampled-view blue arrow separately still enters base supervision. Keep RGB (K + I) and Depth / Normal (K) text unchanged.
+4. The illustrated camera ray must point RIGHT toward depth D, not left into the camera. Keep "Observed free space" as a bracket or plain span, not a gradient-motion arrow. Retain the red Gaussian with the downward alpha annotation and no position translation. Retain the independent base-supervision and purple-geometry arrows converging at ONE Map objective and ONE Update returning to the map.
+Do not change, move or add any other content. No charts, no added explanatory paragraphs, no source-paper figures. Clean readable academic overview, full original wide canvas.
+```

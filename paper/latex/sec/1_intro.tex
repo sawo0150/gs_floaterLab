@@ -1,96 +1,69 @@
+% Introduction draft: fast photometric/geometric convergence is the thesis.
+% The Carve paragraph and the third contribution are intentionally modular.
+
 \section{Introduction}
 \label{sec:intro}
 
-Robots and wearable augmented-reality systems often need a map before data
-collection is complete. Reconstructing scene appearance supports visualization
-from new viewpoints, while reconstructing geometry supports occlusion and
-spatial interaction. For these applications, the map must be refined as new
-observations arrive. High reconstruction quality achieved only after an
-offline refinement stage does not meet this online requirement.
+3D Gaussian Splatting (3DGS) has established itself as a highly effective representation for photorealistic novel view synthesis~\cite{kerbl20233dgs}. By modeling scenes with explicit, colored Gaussian primitives and rendering them via a tile-based differentiable rasterizer, it provides a compelling combination of high visual fidelity and real-time rendering speeds. Consequently, 3DGS is increasingly utilized across a diverse range of visual applications. To achieve this level of quality, the representation requires careful optimization of numerous parameters—including position, scale, rotation, color, and opacity—for millions of primitives. Because this optimization process is computationally intensive and relies on dense multi-view constraints, 3DGS frameworks are predominantly trained offline using completely collected datasets.
 
-A map represented by explicit, colored Gaussian primitives can be rendered
-efficiently and refined through image-based optimization. This representation,
-3D Gaussian Splatting (3DGS), combines high-quality view synthesis with fast
-rendering~\cite{kerbl20233dgs}. Recent SLAM systems have extended it to map
-construction during camera tracking~\cite{matsuki2024monogs,splatam2024,
-huang2024photoslam,rtgslam2024}. However, fast rendering does not imply fast
-map refinement. A system can display its current map at a high frame rate
-while recently observed regions remain poorly reconstructed. Online mapping
-must also share computation with tracking, limiting the number of map
-optimization steps, or \emph{mapping updates}, that can be completed as the
-stream arrives. The challenge is therefore to obtain a useful map from these
-limited updates, not merely to render it quickly.
+\emph{However}, autonomous robots and wearable augmented-reality systems \emph{must} operate within the present moment. For these active agents, high reconstruction quality achieved only after an exhaustive offline refinement stage is fundamentally inadequate; they demand \emph{online mapping} to construct and reliably refine a map as new observations continuously arrive. Adapting 3DGS to this strict online constraint exposes a critical vulnerability. While recent SLAM systems strive to process streams quickly, "real-time" operation is an inherently ambiguous metric that fluctuates heavily depending on the available GPU hardware. Therefore, rather than engineering a system merely to meet an arbitrary processing speed, the fundamental objective \emph{must} be achieving \emph{fast photometric and geometric convergence}. Regardless of the specific hardware environment, the system is forced to make a newly observed region structurally and visually reliable as quickly as possible under whatever computational budget is given.
 
-Existing methods improve the use of online computation in several ways.
-Photo-SLAM progressively refines scene appearance using geometry-based
-densification and Gaussian-pyramid learning~\cite{huang2024photoslam}.
-CaRtGS accelerates backpropagation and addresses uneven keyframe optimization
-by assigning additional iterations according to rendering loss~\cite{cartgs}.
-These advances establish that both the cost of each update and its allocation
-matter. A further question concerns the observations used for mapping:
-\emph{when should additional images enter optimization, and how should updates
-be distributed across the resulting growing set?}
 
-Images selected for camera tracking, called \emph{keyframes}, need not provide
-all the observations useful for appearance reconstruction. Frames between
-keyframes can supply additional viewpoints and texture evidence. We refer to
-the images used for map optimization as \emph{training views}. Adding more
-training views provides more supervision, but also distributes the available
-mapping updates over a larger set. Moreover, uniform selection from the
-current set does not equalize accumulated training: views added early remain
-eligible for longer, whereas later views have fewer opportunities to be
-selected. CaRtGS addresses uneven optimization within a keyframe
-pool~\cite{cartgs}; here, we consider both expansion beyond tracking keyframes
-and update allocation within that expanded training-view set. These decisions
-must be made without knowing the remaining stream length or future
-optimization capacity.
+Building reliable online Gaussian maps involves initializing a representation
+consistent with observed geometry and improving reconstruction quality under
+limited computation while maintaining geometric consistency. EDGS uses dense
+image correspondences to construct a dense Gaussian initialization from
+observed scene structure,
+providing a geometric starting point for fast convergence and high-quality
+reconstruction~\cite{edgs}. At the optimizer level, 3DGS-LM uses second-order
+optimization to reduce the time needed to reach a target reconstruction
+quality~\cite{hollein2025gslm}. In online mapping, CaRtGS addresses
+insufficient convergence by combining efficient backpropagation with
+keyframe-wise training allocation, making better use of the available
+computation~\cite{cartgs}. Complementing these efforts toward faster learning,
+PGSR incorporates geometric consistency into optimization to support accurate
+surface reconstruction alongside high rendering quality~\cite{chen2024pgsr}.
+Together, these approaches highlight learning efficiency and geometric
+reliability as complementary goals. Pursuing both in a streaming setting
+calls for deciding when incoming observations enter training and how updates
+are allocated, while continuing to constrain map geometry.
 
-Better appearance alone is not sufficient for a reliable map. Gaussians at
-incorrect depths can reproduce observed colors, leaving spurious structure
-between the camera and a real surface~\cite{deng2022dsnerf,stablegs}. Depth
-and normal constraints help resolve this ambiguity~\cite{huang20242dgs,
-chen2024pgsr}. However, matching a single average rendered depth can still
-leave incorrect contributions in front of and behind the surface. This
-motivates directly constraining where the map places opacity along a viewing
-ray. In an online system, such constraints must use depth evidence already
-available at the current time.
+However, fast convergence in online mapping depends not only on the
+optimization method but also on which observations receive updates.
+Photo-SLAM and VIGS-SLAM use frontend-selected keyframes as
+\emph{training views} for map optimization~\cite{huang2024photoslam,vigsslam},
+while MonoGS and HI-SLAM2 limit online computation through local keyframe
+windows~\cite{matsuki2024monogs,zhang2025hislam2}. These strategies efficiently
+reuse selected observations, but excluding complementary viewpoints and
+appearance information between keyframes can leave opportunities for quality
+improvement under limited updates unexploited. Yet simply adding more views
+spreads the available updates more thinly, potentially leaving each view
+insufficiently optimized. The rate of view inclusion therefore matters for
+translating additional observations into rapid quality gains. Uniform
+sampling from the current set does not compensate for differences in
+accumulated training opportunities due to different entry times, potentially
+delaying learning from later-added views. CaRtGS mitigates uneven keyframe
+optimization through loss-based allocation~\cite{cartgs}, but when to admit observations beyond
+keyframes remains a separate decision. This motivates coupling training-set
+growth to completed optimization work and adjusting training opportunities
+within the growing set, so that limited updates can bring the map to high
+quality sooner.
 
-Our aim is to improve map appearance and geometry under the limited mapping
-updates available during online operation. We build on the visual--inertial
-tracking and Gaussian mapping pipeline of VIGS-SLAM~\cite{vigsslam}.
-First, we expand the training-view set beyond tracking keyframes only as
-mapping updates are completed. This rule, \emph{Optimization-Guided View
-Growth}, ties the addition of observations to completed optimization work.
-Second, we give higher selection probabilities to views that have received
-fewer updates. We retain randomness so that this preference does not reduce
-selection to a deterministic least-count rule. Our \emph{Entropy-Regularized
-View Sampling} expresses this trade-off through a count-dispersion objective
-and an entropy term. Sampling without replacement further prevents repeated
-selection of the same view within a group of updates. Finally, we use
-available depth evidence to distinguish empty space in front of observed
-surfaces from the surfaces themselves. We formulate corresponding constraints
-on Gaussian opacity along viewing rays, rather than relying on color
-agreement alone.
+A strong geometric starting point is essential, but it does not guarantee that structures remain accurate during subsequent color-driven optimization. Due to the shape-radiance ambiguity of alpha compositing, misplaced Gaussians can effortlessly replicate target colors by forming semi-transparent clouds in empty space~\cite{deng2022dsnerf, stablegs, wang2025efags}. One might assume that geometric losses can resolve this by simply translating (i.e., updating the positions of) these floating artifacts back to the correct surface. \emph{However}, relying on positional gradients exposes a fundamental flaw in the 3DGS architecture. Because the rasterizer depends on strict depth-sorting~\cite{kerbl20233dgs}, shifting a Gaussian along the camera ray frequently alters its sorting order relative to its neighbors, causing abrupt, discontinuous spikes in the transmittance integral. Furthermore, it is inherently ambiguous whether a floater should be pushed toward the foreground object or pulled into the background. Attempting to spatially navigate this highly non-convex landscape wastes critical online updates. Therefore, rather than struggling to move misplaced Gaussians, an online method \emph{must} directly control their opacity, explicitly suppressing density in observed free space to rapidly eliminate spurious structures without relying on unstable positional gradients~\cite{yu2024gof, guedon2023sugar, pagas2026}.
 
-We compare rendering quality with VIGS-SLAM on RPNG, UTMM, and Aria.
-Separate ablations examine the use of frames between keyframes at a fixed
-update budget and compare view-selection policies at several update budgets.
-These experiments assess how the choice and allocation of training views
-affect the quality obtained from limited mapping updates.
+To achieve this fast convergence within a bounded online budget, we build upon a DROID-SLAM-based frontend~\cite{teed2021droid}. While recent works have explored dense geometric initialization~\cite{edgs}, efficient second-order solvers~\cite{hollein2025gslm}, and compute-aware optimization allocations~\cite{cartgs, chen2024pgsr}, translating these foundations into continuous map improvement requires strict control over which observations enter training. Therefore, we tightly couple our mapping policy to the actual optimization progress. For photometric refinement, we introduce an Optimization-Guided View Growth strategy that expands the mapping-view set strictly at the rate of completed updates. This is complemented by our Entropy-Regularized Count Balancing (ERCB) sampler, which dynamically corrects severe training deficits among views while preserving the diversity of sampling without replacement. For geometric refinement, we apply a causal free-space Carve loss that directly acts on opacity. By continuously penalizing opacity where depth evidence dictates empty space, we enforce structural consistency immediately after a region is observed.
 
-Our contributions are:
+We validate whether this unified architecture fundamentally accelerates map convergence rather than merely offering a fast rendering speed. Through controlled incremental evaluations, we compare our rendering quality and structural accuracy against recent state-of-the-art online systems, notably VIGS-SLAM~\cite{vigsslam}. To strictly isolate the efficacy of our proposed mapping policies from the inherent benefits of our dense initialization, we keep the initialization protocol completely frozen across all ablation studies. This rigorous experimental design explicitly demonstrates how our view scheduling and opacity-directed constraints extract superior, highly converged map quality from the exact same computational budget.
+
+Our contributions are as follows:
 \begin{itemize}
-    \item Optimization-Guided View Growth, which expands the training-view
-    set beyond tracking keyframes according to completed mapping updates.
-    \item Entropy-Regularized View Sampling, which favors less frequently
-    selected training views while retaining randomized selection and avoiding
-    repetition within each group of updates.
-    \item Depth-supported constraints on Gaussian opacity along viewing
-    rays, formulated to distinguish observed free space from surface evidence
-    using only observations available at the current time.
+    \item Building upon a dense, frontend-driven initialization, we formulate an online 3DGS mapping framework optimized strictly for \emph{fast photometric and geometric convergence} under limited compute.
+    \item We propose an Optimization-Guided View Growth policy that paces the inclusion of causal frames according to completed mapping work.
+    \item We introduce Entropy-Regularized Count Balancing (ERCB) to correct severe optimization imbalances while preserving the essential diversity of sampling without replacement.
+    \item We design a causal, depth-supported Carve loss that targets opacity directly, rapidly suppressing free-space artifacts and bypassing the severe gradient discontinuities associated with positional optimization.
 \end{itemize}
 
-% AUTHOR NOTE: Sec. 3.3 still contains Carve, Hit, and Carve+Hit candidates.
-% Specify the selected geometry objective here after that choice is finalized.
-% Do not claim faster geometric convergence or time-resolved quality gains
-% until the corresponding measurements are reported in the experiments.
+% GEOMETRY-MODULE SWITCH:
+% If fixed opacity or another controller wins the final ablation, replace only
+% the geometry sentences in paragraphs 5--6 and contribution 3. The problem
+% statement, photometric path, and convergence-based evaluation remain valid.

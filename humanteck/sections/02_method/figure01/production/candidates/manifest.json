@@ -1,0 +1,656 @@
+{
+  "run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0",
+  "map_sha256": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766",
+  "pose_source": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0/traj_kf_beforeBA.txt",
+  "pose_source_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+  "policy": "12 fixed approximately time-spaced mapped keyframes including previous UID284; no PSNR ranking",
+  "depth_range_m": [
+    0.5,
+    7.0
+  ],
+  "rotation": "90 degrees clockwise, no RGB correction or normal smoothing",
+  "note": "Same prefinal map for every candidate. Training-view illustrations, not held-out comparisons. Ray loss disabled.",
+  "selected_candidate": {
+    "shared_map_reference": "C07",
+    "rendered_modalities": "C10"
+  },
+  "candidates": [
+    {
+      "candidate": "C01",
+      "frame_uid": 201,
+      "source_name": "3824819939512.jpg",
+      "timestamp": 3824.819939512,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000201_15ca1bb1538ad544b77f7a1125e2620ca43d01e8d0d56187f1fcfc46e2ada364.pt",
+        "frame_uid_at_capture": 201,
+        "normal": "geometry/normal/000201_d83ce82d50233e4f60f644bae715d9e436c7343acc26e97d34e7384dc753e81a.pt",
+        "sha256_tensor_payload": "cb3efc317a97029520e2e1dc8657b5f29eb8506214b234463b41b7d4f44e7226"
+      },
+      "folder": "candidates/frames/C01_uid0201",
+      "camera_to_world": [
+        [
+          0.959169940824148,
+          -0.006707647186501393,
+          -0.2827508303942221,
+          -1.103774070739746
+        ],
+        [
+          0.03292072604734428,
+          0.9955711505923868,
+          0.08805855951960101,
+          -4.715785026550293
+        ],
+        [
+          0.2809079037975195,
+          -0.09377148595054269,
+          0.9551427422153774,
+          2.4385013580322266
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "219780e76a191e81add4895d5ba798cbaab49b542383c953240d6e64bbf44d91",
+        "input.png": "1e471cdf49df95df7507497a30b631e56c8b9f1462be2d38e4400c02e91fb24c",
+        "normal.png": "6eeb239dbfae9050e64a2f659fa7f8a4ab4b132cdb7c9836673ac4b5935c3ca0",
+        "prior_depth.png": "1fb95712be5be3bba05cf02c4e98310f847467d0c1ce22785e869bbd105baad5",
+        "prior_normal.png": "73d5583709cf0bd546b298f3d16e36caced51985fabd19211ca27fc3135e9d4e",
+        "rgb.png": "687a85d4292353c893b11725558f66daf629303c112bbaf8a5d25d1c76ad5986",
+        "wide_map.png": "43ad9a733480703391d03de05b390e43343ead155a253602756ed24b4733fbc8"
+      }
+    },
+    {
+      "candidate": "C02",
+      "frame_uid": 284,
+      "source_name": "3828969941300.jpg",
+      "timestamp": 3828.9699413,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000284_ac97daa2387482ef3aa5cac2473f6989eff2f52c5edc846e3a842f628c4d5b32.pt",
+        "frame_uid_at_capture": 284,
+        "normal": "geometry/normal/000284_9776bb11e836a5dcfca8227b2d422cbdaa73cfbdc694e44349800d8b3759016a.pt",
+        "sha256_tensor_payload": "ab7ab59f752ba05a62247d535f6ca8b6062c3550875c3e95af34b806d1e35ac2"
+      },
+      "folder": "candidates/frames/C02_uid0284",
+      "camera_to_world": [
+        [
+          0.9419230761141791,
+          -0.13017359695816405,
+          -0.309573502319846,
+          -1.9069441556930542
+        ],
+        [
+          0.08610839987433618,
+          0.9846181365020336,
+          -0.15202785515274575,
+          -6.55128288269043
+        ],
+        [
+          0.3246016977076424,
+          0.11654166605225912,
+          0.9386435840717604,
+          4.300460338592529
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "ed36d87ae081df3c2ddc18385fef15c534f79f200ce1ee5b9c6b122e8d4436da",
+        "input.png": "b0e85bc6a4bc139cca6bce89d447b296c5d26a0b856b5c466a52bfe9701e0121",
+        "normal.png": "1585883a6d6453bc33f11a6b2c6912a4ad65e0a1b3fc533b872bb2d83b70e133",
+        "prior_depth.png": "ab062b9aa077244d2e0708e5ad84b76c7c4f2dc9025da7821510e7b0332f3182",
+        "prior_normal.png": "3e96ff3a8f40f60444099403ef10aeaa859df809b5a02368c25642304f4e52e4",
+        "rgb.png": "44b6e1e6ba66ac9d8846835e7bce83d86f10e57b0301ee38d10e8c85680d404e",
+        "wide_map.png": "c4a3e1d7dabdc697a928adacb76d2796342e0becdbfabc45081d22890dc12ba7"
+      }
+    },
+    {
+      "candidate": "C03",
+      "frame_uid": 389,
+      "source_name": "3834219945137.jpg",
+      "timestamp": 3834.219945137,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000389_13f451bcaaf6f3b0ba7b983e41f872095d51f2c23936c3daf8030b9e5ace13ce.pt",
+        "frame_uid_at_capture": 389,
+        "normal": "geometry/normal/000389_a597c2964f647b9313be381effa29db7c1fb7745d3974a43a71d845fa086b20a.pt",
+        "sha256_tensor_payload": "56cb1586cd99da1dc063bbe7c9ed84a7839f20413b55de0d457341e7d633a489"
+      },
+      "folder": "candidates/frames/C03_uid0389",
+      "camera_to_world": [
+        [
+          0.9639428322958692,
+          -0.03170187767004529,
+          -0.2642143202356967,
+          -2.71545672416687
+        ],
+        [
+          0.03835468613802668,
+          0.999062862382393,
+          0.02005779298809044,
+          -8.678922653198242
+        ],
+        [
+          0.26333084535745377,
+          -0.02946842310835634,
+          0.9642554007745228,
+          6.160020351409912
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "8a304399c2b7d56ed17054a1d736df3220ebe09ec0e2db27d0d63d83b444455b",
+        "input.png": "872af5f2f5a2b7a81a13f1493809c610e25d511379c8de1dae9f8c86b7565364",
+        "normal.png": "0f60c5327365c9a72adb3bc90476222cf844498f8f7a87da0d83479eff219a36",
+        "prior_depth.png": "224157bb6f5e31e04901a71455cf936bed95e91bcdcd01517a03c249831cd016",
+        "prior_normal.png": "4064f3561472e626aa176550779430cc1f0ff430c3e4e85c930daea33c6bab67",
+        "rgb.png": "830520753c97b8dd47594f6aa5d71ecfc516e97043e2a01d403d42c637259dfa",
+        "wide_map.png": "3e513223313ce53d79cd3c102be2d6319b895f3e0d29d54d7aa30fe42e13b2ea"
+      }
+    },
+    {
+      "candidate": "C04",
+      "frame_uid": 487,
+      "source_name": "3839119947675.jpg",
+      "timestamp": 3839.119947675,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000487_a1a38c2451c95f11421423073cd9539b865996cdf5f919d19914e99636539025.pt",
+        "frame_uid_at_capture": 487,
+        "normal": "geometry/normal/000487_236f3d463b40aa962874311efe175e8c412ae02c2f3432bd68666f11daf4d11a.pt",
+        "sha256_tensor_payload": "04ba426b122653535b251ae6613e3bed271b3997c2aff1f6f784589aa33404c1"
+      },
+      "folder": "candidates/frames/C04_uid0487",
+      "camera_to_world": [
+        [
+          0.9156159666684752,
+          -0.4020126197309266,
+          -0.005766728607394717,
+          -2.9999775886535645
+        ],
+        [
+          0.11801620626936718,
+          0.2824474096439148,
+          -0.951995607050384,
+          -10.41834545135498
+        ],
+        [
+          0.3843430455199367,
+          0.8709818105807493,
+          0.3060573622671735,
+          6.828517913818359
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "b26239954a225d27f5d66d4f479780381175a206800839285bf5ffb08037ae60",
+        "input.png": "2227092f7613bb05bdb32b8cb7235a2a55f84f136b6fc03073dcbf7f99b16e3f",
+        "normal.png": "477e3fd63270275e33ec2ec14811cf21a1ce72a4cc4b2b68ffcd4da28a470be4",
+        "prior_depth.png": "062da93a98dcf639bea358db2d7c43c9a79dda051ec9dcc795bae928eb2374b8",
+        "prior_normal.png": "6998fc8076c1f96dbc050b8de87df79136a4ccd7c6d43266582dc4196cf25dc2",
+        "rgb.png": "b7ccf0517e142b0225226cf62dd91e3e14f717c464481cc4bc1db157664b5258",
+        "wide_map.png": "b003e90bcf893b40446f91f88e275766fae6e8c6e9a19cad03225f33e133135b"
+      }
+    },
+    {
+      "candidate": "C05",
+      "frame_uid": 589,
+      "source_name": "3844219942512.jpg",
+      "timestamp": 3844.219942512,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000589_94c056f91c3ac1c06da3d68f6dcc0b16cc87970615bd046a36cf219411d1b27d.pt",
+        "frame_uid_at_capture": 589,
+        "normal": "geometry/normal/000589_e11b9eec23146c5c0ce03b954dc5ee56ea99bcf50c2a363455bfd1cfafc58dcb.pt",
+        "sha256_tensor_payload": "d80627dc5368bb061775500948a7e7cec6986222192d15f49acc6f1012b89640"
+      },
+      "folder": "candidates/frames/C05_uid0589",
+      "camera_to_world": [
+        [
+          0.8789208001673722,
+          -0.3107735444232887,
+          0.3618259680008231,
+          -2.8304576873779297
+        ],
+        [
+          0.17135167583497452,
+          -0.5022197514421799,
+          -0.8475930181696292,
+          -10.208429336547852
+        ],
+        [
+          0.44512563419970796,
+          0.8069666197234813,
+          -0.388159818155314,
+          6.515498161315918
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "26640b3551917ac07ed3862ae22e6f84f78aff72c72bdcd396f43713f0801117",
+        "input.png": "885c509ada7b081a8a36cd318682da494a2cecae40052a6a4e22fa1324772aa0",
+        "normal.png": "4e3dc3ec075e91f43a743481076e6803fc48fffdad0c19f9063b63a98135c40a",
+        "prior_depth.png": "5ba2e961ffb0ef3fae5fbd078affbb5ba014b9f29a6668e6ff3f604130f9841b",
+        "prior_normal.png": "90d2faa77b2826c091d0bf24c487a3c7f7d3f4583441caf7ec5fe189f98f07c4",
+        "rgb.png": "fdd9789fe6989661b8e59106c617d3203b42d9f802a699c68559a7675c15848e",
+        "wide_map.png": "ee1ba838c394a2930e8ba9d8e950460fa60ed2d21996879f4696ea526fef3af3"
+      }
+    },
+    {
+      "candidate": "C06",
+      "frame_uid": 687,
+      "source_name": "3849119941300.jpg",
+      "timestamp": 3849.1199413,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000687_95b8db2820a7111ba5b7a33da1afbf6db7972179bb49a3389b07c97008b63eec.pt",
+        "frame_uid_at_capture": 687,
+        "normal": "geometry/normal/000687_871339ea03b0f4e0c795fcbf48b38f39388c409a92ec00035744003504cce3b0.pt",
+        "sha256_tensor_payload": "6e72fd808093fb163bf7034ee2424d4f28f75e38dd1a29811ad15af8b869ae13"
+      },
+      "folder": "candidates/frames/C06_uid0687",
+      "camera_to_world": [
+        [
+          0.8913343986129545,
+          0.024028661970833712,
+          0.45270919280833477,
+          -2.2515859603881836
+        ],
+        [
+          -0.015357020590246755,
+          -0.996420894153139,
+          0.08312378488525181,
+          -9.00755786895752
+        ],
+        [
+          0.45308625201817077,
+          -0.08104335320648011,
+          -0.8877752097987284,
+          5.105289459228516
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "067e5ab733bf071c7a60d85091da1ec931042b3e7d96ad024e2c52914171fa2e",
+        "input.png": "c6b2c70fc6e0867b7a8520b0119ef105091bde5bf536fd4bb3e9f50f69d7eee5",
+        "normal.png": "e57237cffa26db9b7fd7b2aa69094c09ee4d5fb7f2d55d644dba58cd99f2b549",
+        "prior_depth.png": "845fd51e1a0d8f26a2b7abcb5a59cfed164186d988c19e4c8de388b1cd0e4e2d",
+        "prior_normal.png": "f86d3b76e6d1f48a77fe4031df177f7c00e597b1839cf39f3e054dc2aaf568ed",
+        "rgb.png": "76ef7c39c61ca64955d1723f30be0c2b75462ff848e2955372f270709199bbb5",
+        "wide_map.png": "056956d49a56eaf65277d21c0cc8230ecf98a7edffbf5fb151834c0c264f3248"
+      }
+    },
+    {
+      "candidate": "C07",
+      "frame_uid": 786,
+      "source_name": "3854069944925.jpg",
+      "timestamp": 3854.069944925,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000786_6896dcf98370529b1f5aebab3c8eeb707663542c892586bf5220b4ea4840e1e0.pt",
+        "frame_uid_at_capture": 786,
+        "normal": "geometry/normal/000786_61f8b944b379f51fe275d3936e35cfa2c15f56f8165e95685d4213411602117b.pt",
+        "sha256_tensor_payload": "bc1324cc403ca2560e754181853b8b3be77968dc74bba3f71a0e1c9e42dbaff7"
+      },
+      "folder": "candidates/frames/C07_uid0786",
+      "camera_to_world": [
+        [
+          0.8951097734959995,
+          -0.11230657529863611,
+          0.43146926488063025,
+          -1.8611786365509033
+        ],
+        [
+          0.03521054687091358,
+          -0.9469250052327808,
+          -0.31952034654141925,
+          -6.881532669067383
+        ],
+        [
+          0.44445327176317523,
+          0.30119805379449127,
+          -0.8436474510181485,
+          4.229599952697754
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "3651ddb6a3db4175d91804aee64190247c4938ddb98981f15e658b25a28c9d7f",
+        "input.png": "de6ab4043c60981f079b449da1471d3b96b376b1339dd6f1aa7b0f40c8460651",
+        "normal.png": "1bbad47f807589bc2a6702b32a20e5568bfeec13f95eff2e0b7c3879fc222c93",
+        "prior_depth.png": "298fb0bbb34cad18ac034fea6bf7057f124c47333fe11a795031e9286993f2b9",
+        "prior_normal.png": "ba5527efd6f41020b239f580c108b69a620f762c060f9afe5b53785bbf206c0e",
+        "rgb.png": "1d1bf41df54dd017f4a439bde7dfb47e9aa4df277004d6529bdbc51132f66cb6",
+        "wide_map.png": "614e448c51bf2600314014b3cfa9ffe301ef12b607211a0367463c50d2af9d52"
+      }
+    },
+    {
+      "candidate": "C08",
+      "frame_uid": 893,
+      "source_name": "3859419946475.jpg",
+      "timestamp": 3859.419946475,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000893_8fc9fb25f4eae81bfc8e084ff150b80b90fe9512d9ab8ef2eb6825f02ef92336.pt",
+        "frame_uid_at_capture": 893,
+        "normal": "geometry/normal/000893_475d77c06f11278e2e2e68e9a6b665f9c81516a8e09ac598e9e8dd46f00b0ec8.pt",
+        "sha256_tensor_payload": "371c41f1c6235a2cf213157f2fc509eb18ebe543d1c33909b4ec7b7a4ff0ec26"
+      },
+      "folder": "candidates/frames/C08_uid0893",
+      "camera_to_world": [
+        [
+          0.9104760297253034,
+          -0.09117480145938726,
+          0.4033863593064218,
+          -0.9730049967765808
+        ],
+        [
+          -0.024333489518127,
+          -0.9855160763771309,
+          -0.16782712680045486,
+          -4.644909381866455
+        ],
+        [
+          0.4128453470532513,
+          0.142986778343545,
+          -0.8995073655259385,
+          2.1541476249694824
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "f08af7ebceacb25285831a722175ce4cd791e50c4cef073ff785d4f37ebd39c2",
+        "input.png": "b2f0d9a133d67a3591de735f8f9adc3ceb8814518b7688ef5ab4cbbde8d7c156",
+        "normal.png": "9c3d79542f2cd88660ebf5e67b3cdc7541a0a9bc47e47208c649b7b2b7b7385d",
+        "prior_depth.png": "afdd2c1d89198b2d85a358b6447aa4bfb438aa47e02934a012823d75af842af5",
+        "prior_normal.png": "6b1a1e3f0c21d310689a76a5ea48e42ad7e399b6bb2226f2ba31edd564f99ce5",
+        "rgb.png": "75ab4a4f5d52d2ad830d1be5278f0436f9f7cac1dcda56c49465be2741d1c101",
+        "wide_map.png": "378822a745f2cbdab81aa044457f94a2edf0d342e003628f25215cdb23be06ab"
+      }
+    },
+    {
+      "candidate": "C09",
+      "frame_uid": 998,
+      "source_name": "3864669951762.jpg",
+      "timestamp": 3864.669951762,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/000998_7522bf0d17a28b7507a38d0ffab31ad56fc34113e6930ecc4dedfb7df479218d.pt",
+        "frame_uid_at_capture": 998,
+        "normal": "geometry/normal/000998_ee83b885deee11e9b6de7430d67ba54c71b503dd55dbecfb7a671e74adbdf471.pt",
+        "sha256_tensor_payload": "914818cacd8f025ef918cffa5dfe42fa0231ad9845575dea6ced0a16c47bc1f8"
+      },
+      "folder": "candidates/frames/C09_uid0998",
+      "camera_to_world": [
+        [
+          0.9473532581923945,
+          0.24949348898032847,
+          0.20068583195800538,
+          -0.15834689140319824
+        ],
+        [
+          -0.08057745984525282,
+          -0.42083225241580874,
+          0.9035527036601261,
+          -2.1290128231048584
+        ],
+        [
+          0.3098855872046016,
+          -0.8721543523270749,
+          -0.37857325388859614,
+          0.2365894317626953
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "b78b5b546e87e3f3bd65030bf9b5ddd35bbcb30d44f321f86f9d9d25607fd26c",
+        "input.png": "f4f431fdfec0880d86f0fcab4e0de6f7bdf3df15c7be797a1d8996020282e0d6",
+        "normal.png": "4245ed9b778b450f8572d1c66be2bedf8f617ef678dbb5799c0247963b588b9e",
+        "prior_depth.png": "8a3a57dec960ca232c775bafe978d457e65f1049d9282338b1be60a39b237972",
+        "prior_normal.png": "684db5bd4803d0207d082abaa527826086c8df4796ac5db8734c4da2edcf1363",
+        "rgb.png": "ea89562d13225c1b0d4873554f55a7abfa839e00584f09ac6f4206de2e85525a",
+        "wide_map.png": "9caf1d0d9601548b3417afafb1cb7007e4d0d815c4c2c07af72efa862c4b0a52"
+      }
+    },
+    {
+      "candidate": "C10",
+      "frame_uid": 1091,
+      "source_name": "3869319941675.jpg",
+      "timestamp": 3869.319941675,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/001091_c7ce9a1a92064ad97a00385522bada0ac2e5115644c6ba0378d012257928fdc3.pt",
+        "frame_uid_at_capture": 1091,
+        "normal": "geometry/normal/001091_2952b1274e60aed321cd164ad3632221d99a29084186d838336156dc8d1fdefd.pt",
+        "sha256_tensor_payload": "6eceb1b188340839616683305070629f2b2882ef087406a08548128aa1cc3d59"
+      },
+      "folder": "candidates/frames/C10_uid1091",
+      "camera_to_world": [
+        [
+          0.9316941669914451,
+          -0.2531053046512347,
+          -0.2605449749112868,
+          -0.35942184925079346
+        ],
+        [
+          0.1387995133613275,
+          0.910909415251389,
+          -0.3885598181709367,
+          -0.24743770062923431
+        ],
+        [
+          0.33567942189651134,
+          0.32585540039069233,
+          0.8838198819620691,
+          0.7557631731033325
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "9cb84aaf9956527c24ed97bc5b5e1e0fb6e9a9efba2d944f47928b040d62ed49",
+        "input.png": "c4866f81e3e0a9f802a3131d63a61e21f508398a358e8255e9795495b722f05b",
+        "normal.png": "e45aa311185abdecf509fe94bf639cf9d52a0542888b71dfdbcf94583c38e4e8",
+        "prior_depth.png": "305ec027891ad3bf851bbf390c9a36f6979be7c8d182b0b6b9ca751eef7379f9",
+        "prior_normal.png": "feaf302d7f36423ee43b00f21ee3a53e8e1cb13522230937c2bf363b89ad328a",
+        "rgb.png": "b4d428d7fc6253b80ae9b64a8bc912500fcc653b7496514983c2f2df524310ef",
+        "wide_map.png": "cb454074956de063776c8680c60abc32440e5fc50ed48f049ad61b895500c744"
+      }
+    },
+    {
+      "candidate": "C11",
+      "frame_uid": 1193,
+      "source_name": "3874419946137.jpg",
+      "timestamp": 3874.419946137,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 112,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/001193_fba53788a81c26245b35ac2503c34fed15c6e6fa39016c3f7b28c84077ace029.pt",
+        "frame_uid_at_capture": 1193,
+        "normal": "geometry/normal/001193_997909c4a937cdc1c16133d36ae1713639bf8eceb0e663a6d2c90503d7188f3e.pt",
+        "sha256_tensor_payload": "c7bc36e909c1e546b63bf4293de625441a58a0de1ef0402b4a3aa89529cba6eb"
+      },
+      "folder": "candidates/frames/C11_uid1193",
+      "camera_to_world": [
+        [
+          0.907348464876842,
+          -0.4203743815369394,
+          -0.0020353459346089675,
+          -0.18793532252311707
+        ],
+        [
+          -0.003786709371424113,
+          -0.00333166089771858,
+          -0.9999872803530044,
+          -1.9384952783584595
+        ],
+        [
+          0.42036225344073674,
+          0.9073446309881917,
+          -0.004614813011107721,
+          0.31958281993865967
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "411056753203169e49f89a6dcd743d4969cb95db1a3122b18b6ab077e333fac5",
+        "input.png": "3b0c095f8c3c155ee2187538a200c754329e354126aaf7c66700642793584bb5",
+        "normal.png": "29e2fa6d28b2ef2166b573f0b147efccea6432ecf7969e70d42baf87930d51aa",
+        "prior_depth.png": "6ddc4374e01a32b3dcbabf602f8922d3f4fd4066f829d41b8d5595f2dedd85da",
+        "prior_normal.png": "a5530e0e8c68a66c443571338129c06f2afe8c151f61b8fe8d244c4b21a6600f",
+        "rgb.png": "7f23f56cc0c91a8fbe1c3850c887ed97922de29f65c5634169c7aa2bbb5e4c44",
+        "wide_map.png": "782cee9aa03d16d4c153fe65c94b658bfb44c69d19eb8befdb644ed8766405ad"
+      }
+    },
+    {
+      "candidate": "C12",
+      "frame_uid": 1272,
+      "source_name": "3878369941387.jpg",
+      "timestamp": 3878.369941387,
+      "keyframe": true,
+      "held_out": false,
+      "mapped": true,
+      "prior_event_id": 113,
+      "prior_emitted_at_uid": 1274,
+      "prior_refs": {
+        "depth": "geometry/depth/001272_71e9479c700e8d839151c9ca7db5f03012b007058b9552b6afcee5814ab0afce.pt",
+        "frame_uid_at_capture": 1272,
+        "normal": "geometry/normal/001272_501abb5ff4ed88d5afdb7ddc5d1c108e88a393edc21ac05a7866b07dde26616c.pt",
+        "sha256_tensor_payload": "214441670535efd9ee770e70a9e849c60243ce9ca35b792cd93e25488b0ec86b"
+      },
+      "folder": "candidates/frames/C12_uid1272",
+      "camera_to_world": [
+        [
+          0.9948335059918201,
+          -0.060329308342046514,
+          -0.08164967796013275,
+          -0.5886427760124207
+        ],
+        [
+          0.03408464163137495,
+          0.9560755265469614,
+          -0.29113197135115754,
+          -3.7540879249572754
+        ],
+        [
+          0.09562704931599558,
+          0.2868448397529939,
+          0.9531922709223964,
+          1.340603232383728
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "files": {
+        "depth.png": "7834ed41b5920976153a8bac2f0fd1f4ae0d4a037045dec66936c4ab02fa5190",
+        "input.png": "fb7b2b44dc4333a7030627eafd80126a2ae6b16bacc52e42efe82c8d8512c49c",
+        "normal.png": "c105dd8d838ac87432329ac7b1a7f6ee296510a6f595e15150f5eea6c02ff497",
+        "prior_depth.png": "afd5bdb035fde65483a71aad4a70930dd5c4fe0460f076029956c0a1aa19398f",
+        "prior_normal.png": "afcd3ba27785398dde2ba87a70ef2f0ad2246be270ecc29e9e02612b75fba87d",
+        "rgb.png": "0b6f0f1e4ca3e37279df07b4bffc6a9ba6cab089e32764e53c31857b4768c361",
+        "wide_map.png": "15d210e9b525b2a24026bfc846ca4e334c2470173bfd4725ff45bb3fac68b7c8"
+      }
+    }
+  ],
+  "selected_trajectory": "A"
+}

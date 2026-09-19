@@ -1,0 +1,335 @@
+{
+  "run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0",
+  "run_approved_for": "overview illustration, not complete-method efficacy claim",
+  "map_sha256": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766",
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/aria/aria1253/seed0",
+  "causal_carve_enabled": false,
+  "no_training_performed": true,
+  "display_rotation": "all frame images 90 degrees clockwise, no recoloring RGB",
+  "aliases": {
+    "K1": 1073,
+    "I2": 1079,
+    "K3": 1091,
+    "I4": 1104,
+    "K5": 1123
+  },
+  "assets": {
+    "K1": {
+      "path": "assets/aria1253/K1.png",
+      "sha256": "e61ccb84630d07d5afaade99823c08533319d4c93a0a9fd6a9bf3e96c6b7be23",
+      "display_rotation_clockwise_degrees": 90,
+      "crop": null,
+      "brightness_adjustment": null,
+      "frame_uid": 1073,
+      "source": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3868419943175.jpg",
+      "source_sha256": "fc4150ee76916fe577656cfc7ba0f7b64b2c413530d1e1e8741f86ecbd76269d",
+      "keyframe": true,
+      "mapped": true,
+      "held_out": false,
+      "timestamp": 3868.419943175
+    },
+    "I2": {
+      "path": "assets/aria1253/I2.png",
+      "sha256": "5f34dc10ca6452bb16db19892a78b64e6df84d29f92380466c1c6deed2747cdf",
+      "display_rotation_clockwise_degrees": 90,
+      "crop": null,
+      "brightness_adjustment": null,
+      "frame_uid": 1079,
+      "source": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3868719948600.jpg",
+      "source_sha256": "36a5ba8e18cf5277e23d3d3f86df14bbd7f4860a65a4bfa83c0628c989121950",
+      "keyframe": false,
+      "mapped": true,
+      "held_out": false,
+      "timestamp": 3868.7199486
+    },
+    "K3": {
+      "path": "assets/aria1253/K3.png",
+      "sha256": "c4866f81e3e0a9f802a3131d63a61e21f508398a358e8255e9795495b722f05b",
+      "display_rotation_clockwise_degrees": 90,
+      "crop": null,
+      "brightness_adjustment": null,
+      "frame_uid": 1091,
+      "source": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3869319941675.jpg",
+      "source_sha256": "2c7283d35067aef12e686fd721f9875f0650f58640026909e187d3ba01fc529c",
+      "keyframe": true,
+      "mapped": true,
+      "held_out": false,
+      "timestamp": 3869.319941675
+    },
+    "I4": {
+      "path": "assets/aria1253/I4.png",
+      "sha256": "268e3de62013d1a9569989831ff1f86d3a69d21052923b268c28a27fd7507d84",
+      "display_rotation_clockwise_degrees": 90,
+      "crop": null,
+      "brightness_adjustment": null,
+      "frame_uid": 1104,
+      "source": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3869969946675.jpg",
+      "source_sha256": "eb1de7d2d313b81cc004799ce7a6d8650f80635d97fe62355ad320d25493effb",
+      "keyframe": false,
+      "mapped": true,
+      "held_out": false,
+      "timestamp": 3869.969946675
+    },
+    "K5": {
+      "path": "assets/aria1253/K5.png",
+      "sha256": "2f3b25ddf9de9ac1d9e52d2ebddde716537cdd3f53d398aad7c6b6038f7a7eba",
+      "display_rotation_clockwise_degrees": 90,
+      "crop": null,
+      "brightness_adjustment": null,
+      "frame_uid": 1123,
+      "source": "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro/rgb/3870919943512.jpg",
+      "source_sha256": "1a348dc7bfd2d5951766440fce5210562a69a1a7371ac6158548d3bc9c0ed041",
+      "keyframe": true,
+      "mapped": true,
+      "held_out": false,
+      "timestamp": 3870.919943512
+    },
+    "prior_depth": {
+      "path": "candidates/frames/C10_uid1091/prior_depth.png",
+      "sha256": "305ec027891ad3bf851bbf390c9a36f6979be7c8d182b0b6b9ca751eef7379f9",
+      "frame_uid": 1091,
+      "candidate": "C10",
+      "modality": "prior_depth",
+      "depth_range_m": [
+        0.5,
+        7.0
+      ],
+      "display_rotation_clockwise_degrees": 90,
+      "candidate_manifest": "candidates/manifest.json",
+      "brightness_adjustment": null,
+      "map_clip_applied": false,
+      "normal_convention": null
+    },
+    "prior_normal": {
+      "path": "candidates/frames/C10_uid1091/prior_normal.png",
+      "sha256": "feaf302d7f36423ee43b00f21ee3a53e8e1cb13522230937c2bf363b89ad328a",
+      "frame_uid": 1091,
+      "candidate": "C10",
+      "modality": "prior_normal",
+      "depth_range_m": null,
+      "display_rotation_clockwise_degrees": 90,
+      "candidate_manifest": "candidates/manifest.json",
+      "brightness_adjustment": null,
+      "map_clip_applied": false,
+      "normal_convention": "unit camera-space xyz to RGB; pixels rotated only"
+    },
+    "render_rgb": {
+      "path": "candidates/frames/C10_uid1091/rgb.png",
+      "sha256": "b4d428d7fc6253b80ae9b64a8bc912500fcc653b7496514983c2f2df524310ef",
+      "frame_uid": 1091,
+      "candidate": "C10",
+      "modality": "render_rgb",
+      "depth_range_m": null,
+      "display_rotation_clockwise_degrees": 90,
+      "candidate_manifest": "candidates/manifest.json",
+      "brightness_adjustment": null,
+      "map_clip_applied": false,
+      "normal_convention": null
+    },
+    "render_depth": {
+      "path": "candidates/frames/C10_uid1091/depth.png",
+      "sha256": "9cb84aaf9956527c24ed97bc5b5e1e0fb6e9a9efba2d944f47928b040d62ed49",
+      "frame_uid": 1091,
+      "candidate": "C10",
+      "modality": "render_depth",
+      "depth_range_m": [
+        0.5,
+        7.0
+      ],
+      "display_rotation_clockwise_degrees": 90,
+      "candidate_manifest": "candidates/manifest.json",
+      "brightness_adjustment": null,
+      "map_clip_applied": false,
+      "normal_convention": null
+    },
+    "render_normal": {
+      "path": "candidates/frames/C10_uid1091/normal.png",
+      "sha256": "e45aa311185abdecf509fe94bf639cf9d52a0542888b71dfdbcf94583c38e4e8",
+      "frame_uid": 1091,
+      "candidate": "C10",
+      "modality": "render_normal",
+      "depth_range_m": null,
+      "display_rotation_clockwise_degrees": 90,
+      "candidate_manifest": "candidates/manifest.json",
+      "brightness_adjustment": null,
+      "map_clip_applied": false,
+      "normal_convention": "unit camera-space xyz to RGB; pixels rotated only"
+    },
+    "map_interior": {
+      "path": "candidates/frames/C07_uid0786/wide_map.png",
+      "sha256": "614e448c51bf2600314014b3cfa9ffe301ef12b607211a0367463c50d2af9d52",
+      "frame_uid": 786,
+      "candidate": "C07",
+      "modality": "uncut_map_reference_view",
+      "map_clip_applied": false
+    },
+    "map_a": {
+      "path": "assets/aria1253/map_a.png",
+      "sha256": "4333e6d5c22a1be3f381a01f6055151e295d871c66e682197a7876fd3eb55610",
+      "display_rotation_clockwise_degrees": 0,
+      "crop": null,
+      "brightness_adjustment": null,
+      "modality": "gaussian_map_virtual_camera",
+      "camera_world_to_view": [
+        [
+          0.0,
+          0.9994126319558879,
+          0.03426938994211619,
+          4.654369260358277
+        ],
+        [
+          0.7412913938608536,
+          -0.023001043435026812,
+          0.670789103510733,
+          -0.8925651013956344
+        ],
+        [
+          0.6711833351535427,
+          0.02540360383695243,
+          -0.7408559829847245,
+          12.905044530260348
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "intrinsics": [
+        600.0,
+        600.0,
+        500.0,
+        300.0,
+        1000,
+        600
+      ],
+      "all_gaussians_retained": true,
+      "opacity_or_scale_modified": false
+    },
+    "map_b": {
+      "path": "assets/aria1253/map_b.png",
+      "sha256": "524e758a83b3c1a148a940c69f1ae6e0a3332a89667f73b90b8cc9daf80dff7c",
+      "display_rotation_clockwise_degrees": 0,
+      "crop": null,
+      "brightness_adjustment": null,
+      "modality": "gaussian_map_virtual_camera",
+      "camera_world_to_view": [
+        [
+          0.0,
+          0.26181221398567356,
+          0.9651188344488569,
+          -1.0626710054468558
+        ],
+        [
+          0.25463171235439663,
+          -0.9333066860413866,
+          0.25318238653965036,
+          -4.746376838364691
+        ],
+        [
+          0.9670381021777105,
+          0.24574986144119182,
+          -0.06666569236246775,
+          11.59062712895285
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "intrinsics": [
+        600.0,
+        600.0,
+        500.0,
+        300.0,
+        1000,
+        600
+      ],
+      "all_gaussians_retained": true,
+      "opacity_or_scale_modified": false
+    },
+    "map_c": {
+      "path": "assets/aria1253/map_c.png",
+      "sha256": "768195d0cecb58c2fdfcbc0e42c2d2f157f92c00d2e9f6b6d3e374e01522b6d9",
+      "display_rotation_clockwise_degrees": 0,
+      "crop": null,
+      "brightness_adjustment": null,
+      "modality": "gaussian_map_virtual_camera",
+      "camera_world_to_view": [
+        [
+          0.0,
+          0.7399586189418992,
+          -0.6726523933307584,
+          5.1119942442015045
+        ],
+        [
+          0.9760225702278792,
+          0.14641580378776137,
+          0.16106630562271107,
+          1.3856313982879387
+        ],
+        [
+          0.2176693419059395,
+          -0.6565239178086211,
+          -0.7222163131219442,
+          12.163368796321572
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "intrinsics": [
+        600.0,
+        600.0,
+        500.0,
+        300.0,
+        1000,
+        600
+      ],
+      "all_gaussians_retained": true,
+      "opacity_or_scale_modified": false
+    },
+    "trajectory": {
+      "path": "assets/trajectory/pose_plane.png",
+      "sha256": "35507de577b26fa3a87254e2c250684104f386d27bf8de207b70d09284cfc232",
+      "modality": "actual_keyframe_pose_projection"
+    },
+    "map_cutaway": {
+      "path": "assets/cutaway/selected.png",
+      "sha256": "b530afa01d5419078ef3416e0ea4cade820af8c47d82d01ef0c70444b90ed1b9",
+      "reference_frame_uid": 786,
+      "reference_candidate": "C07",
+      "camera_variant": "S5",
+      "modality": "display_only_gaussian_map_cutaway",
+      "details": "assets/cutaway/provenance.json",
+      "map_source_modified": false,
+      "clip_applied": true,
+      "crop": [
+        190,
+        182,
+        1008,
+        541
+      ]
+    }
+  },
+  "schematics": "growth stages, counts/probabilities and ray diagram; pose trajectory now derives from saved keyframe estimates",
+  "selection": {
+    "shared_map_reference": {
+      "candidate": "C07",
+      "uid": 786
+    },
+    "rendered_modalities": {
+      "candidate": "C10",
+      "uid": 1091
+    },
+    "trajectory": "A",
+    "cutaway_variant": "S5"
+  },
+  "map_vs_render_note": "Shared-map inspection camera differs from the C10 render camera; same saved Gaussian model."
+}

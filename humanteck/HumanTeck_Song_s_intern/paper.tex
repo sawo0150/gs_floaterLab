@@ -4,21 +4,14 @@
 \usepackage{ragged2e}
 
 \begin{document}
-\title{Communication-Efficient and Robust Multi-Robot Mapping Framework}
+\title{Fast Photometric and Geometric Convergence in 3DGS SLAM}
 \twocolumn[
 \begin{@twocolumnfalse}
 \begin{flushleft}
 \maketitle
 \begin{abstract}
 \justifying
-Multi-robot mapping across multiple robots accelerates exploration and improves coverage efficiency by maintaining global consistency.
-However, multi-robot mapping requires exchanging massive sensor data between robots, making communication the bottleneck, especially in communication-constrained environments. 
-Therefore, we present a hybrid framework combining centralized coordination with distributed selective data exchange that reduces inter-robot communication by up to 1,000× while maintaining alignment accuracy.
-Our key insight is that only a small subset of carefully selected scans is sufficient for robust multi-robot mapping. 
-We formulate this as solving a three-stage cascade problem on an exchange graph, where vertices represent robot keyframes and edges denote candidate inter-robot loops.
-Through three cascade stages, we select a sequentially overlapped, minimal-transmission-cost, and mutually consistent optimal scan subset that preserves alignment quality while reducing communication.
-Unlike existing approaches that transmit whole scans, which require GB-scale data exchange, or employ na\"ive downsampling, our approach exchanges only MB-scale data while achieving comparable alignment accuracy. 
-The evaluation shows up to 99.98\,\% reduction in data exchange (e.g., from 7.0\,GB to 1.7\,MB in the large-scale HeLiPR dataset), while maintaining real-time performance.
+3D Gaussian Splatting (3DGS) enables photorealistic rendering, but its dense optimization restricts it to offline use. For robotics and wearable augmented reality, \emph{online mapping} is strictly demanded. Since "real-time" performance fluctuates with hardware, the true objective is achieving \emph{fast photometric and geometric convergence} under a bounded mapping budget. Two bottlenecks hinder this: tracking-oriented view selection dilutes updates, and shape-radiance ambiguity leaves spurious floaters in free space. To address these, we couple view-set expansion to completed updates and introduce Entropy-Regularized Count Balancing (ERCB) for equitable refinement. Geometrically, we bypass unstable positional gradients by directly suppressing spurious opacity via a causal Carve loss. By treating real-time operation as a strict constraint rather than a substitute for map quality, our formulation forces each optimization unit to immediately produce reliable geometry and appearance.
 \end{abstract}
 \vspace{20pt}
 \end{flushleft}
@@ -27,88 +20,143 @@ The evaluation shows up to 99.98\,\% reduction in data exchange (e.g., from 7.0\
 \thispagestyle{firstpage}
 
 \section{Introduction}
-Multi-robot systems achieve remarkable collective intelligence by seamlessly merging their individual maps into unified environmental representations. 
-Similar to solving a puzzle, this requires aligning each robot's map piece and merging them to form a unified global map.
-Light detection and ranging (LiDAR)-based multi-robot mapping addresses this by estimating alignments through the association of metadata (i.e., global descriptors) and full data (i.e., scans) of each robot's map piece.
-A central entity, known as a server~(or central robot), typically coordinates these frameworks, managing not only global descriptors matching and loop closure detection but also allocating shared resources such as bandwidth, battery power, memory, and computational capacity.
-Such frameworks are essential for large-scale missions where maintaining a consistent global frame boosts exploration efficiency.
+\label{sec:intro}
 
-However, one major challenge still hinders practical deployment: servers must exchange massive amounts of data, exhausting bandwidth and battery. 
-To address these issues, existing approaches follow two main strategies: (i) centralized or (ii) distributed frameworks. 
-The centralized frameworks aggregate all robot data on a server for global optimization, providing effective coordination. 
-However, they require continuous high-bandwidth communication and create scalability bottlenecks as data volume grows.
-The distributed frameworks reduce server reliance through peer-to-peer data exchange during robot encounters, offering better scalability. 
-However, they often transmit entire data backlogs at each encounter, creating a bursty communications load.
+3D Gaussian Splatting (3DGS) has revolutionized photorealistic view synthesis~\cite{kerbl20233dgs}, but its computationally intensive optimization typically requires offline training. \emph{However}, autonomous agents and wearable augmented-reality systems strictly demand \emph{online mapping} to refine environments on the fly. While recent SLAM systems process streams quickly~\cite{matsuki2024monogs, huang2024photoslam}, "real-time" operation is an inherently ambiguous, hardware-dependent metric. Therefore, rather than engineering a system merely to meet an arbitrary frame rate, the fundamental objective \emph{must} be achieving \emph{fast photometric and geometric convergence}—maximizing map reliability under a bounded computational budget.
 
+Fast convergence is hindered by two critical bottlenecks. First, uniform view sampling dilutes available updates across frames. We resolve this by coupling training-set growth to actual optimization progress and introducing Entropy-Regularized Count Balancing (ERCB) to correct training deficits~\cite{cartgs}. Second, due to shape-radiance ambiguity, misplaced Gaussians effortlessly replicate target colors by forming semi-transparent floaters in empty space~\cite{stablegs, wang2025efags}. Attempting to resolve this by simply translating Gaussians exposes a fundamental flaw: strict depth-sorting in the rasterizer causes abrupt gradient discontinuities when the rendering order changes. Therefore, rather than relying on unstable positional updates, we enforce a causal free-space Carve loss that directly suppresses opacity where depth evidence dictates empty space, effectively forcing geometric clustering~\cite{pagas2026, yu2024gof}.
+
+Our contributions are summarized as follows:
+\begin{itemize}
+    \item We formulate an online 3DGS mapping framework optimized strictly for \emph{fast photometric and geometric convergence} under limited compute.
+    \item We introduce Optimization-Guided View Growth and ERCB to correct severe optimization imbalances.
+    \item We design an opacity-directed causal Carve loss to rapidly eliminate free-space artifacts, bypassing positional gradient discontinuities.
+\end{itemize}
+
+\section{Efficient Real-Time Online Gaussian Mapping}
+\label{sec:method}
+
+Our framework incrementally builds a Gaussian map from streaming RGB images and IMU measurements.
+A DROID-SLAM-based frontend~\cite{teed2021droid} estimates camera poses and depths to initialize the Gaussian map and extend it to newly observed regions.
+View Growth determines which images enter training, View Sampling selects images for each update, and Carve adds depth-based geometric supervision to map optimization.
+% Declare the full-width overview at the end of the Introduction to target
+% the top of the next page. Confirm final placement in the compiled paper.
 \begin{figure*}[t]
   \centering
-  \captionsetup{justification=justified}
-  \includegraphics[width=\linewidth, trim=155 120 120 65, clip]{figure/main.pdf}
-  \vspace{-0.7cm}
-  \caption{Overall pipeline of our proposed communication-efficient and robust multi-robot mapping.}
-  \label{fig:main}
-  \vspace{-0.6cm}
+  % Prefer a manuscript-local copy when exporting this project to Overleaf.
+  \IfFileExists{figure/overview.pdf}{%
+    \includegraphics[width=\textwidth]{figure/overview.pdf}%
+  }{%
+    \IfFileExists{../sections/02_method/figures/production/current/overview.pdf}{%
+      \includegraphics[width=\textwidth]{../sections/02_method/figures/production/current/overview.pdf}%
+    }{%
+      \fbox{\parbox[c][5cm][c]{0.95\textwidth}{\centering
+        Draft: overview figure pending}}%
+    }%
+  }
+  \caption{Overview of the proposed online Gaussian mapping framework.
+  (a) View Growth expands the training set according to completed updates.
+  (b) View Sampling allocates updates using cumulative selection counts.
+  (c) Carve uses available depth evidence to suppress free-space opacity.
+  View-management and ray diagrams are schematic; the shared map is a
+  cutaway visualization of a map trained without Carve.}
+  \label{fig:overview}
 \end{figure*}
 
-Although these frameworks adopt resource-saving techniques, such as downsampling or keyframing, to mitigate these problems, they often sacrifice geometric detail or discard informative loops, thereby degrading map quality. 
-Moreover, most works assume stable communication links, overlooking bandwidth constraints common in real-world operations.
-This creates a gap between experimental demonstrations and field-deployable systems.
+\noindent\textbf{Optimization-Guided View Growth.}
+Frames between tracking keyframes provide additional viewpoints and appearance information.
+Including more frames also spreads a limited number of updates across more images.
+We therefore grow the training set according to completed mapping updates (Fig.~\ref{fig:overview}(a)).
+Every $\kappa$ completed updates allow one additional image from the available observations to enter training; previously admitted images remain available for revisiting.
+This ties view growth to actual optimization progress without requiring the remaining sequence length in advance.
 
-To bridge this gap, we propose a LiDAR-based multi-robot mapping specifically designed for bandwidth-constrained environments. 
-Unlike existing approaches that strictly follow either a centralized or a distributed paradigm, our proposed method blends the advantages of centralized and distributed approaches by employing a centralized server for global coordination while using selective and bandwidth-efficient data sharing to reduce communication load.
+\noindent\textbf{Entropy-Regularized View Sampling.}
+Images admitted earlier have more opportunities to be selected for training.
+To give less frequently selected images more updates while retaining randomness, we choose selection probabilities by minimizing
+\begin{equation}
+  \min_{\mathbf p\in\Delta}
+  \sum_i p_i\Delta_i\Phi-\tau H(\mathbf p).
+  \label{eq:view_sampling}
+\end{equation}
+Here, $p_i$ is the probability of selecting image $i$, and $\Delta$ contains
+nonnegative probability vectors that sum to one.
+We define $\Phi=\operatorname{Var}(\mathbf n)/(2\bar n)$ from cumulative
+selection counts $\mathbf n$ with mean $\bar n$; $\Delta_i\Phi$ is its change
+after selecting image $i$ once more.
+The first term favors less frequently selected images.
+The entropy term, $H(\mathbf p)=-\sum_i p_i\log p_i$, discourages concentration
+on a few images, with $\tau>0$ controlling its strength.
+Using these probabilities, we sample $K$ distinct images without replacement
+and use each once over the next $K$ updates (Fig.~\ref{fig:overview}(b)).
+% At zero total selections, use the symmetric/uniform initialization;
+% the count-dispersion definition above applies once the mean is positive.
 
-The main contributions of this work are as follows. 
-First, we propose a multi-robot mapping that achieves high mapping accuracy with lower communication and computation costs, making it practical for communication-constrained field deployments. 
-Second, we formulate a communication-efficient exchange graph to select an optimal scan subset and suppress redundant scan transfers.
+\noindent\textbf{Causal Free-Space Carve Loss.}
+A map can reproduce image colors while retaining Gaussians in front of
+observed surfaces, producing floating artifacts.
+Depth observations provide evidence of free space between the camera and a surface.
+Carve uses depths available at the current time, accounting for uncertainty
+and a margin around the surface, to penalize opacity in this free space
+(Fig.~\ref{fig:overview}(c)).
+It adds an opacity gradient to the existing mapping objective without
+directly updating Gaussian positions or shapes.
 
-\section{Communication-Efficient and Robust Multi-Robot Mapping Framework }
-The entire process of our proposed framework proceeds in six stages: (i) intra-robot SLAM, (ii) inter-robot place recognition, (iii) inter-robot sequential matching, (iv) balanced minimum vertex cover in the exchange graph, (v) maximum edge-weighted clique selection in the exchange graph, and (vi) submap-based map merging.
-From intra-robot SLAM at the local robot-level to multi-robot mapping at the server-level, each robot and the server communicate organically and refine candidate loops incrementally, ensuring that only the most informative and mutually consistent data are exchanged.
- 
+\noindent\textbf{Evaluation.}
+We evaluate on the public RGB--IMU benchmarks RPNG~\cite{rpng_dataset}
+and UTMM~\cite{utmm_dataset}, and on data we collected with Meta's Aria glasses.
+Under a matched rendering budget, mean held-out PSNR exceeds that of
+the reference method~\cite{vigsslam} by
+1.60, 0.52, and 2.45\,dB, respectively.
+Figure~\ref{fig:rgb_comparison} shows a selected held-out example in which
+our system more faithfully reproduces the poster's logo and printed patterns.
+This example illustrates our goal of turning incoming observations into
+faithful appearance reconstruction within a limited mapping budget.
+Figure~\ref{fig:carve_comparison} is reserved for the Carve geometry ablation.
+% Source: paper/latex/sec/5_results.tex, tab:rendering_comparison.
+% These are fixed-work mapping quality results, not measured real-time FPS.
+% F04 provenance: exp94, 34,437 physical mapping renders per method,
+% same evaluation pose, Carve off. Selected high-gain frame, not a mean.
+% Record the configuration in the final experimental setup; this image
+% does not isolate individual components or establish time-to-quality.
+
 \begin{figure}[t]
   \centering
-  \captionsetup{justification=justified}
-  \includegraphics[width=\linewidth, clip]{figure/exchange.pdf}
-  \vspace{-0.6cm}
-  \caption{Five robot mapping comparison between LT-Mapper \cite{kim2022lt} and our method on the Kimera-Multi dataset \cite{tian23arxiv_kimeramultiexperiments} with data exchange.}
-  \label{fig:exchange}
-  \vspace{-0.5cm}
+  \includegraphics[width=\linewidth]{figure/rgb_comparison.pdf}
+  \caption{Held-out rendering comparison between VIGS-SLAM~\cite{vigsslam}
+  and our method on RPNG \texttt{table\_06} under a matched rendering budget.}
+  \label{fig:rgb_comparison}
 \end{figure}
 
-First, each robot runs intra-robot SLAM to generate descriptors, poses, and scans, producing local maps (Fig.~\ref{fig:main}.(a)). 
-Second, the server receives descriptors and poses via communication and performs descriptor-based similarity checking to assess the strength of place matches between robots (Fig.~\ref{fig:main}.(b)).
-Based on the inter-robot place recognition loop set, the server forms an exchange graph and initiates a three-stage cascade optimization problem (i.e., step (A), step (B), and step (C)).
-In step~(A), the server introduces sequential matching for robust inter-robot place recognition by detecting temporally contiguous correspondence (Fig.~\ref{fig:main}.(c)).
-In step~(B), the server applies balanced minimum vertex cover to the sequentially matched scans to select scans that maintain minimal overall communication cost while ensuring balanced cost distribution between robots (Fig.~\ref{fig:main}.(d)).
-In step~(C), the server selects the final optimal scans from the minimal cost scans by maintaining geometrically and perceptually consistent correspondences (Fig.~\ref{fig:main}.(e)).
-Subsequently, the server creates a policy instructing the robots to transmit only these optimal scans, and the robots transmit partial scans according to this policy instead of whole scans. 
-Finally, the server constructs submaps from these partial scans and generates a globally consistent map through final submap merging (Fig.~\ref{fig:main}.(f)).
+\begin{figure}[t]
+  \centering
+  \IfFileExists{figure/carve_comparison.pdf}{%
+    \includegraphics[width=\linewidth]{figure/carve_comparison.pdf}%
+  }{%
+    \fbox{\parbox[c][2.6cm][c]{0.92\linewidth}{\centering
+      Draft: solid-ellipsoid comparison pending\\
+      Without Carve / With Carve}}%
+  }
+  \caption{Planned Carve ablation using solid ellipsoids from the same
+  viewpoint and identical opacity-display and scale settings.
+  Draft: models, region-GT metrics, and held-out PSNR remain to be supplied.}
+  \label{fig:carve_comparison}
+\end{figure}
 
-Fig.~\ref{fig:exchange} and Fig.~\ref{fig:merging} shows robust multi-robot map merging, reducing data exchange while maintaining mapping quality.
-These results validate that our method achieves communication reduction while preserving global consistency.
-
-% As shown in Fig.~\ref{fig:exchange}, while existing method \cite{kim2022lt} requires transmitting 7,000\,MB + 7,200\,MB = 14,200\,MB of scans, our approach transmits only 1.7\,MB + 1.7\,MB = 3.4\,MB, achieving substantial communication efficiency. 
-% Furthermore, as demonstrated in Fig.~\ref{fig:merging}, our merging process produces robust map merging without visual distortions, as evidenced by the well-aligned blue, pink, and yellow regions.
 
 \section{Conclusion}
-We present a communication-efficient multi-robot mapping that reduces data exchange by up to 99.98\% while maintaining mapping accuracy.
-Our novel exchange graph formulation enables systematic identification of minimal scan subsets through three-stage cascade optimization, achieving robust map merging with only MB-scale communication instead of GB-scale data exchange.
-The framework successfully bridges the gap between experimental demonstrations and real-world deployments in bandwidth-limited environments or large-scale missions.
-
-\begin{figure}[t]
-  \centering
-  \captionsetup{justification=justified}
-  \includegraphics[width=\linewidth, clip]{figure/merged_map.pdf}
-  \vspace{-0.6cm}
-  \caption{Top: robot $\alpha$'s maps from whole transmission (left) vs our selective transmission (right). 
-           Bottom: our unified map from estimated alignments using selective scans on the HeLiPR dataset \cite{jung2024helipr}, demonstrating robust three robot integration without visual distortions.}
-  \label{fig:merging}
-  \vspace{-0.5cm}
-\end{figure}
+We present an online Gaussian mapping system for efficient optimization of
+appearance and geometry, and report an average held-out PSNR gain of
+1.25\,dB over the reference method across 17 scenes under matched rendering budgets.
+Our system introduces optimization-guided view management to control view
+admission and update allocation, and a causal Carve loss to suppress spurious
+opacity in free space using depth observations.
+This approach provides a foundation for real-time online mapping in robots
+and wearable augmented-reality systems that need reliable maps of their
+surroundings during operation, with limited computation and without waiting
+for offline refinement.
 
 
 \small{
-\nocite{*}
 \bibliographystyle{abbrv}
 \bibliography{bibliography}
 }

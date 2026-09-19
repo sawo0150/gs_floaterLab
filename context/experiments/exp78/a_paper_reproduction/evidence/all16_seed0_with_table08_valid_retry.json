@@ -1,0 +1,1194 @@
+{
+  "aggregates": {
+    "rpng": {
+      "all_raw_sequences": {
+        "delta": {
+          "lpips": -0.075364,
+          "psnr": 0.372584,
+          "ssim": 0.025637
+        },
+        "delta_vs_paper_published_mean": {
+          "lpips": -0.075489,
+          "psnr": 0.375084,
+          "ssim": 0.025762
+        },
+        "official_public_mean": {
+          "lpips": 0.238511,
+          "psnr": 22.585084,
+          "ssim": 0.748762
+        },
+        "paper_matched_sequence_mean": {
+          "lpips": 0.313875,
+          "psnr": 22.2125,
+          "ssim": 0.723125
+        },
+        "paper_published_mean": {
+          "lpips": 0.314,
+          "psnr": 22.21,
+          "ssim": 0.723
+        },
+        "sequence_count": 8,
+        "sequences": [
+          "table_01",
+          "table_02",
+          "table_03",
+          "table_04",
+          "table_05",
+          "table_06",
+          "table_07",
+          "table_08"
+        ],
+        "within_symmetric_parity_tolerance": {
+          "lpips": false,
+          "psnr": true,
+          "ssim": false
+        }
+      },
+      "tracking_failed_sequences": [],
+      "tracking_qualification_unavailable_sequences": [
+        "table_06"
+      ],
+      "tracking_qualified_subset_diagnostic": {
+        "delta": {
+          "lpips": -0.079892,
+          "psnr": 0.487481,
+          "ssim": 0.031132
+        },
+        "official_public_mean": {
+          "lpips": 0.235394,
+          "psnr": 22.520338,
+          "ssim": 0.746847
+        },
+        "paper_matched_sequence_mean": {
+          "lpips": 0.315286,
+          "psnr": 22.032857,
+          "ssim": 0.715714
+        },
+        "sequence_count": 7,
+        "sequences": [
+          "table_01",
+          "table_02",
+          "table_03",
+          "table_04",
+          "table_05",
+          "table_07",
+          "table_08"
+        ]
+      }
+    },
+    "utmm": {
+      "all_raw_sequences": {
+        "delta": {
+          "lpips": -0.039786,
+          "psnr": -1.494651,
+          "ssim": -0.027016
+        },
+        "delta_vs_paper_published_mean": {
+          "lpips": -0.039661,
+          "psnr": -1.497151,
+          "ssim": -0.028516
+        },
+        "official_public_mean": {
+          "lpips": 0.401339,
+          "psnr": 19.372849,
+          "ssim": 0.658484
+        },
+        "paper_matched_sequence_mean": {
+          "lpips": 0.441125,
+          "psnr": 20.8675,
+          "ssim": 0.6855
+        },
+        "paper_published_mean": {
+          "lpips": 0.441,
+          "psnr": 20.87,
+          "ssim": 0.687
+        },
+        "sequence_count": 8,
+        "sequences": [
+          "ego-centric-1",
+          "ego-centric-2",
+          "ego-drive",
+          "fast-straight",
+          "slow-straight-1",
+          "slow-straight-2",
+          "square-1",
+          "square-2"
+        ],
+        "within_symmetric_parity_tolerance": {
+          "lpips": false,
+          "psnr": false,
+          "ssim": false
+        }
+      },
+      "tracking_failed_sequences": [
+        "square-1",
+        "square-2"
+      ],
+      "tracking_qualification_unavailable_sequences": [
+        "fast-straight",
+        "slow-straight-1"
+      ],
+      "tracking_qualified_subset_diagnostic": {
+        "delta": {
+          "lpips": -0.02857,
+          "psnr": -1.879682,
+          "ssim": -0.057153
+        },
+        "official_public_mean": {
+          "lpips": 0.38618,
+          "psnr": 19.095318,
+          "ssim": 0.647347
+        },
+        "paper_matched_sequence_mean": {
+          "lpips": 0.41475,
+          "psnr": 20.975,
+          "ssim": 0.7045
+        },
+        "sequence_count": 4,
+        "sequences": [
+          "ego-centric-1",
+          "ego-centric-2",
+          "ego-drive",
+          "slow-straight-2"
+        ]
+      }
+    }
+  },
+  "evaluation_state": "prefinal_before_global_ba_and_color_refinement",
+  "paper_split_limitation": "The exact all-method non-keyframe union is unavailable. official_public matches released evaluator semantics but overlaps VIGS mapping keyframes; self_non_kf_best_effort excludes only VIGS keyframes.",
+  "parity_tolerance": {
+    "lpips": 0.03,
+    "psnr": 0.5,
+    "ssim": 0.02
+  },
+  "protocol": "exp78a_paper_native_reproduction_audit_v1",
+  "rows": [
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 189,
+      "first_imu_initialized_frame": 291,
+      "fps": 8.399203,
+      "frames": 2506,
+      "gaussians": 206144,
+      "keyframes": 250,
+      "mapping_iterations": 3115,
+      "mapping_unique_views": 249,
+      "official_public": {
+        "lpips": 0.187941,
+        "mapping_kf_overlap": 250,
+        "psnr": 24.357909,
+        "ssim": 0.807189,
+        "views": 713
+      },
+      "paper": {
+        "lpips": 0.289,
+        "psnr": 23.41,
+        "ssim": 0.75
+      },
+      "paper_runtime": {
+        "fps_delta": -0.710797,
+        "keyframes": 250,
+        "keyframes_delta": 0,
+        "mapping_fps": 9.11,
+        "mapping_gpu_memory_gib": 7.64,
+        "peak_allocated_gib_delta": -0.153093
+      },
+      "peak_cuda_allocated_gib": 7.486907,
+      "peak_cuda_reserved_gib": 9.496094,
+      "public_minus_paper": {
+        "lpips": -0.101059,
+        "psnr": 0.947909,
+        "ssim": 0.057189
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 298.361632,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.189533,
+        "psnr": 24.327525,
+        "ssim": 0.806413,
+        "views": 463
+      },
+      "sequence": "table_01",
+      "tracking": {
+        "ate_minus_paper_cm": -0.01,
+        "ate_rmse_cm": 1.3,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.31,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0018562059849500656,
+          "camera_center_error_mean": 0.0004893271206125049,
+          "compared_mapping_views": 249,
+          "rotation_error_degrees_max": 0.06852804869413376,
+          "rotation_error_degrees_mean": 0.004812654242458114
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 203,
+      "first_imu_initialized_frame": 295,
+      "fps": 7.234591,
+      "frames": 2914,
+      "gaussians": 292682,
+      "keyframes": 349,
+      "mapping_iterations": 4385,
+      "mapping_unique_views": 348,
+      "official_public": {
+        "lpips": 0.249492,
+        "mapping_kf_overlap": 349,
+        "psnr": 21.506692,
+        "ssim": 0.723057,
+        "views": 873
+      },
+      "paper": {
+        "lpips": 0.338,
+        "psnr": 20.84,
+        "ssim": 0.654
+      },
+      "paper_runtime": {
+        "fps_delta": -0.585409,
+        "keyframes": 349,
+        "keyframes_delta": 0,
+        "mapping_fps": 7.82,
+        "mapping_gpu_memory_gib": 7.88,
+        "peak_allocated_gib_delta": 0.358701
+      },
+      "peak_cuda_allocated_gib": 8.238701,
+      "peak_cuda_reserved_gib": 9.863281,
+      "public_minus_paper": {
+        "lpips": -0.088508,
+        "psnr": 0.666692,
+        "ssim": 0.069057
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 402.787099,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.256648,
+        "psnr": 21.547657,
+        "ssim": 0.720104,
+        "views": 524
+      },
+      "sequence": "table_02",
+      "tracking": {
+        "ate_minus_paper_cm": 0.0084,
+        "ate_rmse_cm": 1.5784,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.57,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.001511287409812212,
+          "camera_center_error_mean": 0.00030914757337671906,
+          "compared_mapping_views": 348,
+          "rotation_error_degrees_max": 0.06852804869413376,
+          "rotation_error_degrees_mean": 0.006227640162125744
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 272,
+      "first_imu_initialized_frame": 391,
+      "fps": 9.638648,
+      "frames": 7006,
+      "gaussians": 349391,
+      "keyframes": 526,
+      "mapping_iterations": 6975,
+      "mapping_unique_views": 525,
+      "official_public": {
+        "lpips": 0.269665,
+        "mapping_kf_overlap": 526,
+        "psnr": 21.571044,
+        "ssim": 0.708677,
+        "views": 1833
+      },
+      "paper": {
+        "lpips": 0.353,
+        "psnr": 20.71,
+        "ssim": 0.639
+      },
+      "paper_runtime": {
+        "fps_delta": -1.091352,
+        "keyframes": 525,
+        "keyframes_delta": 1,
+        "mapping_fps": 10.73,
+        "mapping_gpu_memory_gib": 8.64,
+        "peak_allocated_gib_delta": 0.450192
+      },
+      "peak_cuda_allocated_gib": 9.090192,
+      "peak_cuda_reserved_gib": 10.302734,
+      "public_minus_paper": {
+        "lpips": -0.083335,
+        "psnr": 0.861044,
+        "ssim": 0.069677
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 726.865464,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.271436,
+        "psnr": 21.590086,
+        "ssim": 0.708382,
+        "views": 1307
+      },
+      "sequence": "table_03",
+      "tracking": {
+        "ate_minus_paper_cm": -0.0136,
+        "ate_rmse_cm": 1.2064,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.22,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0030865336302667856,
+          "camera_center_error_mean": 0.00037589546730963603,
+          "compared_mapping_views": 525,
+          "rotation_error_degrees_max": 0.17017419636249542,
+          "rotation_error_degrees_mean": 0.00424249910172962
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 233,
+      "first_imu_initialized_frame": 414,
+      "fps": 9.885279,
+      "frames": 6068,
+      "gaussians": 307410,
+      "keyframes": 427,
+      "mapping_iterations": 5605,
+      "mapping_unique_views": 426,
+      "official_public": {
+        "lpips": 0.204359,
+        "mapping_kf_overlap": 427,
+        "psnr": 20.926505,
+        "ssim": 0.71016,
+        "views": 1561
+      },
+      "paper": {
+        "lpips": 0.247,
+        "psnr": 21.97,
+        "ssim": 0.742
+      },
+      "paper_runtime": {
+        "fps_delta": -1.364721,
+        "keyframes": 427,
+        "keyframes_delta": 0,
+        "mapping_fps": 11.25,
+        "mapping_gpu_memory_gib": 9.16,
+        "peak_allocated_gib_delta": -0.530638
+      },
+      "peak_cuda_allocated_gib": 8.629362,
+      "peak_cuda_reserved_gib": 10.724609,
+      "public_minus_paper": {
+        "lpips": -0.042641,
+        "psnr": -1.043495,
+        "ssim": -0.03184
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 613.842058,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.20533,
+        "psnr": 20.886472,
+        "ssim": 0.707821,
+        "views": 1134
+      },
+      "sequence": "table_04",
+      "tracking": {
+        "ate_minus_paper_cm": 0.1251,
+        "ate_rmse_cm": 1.8751,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.75,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.014303543604910374,
+          "camera_center_error_mean": 0.0007715940220566235,
+          "compared_mapping_views": 426,
+          "rotation_error_degrees_max": 0.8545501232147217,
+          "rotation_error_degrees_mean": 0.010882108362977493
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 281,
+      "first_imu_initialized_frame": 461,
+      "fps": 10.239014,
+      "frames": 6164,
+      "gaussians": 221254,
+      "keyframes": 341,
+      "mapping_iterations": 4285,
+      "mapping_unique_views": 340,
+      "official_public": {
+        "lpips": 0.286082,
+        "mapping_kf_overlap": 341,
+        "psnr": 21.608298,
+        "ssim": 0.672113,
+        "views": 1508
+      },
+      "paper": {
+        "lpips": 0.345,
+        "psnr": 21.44,
+        "ssim": 0.684
+      },
+      "paper_runtime": {
+        "fps_delta": -3.550986,
+        "keyframes": 341,
+        "keyframes_delta": 0,
+        "mapping_fps": 13.79,
+        "mapping_gpu_memory_gib": 8.94,
+        "peak_allocated_gib_delta": -0.638587
+      },
+      "peak_cuda_allocated_gib": 8.301413,
+      "peak_cuda_reserved_gib": 10.681641,
+      "public_minus_paper": {
+        "lpips": -0.058918,
+        "psnr": 0.168298,
+        "ssim": -0.011887
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 602.011097,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.285628,
+        "psnr": 21.6066,
+        "ssim": 0.672656,
+        "views": 1167
+      },
+      "sequence": "table_05",
+      "tracking": {
+        "ate_minus_paper_cm": 0.2809,
+        "ate_rmse_cm": 1.5609,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.28,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.07695135474205017,
+          "camera_center_error_mean": 0.005537465444670969,
+          "compared_mapping_views": 340,
+          "rotation_error_degrees_max": 2.3431808948516846,
+          "rotation_error_degrees_mean": 0.2121262204942896
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": true,
+        "ssim": true
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": null,
+      "first_imu_initialized_frame": null,
+      "fps": 9.25224,
+      "frames": 2767,
+      "gaussians": 174349,
+      "keyframes": 232,
+      "mapping_iterations": null,
+      "mapping_unique_views": null,
+      "official_public": {
+        "lpips": 0.260333,
+        "mapping_kf_overlap": 232,
+        "psnr": 23.038304,
+        "ssim": 0.762167,
+        "views": 742
+      },
+      "paper": {
+        "lpips": 0.304,
+        "psnr": 23.47,
+        "ssim": 0.775
+      },
+      "paper_runtime": {
+        "fps_delta": -1.78776,
+        "keyframes": 232,
+        "keyframes_delta": 0,
+        "mapping_fps": 11.04,
+        "mapping_gpu_memory_gib": 8.36,
+        "peak_allocated_gib_delta": -0.365885
+      },
+      "peak_cuda_allocated_gib": 7.994115,
+      "peak_cuda_reserved_gib": 10.222656,
+      "public_minus_paper": {
+        "lpips": -0.043667,
+        "psnr": -0.431696,
+        "ssim": -0.012833
+      },
+      "rendering_tracking_qualification": "unavailable",
+      "seconds": 299.062722,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.256399,
+        "psnr": 23.006315,
+        "ssim": 0.764628,
+        "views": 510
+      },
+      "sequence": "table_06",
+      "tracking": {
+        "ate_minus_paper_cm": 0.1673,
+        "ate_rmse_cm": 1.5473,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.38,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": null,
+        "tracking_map_pose_consistent": null
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": true,
+        "ssim": true
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 245,
+      "first_imu_initialized_frame": 494,
+      "fps": 17.970557,
+      "frames": 4784,
+      "gaussians": 191192,
+      "keyframes": 223,
+      "mapping_iterations": 2725,
+      "mapping_unique_views": 222,
+      "official_public": {
+        "lpips": 0.17419,
+        "mapping_kf_overlap": 223,
+        "psnr": 25.486265,
+        "ssim": 0.844611,
+        "views": 1132
+      },
+      "paper": {
+        "lpips": 0.252,
+        "psnr": 24.81,
+        "ssim": 0.821
+      },
+      "paper_runtime": {
+        "fps_delta": -2.249443,
+        "keyframes": 223,
+        "keyframes_delta": 0,
+        "mapping_fps": 20.22,
+        "mapping_gpu_memory_gib": 7.56,
+        "peak_allocated_gib_delta": -0.13625
+      },
+      "peak_cuda_allocated_gib": 7.42375,
+      "peak_cuda_reserved_gib": 9.449219,
+      "public_minus_paper": {
+        "lpips": -0.07781,
+        "psnr": 0.676265,
+        "ssim": 0.023611
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 266.213228,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.174852,
+        "psnr": 25.450385,
+        "ssim": 0.843735,
+        "views": 909
+      },
+      "sequence": "table_07",
+      "tracking": {
+        "ate_minus_paper_cm": -0.0162,
+        "ate_rmse_cm": 1.0638,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.08,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0025983951054513454,
+          "camera_center_error_mean": 0.0006485554801435461,
+          "compared_mapping_views": 222,
+          "rotation_error_degrees_max": 0.04845663905143738,
+          "rotation_error_degrees_mean": 0.002895272152313778
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "rpng",
+      "first_gaussian_frame": 196,
+      "first_imu_initialized_frame": 326,
+      "fps": 9.685869,
+      "frames": 8484,
+      "gaussians": 411674,
+      "keyframes": 579,
+      "mapping_iterations": 7745,
+      "mapping_unique_views": 578,
+      "official_public": {
+        "lpips": 0.276028,
+        "mapping_kf_overlap": 579,
+        "psnr": 22.185653,
+        "ssim": 0.76212,
+        "views": 2162
+      },
+      "paper": {
+        "lpips": 0.383,
+        "psnr": 21.05,
+        "ssim": 0.72
+      },
+      "paper_runtime": {
+        "fps_delta": -2.494131,
+        "keyframes": 579,
+        "keyframes_delta": 0,
+        "mapping_fps": 12.18,
+        "mapping_gpu_memory_gib": 9.88,
+        "peak_allocated_gib_delta": 0.503644
+      },
+      "peak_cuda_allocated_gib": 10.383644,
+      "peak_cuda_reserved_gib": 11.585938,
+      "public_minus_paper": {
+        "lpips": -0.106972,
+        "psnr": 1.135653,
+        "ssim": 0.04212
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 875.91523,
+      "seed": 1,
+      "self_non_kf_best_effort": {
+        "lpips": 0.277012,
+        "psnr": 22.189263,
+        "ssim": 0.761666,
+        "views": 1583
+      },
+      "sequence": "table_08",
+      "tracking": {
+        "ate_minus_paper_cm": -0.4467,
+        "ate_rmse_cm": 3.4132999999999996,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 3.86,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.028457559645175934,
+          "camera_center_error_mean": 0.0020275693619170605,
+          "compared_mapping_views": 578,
+          "rotation_error_degrees_max": 2.0624144077301025,
+          "rotation_error_degrees_mean": 0.05698211903274575
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 480,
+      "first_imu_initialized_frame": 645,
+      "fps": 25.037618,
+      "frames": 1535,
+      "gaussians": 108192,
+      "keyframes": 53,
+      "mapping_iterations": 475,
+      "mapping_unique_views": 52,
+      "official_public": {
+        "lpips": 0.379565,
+        "mapping_kf_overlap": 53,
+        "psnr": 17.534278,
+        "ssim": 0.588524,
+        "views": 351
+      },
+      "paper": {
+        "lpips": 0.394,
+        "psnr": 20.05,
+        "ssim": 0.711
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.544922,
+      "public_minus_paper": {
+        "lpips": -0.014435,
+        "psnr": -2.515722,
+        "ssim": -0.122476
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 61.307748,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.381739,
+        "psnr": 17.372376,
+        "ssim": 0.583006,
+        "views": 298
+      },
+      "sequence": "ego-centric-1",
+      "tracking": {
+        "ate_minus_paper_cm": 2.6333,
+        "ate_rmse_cm": 4.4433,
+        "ate_within_1cm_diagnostic": false,
+        "paper_ate_rmse_cm": 1.81,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0013090879656374454,
+          "camera_center_error_mean": 0.000514098435255269,
+          "compared_mapping_views": 52,
+          "rotation_error_degrees_max": 0.02797645516693592,
+          "rotation_error_degrees_mean": 0.002690043766051531
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": true,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 277,
+      "first_imu_initialized_frame": 402,
+      "fps": 21.01379,
+      "frames": 1298,
+      "gaussians": 107416,
+      "keyframes": 62,
+      "mapping_iterations": 565,
+      "mapping_unique_views": 61,
+      "official_public": {
+        "lpips": 0.319954,
+        "mapping_kf_overlap": 62,
+        "psnr": 19.34951,
+        "ssim": 0.6552,
+        "views": 306
+      },
+      "paper": {
+        "lpips": 0.382,
+        "psnr": 20.39,
+        "ssim": 0.716
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.542969,
+      "public_minus_paper": {
+        "lpips": -0.062046,
+        "psnr": -1.04049,
+        "ssim": -0.0608
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 61.768961,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.321407,
+        "psnr": 19.338986,
+        "ssim": 0.655593,
+        "views": 244
+      },
+      "sequence": "ego-centric-2",
+      "tracking": {
+        "ate_minus_paper_cm": 1.3081,
+        "ate_rmse_cm": 2.2381,
+        "ate_within_1cm_diagnostic": false,
+        "paper_ate_rmse_cm": 0.93,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0011980637209489942,
+          "camera_center_error_mean": 0.0006123653066260588,
+          "compared_mapping_views": 61,
+          "rotation_error_degrees_max": 0.02797645516693592,
+          "rotation_error_degrees_mean": 0.0009172608251454401
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 54,
+      "first_imu_initialized_frame": 131,
+      "fps": 13.699127,
+      "frames": 1399,
+      "gaussians": 130448,
+      "keyframes": 85,
+      "mapping_iterations": 835,
+      "mapping_unique_views": 84,
+      "official_public": {
+        "lpips": 0.377166,
+        "mapping_kf_overlap": 85,
+        "psnr": 20.324606,
+        "ssim": 0.66473,
+        "views": 349
+      },
+      "paper": {
+        "lpips": 0.399,
+        "psnr": 21.54,
+        "ssim": 0.696
+      },
+      "peak_cuda_allocated_gib": 7.680149,
+      "peak_cuda_reserved_gib": 10.554688,
+      "public_minus_paper": {
+        "lpips": -0.021834,
+        "psnr": -1.215394,
+        "ssim": -0.03127
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 102.123295,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.384233,
+        "psnr": 20.248518,
+        "ssim": 0.661097,
+        "views": 264
+      },
+      "sequence": "ego-drive",
+      "tracking": {
+        "ate_minus_paper_cm": 3.7259,
+        "ate_rmse_cm": 5.1759,
+        "ate_within_1cm_diagnostic": false,
+        "paper_ate_rmse_cm": 1.45,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.013591752387583256,
+          "camera_center_error_mean": 0.001011309713378848,
+          "compared_mapping_views": 84,
+          "rotation_error_degrees_max": 0.1678587943315506,
+          "rotation_error_degrees_mean": 0.009835232160098496
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": true,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": null,
+      "first_imu_initialized_frame": null,
+      "fps": 14.206714,
+      "frames": 332,
+      "gaussians": 40654,
+      "keyframes": 17,
+      "mapping_iterations": null,
+      "mapping_unique_views": null,
+      "official_public": {
+        "lpips": 0.455202,
+        "mapping_kf_overlap": 17,
+        "psnr": 18.024419,
+        "ssim": 0.674035,
+        "views": 78
+      },
+      "paper": {
+        "lpips": 0.458,
+        "psnr": 21.98,
+        "ssim": 0.685
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.498047,
+      "public_minus_paper": {
+        "lpips": -0.002798,
+        "psnr": -3.955581,
+        "ssim": -0.010965
+      },
+      "rendering_tracking_qualification": "unavailable",
+      "seconds": 23.369232,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.466612,
+        "psnr": 17.365175,
+        "ssim": 0.66434,
+        "views": 61
+      },
+      "sequence": "fast-straight",
+      "tracking": {
+        "ate_minus_paper_cm": -0.2578,
+        "ate_rmse_cm": 0.9421999999999999,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 1.2,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": null,
+        "tracking_map_pose_consistent": null
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": true,
+        "psnr": false,
+        "ssim": true
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": null,
+      "first_imu_initialized_frame": null,
+      "fps": 29.254828,
+      "frames": 393,
+      "gaussians": 33084,
+      "keyframes": 12,
+      "mapping_iterations": null,
+      "mapping_unique_views": null,
+      "official_public": {
+        "lpips": 0.498181,
+        "mapping_kf_overlap": 12,
+        "psnr": 19.145874,
+        "ssim": 0.608265,
+        "views": 86
+      },
+      "paper": {
+        "lpips": 0.482,
+        "psnr": 20.66,
+        "ssim": 0.669
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.451172,
+      "public_minus_paper": {
+        "lpips": 0.016181,
+        "psnr": -1.514126,
+        "ssim": -0.060735
+      },
+      "rendering_tracking_qualification": "unavailable",
+      "seconds": 13.43368,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.503351,
+        "psnr": 18.94461,
+        "ssim": 0.602618,
+        "views": 74
+      },
+      "sequence": "slow-straight-1",
+      "tracking": {
+        "ate_minus_paper_cm": 0.0753,
+        "ate_rmse_cm": 0.8853,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 0.81,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": null,
+        "tracking_map_pose_consistent": null
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": true,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 248,
+      "first_imu_initialized_frame": 481,
+      "fps": 21.088262,
+      "frames": 597,
+      "gaussians": 36379,
+      "keyframes": 16,
+      "mapping_iterations": 105,
+      "mapping_unique_views": 15,
+      "official_public": {
+        "lpips": 0.468035,
+        "mapping_kf_overlap": 16,
+        "psnr": 19.172877,
+        "ssim": 0.680933,
+        "views": 136
+      },
+      "paper": {
+        "lpips": 0.484,
+        "psnr": 21.92,
+        "ssim": 0.695
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.494141,
+      "public_minus_paper": {
+        "lpips": -0.015965,
+        "psnr": -2.747123,
+        "ssim": -0.014067
+      },
+      "rendering_tracking_qualification": "pass",
+      "seconds": 28.309587,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.472691,
+        "psnr": 19.044506,
+        "ssim": 0.67838,
+        "views": 120
+      },
+      "sequence": "slow-straight-2",
+      "tracking": {
+        "ate_minus_paper_cm": -0.0155,
+        "ate_rmse_cm": 0.9145000000000001,
+        "ate_within_1cm_diagnostic": true,
+        "paper_ate_rmse_cm": 0.93,
+        "recall_at_10cm_percent": 100.0,
+        "recall_at_least_90_percent": true,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0007856476004235446,
+          "camera_center_error_mean": 0.0005345045879948884,
+          "compared_mapping_views": 15,
+          "rotation_error_degrees_max": 0.0,
+          "rotation_error_degrees_mean": 0.0
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": true,
+        "psnr": false,
+        "ssim": true
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 154,
+      "first_imu_initialized_frame": 224,
+      "fps": 19.728042,
+      "frames": 1614,
+      "gaussians": 165894,
+      "keyframes": 84,
+      "mapping_iterations": 785,
+      "mapping_unique_views": 83,
+      "official_public": {
+        "lpips": 0.348932,
+        "mapping_kf_overlap": 84,
+        "psnr": 20.667396,
+        "ssim": 0.701391,
+        "views": 395
+      },
+      "paper": {
+        "lpips": 0.47,
+        "psnr": 19.98,
+        "ssim": 0.644
+      },
+      "peak_cuda_allocated_gib": 6.574418,
+      "peak_cuda_reserved_gib": 10.556641,
+      "public_minus_paper": {
+        "lpips": -0.121068,
+        "psnr": 0.687396,
+        "ssim": 0.057391
+      },
+      "rendering_tracking_qualification": "fail",
+      "seconds": 81.812476,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.352283,
+        "psnr": 20.624176,
+        "ssim": 0.698588,
+        "views": 311
+      },
+      "sequence": "square-1",
+      "tracking": {
+        "ate_minus_paper_cm": 6.6407,
+        "ate_rmse_cm": 8.8107,
+        "ate_within_1cm_diagnostic": false,
+        "paper_ate_rmse_cm": 2.17,
+        "recall_at_10cm_percent": 84.33734939759036,
+        "recall_at_least_90_percent": false,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0016944077797234058,
+          "camera_center_error_mean": 0.0006130710739469863,
+          "compared_mapping_views": 83,
+          "rotation_error_degrees_max": 0.03956468030810356,
+          "rotation_error_degrees_mean": 0.004126574485057808
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": false,
+        "ssim": false
+      }
+    },
+    {
+      "dataset": "utmm",
+      "first_gaussian_frame": 169,
+      "first_imu_initialized_frame": 260,
+      "fps": 17.384741,
+      "frames": 1219,
+      "gaussians": 137029,
+      "keyframes": 75,
+      "mapping_iterations": 695,
+      "mapping_unique_views": 74,
+      "official_public": {
+        "lpips": 0.363679,
+        "mapping_kf_overlap": 75,
+        "psnr": 20.763833,
+        "ssim": 0.694792,
+        "views": 304
+      },
+      "paper": {
+        "lpips": 0.46,
+        "psnr": 20.42,
+        "ssim": 0.668
+      },
+      "peak_cuda_allocated_gib": 6.433399,
+      "peak_cuda_reserved_gib": 10.544922,
+      "public_minus_paper": {
+        "lpips": -0.096321,
+        "psnr": 0.343833,
+        "ssim": 0.026792
+      },
+      "rendering_tracking_qualification": "fail",
+      "seconds": 70.11896,
+      "seed": 0,
+      "self_non_kf_best_effort": {
+        "lpips": 0.370419,
+        "psnr": 20.618165,
+        "ssim": 0.689135,
+        "views": 229
+      },
+      "sequence": "square-2",
+      "tracking": {
+        "ate_minus_paper_cm": -4.6151,
+        "ate_rmse_cm": 11.9949,
+        "ate_within_1cm_diagnostic": false,
+        "paper_ate_rmse_cm": 16.61,
+        "recall_at_10cm_percent": 73.97260273972603,
+        "recall_at_least_90_percent": false,
+        "tracking_map_pose_consistency": {
+          "camera_center_error_max": 0.0015383672434836626,
+          "camera_center_error_mean": 0.000571986496947215,
+          "compared_mapping_views": 74,
+          "rotation_error_degrees_max": 0.03956468030810356,
+          "rotation_error_degrees_mean": 0.0016688384568771801
+        },
+        "tracking_map_pose_consistent": true
+      },
+      "within_symmetric_parity_tolerance": {
+        "lpips": false,
+        "psnr": true,
+        "ssim": false
+      }
+    }
+  ],
+  "seed": 0,
+  "seed_overrides": {
+    "rpng/table_08": 1
+  },
+  "tracking_qualification_note": "Rendering is marked tracking-qualified only when Recall@10cm >= 90% and cached map poses agree with the pre-final tracker state. The 1cm ATE flag is diagnostic, not a predeclared acceptance threshold."
+}

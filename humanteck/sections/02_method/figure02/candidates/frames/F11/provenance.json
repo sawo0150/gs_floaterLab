@@ -1,0 +1,48 @@
+{
+  "dataset": "rpng",
+  "scene": "table_03",
+  "uid": "1662918527933262348.png",
+  "frame_index": 1965,
+  "baseline_psnr": 20.26302719116211,
+  "ours_psnr": 24.03357696533203,
+  "delta_psnr": 3.770549774169922,
+  "scene_delta_psnr": 1.7509620873292064,
+  "scene_baseline_psnr": 21.80453405910824,
+  "scene_ours_psnr": 23.555496146437445,
+  "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/native_vanilla_render_matched_s0",
+  "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_03/normalized_variance_s0",
+  "physical_renders": 85029,
+  "baseline_adam": 6706,
+  "ours_adam": 6724,
+  "held_out": true,
+  "carve_enabled": false,
+  "candidate": "F11",
+  "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_03/rgb/1662918527933262348.png",
+  "source_rgb_sha256": "2b9db8df6c2a406e9b82c2b3fafdc814069429acb805dd3398661c0a92ed9e50",
+  "source_map_sha256": {
+    "baseline": "a1335d11360bf6cb196a24bf8328bf3daa092d715df2a6402a19c5bd8c9db0f9",
+    "ours": "b9c2469a04f3b611882bbaae2b4a073ec30c168eeaf3da2164b8974d885c684b"
+  },
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_03/seed0",
+  "same_pose_checked": true,
+  "rendered_psnr_check": {
+    "baseline": 20.26302719116211,
+    "ours": 24.03357696533203
+  },
+  "display_rotation_clockwise_degrees": 0,
+  "crop_xyxy_display_pixels": [
+    48,
+    0,
+    172,
+    124
+  ],
+  "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+  "files": {
+    "baseline.png": "8b9b1ae3346f74bc70dd51aac285d2e2ff27243d435edf01ce69d596382ae697",
+    "ours_crop.png": "a6e026192d8a7abf3d39cedfd8915bd883809350409cd7121e93528308fc687b",
+    "ours.png": "353d43c47ac853b05d53f124baf68475200b3ef77a5ccb79ae23c0a0c303651f",
+    "gt_crop.png": "2c1a4b718f788f9669a6f511178387eaf475fb4a506993a3f4525c144a445832",
+    "baseline_crop.png": "e433a416abf02fbb05940f5387e3430b3e370d0fbf1a23e4c0777df54aa67e9d",
+    "gt.png": "831bbadba5a3afac27d0e9d1449c4652611a6a7666af6d04f50fa9d60edd4308"
+  }
+}

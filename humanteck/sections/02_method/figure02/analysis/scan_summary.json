@@ -1,0 +1,7 @@
+{
+  "pairs": 17,
+  "held_out_views": 10557,
+  "candidates": 24,
+  "selection": "One maximum-delta held-out view per scene, plus seven high-delta second views separated by >=10% of frame span (minimum 20 frames). Deliberately favorable examples, not typical or unbiased samples.",
+  "source_protocol": "exp94 corrected evaluator, exact paired physical-render budget, no end-to-end runtime claim"
+}

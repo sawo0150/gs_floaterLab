@@ -1,0 +1,54 @@
+{
+  "pose_source": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0/traj_kf_beforeBA.txt",
+  "pose_source_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+  "map_source": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria1253/normalized_variance_s0/3dgs_before_final.ply",
+  "map_sha256": "3c6b132bd64d3e0047b83c5c7673b0d320c9dfbf091ac66a66e88b43b2ac6766",
+  "pose_convention": "camera-to-world, TUM xyz qx qy qz qw",
+  "keyframes": 115,
+  "projection": "PCA pose plane / oblique orthographic. Same transform for points, trajectory and frusta. Not a gravity-aligned floor plan.",
+  "camera_frustum_depth_m": 0.45,
+  "frustum_size": "display glyph only; positions and orientations are measured",
+  "frustum_uids": [
+    0,
+    102,
+    246,
+    413,
+    517,
+    658,
+    786,
+    941,
+    1047,
+    1153,
+    1279
+  ],
+  "origin": [
+    -1.3229145784214473,
+    -5.084686028098931,
+    2.9659585921969467
+  ],
+  "pca_basis": [
+    [
+      -0.23748792445930106,
+      -0.8016971070410761,
+      0.5485264207838871
+    ],
+    [
+      -0.3141431350164927,
+      0.597723688772001,
+      0.7375909995402604
+    ],
+    [
+      -0.919191806130811,
+      0.0028531461162515093,
+      -0.3937998007861565
+    ]
+  ],
+  "background": "actual Gaussian centers with DC colors; not mesh or occupancy; plot viewport cropping only",
+  "background_scatter_alpha": 0.34,
+  "background_scatter_size_pt2": 0.85,
+  "temporal_state": "prefinal endpoint keyframe estimates, not post-EOS dense filled trajectory; not a time-resolved causal replay",
+  "files": {
+    "oblique.png": "e7a8f4a3755c5416b0341221d22cd5ffe5569dcfde9a355be6b092fa0f005eae",
+    "pose_plane.png": "35507de577b26fa3a87254e2c250684104f386d27bf8de207b70d09284cfc232"
+  }
+}

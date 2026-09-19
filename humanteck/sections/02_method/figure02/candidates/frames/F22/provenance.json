@@ -1,0 +1,48 @@
+{
+  "dataset": "utmm",
+  "scene": "ego-centric-2",
+  "uid": "1706738252727924347.png",
+  "frame_index": 665,
+  "baseline_psnr": 18.998151779174805,
+  "ours_psnr": 21.04526138305664,
+  "delta_psnr": 2.047109603881836,
+  "scene_delta_psnr": 0.23656785168410366,
+  "scene_baseline_psnr": 19.2556121577705,
+  "scene_ours_psnr": 19.492180009454604,
+  "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-2/native_vanilla_render_matched_s0",
+  "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/utmm/ego-centric-2/normalized_variance_s0",
+  "physical_renders": 6655,
+  "baseline_adam": 556,
+  "ours_adam": 559,
+  "held_out": true,
+  "carve_enabled": false,
+  "candidate": "F22",
+  "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/ego-centric-2/rgb_timestamp/1706738252727924347.png",
+  "source_rgb_sha256": "bc6918738adf41f67b2fe5cbec025d4d5ece31d042bf70e5fa69851addbe9d6a",
+  "source_map_sha256": {
+    "baseline": "e1eb0ef41df209fe6f4789f317a657dbaa07093e298199e4d2dfcda2488aaddd",
+    "ours": "dce15c4b2bcf9cc7b44cd2f45c7acc2ebe15c705dc911cd7b84a6ad716bbe600"
+  },
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/utmm/ego-centric-2/seed0",
+  "same_pose_checked": true,
+  "rendered_psnr_check": {
+    "baseline": 18.998151779174805,
+    "ours": 21.04526138305664
+  },
+  "display_rotation_clockwise_degrees": 0,
+  "crop_xyxy_display_pixels": [
+    480,
+    8,
+    598,
+    126
+  ],
+  "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+  "files": {
+    "baseline.png": "97b9c5974bb807046e629278b1f15b336a523ad6e6999f0e0641a8072ddb7b17",
+    "ours_crop.png": "6ce2fda95a80fd5d025b5abc0d0173557cb71fb4cb649ed53bd78ee7fb885ea9",
+    "ours.png": "c9f1e928e4a0e39c4e3a8e94d5256907567b8055161e38b896d85819e5157cfa",
+    "gt_crop.png": "7b79cf0530a12060a84c63de2e5b067f3091be6ae9ae170965dff94607764207",
+    "baseline_crop.png": "24720b1d7b25949403bf65a77f56f14c5be10932ec12c7d74da85228d5c1b247",
+    "gt.png": "7546fce29de3988a27b91cf236d19a532557fe25471a5354e2699e756268785a"
+  }
+}

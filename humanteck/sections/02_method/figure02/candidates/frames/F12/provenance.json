@@ -1,0 +1,48 @@
+{
+  "dataset": "rpng",
+  "scene": "table_07",
+  "uid": "1662924284166840315.png",
+  "frame_index": 3855,
+  "baseline_psnr": 24.680316925048828,
+  "ours_psnr": 28.390844345092773,
+  "delta_psnr": 3.7105274200439453,
+  "scene_delta_psnr": 1.4890395942958747,
+  "scene_baseline_psnr": 25.270524285780365,
+  "scene_ours_psnr": 26.75956388007624,
+  "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_07/native_vanilla_render_matched_s0",
+  "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_07/normalized_variance_s0",
+  "physical_renders": 33422,
+  "baseline_adam": 2680,
+  "ours_adam": 2691,
+  "held_out": true,
+  "carve_enabled": false,
+  "candidate": "F12",
+  "source_rgb": "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_07/rgb/1662924284166840315.png",
+  "source_rgb_sha256": "3cdde37a52957734223d4a91dfdf9568e7a168fb5a200cff5f025c0939f037d3",
+  "source_map_sha256": {
+    "baseline": "4a41e95bb98d5e39f75c7cbdfbbe85f6d9a220f9f5e98c12dde28f25c760b940",
+    "ours": "435a8f748f6deafeae7383ef1fc1ef9502d10013c91f0823669eaf6a268ca421"
+  },
+  "archive": "/home/intern/gs_floaterLab/results/experiments/exp78/b_strict_fair_comparison/frozen_tracker/official_22ffe24_trt/rpng/table_07/seed0",
+  "same_pose_checked": true,
+  "rendered_psnr_check": {
+    "baseline": 24.680316925048828,
+    "ours": 28.390844345092773
+  },
+  "display_rotation_clockwise_degrees": 0,
+  "crop_xyxy_display_pixels": [
+    0,
+    208,
+    124,
+    332
+  ],
+  "crop_rule": "maximum mean pixel-MSE improvement on 8px grid, 36% min-side square, GT std >=0.035; candidate only, not semantic hand selection",
+  "files": {
+    "baseline.png": "88589b8325c9b8943d5e67a75af38dde0bd186275ee26dd1fe0c900aa6003f40",
+    "ours_crop.png": "15efee251eb282358ed5af0a1913efca81be9be1042d943ba43e9bc637fbba9e",
+    "ours.png": "f8fba02616bd56b48a68c5ec5d3405b87fbb599958717d2314a6b65bf3cbaa34",
+    "gt_crop.png": "cfad5736c7980778a451bd48b1b44e6184ad694b3e2f0a3a8344b3436e3c030d",
+    "baseline_crop.png": "cc1e2598e0f64fb724cf1f7890268bbb63e3a8e9be18f27e9b51effef88c5c4b",
+    "gt.png": "bac9cef0d3965fa467eae2c89cd1b71b4730ecd4cdf1e06574fa04dbba7a26dd"
+  }
+}
