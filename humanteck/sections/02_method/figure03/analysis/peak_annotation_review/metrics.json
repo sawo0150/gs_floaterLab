@@ -1,0 +1,26 @@
+{
+  "source_svg": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/output/fig3_table06_compact_frame1420.svg",
+  "source_svg_sha256": "3fc491854810327cde0c1b1f34e50c98c7206a413751cda949cfc5c90e426733",
+  "curves_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "variants": {
+    "first_sampled": {
+      "ours_iteration": 1400,
+      "ours_psnr": 23.318603055111996,
+      "baseline_iteration": 2400,
+      "baseline_psnr": 23.281344652605487,
+      "iteration_difference": 1000
+    },
+    "remaining_checkpoints": {
+      "ours_iteration": 2000,
+      "ours_psnr": 23.98036083187069,
+      "baseline_iteration": 2400,
+      "baseline_psnr": 23.281344652605487,
+      "iteration_difference": 400
+    }
+  },
+  "definitions": {
+    "first_sampled": "First stored checkpoint at or above baseline best. Later regressions allowed.",
+    "remaining_checkpoints": "First stored checkpoint at or above baseline best with all subsequent stored checkpoints also at or above it. Retrospective on finite observations, not continuous or future guarantee."
+  },
+  "source_figure_modified": false
+}

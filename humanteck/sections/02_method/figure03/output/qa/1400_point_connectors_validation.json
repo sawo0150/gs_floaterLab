@@ -1,0 +1,10 @@
+{
+  "only_two_connector_svg_elements_added": true,
+  "image_and_text_positions_unchanged": true,
+  "connector_text_intersections": 0,
+  "endpoints_at_matching_crop_top_borders": true,
+  "source_points_iteration": 1400,
+  "visual_review": "PDF render inspected at 2100px and manuscript column width.",
+  "paper_tex_unchanged": true,
+  "manuscript_pdf_copies_synchronized": true
+}

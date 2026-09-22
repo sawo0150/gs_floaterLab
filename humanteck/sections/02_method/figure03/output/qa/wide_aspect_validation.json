@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "width_change_mm": [
+    86.48540196485402,
+    121.07956275079562
+  ],
+  "height_unchanged_mm": 69.47660624509939,
+  "image_sizes_and_y_positions_unchanged": true,
+  "curve_measurements_unchanged": true,
+  "minimum_curve_image_gap_mm": 3.1897059370296,
+  "text_overlap_pairs": 0,
+  "words_outside_page": 0,
+  "manuscript_tex_unchanged": true,
+  "manuscript_single_column_height_mm": 49.62614731792814,
+  "full_tex_compile": false
+}

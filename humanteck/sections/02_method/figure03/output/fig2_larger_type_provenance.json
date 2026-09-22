@@ -1,0 +1,177 @@
+{
+  "layout": "Three checkpoint groups inside the plot: full render plus attached enlarged ROI, top baseline / bottom ours",
+  "text_scale": 1.2,
+  "vertical_axis_title_scale": 1.125,
+  "text_positions_unchanged": true,
+  "frame": 1420,
+  "scene": "table_06",
+  "heldout_views": 555,
+  "carve_enabled": false,
+  "width_mm": 121.07956275079562,
+  "height_mm": 69.47660624509939,
+  "full_image_width_mm": 20.179927125132604,
+  "zoom_width_mm": 13.837664314376642,
+  "horizontal_group_gap_svg": 25,
+  "vertical_group_gap_svg": 12,
+  "minimum_curve_image_clearance_svg": 18.54776563687591,
+  "minimum_curve_image_clearance_mm": 1.069407311103413,
+  "previous_zoom_width_mm": 11.531386928647201,
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "curve_points_per_method": 14,
+  "curve_points_total": 28,
+  "curve_values_unchanged": true,
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_00800.png",
+      "sha256": "de340bbf02ca4d246b067f7659efadddc134c5362e9bb56439d432bcca5c4e4f",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        950,
+        390,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        950,
+        486,
+        240,
+        240
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_00800.png",
+      "sha256": "1f10aa64b22b7dbd92d7c4f7ac429742c1409d9744fe0b05f06a8e904ec68891",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        950,
+        738,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        950,
+        834,
+        240,
+        240
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        1325,
+        390,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        1325,
+        486,
+        240,
+        240
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        1325,
+        738,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        1325,
+        834,
+        240,
+        240
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_02600.png",
+      "sha256": "ea8f4464f81d2c6ab579ad0c70a20bf86930ff9999eda80ba4dccca12f3d132e",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        1700,
+        390,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        1700,
+        486,
+        240,
+        240
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_02600.png",
+      "sha256": "df74327d53fc46de5993e02f2ff2d78350ad4da9a49266fda592267589a5eeaf",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_image_box": [
+        1700,
+        738,
+        350,
+        195.45454545454547
+      ],
+      "zoom_box": [
+        1700,
+        834,
+        240,
+        240
+      ]
+    }
+  ],
+  "ours_iteration": 1400,
+  "baseline_iteration": 2400,
+  "iteration_difference": 1000,
+  "definition": "First stored checkpoint at or above baseline best; not sustained attainment or wall-time speedup.",
+  "caption_latex": "\\caption{Photometric convergence on RPNG~\\cite{chen2023monocular} \\texttt{table\\_06}.\n  Full renderings and enlarged regions at 800, 1,400, and 2,600 mapping iterations\n  compare VIGS-SLAM~\\cite{zhu2026vigs} (top row) and ours (bottom row).\n  $^{*}$Our method first reaches the baseline's highest PSNR with 1,000 fewer mapping iterations.}",
+  "svg_sha256": "8c5fb75e434a5a319c013a041fc33a21c4ae543be0847ce238e886560136ab21",
+  "pdf_sha256": "f154854a7ff0e922141022918594498f37bf173c4021b571a7c29e972cb4d27c"
+}

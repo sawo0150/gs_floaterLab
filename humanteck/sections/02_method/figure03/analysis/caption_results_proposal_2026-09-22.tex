@@ -1,0 +1,29 @@
+% Review proposal; not installed in the manuscript.
+% Replace the existing Fig.2 caption with this caption, then replace Results and Conclusion.
+
+\caption{Photometric convergence on RPNG~\cite{chen2023monocular} \texttt{table\_06}.
+  (a) Mean held-out PSNR, with the y-axis compressed below 19\,dB.
+  (b) VIGS-SLAM~\cite{zhu2026vigs} and ours at 1.4k iterations,
+  alongside ground truth, with enlarged regions.
+  $^{*}$First evaluated attainment of the baseline's highest observed PSNR.}
+
+\section{Results and Conclusion}
+
+We evaluate mapping quality on RPNG~\cite{chen2023monocular},
+UTMM~\cite{sun2024mm3dgs}, and our Aria sequences, with Carve disabled.
+Using shared tracker outputs and matched total training-render budgets,
+our method improves scene-averaged held-out PSNR over
+VIGS-SLAM~\cite{zhu2026vigs} by 1.60, 0.52, and 2.45\,dB, respectively.
+Figure~\ref{fig:photometric_convergence}(a) tracks mean PSNR over
+555 fixed held-out views on \texttt{table\_06}.
+Among the evaluated checkpoints, ours first exceeds the baseline's highest
+observed PSNR (23.28\,dB) at 1,400 mapping iterations, compared with
+2,400 for the baseline.
+At 1,400 iterations, the selected view in
+Fig.~\ref{fig:photometric_convergence}(b) shows clearer lettering than the baseline.
+
+We present an online Gaussian mapping framework that combines
+optimization-guided view-set growth and entropy-regularized view sampling
+with an opacity-directed Carve loss.
+This framework provides a basis for incremental map refinement in robots
+and wearable augmented-reality systems under limited computation.

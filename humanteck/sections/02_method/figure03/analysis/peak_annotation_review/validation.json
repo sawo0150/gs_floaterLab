@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "review_variants": 2,
+  "original_selected_svg_hash_preserved": true,
+  "raw_curve_points_per_variant": 28,
+  "embedded_images_unchanged_per_variant": 6,
+  "markers": "actual sampled checkpoints; no interpolation",
+  "source_figures_visually_reviewed": [
+    "HAMMER Fig5",
+    "3DGS-LM Fig1",
+    "Turbo-GS v1 Fig1/2",
+    "3DGS2 v2 Fig4",
+    "Taming3DGS Fig1"
+  ],
+  "preview_visual_qa": "Both annotation variants inspected; text and markers inside figure; no new occlusion of insets."
+}

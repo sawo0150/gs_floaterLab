@@ -1,0 +1,94 @@
+{
+  "scene": "table_06",
+  "frame": 1420,
+  "source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "source_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "images": [
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_00800.png",
+      "sha256": "de340bbf02ca4d246b067f7659efadddc134c5362e9bb56439d432bcca5c4e4f",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 800,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_00800.png",
+      "sha256": "1f10aa64b22b7dbd92d7c4f7ac429742c1409d9744fe0b05f06a8e904ec68891",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 800,
+      "arm": "ours"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 1400,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 1400,
+      "arm": "ours"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_02600.png",
+      "sha256": "ea8f4464f81d2c6ab579ad0c70a20bf86930ff9999eda80ba4dccca12f3d132e",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 2600,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_02600.png",
+      "sha256": "df74327d53fc46de5993e02f2ff2d78350ad4da9a49266fda592267589a5eeaf",
+      "crop": [
+        365,
+        30,
+        610,
+        162
+      ],
+      "iteration": 2600,
+      "arm": "ours"
+    }
+  ],
+  "inset_steps": [
+    800,
+    1400,
+    2600
+  ],
+  "native_recipe_preserved": true,
+  "no_curve_smoothing": true,
+  "threshold_psnr": 22.68787652093011,
+  "first_sampled_iterations_at_or_above_threshold": {
+    "baseline": 2000,
+    "ours": 1200
+  },
+  "arrow_note": "First saved checkpoint at or above baseline endpoint PSNR; not exact crossing or sustained attainment. No interpolation.",
+  "interpretation": "Exploratory full-system map quality, including coverage and pose changes; not a pure optimization-speed benchmark."
+}

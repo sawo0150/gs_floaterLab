@@ -1,0 +1,68 @@
+{
+  "scenes": [
+    {
+      "scene": "square-1",
+      "checkpoint_count": 32,
+      "heldout": 324,
+      "endpoint_checks": {
+        "ours": {
+          "original": 21.22477310086474,
+          "new": 21.225427865982056
+        },
+        "baseline": {
+          "original": 20.18177710344762,
+          "new": 20.17414223411937
+        }
+      }
+    },
+    {
+      "scene": "table_01",
+      "checkpoint_count": 32,
+      "heldout": 502,
+      "endpoint_checks": {
+        "ours": {
+          "original": 25.581415685524505,
+          "new": 25.580289829299744
+        },
+        "baseline": {
+          "original": 23.928826286498293,
+          "new": 23.920932538005935
+        }
+      }
+    },
+    {
+      "scene": "table_06",
+      "checkpoint_count": 28,
+      "heldout": 555,
+      "endpoint_checks": {
+        "ours": {
+          "original": 24.473087235184405,
+          "new": 24.46294880772496
+        },
+        "baseline": {
+          "original": 22.682195690945463,
+          "new": 22.68787652093011
+        }
+      }
+    }
+  ],
+  "figures": [
+    {
+      "name": "fig3_search_table_01_frame330",
+      "images": 6,
+      "curves": 2,
+      "source_hashes_valid": true,
+      "visual_qa": "Rendered Inkscape PNG inspected; axes, labels, arrows and all six crops readable without overlap."
+    },
+    {
+      "name": "fig3_search_table_06_frame1420",
+      "images": 6,
+      "curves": 2,
+      "source_hashes_valid": true,
+      "visual_qa": "Rendered Inkscape PNG inspected; axes, labels, arrows and all six crops readable without overlap."
+    }
+  ],
+  "total_maps": 92,
+  "total_evaluation_renders": 41972,
+  "links_valid": true
+}

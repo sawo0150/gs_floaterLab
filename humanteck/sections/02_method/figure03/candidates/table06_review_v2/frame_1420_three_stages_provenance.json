@@ -1,0 +1,92 @@
+{
+  "frame": 1420,
+  "crop": [
+    440,
+    40,
+    564,
+    164
+  ],
+  "crop_matches_figure02": true,
+  "steps": [
+    800,
+    1400,
+    2600
+  ],
+  "metrics": [
+    {
+      "frame": 1420,
+      "arm": "baseline",
+      "iteration": 800,
+      "psnr": 23.64772605895996
+    },
+    {
+      "frame": 1420,
+      "arm": "ours",
+      "iteration": 800,
+      "psnr": 23.978979110717773
+    },
+    {
+      "frame": 1420,
+      "arm": "baseline",
+      "iteration": 1400,
+      "psnr": 26.937501907348633
+    },
+    {
+      "frame": 1420,
+      "arm": "ours",
+      "iteration": 1400,
+      "psnr": 27.682924270629883
+    },
+    {
+      "frame": 1420,
+      "arm": "baseline",
+      "iteration": 2600,
+      "psnr": 27.973356246948242
+    },
+    {
+      "frame": 1420,
+      "arm": "ours",
+      "iteration": 2600,
+      "psnr": 30.66806411743164
+    }
+  ],
+  "source_images": [
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_00800.png",
+      "sha256": "de340bbf02ca4d246b067f7659efadddc134c5362e9bb56439d432bcca5c4e4f",
+      "iteration": 800,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_00800.png",
+      "sha256": "1f10aa64b22b7dbd92d7c4f7ac429742c1409d9744fe0b05f06a8e904ec68891",
+      "iteration": 800,
+      "arm": "ours"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "iteration": 1400,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "iteration": 1400,
+      "arm": "ours"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_02600.png",
+      "sha256": "ea8f4464f81d2c6ab579ad0c70a20bf86930ff9999eda80ba4dccca12f3d132e",
+      "iteration": 2600,
+      "arm": "baseline"
+    },
+    {
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_02600.png",
+      "sha256": "df74327d53fc46de5993e02f2ff2d78350ad4da9a49266fda592267589a5eeaf",
+      "iteration": 2600,
+      "arm": "ours"
+    }
+  ],
+  "processing": "Original checkpoint renders. SVG crop and uniform scale only. All three rows use identical GT. PSNR labels are full-frame values."
+}

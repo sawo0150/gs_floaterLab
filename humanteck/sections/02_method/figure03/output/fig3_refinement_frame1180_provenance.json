@@ -1,0 +1,87 @@
+{
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_refinement_20260921/aria301_305/evaluation/curves.json",
+  "curve_sha256": "4b05f6111ef1364f34ff1defb7e789da728a2734e7f83789db7d5c405a03d356",
+  "images": [
+    {
+      "arm": "baseline",
+      "additional_iteration": 0,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/baseline_additional_000.png",
+      "sha256": "85097f763ee1f257a4b15e74c71d6abafb3d2123d0edeeb7ff1938cb16d96781",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    },
+    {
+      "arm": "ours",
+      "additional_iteration": 0,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/ours_additional_000.png",
+      "sha256": "0d532eebc1e89ce7c33170f634f3ab8afe7a538bda587ee180e4acacdc3b667c",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    },
+    {
+      "arm": "baseline",
+      "additional_iteration": 30,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/baseline_additional_030.png",
+      "sha256": "b2b2cd08fdb760ed4911fd1bba2e6f3b3b1e2dfe293b952e93d7ae4f9677c432",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    },
+    {
+      "arm": "ours",
+      "additional_iteration": 30,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/ours_additional_030.png",
+      "sha256": "da5ce25b5a0137d59eea7d7428cf9c6a9ed56a94b55d1948f7710d019b8208e1",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    },
+    {
+      "arm": "baseline",
+      "additional_iteration": 120,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/baseline_additional_120.png",
+      "sha256": "70af1d52929d86ef1fea74651fbdb8ca81120fafdec1c38910697c35b1be1c34",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    },
+    {
+      "arm": "ours",
+      "additional_iteration": 120,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/refinement_insets/frame_1180/ours_additional_120.png",
+      "sha256": "41ceef69f01472d6593358f699866f969742d4fcdb815d39aaa31fad6d8afe79",
+      "crop": [
+        0,
+        195,
+        464,
+        445
+      ]
+    }
+  ],
+  "axis_range": [
+    19,
+    22
+  ],
+  "width_mm": 86.48540196485402,
+  "height_mm": 65.1523361468567,
+  "smoothing": false,
+  "aggregation": "Arithmetic mean within each fixed held-out event cohort, then equal mean over the same five events at every iteration.",
+  "baseline_asterisk": "Native vanilla map normalized with max_viewpoints=1; controlled diagnostic, not the original native end-to-end run."
+}

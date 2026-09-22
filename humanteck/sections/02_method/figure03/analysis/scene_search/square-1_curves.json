@@ -1,0 +1,343 @@
+{
+  "family": "utmm",
+  "scene": "square-1",
+  "heldout_count": 324,
+  "curves": [
+    {
+      "arm": "ours",
+      "iteration": 50,
+      "mean_psnr": 5.996754571979428,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 450,
+      "input_prefix": 224,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00050.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 100,
+      "mean_psnr": 6.901653791651314,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 884,
+      "input_prefix": 230,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00100.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 150,
+      "mean_psnr": 6.886948146937806,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 1319,
+      "input_prefix": 252,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00150.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 200,
+      "mean_psnr": 7.898500685338621,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 1860,
+      "input_prefix": 364,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00200.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 250,
+      "mean_psnr": 10.564230138137017,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 2550,
+      "input_prefix": 509,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00250.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 300,
+      "mean_psnr": 11.501206159591675,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 3208,
+      "input_prefix": 594,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00300.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 350,
+      "mean_psnr": 12.415461561562102,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 3898,
+      "input_prefix": 676,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00350.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 400,
+      "mean_psnr": 13.111743360389898,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 4556,
+      "input_prefix": 867,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00400.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 450,
+      "mean_psnr": 15.52501685457465,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 5230,
+      "input_prefix": 1012,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00450.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 500,
+      "mean_psnr": 17.136173602239584,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 5904,
+      "input_prefix": 1084,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00500.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 550,
+      "mean_psnr": 17.85209530297621,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 6562,
+      "input_prefix": 1153,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00550.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 600,
+      "mean_psnr": 18.770699445112253,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 7252,
+      "input_prefix": 1289,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00600.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 650,
+      "mean_psnr": 19.480329704873355,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 7910,
+      "input_prefix": 1420,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00650.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 700,
+      "mean_psnr": 20.329022687158467,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 8600,
+      "input_prefix": 1494,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00700.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 750,
+      "mean_psnr": 21.02721495098538,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 9258,
+      "input_prefix": 1611,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00750.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 757,
+      "mean_psnr": 21.225427865982056,
+      "view_count": 324,
+      "final": true,
+      "training_renders": 9345,
+      "input_prefix": 1611,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/ours/checkpoints/iter_00757_final.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 50,
+      "mean_psnr": 5.96103862259123,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 450,
+      "input_prefix": 224,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00050.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 100,
+      "mean_psnr": 6.897614820503894,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 900,
+      "input_prefix": 230,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00100.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 150,
+      "mean_psnr": 7.014883084061705,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 1383,
+      "input_prefix": 263,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00150.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 200,
+      "mean_psnr": 8.875796047257788,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 2030,
+      "input_prefix": 375,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00200.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 250,
+      "mean_psnr": 10.976604953960136,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 2680,
+      "input_prefix": 524,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00250.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 300,
+      "mean_psnr": 11.670305160828578,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 3330,
+      "input_prefix": 608,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00300.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 350,
+      "mean_psnr": 12.615616257543918,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 3980,
+      "input_prefix": 767,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00350.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 400,
+      "mean_psnr": 13.370852489530304,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 4630,
+      "input_prefix": 875,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00400.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 450,
+      "mean_psnr": 16.280898484918808,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 5280,
+      "input_prefix": 1021,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00450.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 500,
+      "mean_psnr": 16.931802996882684,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 5930,
+      "input_prefix": 1084,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00500.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 550,
+      "mean_psnr": 17.611270272437437,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 6580,
+      "input_prefix": 1172,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00550.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 600,
+      "mean_psnr": 17.842216894950397,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 7230,
+      "input_prefix": 1289,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00600.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 650,
+      "mean_psnr": 18.811145591147152,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 7880,
+      "input_prefix": 1402,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00650.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 700,
+      "mean_psnr": 19.50339452425639,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 8530,
+      "input_prefix": 1494,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00700.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 750,
+      "mean_psnr": 19.988372537824844,
+      "view_count": 324,
+      "final": false,
+      "training_renders": 9180,
+      "input_prefix": 1601,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00750.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 763,
+      "mean_psnr": 20.17414223411937,
+      "view_count": 324,
+      "final": true,
+      "training_renders": 9345,
+      "input_prefix": 1611,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/baseline/checkpoints/iter_00763_final.ply"
+    }
+  ],
+  "endpoint_checks": {
+    "ours": {
+      "original": 21.22477310086474,
+      "new": 21.225427865982056
+    },
+    "baseline": {
+      "original": 20.18177710344762,
+      "new": 20.17414223411937
+    }
+  },
+  "inset_frames": [
+    145,
+    1265
+  ],
+  "pose_correction_frames": [],
+  "protocol": "Original full fixed held-out set, post-EOS evaluator poses only, native Gaussian Adam steps, matched total training renders. Includes coverage and pose effects. No smoothing."
+}

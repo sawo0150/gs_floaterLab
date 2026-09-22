@@ -1,0 +1,23 @@
+{
+  "branch_count": 10,
+  "map_count": 90,
+  "cohort_sizes": [
+    45,
+    59,
+    56,
+    56,
+    58
+  ],
+  "unique_heldout_views": 274,
+  "evaluation_renders": 4932,
+  "pair_pose_uid_match": true,
+  "step_render_match": true,
+  "mean_recomputed": true,
+  "pdf_info": "Creator:         Inkscape 1.4.4 (https://inkscape.org)\nProducer:        cairo 1.18.0 (https://cairographics.org)\nCreationDate:    Mon Sep 21 12:10:43 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       245.155 x 184.684 pts\nPage rot:        0\nFile size:       1388800 bytes\nOptimized:       no\nPDF version:     1.5\n",
+  "fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nFMKYIE+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\n",
+  "pdf_sha256": "469b40a3d02294f91fd8e35dc468f562944e9ecac80c589e99d5b8aefcd55716",
+  "svg_images": 6,
+  "svg_curves": 2,
+  "visual_qa": "Full-size and 200dpi PDF renders inspected; axes, text and inset crops readable without clipping.",
+  "claim": "Faster convergence not demonstrated; preserve negative result."
+}

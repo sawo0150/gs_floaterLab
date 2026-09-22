@@ -1,0 +1,380 @@
+{
+  "family": "rpng",
+  "scene": "table_01",
+  "heldout_count": 502,
+  "curves": [
+    {
+      "arm": "ours",
+      "iteration": 200,
+      "mean_psnr": 13.523344393270424,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 2208,
+      "input_prefix": 333,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_00200.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 400,
+      "mean_psnr": 20.98951140437943,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 4904,
+      "input_prefix": 538,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_00400.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 600,
+      "mean_psnr": 22.444700451961076,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 7532,
+      "input_prefix": 682,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_00600.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 800,
+      "mean_psnr": 22.526871063794747,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 10108,
+      "input_prefix": 804,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_00800.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1000,
+      "mean_psnr": 23.183868233426157,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 12661,
+      "input_prefix": 932,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_01000.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1200,
+      "mean_psnr": 24.047567128185257,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 15190,
+      "input_prefix": 1069,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_01200.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "mean_psnr": 23.841058761475097,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 17719,
+      "input_prefix": 1211,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_01400.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1600,
+      "mean_psnr": 23.817213335835127,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 20248,
+      "input_prefix": 1345,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_01600.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1800,
+      "mean_psnr": 25.0452834087539,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 22777,
+      "input_prefix": 1485,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_01800.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2000,
+      "mean_psnr": 24.52802693606373,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 25306,
+      "input_prefix": 1628,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_02000.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2200,
+      "mean_psnr": 24.6498090907397,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 27835,
+      "input_prefix": 1773,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_02200.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2400,
+      "mean_psnr": 24.808369782816367,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 30364,
+      "input_prefix": 1904,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_02400.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2600,
+      "mean_psnr": 24.140460422789435,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 32893,
+      "input_prefix": 2035,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_02600.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2800,
+      "mean_psnr": 24.23307648123023,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 35422,
+      "input_prefix": 2188,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_02800.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 3000,
+      "mean_psnr": 24.946592984446493,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 37951,
+      "input_prefix": 2387,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_03000.ply"
+    },
+    {
+      "arm": "ours",
+      "iteration": 3030,
+      "mean_psnr": 25.580289829299744,
+      "view_count": 502,
+      "final": true,
+      "training_renders": 38302,
+      "input_prefix": 2387,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/ours/checkpoints/iter_03030_final.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 200,
+      "mean_psnr": 13.511268534983296,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 2276,
+      "input_prefix": 340,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_00200.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 400,
+      "mean_psnr": 20.604626007763986,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 4876,
+      "input_prefix": 538,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_00400.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 600,
+      "mean_psnr": 22.315012532876306,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 7456,
+      "input_prefix": 682,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_00600.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 800,
+      "mean_psnr": 21.85183266719499,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 10016,
+      "input_prefix": 804,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_00800.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1000,
+      "mean_psnr": 22.659328739956557,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 12572,
+      "input_prefix": 932,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_01000.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1200,
+      "mean_psnr": 23.195591309156075,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 15112,
+      "input_prefix": 1069,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_01200.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "mean_psnr": 22.77606357331295,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 17652,
+      "input_prefix": 1211,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_01400.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1600,
+      "mean_psnr": 23.009510500022614,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 20192,
+      "input_prefix": 1345,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_01600.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1800,
+      "mean_psnr": 24.07918255262641,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 22732,
+      "input_prefix": 1485,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_01800.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2000,
+      "mean_psnr": 23.401893978574837,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 25272,
+      "input_prefix": 1628,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_02000.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2200,
+      "mean_psnr": 23.587875071749743,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 27812,
+      "input_prefix": 1773,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_02200.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2400,
+      "mean_psnr": 23.999537409064303,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 30352,
+      "input_prefix": 1904,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_02400.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2600,
+      "mean_psnr": 23.754293379080725,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 32893,
+      "input_prefix": 2035,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_02600.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2800,
+      "mean_psnr": 23.608808095711638,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 35433,
+      "input_prefix": 2188,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_02800.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 3000,
+      "mean_psnr": 23.96454720288159,
+      "view_count": 502,
+      "final": false,
+      "training_renders": 37973,
+      "input_prefix": 2387,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_03000.ply"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 3027,
+      "mean_psnr": 23.920932538005935,
+      "view_count": 502,
+      "final": true,
+      "training_renders": 38302,
+      "input_prefix": 2387,
+      "map": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/baseline/checkpoints/iter_03027_final.ply"
+    }
+  ],
+  "endpoint_checks": {
+    "ours": {
+      "original": 25.581415685524505,
+      "new": 25.580289829299744
+    },
+    "baseline": {
+      "original": 23.928826286498293,
+      "new": 23.920932538005935
+    }
+  },
+  "inset_frames": [
+    330,
+    335
+  ],
+  "pose_correction_frames": [
+    682,
+    746,
+    786,
+    835,
+    885,
+    932,
+    973,
+    1031,
+    1069,
+    1117,
+    1167,
+    1211,
+    1255,
+    1305,
+    1345,
+    1390,
+    1433,
+    1485,
+    1528,
+    1578,
+    1628,
+    1677,
+    1728,
+    1773,
+    1820,
+    1863,
+    1904,
+    1956,
+    1990,
+    2035,
+    2079,
+    2136,
+    2188,
+    2237,
+    2291,
+    2387
+  ],
+  "protocol": "Original full fixed held-out set, post-EOS evaluator poses only, native Gaussian Adam steps, matched total training renders. Includes coverage and pose effects. No smoothing."
+}

@@ -2,9 +2,33 @@
 
 현재 반영: **지도 영역 C07(UID786), 렌더·prior C10(UID1091), 궤적 A**. 먼저 [현재 overview](current/overview.png)를 보면 된다. Shared map은 C07 주변을 외부에서 보는 표시용 cutaway이며, 아래 C10 렌더에는 절단을 적용하지 않았다.
 
-최신 변경은 **화살표만 정리**한 것이다. 사진·글자·박스 좌표는 그대로이며 [수정 기록](../../plan/11_arrow_cleanup_2026-09-20.md)과 [확대 검수본](qa/arrows/)을 남겼다.
+이전 변경(2026-09-21 후속)은 **기여 제목 9pt 통일·작은 설명 확대·오른쪽 공간 재배치**다. 일반 설명은 약 7.03pt, modality 라벨은 약 6.75pt로 확대했다. K/I 배지는 6.47pt를 유지한다. 지도 제목·이미지·Render·modality를 약 3.77mm 위로 옮기고, Base supervision과 Carve에 큰 글자와 행간을 확보했다. 사용자 요청에 따라 `Rendered normal`로 표기하며, (c)는 `Free-Space Carve Loss`로 줄여 (a)/(b)와 같은 크기로 맞췄다. [검수 기록](qa/typography_spacing_2026-09-21.md), [확대 검수본](qa/arrows/). 직전 작업본은 `archive/before_type_spacing_2026-09-21/`에 보존했다.
+
+앞선 상세 정리에서 입력 묶음→frontend, Growth→Sampling, 렌더 결과→Base supervision을 괄호 끝만으로 이어지게 했으며 이 표현을 유지한다. `Arrived views`, 지도 아래 내부 후보 설명, 선택 카드 위아래 문구, admission 시점 설명을 덜고, 긴 completed-update feedback은 Growth 내부 `+κ updates`로 바꿨다. 영상·궤적·ray와 count/probability 값은 유지했다. [전후 비교](qa/detail_cleanup_before_after.png), [검수 기록](qa/detail_cleanup_2026-09-21.md). 당시 수정 전 작업본은 `archive/before_detail_cleanup_2026-09-21/`에 보존했다.
+
+이전 높이 축소 작업에서 180×86.28 mm를 **180×75.37 mm**로 바꿨으며 이후 2026-09-22에69.42mm로 추가 축소했다. [높이 전후 비교](qa/height_before_after.png), [당시 검수 기록](qa/height_compaction_2026-09-20.md)을 참고한다.
 
 ## 지금 볼 파일
+
+최신 제목 수정(2026-09-22): (a) View Set Growth. 기존 위치·크기 유지, 원고 Fig.1 캡션도 동기화.
+
+최신 제목 수정(2026-09-22): (a) Training-Set Growth로 변경. 기존 위치·크기 유지, 원고 Fig.1 캡션도 동기화.
+
+최신 수정(2026-09-22): [Initialization 경로·Training-view management 간격](qa/initialization_growth_spacing_2026-09-22.md). 초기화 문구를 지도 입력 옆으로 옮기고 상단 경로를 올렸다. (a)를 올리면서 뷰 행/괄호/(b) 제목 주변 간격을 확보했다.
+
+최신 수정(2026-09-22): [작은 글자 미세 축소·오른쪽 공간 재배치](qa/right_panel_balance_2026-09-22.md). 설명은4%만 줄였다. Shared map과Update 반환선을 정리하고 결과 라벨/괄호/Base/Carve 간격을 늘렸다. 도판180×69.42mm 유지.
+
+최신 수정(2026-09-22): [제목 크기 및 세로 간격 축소](qa/height_tightening_2026-09-22.md). 기존 구조를 유지하면서180×75.37→180×69.42mm로 약7.9% 낮췄다. 큰 제목을 줄이고 설명 글자 크기·이미지 비율을 유지했다.
+
+최신 미세 수정(2026-09-22): [Depth 화살표 추가 상향](qa/depth_arrow_raise_2026-09-22.md). Depth 라벨과 화살표를 약0.79mm 더 올렸다.
+
+최신 수정(2026-09-22): [Carve 박스 하단 정리·라벨 왼쪽 정렬](qa/carve_raise_left_align_2026-09-22.md). (c) 박스를 위로 조정하고 높이를 줄여 하단 여백을 확보했다. Priors/RGB/Depth는x=1188에서 왼쪽 정렬한다.
+
+최신 수정(2026-09-22): [Depth/Priors/RGB 오른쪽 이동](qa/input_label_shift_2026-09-22.md). 세 라벨과 Depth 배경을 함께 약0.79mm 오른쪽으로 이동해 점선 겹침과 배경 돌출을 해소했다.
+
+최신 미세 수정: [Depth 배경 레이어 순서](qa/depth_background_layer_2026-09-21.md). 위치를 유지하고 라벨 배경만 보라색 점선 뒤로 보냈다.
+
+최신 도식 정리: [Carve 박스 복원 및 Depth 화살표](qa/carve_box_restore_2026-09-21.md). 원래 넓은 Carve 박스를 유지하며, `Priors`, `RGB`, `Depth`의 가로 중심을 맞추고 Depth 화살표가 박스 안쪽까지 들어가도록 했다. [Carve 보조 설명 제거](qa/carve_label_simplification_2026-09-21.md)에서 삭제한 내부 `Verified keyframe depth`, `Uncertainty`, `D`는 생략한 상태를 유지한다. `Gaussian initialization` / `Camera pose`를 사용하며, Carve 내부의 `Penalize free-space opacity`는 작용을 설명하는 문구다.
 
 1. [지도 시점 후보 12개](candidates/01_view_candidates.png)
 2. [동일 후보의 입력 RGB / rendered RGB / depth / normal](candidates/02_modalities_all.png)
@@ -45,9 +69,9 @@
 이미 있는 asset으로 overview만 갱신 (GPU 사용 안 함):
 
 ```bash
-python3 humanteck/sections/02_method/figures/production/scripts/build_overview_v02.py
+python3 humanteck/sections/02_method/figure01/production/scripts/build_overview_v02.py
 ```
 
 GPU 후보 렌더 / CPU pose 시각화는 기존 extractor의 --candidates / --trajectory 옵션을 사용한다. --apply-selection은 C07/C10/A 선택과 K/I 자산을 적용하고, --cutaway는 공간 절단 6개 시점을 렌더하며, --select-cutaway S5는 선택본의 빈 캔버스만 줄여 연결한다. VIGS 환경과 프로젝트의 mapping_environment(True)로 실행해야 한다. 최초 전체 자산 생성용 무옵션 실행은 선택 상태가 있으면 차단한다. 후보 렌더 실행 전 GPU 상태 확인, 타 계산 작업 종료 금지. 기존 생성 코드를 복제하지 않고 **같은 두 파일에 diff로 수정**한다.
 
-현재 PDF는 사용자 추가 선호에 따라 Times New Roman embedded, 180×86.28mm. 구조는 유지하고 제목 Bold / 설명 Regular로 변경했다. 후보판은 화면 비교용 Arial을 유지한다. PDF→PNG 확인은 완료했지만 본문 TeX 컴파일과 인쇄 검수는 아직이다. 원본 수상자 Overleaf·paper/latex·실험 데이터는 수정하지 않았다.
+현재 PDF는 Times New Roman embedded, 180×69.42 mm다. 제목 Bold / 설명 Regular와 개별 폰트 크기를 유지했다. 후보판은 화면 비교용 Arial을 유지한다. PDF→PNG 확인을 수행하며, 원고 `HumanTeck_Song_s_intern/figure/overview.pdf`도 동일 파일로 갱신한다. 전체 원고 컴파일 및 인쇄 검수는 별도다. 원본 수상자 PDF·paper/latex·실험 데이터는 수정하지 않았다.

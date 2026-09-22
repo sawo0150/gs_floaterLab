@@ -1,0 +1,19 @@
+{
+  "pass": true,
+  "frame": 1420,
+  "all_28_curve_points_unchanged": true,
+  "source_image_hashes_verified": 6,
+  "crop": [
+    440,
+    40,
+    564,
+    164
+  ],
+  "same_roi_as_figure02": true,
+  "uniform_scaling_no_distortion": true,
+  "height_mm": 46.12554771458881,
+  "width_mm": 86.48540196485402,
+  "legend": "bottom centered",
+  "annotation": "none, same as v2",
+  "qa": "PDF-derived PNG inspected at column size; three pairs fully inside chart and no clipping."
+}

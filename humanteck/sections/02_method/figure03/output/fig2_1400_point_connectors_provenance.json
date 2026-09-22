@@ -1,0 +1,103 @@
+{
+  "layout": "Two enlarged ROIs at 1400 iterations inside the plot: left baseline / right ours",
+  "text_scale": 1.2,
+  "vertical_axis_title_scale": 1.125,
+  "axis_and_legend_positions_unchanged": true,
+  "frame": 1420,
+  "scene": "table_06",
+  "heldout_views": 555,
+  "carve_enabled": false,
+  "width_mm": 121.07956275079562,
+  "height_mm": 69.47660624509939,
+  "zoom_width_mm": 34.594160785941604,
+  "horizontal_group_gap_svg": 40,
+  "minimum_curve_image_clearance_svg": 23.780104429030416,
+  "minimum_curve_image_clearance_mm": 1.3710879268739338,
+  "previous_zoom_width_mm": 13.837664314376642,
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "curve_points_per_method": 14,
+  "curve_points_total": 28,
+  "curve_values_unchanged": true,
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "zoom_box": [
+        790,
+        465,
+        600,
+        600
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "zoom_box": [
+        1430,
+        465,
+        600,
+        600
+      ]
+    }
+  ],
+  "image_connectors": [
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "points": [
+        [
+          1097.5,
+          317.35509438072074
+        ],
+        [
+          900,
+          465
+        ]
+      ],
+      "endpoint": "crop top border"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "points": [
+        [
+          1097.5,
+          258.48042467702294
+        ],
+        [
+          1600,
+          355
+        ],
+        [
+          1600,
+          465
+        ]
+      ],
+      "endpoint": "crop top border"
+    }
+  ],
+  "ours_iteration": 1400,
+  "baseline_iteration": 2400,
+  "iteration_difference": 1000,
+  "definition": "First stored checkpoint at or above baseline best; not sustained attainment or wall-time speedup.",
+  "caption_latex": "\\caption{Photometric convergence on RPNG~\\cite{chen2023monocular} \\texttt{table\\_06}.\n  Enlarged regions at 1,400 mapping iterations compare\n  VIGS-SLAM~\\cite{zhu2026vigs} (left) and ours (right).\n  $^{*}$Our method first reaches the baseline's highest PSNR with 1,000 fewer mapping iterations.}",
+  "svg_sha256": "c5fefefd02ec4acf4f8121aa2d84da498a41093336a90185114e4f421fc21fa1",
+  "pdf_sha256": "009c6528df236b8f5de8aea9f0d473627fce5e0db37ba3c20ec7e99ab371af1d"
+}

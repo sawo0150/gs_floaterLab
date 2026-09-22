@@ -1,0 +1,11 @@
+{
+  "only_changed_element": "1,000 fewer iter.*",
+  "old_font_size_svg": 34.8,
+  "new_font_size_svg": 48,
+  "old_y": 52,
+  "new_y": 155,
+  "text_overlaps": 0,
+  "all_text_within_page": true,
+  "visual_review": "PDF inspected at 2100px and manuscript column width; note inside plot beneath bracket, clear of curves.",
+  "manuscript_pdfs_synchronized": true
+}

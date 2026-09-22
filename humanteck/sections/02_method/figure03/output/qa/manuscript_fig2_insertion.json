@@ -1,0 +1,13 @@
+{
+  "pass_static_checks": true,
+  "manuscript_figure_number": 2,
+  "label": "fig:photometric_convergence",
+  "pdf_sha256": "95b6bcb5b5aa4315eb2beaaf3b1b4142949b7d33544c34062b89ff16989f3fbf",
+  "asset_identical_to_current": true,
+  "full_tex_build": false,
+  "build_limitations": [
+    "No TeX compiler found on PATH",
+    "Existing carve_comparison.pdf asset missing",
+    "rpm_acronyms.sty absent from manuscript directory; exists under paper/latex/rpm_packages/"
+  ]
+}

@@ -88,6 +88,73 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-22 (Fig.2 패널 문자·checkpoint 표기):** (a)/(b) 왼쪽, 방법명은
+  사진 아래로 이동. 실제 논문 figure의 학습량 표기를 참고해 두 결과에 1,400 iter.를
+  적고 그래프의1.4k 위치를 표시했다. 글자 크기·데이터 유지, PDF 렌더 검수 및
+  현행본·원고 동기화. 신규 실험 없음. → [기록](experiments/ERCB_ablation/fig3_ab_layout_2026-09-22.md)
+- **2026-09-22 (HumanTeck Fig.2 a/b 배치 수정):** 그래프의 19 dB 아래 축척을
+  압축·물결로 표시하고, frame1420/1400 iter의 VIGS-SLAM·Ours·GT 전체 화면+확대를
+  별도 (b)에 배치했다. 검정/파랑·기존 글자 크기·28개 원본 측정값 유지.
+  PDF 렌더 검수 및 current/원고 PDF·캡션 동기화 완료. 신규 실험 없음.
+  → [기록](experiments/ERCB_ablation/fig3_ab_layout_2026-09-22.md)
+- **2026-09-21 (HumanTeck 현행 곡선을 원고 Fig.2에 통합):** 기존 렌더 비교 블록을
+  B안·frame1420으로 교체하고 캡션·본문 참조를 정리했다. `current/` 캡션과 원고
+  `photometric_convergence.pdf` 동기화·참조/순서/hash 정적 검증 완료. TeX compiler
+  부재·기존 Carve 그림 누락으로 전체 컴파일 미확인. → [기록](experiments/ERCB_ablation/fig3_threshold_literature_2026-09-21.md)
+- **2026-09-21 (Fig.3 B안 확정·current 폴더 운영):** 사용자 선택 B1400↔2400 유지,
+  baseline-best 문구를 그림에서 캡션으로 이관. 끝 PSNR 숫자 미표기.
+  `figure03/current/`에 현행 SVG/PDF/PNG·캡션·출처를 고정 이름으로 관리하며
+  제작 코드·로컬 규칙에 갱신 절차 추가. → [기록](experiments/ERCB_ablation/fig3_threshold_literature_2026-09-21.md)
+- **2026-09-21 (Fig.3 수평 비교 A/B 시각 선택안):** A400/B1000 iteration 괄호 두 안을
+  논문용 SVG/PDF/PNG로 출력·검수했다. frame1420·원시28점 유지, 신규 측정 없음.
+  → [기록](experiments/ERCB_ablation/fig3_threshold_literature_2026-09-21.md)
+- **2026-09-21 (Fig.3 수평선 문헌·원문 figure 5편 검토):** 3DGS-LM의 짧은 가로
+  비교 괄호를 참고. Baseline best23.2813@2400, Ours는1400 첫 도달 후 재하락하며
+  2000 이후 저장점에서 기준 이상이다. 주400-iter/대안1000-iter annotation 시안과
+  캡션 작성, 선택본 원본 보존. 신규 학습·GPU 평가 없음.
+  → [조사 카드](experiments/ERCB_ablation/fig3_threshold_literature_2026-09-21.md)
+- **2026-09-21 (Fig.3 frame1420 사용자 선택 반영):** Fig.2와 동일 정사각형 ROI를
+  세 checkpoint inset에 적용, 높이46.13 mm·하단 가운데 범례 유지. 원본 curve28점·
+  이미지6장hash 보존 및 PDF 렌더 검수 완료. 신규 학습·GPU 평가 없음.
+  → [선택 기록](experiments/ERCB_ablation/fig3_table06_compact_2026-09-21.md)
+- **2026-09-21 (Fig.3 v2 하단 범례·수평선 재검토):** 장면 제목·상하 arm 설명 제거,
+  범례 하단 가운데 정렬. 비단조적 curve의 첫 도달을 수렴으로 오독하지 않도록
+  baseline-final 수평선 제거. 기존 48렌더로 8후보 GT crop 위치·3시점 비교판 제작.
+  1110/950/685 대안 제시,2370은 중기 −0.22 dB라 후기 품질 외 주장에 부적합.
+  신규 학습·GPU 평가 없음. → [기록](experiments/ERCB_ablation/fig3_table06_compact_2026-09-21.md)
+- **2026-09-21 (Fig.3 table06 높이 축소·frame355 교체):** 사용자 요청대로 동일 폭에서
+  높이 63.42→46.13 mm(−27%), 공통 y축 14–25.5 dB로 수정했다. 원본 555-view
+  곡선 28점 유지. Fig.2 frame을 제외한 8후보·48렌더 PSNR 재현 검증 뒤 frame355
+  선택(800/1400/2600 step gap +2.44/+1.64/+2.01 dB). 기준선 22.69 dB와 첫
+  보간 교점에 화살표를 맞추고 SVG/PDF/PNG 검수 완료. 신규 학습·TeX 수정 없음.
+  → [실험 카드](experiments/ERCB_ablation/fig3_table06_compact_2026-09-21.md)
+- **2026-09-21 (Fig.3 다른 scene 탐색 3/3 완료):** 기존 전체 trajectory PSNR 방식으로
+  square-1/table01/table06 native pair 6run, 92checkpoint를 새로 평가했다. endpoint는
+  원본 대비 0.011dB 이내. 중반/최종 gap은 table06 **+0.7542/+1.7751**,
+  table01 **+0.9078/+1.6594**, square-1 **−0.1071/+1.0513dB**다.
+  곡선·포스터 inset 조합은 table06/frame1420, 중반 gap은 table01/frame330을 추천하며
+  실제 SVG/PNG 두 안을 제작했다. 사후 그림 선택이며 전체 scene 수렴 검증·순수 optimizer
+  가속 주장은 아님. → [실험 카드](experiments/ERCB_ablation/fig3_scene_search_2026-09-21.md)
+- **2026-09-21 (Fig.3 controlled refinement 10/10·실측 도판 완료):** 입력 시점 5곳에서
+  각자 online map을 분기해 입력·평가 pose를 고정하고 추가120 iteration을 측정했다.
+  274 held-out view/90 map, pose·UID 일치 및 추가 step/render=1:1 확인.
+  Ours **21.4359→21.3775**, single-view로 조정한 vanilla **21.4908→20.7582 dB**.
+  최종 gap +0.6193은 Ours 수렴 가속으로 볼 수 없고 baseline topology 변화·품질 하락과
+  겹친다. **빠른 수렴 주장은 미입증**, 진단용 frame1180 SVG/PDF/PNG로 보존.
+  native streaming·기존 최종 표와 구분한다. → [실험 카드](experiments/ERCB_ablation/fig3_controlled_refinement_2026-09-21.md)
+- **2026-09-21 (Fig.3 frame1180 선택·평가 범위 진단):** 저장된 per-view PSNR을
+  재집계하니 1180 자체의 격차도 600/1000/1250 step에서 +0.16/+0.10/+0.02 dB,
+  1300에서 +15.53 dB였다. 주변 41뷰도 후반 급증이 유지되어 전체 평균 희석만의
+  문제는 아니다. 공통 입력·pose 상태에서 local refinement를 측정하는 추가 설계를
+  제안했다. 신규 학습은 미실행. → [카드](experiments/ERCB_ablation/fig3_aria301_305_convergence_2026-09-21.md)
+- **2026-09-21 (HumanTeck Fig.3 실제 곡선·3개 frame 선택안):** Aria301_305의
+  Ours/baseline을 중간 map 저장과 함께 재실행하고 **55 checkpoint × 고정 held-out 539뷰**를
+  평가했다. 총 render는 양쪽 17,620, 최종 PSNR은 **25.0936 / 21.8552 dB**이며 기존
+  endpoint 대비 차이는 각각 −0.01886 / −0.07151 dB다. Frame 1180/1220/980의
+  600/1000/1300-step 실제 inset을 넣은 SVG/PDF/PNG 세 버전을 제작했다.
+  후반 급상승은 pose correction과 겹치며 1300 step에서 두 run의 처리 상태가 다르다.
+  전체 시스템 지도 품질 곡선으로만 해석하고 순수 optimizer 가속·wall-time 주장은 하지 않는다.
+  → [실험 카드·세 도판](experiments/ERCB_ablation/fig3_aria301_305_convergence_2026-09-21.md)
 - **2026-09-20 (dense-supervision event60 수렴 곡선, 38/38 완료):** 기존
   19-scene KF-only/KF+dense fixed-replay 비교를 training 조건은 그대로 두고 24개
   checkpoint에서 재평가했다. KF+dense는 **19/19 scene에서 KF-only 최종 PSNR에 더 적은

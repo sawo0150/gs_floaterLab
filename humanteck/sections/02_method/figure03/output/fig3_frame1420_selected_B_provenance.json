@@ -1,0 +1,20 @@
+{
+  "variant": "first_sampled",
+  "ours_iteration": 1400,
+  "ours_psnr": 23.318603055111996,
+  "baseline_iteration": 2400,
+  "baseline_psnr": 23.281344652605487,
+  "iteration_difference": 1000,
+  "definition": "First stored checkpoint at or above baseline best. Later regressions allowed.",
+  "source_svg_sha256": "3fc491854810327cde0c1b1f34e50c98c7206a413751cda949cfc5c90e426733",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "svg_sha256": "e4f230e6131e09dcb858f018538b3ba4c283753b472e50b741523e2da35b824d",
+  "raw_points_preserved": 28,
+  "embedded_images_preserved": 6,
+  "width_mm": 86.48540196485402,
+  "height_mm": 46.12554771458881,
+  "selected_by_user": true,
+  "peak_reference_label": "Removed from figure; described in caption",
+  "endpoint_psnr_labels": false,
+  "caption": "The bracket marks the first evaluated checkpoint at which ours reaches or exceeds the highest observed VIGS-SLAM PSNR (23.28 dB): 1,400 versus 2,400 mapping iterations. Subsequent regressions are not excluded."
+}

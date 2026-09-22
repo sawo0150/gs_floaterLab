@@ -1,0 +1,20 @@
+{
+  "text_overlap_pairs": [],
+  "words_outside_page": [],
+  "curve_points_per_method": 14,
+  "curve_points_total": 28,
+  "old_curve_values_preserved": true,
+  "new_checkpoints": [
+    1400,
+    2600
+  ],
+  "shared_roi": [
+    440,
+    40,
+    564,
+    164
+  ],
+  "full_image_and_roi_from_same_source": true,
+  "visual_qa": "high-resolution PDF rendering and 200 dpi column rendering inspected",
+  "full_manuscript_compile": false
+}

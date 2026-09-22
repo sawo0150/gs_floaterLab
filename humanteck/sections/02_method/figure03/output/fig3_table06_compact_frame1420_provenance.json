@@ -1,0 +1,91 @@
+{
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "curve_points": 28,
+  "width_mm": 86.48540196485402,
+  "height_mm": 46.12554771458881,
+  "old_height_mm": 63.42262810755962,
+  "height_reduction_fraction": 0.2727272727272727,
+  "y_axis": [
+    14.0,
+    25.5
+  ],
+  "frame": 1420,
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_00800.png",
+      "sha256": "de340bbf02ca4d246b067f7659efadddc134c5362e9bb56439d432bcca5c4e4f",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_00800.png",
+      "sha256": "1f10aa64b22b7dbd92d7c4f7ac429742c1409d9744fe0b05f06a8e904ec68891",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_02600.png",
+      "sha256": "ea8f4464f81d2c6ab579ad0c70a20bf86930ff9999eda80ba4dccca12f3d132e",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_02600.png",
+      "sha256": "df74327d53fc46de5993e02f2ff2d78350ad4da9a49266fda592267589a5eeaf",
+      "crop": [
+        440,
+        40,
+        564,
+        164
+      ]
+    }
+  ],
+  "legend": "bottom centered",
+  "annotation": "none",
+  "interpretation": "All 28 raw means retained. Baseline-final crossing removed because first attainment is not convergence for fluctuating streaming curves. User selected frame1420; exact Fig2 ROI is reused across all three checkpoint pairs without distortion."
+}

@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "tag": "{http://www.w3.org/2000/svg}text",
+      "text": "RGB",
+      "old_x": "1210",
+      "new_x": "1218"
+    },
+    {
+      "tag": "{http://www.w3.org/2000/svg}text",
+      "text": "Priors",
+      "old_x": "1210",
+      "new_x": "1218"
+    },
+    {
+      "tag": "{http://www.w3.org/2000/svg}rect",
+      "text": null,
+      "old_x": "1174",
+      "new_x": "1182"
+    },
+    {
+      "tag": "{http://www.w3.org/2000/svg}text",
+      "text": "Depth",
+      "old_x": "1210",
+      "new_x": "1218"
+    }
+  ],
+  "shift_mm": 0.7933884297520661,
+  "only_four_x_coordinates_changed": true,
+  "pdf_visual_review": "Depth clear of dashed border; background does not protrude. Priors and RGB remain clear of Base panel.",
+  "manuscript_pdf_synchronized": true
+}

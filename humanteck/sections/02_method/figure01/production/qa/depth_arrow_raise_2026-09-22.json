@@ -1,0 +1,10 @@
+{
+  "depth_shift_up_svg": 8,
+  "depth_shift_up_mm": 0.7933884297520661,
+  "label_baseline_y": 709,
+  "arrow_y": 720,
+  "left_alignment_x": 1188,
+  "only_depth_label_backing_and_arrow_changed": true,
+  "visual_review": "PDF closeup inspected; Depth label, arrow and bottom border remain separate.",
+  "manuscript_pdf_synchronized": true
+}
