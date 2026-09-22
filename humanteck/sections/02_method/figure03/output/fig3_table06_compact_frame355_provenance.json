@@ -1,0 +1,107 @@
+{
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "curve_points": 28,
+  "width_mm": 86.48540196485402,
+  "height_mm": 46.12554771458881,
+  "old_height_mm": 63.42262810755962,
+  "height_reduction_fraction": 0.2727272727272727,
+  "y_axis": [
+    14.0,
+    25.5
+  ],
+  "frame": 355,
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/baseline_00800.png",
+      "sha256": "ebc8402f5be76843a69b3b7dc01ba44dee0d67482e0e947c7b6ac7d056d3ea2f",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 800,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/ours_00800.png",
+      "sha256": "4b77cf048c257d960e3dd0ae2dd6830d41a4865880912950e9670271ee502ebd",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/baseline_01400.png",
+      "sha256": "ee72c6a13638adc2684765b077ff71b0cfc5564cb91df821bb560625b089a4ad",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/ours_01400.png",
+      "sha256": "d50456574c8587a046ec753ecac5a6b70ad38d2b6c7de6e6533c0eaa5fd15637",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/baseline_02600.png",
+      "sha256": "90e8a1267f29e7451c54ec351d50defbeeb7b57d95d73eff9631ccb1284decfd",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 2600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/frame_0355/ours_02600.png",
+      "sha256": "3fecb510d3580c24cadc2ea7912d0d4f9785eddb14bc337eab202b125f40b708",
+      "crop": [
+        230,
+        100,
+        390,
+        180
+      ]
+    }
+  ],
+  "target_psnr": 22.68787652093011,
+  "crossings_linear_interpolation": {
+    "baseline": {
+      "iteration_linear_estimate": 1974.1995036302692,
+      "bracket": [
+        1800,
+        2000
+      ]
+    },
+    "ours": {
+      "iteration_linear_estimate": 1189.6030818166769,
+      "bracket": [
+        1000,
+        1200
+      ]
+    }
+  },
+  "iteration_difference_linear_estimate": 784.5964218135923,
+  "interpretation": "The diamond intersections and annotation use piecewise-linear interpolation of sampled curves. Not exact measured crossing times, sustained attainment, or wall-clock speedup. All raw values and full checkpoint range are retained."
+}

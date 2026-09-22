@@ -1,0 +1,60 @@
+{
+  "crops": {
+    "1110": [
+      340,
+      65,
+      500,
+      145
+    ],
+    "685": [
+      140,
+      90,
+      300,
+      170
+    ],
+    "950": [
+      40,
+      160,
+      200,
+      240
+    ],
+    "2370": [
+      415,
+      140,
+      575,
+      220
+    ],
+    "905": [
+      190,
+      130,
+      350,
+      210
+    ],
+    "1630": [
+      160,
+      90,
+      320,
+      170
+    ],
+    "355": [
+      230,
+      100,
+      390,
+      180
+    ],
+    "205": [
+      260,
+      110,
+      420,
+      190
+    ]
+  },
+  "steps": [
+    800,
+    1400,
+    2600
+  ],
+  "source_checks": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/table06_revision/render_checks.json",
+  "source_checks_sha256": "6a467da69ab847eeb509f6c0652ebb2834dc6cd822928843a0e626f1472340c5",
+  "processing": "SVG crop and uniform scale only; same crop for both arms and all stages; all GT columns are identical."
+}

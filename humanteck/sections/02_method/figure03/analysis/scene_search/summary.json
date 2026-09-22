@@ -1,0 +1,109 @@
+[
+  {
+    "scene": "Aria 301_305 (previous)",
+    "source": "/home/intern/gs_floaterLab/results/figure03_convergence_20260921/aria301_305/evaluation/curves.json",
+    "heldout_count": 539,
+    "final_gap": 3.23834146418244,
+    "mean_gap_30_to_80_percent_common_iteration_span": 0.7032562034713092,
+    "nondecreasing_interval_fraction_after_30pct": {
+      "baseline": 0.8,
+      "ours": 0.7894736842105263
+    },
+    "max_upward_checkpoint_jump_after_30pct": {
+      "baseline": 4.188468478385062,
+      "ours": 4.510569561832693
+    },
+    "checkpoint_counts": {
+      "baseline": 28,
+      "ours": 27
+    },
+    "endpoint_checks": null
+  },
+  {
+    "scene": "UTMM square-1",
+    "source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/utmm/square-1/evaluation/curves.json",
+    "heldout_count": 324,
+    "final_gap": 1.0512856318626866,
+    "mean_gap_30_to_80_percent_common_iteration_span": -0.10708029046493615,
+    "nondecreasing_interval_fraction_after_30pct": {
+      "baseline": 1.0,
+      "ours": 1.0
+    },
+    "max_upward_checkpoint_jump_after_30pct": {
+      "baseline": 2.9100459953885043,
+      "ours": 2.665729452798396
+    },
+    "checkpoint_counts": {
+      "baseline": 16,
+      "ours": 16
+    },
+    "endpoint_checks": {
+      "ours": {
+        "original": 21.22477310086474,
+        "new": 21.225427865982056
+      },
+      "baseline": {
+        "original": 20.18177710344762,
+        "new": 20.17414223411937
+      }
+    }
+  },
+  {
+    "scene": "RPNG table_01",
+    "source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_01/evaluation/curves.json",
+    "heldout_count": 502,
+    "final_gap": 1.6593572912938086,
+    "mean_gap_30_to_80_percent_common_iteration_span": 0.9077745451297239,
+    "nondecreasing_interval_fraction_after_30pct": {
+      "baseline": 0.5833333333333334,
+      "ours": 0.6666666666666666
+    },
+    "max_upward_checkpoint_jump_after_30pct": {
+      "baseline": 1.0696720526037957,
+      "ours": 1.2280700729187721
+    },
+    "checkpoint_counts": {
+      "baseline": 16,
+      "ours": 16
+    },
+    "endpoint_checks": {
+      "ours": {
+        "original": 25.581415685524505,
+        "new": 25.580289829299744
+      },
+      "baseline": {
+        "original": 23.928826286498293,
+        "new": 23.920932538005935
+      }
+    }
+  },
+  {
+    "scene": "RPNG table_06",
+    "source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+    "heldout_count": 555,
+    "final_gap": 1.775072286794849,
+    "mean_gap_30_to_80_percent_common_iteration_span": 0.754238960328978,
+    "nondecreasing_interval_fraction_after_30pct": {
+      "baseline": 0.7,
+      "ours": 0.8
+    },
+    "max_upward_checkpoint_jump_after_30pct": {
+      "baseline": 0.7687974087826817,
+      "ours": 1.070210114900057
+    },
+    "checkpoint_counts": {
+      "baseline": 14,
+      "ours": 14
+    },
+    "endpoint_checks": {
+      "ours": {
+        "original": 24.473087235184405,
+        "new": 24.46294880772496
+      },
+      "baseline": {
+        "original": 22.682195690945463,
+        "new": 22.68787652093011
+      }
+    }
+  }
+]

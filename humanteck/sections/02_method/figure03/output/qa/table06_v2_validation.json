@@ -1,0 +1,60 @@
+{
+  "pass": true,
+  "curve_points_verified": 28,
+  "original_curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "removed_visible_text_verified": true,
+  "legend_center_error_px": -8.009106275608247e-05,
+  "embedded_images_verified": 6,
+  "unchanged_figure_mm": [
+    86.48540196485402,
+    46.12554771458881
+  ],
+  "threshold_sensitivity": [
+    {
+      "target_psnr": 22.0,
+      "ours": {
+        "first_sampled": 1200,
+        "all_later_samples_at_or_above": 1200
+      },
+      "baseline": {
+        "first_sampled": 1200,
+        "all_later_samples_at_or_above": 1200
+      }
+    },
+    {
+      "target_psnr": 22.5,
+      "ours": {
+        "first_sampled": 1200,
+        "all_later_samples_at_or_above": 1200
+      },
+      "baseline": {
+        "first_sampled": 1400,
+        "all_later_samples_at_or_above": 2000
+      }
+    },
+    {
+      "target_psnr": 22.68787652093011,
+      "ours": {
+        "first_sampled": 1200,
+        "all_later_samples_at_or_above": 1200
+      },
+      "baseline": {
+        "first_sampled": 2000,
+        "all_later_samples_at_or_above": 2000
+      }
+    },
+    {
+      "target_psnr": 23.0,
+      "ours": {
+        "first_sampled": 1400,
+        "all_later_samples_at_or_above": 2000
+      },
+      "baseline": {
+        "first_sampled": 2200,
+        "all_later_samples_at_or_above": null
+      }
+    }
+  ],
+  "visual_qa": "Latest PDF-derived PNG and column-size PNG inspected. Two candidate overview boards and 1110/685/950/2370 three-stage boards inspected.",
+  "new_training_or_gpu_evaluation": false
+}

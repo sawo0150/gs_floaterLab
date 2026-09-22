@@ -1,0 +1,38 @@
+[
+  {
+    "frame_index": 1180,
+    "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/high_gain_review/frame_1180",
+    "crop_xyxy": [
+      0,
+      195,
+      464,
+      445
+    ],
+    "crop_basis": "manual semantic ROI shared across all methods",
+    "psnr_scope": "full image, not crop"
+  },
+  {
+    "frame_index": 980,
+    "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/high_gain_review/frame_0980",
+    "crop_xyxy": [
+      0,
+      205,
+      464,
+      455
+    ],
+    "crop_basis": "manual semantic ROI shared across all methods",
+    "psnr_scope": "full image, not crop"
+  },
+  {
+    "frame_index": 1220,
+    "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/frames/F01",
+    "crop_xyxy": [
+      0,
+      205,
+      464,
+      455
+    ],
+    "crop_basis": "manual semantic ROI shared across all methods",
+    "psnr_scope": "full image, not crop"
+  }
+]

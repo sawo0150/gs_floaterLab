@@ -1,0 +1,21 @@
+{
+  "all_28_measurements_recovered_from_svg": true,
+  "embedded_full_and_detail_images_match_source_bytes": true,
+  "same_roi_for_three_columns": true,
+  "original_image_pixels_unchanged": true,
+  "font_sizes_preserved": {
+    "tick_y": 44.4,
+    "tick_x": 45.6,
+    "axis_x": 50.4,
+    "axis_y": 43.875,
+    "legend": 48,
+    "annotation": 48,
+    "image": 42
+  },
+  "column_height_mm": 52.50899405008994,
+  "pdf_preview_visually_reviewed": true,
+  "single_column_preview_visually_reviewed": true,
+  "labels_left_and_checkpoint_1400_verified": true,
+  "fonts_and_images_match_previous_version": true,
+  "current_and_manuscript_synchronized": true
+}

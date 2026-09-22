@@ -1,0 +1,408 @@
+{
+  "layout": "(a) compressed-axis curve above (b) full views with magnified ROIs",
+  "frame": 1420,
+  "scene": "table_06",
+  "heldout_views": 555,
+  "carve_enabled": false,
+  "width_mm": 121.07956275079562,
+  "height_mm": 68.84237996402379,
+  "column_width_mm": 86.48540196485402,
+  "column_height_mm": 49.17312854573129,
+  "page_crop": {
+    "original_viewbox": [
+      0,
+      0,
+      2100,
+      1275
+    ],
+    "cropped_viewbox": [
+      0,
+      17,
+      2100,
+      1194
+    ],
+    "visual_bounds_y": [
+      19.10002251791914,
+      1208.9806718767497
+    ],
+    "height_reduction_percent": 6.352941176470588,
+    "content_coordinates_and_sizes_unchanged": true
+  },
+  "colors": {
+    "baseline": "#000000",
+    "ours": "#0057FF",
+    "gt": "#E66100"
+  },
+  "font_sizes_svg": {
+    "tick_y": 44.4,
+    "tick_x": 45.6,
+    "axis_x": 50.4,
+    "axis_y": 43.875,
+    "legend": 48,
+    "annotation": 48,
+    "image": 42
+  },
+  "font_sizes_preserved": true,
+  "panel_label_position": "left gutter, vertically centered beside each panel",
+  "method_label_position": "below images",
+  "checkpoint_link": {
+    "iteration": 1400,
+    "plot_x_tick": "1.4",
+    "plot_guide": "vertical dashed, interrupted at y-axis break",
+    "plot_markers": "circles on both methods",
+    "image_labels": "VIGS-SLAM (1.4k) / Ours (1.4k) / Ground truth"
+  },
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_scene_search_20260921/rpng/table_06/evaluation/curves.json",
+  "curve_sha256": "264309551376e8e7c85f25ef1c25f93244549214a953e029d41dd9635894eece",
+  "curve_points_total": 28,
+  "curve_points_per_method": 14,
+  "curve_values_unchanged": true,
+  "measurements": [
+    {
+      "arm": "baseline",
+      "iteration": 200,
+      "psnr": 14.549293176977484,
+      "x": 338.2142857142857,
+      "y": 374.5070682302252,
+      "range": "lower"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 400,
+      "psnr": 15.147943956357938,
+      "x": 471.42857142857144,
+      "y": 368.5205604364206,
+      "range": "lower"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 600,
+      "psnr": 18.092019163595662,
+      "x": 604.6428571428571,
+      "y": 339.0798083640434,
+      "range": "lower"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 800,
+      "psnr": 21.017814897416947,
+      "x": 737.8571428571429,
+      "y": 224.66824382976728,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1000,
+      "psnr": 21.323536101332657,
+      "x": 871.0714285714286,
+      "y": 213.25465221691417,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1200,
+      "psnr": 22.09233351011534,
+      "x": 1004.2857142857143,
+      "y": 184.55288228902737,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "psnr": 22.654820014335012,
+      "x": 1137.5,
+      "y": 163.55338613149289,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1600,
+      "psnr": 22.26885548153439,
+      "x": 1270.7142857142858,
+      "y": 177.96272868938274,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1800,
+      "psnr": 22.306235541953697,
+      "x": 1403.9285714285713,
+      "y": 176.56720643372864,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2000,
+      "psnr": 22.74440094544007,
+      "x": 1537.142857142857,
+      "y": 160.2090313702374,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2200,
+      "psnr": 23.139548602404894,
+      "x": 1670.357142857143,
+      "y": 145.45685217688398,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2400,
+      "psnr": 23.281344652605487,
+      "x": 1803.5714285714287,
+      "y": 140.16313296939518,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2600,
+      "psnr": 22.85090969188793,
+      "x": 1936.7857142857142,
+      "y": 156.2327048361839,
+      "range": "upper"
+    },
+    {
+      "arm": "baseline",
+      "iteration": 2719,
+      "psnr": 22.68787652093011,
+      "x": 2016.0482142857143,
+      "y": 162.31927655194252,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 200,
+      "psnr": 14.705157746495427,
+      "x": 338.2142857142857,
+      "y": 372.9484225350457,
+      "range": "lower"
+    },
+    {
+      "arm": "ours",
+      "iteration": 400,
+      "psnr": 15.471204109879228,
+      "x": 471.42857142857144,
+      "y": 365.28795890120773,
+      "range": "lower"
+    },
+    {
+      "arm": "ours",
+      "iteration": 600,
+      "psnr": 18.388769586236627,
+      "x": 604.6428571428571,
+      "y": 336.1123041376337,
+      "range": "lower"
+    },
+    {
+      "arm": "ours",
+      "iteration": 800,
+      "psnr": 21.672945648055894,
+      "x": 737.8571428571429,
+      "y": 200.21002913924661,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1000,
+      "psnr": 21.673300841047958,
+      "x": 871.0714285714286,
+      "y": 200.19676860087623,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1200,
+      "psnr": 22.743510955948015,
+      "x": 1004.2857142857143,
+      "y": 160.24225764460746,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "psnr": 23.318603055111996,
+      "x": 1137.5,
+      "y": 138.77215260915213,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1600,
+      "psnr": 23.22523060016804,
+      "x": 1270.7142857142858,
+      "y": 142.25805759372653,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 1800,
+      "psnr": 22.98177882701427,
+      "x": 1403.9285714285713,
+      "y": 151.34692379146722,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2000,
+      "psnr": 23.98036083187069,
+      "x": 1537.142857142857,
+      "y": 114.06652894349423,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2200,
+      "psnr": 23.99816199637748,
+      "x": 1670.357142857143,
+      "y": 113.40195213524075,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2400,
+      "psnr": 24.090585825464746,
+      "x": 1803.5714285714287,
+      "y": 109.9514625159828,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2600,
+      "psnr": 24.247624972919088,
+      "x": 1936.7857142857142,
+      "y": 104.0886676776874,
+      "range": "upper"
+    },
+    {
+      "arm": "ours",
+      "iteration": 2714,
+      "psnr": 24.46294880772496,
+      "x": 2012.7178571428572,
+      "y": 96.04991117826816,
+      "range": "upper"
+    }
+  ],
+  "y_axis": {
+    "kind": "piecewise linear with wavy separator",
+    "boundary_db": 19,
+    "lower_range_db": [
+      14,
+      19
+    ],
+    "lower_y_svg": [
+      380,
+      330
+    ],
+    "upper_range_db": [
+      19,
+      26.5
+    ],
+    "upper_y_svg": [
+      300,
+      20
+    ],
+    "omitted_values": false,
+    "smoothing": false
+  },
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/baseline_01400.png",
+      "sha256": "7b844f7376828fea418c6c773bf5fd6a742b2ddfdd649d9d8e2afb456cdcb418",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_box": [
+        115,
+        570,
+        630,
+        351.8181818181818
+      ],
+      "roi_box": [
+        565.0,
+        610.9090909090909,
+        126.81818181818181,
+        126.81818181818181
+      ],
+      "zoom_box": [
+        117,
+        795,
+        360,
+        360
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1400,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/ours_01400.png",
+      "sha256": "26061320618b9c82b29768d7e46fa5a8c033c15a4112cef854d605a28db2a82b",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_box": [
+        770,
+        570,
+        630,
+        351.8181818181818
+      ],
+      "roi_box": [
+        1220.0,
+        610.9090909090909,
+        126.81818181818181,
+        126.81818181818181
+      ],
+      "zoom_box": [
+        772,
+        795,
+        360,
+        360
+      ]
+    },
+    {
+      "arm": "gt",
+      "iteration": null,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/scene_search/table_06/frame_1420/gt.png",
+      "sha256": "cdc51070e3a2444495377af52f69169d51587e142166746fa222204149b9a0b0",
+      "roi": [
+        440,
+        40,
+        564,
+        164
+      ],
+      "full_box": [
+        1425,
+        570,
+        630,
+        351.8181818181818
+      ],
+      "roi_box": [
+        1875.0,
+        610.9090909090909,
+        126.81818181818181,
+        126.81818181818181
+      ],
+      "zoom_box": [
+        1427,
+        795,
+        360,
+        360
+      ]
+    }
+  ],
+  "ours_iteration": 1400,
+  "baseline_iteration": 2400,
+  "iteration_difference": 1000,
+  "baseline_best_psnr": 23.281344652605487,
+  "definition": "First stored checkpoint at or above baseline best; not sustained attainment or wall-time speedup.",
+  "caption_latex": "\\caption{Photometric convergence on RPNG~\\cite{chen2023monocular}\n  \\texttt{table\\_06}.\n  Insets show intermediate renderings from VIGS-SLAM~\\cite{zhu2026vigs}\n  (left) and ours (right).\n  $^{*}$Our method first reaches the baseline's highest PSNR with\n  1,000 fewer mapping iterations.}",
+  "svg_sha256": "7cda5bc706390fe2fadb69b74aeb3824c3bd378fab0dc6632e27b06f4c430196",
+  "pdf_sha256": "5199d0277ef7f840954f138cba06f48fea8958d3fe70074039b7b9d068945b6a"
+}

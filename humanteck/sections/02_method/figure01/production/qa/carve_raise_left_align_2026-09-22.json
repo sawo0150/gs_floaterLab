@@ -1,0 +1,35 @@
+{
+  "input_labels_left_x_svg": 1188,
+  "rendered_label_bounds": {
+    "Priors": {
+      "xMin": 1187.9999945025463,
+      "yMin": 468.7249956696528,
+      "xMax": 1247.7289979629436,
+      "yMax": 496.39999514342594
+    },
+    "RGB": {
+      "xMin": 1187.9999873881945,
+      "yMin": 500.7249946113195,
+      "xMax": 1239.4037940897258,
+      "yMax": 528.3999940850927
+    },
+    "Depth": {
+      "xMin": 1187.9999873881945,
+      "yMin": 694.7249926416436,
+      "xMax": 1249.0961771882837,
+      "yMax": 722.3999921154167
+    }
+  },
+  "carve_box": [
+    1182,
+    554,
+    512,
+    182
+  ],
+  "outer_panel_bottom": 750,
+  "carve_box_bottom": 736,
+  "bottom_inset_mm": 1.3884297520661157,
+  "image_assets_and_slots_unchanged": true,
+  "visual_review": "PDF closeup inspected: label alignment, panel margins, Depth border and arrow clear.",
+  "manuscript_pdf_synchronized": true
+}

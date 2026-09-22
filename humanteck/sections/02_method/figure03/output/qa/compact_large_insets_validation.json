@@ -1,0 +1,18 @@
+{
+  "width_mm": 121.07956275079562,
+  "height_mm": 69.47660624509939,
+  "full_image_width_increase_percent": 29.629629629629626,
+  "zoom_width_increase_percent": 20,
+  "minimum_curve_image_clearance_mm": 1.069407311103413,
+  "horizontal_gap_svg": 25,
+  "vertical_gap_svg": 12,
+  "bottom_margin_svg": 11,
+  "text_overlaps": [],
+  "text_within_page": true,
+  "curve_coordinates_unchanged": true,
+  "source_images_and_roi_unchanged": true,
+  "paper_tex_unchanged": true,
+  "manuscript_pdfs_synchronized": true,
+  "fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nCUMRFW+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\nADKQKE+TimesNewRomanPSMT             CID TrueType      Identity-H       yes yes yes      8  0\n",
+  "visual_review": "PDF rendered at 2100px and at manuscript column width: inspected, no curve occlusion or clipping."
+}

@@ -1,0 +1,18 @@
+{
+  "pass": true,
+  "text_overlap_pairs": [],
+  "out_of_page_words": [],
+  "checkpoints": [
+    800,
+    1400,
+    2600
+  ],
+  "actual_source_images": 6,
+  "measured_curve_points_preserved": 28,
+  "minimum_curve_image_gap_mm": 1.617493704377311,
+  "all_photos_inside_plot": true,
+  "height_mm": 69.47660624509939,
+  "manuscript_assets_match": true,
+  "paper_changes": "Fig.2 caption only",
+  "full_tex_compile": false
+}

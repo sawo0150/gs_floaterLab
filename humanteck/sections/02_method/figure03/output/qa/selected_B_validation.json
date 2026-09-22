@@ -1,0 +1,8 @@
+{
+  "pass": true,
+  "raw_points_preserved": 28,
+  "embedded_images_preserved": 6,
+  "removed_label_count": 1,
+  "first_attainment_bracket_preserved": true,
+  "endpoint_psnr_labels": false
+}

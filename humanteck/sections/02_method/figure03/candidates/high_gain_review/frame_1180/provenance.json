@@ -1,0 +1,30 @@
+{
+  "dataset": "aria",
+  "scene": "aria301_305",
+  "uid": "1475350688062.jpg",
+  "frame_index": 1180,
+  "baseline_psnr": 21.6766357421875,
+  "ours_psnr": 33.14875411987305,
+  "delta_psnr": 11.472118377685547,
+  "scene_delta_psnr": 3.185685308169788,
+  "scene_baseline_psnr": 21.92672535572512,
+  "scene_ours_psnr": 25.11241066389491,
+  "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/native_vanilla_render_matched_s0",
+  "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/normalized_variance_s0",
+  "physical_renders": 17620,
+  "baseline_adam": 1376,
+  "ours_adam": 1344,
+  "held_out": true,
+  "carve_enabled": false,
+  "recomputed_psnr": {
+    "baseline": 21.6766357421875,
+    "ours": 33.14875411987305
+  },
+  "display_rotation_clockwise_degrees": 90,
+  "source_maps": {
+    "baseline": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/native_vanilla_render_matched_s0/3dgs_before_final.ply",
+    "ours": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/aria/aria301_305/normalized_variance_s0/3dgs_before_final.ply"
+  },
+  "map_stage": "final only",
+  "processing": "display rotation only; no enhancement; no optimization"
+}

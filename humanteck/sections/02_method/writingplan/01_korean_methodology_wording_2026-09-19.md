@@ -14,9 +14,11 @@ Carve를 쓰기로 한 서술 방향과 Carve의 성능 검증 완료 여부는 
 
 추천 제목:
 
-> **2. Efficient Real-Time Online Gaussian Mapping**
+> **2. Efficient and Geometrically Accurate Online Gaussian Mapping**
 >
-> 한국어 작업 제목: 효율적인 실시간 온라인 Gaussian 매핑
+> 한국어 작업 제목: 효율적이고 기하적으로 정확한 온라인 Gaussian 매핑
+
+2026-09-21 제목 수정: 사수 피드백에 따라 제목의 `Real-Time`을 빼고, `Efficient`와 `Geometrically Accurate`를 병렬로 두어 관측 활용의 효율과 Carve의 기하 정확성 목표를 함께 드러낸다. `Online`은 관측 도착에 따라 지도를 갱신하는 설정을 나타낸다. 표현은 [2DGS의 공식 제목](https://surfsplatting.github.io/)에 쓰인 `Geometrically Accurate`와 [PGSR의 제목](https://arxiv.org/abs/2406.06521)에 쓰인 `Efficient and High-Fidelity`를 참고했다. `High-Fidelity`보다 `Geometrically Accurate`가 기하 정확성이라는 이번 피드백을 직접 전달한다.
 
 실용성은 “사용 중에 들어오는 관측으로 지도를 계속 갱신한다”는 사용 맥락에서 설명한다. 구체적인 방법은 제한된 학습 기회의 활용으로, 그 효과는 Fig. 2의 영상 품질과 Fig. 3의 기하 비교로 연결한다. Frontend는 **DROID-SLAM 기반 frontend**로 소개하고, 새 기여는 관측 편입·학습 배분·Carve에 둔다. Frontend 자체를 새로 제안했다고 쓰지 않으며, 기반 기술 인용과 비교 방법의 출처는 참고문헌·표·캡션에서 식별할 수 있게 유지한다.
 

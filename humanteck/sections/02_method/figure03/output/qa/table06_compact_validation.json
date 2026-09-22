@@ -1,0 +1,27 @@
+{
+  "pass": true,
+  "curve_source_hash_verified": true,
+  "raw_curve_points_verified": {
+    "baseline": 14,
+    "ours": 14
+  },
+  "heldout_views": 555,
+  "embedded_images": 6,
+  "source_image_hashes_verified": true,
+  "crop_bounds_verified": true,
+  "fig2_frames_excluded": true,
+  "render_checks": 48,
+  "max_psnr_reproduction_error_db": 0.0,
+  "frame355_full_frame_psnr_gaps": {
+    "800": 2.435760498046875,
+    "1400": 1.6386280059814453,
+    "2600": 2.0105743408203125
+  },
+  "threshold_interpolation_verified": true,
+  "width_mm": 86.48540196485402,
+  "height_mm": 46.12554771458881,
+  "height_reduction_percent": 27.27272727272727,
+  "pdf_info": "Creator:         Inkscape 1.4.4 (https://inkscape.org)\nProducer:        cairo 1.18.0 (https://cairographics.org)\nCreationDate:    Mon Sep 21 12:53:47 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       245.155 x 130.75 pts\nPage rot:        0\nFile size:       2743226 bytes\nOptimized:       no\nPDF version:     1.5\n",
+  "pdf_fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nOEDQWG+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\nJJUOHA+TimesNewRomanPSMT             CID TrueType      Identity-H       yes yes yes      8  0\n",
+  "visual_qa": "PDF-rendered full PNG and 200dpi column-size PNG inspected; no label/inset clipping or overlap."
+}

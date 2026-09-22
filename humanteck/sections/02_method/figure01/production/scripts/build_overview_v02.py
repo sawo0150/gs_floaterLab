@@ -10,13 +10,21 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parent.parent
-W,H=1815,870
+W,H=1815,700
+DESIGN_H=760
+VERTICAL_SCALE=H/DESIGN_H
+LABEL_SIZE=24  # 6.75pt at the 180mm manuscript width; one small step down.
+CONTRIBUTION_SIZE=29  # 8.15pt, identical for (a), (b), and (c).
 INK='#12164c'; GREY='#818b93'; BLUE='#0876ee'; RED='#ec492d'; PURPLE='#9c32df'; TEAL='#03a99f'
 S=[]; BOXES=[]
 def add(s): S.append(s)
 def rect(x,y,w,h,fill='white',stroke='none',sw=1.5,r=0,extra=''):
     add(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}" {extra}/>')
-def text(x,y,t,size=23,color=INK,bold=False,anchor='start',extra=''):
+def text(x,y,t,size=23,color=INK,bold=False,anchor='start',extra='',compact=False):
+    if not compact:
+        size=LABEL_SIZE if size<=25 else size
+    # Tighten baseline spacing without vertically shrinking the glyphs.
+    extra+=f' transform="translate(0 {y}) scale(1 {1/VERTICAL_SCALE}) translate(0 {-y})"'
     add(f'<text x="{x}" y="{y}" font-size="{size}" font-weight="{700 if bold else 400}" text-anchor="{anchor}" fill="{color}" {extra}>{html.escape(t)}</text>')
 def line(points,c=GREY,sw=2.3,arrow=False,dash=False,start=False):
     # Explicit vector heads avoid PDF-export marker scaling and tip protrusion.
@@ -37,14 +45,18 @@ def path(d,c=GREY,sw=2.3,fill='none',extra=''):
 def badge(x,y,t,w=43):
     c=TEAL if t.startswith('I') else '#656e75'
     rect(x-w/2,y-21,w,29,c,'none',r=7)
-    text(x,y+1,t,23,'white',True,'middle')
+    text(x,y+1,t,23,'white',True,'middle',compact=True)
 def img(key,x,y,w,h,border=True,r=2,fit='slice'):
     rec=PROV['assets'][key]; p=ROOT/rec['path'];data=p.read_bytes()
     assert hashlib.sha256(data).hexdigest()==rec['sha256']
-    clip=f'clip{len(BOXES)}'; BOXES.append((key,x,y,w,h))
+    clip=f'clip{len(BOXES)}'; BOXES.append((key,x+(1-VERTICAL_SCALE)*w/2,y*VERTICAL_SCALE,w*VERTICAL_SCALE,h*VERTICAL_SCALE))
+    # Match horizontal image scaling to the canvas vertical scaling, preserving aspect ratio.
+    cx=x+w/2
+    add(f'<g transform="translate({cx} 0) scale({VERTICAL_SCALE} 1) translate({-cx} 0)">')
     add(f'<clipPath id="{clip}"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}"/></clipPath>')
     add(f'<image x="{x}" y="{y}" width="{w}" height="{h}" preserveAspectRatio="xMidYMid {fit}" clip-path="url(#{clip})" href="data:image/png;base64,{base64.b64encode(data).decode()}"/>')
     if border: rect(x,y,w,h,'none','#8d99a3',1.3,r)
+    add('</g>')
 def camera(x,y,scale=1,c=INK):
     add(f'<g transform="translate({x} {y}) scale({scale})">')
     path('M 0 5 L 13 0 L 22 6 L 22 29 L 10 33 L 0 26 Z','#4b555d',1.7,'#d0d6da')
@@ -53,7 +65,8 @@ def camera(x,y,scale=1,c=INK):
     path('M 13 14 L 59 16 M 10 10 L 10 33 M 0 5 L 10 10 L 22 6','#56616a',1.3)
     add('</g>')
 def label_chip(x,y,w,t,c=INK,size=22,bg='white'):
-    rect(x,y-22,w,30,bg,'none',r=5);text(x+w/2,y,t,size,c,False,'middle')
+    size=LABEL_SIZE if size<=25 else size
+    rect(x,y-size-3,w,size+11,bg,'none',r=5);text(x+w/2,y,t,size,c,False,'middle')
 def brace(x1,x2,y,c=INK):
     mid=(x1+x2)/2
     path(f'M {x1} {y} q 0 13 14 13 H {mid-14} q 14 0 14 12 q 0 -12 14 -12 H {x2-14} q 14 0 14 -13',c,1.9)
@@ -63,8 +76,8 @@ def build():
     # Arrow anchors track the actual `meet` image footprint, not its larger slot.
     png=(ROOT/PROV['assets']['map_cutaway']['path']).read_bytes()
     pw,ph=int.from_bytes(png[16:20],'big'),int.from_bytes(png[20:24],'big')
-    scale=min(488/pw,199/ph);mw=pw*scale
-    map_left=1218+(488-mw)/2;map_right=map_left+mw;map_mid=158+199/2
+    scale=min(488/pw,125/ph);mw=pw*scale*VERTICAL_SCALE
+    map_left=1218+(488-mw)/2;map_right=map_left+mw;map_mid=106+125/2
     add(f'<svg xmlns="http://www.w3.org/2000/svg" width="180mm" height="{180*H/W:.4f}mm" viewBox="0 0 {W} {H}">')
     add('<title>Online Gaussian mapping overview - Aria 1253</title><desc>Vector reconstruction of approved v12. Actual input, frontend priors and saved-map renders; view growth, selection counts and ray-space constraint are schematic. The illustrative run does not enable the ray loss.</desc>')
     add('<defs>')
@@ -78,23 +91,20 @@ def build():
         else:
             add(f'<radialGradient id="{name}"><stop stop-color="{c}" stop-opacity=".6"/><stop offset=".6" stop-color="{c}" stop-opacity=".22"/><stop offset="1" stop-color="{c}" stop-opacity=".03"/></radialGradient>')
     add('</defs>')
-    add('<g font-family="Times New Roman">')
-    rect(0,0,W,H)
+    add(f'<g font-family="Times New Roman" transform="scale(1 {VERTICAL_SCALE})">')
+    rect(0,0,W,DESIGN_H)
     for x,w,name,title in [(10,461,'obs','Online observations'),(487,670,'views','Training-view management'),(1173,632,'map','Gaussian map optimization')]:
-        rect(x,8,w,819,f'url(#{name})',r=18)
-        text(x+15,54,title,36,INK,True)
+        rect(x,8,w,742,f'url(#{name})',r=18)
+        text(x+15,51,title,31,INK,True)
 
-    # Dedicated edge corridors. Feedback is not an observation edge.
-    line([(1750,290),(1790,290),(1790,79),(550,79),(550,125)],RED,2.1,True,True)
-    label_chip(1395,104,190,'Completed updates',RED,21,'#f2f3ff')
-    # Enter the map from its left margin, never through its title.
-    # Gap at y186 denotes a crossing with the independent observation edge.
-    line([(330,393),(474,393),(474,192)],GREY,2.1)
-    line([(474,180),(474,121),(543,121)],GREY,2.1)
-    line([(557,121),(1196,121),(1196,map_mid),(map_left-4,map_mid)],GREY,2.1,True)
-    label_chip(813,124,300,'Geometry-based initialization',INK,22,'#fff8f1')
-    # Observation line enters growth from the already arrived filmstrip.
-    line([(460,186),(606,186)],GREY,2.1,True)
+    # Initialization and arrived-image admission have distinct endpoints.
+    # Route initialization in the header corridor; keep its label beside the map.
+    # The small gap at y186 separates arrival admission from initialization.
+    line([(330,369),(474,369),(474,192)],GREY,2.1)
+    line([(474,180),(474,77),(1196,77),(1196,map_mid),(map_left-4,map_mid)],GREY,2.1,True)
+    text(1265,120,'Gaussian',24,INK,False,'middle')
+    text(1265,150,'initialization',24,INK,False,'middle')
+    line([(460,186),(616,186)],GREY,2.1,True)
 
     # Left: observations first; a SINGLE actual pose output replaces both fake curves.
     text(30,110,'RGB stream',25)
@@ -103,138 +113,136 @@ def build():
         rect(x,131,7,6,'#f8fbff','none',r=1);rect(x,221,7,6,'#f8fbff','none',r=1)
     for i,a in enumerate(ALIASES):
         x=29+i*85.3;img(a,x,143,81,72);badge(x+40,257,a)
-    brace(31,453,271)
-    text(243,312,'Arrived views',25,INK,False,'middle')
-    badge(108,340,'K',28);text(129,341,'keyframe',21)
-    badge(283,340,'I',28);text(304,341,'intermediate',21)
-    line([(74,285),(74,391),(147,391)],GREY,2.2,True)
-    rect(150,366,180,62,'#e4e8ef','#8e98a3',1.8,12)
-    text(240,392,'Online',25,INK,True,'middle');text(240,420,'frontend',25,INK,True,'middle')
-    line([(240,430),(240,445)],GREY,2.2,True)
-    text(240,472,'Estimated poses',25,INK,True,'middle')
-    img('trajectory',33,481,405,145,False,2,fit='meet')
-    add('<circle cx="178" cy="630" r="4" fill="#f04b36"/>')
-    text(189,636,'Start',18)
-    add('<circle cx="281" cy="630" r="4" fill="#02a69b"/>')
-    text(292,636,'End',18)
-    line([(150,410),(26,410),(26,642),(358,642),(358,651)],GREY,2.1,True)
-    line([(148,642),(148,651)],GREY,2.1,True)
-    label_chip(61,674,174,'Keyframe depth',INK,22,'#edf8fc')
-    label_chip(271,674,174,'Keyframe normal',INK,22,'#edf8fc')
-    img('prior_depth',61,692,174,112);img('prior_normal',271,692,174,112)
-    # Route priors below all view management content into base + ray branches.
-    # Separate input corridors, with a non-junction gap at the RGB crossing.
-    line([(148,805),(148,819),(1166,819),(1166,614)],GREY,2)
-    line([(1166,602),(1166,556),(1266,556),(1266,564)],GREY,2,True)
-    line([(358,805),(358,819)],GREY,2)
+    # The grouping brace itself points to the frontend; no extra arrowhead.
+    badge(108,292,'K',28);text(129,293,'keyframe',21)
+    badge(283,292,'I',28);text(304,293,'intermediate',21)
+    brace(31,453,307)
+    rect(150,342,180,64,'#e4e8ef','#8e98a3',1.8,12)
+    text(240,367,'Online',25,INK,True,'middle');text(240,399,'frontend',25,INK,True,'middle')
+    line([(240,408),(240,421)],GREY,2.2,True)
+    text(240,447,'Estimated poses',25,INK,True,'middle')
+    img('trajectory',33,457,405,110,False,2,fit='meet')
+    add('<circle cx="178" cy="582" r="4" fill="#f04b36"/>')
+    text(189,588,'Start',18)
+    add('<circle cx="281" cy="582" r="4" fill="#02a69b"/>')
+    text(292,588,'End',18)
+    line([(150,386),(26,386),(26,601),(358,601),(358,610)],GREY,2.1,True)
+    line([(148,601),(148,610)],GREY,2.1,True)
+    label_chip(61,633,174,'Keyframe depth',INK,22,'#edf8fc')
+    label_chip(271,633,174,'Keyframe normal',INK,22,'#edf8fc')
+    # Uniformly reduce image boxes; preserve each original display aspect ratio.
+    prior_w=174*100/112
+    img('prior_depth',148-prior_w/2,644,prior_w,100)
+    img('prior_normal',358-prior_w/2,644,prior_w,100)
+    # The frontend-prior corridor branches into Base and the Carve depth input.
+    # The RGB crossing stays separate from the prior input corridor.
+    line([(148,745),(148,756),(1166,756),(1166,522)],GREY,2)
+    line([(1166,510),(1166,486),(1246,486)],GREY,2,True)
+    line([(358,745),(358,756)],GREY,2)
 
     # Middle (a): three rows retain identities and increase 3 -> 4 -> 5.
-    text(502,151,'(a) View Growth',34,RED,True)
-    text(549,179,'Retain old views; admit arrived views',23,RED)
-    line([(536,238),(536,443)],RED,1.9,True)
-    label_chip(493,281,87,'Updates',RED,20,'#fff8f1')
+    text(502,123,'(a) View Set Growth',CONTRIBUTION_SIZE,RED,True)
+    text(549,155,'Retain old views; admit arrived views',25,RED)
+    # Local update intervals replace the long perimeter feedback loop.
+    for y in [232,324]:
+        line([(496,y),(496,y+45)],RED,1.9,True)
+        text(508,y+27,'+κ updates',25,RED)
     for row,n in enumerate([3,4,5]):
-        y=196+100*row
-        text(604,y+47,['S','S + κ','S + 2κ'][row],23,INK,True,'end',extra='font-style="italic"')
+        y=174+92*row
+        text(604,y+42,['S','S + κ','S + 2κ'][row],23,INK,True,'end',extra='font-style="italic"')
         for i in range(n):
             x=616+i*88
-            img(ALIASES[i],x,y,80,65)
-            if row and i==n-1: rect(x-2,y-2,84,69,'none',RED,2.1,2)
-            badge(x+40,y+89,ALIASES[i])
-    brace(616,1048,495)
-    line([(832,520),(832,534)],BLUE,2,True)
+            thumb_w=80*55/65;thumb_x=x+(80-thumb_w)/2
+            img(ALIASES[i],thumb_x,y,thumb_w,55)
+            if row and i==n-1: rect(thumb_x-2,y-2,thumb_w+4,59,'none',RED,2.1,2)
+            badge(x+40,y+79,ALIASES[i])
+    brace(616,1048,455)
 
     # Middle (b): compact paired bars, and the sampled view stays IN the panel.
-    text(502,539,'(b) View Sampling',32,BLUE,True)
+    text(502,499,'(b) View Sampling',CONTRIBUTION_SIZE,BLUE,True)
     xs=[645,709,773,837,901]
-    text(525,600,'Selection',22);text(525,626,'counts',22)
+    text(607,554,'Selection',25,INK,False,'end');text(607,586,'counts',25,INK,False,'end')
     counts=[12,9,6,3,0];prob=[10,14,18,25,33]
     for x,n in zip(xs,counts):
         bh=n*4
-        rect(x-17,632-bh,34,bh,'url(#count)')
-        text(x,625-bh,str(n),23,INK,False,'middle')
-        line([(x,638),(x,653)],GREY,1.6,True)
-    line([(613,632),(931,632)],GREY,1.3)
-    text(607,690,'Sampling',20,INK,False,'end');text(607,716,'probabilities',20,INK,False,'end')
+        rect(x-17,594-bh,34,bh,'url(#count)')
+        text(x,585-bh,str(n),25,INK,False,'middle')
+        line([(x,598),(x,607)],GREY,1.6,True)
+    line([(613,594),(931,594)],GREY,1.3)
+    text(607,636,'Sampling',25,INK,False,'end');text(607,668,'probability',25,INK,False,'end')
     for x,p,a in zip(xs,prob,ALIASES):
-        bh=p*1.38
-        rect(x-17,724-bh,34,bh,'url(#prob)')
-        text(x,716-bh,f'{p}%',22,BLUE,False,'middle')
-        badge(x,754,a)
-    line([(613,724),(932,724)],BLUE,1.3)
-    text(616,788,'Earlier admitted',19)
-    line([(758,782),(807,782)],GREY,1.5,True)
-    text(944,788,'Later admitted',19,BLUE,False,'end')
-    text(814,815,'Fewer selections → higher probability',24,BLUE,True,'middle')
-    # Right-aligned output and a thin, unambiguous history loop.
-    text(1050,579,'Sample without',19,BLUE,False,'middle')
-    text(1050,602,'replacement',19,BLUE,False,'middle')
-    rect(969,609,162,139,'#f5fbff',BLUE,1.5,9)
-    img('K3',989,620,122,89);badge(1050,736,'K3')
-    text(1050,776,'One view / update',20,INK,False,'middle')
-    line([(931,704),(952,704),(952,678),(968,678)],BLUE,2,True)
-    line([(1131,669),(1141,669),(1141,549),(880,549)],BLUE,1.7,True)
-    label_chip(906,552,164,'Selection history',BLUE,19,'#fff6ed')
-    # Selected camera goes to rendering; selected RGB goes to the objective.
-    line([(1131,696),(1152,696),(1152,395),(1386,395)],BLUE,1.9,True)
-    label_chip(1178,404,177,'Selected camera',BLUE,19,'#f2f3ff')
-    line([(1152,608),(1246,608)],BLUE,1.9,True)
+        bh=p*1.1
+        rect(x-17,678-bh,34,bh,'url(#prob)')
+        text(x,670-bh,f'{p}%',25,BLUE,False,'middle')
+        badge(x,708,a)
+    line([(613,678),(932,678)],BLUE,1.3)
+    text(773,742,'Low count → high probability',25,BLUE,False,'middle')
+    # The selected image updates its corresponding count (K3), not empty space.
+    rect(969,575,162,126,'#f5fbff',BLUE,1.5,9)
+    img('K3',997,584,106,106*89/122);badge(1050,689,'K3')
+    line([(931,644),(968,644)],BLUE,2,True)
+    line([(1131,629),(1141,629),(1141,517),(773,517),(773,533)],BLUE,1.7,True)
+    label_chip(891,520,206,'Selection history',BLUE,25,'#fff6ed')
+    # The selected view supplies its camera pose to Render and its RGB to Base.
+    line([(1131,656),(1152,656),(1152,262),(1386,262)],BLUE,1.9,True)
+    label_chip(1194,271,160,'Camera pose',BLUE,25,'#f2f3ff')
+    line([(1152,516),(1246,516)],BLUE,1.9,True)
+    text(1188,507,'RGB',25,BLUE,False,'start')
 
     # Right: real shared map, large enough to carry comparable visual weight to v12.
-    text(1450,147,'Shared Gaussian map',25,INK,True,'middle')
-    img('map_cutaway',1218,158,488,199,False,3,fit='meet')
-    text(1453,368,'C07 region · cutaway visualization',19,INK,False,'middle')
-    rect(1390,382,123,32,'#e0e4ee','none',r=7)
-    text(1451,406,'Render',24,INK,False,'middle')
-    line([(1451,374),(1451,382)],GREY,2,True)
-    line([(1451,414),(1451,424),(1280,424),(1280,435)],GREY,1.9,True)
-    line([(1443,424),(1443,435)],GREY,1.9,True)
-    for key,x,label in [('render_rgb',1207,'Rendered RGB'),('render_depth',1370,'Rendered depth'),('render_normal',1542,'Depth-derived normal')]:
-        img(key,x,439,146,86)
-        if key=='render_normal':
-            text(x+73,543,'Depth-derived',18,INK,True,'middle')
-            text(x+73,564,'normal',18,INK,True,'middle')
-        else:
-            text(x+73,547,label,19,INK,True,'middle')
-    line([(1516,482),(1538,482)],GREY,1.7,True)
-    rect(1250,566,401,54,'#e1e5ed','#a0a9b1',1.2,12)
-    text(1450,589,'Base supervision',25,INK,True,'middle')
-    text(1450,612,'RGB (K + I) · Depth / normal (K)',21,INK,False,'middle')
-    for x in [1280,1443]: line([(x,552),(x,564)],GREY,1.6,True)
-    line([(1688,482),(1699,482),(1699,581),(1655,581)],GREY,1.6,True)
-    label_chip(1180,595,63,'Priors',INK,18,'#f3f4ff')
+    text(1450,94,'Shared Gaussian map',26,INK,True,'middle')
+    img('map_cutaway',1218,106,488,125,False,3,fit='meet')
+    # Render is the heading of a single modality group. Its brace points into
+    # base supervision without duplicating that relation with three arrows.
+    rect(1390,246,123,32,'#e0e4ee','none',r=7)
+    text(1451,270,'Render',25,INK,False,'middle')
+    line([(1451,233),(1451,243)],GREY,2,True)
+    for key,x,label in [('render_rgb',1203,'Rendered RGB'),('render_depth',1370,'Rendered depth'),('render_normal',1537,'Rendered normal')]:
+        img(key,x,292,146,86)
+        # A small optical adjustment keeps the three full labels separate.
+        text(x+73,410,label,23,INK,False,'middle',compact=True)
+    brace(1203,1683,425,GREY)
+    rect(1250,464,401,70,'#e1e5ed','#a0a9b1',1.2,12)
+    text(1450,492,'Base supervision',26,INK,True,'middle')
+    text(1450,522,'RGB (K + I) · Depth / normal (K)',25,INK,False,'middle')
+    text(1188,475,'Priors',25,INK,False,'start')
     # Both terms feed the objective, never a serial loss chain.
-    add(f'<circle cx="1750" cy="534" r="43" fill="white" stroke="{GREY}" stroke-width="2.6"/>')
-    text(1750,522,'Map',23,INK,True,'middle');text(1750,548,'objective',21,INK,True,'middle')
-    text(1750,570,'+',23,GREY,True,'middle')
-    line([(1651,606),(1693,606),(1720,568)],GREY,2.1,True)
-    line([(1750,491),(1750,map_mid),(map_right+4,map_mid)],GREY,2.1,True)
-    add(f'<circle cx="1750" cy="290" r="2.5" fill="{RED}"/>')
-    label_chip(1693,343,100,'Update',INK,23,'#f0f2ff')
+    add(f'<circle cx="1750" cy="435" r="49" fill="white" stroke="{GREY}" stroke-width="2.6"/>')
+    text(1750,414,'Map',25,INK,True,'middle');text(1750,445,'objective',25,INK,True,'middle')
+    text(1750,474,'+',25,GREY,True,'middle')
+    line([(1651,503),(1692,503),(1721,475)],GREY,2.1,True)
+    line([(1750,386),(1750,250),(map_right-18,250),(map_right-18,235)],GREY,2.1,True)
+    text(1720,237,'Update',24,INK,False,'middle')
 
-    # Ray loss: preserve the illustrative icon density, not the fake room rendering.
-    rect(1182,637,512,170,'#fffaff',PURPLE,1.5,9,extra='stroke-dasharray="6 4"')
-    text(1191,665,'(c) Ray-space geometry supervision',26,PURPLE,True)
-    text(1397,691,'Observed free space',21,INK,False,'middle')
-    line([(1269,703),(1586,703)],'#0876ee',1.5,True,start=True)
-    camera(1198,712,.79)
-    # Uncertainty slab, not a Gaussian position displacement.
-    rect(1598,696,23,77,'#ece2f6','none')
-    path('M 1621 696 L 1640 707 L 1640 782 L 1621 773 Z','#c4b9a3',1,'#eadfbd')
-    for x,rx,ry,g,ang in [(1363,30,15,'blue',-19),(1419,35,19,'red',-14),(1511,24,16,'green',10),(1598,41,27,'purple',-19)]:
-        add(f'<ellipse cx="{x}" cy="730" rx="{rx}" ry="{ry}" transform="rotate({ang} {x} 730)" fill="url(#{g})"/>')
-        add(f'<ellipse cx="{x}" cy="730" rx="{rx*.55}" ry="{ry*.55}" transform="rotate({ang} {x} 730)" fill="url(#{g})"/>')
-    line([(1220,730),(1610,730)],INK,1.5)
-    line([(1610,696),(1610,781)],'#0876ee',1.5,dash=True)
-    add(f'<circle cx="1610" cy="730" r="3.3" fill="{INK}"/>')
-    text(1645,690,'Surface',18,INK,False,'middle')
-    text(1418,771,'Suppress premature opacity ↓ α',21,RED,False,'middle')
-    line([(1419,741),(1419,752)],RED,1.8,True)
-    text(1337,800,'Verified keyframe depth',21,INK,False,'middle')
-    line([(1166,778),(1180,778)],GREY,1.8,True)
-    line([(1469,793),(1610,793),(1610,785)],GREY,1.8,True)
-    text(1627,799,'D',22,INK,False,extra='font-style="italic"')
-    line([(1694,736),(1750,736),(1750,581)],PURPLE,2.1,True)
+    # Ray-space schematic: only opacity changes; no displacement or hard cutoff.
+    # Keep panel width; lift and tighten its height so the bottom border is clearly inset.
+    # Paint the Depth backing below the panel border, aligned with the shifted input labels.
+    rect(1182,681,72,36,'#fffaff','none',r=5)
+    rect(1182,552,512,184,'#fffaff',PURPLE,1.5,9,extra='stroke-dasharray="6 4"')
+    text(1191,584,'(c) Free-Space Carve Loss',CONTRIBUTION_SIZE,PURPLE,True)
+    # Balance the simplified diagram vertically after removing its input footer.
+    add('<g transform="translate(0 -4)">')
+    text(1410,623,'Observed free space',25,INK,False,'middle')
+    line([(1260,637),(1260,633),(1565,633),(1565,637)],BLUE,1.5)
+    camera(1198,635,.79)
+    # Keep the observed surface; depth uncertainty is explained in the method text.
+    path('M 1620 636 L 1640 647 L 1640 687 L 1620 676 Z','#c4b9a3',1,'#eadfbd')
+    for x,rx,ry,g,ang,opacity in [(1310,27,13,'red',-19,.6),(1410,30,16,'red',-14,.6),(1510,25,12,'red',10,.6),(1620,33,22,'purple',-19,1)]:
+        add(f'<g opacity="{opacity}">')
+        add(f'<ellipse cx="{x}" cy="653" rx="{rx}" ry="{ry}" transform="rotate({ang} {x} 653)" fill="url(#{g})"/>')
+        add(f'<ellipse cx="{x}" cy="653" rx="{rx*.55}" ry="{ry*.55}" transform="rotate({ang} {x} 653)" fill="url(#{g})"/>')
+        add('</g>')
+        if g=='red':
+            text(x,684,'α ↓',25,RED,False,'middle')
+    line([(1220,653),(1620,653)],INK,1.5)
+    add(f'<circle cx="1620" cy="653" r="3.3" fill="{INK}"/>')
+    text(1640,623,'Surface',25,INK,False,'middle')
+    text(1410,724,'Penalize free-space opacity',25,RED,False,'middle')
+    add('</g>')
+    # Keep the common left edge x=1188 for all three input labels, with the arrow entering the wide box.
+    line([(1166,720),(1246,720)],GREY,2,True)
+    text(1188,709,'Depth',25,INK,False,'start')
+    line([(1694,663),(1750,663),(1750,488)],PURPLE,2.1,True)
 
     add('</g></svg>')
     svg='\n'.join(S);ET.fromstring(svg)
@@ -251,14 +259,15 @@ if __name__=='__main__':
     subprocess.run(['pdftoppm','-scale-to','2723','-png','-singlefile',str(out.with_suffix('.pdf')),str(ROOT/'qa/overview_pdf_check')],check=True)
     # Native high-resolution PDF crops for connector inspection; no asset edits.
     zooms=ROOT/'qa/arrows';zooms.mkdir(exist_ok=True)
-    regions={'frontend':(10,350,455,468),'initialization':(430,75,825,355),
-             'map_update':(1170,75,630,350),'sampling':(855,535,335,278),
-             'loss_routes':(1140,405,660,415)}
-    previous=ROOT/'archive/before_arrow_cleanup/current/overview.pdf'
+    regions={'frontend':(10,230,455,380),'initialization':(430,75,825,355),
+             'map_update':(1170,75,630,310),'sampling':(490,450,665,300),
+             'loss_routes':(1140,305,660,450)}
+    previous=ROOT/'archive/before_type_spacing_2026-09-21/current/overview.pdf'
     for version,pdf in [('before',previous),('after',out.with_suffix('.pdf'))]:
         if not pdf.exists():continue
         for name,(x,y,w,h) in regions.items():
             target=zooms/f'{version}_{name}'
+            if version=='after':y,h=math.floor(y*VERTICAL_SCALE),math.ceil(h*VERTICAL_SCALE)
             subprocess.run(['pdftoppm','-scale-to',str(W*3),'-x',str(x*3),'-y',str(y*3),
                 '-W',str(w*3),'-H',str(h*3),'-png','-singlefile',str(pdf),str(target)],check=True)
     # Matching-size reference comparison, generated by this same maintained builder.
@@ -272,10 +281,45 @@ if __name__=='__main__':
     comparison.append('</svg>')
     compare=ROOT/'qa/v12_vs_vector_comparison.svg';compare.write_text('\n'.join(comparison))
     subprocess.run(['inkscape',str(compare),f'--export-filename={compare.with_suffix(".png")}'],check=True)
+    # Same physical width, native aspect ratios: make height reduction explicit.
+    comparison=['<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="665" viewBox="0 0 2400 665">',
+                '<rect width="2400" height="665" fill="white"/>']
+    for x,p,title in [(15,ROOT/'archive/before_height_compaction/current/overview.png','Before: 180 x 86.28 mm'),
+                      (1215,ROOT/'qa/overview_pdf_check.png','Current: 180 x 69.42 mm')]:
+        data=p.read_bytes();iw,ih=int.from_bytes(data[16:20],'big'),int.from_bytes(data[20:24],'big')
+        comparison.append(f'<text x="{x}" y="33" font-family="Times New Roman" font-size="27" fill="{INK}">{title}</text>')
+        comparison.append(f'<image x="{x}" y="60" width="1170" height="{1170*ih/iw}" href="data:image/png;base64,{base64.b64encode(data).decode()}"/>')
+    comparison.append('</svg>')
+    compare=ROOT/'qa/height_before_after.svg';compare.write_text('\n'.join(comparison))
+    subprocess.run(['inkscape',str(compare),f'--export-filename={compare.with_suffix(".png")}'],check=True)
+    # Keep a same-size comparison against the exact pre-edit PDF rendering.
+    comparison=['<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="580" viewBox="0 0 2400 580">',
+                '<rect width="2400" height="580" fill="white"/>']
+    for x,p,title in [(15,ROOT/'archive/before_detail_cleanup_2026-09-21/qa/overview_pdf_check.png','Before: overlapping labels and redundant connectors'),
+                      (1215,ROOT/'qa/overview_pdf_check.png','After: grouped flow and aligned labels')]:
+        comparison.append(f'<text x="{x}" y="35" font-family="Times New Roman" font-size="27" fill="{INK}">{title}</text>')
+        comparison.append(f'<image x="{x}" y="60" width="1170" height="490" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,{base64.b64encode(p.read_bytes()).decode()}"/>')
+    comparison.append('</svg>')
+    compare=ROOT/'qa/detail_cleanup_before_after.svg';compare.write_text('\n'.join(comparison))
+    subprocess.run(['inkscape',str(compare),f'--export-filename={compare.with_suffix(".png")}'],check=True)
+    # Refresh the exact asset preferred by the current Overleaf manuscript.
+    import shutil
+    manuscript=ROOT.parents[3]/'HumanTeck_Song_s_intern/figure/overview.pdf'
+    assert manuscript.parent.is_dir(),manuscript
+    shutil.copy2(out.with_suffix('.pdf'),manuscript)
     counts=[12,9,6,3,0];mass=[math.exp(-.1*n) for n in counts]
     probabilities=[v/sum(mass) for v in mass]
     assert [round(100*p) for p in probabilities]==[10,14,18,25,33]
-    (ROOT/'qa/v02_validation.json').write_text(json.dumps({'assets':BOXES,'font':'Times New Roman','reference':'../plan/overall_pipeline_v12.png','physical_width_mm':180,'status':'overview_with_real_assets_not_full_method_result',
+    (ROOT/'qa/v02_validation.json').write_text(json.dumps({'assets':BOXES,'font':'Times New Roman','reference':'../plan/overall_pipeline_v12.png','physical_width_mm':180,
+        'physical_height_mm':180*H/W,'previous_height_mm':180*870/W,'height_reduction_percent':100*(1-H/870),
+        'layout_revision':'view_set_growth_title_2026-09-22','immediate_previous_height_mm':180*DESIGN_H/W,'vertical_scale':VERTICAL_SCALE,'body_glyphs_preserved':True,'image_aspect_ratios_preserved':True,
+        'contribution_font_pt':CONTRIBUTION_SIZE*180/W*72/25.4,
+        'body_font_pt':LABEL_SIZE*180/W*72/25.4,
+        'modality_label_font_pt':23*180/W*72/25.4,
+        'compact_badge_font_pt':23*180/W*72/25.4,
+        'shared_map_shift_up_mm':38*180/W,
+        'group_flow':'braces point to frontend, sampling and base supervision without added arrowheads',
+        'image_assets_unchanged':True,'status':'overview_with_real_assets_not_full_method_result',
         'schematic_counts':counts,'schematic_probabilities':probabilities,
         'schematic_effective_beta':.1,'schematic_tau':1/(.1*(sum(counts)+1)),
         'counts_are_measured':False,

@@ -1,0 +1,123 @@
+[
+  {
+    "rank": 1,
+    "fig2_candidate": "F18",
+    "dataset": "rpng",
+    "scene": "table_01",
+    "frame_index": 330,
+    "uid": "1662915742346800804.png",
+    "crop_xyxy_display_pixels": [
+      384,
+      208,
+      508,
+      332
+    ],
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_01/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_01/normalized_variance_s0",
+    "seed": 0,
+    "carve_enabled": false,
+    "source_provenance": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/frames/F18/provenance.json",
+    "comparison_image": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/F18_comparison.png",
+    "scene_final_psnr": {
+      "baseline": 23.928826286498293,
+      "ours": 25.581415685524505
+    },
+    "final_optimizer_steps": {
+      "baseline": 3027,
+      "ours": 3030
+    },
+    "map_files_found": {
+      "baseline_run": [
+        "3dgs_before_final.ply"
+      ],
+      "ours_run": [
+        "3dgs_before_final.ply"
+      ]
+    },
+    "reason": "Early-visible textured tabletop; same-view refinement across three checkpoints; distinct from Fig. 2.",
+    "proposed_inset_iterations": [
+      600,
+      1500,
+      2700
+    ],
+    "status": "Provisional selection from endpoint imagery and arrival logs; intermediate quality not measured."
+  },
+  {
+    "rank": 2,
+    "fig2_candidate": "F04",
+    "dataset": "rpng",
+    "scene": "table_06",
+    "frame_index": 1420,
+    "uid": "1662924054353375673.png",
+    "crop_xyxy_display_pixels": [
+      440,
+      40,
+      564,
+      164
+    ],
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_06/normalized_variance_s0",
+    "seed": 0,
+    "carve_enabled": false,
+    "source_provenance": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/frames/F04/provenance.json",
+    "comparison_image": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/F04_comparison.png",
+    "scene_final_psnr": {
+      "baseline": 22.682195690945463,
+      "ours": 24.473087235184405
+    },
+    "final_optimizer_steps": {
+      "baseline": 2719,
+      "ours": 2714
+    },
+    "map_files_found": {
+      "baseline_run": [
+        "3dgs_before_final.ply"
+      ],
+      "ours_run": [
+        "3dgs_before_final.ply"
+      ]
+    },
+    "reason": "Continuity with Fig. 2; first visibility of selected reverse-side poster ROI needs verification.",
+    "proposed_inset_iterations": null,
+    "status": "Provisional selection from endpoint imagery and arrival logs; intermediate quality not measured."
+  },
+  {
+    "rank": 3,
+    "fig2_candidate": "F07",
+    "dataset": "rpng",
+    "scene": "table_08",
+    "frame_index": 425,
+    "uid": "1662925806490018845.png",
+    "crop_xyxy_display_pixels": [
+      96,
+      144,
+      220,
+      268
+    ],
+    "baseline_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/native_vanilla_render_matched_s0",
+    "ours_run": "/home/intern/gs_floaterLab/results/experiments/exp94_normalized_metric_v2_fixed_eval/rpng/table_08/normalized_variance_s0",
+    "seed": 0,
+    "carve_enabled": false,
+    "source_provenance": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/frames/F07/provenance.json",
+    "comparison_image": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure02/candidates/F07_comparison.png",
+    "scene_final_psnr": {
+      "baseline": 22.10043133554807,
+      "ours": 23.793198178878804
+    },
+    "final_optimizer_steps": {
+      "baseline": 7436,
+      "ours": 7465
+    },
+    "map_files_found": {
+      "baseline_run": [
+        "3dgs_before_final.ply"
+      ],
+      "ours_run": [
+        "3dgs_before_final.ply"
+      ]
+    },
+    "reason": "Early held-out view, textured table edge; longer run and less readable oblique crop.",
+    "proposed_inset_iterations": null,
+    "status": "Provisional selection from endpoint imagery and arrival logs; intermediate quality not measured."
+  }
+]

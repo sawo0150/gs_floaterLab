@@ -1,0 +1,15 @@
+{
+  "image_count": 2,
+  "image_iteration": 1400,
+  "layout": "left VIGS-SLAM / right Ours, ROI only",
+  "same_original_images_and_roi": true,
+  "zoom_width_factor": 2.5,
+  "minimum_curve_image_clearance_mm": 1.3710879268739338,
+  "curve_coordinates_unchanged": true,
+  "text_overlap_count": 0,
+  "text_inside_page": true,
+  "embedded_fonts": true,
+  "visual_review": "2100px and manuscript column PDF renders inspected; no curve occlusion or clipped labels.",
+  "paper_only_fig2_caption_changed": true,
+  "manuscript_pdfs_synchronized": true
+}

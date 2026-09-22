@@ -1,0 +1,30 @@
+{
+  "checkpoint_count": 55,
+  "heldout_count": 539,
+  "variants": {
+    "fig3_A_frame1180": {
+      "pdf_sha256": "8d25c9cdb78d7cfd041903342e1286251d98c475ba456234956a7958d7e1ea1f",
+      "svg_sha256": "41381486a6df11109d0ed2b7e38df9e451515e73259a672b907f6863a86e2803",
+      "embedded_images": 6,
+      "pdfinfo": "Creator:         Inkscape 1.4.4 (https://inkscape.org)\nProducer:        cairo 1.18.0 (https://cairographics.org)\nCreationDate:    Mon Sep 21 11:38:07 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       245.155 x 179.781 pts\nPage rot:        0\nFile size:       1452074 bytes\nOptimized:       no\nPDF version:     1.5\n",
+      "fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nOCPNTG+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\nADKQKE+TimesNewRomanPSMT             CID TrueType      Identity-H       yes yes yes      8  0\n"
+    },
+    "fig3_B_frame1220": {
+      "pdf_sha256": "24d290a8ce1d035aa995eb55c17202a89ee4517441847c38abbb23644b5bf0d5",
+      "svg_sha256": "f0002704ebb6180c07b8d71356c8c50c1079ac277c57931ebbb660c774534592",
+      "embedded_images": 6,
+      "pdfinfo": "Creator:         Inkscape 1.4.4 (https://inkscape.org)\nProducer:        cairo 1.18.0 (https://cairographics.org)\nCreationDate:    Mon Sep 21 11:38:08 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       245.155 x 179.781 pts\nPage rot:        0\nFile size:       1370623 bytes\nOptimized:       no\nPDF version:     1.5\n",
+      "fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nOCPNTG+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\nADKQKE+TimesNewRomanPSMT             CID TrueType      Identity-H       yes yes yes      8  0\n"
+    },
+    "fig3_C_frame980": {
+      "pdf_sha256": "83c055572e479391f828e206c916b834e7cdd9e7af02073e7b6f83cd0df6cc4d",
+      "svg_sha256": "acfd6d75d19e92616374792c8c4bf79577765e8426ff1b19496cbbdd0e0036cf",
+      "embedded_images": 6,
+      "pdfinfo": "Creator:         Inkscape 1.4.4 (https://inkscape.org)\nProducer:        cairo 1.18.0 (https://cairographics.org)\nCreationDate:    Mon Sep 21 11:38:09 2026 KST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          no\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           1\nEncrypted:       no\nPage size:       245.155 x 179.781 pts\nPage rot:        0\nFile size:       1587737 bytes\nOptimized:       no\nPDF version:     1.5\n",
+      "fonts": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nOCPNTG+TimesNewRomanPSMT             TrueType          WinAnsi          yes yes yes      7  0\nADKQKE+TimesNewRomanPSMT             CID TrueType      Identity-H       yes yes yes      8  0\n"
+    }
+  },
+  "visual_review": "All three PDFs rendered and inspected; inset headers and axes readable, no clipping. Late pose-correction interpretation disclosed.",
+  "same_curve_geometry_across_variants": true,
+  "document_links_valid": true
+}

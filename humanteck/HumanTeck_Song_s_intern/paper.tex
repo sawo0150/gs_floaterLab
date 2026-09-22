@@ -2,43 +2,79 @@
 
 \usepackage{blindtext}
 \usepackage{ragged2e}
+\usepackage{rpm_acronyms}
+
+\raggedbottom
+\setlength{\textfloatsep}{7pt plus 1pt minus 2pt}
 
 \begin{document}
-\title{Fast Photometric and Geometric Convergence in 3DGS SLAM}
+\title{Fast Photometric and Geometric Convergence for online 3DGS}
 \twocolumn[
 \begin{@twocolumnfalse}
 \begin{flushleft}
 \maketitle
 \begin{abstract}
 \justifying
-3D Gaussian Splatting (3DGS) enables photorealistic rendering, but its dense optimization restricts it to offline use. For robotics and wearable augmented reality, \emph{online mapping} is strictly demanded. Since "real-time" performance fluctuates with hardware, the true objective is achieving \emph{fast photometric and geometric convergence} under a bounded mapping budget. Two bottlenecks hinder this: tracking-oriented view selection dilutes updates, and shape-radiance ambiguity leaves spurious floaters in free space. To address these, we couple view-set expansion to completed updates and introduce Entropy-Regularized Count Balancing (ERCB) for equitable refinement. Geometrically, we bypass unstable positional gradients by directly suppressing spurious opacity via a causal Carve loss. By treating real-time operation as a strict constraint rather than a substitute for map quality, our formulation forces each optimization unit to immediately produce reliable geometry and appearance.
+% 3D Gaussian Splatting (3DGS) enables photorealistic rendering, but its dense optimization restricts it to offline use. For robotics and wearable augmented reality, \emph{online mapping} is strictly demanded. Since "real-time" performance fluctuates with hardware, the true objective is achieving \emph{fast photometric and geometric convergence} under a bounded mapping budget. Two bottlenecks hinder this: tracking-oriented view selection dilutes updates, and shape-radiance ambiguity leaves spurious floaters in free space. To address these, we couple view-set expansion to completed updates and introduce Entropy-Regularized View Sampling (ERVS) for equitable refinement. Geometrically, we bypass unstable positional gradients by directly suppressing spurious opacity via a causal Carve loss. By treating real-time operation as a strict constraint rather than a substitute for map quality, our formulation forces each optimization unit to immediately produce reliable geometry and appearance.
+
+% (Chaehyeon) Mapping with 3D Gaussian Splatting (3DGS) benefits robotics and wearable augmented reality in terms of photorealistic rendering. However, its dense optimization based on photometric loss hinders online mapping and generates erroneous geometry such as floaters in free space. We attribute these problems to the tracking-oriented view selection and the shape-radiance ambiguity. To achieve both fast convergence and accurate geometry, we couple view-set expansion to completed updates and introduce Entropy-Regularized View Sampling (ERVS) for equitable refinement. Geometrically, we bypass unstable positional gradients by directly suppressing spurious opacity via a causal Carve loss. By treating real-time operation as a strict constraint rather than a substitute for map quality, our formulation forces each optimization unit to immediately produce reliable geometry and appearance.
+
+Mapping with 3D Gaussian Splatting (3DGS) benefits autonomous agent by enabling photorealistic rendering. However, in online mapping, the few number of observations hinder rapid map convergence, while photometric loss alone can produce geometrically incorrect reconstructions, including floating artifacts in free space. 
+We attribute this to two underlying causes: view selection tailored to camera pose estimation rather than map refinement, and insufficient control over which Gaussian parameters receive gradients from depth-based geometric losses. 
+To address the former issue, we incorporate additional non-keyframe images into mapping, and efficiently handle the resulting larger frame set by prioritizing frames that have received fewer updates based on Entropy-Regularized View Sampling.
+% Specifically, we add additional frames as mapping updates accumulate and introduce Entropy-Regularized View Sampling (ERVS) to prioritize frames that have received fewer updates, balancing new observations with continued refinement. 
+For geometric enhancement, we introduce a depth-guided Carve loss that directly updates opacity. It prevent optimization from circumventing free-space geometric constraints through compensatory changes in Gaussian positions or shapes.
+Together, these combined strategies enable the system to produce reliable geometry and appearance under constraints of online environments.
+
 \end{abstract}
 \vspace{20pt}
 \end{flushleft}
-\end{@twocolumnfalse}
-]
+\end{@twocolumnfalse}]
 \thispagestyle{firstpage}
+
+% \section{Introduction}
+% \label{sec:intro}
+
+% \ac{3DGS} has revolutionized photorealistic view synthesis~\cite{kerbl20233dgs}, but its computationally intensive optimization typically requires offline training. 
+% However, autonomous agents and wearable augmented-reality systems inherently require online mapping, since they must build and use a reliable map as new observations arrive rather than wait for offline refinement.
+% Recent \ac{SLAM} systems bring Gaussian representations into this online setting by estimating camera motion while incrementally optimizing a Gaussian map from streaming observations. 
+% Yet, real-time performance depends on hardware and system configuration, without directly indicating how quickly maps become reliable.
+% We therefore focus on fast photometric and geometric convergence-maximizing map reliability under a bounded computational budget.
+
+% Fast convergence is hindered by two critical bottlenecks. First, uniform view sampling dilutes available updates across frames. We resolve this by coupling training-set growth to actual optimization progress and introducing Entropy-Regularized View Sampling (ERVS) to correct training deficits. Second, due to shape-radiance ambiguity, misplaced Gaussians effortlessly replicate target colors by forming semi-transparent floaters in empty space. Resolving this by simply translating Gaussians exposes a fundamental flaw: strict depth-sorting in the rasterizer causes abrupt gradient discontinuities when the rendering order changes. Therefore, rather than relying on unstable positional updates, we enforce a causal free-space Carve loss that directly suppresses opacity where depth evidence dictates empty space, effectively forcing geometric clustering.
+
+% Our contributions are summarized as follows:
+% \begin{itemize}
+%     \item We formulate an online 3DGS mapping framework optimized strictly for \emph{fast photometric and geometric convergence} under limited compute.
+%     \item We introduce Optimization-Guided View Growth and ERVS to correct severe optimization imbalances.
+%     \item We design an opacity-directed causal Carve loss to rapidly eliminate free-space artifacts, bypassing positional gradient discontinuities.
+% \end{itemize}
 
 \section{Introduction}
 \label{sec:intro}
+\ac{3DGS} is getting attention from its photorealistic view synthesis and widely utilized in vision-based autonomous agents~\cite{intro_zitkovich2023rt2}. However, its computationally intensive optimization is not suitable for online-mapping, which is often required for active perception and action generation. Furthermore, weak geometric convergence induces floaters in free space and vague object surface boundaries. Recent works bring \ac{SLAM} systems to enable online learning, but inefficient view selection and insufficient consideration about geometry are degrading the mapping performance.
 
-3D Gaussian Splatting (3DGS) has revolutionized photorealistic view synthesis~\cite{kerbl20233dgs}, but its computationally intensive optimization typically requires offline training. \emph{However}, autonomous agents and wearable augmented-reality systems strictly demand \emph{online mapping} to refine environments on the fly. While recent SLAM systems process streams quickly~\cite{matsuki2024monogs, huang2024photoslam}, "real-time" operation is an inherently ambiguous, hardware-dependent metric. Therefore, rather than engineering a system merely to meet an arbitrary frame rate, the fundamental objective \emph{must} be achieving \emph{fast photometric and geometric convergence}—maximizing map reliability under a bounded computational budget.
+%First, view selection for \ac{SLAM} pipeline is not the most effective observations for Gaussian-map refinement. Admitting every incoming frame spreads limited updates across more images, while uniform sampling leaves differences in accumulated updates uncorrected as new frames enter training. 
+When integrating 3DGS into SLAM pipelines, using only SLAM keyframes for 3DGS optimization is insufficient due to the complexity of the scene representation. Thus, incorporating suitable frames into the training set while effectively allocating optimization steps across frames is important. We address this by incrementally adding non-keyframe images as mapping optimization progresses and introducing Entropy-Regularized View Sampling (ERVS) to prioritize frames that have received fewer updates, balancing new observations with continued refinement.
 
-Fast convergence is hindered by two critical bottlenecks. First, uniform view sampling dilutes available updates across frames. We resolve this by coupling training-set growth to actual optimization progress and introducing Entropy-Regularized Count Balancing (ERCB) to correct training deficits~\cite{cartgs}. Second, due to shape-radiance ambiguity, misplaced Gaussians effortlessly replicate target colors by forming semi-transparent floaters in empty space~\cite{stablegs, wang2025efags}. Attempting to resolve this by simply translating Gaussians exposes a fundamental flaw: strict depth-sorting in the rasterizer causes abrupt gradient discontinuities when the rendering order changes. Therefore, rather than relying on unstable positional updates, we enforce a causal free-space Carve loss that directly suppresses opacity where depth evidence dictates empty space, effectively forcing geometric clustering~\cite{pagas2026, yu2024gof}.
+ Limited number of viewpoints on the scene during online mapping pose another challenge: photometric optimization can converge to a local minimum that reproduces the observed images but yields inaccurate scene geometry.
+Depth-based losses provide geometric supervision, but their effect depends on which Gaussian parameters receive their gradients. Directly optimizing Gaussians upon their positions leads to discontinuity of gradients, resulting from the discrete ordering in 3DGS rendering. Using the shape as a constraint doesn't resolve the visibility of the free space Gaussians.
+Therefore we introduce a causal, depth-guided Carve loss that directly suppresses Gaussian opacity in free space.
+By routing its gradients exclusively to opacity, we prevent changes in free space Gaussian positions or shapes from compensating for this penalty.
 
 Our contributions are summarized as follows:
 \begin{itemize}
-    \item We formulate an online 3DGS mapping framework optimized strictly for \emph{fast photometric and geometric convergence} under limited compute.
-    \item We introduce Optimization-Guided View Growth and ERCB to correct severe optimization imbalances.
-    \item We design an opacity-directed causal Carve loss to rapidly eliminate free-space artifacts, bypassing positional gradient discontinuities.
+    \item We formulate an online 3DGS mapping framework that targets fast photometric and geometric convergence under limited computation.
+    \item We introduce Optimization-Guided View Set Growth and ERVS to coordinate frame admission and update allocation with mapping progress.
+    \item We design an opacity-directed causal Carve loss to suppress Gaussian contributions in observed free space through selective gradient routing.
 \end{itemize}
 
-\section{Efficient Real-Time Online Gaussian Mapping}
+\section{Efficient Online Gaussian Mapping with Reliable Geometry}
 \label{sec:method}
 
 Our framework incrementally builds a Gaussian map from streaming RGB images and IMU measurements.
-A DROID-SLAM-based frontend~\cite{teed2021droid} estimates camera poses and depths to initialize the Gaussian map and extend it to newly observed regions.
-View Growth determines which images enter training, View Sampling selects images for each update, and Carve adds depth-based geometric supervision to map optimization.
+A DROID-SLAM-based frontend~\cite{teed2021droid} provides poses and depths to initialize and grow the Gaussian map.
+View Set Growth controls when new images are added to the training set, while View Sampling selects images from this set for each optimization update, and the carve loss adds depth-based geometric supervision to map optimization.
 % Declare the full-width overview at the end of the Introduction to target
 % the top of the next page. Confirm final placement in the compiled paper.
 \begin{figure*}[t]
@@ -55,109 +91,70 @@ View Growth determines which images enter training, View Sampling selects images
     }%
   }
   \caption{Overview of the proposed online Gaussian mapping framework.
-  (a) View Growth expands the training set according to completed updates.
-  (b) View Sampling allocates updates using cumulative selection counts.
-  (c) Carve uses available depth evidence to suppress free-space opacity.
-  View-management and ray diagrams are schematic; the shared map is a
-  cutaway visualization of a map trained without Carve.}
+  (a) View Set Growth adds images to the training set based on the number of completed optimization steps.
+  (b) View Sampling selects images from the training set for map optimization based on how often each image has been selected.
+  (c) Carve uses available depth observations to suppress Gaussian
+  opacity in observed free space.}
   \label{fig:overview}
 \end{figure*}
 
-\noindent\textbf{Optimization-Guided View Growth.}
-Frames between tracking keyframes provide additional viewpoints and appearance information.
-Including more frames also spreads a limited number of updates across more images.
-We therefore grow the training set according to completed mapping updates (Fig.~\ref{fig:overview}(a)).
-Every $\kappa$ completed updates allow one additional image from the available observations to enter training; previously admitted images remain available for revisiting.
-This ties view growth to actual optimization progress without requiring the remaining sequence length in advance.
+\noindent\textbf{Optimization-Guided View Set Growth.}
+Frames between \ac{SLAM} keyframes can provide additional viewpoints and appearance information, but adding them to the training set leaves fewer optimization steps per image on average under a fixed budget.
+We therefore control training view set growth by adding one available image after every $\kappa$ optimization steps on the Gaussian map (Fig.~\ref{fig:overview}(a)).
 
 \noindent\textbf{Entropy-Regularized View Sampling.}
-Images admitted earlier have more opportunities to be selected for training.
-To give less frequently selected images more updates while retaining randomness, we choose selection probabilities by minimizing
+Images added earlier to the training set have more opportunities for optimization.
+We distribute optimization steps more evenly across images while retaining randomness in image selection (Fig.~\ref{fig:overview}(b)). We formulate this objective as
 \begin{equation}
   \min_{\mathbf p\in\Delta}
-  \sum_i p_i\Delta_i\Phi-\tau H(\mathbf p).
+  \sum_i p_i\Delta_i\phi-\tau H(\mathbf p).
   \label{eq:view_sampling}
 \end{equation}
-Here, $p_i$ is the probability of selecting image $i$, and $\Delta$ contains
-nonnegative probability vectors that sum to one.
-We define $\Phi=\operatorname{Var}(\mathbf n)/(2\bar n)$ from cumulative
-selection counts $\mathbf n$ with mean $\bar n$; $\Delta_i\Phi$ is its change
-after selecting image $i$ once more.
-The first term favors less frequently selected images.
-The entropy term, $H(\mathbf p)=-\sum_i p_i\log p_i$, discourages concentration
-on a few images, with $\tau>0$ controlling its strength.
-Using these probabilities, we sample $K$ distinct images without replacement
-and use each once over the next $K$ updates (Fig.~\ref{fig:overview}(b)).
-% At zero total selections, use the symmetric/uniform initialization;
-% the count-dispersion definition above applies once the mean is positive.
+The first term favors less frequently selected images, while the entropy term encourages randomness in image selection.
+Here, $\mathbf p=(p_i)$ contains image-selection probabilities, and $\Delta$ contains nonnegative vectors summing to one.
+We measure imbalance by $\phi=\operatorname{Var}(\mathbf n)/(2\bar n)$, where $\mathbf n=(n_i)$ records cumulative selection counts and $\bar n$ is their mean. 
+$\Delta_i\phi$ denotes its change after selecting image $i$ once more.
+The entropy is $H(\mathbf p)=-\sum_i p_i\log p_i$, with weight $\tau>0$.
 
 \noindent\textbf{Causal Free-Space Carve Loss.}
-A map can reproduce image colors while retaining Gaussians in front of
-observed surfaces, producing floating artifacts.
 Depth observations provide evidence of free space between the camera and a surface.
-Carve uses depths available at the current time, accounting for uncertainty
-and a margin around the surface, to penalize opacity in this free space
-(Fig.~\ref{fig:overview}(c)).
-It adds an opacity gradient to the existing mapping objective without
-directly updating Gaussian positions or shapes.
+The Carve loss uses these observations to penalize Gaussian opacity in this free space, accounting for depth uncertainty and a margin around the surface (Fig.~\ref{fig:overview}(c)).
+Its gradients act on opacity without updating Gaussian positions or rotations.
 
-\noindent\textbf{Evaluation.}
-We evaluate on the public RGB--IMU benchmarks RPNG~\cite{rpng_dataset}
-and UTMM~\cite{utmm_dataset}, and on data we collected with Meta's Aria glasses.
-Under a matched rendering budget, mean held-out PSNR exceeds that of
-the reference method~\cite{vigsslam} by
-1.60, 0.52, and 2.45\,dB, respectively.
-Figure~\ref{fig:rgb_comparison} shows a selected held-out example in which
-our system more faithfully reproduces the poster's logo and printed patterns.
-This example illustrates our goal of turning incoming observations into
-faithful appearance reconstruction within a limited mapping budget.
-Figure~\ref{fig:carve_comparison} is reserved for the Carve geometry ablation.
-% Source: paper/latex/sec/5_results.tex, tab:rendering_comparison.
-% These are fixed-work mapping quality results, not measured real-time FPS.
-% F04 provenance: exp94, 34,437 physical mapping renders per method,
-% same evaluation pose, Carve off. Selected high-gain frame, not a mean.
-% Record the configuration in the final experimental setup; this image
-% does not isolate individual components or establish time-to-quality.
-
-\begin{figure}[t]
+\begin{figure}[!t]
   \centering
-  \includegraphics[width=\linewidth]{figure/rgb_comparison.pdf}
-  \caption{Held-out rendering comparison between VIGS-SLAM~\cite{vigsslam}
-  and our method on RPNG \texttt{table\_06} under a matched rendering budget.}
-  \label{fig:rgb_comparison}
-\end{figure}
-
-\begin{figure}[t]
-  \centering
-  \IfFileExists{figure/carve_comparison.pdf}{%
-    \includegraphics[width=\linewidth]{figure/carve_comparison.pdf}%
-  }{%
-    \fbox{\parbox[c][2.6cm][c]{0.92\linewidth}{\centering
-      Draft: solid-ellipsoid comparison pending\\
-      Without Carve / With Carve}}%
+  \includegraphics[width=\linewidth]{figure/convergece_comparasion.pdf}
+  \caption{Photometric convergence on RPNG~\cite{chen2023monocular}
+  \texttt{table\_06}.
+  (a) PSNR over mapping iterations.
+  $^{*}$Our method first reaches the baseline's highest PSNR with
+  1,000 fewer mapping iterations.
+  (b) Renderings from VIGS-SLAM~\cite{zhu2026vigs} (left) and ours (center) after 1,400 iterations, with ground truth (right). 
+  Enlargements highlight fine details.
   }
-  \caption{Planned Carve ablation using solid ellipsoids from the same
-  viewpoint and identical opacity-display and scale settings.
-  Draft: models, region-GT metrics, and held-out PSNR remain to be supplied.}
-  \label{fig:carve_comparison}
+  \label{fig:photometric_convergence}
+  \vspace{-4pt}
 \end{figure}
 
+\section{Results and Conclusion}
 
-\section{Conclusion}
-We present an online Gaussian mapping system for efficient optimization of
-appearance and geometry, and report an average held-out PSNR gain of
-1.25\,dB over the reference method across 17 scenes under matched rendering budgets.
-Our system introduces optimization-guided view management to control view
-admission and update allocation, and a causal Carve loss to suppress spurious
-opacity in free space using depth observations.
-This approach provides a foundation for real-time online mapping in robots
-and wearable augmented-reality systems that need reliable maps of their
-surroundings during operation, with limited computation and without waiting
-for offline refinement.
+We evaluate on the public RGB--IMU benchmarks: RPNG~\cite{chen2023monocular}
+and UTMM~\cite{sun2024mm3dgs}, and our own dataset collected by wearable glasses ARIA.
+Under matched optimization step budgets, average PSNR on images excluded from training exceeds the baseline~\cite{zhu2026vigs} by 1.60, 0.52, and 2.45\,dB, respectively.
+Our method requires fewer mapping iterations to achieve comparable rendering quality, enabling efficient online map refinement.
+After the same number of iterations, it produces clearer text and finer details than the baseline (Fig.~\ref{fig:photometric_convergence}).
+
+We present an online Gaussian mapping system for efficient optimization of appearance and geometry, achieving faster photometric convergence and higher rendering quality under limited optimization budgets.
+Our system introduces view management to control training-set growth and allocate optimization steps across images, and a depth-guided Carve loss to suppress Gaussian opacity in free space.
+This approach provides a foundation for online mapping in robots and wearable augmented-reality systems that need reliable maps of their
+surroundings during operation, with limited computation and without waiting for offline refinement.
+
 
 
 \small{
-\bibliographystyle{abbrv}
+% \nocite{*}
+% \bibliographystyle{abbrv}
+\bibliographystyle{abbrv_first_et_al}
 \bibliography{bibliography}
 }
 \end{document}

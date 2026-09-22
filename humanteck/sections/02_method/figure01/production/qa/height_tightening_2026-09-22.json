@@ -1,0 +1,27 @@
+{
+  "previous_height_mm": 75.37190082644628,
+  "height_mm": 69.42148760330579,
+  "width_mm": 180,
+  "height_reduction_percent": 7.8947368421052655,
+  "section_heading_font_svg": [
+    36,
+    31
+  ],
+  "contribution_heading_font_svg": [
+    32,
+    29
+  ],
+  "small_body_font_svg": 25,
+  "body_text_size_and_glyph_aspect_preserved": true,
+  "image_count": 25,
+  "image_bytes_and_crop_settings_unchanged": true,
+  "image_uniform_scale": 0.9210526315789473,
+  "image_aspect_ratios_preserved": true,
+  "all_text_content_unchanged": true,
+  "text_overlaps": 0,
+  "text_outside_page": 0,
+  "visual_review": "Latest PDF inspected at full manuscript width (200 dpi) and magnified loss routes.",
+  "fonts_embedded": true,
+  "manuscript_pdf_synchronized": true,
+  "full_manuscript_compiled": false
+}

@@ -1,0 +1,115 @@
+{
+  "version": "C",
+  "frame_index": 980,
+  "curve_source": "/home/intern/gs_floaterLab/results/figure03_convergence_20260921/aria301_305/evaluation/curves.json",
+  "curve_sha256": "d13cfdea9614d005b9576a000e2d4affb7c3ba3b1f1cb66b3080d9e3e270dd59",
+  "inset_iterations": [
+    600,
+    1000,
+    1300
+  ],
+  "images": [
+    {
+      "arm": "baseline",
+      "iteration": 600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/baseline_iter_00600.png",
+      "sha256": "47c598cdb79704dcc62d67998f18c9971ba6920bf826d9121f396838d60e8f9a",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 600,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/ours_iter_00600.png",
+      "sha256": "755f308e988f00e2e395a8c1bdc797c763615fec78423700d88521ae09018a8b",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1000,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/baseline_iter_01000.png",
+      "sha256": "df35c86fec1409b71110518707c56a4032dc2906aaeecd8107149070c40c53eb",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1000,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/ours_iter_01000.png",
+      "sha256": "263d1c732251d8c921313357528728471da5edad4cb8bb277d17c3a23a5a6d45",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    },
+    {
+      "arm": "baseline",
+      "iteration": 1300,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/baseline_iter_01300.png",
+      "sha256": "549d04870f4d9b8b2f7e0863b0809abd3e1684183be04541f2f893172565f1ae",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    },
+    {
+      "arm": "ours",
+      "iteration": 1300,
+      "source": "/home/intern/gs_floaterLab/humanteck/sections/02_method/figure03/candidates/convergence_insets/frame_0980/ours_iter_01300.png",
+      "sha256": "0a9e4797f9010100271dca8a31caaca5327bfcfa8b1b14883ca548b57bf23cc6",
+      "crop": [
+        0,
+        205,
+        464,
+        455
+      ]
+    }
+  ],
+  "width_mm": 86.48540196485402,
+  "height_mm": 63.42262810755962,
+  "target_psnr": 21.855210957146753,
+  "crossings_linear_interpolation": {
+    "baseline": {
+      "estimate": 1376.0,
+      "interval": [
+        1350,
+        1376
+      ]
+    },
+    "ours": {
+      "estimate": 1285.0329343567382,
+      "interval": [
+        1250,
+        1300
+      ]
+    }
+  },
+  "pose_correction_bands": {
+    "ours": [
+      1295,
+      1317
+    ],
+    "baseline": [
+      1327,
+      1347
+    ]
+  },
+  "postprocessing": "Unmodified measured polylines; identical actual-image crops; no enhancement or generated content"
+}
