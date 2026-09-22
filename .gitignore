@@ -130,6 +130,8 @@ paper/.sync-snapshot/
 /humanteck/sections/02_method/figure01/reference_figures/loss_figures/
 /humanteck/sections/02_method/figure02/references/*.pdf
 /humanteck/sections/02_method/figure02/references/*.png
+/humanteck/sections/02_method/figure03/archive/
+/humanteck/sections/02_method/figure03/references/
 /context/research/**/*.png
 /context/research/**/sweep_runs.csv
 /context/research/intern_cleanup_*.csv.gz
