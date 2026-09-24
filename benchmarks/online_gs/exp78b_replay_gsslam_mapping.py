@@ -51,6 +51,7 @@ from exp78b_frozen_archive import FrozenTrackerArchive  # noqa: E402
 from exp78b_dense_imu_pose import CausalImuDensePoseShaper  # noqa: E402
 from dense_topology_evidence import DenseTopologyEvidenceProbe  # noqa: E402
 from dense_topology_ticket import DenseGradientTopologyTicket  # noqa: E402
+from lpm_error_zone_evidence import LpmErrorZoneEvidenceProbe  # noqa: E402
 from exp78b_newborn_consolidation import (  # noqa: E402
     ObservationConditionedNewbornConsolidation,
 )
@@ -748,6 +749,7 @@ def runtime_provenance() -> dict[str, object]:
         Path(__file__),
         Path(__file__).with_name("exp78b_dense_imu_pose.py"),
         Path(__file__).with_name("exp78b_newborn_consolidation.py"),
+        Path(__file__).with_name("lpm_error_zone_evidence.py"),
         Path(custom_demo.__file__),
         Path(custom_gs_backend_module.__file__),
         Path(custom_gaussian_model_module.__file__),
@@ -1504,6 +1506,33 @@ def install_dense_pose_confidence_weighting(mapper: GSBackEnd) -> None:
     mapper._frontier_mapping_view_loss = MethodType(weighted, mapper)
 
 
+def install_lpm_error_zone_evidence(
+    mapper: GSBackEnd,
+    probe: LpmErrorZoneEvidenceProbe,
+) -> None:
+    """Observe an already-paid dense render/GT pair without changing loss."""
+
+    original = mapper._frontier_mapping_view_loss
+
+    def observed(self, image, depth, viewpoint, *args, **kwargs):
+        loss = original(image, depth, viewpoint, *args, **kwargs)
+        if (
+            bool(getattr(self, "_exp78b_replay_scope_active", False))
+            and getattr(viewpoint, "sensor_type", None) == "rgb_dense"
+        ):
+            gt_image = (
+                viewpoint.original_image_gpu
+                if viewpoint.original_image_gpu is not None
+                else viewpoint.original_image.to(
+                    dtype=image.dtype, device=image.device
+                )
+            )
+            probe.observe(int(viewpoint.uid), image, gt_image)
+        return loss
+
+    mapper._frontier_mapping_view_loss = MethodType(observed, mapper)
+
+
 def install_replay_selection_capture(mapper: GSBackEnd) -> None:
     original = mapper._mapping_replay_queue.draw
 
@@ -1910,6 +1939,15 @@ def main() -> int:
         help=(
             "diagnostic only: summarize per-Gaussian f_dc gradients already "
             "produced by paid ERCB dense replay; adds no render or mutation"
+        ),
+    )
+    parser.add_argument(
+        "--lpm-error-zone-evidence-probe",
+        action="store_true",
+        help=(
+            "diagnostic only: apply the pinned official LPM get_errormap "
+            "operator to already-paid causal dense replay render/GT pairs; "
+            "adds no render, Adam step, selector change, or map mutation"
         ),
     )
     parser.add_argument(
@@ -2330,6 +2368,10 @@ def main() -> int:
         raise ValueError(
             "dense topology evidence probe requires fixed dense opportunities"
         )
+    if args.lpm_error_zone_evidence_probe and not fixed_event_dense_isolation:
+        raise ValueError(
+            "LPM error-zone evidence probe requires fixed dense opportunities"
+        )
     if args.dense_topology_ticket and not fixed_event_dense_isolation:
         raise ValueError(
             "dense topology ticket requires fixed dense opportunities"
@@ -2664,6 +2706,13 @@ def main() -> int:
     if dense_topology_evidence is not None:
         dense_topology_evidence.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
+    lpm_error_zone_evidence = (
+        LpmErrorZoneEvidenceProbe()
+        if args.lpm_error_zone_evidence_probe
+        else None
+    )
+    if lpm_error_zone_evidence is not None:
+        lpm_error_zone_evidence.bind_generation(0)
     dense_topology_ticket = (
         DenseGradientTopologyTicket(
             seed=int(args.seed) + 32452843,
@@ -2726,6 +2775,8 @@ def main() -> int:
     compute_paced_records_by_uid: dict[int, tuple] = {}
     if args.dense_pose_confidence_weighting:
         install_dense_pose_confidence_weighting(mapper)
+    if lpm_error_zone_evidence is not None:
+        install_lpm_error_zone_evidence(mapper, lpm_error_zone_evidence)
     if args.dense_replay_scope in (
         "adaptive_imu_curvature",
         "adaptive_endpoint_geometry",
@@ -2913,6 +2964,8 @@ def main() -> int:
                     dense_topology_evidence.bind_generation(
                         mapper.gaussians, map_generation
                     )
+                if lpm_error_zone_evidence is not None:
+                    lpm_error_zone_evidence.bind_generation(map_generation)
                 if dense_topology_ticket is not None:
                     dense_topology_ticket.bind_generation(
                         mapper.gaussians, map_generation
@@ -3736,6 +3789,14 @@ def main() -> int:
             None
             if dense_topology_evidence is None
             else dense_topology_evidence.summary(mapper.gaussians.point_ids)
+        ),
+        "lpm_error_zone_evidence_probe_requested": bool(
+            args.lpm_error_zone_evidence_probe
+        ),
+        "lpm_error_zone_evidence": (
+            None
+            if lpm_error_zone_evidence is None
+            else lpm_error_zone_evidence.summary()
         ),
         "dense_topology_ticket_requested": bool(
             args.dense_topology_ticket
