@@ -103,6 +103,22 @@ class LpmErrorZoneEvidenceTest(unittest.TestCase):
         self.assertTrue(summary["scheduler_utility_enabled"])
         self.assertEqual(summary["utility_scores_consumed"], 1)
         self.assertEqual(summary["pending_scores"], 0)
+        self.assertEqual(summary["pending_mass_priors"], 0)
+
+    def test_mass_prior_is_one_patch_smoothed_and_consumed_once(self):
+        probe = LpmErrorZoneEvidenceProbe(behavior_neutral=False)
+        probe.bind_generation(4)
+        image = torch.zeros(3, 32, 32)
+        gt = torch.zeros_like(image)
+        probe.observe(5, image, gt)
+        prior = probe.consume_pending_mass_prior(5)
+        self.assertAlmostEqual(prior, 256.0 / 1280.0, places=12)
+        with self.assertRaises(RuntimeError):
+            probe.consume_pending_mass_prior(5)
+        summary = probe.summary()
+        self.assertEqual(summary["utility_scores_consumed"], 1)
+        self.assertEqual(summary["pending_scores"], 0)
+        self.assertEqual(summary["pending_mass_priors"], 0)
 
 
 if __name__ == "__main__":

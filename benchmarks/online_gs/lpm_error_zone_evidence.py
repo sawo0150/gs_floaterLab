@@ -108,6 +108,7 @@ class LpmErrorZoneEvidenceProbe:
         self._cpu_enqueue_seconds = 0.0
         self._cuda_events: list[tuple[torch.cuda.Event, torch.cuda.Event]] = []
         self._pending_scores: dict[tuple[int, int], float] = {}
+        self._pending_mass_priors: dict[tuple[int, int], float] = {}
         self._utility_scores_consumed = 0
 
     def bind_generation(self, generation: int) -> None:
@@ -116,6 +117,7 @@ class LpmErrorZoneEvidenceProbe:
             and int(generation) != self._current_generation
         ):
             self._pending_scores.clear()
+            self._pending_mass_priors.clear()
         self._current_generation = int(generation)
 
     @torch.no_grad()
@@ -146,6 +148,14 @@ class LpmErrorZoneEvidenceProbe:
         prior_count = len(self._scores_by_generation_uid[key])
         self._scores_by_generation_uid[key].append(score)
         self._pending_scores[key] = score
+        # One official 16x16 LPM patch is the only pseudocount. Dividing by
+        # the common total merely keeps the KL base measure in (0,1]; it
+        # cancels from probabilities for equal-resolution views.
+        patch_pixels = LPM_PATCH_SIZE * LPM_PATCH_SIZE
+        image_pixels = int(image.shape[1]) * int(image.shape[2])
+        self._pending_mass_priors[key] = float(
+            (active_pixels + patch_pixels) / (image_pixels + patch_pixels)
+        )
         self.records.append(
             {
                 "opportunity": len(self.records),
@@ -160,19 +170,36 @@ class LpmErrorZoneEvidenceProbe:
         )
         self._cpu_enqueue_seconds += time.perf_counter() - started
 
-    def consume_pending_score(self, dense_uid: int) -> float:
-        """Consume this step's score after its Adam update succeeds."""
-
+    def _pending_key(self, dense_uid: int) -> tuple[int, int]:
         if self._current_generation is None:
             raise ValueError("LPM error-zone evidence has no map generation")
-        key = (int(self._current_generation), int(dense_uid))
+        return (int(self._current_generation), int(dense_uid))
+
+    def consume_pending_score(self, dense_uid: int) -> float:
+        """Consume this step's coverage after its Adam update succeeds."""
+
+        key = self._pending_key(dense_uid)
         if key not in self._pending_scores:
             raise RuntimeError(
                 "no LPM error-zone score was produced for completed dense "
                 f"service {key!r}"
             )
         self._utility_scores_consumed += 1
+        self._pending_mass_priors.pop(key)
         return float(self._pending_scores.pop(key))
+
+    def consume_pending_mass_prior(self, dense_uid: int) -> float:
+        """Consume `(active pixels + one patch)/(pixels + one patch)`."""
+
+        key = self._pending_key(dense_uid)
+        if key not in self._pending_mass_priors:
+            raise RuntimeError(
+                "no LPM error-zone mass was produced for completed dense "
+                f"service {key!r}"
+            )
+        self._utility_scores_consumed += 1
+        self._pending_scores.pop(key)
+        return float(self._pending_mass_priors.pop(key))
 
     @staticmethod
     def _mean(values: list[float]) -> float:
@@ -230,6 +257,7 @@ class LpmErrorZoneEvidenceProbe:
             "calls": len(self.records),
             "utility_scores_consumed": int(self._utility_scores_consumed),
             "pending_scores": len(self._pending_scores),
+            "pending_mass_priors": len(self._pending_mass_priors),
             "unique_generation_views": len(self._scores_by_generation_uid),
             "repeat_calls": len(self.records)
             - len(self._scores_by_generation_uid),
