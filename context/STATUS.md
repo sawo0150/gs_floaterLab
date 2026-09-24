@@ -88,6 +88,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp116 LPM zone-mass prior PASS / active·gain 미입증):**
+  PSNR 튜닝 없이 official patch 한 개 pseudocount로
+  `q_i=(active_pixels+256)/(HW+256)`,
+  `p_i∝q_i exp[-16n_i/(T+1)]`를 고정했다. UTMM square-1에서 normalized
+  결합이 dense trace 3행을 실제 변경했고 9,345 render·757 Adam·모든
+  causal/eval gate PASS, 품질은 control 대비 −0.008967dB로 보존됐다.
+  mass-only RR은 10행/+0.003089dB. dense/LPM+ERCB가 실제 동작하는 경로는
+  확보했으나 quality gain은 아직 없으므로, 수식을 고정해 RPNG table_01과
+  Aria1253에만 먼저 무튜닝 전이하고 17-scene panel은 보류한다.
 - **2026-09-24 (exp115 LPM dense-view utility FAIL / 품질 안전·선택 비활성):**
   author LPM error-zone coverage를 `p_i∝(1+e_i)exp[-16n_i/(T+1)]`의
   explicit base measure로 넣고 score를 successful Adam+queue commit에만
