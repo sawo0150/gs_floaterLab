@@ -96,9 +96,10 @@ def lpm_error_zone_map(
 
 
 class LpmErrorZoneEvidenceProbe:
-    """Record LPM error-zone evidence without changing training behavior."""
+    """Record LPM error-zone evidence from already-paid dense renders."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, behavior_neutral: bool = True) -> None:
+        self.behavior_neutral = bool(behavior_neutral)
         self.records: list[dict[str, object]] = []
         self._current_generation: int | None = None
         self._scores_by_generation_uid: dict[
@@ -106,8 +107,15 @@ class LpmErrorZoneEvidenceProbe:
         ] = collections.defaultdict(list)
         self._cpu_enqueue_seconds = 0.0
         self._cuda_events: list[tuple[torch.cuda.Event, torch.cuda.Event]] = []
+        self._pending_scores: dict[tuple[int, int], float] = {}
+        self._utility_scores_consumed = 0
 
     def bind_generation(self, generation: int) -> None:
+        if (
+            self._current_generation is not None
+            and int(generation) != self._current_generation
+        ):
+            self._pending_scores.clear()
         self._current_generation = int(generation)
 
     @torch.no_grad()
@@ -137,6 +145,7 @@ class LpmErrorZoneEvidenceProbe:
         key = (generation, int(dense_uid))
         prior_count = len(self._scores_by_generation_uid[key])
         self._scores_by_generation_uid[key].append(score)
+        self._pending_scores[key] = score
         self.records.append(
             {
                 "opportunity": len(self.records),
@@ -150,6 +159,20 @@ class LpmErrorZoneEvidenceProbe:
             }
         )
         self._cpu_enqueue_seconds += time.perf_counter() - started
+
+    def consume_pending_score(self, dense_uid: int) -> float:
+        """Consume this step's score after its Adam update succeeds."""
+
+        if self._current_generation is None:
+            raise ValueError("LPM error-zone evidence has no map generation")
+        key = (int(self._current_generation), int(dense_uid))
+        if key not in self._pending_scores:
+            raise RuntimeError(
+                "no LPM error-zone score was produced for completed dense "
+                f"service {key!r}"
+            )
+        self._utility_scores_consumed += 1
+        return float(self._pending_scores.pop(key))
 
     @staticmethod
     def _mean(values: list[float]) -> float:
@@ -182,7 +205,8 @@ class LpmErrorZoneEvidenceProbe:
         unique_score_count = len({round(value, 12) for value in scores})
         return {
             "enabled": True,
-            "behavior_neutral": True,
+            "behavior_neutral": self.behavior_neutral,
+            "scheduler_utility_enabled": not self.behavior_neutral,
             "source_repository": (
                 "https://github.com/Surrey-UPLab/"
                 "Localized-Gaussian-Point-Management"
@@ -204,6 +228,8 @@ class LpmErrorZoneEvidenceProbe:
             "future_frames_used": False,
             "dataset_name_used": False,
             "calls": len(self.records),
+            "utility_scores_consumed": int(self._utility_scores_consumed),
+            "pending_scores": len(self._pending_scores),
             "unique_generation_views": len(self._scores_by_generation_uid),
             "repeat_calls": len(self.records)
             - len(self._scores_by_generation_uid),

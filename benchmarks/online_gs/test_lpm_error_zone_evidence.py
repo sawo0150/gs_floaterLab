@@ -87,6 +87,23 @@ class LpmErrorZoneEvidenceTest(unittest.TestCase):
         self.assertEqual(summary["mutation_rows"], 0)
         self.assertFalse(summary["future_frames_used"])
 
+    def test_pending_score_is_consumed_once_for_scheduler_commit(self):
+        probe = LpmErrorZoneEvidenceProbe(behavior_neutral=False)
+        probe.bind_generation(3)
+        image = torch.zeros(3, 16, 16)
+        gt = torch.ones(3, 16, 16)
+        probe.observe(9, image, gt)
+        score = probe.consume_pending_score(9)
+        self.assertGreaterEqual(score, 0.0)
+        self.assertLessEqual(score, 1.0)
+        with self.assertRaises(RuntimeError):
+            probe.consume_pending_score(9)
+        summary = probe.summary()
+        self.assertFalse(summary["behavior_neutral"])
+        self.assertTrue(summary["scheduler_utility_enabled"])
+        self.assertEqual(summary["utility_scores_consumed"], 1)
+        self.assertEqual(summary["pending_scores"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

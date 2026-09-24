@@ -1195,6 +1195,32 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     for parameter in group["params"]:
                         parameter.grad = None
         result = original(optimizer, *args, **kwargs)
+        if (
+            optimizer is mapper.gaussians.optimizer
+            and bool(getattr(mapper, "_exp78b_replay_scope_active", False))
+            and bool(
+                getattr(
+                    mapper,
+                    "_exp78b_lpm_error_zone_view_utility",
+                    False,
+                )
+            )
+        ):
+            replay_keys = getattr(mapper, "_exp78b_current_replay_keys", ())
+            if len(replay_keys) != 1 or replay_keys[0][0] != "dense":
+                raise RuntimeError(
+                    "LPM view utility requires one completed dense replay"
+                )
+            candidate = replay_keys[0]
+            probe = mapper._exp78b_lpm_error_zone_evidence_probe
+            score = probe.consume_pending_score(int(candidate[1]))
+            # The queue retains this as pending state. GSBackEnd's immediate
+            # commit_pending_draw call publishes score and service count in
+            # one transaction; cancellation discards both.
+            mapper._mapping_replay_queue.stage_pending_candidate_utility(
+                candidate,
+                score,
+            )
         if dense_ticket_after_step is not None:
             mutation = dense_ticket_after_step.mutate_first_persistence(
                 mapper.gaussians,
@@ -1951,6 +1977,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--lpm-error-zone-view-utility",
+        action="store_true",
+        help=(
+            "Track-A candidate: multiply the dense per-view Gibbs base "
+            "measure by 1+e_i, where e_i is the latest completed score from "
+            "the pinned LPM error-zone operator. The normalized-variance "
+            "energy and physical work remain unchanged."
+        ),
+    )
+    parser.add_argument(
         "--dense-topology-ticket",
         action="store_true",
         help=(
@@ -2372,6 +2408,16 @@ def main() -> int:
         raise ValueError(
             "LPM error-zone evidence probe requires fixed dense opportunities"
         )
+    if args.lpm_error_zone_view_utility and not (
+        args.lpm_error_zone_evidence_probe
+        and fixed_event_dense_isolation
+        and args.stage6r_aux_kf_to_dense_repeat
+        and args.service_shortfall_ercb
+    ):
+        raise ValueError(
+            "LPM error-zone view utility requires the evidence probe and "
+            "the fixed-work dense-repeat ERCB path"
+        )
     if args.dense_topology_ticket and not fixed_event_dense_isolation:
         raise ValueError(
             "dense topology ticket requires fixed dense opportunities"
@@ -2561,6 +2607,10 @@ def main() -> int:
         mapper._mapping_replay_queue.selection_potential = "normalized_variance"
     if "dense" in rr_families:
         mapper._mapping_replay_queue.selection_potential = "rr"
+    if args.lpm_error_zone_view_utility:
+        mapper._mapping_replay_queue.set_candidate_utility_mode(
+            "lpm_error_zone"
+        )
     if "native_kf" in normalized_families:
         mapper._mapping_global_keyframe_ercb.selection_potential = "normalized_variance"
     if "native_kf" in rr_families:
@@ -2707,12 +2757,18 @@ def main() -> int:
         dense_topology_evidence.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
     lpm_error_zone_evidence = (
-        LpmErrorZoneEvidenceProbe()
+        LpmErrorZoneEvidenceProbe(
+            behavior_neutral=not args.lpm_error_zone_view_utility
+        )
         if args.lpm_error_zone_evidence_probe
         else None
     )
     if lpm_error_zone_evidence is not None:
         lpm_error_zone_evidence.bind_generation(0)
+    mapper._exp78b_lpm_error_zone_evidence_probe = lpm_error_zone_evidence
+    mapper._exp78b_lpm_error_zone_view_utility = bool(
+        args.lpm_error_zone_view_utility
+    )
     dense_topology_ticket = (
         DenseGradientTopologyTicket(
             seed=int(args.seed) + 32452843,
@@ -3792,6 +3848,14 @@ def main() -> int:
         ),
         "lpm_error_zone_evidence_probe_requested": bool(
             args.lpm_error_zone_evidence_probe
+        ),
+        "lpm_error_zone_view_utility_requested": bool(
+            args.lpm_error_zone_view_utility
+        ),
+        "lpm_error_zone_view_utility_formula": (
+            "p_i proportional to (1+e_i)*exp(-gamma*n_i/(T+1))"
+            if args.lpm_error_zone_view_utility
+            else None
         ),
         "lpm_error_zone_evidence": (
             None
