@@ -81,3 +81,21 @@ The synchronized UTMM/RPNG profile measured densify/prune at only 0.171% and
 justified as a speed optimization. Local topology remains useful for bounded,
 interpretable mutation, not because the current global mutation kernel is the
 dominant runtime cost.
+
+## Post-Exp122/123 supervision diagnosis
+
+Source-backed local topology is not the remedy for the unified dense-slot
+loss. Exp122 removed only dense-origin native densification statistics: churn
+returned almost exactly to control, but PSNR recovered just +0.0141 dB.
+Exp123 then preserved aggregate depth/normal loss mass on every replacement;
+PSNR changed another -0.0218 dB. The missing signal is the historical
+keyframe's view-specific RGB-D coverage, not topology cost or a scalar geometry
+weight.
+
+Accordingly, no downloaded local-pruning implementation will be used to make
+the aggressive replacement appear viable. The accepted source-backed path is
+limited to LPM evidence on already-paid dense work and Taming's bounded
+sampling ticket while all geometry-bearing native keyframe renders remain in
+the quality base. Any future paper mechanism is first checked against its
+downloaded executable code, modality assumptions, license, and fixed-work
+contract before an implementation experiment is opened.

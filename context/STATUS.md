@@ -88,6 +88,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp123 dense geometry-mass isolation PASS / 후보 기각):**
+  Exp122에서 남은 RPNG 손실이 aggregate geometry weight 때문인지
+  view-specific coverage 때문인지 분리했다. fresh control/stats-off/
+  stats-off+geometry-mass는 모두 38,302 render·3,030 Adam이며 PSNR은
+  25.561123/25.434710/25.412915dB다. Candidate는 dense replacement가 발생한
+  1,610/1,610 step에서 남은 RGB-D depth/normal을 `(D+1)/D`(평균1.062575)로
+  정확히 보정했지만 +회복이 아니라 **−0.021795dB** 더 악화됐다. 사전 판정상
+  `view_specific_geometry_coverage_dominates`: 특정 historical RGB-D KF의 공간
+  constraint를 RGB-only dense+전역 loss scaling으로 대체할 수 없다. 따라서
+  aggressive one-slot KF→dense는 폐기하고 ratio/temperature/scene phase 튜닝과
+  17-scene 확장을 금지한다. 품질 base의 모든 native RGB-D carrier는 보존하고,
+  dense/ERCB는 Exp109/111/117의 auxiliary service+downloaded-source bounded
+  topology ticket으로만 사용한다. 다음 Track B는 bulk R4 gain을 capacity/birth와
+  native RGB-D service structure 사이에서 분리한다.
 - **2026-09-24 (exp122 dense-global topology-stat isolation PASS):**
   RPNG fresh control/unified-stats-on/unified-stats-off를 같은 38,302 render와
   3,030 Adam으로 실행해 25.582787/25.410318/25.424374dB를 얻었다. Dense
