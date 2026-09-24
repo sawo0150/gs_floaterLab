@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp112 active normalized temperature 3-family PASS / gain 미입증):**
+  Exp111 causal pool을 생산 queue로 재생해 quality를 보지 않고 UTMM square-1에서
+  trace차이≥10%·count-CV감소≥10%를 처음 만족하는 공통 `gamma=16`을 고정했다.
+  수식은 `exp[-gamma*n_i/(T+1)]`이며 `T`/scene scaling 없음. UTMM/RPNG/Aria
+  12arm의 render·Adam·admission·event·held-out·double-eval·zero-tail가 모두
+  PASS했고 RR과 실제 trace가 9/17/10행 달라지며 count CV도 일관되게 감소했다.
+  그러나 gamma16−R4 평균 **−0.013669dB**, gamma16−log1.5 −0.009751,
+  gamma16−RR −0.009250dB라 PSNR 이득은 미입증이다. Active ERCB가 품질 안전한
+  것은 확인했지만 단순 count balancing의 17-scene 확장은 하지 않고, 다음은
+  공개 저자 코드의 local residual/topology evidence를 fixed-work repeat utility로
+  연결한다. → [exp112](experiments/exp112_normalized_temperature.md)
 - **2026-09-24 (exp111 dense-repeat Track-A 3-family PASS):** 기존 aux-KF
   one-view slot을 dense repeat로 재배치하고 primary service만 admission
   credit을 만들며 신규 view first-service를 강제했다. UTMM/RPNG/Aria 3장면
