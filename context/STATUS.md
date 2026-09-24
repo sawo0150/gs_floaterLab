@@ -88,6 +88,79 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp101 R4-preserving official residual supplement PASS):**
+  R4 blanket PPM birth/RNG를 bit-for-bit 먼저 보존하고 별도 RNG에서 공식
+  Gaussian-SLAM residual-mask+radius birth를 1× causal allocation으로 추가했다.
+  RPNG table01 **25.609319dB**, Exp95 R4 대비 +0.024301, fresh vanilla 대비
+  **+1.645055dB**이고 SSIM/LPIPS도 개선. 38,302 render·3,030 Adam·full-view
+  density trace·opportunity·topology2/2·zero-tail 전부 PASS. 235 event에서
+  residual 286,549개가 실제 생겨 module은 active하나, GS +52.0%, wall
+  +11.2%, peak allocated +26.1%, reserved +84.6%, final-generation churn
+  +33.8%라 1× supplement는 최종안이 아니다. 안전한 composition은
+  replacement가 아니라 supplement임을 채택하고, 다음은 dense/ERCB evidence로
+  이 local service를 ration/nominate한다. Strict-live 주장은 아직 없음.
+  → [exp101](experiments/exp101_residual_birth_supplement.md)
+- **2026-09-24 (exp100 capacity-matched official birth replacement FAIL):**
+  full-view causal density trace와 R4 per-view target을 보존하고 official
+  Gaussian-SLAM mask/radius만 후보 선택에 적용해 모든 fixed-work/causality
+  check를 통과했다. 그러나 PSNR **23.581536dB**, Exp95 R4 대비
+  **−2.003482dB**로 중단선 실패. 351,624 offer/314,590 accept, final GS
+  276,837로 control 417,656보다 33.7% 적다. 즉 residual-only rule은 현재
+  VIGS global-map/online-depth에서 blanket PPM birth의 drop-in replacement가
+  아니다. Dense 결합은 미진행하며, 다음 안전한 분리는 R4 birth/RNG를
+  bit-for-bit 보존하고 official residual operator를 별도 stream의 bounded
+  supplement로 추가하는 것이다.
+  → [exp100 실패 카드](experiments/exp100_capacity_matched_local_birth_failed.md)
+- **2026-09-24 (exp99 official local birth quality gate FAIL):** Exp98의
+  legacy-cap 결합을 고쳐 final topology cap deletion 0/0·event 2/2와
+  fixed 38,302 render/3,030 Adam·causality를 모두 지켰지만 PSNR은
+  **23.072144dB**, Exp95 R4 대비 **−2.512874dB**라 −0.5dB 중단선이
+  발동했다. 1,024 ticket는 저자 config가 아니라 우리 adapter 선택이며,
+  235 event에서 185,508 birth만 생존해 final GS가 417,656→173,415
+  (−58.5%)로 급감했다. 공식 Gaussian-SLAM configs는 30k/100k/unlimited다.
+  또한 depth zero-mask가 causal density의 full-view Sobel rank까지 바꿨다.
+  Dense 결합은 진행하지 않고, 다음은 full-view R4 allocation을 유지한 채
+  공식 seed mask/radius만 candidate 선택에 쓰는 capacity-matched isolation이다.
+  → [exp99 실패 카드](experiments/exp99_gaussian_slam_local_birth_corrected_failed.md)
+- **2026-09-24 (exp98 official Gaussian-SLAM local birth 즉시 중단):** 저자
+  공식 코드 commit `eaec10d7`의 low-alpha/positive-depth-residual mask,
+  bounded ticket, current-frustum radius reject를 포팅해 실행했으나 기존
+  Aria-derived content curve가 ticket 이전 target으로 lineage cap을 기록했다.
+  그 결과 final generation topology event에서 cap이 1,007/11,958 birth를
+  다시 삭제해 단일요인 검증이 아니었다. PLY·PSNR 전에 중단했고 partial
+  output은 재개 금지다. VIGS `d00e2263`에서 `max_points=None`인 R4 산술은
+  유지한 채 cap을 최종 ticket 뒤로 옮겼으며 새 source/root로 재검증한다.
+  → [exp98 실패 카드](experiments/exp98_gaussian_slam_local_birth_stopped.md)
+- **2026-09-24 (exp97 shadow-count filter-prune isolation PASS):** Exp96의
+  scheduler 결합을 제거해 actual tensor에는 regular filter 후보를 보존하고
+  controller에만 counterfactual post-prune count를 전달했다. RPNG `table_01`
+  topology event 2/2, render 38,302·Adam 3,030·zero-tail·이중 평가·모든
+  isolation check PASS. PSNR **25.680925**로 Exp95 R4보다 +0.095907,
+  fresh vanilla보다 **+1.716662dB**이고 SSIM/LPIPS도 개선. 단 GS +11.0%,
+  peak allocated +7.1%, reserved +16.5%, mapping wall +6.1% 비용이 있어
+  no-prune 자체는 최종 method가 아님. 다음은 공개 저자 코드 기반 bounded
+  current-view local birth를 별도 포팅하고 cleanup은 이후 독립 검증한다.
+  → [exp97](experiments/exp97_shadow_filter_prune_isolation.md)
+- **2026-09-24 (exp96 naive filter-prune isolation 즉시 중단):** RPNG
+  `table_01`에서 regular opacity/size deletion만 물리적으로 끄자 Exp95
+  control의 topology 2회와 달리 frame657에 3회차가 열렸다. R4 controller가
+  실제 post-prune Gaussian count의 net-prune/recovery를 phase certificate로
+  사용하므로 pruning 제거가 cadence까지 바꾼다. 원인 분리 위반을 확인한 즉시
+  중단했고 final PLY·PSNR 없음. Partial log는 보존하며 재개/공식 비교 금지.
+  다음은 controller에는 counterfactual post-prune count를 주고 실제 tensor만
+  보존하는 shadow-count 진단을 새 source/root에서 수행한다.
+  → [exp96 실패 카드](experiments/exp96_filter_prune_isolation_stopped.md)
+- **2026-09-24 (exp95 behavior-neutral topology churn probe):** RPNG `table_01`
+  normalized R4 **25.585018**, fresh vanilla **23.964263dB**, Δ **+1.620754dB**.
+  양 arm physical render 38,302, zero-tail·저장-map 이중 평가·pair fairness
+  10/10 PASS이고 기존 R4 대비 −0.039298dB라 급락 중단선은 미발동. 최종
+  mapper generation의 topology 2회는 19,552 add/48,965 remove, 총
+  **68,517 row churn**으로 event 수와 달리 전역 mutation이 큼. raw log의
+  reset 포함 4 transaction은 111,650 churn이나 현 telemetry가 generation
+  reset 전 lifetime을 보존하지 않아 진단값으로만 사용. 다음은 scheduler와
+  growth를 고정한 채 ordinary filter-prune만 분리하고, 이후 공개 저자 코드
+  기반 bounded current-view birth를 별도 이식한다. B-track 결과이며 strict-live
+  주장은 아니다. → [exp95](experiments/exp95_topology_churn_probe.md)
 - **2026-09-22 (Fig.2 패널 문자·checkpoint 표기):** (a)/(b) 왼쪽, 방법명은
   사진 아래로 이동. 실제 논문 figure의 학습량 표기를 참고해 두 결과에 1,400 iter.를
   적고 그래프의1.4k 위치를 표시했다. 글자 크기·데이터 유지, PDF 렌더 검수 및

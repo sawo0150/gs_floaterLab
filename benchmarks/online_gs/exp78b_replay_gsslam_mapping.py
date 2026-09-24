@@ -827,6 +827,11 @@ def mapper_namespace(
     native_global_keyframe_selection_audit: bool,
     native_global_keyframe_ercb: bool,
     ercb_selection_potential: str,
+    skip_regular_filter_prune: bool,
+    local_birth: bool,
+    local_birth_ticket: int,
+    local_birth_budget_mode: str,
+    local_birth_radius: float,
 ) -> argparse.Namespace:
     image_dir = Path(archive.manifest["input_image_directory"])
     imu_file = Path(
@@ -898,6 +903,20 @@ def mapper_namespace(
             argv.append("--mapping_replay_dense_only")
     if auto_topology_freeze:
         argv.append("--mapping_auto_topology_freeze")
+    if skip_regular_filter_prune:
+        argv.append("--mapping_skip_regular_filter_prune")
+    if local_birth:
+        argv.extend(
+            (
+                "--mapping_local_birth",
+                "--mapping_local_birth_ticket",
+                str(local_birth_ticket),
+                "--mapping_local_birth_budget_mode",
+                str(local_birth_budget_mode),
+                "--mapping_local_birth_radius",
+                str(local_birth_radius),
+            )
+        )
     if observation_topology_gate:
         argv.append("--mapping_observation_topology_gate")
     if service_shortfall_ercb:
@@ -1716,6 +1735,29 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--skip-regular-filter-prune",
+        action="store_true",
+        help=(
+            "diagnostic only: preserve regular clone/split and independent "
+            "caps while skipping ordinary opacity/size filter deletion"
+        ),
+    )
+    parser.add_argument(
+        "--local-birth",
+        action="store_true",
+        help=(
+            "replace non-initial blanket KF birth with the bounded official "
+            "Gaussian-SLAM low-alpha/positive-depth-residual operator"
+        ),
+    )
+    parser.add_argument("--local-birth-ticket", type=int, default=1024)
+    parser.add_argument(
+        "--local-birth-budget-mode",
+        choices=("fixed_ticket", "matched_r4", "residual_supplement"),
+        default="fixed_ticket",
+    )
+    parser.add_argument("--local-birth-radius", type=float, default=0.01)
+    parser.add_argument(
         "--observation-topology-gate",
         action="store_true",
         help=(
@@ -1820,6 +1862,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.local_birth_ticket < 1:
+        raise ValueError("local birth ticket must be positive")
+    if args.local_birth_radius < 0.0:
+        raise ValueError("local birth radius must be non-negative")
     if args.new_view_service_period < 0:
         raise ValueError("new-view service period must be non-negative")
     if args.dense_pose_refresh_period <= 0:
@@ -2237,6 +2283,11 @@ def main() -> int:
         args.stage6r_native_global_keyframe_selection_audit,
         args.stage6r_native_global_keyframe_ercb,
         args.ercb_selection_potential,
+        args.skip_regular_filter_prune,
+        args.local_birth,
+        args.local_birth_ticket,
+        args.local_birth_budget_mode,
+        args.local_birth_radius,
     )
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     normalized_families = set(args.ercb_normalized_family)
@@ -3251,6 +3302,13 @@ def main() -> int:
             getattr(mapper, "_exp78b_pose_confidence_stats", None)
         ),
         "auto_topology_freeze_requested": args.auto_topology_freeze,
+        "skip_regular_filter_prune_requested": (
+            args.skip_regular_filter_prune
+        ),
+        "local_birth_requested": args.local_birth,
+        "local_birth_ticket": args.local_birth_ticket,
+        "local_birth_budget_mode": args.local_birth_budget_mode,
+        "local_birth_radius": args.local_birth_radius,
         "observation_topology_gate_requested": (
             args.observation_topology_gate
         ),
