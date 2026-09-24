@@ -811,6 +811,7 @@ def mapper_namespace(
     observation_topology_gate: bool,
     service_shortfall_ercb: bool,
     service_shortfall_global_epoch: bool,
+    dense_first_service_floor: bool,
     dense_max_endpoint_fraction: float,
     include_keyframes_in_replay: bool,
     official_frontier_parity: bool,
@@ -960,6 +961,14 @@ def mapper_namespace(
     parsed.stride = 1
     parsed.seed = seed
     parsed.mapping_replay_ercb_selection_potential = ercb_selection_potential
+    parsed.mapping_replay_first_service_floor = bool(
+        dense_first_service_floor
+    )
+    if dense_first_service_floor:
+        # A one-item block makes every flexible repeat a fresh draw from the
+        # normalized Gibbs law. It also lets a newly admitted zero-service
+        # view take the next primary slot immediately.
+        parsed.mapping_replay_service_shortfall_block_size = 1
     parsed.mapping_dense_global_views = int(fixed_work_dense_global_views)
     parsed.mapping_dense_global_replay_scheduler = bool(
         fixed_work_dense_selector != "off"
@@ -1736,6 +1745,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--stage6r-aux-kf-to-dense-repeat",
+        action="store_true",
+        help=(
+            "Track-A isolation: preserve the two one-view Adam/render slots "
+            "per eligible packet but spend the former auxiliary-keyframe "
+            "slot on a second dense service. Only the primary dense service "
+            "mints causal admission credit; the reallocated slot is repeat "
+            "service over the already-admitted pool."
+        ),
+    )
+    parser.add_argument(
         "--stage6r-native-global-keyframe-selection-audit",
         action="store_true",
         help=(
@@ -1767,6 +1787,16 @@ def main() -> int:
         choices=("dense", "aux_kf", "native_kf"),
         default=[],
         help="Diagnostic only: normalize just this R4 selector family; repeat for multiple families",
+    )
+    parser.add_argument(
+        "--ercb-rr-family",
+        action="append",
+        choices=("dense", "aux_kf", "native_kf"),
+        default=[],
+        help=(
+            "Selector-only diagnostic: replace this family with zero-energy "
+            "RR while every unspecified family keeps the global potential"
+        ),
     )
     parser.add_argument(
         "--density-policy",
@@ -2207,6 +2237,18 @@ def main() -> int:
             "C1 service1/global-residue C2 arm and adds only a separate "
             "appearance keyframe source"
         )
+    if args.stage6r_aux_kf_to_dense_repeat and not (
+        args.stage6r_keyframe_appearance_replay
+        and args.compute_paced_dense_admission
+        and args.compute_paced_dense_token_cost == 1
+        and args.fixed_event_dense_opportunities_per_packet == 1
+        and args.service_shortfall_ercb
+        and args.ercb_selection_potential in ("normalized_variance", "rr")
+    ):
+        raise ValueError(
+            "aux-KF reallocation requires the exact R4 two-slot contract, "
+            "compute-paced primary admission, and normalized/RR selection"
+        )
     if args.stage6r_native_global_keyframe_selection_audit and not (
         args.stage6r_keyframe_appearance_replay
         and stage4_c1_c2_global_residue_integration
@@ -2236,6 +2278,13 @@ def main() -> int:
         )
     if args.ercb_normalized_family and args.ercb_selection_potential != "service_shortfall":
         raise ValueError("per-family normalized diagnostic cannot mix with all-family potential")
+    if set(args.ercb_normalized_family) & set(args.ercb_rr_family):
+        raise ValueError("a selector family cannot be both normalized and RR")
+    if args.ercb_rr_family and args.ercb_selection_potential != "normalized_variance":
+        raise ValueError(
+            "per-family RR control requires normalized variance as the "
+            "unspecified-family reference"
+        )
     if (args.ercb_selection_potential == "normalized_variance" or args.ercb_normalized_family) and not (
         args.service_shortfall_ercb
         and args.stage6r_keyframe_appearance_replay
@@ -2414,7 +2463,9 @@ def main() -> int:
         bool(
             args.service_shortfall_ercb
             and c2_global_residue_semantics
+            and not args.stage6r_aux_kf_to_dense_repeat
         ),
+        args.stage6r_aux_kf_to_dense_repeat,
         args.dense_max_endpoint_fraction,
         args.include_keyframes_in_replay,
         args.official_frontier_parity,
@@ -2442,10 +2493,15 @@ def main() -> int:
     )
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     normalized_families = set(args.ercb_normalized_family)
+    rr_families = set(args.ercb_rr_family)
     if "dense" in normalized_families:
         mapper._mapping_replay_queue.selection_potential = "normalized_variance"
+    if "dense" in rr_families:
+        mapper._mapping_replay_queue.selection_potential = "rr"
     if "native_kf" in normalized_families:
         mapper._mapping_global_keyframe_ercb.selection_potential = "normalized_variance"
+    if "native_kf" in rr_families:
+        mapper._mapping_global_keyframe_ercb.selection_potential = "rr"
     relative_capacity_prune_state = None
     if args.relative_capacity_prune_closure:
         relative_capacity_prune_state = install_relative_capacity_prune_closure(
@@ -2606,7 +2662,10 @@ def main() -> int:
         dense_topology_ticket.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_ticket = dense_topology_ticket
     stage6r_keyframe_queue = None
-    if args.stage6r_keyframe_appearance_replay:
+    if (
+        args.stage6r_keyframe_appearance_replay
+        and not args.stage6r_aux_kf_to_dense_repeat
+    ):
         stage6r_keyframe_queue = (
             ComputePacedKeyframeServiceShortfallReplayQueue(
                 seed=int(args.seed) + 104729,
@@ -2614,7 +2673,9 @@ def main() -> int:
                 relative_floor_ratio=0.75,
                 block_size=8,
                 selection_potential=(
-                    "normalized_variance"
+                    "rr"
+                    if "aux_kf" in rr_families
+                    else "normalized_variance"
                     if "aux_kf" in normalized_families
                     else args.ercb_selection_potential
                 ),
@@ -2710,7 +2771,9 @@ def main() -> int:
     registered_dense_uids: set[int] = set()
     dense_admission_ledger: list[dict[str, object]] = []
     fixed_event_dense_opportunity_ledger: list[dict[str, object]] = []
+    fixed_event_dense_repeat_opportunity_ledger: list[dict[str, object]] = []
     fixed_event_keyframe_opportunity_ledger: list[dict[str, object]] = []
+    dense_primary_service_updates = int(mapper.mapping_replay_dense_updates)
     map_generation = 0
     dense_records_available = 0
     dense_registration_calls = 0
@@ -2741,7 +2804,11 @@ def main() -> int:
             )
             selected_uids.extend(
                 compute_paced_admission.admit_token_service(
-                    int(mapper.mapping_replay_dense_updates),
+                    (
+                        int(dense_primary_service_updates)
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else int(mapper.mapping_replay_dense_updates)
+                    ),
                     args.compute_paced_dense_token_cost,
                     is_valid=is_valid,
                 )
@@ -2756,6 +2823,11 @@ def main() -> int:
                     "map_generation": int(map_generation),
                     "completed_dense_service": int(
                         mapper.mapping_replay_dense_updates
+                    ),
+                    "admission_service_clock": int(
+                        dense_primary_service_updates
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else mapper.mapping_replay_dense_updates
                     ),
                     "boundary_source_id": str(boundary_source_id),
                 }
@@ -2828,7 +2900,11 @@ def main() -> int:
                     stage6r_keyframe_queue.begin_generation(map_generation)
                 if compute_paced_admission is not None:
                     compute_paced_admission.reset_token_service_clock(
-                        int(mapper.mapping_replay_dense_updates)
+                        int(
+                            dense_primary_service_updates
+                            if args.stage6r_aux_kf_to_dense_repeat
+                            else mapper.mapping_replay_dense_updates
+                        )
                     )
                 if newborn_consolidation is not None:
                     newborn_consolidation.reset_active_map()
@@ -2896,6 +2972,7 @@ def main() -> int:
         strict_deadline: float | None,
     ) -> None:
         nonlocal replay_serviced_since_dispatch
+        nonlocal dense_primary_service_updates
         nonlocal dense_pose_packet_refresh_calls
         nonlocal dense_pose_packet_refresh_updates
         nonlocal dense_pose_packet_refresh_wall_seconds
@@ -2946,6 +3023,8 @@ def main() -> int:
         after_frontier_views = before_views
         fixed_dense_steps = 0
         fixed_dense_views = 0
+        fixed_dense_repeat_steps = 0
+        fixed_dense_repeat_views = 0
         fixed_keyframe_steps = 0
         fixed_keyframe_views = 0
         completed = False
@@ -3027,6 +3106,7 @@ def main() -> int:
                         f"Adam/dense service: adam={fixed_dense_steps} "
                         f"dense={dense_delta}"
                     )
+                dense_primary_service_updates += dense_delta
                 lifecycle_snapshot = mapper.mapping_lifecycle_snapshot()
                 selector_after = lifecycle_snapshot.get("selector_block")
                 selector_block_delta = None
@@ -3166,6 +3246,88 @@ def main() -> int:
                             ),
                         }
                     )
+                if args.stage6r_aux_kf_to_dense_repeat:
+                    repeat_before_steps = guard.optimizer_steps_completed
+                    repeat_before_views = telemetry[
+                        "training_rasterized_view_updates"
+                    ]
+                    repeat_before_dense = int(
+                        mapper.mapping_replay_dense_updates
+                    )
+                    repeat_selector_before = (
+                        mapper._mapping_replay_queue.selector_block_snapshot()
+                    )
+                    mapper._exp78b_replay_scope_active = True
+                    try:
+                        repeat_completed = bool(
+                            mapper.idle_map_rr_step(iters=1, batch_size=1)
+                        )
+                        repeat_selected_keys = [
+                            [str(key[0]), int(key[1])]
+                            for key in mapper._exp78b_current_replay_keys
+                        ]
+                    finally:
+                        mapper._exp78b_replay_scope_active = False
+                        mapper._exp78b_current_replay_keys = ()
+                    if not repeat_completed:
+                        raise RuntimeError(
+                            "reallocated dense repeat opportunity did not complete"
+                        )
+                    fixed_dense_repeat_steps = (
+                        guard.optimizer_steps_completed - repeat_before_steps
+                    )
+                    fixed_dense_repeat_views = (
+                        telemetry["training_rasterized_view_updates"]
+                        - repeat_before_views
+                    )
+                    repeat_dense_delta = (
+                        int(mapper.mapping_replay_dense_updates)
+                        - repeat_before_dense
+                    )
+                    if (
+                        fixed_dense_repeat_steps != 1
+                        or fixed_dense_repeat_views != 1
+                        or repeat_dense_delta != 1
+                        or len(repeat_selected_keys) != 1
+                        or repeat_selected_keys[0][0] != "dense"
+                    ):
+                        raise RuntimeError(
+                            "reallocated slot must complete exactly one dense "
+                            "Adam/render without admission credit: "
+                            f"adam={fixed_dense_repeat_steps} "
+                            f"renders={fixed_dense_repeat_views} "
+                            f"dense={repeat_dense_delta} "
+                            f"selected={repeat_selected_keys!r}"
+                        )
+                    fixed_event_dense_repeat_opportunity_ledger.append(
+                        {
+                            "opportunity_index": len(
+                                fixed_event_dense_repeat_opportunity_ledger
+                            ),
+                            "event_id": int(event_id),
+                            "map_generation": int(map_generation),
+                            "selected_keys": repeat_selected_keys,
+                            "optimizer_steps_completed": (
+                                fixed_dense_repeat_steps
+                            ),
+                            "rasterized_view_updates": (
+                                fixed_dense_repeat_views
+                            ),
+                            "completed_dense_service_before": (
+                                repeat_before_dense
+                            ),
+                            "completed_dense_service_after": int(
+                                mapper.mapping_replay_dense_updates
+                            ),
+                            "admission_service_clock": int(
+                                dense_primary_service_updates
+                            ),
+                            "selector_block_before": repeat_selector_before,
+                            "selector_block_after": (
+                                mapper._mapping_replay_queue.selector_block_snapshot()
+                            ),
+                        }
+                    )
                 replay_serviced_since_dispatch = True
                 register_pending_dense(f"event:{event_id}:post_fixed_dense")
             dense_pose_packet_refresh_candidate_packets += 1
@@ -3220,6 +3382,9 @@ def main() -> int:
                         after_frontier_steps - before_steps
                     ),
                     "fixed_dense_optimizer_steps_completed": fixed_dense_steps,
+                    "fixed_dense_repeat_optimizer_steps_completed": (
+                        fixed_dense_repeat_steps
+                    ),
                     "fixed_keyframe_optimizer_steps_completed": (
                         fixed_keyframe_steps
                     ),
@@ -3230,6 +3395,9 @@ def main() -> int:
                         after_frontier_views - before_views
                     ),
                     "fixed_dense_rasterized_view_updates": fixed_dense_views,
+                    "fixed_dense_repeat_rasterized_view_updates": (
+                        fixed_dense_repeat_views
+                    ),
                     "fixed_keyframe_rasterized_view_updates": (
                         fixed_keyframe_views
                     ),
@@ -3401,6 +3569,14 @@ def main() -> int:
         "ercb_selection_potential": args.ercb_selection_potential,
         "ercb_selection_potential_by_family": {
             family: (
+                "disabled"
+                if (
+                    family == "aux_kf"
+                    and args.stage6r_aux_kf_to_dense_repeat
+                )
+                else "rr"
+                if family in rr_families
+                else
                 "normalized_variance"
                 if family in normalized_families
                 else args.ercb_selection_potential
@@ -3420,6 +3596,15 @@ def main() -> int:
         "fixed_event_dense_opportunity_ledger": (
             fixed_event_dense_opportunity_ledger
         ),
+        "stage6r_aux_kf_to_dense_repeat": bool(
+            args.stage6r_aux_kf_to_dense_repeat
+        ),
+        "fixed_event_dense_repeat_opportunity_ledger": (
+            fixed_event_dense_repeat_opportunity_ledger
+        ),
+        "dense_primary_service_updates": int(
+            dense_primary_service_updates
+        ),
         "stage6r_keyframe_appearance_replay": (
             args.stage6r_keyframe_appearance_replay
         ),
@@ -3436,7 +3621,11 @@ def main() -> int:
             native_global_keyframe_selection_ledger
         ),
         "stage6r_source_quota_protocol": (
-            "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
+            (
+                "fixed_one_primary_dense_then_one_dense_repeat_per_packet_v1"
+                if args.stage6r_aux_kf_to_dense_repeat
+                else "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
+            )
             if args.stage6r_keyframe_appearance_replay
             else None
         ),
@@ -3467,6 +3656,10 @@ def main() -> int:
                 "maximum_bonus": 1.5,
                 "global_epoch_no_repeat": bool(
                     c2_global_residue_semantics
+                    and not args.stage6r_aux_kf_to_dense_repeat
+                ),
+                "first_service_floor": bool(
+                    args.stage6r_aux_kf_to_dense_repeat
                 ),
             }
             if args.service_shortfall_ercb
@@ -3595,8 +3788,13 @@ def main() -> int:
         "work_contract": (
             (
                 (
-                    "d1_native_fixed_dense_plus_keyframe_opportunity_pair_"
-                    "with_native_global_audit_v1"
+                    (
+                        "d1_native_fixed_primary_dense_plus_repeat_dense_"
+                        "opportunity_pair_with_native_global_audit_v1"
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else "d1_native_fixed_dense_plus_keyframe_"
+                        "opportunity_pair_with_native_global_audit_v1"
+                    )
                     if args.stage6r_native_global_keyframe_selection_audit
                     else "d1_native_fixed_dense_plus_keyframe_opportunity_pair_v1"
                 )
@@ -3620,10 +3818,26 @@ def main() -> int:
                 (
                     (
                         (
-                            "stage6r_r4_normalized_variance_ercb_v1"
+                            (
+                                "tracka_dense_repeat_rr_control_v1"
+                                if (
+                                    args.stage6r_aux_kf_to_dense_repeat
+                                    and "dense" in rr_families
+                                )
+                                else "tracka_dense_repeat_normalized_variance_v1"
+                                if args.stage6r_aux_kf_to_dense_repeat
+                                else "stage6r_r4_normalized_variance_ercb_v1"
+                            )
                             if args.ercb_selection_potential
                             == "normalized_variance"
-                            else "stage6r_r4_rr_selector_control_v1"
+                            else (
+                                "tracka_dense_repeat_rr_control_v1"
+                                if (
+                                    args.stage6r_aux_kf_to_dense_repeat
+                                    and "dense" in rr_families
+                                )
+                                else "stage6r_r4_rr_selector_control_v1"
+                            )
                             if args.ercb_selection_potential == "rr"
                             else "stage6r_r4_native_global_keyframe_ercb_v1"
                         )
