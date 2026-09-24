@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp117 frozen LPM mass-prior transfer 2/2 PASS / gain 미입증):**
+  Exp116의 source-backed prior와 `gamma=16`을 무튜닝으로 RPNG table_01,
+  Aria1253에 전이했다. normalized 결합은 trace를 34/9행 바꾸고 모든
+  fixed-work·causal·held-out·double-eval·zero-tail gate PASS, control 대비
+  −0.010767/+0.031011dB. UTMM 포함 3-family 평균은 +0.0038dB이고 mass-only
+  RR 대비 normalized 효과 평균은 −0.0040dB라 quality gain은 여전히 없다.
+  dense/LPM+ERCB가 실제 동작하고 R4 품질을 보존한다는 결론까지만 채택한다.
+  약 1.4–1.5%인 dense render leverage를 키우기 위해 recent-window floor를
+  유지한 채 flexible historical-KF render slot을 unified dense pool로 옮기는
+  fixed-render isolation이 다음이며, 17-scene 반복은 보류한다.
 - **2026-09-24 (exp116 LPM zone-mass prior PASS / active·gain 미입증):**
   PSNR 튜닝 없이 official patch 한 개 pseudocount로
   `q_i=(active_pixels+256)/(HW+256)`,
