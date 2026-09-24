@@ -25,7 +25,7 @@ WORKSPACE = BASE.WORKSPACE
 PAPER_ROOT = BASE.PAPER_ROOT
 ROOT = (
     WORKSPACE
-    / "results/campaigns/gain_attribution/role_aware_dense_service_v2"
+    / "results/campaigns/gain_attribution/role_aware_dense_service_v3"
 )
 SCENES = (
     ("utmm", "square-1"),
@@ -69,9 +69,10 @@ def git_head(root: Path) -> str:
 def check_source_lock() -> None:
     current = {str(path): sha256(path) for path in SOURCE_PATHS}
     value = {
-        "protocol": "role_aware_dense_service_v2",
+        "protocol": "role_aware_dense_service_v3",
         "supersedes": (
-            "v1 allowed duplicate dense UIDs inside one multi-view Adam batch"
+            "v2 retained R4's auxiliary keyframe appearance slot; v3 "
+            "reallocates that identical work to dense repeat service"
         ),
         "scenes": [list(item) for item in SCENES],
         "arms": list(ARMS),
@@ -130,6 +131,7 @@ def mapping_command(arm: str, row: dict, output: Path) -> list[str]:
     if arm in ("role_normalized", "role_rr"):
         command.extend(
             (
+                "--stage6r-aux-kf-to-dense-repeat",
                 "--role-aware-dense-service",
                 "--role-aware-dense-selector",
                 "normalized_variance" if arm == "role_normalized" else "rr",
@@ -255,6 +257,17 @@ def verify(row: dict, paths: dict[str, Path], evaluations: dict) -> dict:
             )
             == 1
         )
+        method[f"{arm}_removes_aux_keyframe_appearance"] = (
+            not runtimes[arm]["fixed_event_keyframe_opportunity_ledger"]
+            and len(
+                runtimes[arm][
+                    "fixed_event_dense_repeat_opportunity_ledger"
+                ]
+            )
+            == len(
+                baseline["fixed_event_keyframe_opportunity_ledger"]
+            )
+        )
 
     normalized_trace = selection_trace(runtimes["role_normalized"])
     rr_trace = selection_trace(runtimes["role_rr"])
@@ -265,7 +278,7 @@ def verify(row: dict, paths: dict[str, Path], evaluations: dict) -> dict:
     method["normalized_rr_selector_is_active"] = trace_difference > 0
 
     report = {
-        "protocol": "role_aware_dense_service_verification_v2",
+        "protocol": "role_aware_dense_service_verification_v3",
         "dataset": row["dataset"],
         "scene": row["scene"],
         "common_checks": common,
@@ -351,7 +364,7 @@ def run_one(row: dict) -> dict:
         for arm in ARMS
     }
     result = {
-        "protocol": "role_aware_dense_service_result_v2",
+        "protocol": "role_aware_dense_service_result_v3",
         "dataset": row["dataset"],
         "scene": row["scene"],
         "arms": arms,
@@ -382,15 +395,16 @@ def run_one(row: dict) -> dict:
 def write_summary(rows: list[dict]) -> None:
     completed = []
     lines = [
-        "# Role-aware dense service v2 — three-family pilot",
+        "# Role-aware dense service v3 — three-family pilot",
         "",
         "One final native mapping iteration is a flexible render-credit",
         "quantum. The method spends it on an equal-cardinality causal dense",
         "RGB batch, freezes xyz/scale/rotation, and uses normalized-variance",
         "ERCB within the photometric pool. RR is the identical-work selector",
-        "ablation. Every multi-view batch is sampled without replacement.",
-        "No scene-specific knob or phase cutoff is used. This v2 supersedes",
-        "v1, whose multi-view queue could repeat a UID inside one Adam batch.",
+        "ablation. Every multi-view batch is sampled without replacement,",
+        "and R4's auxiliary keyframe-appearance slot is reassigned to a dense",
+        "repeat without minting admission credit. No scene-specific knob or",
+        "phase cutoff is used. v3 supersedes v2 as the paper-aligned candidate.",
         "",
         "| Scene | Backbone | Role N | Role RR | N−B | N−RR | Photo share N/RR | Count range N | Render / Adam | Trace diff | Gate |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
