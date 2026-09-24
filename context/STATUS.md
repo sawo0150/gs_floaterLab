@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp107 first-persistence RPNG transfer PASS):**
+  Exp106 common rule을 RPNG `table_01`에 무튜닝 전이해 final-generation
+  repeated532/small396/actual clone396, native stats 보존을 확인했다. PSNR
+  **25.584830dB**, Exp94 R4 +0.003415, fresh vanilla **+1.645150**이며
+  38,302 render·3,030 Adam·native topology2·fairness/double-eval/zero-tail PASS.
+  Final GS는 R4 대비 192개(+0.046%)만 증가했다. 따라서 현 preferred는
+  `R4 + normalized ERCB dense evidence + generation당 first-persistence 1회
+  top-1,024 bounded clone + native stats preservation`이다. UTMM work-poor
+  활성과 RPNG 핵심 이득 보존은 확인했지만 strict-live/전체 panel 주장은 아직
+  금지하며, 동일 rule의 Aria gate 뒤 17-scene 확장을 결정한다.
+  → [exp107](experiments/exp107_first_persistence_rpng.md)
 - **2026-09-24 (exp106 first-persistence local topology PASS):**
   native event 뒤에 evidence가 생겨 mutation 0이던 UTMM `slow-straight-2`에서
   generation당 첫 persistence dense step에 top-1,024 ticket을 1회 사용했다.
