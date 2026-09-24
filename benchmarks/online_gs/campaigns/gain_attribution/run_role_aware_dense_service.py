@@ -25,7 +25,7 @@ WORKSPACE = BASE.WORKSPACE
 PAPER_ROOT = BASE.PAPER_ROOT
 ROOT = (
     WORKSPACE
-    / "results/campaigns/gain_attribution/role_aware_dense_service_v1"
+    / "results/campaigns/gain_attribution/role_aware_dense_service_v2"
 )
 SCENES = (
     ("utmm", "square-1"),
@@ -69,7 +69,10 @@ def git_head(root: Path) -> str:
 def check_source_lock() -> None:
     current = {str(path): sha256(path) for path in SOURCE_PATHS}
     value = {
-        "protocol": "role_aware_dense_service_v1",
+        "protocol": "role_aware_dense_service_v2",
+        "supersedes": (
+            "v1 allowed duplicate dense UIDs inside one multi-view Adam batch"
+        ),
         "scenes": [list(item) for item in SCENES],
         "arms": list(ARMS),
         "quality_stop_db_vs_r4_backbone": QUALITY_STOP_DB,
@@ -241,8 +244,16 @@ def verify(row: dict, paths: dict[str, Path], evaluations: dict) -> dict:
             == entry["requested_iterations"] - 1
             and len(entry["selected_dense_uids"])
             == entry["baseline_render_count"]
+            and len(set(entry["selected_dense_uids"]))
+            == len(entry["selected_dense_uids"])
             and entry["requested_iterations"] > 1
             for entry in ledger
+        )
+        method[f"{arm}_transactional_without_replacement"] = (
+            summary["selector_summary"].get(
+                "service_shortfall_transactional_batch_no_repeat", 0
+            )
+            == 1
         )
 
     normalized_trace = selection_trace(runtimes["role_normalized"])
@@ -254,7 +265,7 @@ def verify(row: dict, paths: dict[str, Path], evaluations: dict) -> dict:
     method["normalized_rr_selector_is_active"] = trace_difference > 0
 
     report = {
-        "protocol": "role_aware_dense_service_verification_v1",
+        "protocol": "role_aware_dense_service_verification_v2",
         "dataset": row["dataset"],
         "scene": row["scene"],
         "common_checks": common,
@@ -340,7 +351,7 @@ def run_one(row: dict) -> dict:
         for arm in ARMS
     }
     result = {
-        "protocol": "role_aware_dense_service_result_v1",
+        "protocol": "role_aware_dense_service_result_v2",
         "dataset": row["dataset"],
         "scene": row["scene"],
         "arms": arms,
@@ -371,13 +382,15 @@ def run_one(row: dict) -> dict:
 def write_summary(rows: list[dict]) -> None:
     completed = []
     lines = [
-        "# Role-aware dense service — three-family pilot",
+        "# Role-aware dense service v2 — three-family pilot",
         "",
         "One final native mapping iteration is a flexible render-credit",
         "quantum. The method spends it on an equal-cardinality causal dense",
         "RGB batch, freezes xyz/scale/rotation, and uses normalized-variance",
         "ERCB within the photometric pool. RR is the identical-work selector",
-        "ablation. No scene-specific knob or phase cutoff is used.",
+        "ablation. Every multi-view batch is sampled without replacement.",
+        "No scene-specific knob or phase cutoff is used. This v2 supersedes",
+        "v1, whose multi-view queue could repeat a UID inside one Adam batch.",
         "",
         "| Scene | Backbone | Role N | Role RR | N−B | N−RR | Photo share N/RR | Count range N | Render / Adam | Trace diff | Gate |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
