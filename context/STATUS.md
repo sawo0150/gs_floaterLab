@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp108 first-persistence Aria transfer PASS):**
+  Exp106/107 common rule을 Aria `aria1253`에 무튜닝 전이했다. generation2
+  첫 persistence에서 repeated148/small70/actual clone70, native stats 보존,
+  추가 render·Adam 0이다. PSNR **25.755865dB**, Exp94 R4 −0.019837,
+  fresh vanilla **+1.776532**이며 SSIM +0.045087/LPIPS −0.088476이다.
+  13,620 physical render exact match·fairness/double-eval/held-out disjointness/
+  zero-tail 모두 PASS. UTMM/RPNG/Aria family gate가 모두 통과해 common
+  first-persistence config를 17-scene B-track panel용으로 freeze한다.
+  Strict-live latency와 ticket 자체의 R4 대비 품질 우월성은 아직 미증명이다.
+  → [exp108](experiments/exp108_first_persistence_aria.md)
 - **2026-09-24 (exp107 first-persistence RPNG transfer PASS):**
   Exp106 common rule을 RPNG `table_01`에 무튜닝 전이해 final-generation
   repeated532/small396/actual clone396, native stats 보존을 확인했다. PSNR
