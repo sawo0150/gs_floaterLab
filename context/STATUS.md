@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp106 first-persistence local topology PASS):**
+  native event 뒤에 evidence가 생겨 mutation 0이던 UTMM `slow-straight-2`에서
+  generation당 첫 persistence dense step에 top-1,024 ticket을 1회 사용했다.
+  Mid-cycle native densification stats를 보존했고 반복619/small443/actual clone443,
+  추가 render·Adam 0이다. PSNR **17.309940dB**, Exp94 R4 +0.086496,
+  Exp105 mutation-0보다 +0.063801이나 fresh vanilla에는 −0.054132다.
+  Fairness/double-eval/zero-tail PASS. Work-poor scene에서 contribution이 실제
+  작동하면서 품질을 보존한 isolation이지 패배 해결 확정은 아니다. 다음은 같은
+  rule로 RPNG table01의 기존 +1.6dB 이득과 −0.5dB stop을 재검증한다.
+  → [exp106](experiments/exp106_first_persistence_ticket.md)
 - **2026-09-24 (exp105 dense-ticket transfer pilot, scheduling 한계):**
   Exp104 rule을 고정하고 fresh vanilla pair로 UTMM `slow-straight-2`와 Aria
   `aria1253`에 전이했다. UTMM은 R4 +0.0227dB/fresh vanilla −0.0356dB이나

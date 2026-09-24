@@ -22,12 +22,16 @@ class DenseGradientTopologyTicket:
     TOP_K_PER_VIEW = 1024
     MIN_DISTINCT_DENSE_UIDS = 2
 
-    def __init__(self, *, seed: int) -> None:
+    def __init__(self, *, seed: int, mode: str = "native_matched") -> None:
+        if mode not in ("native_matched", "first_persistence"):
+            raise ValueError(f"unsupported dense topology ticket mode: {mode}")
         self.seed = int(seed)
+        self.mode = mode
         self.generation: int | None = None
         self._uids_by_point: dict[int, set[int]] = {}
         self._consumed_point_ids: set[int] = set()
         self._generator: torch.Generator | None = None
+        self._first_persistence_spent = False
         self.dense_observations = 0
         self.events: list[dict[str, object]] = []
 
@@ -37,6 +41,7 @@ class DenseGradientTopologyTicket:
         self.generation = generation
         self._uids_by_point.clear()
         self._consumed_point_ids.clear()
+        self._first_persistence_spent = False
         self._generator = torch.Generator(
             device=gaussians.get_xyz.device
         ).manual_seed(self.seed + 1_000_003 * generation)
@@ -114,6 +119,7 @@ class DenseGradientTopologyTicket:
         }
         self._consumed_point_ids.update(selected_ids)
         record = {
+            "trigger": "native_topology_event",
             "map_generation": generation,
             "regular_added_ticket": regular_added,
             "persistent_candidates_before_scale_filter": (
@@ -121,6 +127,67 @@ class DenseGradientTopologyTicket:
             ),
             "small_scale_eligible": int(result["eligible"]),
             "selected_without_replacement": int(result["selected"]),
+            "gaussians_before": before,
+            "gaussians_after": int(gaussians.get_xyz.shape[0]),
+        }
+        self.events.append(record)
+        return record
+
+    @torch.no_grad()
+    def mutate_first_persistence(
+        self,
+        gaussians,
+        *,
+        scene_extent: float,
+    ) -> dict | None:
+        """Spend one top-K ticket when repeated evidence first matures."""
+        generation = self._check_generation(gaussians)
+        if self._first_persistence_spent:
+            return None
+        point_ids = [int(value) for value in gaussians.point_ids.tolist()]
+        weights = torch.as_tensor(
+            [
+                (
+                    len(self._uids_by_point.get(point_id, ()))
+                    if len(self._uids_by_point.get(point_id, ()))
+                    >= self.MIN_DISTINCT_DENSE_UIDS
+                    else 0
+                )
+                for point_id in point_ids
+            ],
+            dtype=torch.float32,
+            device=gaussians.get_xyz.device,
+        )
+        persistent_candidates = int((weights > 0).count_nonzero().item())
+        if persistent_candidates == 0:
+            return None
+        before = int(gaussians.get_xyz.shape[0])
+        result = gaussians.densify_and_clone_with_budget(
+            weights,
+            self.TOP_K_PER_VIEW,
+            scene_extent,
+            generator=self._generator,
+            preserve_densification_stats=True,
+        )
+        selected_ids = {
+            int(value) for value in result["selected_point_ids"]
+        }
+        self._consumed_point_ids.update(selected_ids)
+        if selected_ids:
+            self._first_persistence_spent = True
+        record = {
+            "trigger": "first_persistent_dense_step",
+            "map_generation": generation,
+            "regular_added_ticket": 0,
+            "requested_ticket": self.TOP_K_PER_VIEW,
+            "persistent_candidates_before_scale_filter": (
+                persistent_candidates
+            ),
+            "small_scale_eligible": int(result["eligible"]),
+            "selected_without_replacement": int(result["selected"]),
+            "preserved_densification_stats": bool(
+                result["preserved_densification_stats"]
+            ),
             "gaussians_before": before,
             "gaussians_after": int(gaussians.get_xyz.shape[0]),
         }
@@ -136,7 +203,12 @@ class DenseGradientTopologyTicket:
             "protocol": "generation_scoped_dense_gradient_ticket_v1",
             "top_k_per_view": self.TOP_K_PER_VIEW,
             "minimum_distinct_dense_uids": self.MIN_DISTINCT_DENSE_UIDS,
-            "budget_mode": "match_regular_additions",
+            "budget_mode": (
+                "match_regular_additions"
+                if self.mode == "native_matched"
+                else "one_topk_ticket_at_first_persistence_per_generation"
+            ),
+            "service_mode": self.mode,
             "weighted_without_replacement": True,
             "extra_renders": 0,
             "extra_adam_steps": 0,
@@ -153,7 +225,13 @@ class DenseGradientTopologyTicket:
             "events": self.events,
             "topology_events": len(self.events),
             "requested_mutations": sum(
-                int(row["regular_added_ticket"]) for row in self.events
+                int(
+                    row.get(
+                        "requested_ticket",
+                        row["regular_added_ticket"],
+                    )
+                )
+                for row in self.events
             ),
             "selected_mutations": sum(
                 int(row["selected_without_replacement"])

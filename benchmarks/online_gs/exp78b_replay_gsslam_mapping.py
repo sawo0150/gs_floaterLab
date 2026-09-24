@@ -1049,6 +1049,7 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
 
     def guarded_step(optimizer, *args, **kwargs):
         guard.reject_if_unsafe("optimizer")
+        dense_ticket_after_step = None
         if (
             optimizer is mapper.gaussians.optimizer
             and bool(getattr(mapper, "_exp78b_replay_scope_active", False))
@@ -1161,6 +1162,8 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     int(replay_keys[0][1]),
                     f_dc_gradient,
                 )
+                if topology_ticket.mode == "first_persistence":
+                    dense_ticket_after_step = topology_ticket
             mapper._exp78b_effective_replay_scope_counts[
                 f"{replay_source}:{scope}"
             ] += 1
@@ -1181,6 +1184,25 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     for parameter in group["params"]:
                         parameter.grad = None
         result = original(optimizer, *args, **kwargs)
+        if dense_ticket_after_step is not None:
+            mutation = dense_ticket_after_step.mutate_first_persistence(
+                mapper.gaussians,
+                scene_extent=float(mapper.gaussian_extent),
+            )
+            if mutation is not None:
+                print(
+                    "DENSE_TOPOLOGY_FIRST_PERSISTENCE "
+                    f"generation={mutation['map_generation']} "
+                    f"repeated={mutation['persistent_candidates_before_scale_filter']} "
+                    f"eligible={mutation['small_scale_eligible']} "
+                    "requested="
+                    f"{mutation['requested_ticket']} "
+                    "selected="
+                    f"{mutation['selected_without_replacement']} "
+                    "preserved_stats="
+                    f"{mutation['preserved_densification_stats']}",
+                    flush=True,
+                )
         if guard.enabled:
             torch.cuda.synchronize()
             guard.optimizer_completion_times.append(time.monotonic())
@@ -1854,6 +1876,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--dense-topology-first-persistence-ticket",
+        action="store_true",
+        help=(
+            "spend one top-1024 bounded clone ticket per map generation "
+            "immediately after repeated dense evidence first matures, while "
+            "preserving native densification statistics"
+        ),
+    )
+    parser.add_argument(
         "--observation-topology-gate",
         action="store_true",
         help=(
@@ -2236,6 +2267,18 @@ def main() -> int:
         raise ValueError(
             "dense topology ticket requires fixed dense opportunities"
         )
+    if (
+        args.dense_topology_first_persistence_ticket
+        and not fixed_event_dense_isolation
+    ):
+        raise ValueError(
+            "first-persistence topology ticket requires fixed dense opportunities"
+        )
+    if (
+        args.dense_topology_ticket
+        and args.dense_topology_first_persistence_ticket
+    ):
+        raise ValueError("select exactly one dense topology ticket scheduler")
     if selector_audit_required and not fixed_event_dense_isolation:
         raise ValueError(
             "Stage-3c/3d/4 comparison requires one fixed dense opportunity "
@@ -2541,8 +2584,18 @@ def main() -> int:
         dense_topology_evidence.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
     dense_topology_ticket = (
-        DenseGradientTopologyTicket(seed=int(args.seed) + 32452843)
-        if args.dense_topology_ticket
+        DenseGradientTopologyTicket(
+            seed=int(args.seed) + 32452843,
+            mode=(
+                "first_persistence"
+                if args.dense_topology_first_persistence_ticket
+                else "native_matched"
+            ),
+        )
+        if (
+            args.dense_topology_ticket
+            or args.dense_topology_first_persistence_ticket
+        )
         else None
     )
     if dense_topology_ticket is not None:
@@ -2624,7 +2677,10 @@ def main() -> int:
     )
     if newborn_consolidation is not None:
         install_newborn_consolidation(mapper, newborn_consolidation)
-    if dense_topology_ticket is not None:
+    if (
+        dense_topology_ticket is not None
+        and dense_topology_ticket.mode == "native_matched"
+    ):
         install_dense_topology_ticket_gaussian(
             mapper, dense_topology_ticket
         )
@@ -2775,7 +2831,10 @@ def main() -> int:
                     install_newborn_consolidation_gaussian(
                         mapper, newborn_consolidation
                     )
-                if dense_topology_ticket is not None:
+                if (
+                    dense_topology_ticket is not None
+                    and dense_topology_ticket.mode == "native_matched"
+                ):
                     install_dense_topology_ticket_gaussian(
                         mapper, dense_topology_ticket
                     )
@@ -3455,6 +3514,9 @@ def main() -> int:
         ),
         "dense_topology_ticket_requested": bool(
             args.dense_topology_ticket
+        ),
+        "dense_topology_first_persistence_ticket_requested": bool(
+            args.dense_topology_first_persistence_ticket
         ),
         "dense_topology_ticket": (
             None

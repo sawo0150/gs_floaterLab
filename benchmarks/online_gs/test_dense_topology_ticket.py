@@ -19,7 +19,13 @@ class _Gaussians:
         return self._xyz
 
     def densify_and_clone_with_budget(
-        self, scores, budget, scene_extent, *, generator
+        self,
+        scores,
+        budget,
+        scene_extent,
+        *,
+        generator,
+        preserve_densification_stats=False,
     ):
         candidates = (scores > 0).nonzero(as_tuple=True)[0]
         selected = candidates[: min(int(budget), len(candidates))]
@@ -36,6 +42,7 @@ class _Gaussians:
             "requested": int(budget),
             "eligible": len(candidates),
             "selected": count,
+            "preserved_densification_stats": preserve_densification_stats,
             "selected_point_ids": selected_ids,
         }
 
@@ -68,6 +75,27 @@ class DenseGradientTopologyTicketTest(unittest.TestCase):
         second = _Gaussians(2)
         ticket.bind_generation(second, 1)
         self.assertEqual(ticket.summary()["current_generation_repeated_points"], 0)
+
+    def test_first_persistence_spends_once_and_preserves_stats(self):
+        model = _Gaussians(4)
+        ticket = DenseGradientTopologyTicket(
+            seed=7, mode="first_persistence"
+        )
+        ticket.bind_generation(model, 0)
+        gradient = torch.tensor([[[4.0]], [[3.0]], [[2.0]], [[1.0]]])
+        ticket.observe(model, 10, gradient)
+        self.assertIsNone(
+            ticket.mutate_first_persistence(model, scene_extent=1.0)
+        )
+        ticket.observe(model, 11, gradient)
+        record = ticket.mutate_first_persistence(
+            model, scene_extent=1.0
+        )
+        self.assertEqual(record["selected_without_replacement"], 4)
+        self.assertTrue(record["preserved_densification_stats"])
+        self.assertIsNone(
+            ticket.mutate_first_persistence(model, scene_extent=1.0)
+        )
 
 
 if __name__ == "__main__":
