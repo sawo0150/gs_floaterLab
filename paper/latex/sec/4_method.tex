@@ -81,6 +81,9 @@ services; an interrupted iteration commits none.  Consequently, each call
 retains exactly $L_qC_q$ physical renders and $L_q$ Adam steps while preserving
 at least one full geometric iteration.  No view is duplicated to fill a batch,
 and an immature dense pool cannot silently reduce the work budget.
+The mapper's existing one-view auxiliary appearance slot is likewise assigned
+to a dense repeat rather than to another keyframe; because it is repeat service,
+it does not mint primary admission credit.
 
 We partition the Gaussian parameters as
 $\Theta=(\Theta_{\mathrm G},\Theta_{\mathrm A})$, where
@@ -145,7 +148,7 @@ p_s(i)
 \frac{
 \exp\!\left(-\Delta_i\Phi/\tau\right)
 }{
-\sum_j \exp!\left(-\Delta_j\Phi/\tau\right)
+\sum_j \exp\!\left(-\Delta_j\Phi/\tau\right)
 }.
 \label{eq:entropy_sampling_general}
 \end{equation}

@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-09-17. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-24. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp124 role-aware dense service 3-family PASS / quality gain 미입증):**
+  keyframe RGB--D geometry carrier를 보존하면서 마지막 native iteration과 기존
+  aux-KF appearance slot을 dense photometric repeat로 재배치했다. UTMM/RPNG/Aria
+  대표 장면에서 total dense render share는 **11.50/11.03/11.58%**, normalized
+  ERCB↔RR trace 차이는 41/115/57행이며 render·Adam·causal·held-out·zero-tail·
+  geometry-scope gate가 모두 PASS했다. PSNR은 backbone 대비 평균
+  **−0.146190dB**, normalized−RR은 +0.007519dB라 “99% keyframe final” 문제의
+  구조적 해소와 품질 보존까지만 채택하고 ERCB quality gain은 주장하지 않는다.
+  v1 batch duplicate는 폐기하고 without-replacement v3와 128 test로 정정했다.
+  → [exp124](experiments/exp124_role_aware_dense_service.md)
 - **2026-09-24 (exp123 dense geometry-mass isolation PASS / 후보 기각):**
   Exp122에서 남은 RPNG 손실이 aggregate geometry weight 때문인지
   view-specific coverage 때문인지 분리했다. fresh control/stats-off/
