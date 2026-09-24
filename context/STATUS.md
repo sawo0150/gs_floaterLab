@@ -88,6 +88,21 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp114 official-LPM no-op repeat PASS / source-code implementation rule):**
+  논문은 아이디어 검토에만 쓰고 실제 이식은 `/home/intern/gs_topology_references`
+  아래 저자 코드를 pinned commit으로 대조한다는 규칙을 고정했다. LPM commit
+  `7c060267`의 `get_errormap(diff)`만 already-paid dense render에 이식해 fresh
+  control 두 개 사이에서 반복했다. 9,345 render·757 Adam·dense trace 불변,
+  control 평균 대비 +0.002144dB, GS 편차9/허용121, GPU share0.187%, wall
+  +0.306%, 142 call/95 unique score로 모든 교정 gate PASS. 다음은 이 detached
+  score를 successful Adam 뒤에만 반영하는 bounded dense-view utility이며 hard
+  prune/topology trigger로는 아직 쓰지 않는다.
+- **2026-09-24 (exp113 official-LPM probe FAIL / gate correction):**
+  동일 author operator의 첫 telemetry run은 추가 render·Adam·mutation 0,
+  +0.007276dB와 비퇴화 score를 보였지만 exact saved-PLY SHA가 달라 FAIL로
+  기록했다. 이후 untouched control끼리도 SHA와 GS count가 달라짐을 exp114가
+  입증했으므로 exp113을 소급 PASS시키지 않고, byte identity 대신 반복 control
+  spread와 0.1% topology tolerance를 쓰는 교정 실험을 별도 보존했다.
 - **2026-09-24 (exp112 active normalized temperature 3-family PASS / gain 미입증):**
   Exp111 causal pool을 생산 queue로 재생해 quality를 보지 않고 UTMM square-1에서
   trace차이≥10%·count-CV감소≥10%를 처음 만족하는 공통 `gamma=16`을 고정했다.
