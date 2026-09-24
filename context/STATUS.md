@@ -88,6 +88,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp109 first-persistence 17-scene B-track PASS):**
+  frozen common config로 RPNG8/UTMM7/Aria2의 fresh candidate/official-vanilla
+  pair를 모두 재실행했다. **17/17 승리, scene 평균 +1.286809dB**이며
+  RPNG +1.6165/UTMM +0.5743/Aria +2.4620, fairness/double-eval/zero-tail/
+  R4-floor 모두 PASS. Exact R4 대비 평균은 +0.000426dB라 기존 이득을
+  사실상 정확히 복원했고 Exp94 stretch(+1.253787,17/17)도 PASS다. Dense/
+  ERCB ticket은 총 6,782 clone을 실제 수행했으나 추가 render·Adam 0,
+  최종 GS 합계는 R4 대비 +0.043%뿐이다. 모든 pair 완료 뒤 inline summary가
+  compact JSON field 누락으로 실패했지만 immutable artifact-only reporter로
+  공식 MD/JSON을 복구했다. 현 B-track custom composition으로 채택하되 ticket
+  자체의 R4 대비 causal quality gain과 strict-live는 아직 미증명이다.
+  → [exp109](experiments/exp109_first_persistence_panel.md)
 - **2026-09-24 (exp108 first-persistence Aria transfer PASS):**
   Exp106/107 common rule을 Aria `aria1253`에 무튜닝 전이했다. generation2
   첫 persistence에서 repeated148/small70/actual clone70, native stats 보존,
