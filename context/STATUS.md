@@ -88,6 +88,20 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp122 dense-global topology-stat isolation PASS):**
+  RPNG fresh control/unified-stats-on/unified-stats-off를 같은 38,302 render와
+  3,030 Adam으로 실행해 25.582787/25.410318/25.424374dB를 얻었다. Dense
+  global view의 native densification stat을 빼면 lifetime regular churn은
+  114,266→112,144(control112,062)로 사실상 복원되지만 PSNR은 +0.014056dB,
+  stats-on 손실의 8.15%만 회복한다. 따라서 Exp120 RPNG 손실의 주원인은
+  topology-stat 유입이 아니라 historical RGB-D KF 한 장을 RGB-only dense로
+  교체해 geometry supervision을 잃는 것이라는 진단이다. v1 verifier는 모든
+  1,610 commit이 topology stat 대상이라고 잘못 가정했지만 final-v7은
+  frontier에서만 허용하며 immutable ledger도 210회, actual skip도 210회다.
+  artifact-only v2로 이를 정정했고 mapping/eval은 재실행하지 않았다. 다음
+  Track-A는 recent/native RGB-D geometry carrier를 보존한 fixed-work dense
+  allocation만 허용하며, 새 primitive는 계속 pinned downloaded author code에서
+  가져온다. 새 local prune/TileGS CUDA/17-scene one-slot 확장은 금지한다.
 - **2026-09-24 (exp121 topology cost/source-code gate PASS):**
   unified arm을 CUDA-sync profile한 결과 UTMM/RPNG densify-prune 총비용은
   69.575/58.666ms로 mapping wall의 0.171/0.034%, max spike는
