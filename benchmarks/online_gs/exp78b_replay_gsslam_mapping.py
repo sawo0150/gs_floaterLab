@@ -1705,6 +1705,16 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--r4-unified-dense-global-preserve-geometry-mass",
+        action="store_true",
+        help=(
+            "single-factor isolation: when a dense RGB view replaces one "
+            "historical RGB-D view, multiply only the remaining depth and "
+            "normal losses by (D+1)/D; RGB work and render cardinality stay "
+            "unchanged"
+        ),
+    )
+    parser.add_argument(
         "--fixed-work-dense-selector",
         choices=("off", "rr", "ercb"),
         default="off",
@@ -2513,6 +2523,14 @@ def main() -> int:
             "dense-global topology-stat isolation requires exactly one "
             "unified dense global slot"
         )
+    if (
+        args.r4_unified_dense_global_preserve_geometry_mass
+        and args.r4_unified_dense_global_views != 1
+    ):
+        raise ValueError(
+            "dense-global geometry-mass isolation requires exactly one "
+            "unified dense global slot"
+        )
     if args.dense_topology_ticket and not fixed_event_dense_isolation:
         raise ValueError(
             "dense topology ticket requires fixed dense opportunities"
@@ -2695,6 +2713,9 @@ def main() -> int:
         mapper_args.mapping_dense_global_replay_scheduler = True
         mapper_args.mapping_dense_global_topology_stats = not bool(
             args.r4_unified_dense_global_no_topology_stats
+        )
+        mapper_args.mapping_dense_global_geometry_mass_preservation = bool(
+            args.r4_unified_dense_global_preserve_geometry_mass
         )
     # Keep the temperature intervention local to the dense-view selector.
     # The native and auxiliary keyframe selectors are separate queue objects
@@ -3789,6 +3810,9 @@ def main() -> int:
         ),
         "r4_unified_dense_global_topology_stats_enabled": not bool(
             args.r4_unified_dense_global_no_topology_stats
+        ),
+        "r4_unified_dense_global_geometry_mass_preservation": bool(
+            args.r4_unified_dense_global_preserve_geometry_mass
         ),
         "fixed_work_ercb_beta": args.fixed_work_ercb_beta,
         "fixed_work_ercb_block_size": args.fixed_work_ercb_block_size,
