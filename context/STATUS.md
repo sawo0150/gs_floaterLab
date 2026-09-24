@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp115 LPM dense-view utility FAIL / 품질 안전·선택 비활성):**
+  author LPM error-zone coverage를 `p_i∝(1+e_i)exp[-16n_i/(T+1)]`의
+  explicit base measure로 넣고 score를 successful Adam+queue commit에만
+  반영했다. UTMM square-1 4arm 모두 9,345 render·757 Adam·causal/eval gate
+  PASS이고 normalized 대비 −0.019673dB로 급락은 없었다. 그러나 combined
+  arm의 dense trace 변화가 **0행**이라 active-method gate FAIL. utility-only
+  RR은 9행 변화/+0.002957dB로 signal은 있으나 quality gain은 noise 수준이다.
+  PSNR로 multiplier를 맞추지 않고, LPM zone mass의 one-patch pseudocount
+  `q_i=e_i+1/P_i`를 KL prior로 쓰는 source-grounded trace gate를 다음 후보로
+  검토한다. 전체 scene 전이는 금지한다.
 - **2026-09-24 (exp114 official-LPM no-op repeat PASS / source-code implementation rule):**
   논문은 아이디어 검토에만 쓰고 실제 이식은 `/home/intern/gs_topology_references`
   아래 저자 코드를 pinned commit으로 대조한다는 규칙을 고정했다. LPM commit
