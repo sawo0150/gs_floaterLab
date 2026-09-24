@@ -1753,9 +1753,13 @@ def main() -> int:
     )
     parser.add_argument(
         "--ercb-selection-potential",
-        choices=("service_shortfall", "normalized_variance"),
+        choices=("service_shortfall", "normalized_variance", "rr"),
         default="service_shortfall",
-        help="Ablation: use the per-view Var(count)/mean(count) Gibbs law in all three ERCB selectors",
+        help=(
+            "Use the selected potential in all three R4 selectors. rr keeps "
+            "the identical causal pool, growing epoch, commit semantics, and "
+            "RNG ownership but sets every per-view Gibbs energy to zero."
+        ),
     )
     parser.add_argument(
         "--ercb-normalized-family",
@@ -3398,9 +3402,8 @@ def main() -> int:
         "ercb_selection_potential_by_family": {
             family: (
                 "normalized_variance"
-                if args.ercb_selection_potential == "normalized_variance"
-                or family in normalized_families
-                else "service_shortfall"
+                if family in normalized_families
+                else args.ercb_selection_potential
             )
             for family in ("dense", "aux_kf", "native_kf")
         },
@@ -3616,9 +3619,14 @@ def main() -> int:
             (
                 (
                     (
-                        "stage6r_r4_normalized_variance_ercb_v1"
-                        if args.ercb_selection_potential == "normalized_variance"
-                        else "stage6r_r4_native_global_keyframe_ercb_v1"
+                        (
+                            "stage6r_r4_normalized_variance_ercb_v1"
+                            if args.ercb_selection_potential
+                            == "normalized_variance"
+                            else "stage6r_r4_rr_selector_control_v1"
+                            if args.ercb_selection_potential == "rr"
+                            else "stage6r_r4_native_global_keyframe_ercb_v1"
+                        )
                     )
                     if args.stage6r_native_global_keyframe_ercb
                     else "stage6r_r4_native_global_uniform_control_v1"
