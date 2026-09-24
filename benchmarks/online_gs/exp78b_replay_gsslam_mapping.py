@@ -1195,9 +1195,15 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     for parameter in group["params"]:
                         parameter.grad = None
         result = original(optimizer, *args, **kwargs)
+        pending_dense_global_keys = tuple(
+            getattr(mapper, "_mapping_pending_dense_global_keys", ())
+        )
         if (
             optimizer is mapper.gaussians.optimizer
-            and bool(getattr(mapper, "_exp78b_replay_scope_active", False))
+            and (
+                bool(getattr(mapper, "_exp78b_replay_scope_active", False))
+                or bool(pending_dense_global_keys)
+            )
             and getattr(
                 mapper,
                 "_exp78b_lpm_error_zone_view_utility_mode",
@@ -1205,7 +1211,11 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
             )
             != "none"
         ):
-            replay_keys = getattr(mapper, "_exp78b_current_replay_keys", ())
+            replay_keys = (
+                pending_dense_global_keys
+                if pending_dense_global_keys
+                else getattr(mapper, "_exp78b_current_replay_keys", ())
+            )
             if len(replay_keys) != 1 or replay_keys[0][0] != "dense":
                 raise RuntimeError(
                     "LPM view utility requires one completed dense replay"
@@ -1552,7 +1562,12 @@ def install_lpm_error_zone_evidence(
     def observed(self, image, depth, viewpoint, *args, **kwargs):
         loss = original(image, depth, viewpoint, *args, **kwargs)
         if (
-            bool(getattr(self, "_exp78b_replay_scope_active", False))
+            (
+                bool(getattr(self, "_exp78b_replay_scope_active", False))
+                or bool(
+                    getattr(self, "_mapping_pending_dense_global_keys", ())
+                )
+            )
             and getattr(viewpoint, "sensor_type", None) == "rgb_dense"
         ):
             gt_image = (
@@ -1665,6 +1680,18 @@ def main() -> int:
         help=(
             "replace this many already-budgeted historical/global KF slots "
             "with causal dense views in regular map() calls; fixed-work only"
+        ),
+    )
+    parser.add_argument(
+        "--r4-unified-dense-global-views",
+        type=int,
+        choices=(0, 1),
+        default=0,
+        help=(
+            "Track-A isolation: keep the recent keyframe window and total "
+            "native render cardinality fixed, but replace one flexible "
+            "historical-keyframe slot with a transactional draw from the "
+            "same LPM-mass normalized dense pool."
         ),
     )
     parser.add_argument(
@@ -2452,6 +2479,22 @@ def main() -> int:
         and args.lpm_error_zone_mass_prior
     ):
         raise ValueError("select exactly one LPM candidate utility")
+    if args.r4_unified_dense_global_views and not (
+        args.r4_unified_dense_global_views == 1
+        and args.lpm_error_zone_mass_prior
+        and args.lpm_error_zone_evidence_probe
+        and fixed_event_dense_isolation
+        and args.stage6r_aux_kf_to_dense_repeat
+        and args.service_shortfall_ercb
+        and args.ercb_selection_potential == "normalized_variance"
+        and args.fixed_work_dense_global_views == 0
+        and args.fixed_work_dense_selector == "off"
+    ):
+        raise ValueError(
+            "R4 unified dense global replacement requires exactly one slot, "
+            "the LPM-mass normalized dense-repeat path, and no legacy "
+            "fixed-work dense adapter"
+        )
     if args.dense_topology_ticket and not fixed_event_dense_isolation:
         raise ValueError(
             "dense topology ticket requires fixed dense opportunities"
@@ -2627,6 +2670,11 @@ def main() -> int:
         args.local_birth_budget_mode,
         args.local_birth_radius,
     )
+    if args.r4_unified_dense_global_views:
+        mapper_args.mapping_dense_global_views = int(
+            args.r4_unified_dense_global_views
+        )
+        mapper_args.mapping_dense_global_replay_scheduler = True
     # Keep the temperature intervention local to the dense-view selector.
     # The native and auxiliary keyframe selectors are separate queue objects
     # with their accepted log(1.5) setting, so this does not silently change
@@ -3712,6 +3760,12 @@ def main() -> int:
         "mapping_profile": args.profile,
         "fixed_work_dense_global_views": args.fixed_work_dense_global_views,
         "fixed_work_dense_selector": args.fixed_work_dense_selector,
+        "r4_unified_dense_global_views": int(
+            args.r4_unified_dense_global_views
+        ),
+        "r4_unified_dense_global_enabled": bool(
+            args.r4_unified_dense_global_views
+        ),
         "fixed_work_ercb_beta": args.fixed_work_ercb_beta,
         "fixed_work_ercb_block_size": args.fixed_work_ercb_block_size,
         "fixed_iteration_projected_dense_selector": (
@@ -4123,18 +4177,22 @@ def main() -> int:
             "observed_but_unsupported"
             if args.profile == "frontier_only"
             else (
-                "causal_dense_projected_into_fixed_adam_iteration"
-                if fixed_iteration_projected_enabled
+                "causal_dense_replaces_r4_flexible_historical_slot"
+                if args.r4_unified_dense_global_views
                 else (
-                    "causal_dense_owns_fixed_adam_iteration_allocation"
-                    if fixed_iteration_dedicated_enabled
+                    "causal_dense_projected_into_fixed_adam_iteration"
+                    if fixed_iteration_projected_enabled
                     else (
-                        "causal_dense_replaces_budgeted_global_slot"
-                        if args.fixed_work_dense_global_views > 0
+                        "causal_dense_owns_fixed_adam_iteration_allocation"
+                        if fixed_iteration_dedicated_enabled
                         else (
-                            "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
-                            if dense_pose_shaper is not None
-                            else "causally_registered_endpoint_interpolated_for_idle_replay"
+                            "causal_dense_replaces_budgeted_global_slot"
+                            if args.fixed_work_dense_global_views > 0
+                            else (
+                                "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
+                                if dense_pose_shaper is not None
+                                else "causally_registered_endpoint_interpolated_for_idle_replay"
+                            )
                         )
                     )
                 )
