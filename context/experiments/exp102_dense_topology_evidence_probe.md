@@ -1,5 +1,12 @@
 # exp102 — behavior-neutral ERCB dense topology evidence probe
 
+> **2026-09-24 correction:** quality/isolation and per-opportunity gradient
+> concentration remain valid, but the persistence table below did not namespace
+> point IDs across mapper resets. VIGS restarts model-local IDs at zero, so those
+> lifetime/repetition counts must not be used for topology selection. Exp103
+> reruns the identical diagnostic with `(map_generation, point_id)` identities;
+> use [Exp103](exp103_generation_scoped_dense_evidence.md) for persistence.
+
 - Date: 2026-09-24
 - Status: RPNG `table_01` quality/isolation gate **PASS**; diagnostic only
 - VIGS source: `2306b6f9`

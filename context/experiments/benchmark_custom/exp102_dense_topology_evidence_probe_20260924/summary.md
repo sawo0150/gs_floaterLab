@@ -1,5 +1,10 @@
 # Exp102 — behavior-neutral dense topology evidence
 
+> **Superseded persistence accounting:** VIGS reuses model-local point IDs after
+> map reset. PSNR/isolation and gradient-mass concentration here remain valid,
+> but all lifetime/repeated/live nomination counts are superseded by the
+> generation-scoped Exp103 rerun.
+
 The probe reads per-Gaussian `f_dc` gradients already produced by each
 paid normalized-ERCB dense replay. It adds no render, Adam step, or map
 mutation. Persistent-counter semantics are informed by downloaded

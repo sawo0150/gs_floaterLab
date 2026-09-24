@@ -2463,6 +2463,8 @@ def main() -> int:
         if args.dense_topology_evidence_probe
         else None
     )
+    if dense_topology_evidence is not None:
+        dense_topology_evidence.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
     stage6r_keyframe_queue = None
     if args.stage6r_keyframe_appearance_replay:
@@ -2668,6 +2670,10 @@ def main() -> int:
             else:
                 mapper.remove_all_gaussians()
                 map_generation += 1
+                if dense_topology_evidence is not None:
+                    dense_topology_evidence.bind_generation(
+                        mapper.gaussians, map_generation
+                    )
                 if stage6r_keyframe_queue is not None:
                     stage6r_keyframe_queue.begin_generation(map_generation)
                 if compute_paced_admission is not None:

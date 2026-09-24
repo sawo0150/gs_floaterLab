@@ -28,13 +28,32 @@ class DenseTopologyEvidenceProbe:
         self.nominations = {
             k: collections.Counter() for k in self.TOP_K
         }
-        self._last_top1024: set[int] | None = None
+        self._current_generation: int | None = None
+        self._last_top1024: set[tuple[int, int]] | None = None
         self._consecutive_jaccard: list[float] = []
         self.elapsed_seconds = 0.0
+
+    def bind_generation(self, gaussians, generation: int) -> None:
+        """Namespace model-local point IDs, which restart after map reset."""
+        generation = int(generation)
+        setattr(
+            gaussians,
+            "_exp78b_dense_evidence_generation",
+            generation,
+        )
+        if self._current_generation != generation:
+            self._current_generation = generation
+            self._last_top1024 = None
 
     @torch.no_grad()
     def observe(self, gaussians, dense_uid: int, gradient: torch.Tensor) -> None:
         started = time.perf_counter()
+        generation = getattr(
+            gaussians, "_exp78b_dense_evidence_generation", None
+        )
+        if generation is None or int(generation) != self._current_generation:
+            raise ValueError("dense topology evidence saw an unbound map generation")
+        generation = int(generation)
         if gradient is None:
             raise ValueError("dense topology evidence needs an f_dc gradient")
         row_count = int(gaussians.get_xyz.shape[0])
@@ -59,9 +78,12 @@ class DenseTopologyEvidenceProbe:
                 scores[positive_rows], largest_k, sorted=True
             )
             top_rows = positive_rows[local_order]
-            top_ids = gaussians.point_ids[
-                top_rows.detach().cpu()
-            ].tolist()
+            top_ids = [
+                (generation, int(point_id))
+                for point_id in gaussians.point_ids[
+                    top_rows.detach().cpu()
+                ].tolist()
+            ]
             top_values_cpu = top_values.detach().float().cpu().tolist()
         else:
             top_ids = []
@@ -72,16 +94,14 @@ class DenseTopologyEvidenceProbe:
         for k in self.TOP_K:
             actual = min(k, positive_count)
             candidate_counts[str(k)] = actual
-            selected_ids = [int(value) for value in top_ids[:actual]]
+            selected_ids = top_ids[:actual]
             self.nominations[k].update(selected_ids)
             selected_mass = float(sum(top_values_cpu[:actual]))
             mass_fraction[str(k)] = (
                 0.0 if total_mass <= 0.0 else selected_mass / total_mass
             )
 
-        current_top1024 = set(
-            int(value) for value in top_ids[: min(1024, positive_count)]
-        )
+        current_top1024 = set(top_ids[: min(1024, positive_count)])
         if self._last_top1024 is not None:
             union = current_top1024 | self._last_top1024
             self._consecutive_jaccard.append(
@@ -93,6 +113,7 @@ class DenseTopologyEvidenceProbe:
         self.records.append(
             {
                 "opportunity": len(self.records),
+                "map_generation": generation,
                 "dense_uid": int(dense_uid),
                 "gaussians": row_count,
                 "positive_gradient_rows": positive_count,
@@ -111,7 +132,12 @@ class DenseTopologyEvidenceProbe:
         return 0.0 if not values else float(statistics.fmean(values))
 
     def summary(self, live_point_ids: torch.Tensor) -> dict[str, object]:
-        live = set(int(value) for value in live_point_ids.tolist())
+        if self._current_generation is None:
+            raise ValueError("dense topology evidence has no bound generation")
+        live = {
+            (self._current_generation, int(value))
+            for value in live_point_ids.tolist()
+        }
         repeated = {}
         for k, counts in self.nominations.items():
             keys = set(counts)
@@ -145,6 +171,10 @@ class DenseTopologyEvidenceProbe:
             "unique_dense_uids": len(
                 {int(row["dense_uid"]) for row in self.records}
             ),
+            "map_generations": len(
+                {int(row["map_generation"]) for row in self.records}
+            ),
+            "final_map_generation": self._current_generation,
             "probe_wall_seconds": float(self.elapsed_seconds),
             "mean_gaussians": self._mean(
                 [float(row["gaussians"]) for row in self.records]

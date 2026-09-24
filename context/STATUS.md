@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp103 generation-scoped dense evidence PASS / exp102 정정):**
+  VIGS map reset마다 point ID가 0부터 재사용되므로 Exp102 bare-ID persistence는
+  서로 다른 Gaussian을 합칠 수 있음을 발견했다. `(map_generation, point_id)`로
+  고쳐 동일 run을 재실행했고 3 generation을 분리한 상태에서 38,302 render·
+  3,030 Adam·opportunity UID·topology2/2·zero-tail 모두 PASS. PSNR
+  **25.579016dB**(R4 −0.006001, vanilla **+1.614753**)이며 최종 generation의
+  반복 top-1,024 live ID도 25,330개다. Exp102 품질/gradient concentration은
+  유효하지만 persistence 표는 폐기하고 Exp103만 topology ticket 근거로 쓴다.
+  다음은 R4 birth/prune/cadence를 보존하고 Taming 저자 코드의 weighted
+  without-replacement ticket을 반복 dense ID에만 적용한다.
+  → [exp103](experiments/exp103_generation_scoped_dense_evidence.md)
 - **2026-09-24 (exp102 behavior-neutral ERCB dense topology evidence PASS):**
   normalized R4의 paid dense backward에서 기존 `f_dc` gradient만 읽어 stable
   point-ID evidence를 계측했다. 269 fixed opportunity의 UID 순서를 모두
