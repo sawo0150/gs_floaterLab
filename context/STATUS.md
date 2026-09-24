@@ -88,6 +88,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp111 dense-repeat Track-A 3-family PASS):** 기존 aux-KF
+  one-view slot을 dense repeat로 재배치하고 primary service만 admission
+  credit을 만들며 신규 view first-service를 강제했다. UTMM/RPNG/Aria 3장면
+  9arm에서 render·Adam·admission·event·held-out·double-eval·zero-tail 전부
+  PASS. Dense/KF service는 70/70→140/0, 267/267→534/0,
+  100/100→200/0이고 dense share는 약 0.7%→1.4–1.5%, 추가 work 0이다.
+  Normalized repeat−R4 평균 **+0.015072dB**로 기존 이득을 보존했다. 다만
+  normalized−dense-only-RR 평균 +0.009767dB, 실제 선택 차이 1/2/0행이라
+  현 `gamma=log(1.5)` ERCB gain은 미입증이다. 다음은 개발 scene에서만
+  하나의 공통 normalized temperature를 정하되 `T`로 scale해 raw sampler를
+  재포장하지 않는다. Inline verifier 오판은 artifact-only v2로 정정했다.
+  → [exp111](experiments/exp111_dense_repeat_ercb.md)
 - **2026-09-24 (exp110 normalized ERCB/RR/ticket isolation):** UTMM 3장면의
   normalized+ticket / zero-energy RR+ticket / normalized ticket-off 9arm을
   실행했고 render·Adam·causal opportunity·held-out·zero-tail 검증은 모두
