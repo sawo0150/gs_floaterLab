@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp120 frozen unified dense transfer 2/2 PASS / gain 미입증):**
+  Exp119의 exact one-slot, LPM mass prior, `gamma=16`을 무튜닝으로 RPNG
+  table_01과 Aria1253에 전이했다. dense share는 각각 1.40→5.61%,
+  1.48→6.37%이고 1,610/665 replacement가 전부 commit됐다. 모든 arm의
+  38,302/13,620 render·3,030/1,055 Adam과 causal/held-out/double-eval/
+  zero-tail/cardinality/lifecycle gate가 PASS했고 품질은 fresh control 대비
+  −0.186122/+0.054396dB다. UTMM 포함 3-family 평균은 −0.047930dB,
+  normalized−RR은 +0.000805dB라 ERCB quality gain은 아직 없다. dense가
+  native visibility/densification stats와 실제 mutation ledger를 바꾸는 active
+  path는 확보했지만 RPNG 손실 때문에 현재 rule을 17-scene quality result로
+  승격하지 않는다. 다음 구현 primitive도 pinned 저자 코드에서만 가져온다.
 - **2026-09-24 (exp119 corrected unified dense global slot PASS):**
   control-equivalent global cardinality를 먼저 고정해 실제 flexible historical
   render 1개만 unified LPM-mass dense ERCB로 교체했다. UTMM square-1에서
