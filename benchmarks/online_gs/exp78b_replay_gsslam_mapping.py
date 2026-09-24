@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import collections
+from dataclasses import replace
 import hashlib
 import json
 import math
@@ -49,6 +50,7 @@ import gaussian.scene.gaussian_model as custom_gaussian_model_module  # noqa: E4
 from exp78b_frozen_archive import FrozenTrackerArchive  # noqa: E402
 from exp78b_dense_imu_pose import CausalImuDensePoseShaper  # noqa: E402
 from dense_topology_evidence import DenseTopologyEvidenceProbe  # noqa: E402
+from dense_topology_ticket import DenseGradientTopologyTicket  # noqa: E402
 from exp78b_newborn_consolidation import (  # noqa: E402
     ObservationConditionedNewbornConsolidation,
 )
@@ -1141,6 +1143,24 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     int(replay_keys[0][1]),
                     f_dc_gradient,
                 )
+            topology_ticket = getattr(
+                mapper, "_exp78b_dense_topology_ticket", None
+            )
+            if topology_ticket is not None and replay_source == "dense":
+                if evidence_probe is None:
+                    f_dc_gradient = next(
+                        (
+                            group["params"][0].grad
+                            for group in optimizer.param_groups
+                            if group.get("name") == "f_dc"
+                        ),
+                        None,
+                    )
+                topology_ticket.observe(
+                    mapper.gaussians,
+                    int(replay_keys[0][1]),
+                    f_dc_gradient,
+                )
             mapper._exp78b_effective_replay_scope_counts[
                 f"{replay_source}:{scope}"
             ] += 1
@@ -1191,6 +1211,47 @@ def install_topology_guard(mapper: GSBackEnd, guard: BoundaryGuard) -> None:
             return __original(*args, **kwargs)
 
         setattr(gaussian, name, MethodType(guarded, gaussian))
+
+
+def install_dense_topology_ticket_gaussian(
+    mapper: GSBackEnd,
+    controller: DenseGradientTopologyTicket,
+) -> None:
+    """Spend dense evidence only at the existing native topology event."""
+    gaussian = mapper.gaussians
+    if not hasattr(gaussian, "densify_and_clone_with_budget"):
+        raise RuntimeError(
+            "dense topology ticket requires the bounded author-code port"
+        )
+    original = gaussian.densify_and_prune
+
+    def ticketed(self, *args, **kwargs):
+        report = original(*args, **kwargs)
+        mutation = controller.mutate(
+            self,
+            scene_extent=float(mapper.gaussian_extent),
+            regular_added=int(report.added),
+        )
+        selected = int(mutation["selected_without_replacement"])
+        if selected:
+            report = replace(
+                report,
+                clone_parents=int(report.clone_parents) + selected,
+                clone_children=int(report.clone_children) + selected,
+                output_gaussians=int(self.get_xyz.shape[0]),
+            )
+        print(
+            "DENSE_TOPOLOGY_TICKET "
+            f"generation={mutation['map_generation']} "
+            f"regular_added={mutation['regular_added_ticket']} "
+            f"repeated={mutation['persistent_candidates_before_scale_filter']} "
+            f"eligible={mutation['small_scale_eligible']} "
+            f"selected={selected}",
+            flush=True,
+        )
+        return report
+
+    gaussian.densify_and_prune = MethodType(ticketed, gaussian)
 
 
 def install_newborn_consolidation(
@@ -1784,6 +1845,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--dense-topology-ticket",
+        action="store_true",
+        help=(
+            "use repeated top-1024 dense f_dc evidence to spend a weighted "
+            "without-replacement clone ticket equal to native regular "
+            "additions at each existing topology event"
+        ),
+    )
+    parser.add_argument(
         "--observation-topology-gate",
         action="store_true",
         help=(
@@ -2162,6 +2232,10 @@ def main() -> int:
         raise ValueError(
             "dense topology evidence probe requires fixed dense opportunities"
         )
+    if args.dense_topology_ticket and not fixed_event_dense_isolation:
+        raise ValueError(
+            "dense topology ticket requires fixed dense opportunities"
+        )
     if selector_audit_required and not fixed_event_dense_isolation:
         raise ValueError(
             "Stage-3c/3d/4 comparison requires one fixed dense opportunity "
@@ -2466,6 +2540,14 @@ def main() -> int:
     if dense_topology_evidence is not None:
         dense_topology_evidence.bind_generation(mapper.gaussians, 0)
     mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
+    dense_topology_ticket = (
+        DenseGradientTopologyTicket(seed=int(args.seed) + 32452843)
+        if args.dense_topology_ticket
+        else None
+    )
+    if dense_topology_ticket is not None:
+        dense_topology_ticket.bind_generation(mapper.gaussians, 0)
+    mapper._exp78b_dense_topology_ticket = dense_topology_ticket
     stage6r_keyframe_queue = None
     if args.stage6r_keyframe_appearance_replay:
         stage6r_keyframe_queue = (
@@ -2542,6 +2624,10 @@ def main() -> int:
     )
     if newborn_consolidation is not None:
         install_newborn_consolidation(mapper, newborn_consolidation)
+    if dense_topology_ticket is not None:
+        install_dense_topology_ticket_gaussian(
+            mapper, dense_topology_ticket
+        )
 
     replay_start = time.monotonic()
     sensor_timestamp0 = float(archive.arrivals[0]["sensor_timestamp"])
@@ -2674,6 +2760,10 @@ def main() -> int:
                     dense_topology_evidence.bind_generation(
                         mapper.gaussians, map_generation
                     )
+                if dense_topology_ticket is not None:
+                    dense_topology_ticket.bind_generation(
+                        mapper.gaussians, map_generation
+                    )
                 if stage6r_keyframe_queue is not None:
                     stage6r_keyframe_queue.begin_generation(map_generation)
                 if compute_paced_admission is not None:
@@ -2684,6 +2774,10 @@ def main() -> int:
                     newborn_consolidation.reset_active_map()
                     install_newborn_consolidation_gaussian(
                         mapper, newborn_consolidation
+                    )
+                if dense_topology_ticket is not None:
+                    install_dense_topology_ticket_gaussian(
+                        mapper, dense_topology_ticket
                     )
                 install_topology_guard(mapper, guard)
         torch.cuda.synchronize()
@@ -3358,6 +3452,14 @@ def main() -> int:
             None
             if dense_topology_evidence is None
             else dense_topology_evidence.summary(mapper.gaussians.point_ids)
+        ),
+        "dense_topology_ticket_requested": bool(
+            args.dense_topology_ticket
+        ),
+        "dense_topology_ticket": (
+            None
+            if dense_topology_ticket is None
+            else dense_topology_ticket.summary()
         ),
         "observation_topology_gate_requested": (
             args.observation_topology_gate

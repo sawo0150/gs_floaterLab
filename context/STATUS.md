@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp104 active dense/ERCB bounded topology ticket PASS):**
+  normalized ERCB dense backward top-1,024를 generation-scoped ID로 누적하고,
+  서로 다른 dense UID 2회 이상 반복된 small Gaussian을 Taming 저자 코드의
+  weighted without-replacement ticket으로 기존 topology event에서만 clone했다.
+  Ticket은 event의 regular add와 매칭하며 실제 1,706개가 mutation됐다. 추가
+  render/Adam 0, 38,302 render·3,030 Adam·fairness/zero-tail 전부 PASS. PSNR
+  **25.595663dB**로 R4 +0.010645, vanilla **+1.631399**이며 GS +0.41%, wall
+  +1.52%다. Dense/ERCB가 topology를 실제 제어하면서 R4 이득을 보존한 첫
+  조합이나 R4 대비 gain은 noise 수준이므로 common rule을 고정해 무튜닝
+  transfer하고, scene별 −0.5dB 하락 시 즉시 중단한다. Hard prune은 아직 금지.
+  → [exp104](experiments/exp104_dense_topology_ticket.md)
 - **2026-09-24 (exp103 generation-scoped dense evidence PASS / exp102 정정):**
   VIGS map reset마다 point ID가 0부터 재사용되므로 Exp102 bare-ID persistence는
   서로 다른 Gaussian을 합칠 수 있음을 발견했다. `(map_generation, point_id)`로
