@@ -88,6 +88,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp118 unified dense historical-slot pilot FAIL / render +49):**
+  recent KF window와 Adam757을 유지한 채 global slot 1개를 dense ERCB로
+  바꾸는 첫 구현은 dense share를 1.52→6.65%로 높이고 normalized/RR trace
+  70행을 갈랐으며 품질도 −0.033/−0.052dB로 안전했다. 그러나 초반
+  historical pool<6에서 dense가 replacement가 아니라 supplement가 되어
+  total render가 9,345→9,394(+49), fixed-work gate FAIL. 결과는 품질 근거로
+  사용하지 않는다. control-equivalent `G=min(6,available_history)`를 먼저
+  정한 뒤 `tracked=G-dense`로 교정한 새 source/root에서만 재실행한다.
 - **2026-09-24 (exp117 frozen LPM mass-prior transfer 2/2 PASS / gain 미입증):**
   Exp116의 source-backed prior와 `gamma=16`을 무튜닝으로 RPNG table_01,
   Aria1253에 전이했다. normalized 결합은 trace를 34/9행 바꾸고 모든
