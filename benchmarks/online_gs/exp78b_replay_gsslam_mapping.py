@@ -1782,6 +1782,18 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--dense-ercb-gamma",
+        type=float,
+        default=math.log(1.5),
+        help=(
+            "Scene-independent dense-selector inverse temperature. For the "
+            "normalized-variance potential this is the constant gamma in "
+            "exp[-gamma*n_i/(T+1)]; it must not be scaled by T because that "
+            "would recover the raw-variance sampler. Native/auxiliary "
+            "keyframe selectors retain their frozen log(1.5) setting."
+        ),
+    )
+    parser.add_argument(
         "--ercb-normalized-family",
         action="append",
         choices=("dense", "aux_kf", "native_kf"),
@@ -2027,6 +2039,8 @@ def main() -> int:
         raise ValueError("local birth ticket must be positive")
     if args.local_birth_radius < 0.0:
         raise ValueError("local birth radius must be non-negative")
+    if not math.isfinite(args.dense_ercb_gamma) or args.dense_ercb_gamma < 0.0:
+        raise ValueError("dense ERCB gamma must be finite and non-negative")
     if args.new_view_service_period < 0:
         raise ValueError("new-view service period must be non-negative")
     if args.dense_pose_refresh_period <= 0:
@@ -2490,6 +2504,13 @@ def main() -> int:
         args.local_birth_ticket,
         args.local_birth_budget_mode,
         args.local_birth_radius,
+    )
+    # Keep the temperature intervention local to the dense-view selector.
+    # The native and auxiliary keyframe selectors are separate queue objects
+    # with their accepted log(1.5) setting, so this does not silently change
+    # multiple scheduler families in a dense-only ablation.
+    mapper_args.mapping_replay_service_shortfall_gamma = float(
+        args.dense_ercb_gamma
     )
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     normalized_families = set(args.ercb_normalized_family)
@@ -3650,10 +3671,18 @@ def main() -> int:
         "dense_admission_ledger": dense_admission_ledger,
         "service_shortfall_ercb_parameters": (
             {
-                "block_size": 8,
+                "block_size": int(
+                    mapper_args.mapping_replay_service_shortfall_block_size
+                ),
                 "relative_floor_ratio": 0.75,
-                "gamma": math.log(1.5),
-                "maximum_bonus": 1.5,
+                # Legacy keys remain aliases for the dense queue so existing
+                # artifact validators keep reading the same schema.
+                "gamma": float(args.dense_ercb_gamma),
+                "maximum_bonus": math.exp(args.dense_ercb_gamma),
+                "dense_gamma": float(args.dense_ercb_gamma),
+                "dense_maximum_bonus": math.exp(args.dense_ercb_gamma),
+                "keyframe_gamma": math.log(1.5),
+                "keyframe_maximum_bonus": 1.5,
                 "global_epoch_no_repeat": bool(
                     c2_global_residue_semantics
                     and not args.stage6r_aux_kf_to_dense_repeat
