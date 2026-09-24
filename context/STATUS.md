@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp121 topology cost/source-code gate PASS):**
+  unified arm을 CUDA-sync profile한 결과 UTMM/RPNG densify-prune 총비용은
+  69.575/58.666ms로 mapping wall의 0.171/0.034%, max spike는
+  55.108/40.334ms다. 따라서 global topology는 평균 throughput 병목이
+  아니지만 regular churn 89,296/114,143행의 품질·해석성 문제와 strict-live
+  event spike는 남는다. 내려받은 pinned LPM/TileGS/Taming/RTG 실제 코드를
+  재감사해 LPM error-zone과 Taming bounded weighted sampling만 현 RGB causal
+  contract에 맞는 primitive로 유지한다. TileGS CUDA 전면이식, RTG의 RGB-D
+  stable/unstable lifecycle, 새 hard prune는 보류한다. 다음은 Exp120 RPNG
+  손실이 RGB-D historical slot 교체 때문인지 dense topology-stat 유입 때문인지
+  single-factor로 분리한다.
 - **2026-09-24 (exp120 frozen unified dense transfer 2/2 PASS / gain 미입증):**
   Exp119의 exact one-slot, LPM mass prior, `gamma=16`을 무튜닝으로 RPNG
   table_01과 Aria1253에 전이했다. dense share는 각각 1.40→5.61%,
