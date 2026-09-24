@@ -88,6 +88,17 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp102 behavior-neutral ERCB dense topology evidence PASS):**
+  normalized R4의 paid dense backward에서 기존 `f_dc` gradient만 읽어 stable
+  point-ID evidence를 계측했다. 269 fixed opportunity의 UID 순서를 모두
+  일치시켰고 추가 render/Adam/mutation 0, 38,302 render·3,030 Adam·topology2/2·
+  zero-tail 등 isolation PASS. PSNR **25.577882dB**, Exp95 R4 대비 −0.007136,
+  fresh vanilla 대비 **+1.613619dB**다. top 1,024가 gradient mass 29.84%,
+  연속 set Jaccard 0.3180, 반복 nomination 후 final map에 생존한 ID 25,264개라
+  dense/ERCB가 bounded local topology의 실제 신호가 될 근거를 확보했다.
+  아직 topology 성능 이득 주장은 아니며 다음은 R4 birth를 보존한 채 공식
+  author-code의 without-replacement ticket 구조로 반복 ID만 제한한다.
+  → [exp102](experiments/exp102_dense_topology_evidence_probe.md)
 - **2026-09-24 (exp101 R4-preserving official residual supplement PASS):**
   R4 blanket PPM birth/RNG를 bit-for-bit 먼저 보존하고 별도 RNG에서 공식
   Gaussian-SLAM residual-mask+radius birth를 1× causal allocation으로 추가했다.

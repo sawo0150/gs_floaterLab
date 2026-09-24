@@ -48,6 +48,7 @@ import gaussian.scene.gaussian_model as custom_gaussian_model_module  # noqa: E4
 
 from exp78b_frozen_archive import FrozenTrackerArchive  # noqa: E402
 from exp78b_dense_imu_pose import CausalImuDensePoseShaper  # noqa: E402
+from dense_topology_evidence import DenseTopologyEvidenceProbe  # noqa: E402
 from exp78b_newborn_consolidation import (  # noqa: E402
     ObservationConditionedNewbornConsolidation,
 )
@@ -1123,6 +1124,23 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
             replay_source = (
                 str(replay_keys[0][0]) if len(replay_keys) == 1 else "unknown"
             )
+            evidence_probe = getattr(
+                mapper, "_exp78b_dense_topology_evidence_probe", None
+            )
+            if evidence_probe is not None and replay_source == "dense":
+                f_dc_gradient = next(
+                    (
+                        group["params"][0].grad
+                        for group in optimizer.param_groups
+                        if group.get("name") == "f_dc"
+                    ),
+                    None,
+                )
+                evidence_probe.observe(
+                    mapper.gaussians,
+                    int(replay_keys[0][1]),
+                    f_dc_gradient,
+                )
             mapper._exp78b_effective_replay_scope_counts[
                 f"{replay_source}:{scope}"
             ] += 1
@@ -1758,6 +1776,14 @@ def main() -> int:
     )
     parser.add_argument("--local-birth-radius", type=float, default=0.01)
     parser.add_argument(
+        "--dense-topology-evidence-probe",
+        action="store_true",
+        help=(
+            "diagnostic only: summarize per-Gaussian f_dc gradients already "
+            "produced by paid ERCB dense replay; adds no render or mutation"
+        ),
+    )
+    parser.add_argument(
         "--observation-topology-gate",
         action="store_true",
         help=(
@@ -2132,6 +2158,10 @@ def main() -> int:
     fixed_event_dense_isolation = bool(
         args.fixed_event_dense_opportunities_per_packet
     )
+    if args.dense_topology_evidence_probe and not fixed_event_dense_isolation:
+        raise ValueError(
+            "dense topology evidence probe requires fixed dense opportunities"
+        )
     if selector_audit_required and not fixed_event_dense_isolation:
         raise ValueError(
             "Stage-3c/3d/4 comparison requires one fixed dense opportunity "
@@ -2428,6 +2458,12 @@ def main() -> int:
     mapper._exp78b_current_replay_keys = ()
     mapper._exp78b_adaptive_scope_counts = {"full": 0, "appearance": 0}
     mapper._exp78b_effective_replay_scope_counts = collections.Counter()
+    dense_topology_evidence = (
+        DenseTopologyEvidenceProbe()
+        if args.dense_topology_evidence_probe
+        else None
+    )
+    mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
     stage6r_keyframe_queue = None
     if args.stage6r_keyframe_appearance_replay:
         stage6r_keyframe_queue = (
@@ -3309,6 +3345,14 @@ def main() -> int:
         "local_birth_ticket": args.local_birth_ticket,
         "local_birth_budget_mode": args.local_birth_budget_mode,
         "local_birth_radius": args.local_birth_radius,
+        "dense_topology_evidence_probe_requested": bool(
+            args.dense_topology_evidence_probe
+        ),
+        "dense_topology_evidence": (
+            None
+            if dense_topology_evidence is None
+            else dense_topology_evidence.summary(mapper.gaussians.point_ids)
+        ),
         "observation_topology_gate_requested": (
             args.observation_topology_gate
         ),
