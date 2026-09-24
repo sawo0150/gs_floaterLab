@@ -2,7 +2,8 @@
 
 | 폴더 | 내용 |
 |---|---|
-| `experiments/` | ★ 실험 결과 (expNN_이름_타임스탬프/ + 같은 이름 .log). 새 실험 출력은 반드시 여기 |
+| `campaigns/` | ★ 신규 실험 결과 (`<campaign>/<question>/<dataset>/<scene>/<arm>/`) |
+| `experiments/` | immutable legacy `expNN*` 결과. 기존 source lock 때문에 이동 금지 |
 | `rounds/` | 진단 라운드 실행 결과 (round2 gradient, round5 pcd filter 등) |
 | `diagnostic/` | 진단/시각화 산출물 (figures, PDF, plateau 앵커 .npy). **3dgs-custom configs가 anchor_path로 직접 참조하므로 경로 이동 금지** |
 | `datasets/` | 파생 3DGS scene (vggt64/openmavis64 64-frame 비교용) |
@@ -11,7 +12,9 @@
 
 ## 규칙
 
-- 실험 1개 = `experiments/` 아래 dir 1개 (+ 옆에 .log). W&B run name과 dir 이름을 맞춘다.
+- 새 실험은 `campaigns/<campaign>/<question>/` 아래에 두고 W&B run name과
+  question/arm 이름을 맞춘다. `expNNN`은 manifest의 provenance ID로만 남긴다.
 - 실패/중단된 run은 `archive/failed_runs/`로 옮긴다 (같은 이름 재실행과 혼동 방지 — read_psnr.py가 최신 dir를 집기 때문).
-- 각 실험의 의미/결론은 여기가 아니라 `context/experiments/INDEX.md`에 기록한다.
+- 각 실험의 의미/결론은 [campaign hub](../context/experiments/README.md)에
+  요약하고, 시간순 provenance는 `context/experiments/INDEX.md`에 한 줄 기록한다.
 - **exp01-37(Plateau loss 시대)는 07-17에 `archive/mps_plateau_era/`·`archive/orb_plateau_era/`로 정리됨** — carve loss(exp38+)가 완전히 대체했고 개별 run이 다시 필요할 일이 없는 축들. STATUS.md·스크립트에서 여전히 참조되는 챔피언/기준선(exp08, exp13, exp30, exp30r, exp32_lineage_diag, exp37)만 `experiments/`에 남김. 상세: `archive/README_plateau_era_archive.md`.

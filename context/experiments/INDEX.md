@@ -1,5 +1,9 @@
 # Experiment Index
 
+> 이 파일은 재현성을 위한 **시간순 원장**이라 길이가 의도적으로 유지된다.
+> 일반 탐색은 [research campaign hub](README.md)에서 시작한다. 새 작업은
+> `expNNN` 번호보다 `BENCH/TOPO/DENSE/ATTR` campaign 이름을 먼저 사용한다.
+
 - **2026-09-24 exp123 dense geometry-mass isolation PASS / candidate rejected:** RPNG fresh control/stats-off/stats-off+geometry-mass는 모두 38,302 render·3,030 Adam exact. PSNR 25.561123/25.434710/25.412915dB. Candidate는 1,610/1,610 dense replacement에서 남은 RGB-D depth/normal만 평균 1.062575배로 보정했지만 **−0.021795dB 추가 악화**(gap recovery −17.24%). Aggregate geometry weight 부족이 아니라 교체된 historical KF의 view-specific RGB-D coverage 손실이 원인. Aggressive KF→dense replacement는 폐기하고 scene 확장·ratio tuning 금지. [실험 카드](exp123_dense_geometry_mass_isolation.md)
 - **2026-09-24 exp122 dense-global topology-stat isolation PASS:** RPNG fresh control/stats-on/stats-off 모두 38,302 render·3,030 Adam exact 및 causal/eval gate PASS. PSNR은 25.582787/25.410318/25.424374dB. Dense native topology stats를 빼자 churn은 114,266→112,144(control112,062)로 복원됐지만 품질은 **+0.014056dB**만 회복(손실의 8.15%). 따라서 one-slot RPNG 손실의 주원인은 topology stat이 아니라 historical RGB-D KF를 RGB-only dense로 교체한 것. v1 verifier의 all-commit 기대는 final-v7 frontier-only stat 규칙을 무시한 오류로, immutable ledger 210/210을 쓰는 artifact-only v2에서 정정. [실험 카드](exp122_dense_global_topology_stats_isolation.md)
 - **2026-09-24 exp121 topology cost/source-code gate PASS:** frozen unified arm을 CUDA-sync section profile. UTMM/RPNG densify-prune는 총 **69.575/58.666ms**, mapping wall의 **0.171/0.034%**, max spike55.108/40.334ms로 평균 throughput 병목이 아님. 반면 regular churn은 89,296/114,143행이라 품질·해석성 문제는 유지. Downloaded LPM/TileGS/Taming/RTG 실제 코드를 대조해 LPM error-zone+Taming bounded sampling만 strict RGB fixed-work에 채택하고 TileGS CUDA/RTG RGB-D lifecycle/hard prune는 보류. [실험 카드](exp121_topology_cost_profile.md)
