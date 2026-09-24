@@ -88,6 +88,15 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp119 corrected unified dense global slot PASS):**
+  control-equivalent global cardinality를 먼저 고정해 실제 flexible historical
+  render 1개만 unified LPM-mass dense ERCB로 교체했다. UTMM square-1에서
+  dense renders/share 142/1.52%→**625/6.69%**, total 9,345 render·757 Adam
+  exact, 483/483 commit·recent-window/cap/lifecycle/causal/eval gate 모두 PASS.
+  normalized는 control −0.012064dB로 품질을 보존하고 동일 dense work RR보다
+  +0.02562dB, global trace70행 차이. 처음으로 dense/ERCB가 native mapping과
+  topology statistics에 충분히 참여하면서 R4 품질을 유지했으나 단일장면
+  gain은 noise 수준이므로 exact one-slot rule을 RPNG/Aria에 무튜닝 전이한다.
 - **2026-09-24 (exp118 unified dense historical-slot pilot FAIL / render +49):**
   recent KF window와 Adam757을 유지한 채 global slot 1개를 dense ERCB로
   바꾸는 첫 구현은 dense share를 1.52→6.65%로 높이고 normalized/RR trace
