@@ -88,6 +88,18 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp110 normalized ERCB/RR/ticket isolation):** UTMM 3장면의
+  normalized+ticket / zero-energy RR+ticket / normalized ticket-off 9arm을
+  실행했고 render·Adam·causal opportunity·held-out·zero-tail 검증은 모두
+  PASS했다. normalized−RR 평균 **−0.007705dB**, ticket−off 평균
+  **+0.002896dB**로 noise 수준이다. Dense와 aux-KF 선택 trace는 전부 같고
+  dense selection count 최대가 1이라 현재 one-pass service에서는 ERCB가
+  개입할 수 없었다. Native historical-KF만 반복 epoch에서 9/16 rows가
+  달랐으나 품질 효과는 없었다. 따라서 Exp109의 품질 보존은 유효하지만
+  ERCB/ticket을 causal gain으로 주장하지 않는다. 다음은 신규 view의 causal
+  first-service floor를 보존하면서 existing flexible work 일부만 dense repeat로
+  재배치하는 공통 rule을 격리 검증한다.
+  → [exp110](experiments/exp110_rr_ticket_ablation.md)
 - **2026-09-24 (exp109 first-persistence 17-scene B-track PASS):**
   frozen common config로 RPNG8/UTMM7/Aria2의 fresh candidate/official-vanilla
   pair를 모두 재실행했다. **17/17 승리, scene 평균 +1.286809dB**이며
