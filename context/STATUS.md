@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-24 (exp105 dense-ticket transfer pilot, scheduling 한계):**
+  Exp104 rule을 고정하고 fresh vanilla pair로 UTMM `slow-straight-2`와 Aria
+  `aria1253`에 전이했다. UTMM은 R4 +0.0227dB/fresh vanilla −0.0356dB이나
+  4 dense update 뒤 반복 후보 619개가 생겼을 때 native topology가 이미 끝나
+  mutation 0이었다. Aria는 1,453 mutation이 활성이고 R4 −0.0520dB,
+  fresh vanilla **+1.7636dB**다. fairness/double-eval/zero-tail 모두 PASS.
+  Native-event-only 방식은 짧고 work가 부족한 장면에서 contribution이 늦으므로
+  17-scene 확장을 보류한다. 다음은 generation당 1회 observation-triggered
+  ticket을 쓰되 mid-cycle native densification stats를 보존해 UTMM에서 먼저 검증한다.
+  → [exp105](experiments/exp105_dense_ticket_transfer_pilot.md)
 - **2026-09-24 (exp104 active dense/ERCB bounded topology ticket PASS):**
   normalized ERCB dense backward top-1,024를 generation-scoped ID로 누적하고,
   서로 다른 dense UID 2회 이상 반복된 small Gaussian을 Taming 저자 코드의
