@@ -830,6 +830,10 @@ def mapper_namespace(
     fixed_iteration_dedicated_dense_iters: int,
     fixed_iteration_dedicated_dense_batch_size: int,
     fixed_iteration_dedicated_dense_scope: str,
+    role_aware_dense_service: bool,
+    role_aware_dense_selector: str,
+    role_aware_dense_gamma: float,
+    role_aware_dense_scope: str,
     native_global_keyframe_selection_audit: bool,
     native_global_keyframe_ercb: bool,
     ercb_selection_potential: str,
@@ -1020,6 +1024,16 @@ def mapper_namespace(
     parsed.mapping_dense_dedicated_parameter_scope = str(
         fixed_iteration_dedicated_dense_scope
     )
+    parsed.mapping_role_aware_dense_service = bool(
+        role_aware_dense_service
+    )
+    parsed.mapping_role_aware_dense_selector = str(
+        role_aware_dense_selector
+    )
+    parsed.mapping_role_aware_dense_gamma = float(
+        role_aware_dense_gamma
+    )
+    parsed.mapping_role_aware_dense_scope = str(role_aware_dense_scope)
     if fixed_iteration_dedicated_dense_selector == "rr":
         parsed.mapping_replay_count_softmax_beta = -1.0
     return parsed
@@ -1787,6 +1801,31 @@ def main() -> int:
         default="appearance",
     )
     parser.add_argument(
+        "--role-aware-dense-service",
+        action="store_true",
+        help=(
+            "paper path: preserve at least one native RGB-D iteration and "
+            "spend one equal-cardinality flexible iteration on causal dense "
+            "appearance service when the pool can fill it exactly"
+        ),
+    )
+    parser.add_argument(
+        "--role-aware-dense-selector",
+        choices=("normalized_variance", "rr"),
+        default="normalized_variance",
+        help="ERCB method selector or its identical-work RR ablation",
+    )
+    parser.add_argument(
+        "--role-aware-dense-gamma",
+        type=float,
+        default=16.0,
+    )
+    parser.add_argument(
+        "--role-aware-dense-scope",
+        choices=("appearance", "appearance_opacity"),
+        default="appearance",
+    )
+    parser.add_argument(
         "--compute-paced-dense-admission",
         action="store_true",
         help=(
@@ -2253,6 +2292,25 @@ def main() -> int:
         raise ValueError("dedicated dense iterations must be non-negative")
     if args.fixed_iteration_dedicated_dense_batch_size <= 0:
         raise ValueError("dedicated dense batch size must be positive")
+    if (
+        not math.isfinite(args.role_aware_dense_gamma)
+        or args.role_aware_dense_gamma < 0.0
+    ):
+        raise ValueError(
+            "role-aware dense gamma must be finite and non-negative"
+        )
+    if args.role_aware_dense_service and not (
+        args.time_scale == "unbounded"
+        and args.profile in ("dense_rr", "dense_rr_imu")
+        and not fixed_work_dense_enabled
+        and not fixed_iteration_projected_enabled
+        and not fixed_iteration_dedicated_enabled
+        and not args.r4_unified_dense_global_views
+    ):
+        raise ValueError(
+            "role-aware dense service requires an unbounded dense profile "
+            "without another dense render-allocation mechanism"
+        )
     if args.observation_conditioned_newborn_consolidation and not (
         args.time_scale == "unbounded"
         and args.mapping_after_metric_init
@@ -2697,6 +2755,10 @@ def main() -> int:
         args.fixed_iteration_dedicated_dense_iters,
         args.fixed_iteration_dedicated_dense_batch_size,
         args.fixed_iteration_dedicated_dense_scope,
+        args.role_aware_dense_service,
+        args.role_aware_dense_selector,
+        args.role_aware_dense_gamma,
+        args.role_aware_dense_scope,
         args.stage6r_native_global_keyframe_selection_audit,
         args.stage6r_native_global_keyframe_ercb,
         args.ercb_selection_potential,
@@ -3843,6 +3905,12 @@ def main() -> int:
         "fixed_iteration_dedicated_dense_scope": (
             args.fixed_iteration_dedicated_dense_scope
         ),
+        "role_aware_dense_service": bool(
+            args.role_aware_dense_service
+        ),
+        "role_aware_dense_selector": args.role_aware_dense_selector,
+        "role_aware_dense_gamma": float(args.role_aware_dense_gamma),
+        "role_aware_dense_scope": args.role_aware_dense_scope,
         "compute_paced_dense_admission": args.compute_paced_dense_admission,
         "compute_paced_dense_token_cost": args.compute_paced_dense_token_cost,
         "service_shortfall_ercb_requested": args.service_shortfall_ercb,
@@ -4225,21 +4293,25 @@ def main() -> int:
             "observed_but_unsupported"
             if args.profile == "frontier_only"
             else (
-                "causal_dense_replaces_r4_flexible_historical_slot"
-                if args.r4_unified_dense_global_views
+                "causal_dense_role_debt_equal_cardinality_photometric_service"
+                if args.role_aware_dense_service
                 else (
-                    "causal_dense_projected_into_fixed_adam_iteration"
-                    if fixed_iteration_projected_enabled
+                    "causal_dense_replaces_r4_flexible_historical_slot"
+                    if args.r4_unified_dense_global_views
                     else (
-                        "causal_dense_owns_fixed_adam_iteration_allocation"
-                        if fixed_iteration_dedicated_enabled
+                        "causal_dense_projected_into_fixed_adam_iteration"
+                        if fixed_iteration_projected_enabled
                         else (
-                            "causal_dense_replaces_budgeted_global_slot"
-                            if args.fixed_work_dense_global_views > 0
+                            "causal_dense_owns_fixed_adam_iteration_allocation"
+                            if fixed_iteration_dedicated_enabled
                             else (
-                                "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
-                                if dense_pose_shaper is not None
-                                else "causally_registered_endpoint_interpolated_for_idle_replay"
+                                "causal_dense_replaces_budgeted_global_slot"
+                                if args.fixed_work_dense_global_views > 0
+                                else (
+                                    "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
+                                    if dense_pose_shaper is not None
+                                    else "causally_registered_endpoint_interpolated_for_idle_replay"
+                                )
                             )
                         )
                     )
