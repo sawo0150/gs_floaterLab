@@ -38,6 +38,11 @@ localization은 나중. 지금은 **strict streaming 매핑 품질 확보**가 �
 - **실험 완료 시 3종 세트 필수**: ① `context/experiments/`에 exp 카드 결과 추가
   ② `context/experiments/INDEX.md` 한 줄 ③ `context/STATUS.md` "최근 흐름"에 날짜 붙여 새 항목 추가.
   STATUS의 기존 항목은 **수정하지 말고** 정정이 필요하면 새 항목을 위에 덧붙인다.
+- **실험 탐색과 신규 경로는 campaign-first**: 먼저 `context/experiments/README.md`와
+  `context/experiments/campaigns/`를 사용한다. `expNNN`은 provenance metadata로만 유지하고,
+  새 문서·runner·결과는 각각 `context/experiments/campaigns/<campaign>/<question>/`,
+  `benchmarks/online_gs/campaigns/<campaign>/`, `results/campaigns/<campaign>/<question>/`에 둔다.
+  기존 `expNN` 경로는 source lock과 링크 때문에 이동·개명하지 않는다.
 - **품질 판정은 held-out PSNR / region GT 지표로만.** "크래시 없이 완주 = 성공"으로 오판한 전례
   있음(exp48). train PSNR은 floater 지표로 부적합(프로젝트 확립 원칙).
 - **held-out 평가 하네스**: 3dgs-custom `render.py --eval`은 `--eval` 시 llffhold-8(전체 프레임

@@ -2,52 +2,115 @@
 \section{Method}
 \label{sec:method}
 
-Our goal is to improve the rendering and geometric quality of the Gaussian map under the limited mapping updates available in online 3DGS SLAM. Instead of letting keyframe selection fix both the set of training views
-and which of them each mapping iteration sees, we decouple the two and drive each from optimization progress already observed---the number of completed mapping updates and how many times each view has been selected. We first add the frames between keyframes to the training views and let the number of completed mapping updates, rather than the keyframe rule, determine how fast that set grows (\S\ref{ssec:growth}). We then sample views from a distribution that favors under-selected views while retaining stochasticity, and use sampling without replacement to reduce repetitive view selections across consecutive mapping updates (\S\ref{ssec:ercb}). Finally, we constrain free-space violations that photometric supervision does not directly constrain, using only observations that have already arrived, so that geometry converges sooner (\S\ref{ssec:carve} -  Detailed sentences need to be modified).
+Our goal is to use the information carried by every causal observation without
+weakening the geometric backbone of an online 3DGS mapper.  A SLAM keyframe is
+selected for tracking and triangulation and carries RGB--D, normal, and
+BA-refined pose constraints.  An intermediate RGB frame is much more frequent
+and supplies continuous appearance evidence, but its interpolated pose and
+lack of depth make it a poor substitute for a geometric keyframe.  We therefore
+do not merge both observations into one undifferentiated replay pool.  Instead,
+we assign them separate geometric and photometric service roles and account for
+their completed render work inside the mapper's existing causal budget
+(\S\ref{ssec:growth}).  Within the photometric role, entropy-regularized
+count balancing distributes the available service over the growing dense-view
+pool (\S\ref{ssec:ercb}).  Finally, causal ray-space supervision constrains
+free-space violations using only depth evidence that has already arrived
+(\S\ref{ssec:carve}).
 
 
-
-% ---------- 3.1 (3문단) ----------```latex
-\subsection{Optimization-Guided View Growth}
+% ---------- 3.1 ----------
+\subsection{Role-Aware Causal View Service}
 \label{ssec:growth}
 
-Offline 3DGS optimizes a fixed set of views, whereas GS-SLAM must update the map as new observations arrive while sharing computation with tracking. Mapping can therefore perform only a limited amount of optimization during an online run. Several real-time GS-SLAM systems optimize the map using a bounded set of keyframes~[15,16,17]. However, keyframe selection is not designed solely to provide dense photometric supervision for map optimization~[cite]. Our results in Table~X show that including frames between keyframes improves map quality under the same number of mapping updates. At the same time, removing earlier views can reduce supervision for regions that are weakly covered by the remaining set and makes it harder to distribute optimization across the full trajectory. We therefore retain previously added training views and allow the training set to grow as new observations become available.
+Let $\mathcal K_t$ be the keyframes available at time $t$ and let
+$\mathcal D_t$ be the admitted intermediate RGB observations.  A member of
+$\mathcal K_t$ receives the native mapping objective, including geometric
+supervision and topology statistics.  A member of $\mathcal D_t$ receives an
+RGB objective through a photometric update.  Its image and pose are formed only
+after the two bracketing keyframes have arrived, so neither membership nor
+optimization can use a future keyframe.  This role separation is important:
+dense RGB augments repeated appearance refinement, but never permanently
+replaces a particular RGB--D carrier.
 
-Growing the training set introduces a competing effect. Adding views provides more supervision, but the same mapping updates must then be distributed over a larger set, reducing how often each view can be revisited. The appropriate rate at which views should be added therefore depends on how much optimization can actually be performed. In an online setting, this amount cannot be determined exactly in advance: when a new frame arrives, both the remaining length of the sequence and the number of mapping updates that will eventually be completed are unknown. The decision to include that frame must nevertheless be made online. We therefore make the growth of the training set follow the optimization work that has actually been completed, rather than a schedule fixed before the run.
-
-Let $S(t)$ denote the number of mapping updates completed by time $t$, counting an update only after it has finished. Let $\mathcal{A}_t$ be the training-view set at time $t$, and let $N_0=|\mathcal{A}_0|$ be the number of initial views. We use a single parameter, $\kappa$, to specify the number of completed mapping updates required for each additional view. The number of views added by time $t$ is then constrained by
+The dense pool grows according to work that has actually completed.  We use a
+one-view \emph{primary} photometric service as the conservative admission
+clock and reserve the multi-view flexible iteration below for repeat service.
+This prevents a large repeat batch from immediately purchasing an equally
+large set of unseen views.  Let $S_{\mathrm P}(t)$ be the number of completed
+primary services, and let $N_0$ be the initial dense-pool size.  With one
+global admission cost $\kappa$, the admitted set obeys
 \begin{equation}
-    \kappa\left(|\mathcal{A}_t|-N_0\right)
-    \leq S(t).
+    \kappa\left(|\mathcal D_t|-N_0\right)
+    \leq S_{\mathrm P}(t),
     \label{eq:view_growth_constraint}
 \end{equation}
-Solving Eq.~\eqref{eq:view_growth_constraint} for the training-set size gives
+and hence
 \begin{equation}
     N_{\max}(t)
     =
     \min\left(
         M(t),
-        N_0+\left\lfloor\frac{S(t)}{\kappa}\right\rfloor
+        N_0+\left\lfloor\frac{S_{\mathrm P}(t)}{\kappa}\right\rfloor
     \right),
     \label{eq:view_growth_bound}
 \end{equation}
-where $M(t)$ is the number of views available by time $t$. The minimum prevents the training set from exceeding the views that have already arrived, and the floor accounts for views being added one at a time. When additional views are available, one view can therefore be added for every $\kappa$ completed mapping updates. Measured in completed mapping updates, this growth rate is determined only by $\kappa$: it does not decrease as the training set becomes larger and does not depend on how views already in the set are selected for optimization. This separates the decision of when to add new views from the decision of which existing views to optimize; Section~3.2 addresses the latter.
-```
+where $M(t)$ is the number of causally bracketed dense observations available
+by time $t$.  Attempted, preempted, and flexible repeat steps mint no admission
+credit.  The rule uses neither the final sequence length nor a scene-dependent
+frame cutoff.
+
+We next reallocate, rather than add, render work.  Consider a native mapping
+call $q$ with $L_q$ Adam iterations and let $C_q$ be the number of views that
+its final iteration would render after applying the native view cap.  We
+protect the first $L_q-1$ iterations as complete geometric iterations and
+expose only the final iteration as one flexible service quantum.  It offers
+$C_q$ photometric render credits, giving cumulative debt
+\begin{equation}
+    d_q^{\mathrm P}
+    =
+    \sum_{r\leq q} C_r^{\mathrm{offer}}
+    -
+    \sum_{r\leq q} C_r^{\mathrm{done}}.
+    \label{eq:photometric_service_debt}
+\end{equation}
+The flexible iteration becomes photometric only if $L_q>1$, the causal dense
+pool contains at least $C_q$ distinct views, and $d_q^{\mathrm P}\geq C_q$.
+Otherwise, the unmodified geometric iteration runs and the unused credit
+remains as debt.  A successful photometric iteration commits exactly $C_q$
+services; an interrupted iteration commits none.  Consequently, each call
+retains exactly $L_qC_q$ physical renders and $L_q$ Adam steps while preserving
+at least one full geometric iteration.  No view is duplicated to fill a batch,
+and an immature dense pool cannot silently reduce the work budget.
+The mapper's existing one-view auxiliary appearance slot is likewise assigned
+to a dense repeat rather than to another keyframe; because it is repeat service,
+it does not mint primary admission credit.
+
+We partition the Gaussian parameters as
+$\Theta=(\Theta_{\mathrm G},\Theta_{\mathrm A})$, where
+$\Theta_{\mathrm G}$ contains position, scale, rotation, and topology state,
+and $\Theta_{\mathrm A}$ contains the spherical-harmonic appearance.  The
+geometric role applies the native loss and updates both groups.  The
+photometric role applies RGB supervision only to $\Theta_{\mathrm A}$; its
+geometry gradients and densification statistics are discarded.  Thus,
+intermediate frames continuously refine appearance without moving or replacing
+the RGB--D geometry carriers.
 
 
-% ---------- 3.2 (5문단) ----------
-\subsection{Entropy-Regularized View Sampling}
+% ---------- 3.2 ----------
+\subsection{Entropy-Regularized Photometric Service}
 \label{ssec:ercb}
 
-The training-view set grows over time as new observations become available and mapping optimization proceeds. A simple strategy is to sample uniformly from the views currently in the set. Although this gives every available view the same probability at a given time, it does not account for when each view entered the training set. Views added early remain eligible for selection for longer and can therefore receive substantially more mapping updates, whereas views added later have fewer opportunities to be selected. If this difference accumulates, optimization can become unevenly distributed along the trajectory, leaving less frequently optimized regions with lower reconstruction quality. We therefore want to give more opportunities to views that have received fewer updates. A purely deterministic least-count rule, however, removes the randomization commonly used in stochastic optimization to reduce systematic ordering effects~[cite]. This is particularly relevant for SLAM, where nearby camera frames often contain highly similar observations. Our goal is therefore to favor under-selected views while retaining randomness in the selection process.
+Because $\mathcal D_t$ grows throughout the stream, uniform random sampling
+gives early observations more opportunities to be revisited than late
+observations.  We therefore balance only the completed photometric service
+counts.  Let $n_i$ be the number of committed photometric renders of dense view
+$i$, let $N_s=|\mathcal D_t|$, and let
 
-Let \(s\) index mapping-view selections, and let \(N_s\) be the number of views available for training at selection step \(s\). Let \(n_i\) denote the number of times view \(i\) has been selected for a mapping update. We denote the mean selection count by
-
-$$
+\begin{equation}
 \bar n = \frac{1}{N_s}\sum_i n_i.
-$$
+\end{equation}
 
-Because the scale of the raw count variance changes as selections accumulate, we measure the dispersion relative to the current mean count:
+We measure count dispersion relative to its current mean,
 \begin{equation}
 \Phi(\mathbf n)
 =
@@ -56,7 +119,8 @@ Because the scale of the raw count variance changes as selections accumulate, we
 (n_i-\bar n)^2.
 \label{eq:count_dispersion}
 \end{equation}
-A smaller \(\Phi\) indicates that the accumulated selection counts are more evenly distributed across the current training views. Let \(T=\sum_i n_i=N_s\bar n\) be the total number of selections made so far. For a single selection step, with the training set held fixed, selecting view \(i\) once more changes the dispersion by
+where $T=\sum_i n_i=N_s\bar n$.  With the pool held fixed, one additional
+service of view $i$ changes the potential by
 \begin{equation}
 \Delta_i\Phi
 =
@@ -65,9 +129,10 @@ A smaller \(\Phi\) indicates that the accumulated selection counts are more even
 \frac{n_i}{T+1}+C_s,
 \label{eq:count_dispersion_increment}
 \end{equation}
-where \(C_s\) is independent of the selected view. Thus, views with smaller selection counts produce a smaller increase in \(\Phi\). Greedily minimizing this change would recover a deterministic least-count rule. Instead, we use \(\Delta_i\Phi\) to define a probability distribution over the available views.
+where $C_s$ is shared by all candidates.  Rather than deterministically
+choosing the least-served view, we retain stochasticity through the
+entropy-regularized objective
 
-Let \(p_i\) denote the probability of selecting view \(i\) for the next mapping update. We seek a distribution that favors views with smaller \(\Delta_i\Phi\) without concentrating all probability on a single view. We express these two objectives jointly as
 \begin{equation}
 \min_{\mathbf p\in\Delta}
 \sum_i p_i \Delta_i\Phi
@@ -75,14 +140,15 @@ Let \(p_i\) denote the probability of selecting view \(i\) for the next mapping 
 \tau H(\mathbf p),
 \label{eq:entropy_sampling_objective}
 \end{equation}
-where \(H(\mathbf p)=-\sum_i p_i\log p_i\), \(\Delta\) denotes the probability simplex, and \(\tau>0\) controls the strength of the entropy term. The first term favors views that have been selected less often, while the second discourages the distribution from becoming overly concentrated. Solving Eq.~\eqref{eq:entropy_sampling_objective} under the constraint \(\sum_i p_i=1\) gives
+where $H(\mathbf p)=-\sum_i p_i\log p_i$ and $\Delta$ is the
+probability simplex.  Its Gibbs optimum is
 \begin{equation}
 p_s(i)
 =
 \frac{
-\exp!\left(-\Delta_i\Phi/\tau\right)
+\exp\!\left(-\Delta_i\Phi/\tau\right)
 }{
-\sum_j \exp!\left(-\Delta_j\Phi/\tau\right)
+\sum_j \exp\!\left(-\Delta_j\Phi/\tau\right)
 }.
 \label{eq:entropy_sampling_general}
 \end{equation}
@@ -101,9 +167,26 @@ p_s(i)
 \frac{1}{\tau(T+1)}.
 \label{eq:entropy_view_sampling}
 \end{equation}
-Views with fewer previous selections therefore receive higher probability, while every available view retains a nonzero probability of being selected. For a fixed \(\tau\), \(\beta_s\) decreases as the total number of selections grows, so the influence of a fixed count difference is gradually reduced relative to the accumulated selection history.
+Equivalently, with a fixed global $\gamma=1/\tau$,
+\begin{equation}
+p_s(i)
+\propto
+\exp\!\left(-\frac{\gamma n_i}{T+1}\right).
+\label{eq:normalized_ercb_probability}
+\end{equation}
+This is the normalized-variance form: its effective balancing strength
+decreases as completed service accumulates, rather than silently recovering
+the constant-strength raw-variance sampler.
 
-Equation~\eqref{eq:entropy_view_sampling} defines the distribution for a single view selection. If each mapping update samples independently with replacement, however, a small number of high-probability views can be selected repeatedly over a short interval while other views receive no update. To reduce such short-term repetition, we select \(K\) distinct views without replacement for the next \(K\) mapping updates. At the beginning of each group, we compute the sampling probabilities from the current selection counts and use them to select \(K\) distinct views. Each selected view is then used once, and the updated counts are used to compute the distribution for the next group. This preserves the preference for under-selected views while ensuring that the same view is not repeatedly selected within the group. The parameter \(K\) therefore determines the interval over which repeated selections are prevented: \(K=1\) reduces to single-view sampling, whereas larger \(K\) increases the variety of views used over consecutive mapping updates. We evaluate the effect of \(K\) in Sec.~\ref{sec:exp}.
+At each flexible iteration, we draw $C_q$ distinct dense views sequentially
+without replacement, renormalizing Eq.~\eqref{eq:normalized_ercb_probability}
+over the remaining candidates.  Newly admitted zero-service views form a
+first-service floor; after that floor is empty, the Gibbs law determines the
+draw.  The complete batch is transactional: selection counts advance only
+after the owning Adam step succeeds, and a preempted proposal is restored
+without prepaying service.  Round-robin uses the same causal pool, batch size,
+first-service rule, and commit semantics, changing only the Gibbs energy to
+zero; it is therefore a work-matched ablation of the balancing policy.
 
 
 % ---------- 3.3 ----------

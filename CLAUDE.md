@@ -47,6 +47,13 @@ localization까지 한 번에 붙이는 건 어려우므로 **strict streaming �
 3. 문서 구조와 갱신 규칙은 `context/README.md`. **실험 완료 시 exp 카드 + INDEX 한 줄 + STATUS 갱신, 이 3개는 필수.**
 4. 실험 전 `context/knowledge/pitfalls.md` 필독.
 
+실험 탐색은 `context/experiments/README.md`의 campaign hub에서 시작한다.
+`expNNN`은 provenance metadata로만 유지하고, 새 문서·runner·결과는 각각
+`context/experiments/campaigns/<campaign>/<question>/`,
+`benchmarks/online_gs/campaigns/<campaign>/`,
+`results/campaigns/<campaign>/<question>/`에 둔다. 기존 `expNN` 경로는
+source lock과 링크 때문에 이동·개명하지 않는다.
+
 ## 스케줄러 불변조건
 
 - active/채택 recipe에서 장면·데이터셋에 맞춰 정한 절대 frame·iteration·stream

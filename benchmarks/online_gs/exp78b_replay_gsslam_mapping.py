@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import bisect
 import collections
+from dataclasses import replace
 import hashlib
 import json
 import math
@@ -48,6 +49,9 @@ import gaussian.scene.gaussian_model as custom_gaussian_model_module  # noqa: E4
 
 from exp78b_frozen_archive import FrozenTrackerArchive  # noqa: E402
 from exp78b_dense_imu_pose import CausalImuDensePoseShaper  # noqa: E402
+from dense_topology_evidence import DenseTopologyEvidenceProbe  # noqa: E402
+from dense_topology_ticket import DenseGradientTopologyTicket  # noqa: E402
+from lpm_error_zone_evidence import LpmErrorZoneEvidenceProbe  # noqa: E402
 from exp78b_newborn_consolidation import (  # noqa: E402
     ObservationConditionedNewbornConsolidation,
 )
@@ -745,6 +749,7 @@ def runtime_provenance() -> dict[str, object]:
         Path(__file__),
         Path(__file__).with_name("exp78b_dense_imu_pose.py"),
         Path(__file__).with_name("exp78b_newborn_consolidation.py"),
+        Path(__file__).with_name("lpm_error_zone_evidence.py"),
         Path(custom_demo.__file__),
         Path(custom_gs_backend_module.__file__),
         Path(custom_gaussian_model_module.__file__),
@@ -808,6 +813,7 @@ def mapper_namespace(
     observation_topology_gate: bool,
     service_shortfall_ercb: bool,
     service_shortfall_global_epoch: bool,
+    dense_first_service_floor: bool,
     dense_max_endpoint_fraction: float,
     include_keyframes_in_replay: bool,
     official_frontier_parity: bool,
@@ -824,9 +830,18 @@ def mapper_namespace(
     fixed_iteration_dedicated_dense_iters: int,
     fixed_iteration_dedicated_dense_batch_size: int,
     fixed_iteration_dedicated_dense_scope: str,
+    role_aware_dense_service: bool,
+    role_aware_dense_selector: str,
+    role_aware_dense_gamma: float,
+    role_aware_dense_scope: str,
     native_global_keyframe_selection_audit: bool,
     native_global_keyframe_ercb: bool,
     ercb_selection_potential: str,
+    skip_regular_filter_prune: bool,
+    local_birth: bool,
+    local_birth_ticket: int,
+    local_birth_budget_mode: str,
+    local_birth_radius: float,
 ) -> argparse.Namespace:
     image_dir = Path(archive.manifest["input_image_directory"])
     imu_file = Path(
@@ -898,6 +913,20 @@ def mapper_namespace(
             argv.append("--mapping_replay_dense_only")
     if auto_topology_freeze:
         argv.append("--mapping_auto_topology_freeze")
+    if skip_regular_filter_prune:
+        argv.append("--mapping_skip_regular_filter_prune")
+    if local_birth:
+        argv.extend(
+            (
+                "--mapping_local_birth",
+                "--mapping_local_birth_ticket",
+                str(local_birth_ticket),
+                "--mapping_local_birth_budget_mode",
+                str(local_birth_budget_mode),
+                "--mapping_local_birth_radius",
+                str(local_birth_radius),
+            )
+        )
     if observation_topology_gate:
         argv.append("--mapping_observation_topology_gate")
     if service_shortfall_ercb:
@@ -938,6 +967,14 @@ def mapper_namespace(
     parsed.stride = 1
     parsed.seed = seed
     parsed.mapping_replay_ercb_selection_potential = ercb_selection_potential
+    parsed.mapping_replay_first_service_floor = bool(
+        dense_first_service_floor
+    )
+    if dense_first_service_floor:
+        # A one-item block makes every flexible repeat a fresh draw from the
+        # normalized Gibbs law. It also lets a newly admitted zero-service
+        # view take the next primary slot immediately.
+        parsed.mapping_replay_service_shortfall_block_size = 1
     parsed.mapping_dense_global_views = int(fixed_work_dense_global_views)
     parsed.mapping_dense_global_replay_scheduler = bool(
         fixed_work_dense_selector != "off"
@@ -987,6 +1024,16 @@ def mapper_namespace(
     parsed.mapping_dense_dedicated_parameter_scope = str(
         fixed_iteration_dedicated_dense_scope
     )
+    parsed.mapping_role_aware_dense_service = bool(
+        role_aware_dense_service
+    )
+    parsed.mapping_role_aware_dense_selector = str(
+        role_aware_dense_selector
+    )
+    parsed.mapping_role_aware_dense_gamma = float(
+        role_aware_dense_gamma
+    )
+    parsed.mapping_role_aware_dense_scope = str(role_aware_dense_scope)
     if fixed_iteration_dedicated_dense_selector == "rr":
         parsed.mapping_replay_count_softmax_beta = -1.0
     return parsed
@@ -1002,6 +1049,7 @@ class BoundaryGuard:
         self.auxiliary_adam_steps_completed = 0
         self.optimizer_steps_rejected_at_deadline = 0
         self.topology_actions_rejected_at_deadline = 0
+        self.input_actions_rejected_at_deadline = 0
         self.control_preemptions = 0
         self.optimizer_completion_times: list[float] = []
 
@@ -1017,6 +1065,8 @@ class BoundaryGuard:
         if self.deadline is not None and now >= self.deadline - self.reserve_seconds:
             if kind == "optimizer":
                 self.optimizer_steps_rejected_at_deadline += 1
+            elif kind in ("packet", "dense_input", "control_input"):
+                self.input_actions_rejected_at_deadline += 1
             else:
                 self.topology_actions_rejected_at_deadline += 1
             raise DeadlineReached(kind)
@@ -1027,6 +1077,7 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
 
     def guarded_step(optimizer, *args, **kwargs):
         guard.reject_if_unsafe("optimizer")
+        dense_ticket_after_step = None
         if (
             optimizer is mapper.gaussians.optimizer
             and bool(getattr(mapper, "_exp78b_replay_scope_active", False))
@@ -1104,6 +1155,43 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
             replay_source = (
                 str(replay_keys[0][0]) if len(replay_keys) == 1 else "unknown"
             )
+            evidence_probe = getattr(
+                mapper, "_exp78b_dense_topology_evidence_probe", None
+            )
+            if evidence_probe is not None and replay_source == "dense":
+                f_dc_gradient = next(
+                    (
+                        group["params"][0].grad
+                        for group in optimizer.param_groups
+                        if group.get("name") == "f_dc"
+                    ),
+                    None,
+                )
+                evidence_probe.observe(
+                    mapper.gaussians,
+                    int(replay_keys[0][1]),
+                    f_dc_gradient,
+                )
+            topology_ticket = getattr(
+                mapper, "_exp78b_dense_topology_ticket", None
+            )
+            if topology_ticket is not None and replay_source == "dense":
+                if evidence_probe is None:
+                    f_dc_gradient = next(
+                        (
+                            group["params"][0].grad
+                            for group in optimizer.param_groups
+                            if group.get("name") == "f_dc"
+                        ),
+                        None,
+                    )
+                topology_ticket.observe(
+                    mapper.gaussians,
+                    int(replay_keys[0][1]),
+                    f_dc_gradient,
+                )
+                if topology_ticket.mode == "first_persistence":
+                    dense_ticket_after_step = topology_ticket
             mapper._exp78b_effective_replay_scope_counts[
                 f"{replay_source}:{scope}"
             ] += 1
@@ -1124,6 +1212,70 @@ def install_adam_guard(mapper: GSBackEnd, guard: BoundaryGuard):
                     for parameter in group["params"]:
                         parameter.grad = None
         result = original(optimizer, *args, **kwargs)
+        pending_dense_global_keys = tuple(
+            getattr(mapper, "_mapping_pending_dense_global_keys", ())
+        )
+        if (
+            optimizer is mapper.gaussians.optimizer
+            and (
+                bool(getattr(mapper, "_exp78b_replay_scope_active", False))
+                or bool(pending_dense_global_keys)
+            )
+            and getattr(
+                mapper,
+                "_exp78b_lpm_error_zone_view_utility_mode",
+                "none",
+            )
+            != "none"
+        ):
+            replay_keys = (
+                pending_dense_global_keys
+                if pending_dense_global_keys
+                else getattr(mapper, "_exp78b_current_replay_keys", ())
+            )
+            if len(replay_keys) != 1 or replay_keys[0][0] != "dense":
+                raise RuntimeError(
+                    "LPM view utility requires one completed dense replay"
+                )
+            candidate = replay_keys[0]
+            probe = mapper._exp78b_lpm_error_zone_evidence_probe
+            utility_mode = (
+                mapper._exp78b_lpm_error_zone_view_utility_mode
+            )
+            if utility_mode == "coverage_unit_mass":
+                utility = probe.consume_pending_score(int(candidate[1]))
+            elif utility_mode == "zone_mass":
+                utility = probe.consume_pending_mass_prior(int(candidate[1]))
+            else:
+                raise RuntimeError(
+                    f"unsupported LPM utility mode: {utility_mode}"
+                )
+            # The queue retains this as pending state. GSBackEnd's immediate
+            # commit_pending_draw call publishes score and service count in
+            # one transaction; cancellation discards both.
+            mapper._mapping_replay_queue.stage_pending_candidate_utility(
+                candidate,
+                utility,
+            )
+        if dense_ticket_after_step is not None:
+            mutation = dense_ticket_after_step.mutate_first_persistence(
+                mapper.gaussians,
+                scene_extent=float(mapper.gaussian_extent),
+            )
+            if mutation is not None:
+                print(
+                    "DENSE_TOPOLOGY_FIRST_PERSISTENCE "
+                    f"generation={mutation['map_generation']} "
+                    f"repeated={mutation['persistent_candidates_before_scale_filter']} "
+                    f"eligible={mutation['small_scale_eligible']} "
+                    "requested="
+                    f"{mutation['requested_ticket']} "
+                    "selected="
+                    f"{mutation['selected_without_replacement']} "
+                    "preserved_stats="
+                    f"{mutation['preserved_densification_stats']}",
+                    flush=True,
+                )
         if guard.enabled:
             torch.cuda.synchronize()
             guard.optimizer_completion_times.append(time.monotonic())
@@ -1154,6 +1306,47 @@ def install_topology_guard(mapper: GSBackEnd, guard: BoundaryGuard) -> None:
             return __original(*args, **kwargs)
 
         setattr(gaussian, name, MethodType(guarded, gaussian))
+
+
+def install_dense_topology_ticket_gaussian(
+    mapper: GSBackEnd,
+    controller: DenseGradientTopologyTicket,
+) -> None:
+    """Spend dense evidence only at the existing native topology event."""
+    gaussian = mapper.gaussians
+    if not hasattr(gaussian, "densify_and_clone_with_budget"):
+        raise RuntimeError(
+            "dense topology ticket requires the bounded author-code port"
+        )
+    original = gaussian.densify_and_prune
+
+    def ticketed(self, *args, **kwargs):
+        report = original(*args, **kwargs)
+        mutation = controller.mutate(
+            self,
+            scene_extent=float(mapper.gaussian_extent),
+            regular_added=int(report.added),
+        )
+        selected = int(mutation["selected_without_replacement"])
+        if selected:
+            report = replace(
+                report,
+                clone_parents=int(report.clone_parents) + selected,
+                clone_children=int(report.clone_children) + selected,
+                output_gaussians=int(self.get_xyz.shape[0]),
+            )
+        print(
+            "DENSE_TOPOLOGY_TICKET "
+            f"generation={mutation['map_generation']} "
+            f"regular_added={mutation['regular_added_ticket']} "
+            f"repeated={mutation['persistent_candidates_before_scale_filter']} "
+            f"eligible={mutation['small_scale_eligible']} "
+            f"selected={selected}",
+            flush=True,
+        )
+        return report
+
+    gaussian.densify_and_prune = MethodType(ticketed, gaussian)
 
 
 def install_newborn_consolidation(
@@ -1375,6 +1568,38 @@ def install_dense_pose_confidence_weighting(mapper: GSBackEnd) -> None:
     mapper._frontier_mapping_view_loss = MethodType(weighted, mapper)
 
 
+def install_lpm_error_zone_evidence(
+    mapper: GSBackEnd,
+    probe: LpmErrorZoneEvidenceProbe,
+) -> None:
+    """Observe an already-paid dense render/GT pair without changing loss."""
+
+    original = mapper._frontier_mapping_view_loss
+
+    def observed(self, image, depth, viewpoint, *args, **kwargs):
+        loss = original(image, depth, viewpoint, *args, **kwargs)
+        if (
+            (
+                bool(getattr(self, "_exp78b_replay_scope_active", False))
+                or bool(
+                    getattr(self, "_mapping_pending_dense_global_keys", ())
+                )
+            )
+            and getattr(viewpoint, "sensor_type", None) == "rgb_dense"
+        ):
+            gt_image = (
+                viewpoint.original_image_gpu
+                if viewpoint.original_image_gpu is not None
+                else viewpoint.original_image.to(
+                    dtype=image.dtype, device=image.device
+                )
+            )
+            probe.observe(int(viewpoint.uid), image, gt_image)
+        return loss
+
+    mapper._frontier_mapping_view_loss = MethodType(observed, mapper)
+
+
 def install_replay_selection_capture(mapper: GSBackEnd) -> None:
     original = mapper._mapping_replay_queue.draw
 
@@ -1432,7 +1657,16 @@ def scale_pending_dense(records: list[tuple], scale: float) -> None:
         pose[:3, 3] *= float(scale)
 
 
-def main() -> int:
+def main(*, clocked_time_scale=None, configure_mapper=None,
+         idle_callback=None, completion_callback=None, skip_dense_input=False,
+         dense_callback=None, include_mapper_setup_in_clock=False) -> int:
+    """Run the legacy recipe, optionally in an explicitly clocked campaign.
+
+    Legacy CLI recipe validation is unchanged. clocked_time_scale applies the
+    validated work recipe to a finite timestamp-paced timeline; output records
+    the effective finite time scale, never an unbounded result label. Callbacks
+    are campaign extension points and are absent from historical runs.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument(
@@ -1472,6 +1706,38 @@ def main() -> int:
         help=(
             "replace this many already-budgeted historical/global KF slots "
             "with causal dense views in regular map() calls; fixed-work only"
+        ),
+    )
+    parser.add_argument(
+        "--r4-unified-dense-global-views",
+        type=int,
+        choices=(0, 1),
+        default=0,
+        help=(
+            "Track-A isolation: keep the recent keyframe window and total "
+            "native render cardinality fixed, but replace one flexible "
+            "historical-keyframe slot with a transactional draw from the "
+            "same LPM-mass normalized dense pool."
+        ),
+    )
+    parser.add_argument(
+        "--r4-unified-dense-global-no-topology-stats",
+        action="store_true",
+        help=(
+            "single-factor isolation: keep the unified dense render, loss, "
+            "Adam update, and selector commit, but exclude only that RGB "
+            "view's radii/gradient observation from native densification "
+            "statistics"
+        ),
+    )
+    parser.add_argument(
+        "--r4-unified-dense-global-preserve-geometry-mass",
+        action="store_true",
+        help=(
+            "single-factor isolation: when a dense RGB view replaces one "
+            "historical RGB-D view, multiply only the remaining depth and "
+            "normal losses by (D+1)/D; RGB work and render cardinality stay "
+            "unchanged"
         ),
     )
     parser.add_argument(
@@ -1547,6 +1813,31 @@ def main() -> int:
         default="appearance",
     )
     parser.add_argument(
+        "--role-aware-dense-service",
+        action="store_true",
+        help=(
+            "paper path: preserve at least one native RGB-D iteration and "
+            "spend one equal-cardinality flexible iteration on causal dense "
+            "appearance service when the pool can fill it exactly"
+        ),
+    )
+    parser.add_argument(
+        "--role-aware-dense-selector",
+        choices=("normalized_variance", "rr"),
+        default="normalized_variance",
+        help="ERCB method selector or its identical-work RR ablation",
+    )
+    parser.add_argument(
+        "--role-aware-dense-gamma",
+        type=float,
+        default=16.0,
+    )
+    parser.add_argument(
+        "--role-aware-dense-scope",
+        choices=("appearance", "appearance_opacity"),
+        default="appearance",
+    )
+    parser.add_argument(
         "--compute-paced-dense-admission",
         action="store_true",
         help=(
@@ -1616,6 +1907,17 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--stage6r-aux-kf-to-dense-repeat",
+        action="store_true",
+        help=(
+            "Track-A isolation: preserve the two one-view Adam/render slots "
+            "per eligible packet but spend the former auxiliary-keyframe "
+            "slot on a second dense service. Only the primary dense service "
+            "mints causal admission credit; the reallocated slot is repeat "
+            "service over the already-admitted pool."
+        ),
+    )
+    parser.add_argument(
         "--stage6r-native-global-keyframe-selection-audit",
         action="store_true",
         help=(
@@ -1633,9 +1935,25 @@ def main() -> int:
     )
     parser.add_argument(
         "--ercb-selection-potential",
-        choices=("service_shortfall", "normalized_variance"),
+        choices=("service_shortfall", "normalized_variance", "rr"),
         default="service_shortfall",
-        help="Ablation: use the per-view Var(count)/mean(count) Gibbs law in all three ERCB selectors",
+        help=(
+            "Use the selected potential in all three R4 selectors. rr keeps "
+            "the identical causal pool, growing epoch, commit semantics, and "
+            "RNG ownership but sets every per-view Gibbs energy to zero."
+        ),
+    )
+    parser.add_argument(
+        "--dense-ercb-gamma",
+        type=float,
+        default=math.log(1.5),
+        help=(
+            "Scene-independent dense-selector inverse temperature. For the "
+            "normalized-variance potential this is the constant gamma in "
+            "exp[-gamma*n_i/(T+1)]; it must not be scaled by T because that "
+            "would recover the raw-variance sampler. Native/auxiliary "
+            "keyframe selectors retain their frozen log(1.5) setting."
+        ),
     )
     parser.add_argument(
         "--ercb-normalized-family",
@@ -1643,6 +1961,16 @@ def main() -> int:
         choices=("dense", "aux_kf", "native_kf"),
         default=[],
         help="Diagnostic only: normalize just this R4 selector family; repeat for multiple families",
+    )
+    parser.add_argument(
+        "--ercb-rr-family",
+        action="append",
+        choices=("dense", "aux_kf", "native_kf"),
+        default=[],
+        help=(
+            "Selector-only diagnostic: replace this family with zero-energy "
+            "RR while every unspecified family keeps the global potential"
+        ),
     )
     parser.add_argument(
         "--density-policy",
@@ -1713,6 +2041,84 @@ def main() -> int:
         help=(
             "freeze native densify/prune once causal births double the "
             "post-topology model; new keyframe births remain enabled"
+        ),
+    )
+    parser.add_argument(
+        "--skip-regular-filter-prune",
+        action="store_true",
+        help=(
+            "diagnostic only: preserve regular clone/split and independent "
+            "caps while skipping ordinary opacity/size filter deletion"
+        ),
+    )
+    parser.add_argument(
+        "--local-birth",
+        action="store_true",
+        help=(
+            "replace non-initial blanket KF birth with the bounded official "
+            "Gaussian-SLAM low-alpha/positive-depth-residual operator"
+        ),
+    )
+    parser.add_argument("--local-birth-ticket", type=int, default=1024)
+    parser.add_argument(
+        "--local-birth-budget-mode",
+        choices=("fixed_ticket", "matched_r4", "residual_supplement"),
+        default="fixed_ticket",
+    )
+    parser.add_argument("--local-birth-radius", type=float, default=0.01)
+    parser.add_argument(
+        "--dense-topology-evidence-probe",
+        action="store_true",
+        help=(
+            "diagnostic only: summarize per-Gaussian f_dc gradients already "
+            "produced by paid ERCB dense replay; adds no render or mutation"
+        ),
+    )
+    parser.add_argument(
+        "--lpm-error-zone-evidence-probe",
+        action="store_true",
+        help=(
+            "diagnostic only: apply the pinned official LPM get_errormap "
+            "operator to already-paid causal dense replay render/GT pairs; "
+            "adds no render, Adam step, selector change, or map mutation"
+        ),
+    )
+    parser.add_argument(
+        "--lpm-error-zone-view-utility",
+        action="store_true",
+        help=(
+            "Track-A candidate: multiply the dense per-view Gibbs base "
+            "measure by 1+e_i, where e_i is the latest completed score from "
+            "the pinned LPM error-zone operator. The normalized-variance "
+            "energy and physical work remain unchanged."
+        ),
+    )
+    parser.add_argument(
+        "--lpm-error-zone-mass-prior",
+        action="store_true",
+        help=(
+            "Track-A candidate: use the pinned LPM significant-zone mass "
+            "with exactly one 16x16 patch of pseudocount as the per-view KL "
+            "base measure q_i. The law is q_i*exp(-gamma*n_i/(T+1)); no "
+            "quality-tuned multiplier is used."
+        ),
+    )
+    parser.add_argument(
+        "--dense-topology-ticket",
+        action="store_true",
+        help=(
+            "use repeated top-1024 dense f_dc evidence to spend a weighted "
+            "without-replacement clone ticket equal to native regular "
+            "additions at each existing topology event"
+        ),
+    )
+    parser.add_argument(
+        "--dense-topology-first-persistence-ticket",
+        action="store_true",
+        help=(
+            "spend one top-1024 bounded clone ticket per map generation "
+            "immediately after repeated dense evidence first matures, while "
+            "preserving native densification statistics"
         ),
     )
     parser.add_argument(
@@ -1820,6 +2226,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if args.local_birth_ticket < 1:
+        raise ValueError("local birth ticket must be positive")
+    if args.local_birth_radius < 0.0:
+        raise ValueError("local birth radius must be non-negative")
+    if not math.isfinite(args.dense_ercb_gamma) or args.dense_ercb_gamma < 0.0:
+        raise ValueError("dense ERCB gamma must be finite and non-negative")
     if args.new_view_service_period < 0:
         raise ValueError("new-view service period must be non-negative")
     if args.dense_pose_refresh_period <= 0:
@@ -1892,6 +2304,25 @@ def main() -> int:
         raise ValueError("dedicated dense iterations must be non-negative")
     if args.fixed_iteration_dedicated_dense_batch_size <= 0:
         raise ValueError("dedicated dense batch size must be positive")
+    if (
+        not math.isfinite(args.role_aware_dense_gamma)
+        or args.role_aware_dense_gamma < 0.0
+    ):
+        raise ValueError(
+            "role-aware dense gamma must be finite and non-negative"
+        )
+    if args.role_aware_dense_service and not (
+        args.time_scale == "unbounded"
+        and args.profile in ("dense_rr", "dense_rr_imu")
+        and not fixed_work_dense_enabled
+        and not fixed_iteration_projected_enabled
+        and not fixed_iteration_dedicated_enabled
+        and not args.r4_unified_dense_global_views
+    ):
+        raise ValueError(
+            "role-aware dense service requires an unbounded dense profile "
+            "without another dense render-allocation mechanism"
+        )
     if args.observation_conditioned_newborn_consolidation and not (
         args.time_scale == "unbounded"
         and args.mapping_after_metric_init
@@ -2030,6 +2461,18 @@ def main() -> int:
             "C1 service1/global-residue C2 arm and adds only a separate "
             "appearance keyframe source"
         )
+    if args.stage6r_aux_kf_to_dense_repeat and not (
+        args.stage6r_keyframe_appearance_replay
+        and args.compute_paced_dense_admission
+        and args.compute_paced_dense_token_cost == 1
+        and args.fixed_event_dense_opportunities_per_packet == 1
+        and args.service_shortfall_ercb
+        and args.ercb_selection_potential in ("normalized_variance", "rr")
+    ):
+        raise ValueError(
+            "aux-KF reallocation requires the exact R4 two-slot contract, "
+            "compute-paced primary admission, and normalized/RR selection"
+        )
     if args.stage6r_native_global_keyframe_selection_audit and not (
         args.stage6r_keyframe_appearance_replay
         and stage4_c1_c2_global_residue_integration
@@ -2059,6 +2502,13 @@ def main() -> int:
         )
     if args.ercb_normalized_family and args.ercb_selection_potential != "service_shortfall":
         raise ValueError("per-family normalized diagnostic cannot mix with all-family potential")
+    if set(args.ercb_normalized_family) & set(args.ercb_rr_family):
+        raise ValueError("a selector family cannot be both normalized and RR")
+    if args.ercb_rr_family and args.ercb_selection_potential != "normalized_variance":
+        raise ValueError(
+            "per-family RR control requires normalized variance as the "
+            "unspecified-family reference"
+        )
     if (args.ercb_selection_potential == "normalized_variance" or args.ercb_normalized_family) and not (
         args.service_shortfall_ercb
         and args.stage6r_keyframe_appearance_replay
@@ -2086,6 +2536,87 @@ def main() -> int:
     fixed_event_dense_isolation = bool(
         args.fixed_event_dense_opportunities_per_packet
     )
+    if args.dense_topology_evidence_probe and not fixed_event_dense_isolation:
+        raise ValueError(
+            "dense topology evidence probe requires fixed dense opportunities"
+        )
+    if args.lpm_error_zone_evidence_probe and not fixed_event_dense_isolation:
+        raise ValueError(
+            "LPM error-zone evidence probe requires fixed dense opportunities"
+        )
+    if args.lpm_error_zone_view_utility and not (
+        args.lpm_error_zone_evidence_probe
+        and fixed_event_dense_isolation
+        and args.stage6r_aux_kf_to_dense_repeat
+        and args.service_shortfall_ercb
+    ):
+        raise ValueError(
+            "LPM error-zone view utility requires the evidence probe and "
+            "the fixed-work dense-repeat ERCB path"
+        )
+    if args.lpm_error_zone_mass_prior and not (
+        args.lpm_error_zone_evidence_probe
+        and fixed_event_dense_isolation
+        and args.stage6r_aux_kf_to_dense_repeat
+        and args.service_shortfall_ercb
+    ):
+        raise ValueError(
+            "LPM error-zone mass prior requires the evidence probe and the "
+            "fixed-work dense-repeat ERCB path"
+        )
+    if (
+        args.lpm_error_zone_view_utility
+        and args.lpm_error_zone_mass_prior
+    ):
+        raise ValueError("select exactly one LPM candidate utility")
+    if args.r4_unified_dense_global_views and not (
+        args.r4_unified_dense_global_views == 1
+        and args.lpm_error_zone_mass_prior
+        and args.lpm_error_zone_evidence_probe
+        and fixed_event_dense_isolation
+        and args.stage6r_aux_kf_to_dense_repeat
+        and args.service_shortfall_ercb
+        and args.ercb_selection_potential == "normalized_variance"
+        and args.fixed_work_dense_global_views == 0
+        and args.fixed_work_dense_selector == "off"
+    ):
+        raise ValueError(
+            "R4 unified dense global replacement requires exactly one slot, "
+            "the LPM-mass normalized dense-repeat path, and no legacy "
+            "fixed-work dense adapter"
+        )
+    if (
+        args.r4_unified_dense_global_no_topology_stats
+        and args.r4_unified_dense_global_views != 1
+    ):
+        raise ValueError(
+            "dense-global topology-stat isolation requires exactly one "
+            "unified dense global slot"
+        )
+    if (
+        args.r4_unified_dense_global_preserve_geometry_mass
+        and args.r4_unified_dense_global_views != 1
+    ):
+        raise ValueError(
+            "dense-global geometry-mass isolation requires exactly one "
+            "unified dense global slot"
+        )
+    if args.dense_topology_ticket and not fixed_event_dense_isolation:
+        raise ValueError(
+            "dense topology ticket requires fixed dense opportunities"
+        )
+    if (
+        args.dense_topology_first_persistence_ticket
+        and not fixed_event_dense_isolation
+    ):
+        raise ValueError(
+            "first-persistence topology ticket requires fixed dense opportunities"
+        )
+    if (
+        args.dense_topology_ticket
+        and args.dense_topology_first_persistence_ticket
+    ):
+        raise ValueError("select exactly one dense topology ticket scheduler")
     if selector_audit_required and not fixed_event_dense_isolation:
         raise ValueError(
             "Stage-3c/3d/4 comparison requires one fixed dense opportunity "
@@ -2178,6 +2709,14 @@ def main() -> int:
             "full-geometry keyframe replay requires an explicit source quota"
         )
 
+    if clocked_time_scale is not None:
+        if not math.isfinite(clocked_time_scale) or clocked_time_scale <= 0:
+            raise ValueError("clocked_time_scale must be finite and positive")
+        if args.time_scale != "unbounded":
+            raise ValueError("Clocked adapter expects a validated fixed-work recipe")
+        args.time_scale = str(clocked_time_scale)
+    if include_mapper_setup_in_clock and clocked_time_scale is None:
+        raise ValueError("Setup-inclusive clock requires the finite clocked adapter")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     archive = FrozenTrackerArchive(args.archive)
@@ -2217,7 +2756,9 @@ def main() -> int:
         bool(
             args.service_shortfall_ercb
             and c2_global_residue_semantics
+            and not args.stage6r_aux_kf_to_dense_repeat
         ),
+        args.stage6r_aux_kf_to_dense_repeat,
         args.dense_max_endpoint_fraction,
         args.include_keyframes_in_replay,
         args.official_frontier_parity,
@@ -2234,16 +2775,57 @@ def main() -> int:
         args.fixed_iteration_dedicated_dense_iters,
         args.fixed_iteration_dedicated_dense_batch_size,
         args.fixed_iteration_dedicated_dense_scope,
+        args.role_aware_dense_service,
+        args.role_aware_dense_selector,
+        args.role_aware_dense_gamma,
+        args.role_aware_dense_scope,
         args.stage6r_native_global_keyframe_selection_audit,
         args.stage6r_native_global_keyframe_ercb,
         args.ercb_selection_potential,
+        args.skip_regular_filter_prune,
+        args.local_birth,
+        args.local_birth_ticket,
+        args.local_birth_budget_mode,
+        args.local_birth_radius,
     )
+    if args.r4_unified_dense_global_views:
+        mapper_args.mapping_dense_global_views = int(
+            args.r4_unified_dense_global_views
+        )
+        mapper_args.mapping_dense_global_replay_scheduler = True
+        mapper_args.mapping_dense_global_topology_stats = not bool(
+            args.r4_unified_dense_global_no_topology_stats
+        )
+        mapper_args.mapping_dense_global_geometry_mass_preservation = bool(
+            args.r4_unified_dense_global_preserve_geometry_mass
+        )
+    # Keep the temperature intervention local to the dense-view selector.
+    # The native and auxiliary keyframe selectors are separate queue objects
+    # with their accepted log(1.5) setting, so this does not silently change
+    # multiple scheduler families in a dense-only ablation.
+    mapper_args.mapping_replay_service_shortfall_gamma = float(
+        args.dense_ercb_gamma
+    )
+    mapper_setup_start = time.monotonic()
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     normalized_families = set(args.ercb_normalized_family)
+    rr_families = set(args.ercb_rr_family)
     if "dense" in normalized_families:
         mapper._mapping_replay_queue.selection_potential = "normalized_variance"
+    if "dense" in rr_families:
+        mapper._mapping_replay_queue.selection_potential = "rr"
+    if args.lpm_error_zone_view_utility:
+        mapper._mapping_replay_queue.set_candidate_utility_mode(
+            "lpm_error_zone"
+        )
+    if args.lpm_error_zone_mass_prior:
+        mapper._mapping_replay_queue.set_candidate_utility_mode(
+            "lpm_error_zone_mass"
+        )
     if "native_kf" in normalized_families:
         mapper._mapping_global_keyframe_ercb.selection_potential = "normalized_variance"
+    if "native_kf" in rr_families:
+        mapper._mapping_global_keyframe_ercb.selection_potential = "rr"
     relative_capacity_prune_state = None
     if args.relative_capacity_prune_closure:
         relative_capacity_prune_state = install_relative_capacity_prune_closure(
@@ -2377,8 +2959,60 @@ def main() -> int:
     mapper._exp78b_current_replay_keys = ()
     mapper._exp78b_adaptive_scope_counts = {"full": 0, "appearance": 0}
     mapper._exp78b_effective_replay_scope_counts = collections.Counter()
+    dense_topology_evidence = (
+        DenseTopologyEvidenceProbe()
+        if args.dense_topology_evidence_probe
+        else None
+    )
+    if dense_topology_evidence is not None:
+        dense_topology_evidence.bind_generation(mapper.gaussians, 0)
+    mapper._exp78b_dense_topology_evidence_probe = dense_topology_evidence
+    lpm_error_zone_evidence = (
+        LpmErrorZoneEvidenceProbe(
+            behavior_neutral=not (
+                args.lpm_error_zone_view_utility
+                or args.lpm_error_zone_mass_prior
+            )
+        )
+        if args.lpm_error_zone_evidence_probe
+        else None
+    )
+    if lpm_error_zone_evidence is not None:
+        lpm_error_zone_evidence.bind_generation(0)
+    mapper._exp78b_lpm_error_zone_evidence_probe = lpm_error_zone_evidence
+    mapper._exp78b_lpm_error_zone_view_utility = bool(
+        args.lpm_error_zone_view_utility
+    )
+    mapper._exp78b_lpm_error_zone_view_utility_mode = (
+        "zone_mass"
+        if args.lpm_error_zone_mass_prior
+        else "coverage_unit_mass"
+        if args.lpm_error_zone_view_utility
+        else "none"
+    )
+    dense_topology_ticket = (
+        DenseGradientTopologyTicket(
+            seed=int(args.seed) + 32452843,
+            mode=(
+                "first_persistence"
+                if args.dense_topology_first_persistence_ticket
+                else "native_matched"
+            ),
+        )
+        if (
+            args.dense_topology_ticket
+            or args.dense_topology_first_persistence_ticket
+        )
+        else None
+    )
+    if dense_topology_ticket is not None:
+        dense_topology_ticket.bind_generation(mapper.gaussians, 0)
+    mapper._exp78b_dense_topology_ticket = dense_topology_ticket
     stage6r_keyframe_queue = None
-    if args.stage6r_keyframe_appearance_replay:
+    if (
+        args.stage6r_keyframe_appearance_replay
+        and not args.stage6r_aux_kf_to_dense_repeat
+    ):
         stage6r_keyframe_queue = (
             ComputePacedKeyframeServiceShortfallReplayQueue(
                 seed=int(args.seed) + 104729,
@@ -2386,7 +3020,9 @@ def main() -> int:
                 relative_floor_ratio=0.75,
                 block_size=8,
                 selection_potential=(
-                    "normalized_variance"
+                    "rr"
+                    if "aux_kf" in rr_families
+                    else "normalized_variance"
                     if "aux_kf" in normalized_families
                     else args.ercb_selection_potential
                 ),
@@ -2402,7 +3038,7 @@ def main() -> int:
         stage6r_keyframe_queue.draw = captured_keyframe_draw
     dense_pose_shaper = (
         CausalImuDensePoseShaper(archive)
-        if args.profile in ("dense_rr_imu", "d1_fixed_state_rr_imu")
+        if not skip_dense_input and args.profile in ("dense_rr_imu", "d1_fixed_state_rr_imu")
         else None
     )
     if dense_pose_shaper is not None:
@@ -2416,6 +3052,8 @@ def main() -> int:
     compute_paced_records_by_uid: dict[int, tuple] = {}
     if args.dense_pose_confidence_weighting:
         install_dense_pose_confidence_weighting(mapper)
+    if lpm_error_zone_evidence is not None:
+        install_lpm_error_zone_evidence(mapper, lpm_error_zone_evidence)
     if args.dense_replay_scope in (
         "adaptive_imu_curvature",
         "adaptive_endpoint_geometry",
@@ -2453,8 +3091,15 @@ def main() -> int:
     )
     if newborn_consolidation is not None:
         install_newborn_consolidation(mapper, newborn_consolidation)
+    if (
+        dense_topology_ticket is not None
+        and dense_topology_ticket.mode == "native_matched"
+    ):
+        install_dense_topology_ticket_gaussian(
+            mapper, dense_topology_ticket
+        )
 
-    replay_start = time.monotonic()
+    replay_start = mapper_setup_start if include_mapper_setup_in_clock else time.monotonic()
     sensor_timestamp0 = float(archive.arrivals[0]["sensor_timestamp"])
     sensor_timestamp_last = float(archive.arrivals[-1]["sensor_timestamp"])
     time_scale = None if args.time_scale == "unbounded" else float(args.time_scale)
@@ -2467,6 +3112,9 @@ def main() -> int:
     original_adam_step = install_adam_guard(mapper, guard)
     install_topology_guard(mapper, guard)
     telemetry = install_render_telemetry(mapper)
+    if configure_mapper is not None:
+        configure_mapper(mapper, archive, args, guard)
+    mapper_setup_wall_seconds = time.monotonic() - mapper_setup_start
 
     event_records: list[dict[str, object]] = []
     processed_event_ids: set[int] = set()
@@ -2475,7 +3123,9 @@ def main() -> int:
     registered_dense_uids: set[int] = set()
     dense_admission_ledger: list[dict[str, object]] = []
     fixed_event_dense_opportunity_ledger: list[dict[str, object]] = []
+    fixed_event_dense_repeat_opportunity_ledger: list[dict[str, object]] = []
     fixed_event_keyframe_opportunity_ledger: list[dict[str, object]] = []
+    dense_primary_service_updates = int(mapper.mapping_replay_dense_updates)
     map_generation = 0
     dense_records_available = 0
     dense_registration_calls = 0
@@ -2506,7 +3156,11 @@ def main() -> int:
             )
             selected_uids.extend(
                 compute_paced_admission.admit_token_service(
-                    int(mapper.mapping_replay_dense_updates),
+                    (
+                        int(dense_primary_service_updates)
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else int(mapper.mapping_replay_dense_updates)
+                    ),
                     args.compute_paced_dense_token_cost,
                     is_valid=is_valid,
                 )
@@ -2521,6 +3175,11 @@ def main() -> int:
                     "map_generation": int(map_generation),
                     "completed_dense_service": int(
                         mapper.mapping_replay_dense_updates
+                    ),
+                    "admission_service_clock": int(
+                        dense_primary_service_updates
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else mapper.mapping_replay_dense_updates
                     ),
                     "boundary_source_id": str(boundary_source_id),
                 }
@@ -2562,6 +3221,9 @@ def main() -> int:
 
     def process_control(item: TimelineItem, input_lag: float) -> None:
         nonlocal imu_metric_ready, map_generation
+        if clocked_time_scale is not None:
+            guard.next_control_due = None
+            guard.reject_if_unsafe("control_input")
         metadata = item.metadata
         event_id = int(metadata["event_id"])
         payload = archive.load_event_payload(metadata)
@@ -2581,16 +3243,37 @@ def main() -> int:
             else:
                 mapper.remove_all_gaussians()
                 map_generation += 1
+                if dense_topology_evidence is not None:
+                    dense_topology_evidence.bind_generation(
+                        mapper.gaussians, map_generation
+                    )
+                if lpm_error_zone_evidence is not None:
+                    lpm_error_zone_evidence.bind_generation(map_generation)
+                if dense_topology_ticket is not None:
+                    dense_topology_ticket.bind_generation(
+                        mapper.gaussians, map_generation
+                    )
                 if stage6r_keyframe_queue is not None:
                     stage6r_keyframe_queue.begin_generation(map_generation)
                 if compute_paced_admission is not None:
                     compute_paced_admission.reset_token_service_clock(
-                        int(mapper.mapping_replay_dense_updates)
+                        int(
+                            dense_primary_service_updates
+                            if args.stage6r_aux_kf_to_dense_repeat
+                            else mapper.mapping_replay_dense_updates
+                        )
                     )
                 if newborn_consolidation is not None:
                     newborn_consolidation.reset_active_map()
                     install_newborn_consolidation_gaussian(
                         mapper, newborn_consolidation
+                    )
+                if (
+                    dense_topology_ticket is not None
+                    and dense_topology_ticket.mode == "native_matched"
+                ):
+                    install_dense_topology_ticket_gaussian(
+                        mapper, dense_topology_ticket
                     )
                 install_topology_guard(mapper, guard)
         torch.cuda.synchronize()
@@ -2610,6 +3293,16 @@ def main() -> int:
 
     def process_dense(item: TimelineItem, input_lag: float) -> None:
         nonlocal dense_records_available
+        if skip_dense_input and dense_callback is None:
+            return
+        if clocked_time_scale is not None:
+            guard.next_control_due = None
+            guard.reject_if_unsafe("dense_input")
+        if dense_callback is not None:
+            dense_records_available += int(dense_callback(mapper, item.metadata, dense_pose_shaper))
+            return
+        if skip_dense_input:
+            return
         records = archive.dense_records(item.metadata, seen_uids=seen_dense_uids)
         dense_records_available += len(records)
         if args.profile != "frontier_only":
@@ -2646,6 +3339,7 @@ def main() -> int:
         strict_deadline: float | None,
     ) -> None:
         nonlocal replay_serviced_since_dispatch
+        nonlocal dense_primary_service_updates
         nonlocal dense_pose_packet_refresh_calls
         nonlocal dense_pose_packet_refresh_updates
         nonlocal dense_pose_packet_refresh_wall_seconds
@@ -2653,6 +3347,9 @@ def main() -> int:
         nonlocal dense_pose_packet_refresh_candidate_packets
         metadata = item.metadata
         event_id = int(metadata["event_id"])
+        if clocked_time_scale is not None:
+            guard.next_control_due = next_control_due
+            guard.reject_if_unsafe("packet")
         if (
             args.mapping_after_metric_init
             or bool(mapper_args.mapping_after_imu_init)
@@ -2678,6 +3375,8 @@ def main() -> int:
             )
             return
         packet = archive.mapping_packet(metadata, filter_heldout=True)
+        if clocked_time_scale is not None:
+            guard.reject_if_unsafe("packet")
         if packet is None:
             processed_event_ids.add(event_id)
             return
@@ -2696,6 +3395,8 @@ def main() -> int:
         after_frontier_views = before_views
         fixed_dense_steps = 0
         fixed_dense_views = 0
+        fixed_dense_repeat_steps = 0
+        fixed_dense_repeat_views = 0
         fixed_keyframe_steps = 0
         fixed_keyframe_views = 0
         completed = False
@@ -2777,6 +3478,7 @@ def main() -> int:
                         f"Adam/dense service: adam={fixed_dense_steps} "
                         f"dense={dense_delta}"
                     )
+                dense_primary_service_updates += dense_delta
                 lifecycle_snapshot = mapper.mapping_lifecycle_snapshot()
                 selector_after = lifecycle_snapshot.get("selector_block")
                 selector_block_delta = None
@@ -2916,6 +3618,88 @@ def main() -> int:
                             ),
                         }
                     )
+                if args.stage6r_aux_kf_to_dense_repeat:
+                    repeat_before_steps = guard.optimizer_steps_completed
+                    repeat_before_views = telemetry[
+                        "training_rasterized_view_updates"
+                    ]
+                    repeat_before_dense = int(
+                        mapper.mapping_replay_dense_updates
+                    )
+                    repeat_selector_before = (
+                        mapper._mapping_replay_queue.selector_block_snapshot()
+                    )
+                    mapper._exp78b_replay_scope_active = True
+                    try:
+                        repeat_completed = bool(
+                            mapper.idle_map_rr_step(iters=1, batch_size=1)
+                        )
+                        repeat_selected_keys = [
+                            [str(key[0]), int(key[1])]
+                            for key in mapper._exp78b_current_replay_keys
+                        ]
+                    finally:
+                        mapper._exp78b_replay_scope_active = False
+                        mapper._exp78b_current_replay_keys = ()
+                    if not repeat_completed:
+                        raise RuntimeError(
+                            "reallocated dense repeat opportunity did not complete"
+                        )
+                    fixed_dense_repeat_steps = (
+                        guard.optimizer_steps_completed - repeat_before_steps
+                    )
+                    fixed_dense_repeat_views = (
+                        telemetry["training_rasterized_view_updates"]
+                        - repeat_before_views
+                    )
+                    repeat_dense_delta = (
+                        int(mapper.mapping_replay_dense_updates)
+                        - repeat_before_dense
+                    )
+                    if (
+                        fixed_dense_repeat_steps != 1
+                        or fixed_dense_repeat_views != 1
+                        or repeat_dense_delta != 1
+                        or len(repeat_selected_keys) != 1
+                        or repeat_selected_keys[0][0] != "dense"
+                    ):
+                        raise RuntimeError(
+                            "reallocated slot must complete exactly one dense "
+                            "Adam/render without admission credit: "
+                            f"adam={fixed_dense_repeat_steps} "
+                            f"renders={fixed_dense_repeat_views} "
+                            f"dense={repeat_dense_delta} "
+                            f"selected={repeat_selected_keys!r}"
+                        )
+                    fixed_event_dense_repeat_opportunity_ledger.append(
+                        {
+                            "opportunity_index": len(
+                                fixed_event_dense_repeat_opportunity_ledger
+                            ),
+                            "event_id": int(event_id),
+                            "map_generation": int(map_generation),
+                            "selected_keys": repeat_selected_keys,
+                            "optimizer_steps_completed": (
+                                fixed_dense_repeat_steps
+                            ),
+                            "rasterized_view_updates": (
+                                fixed_dense_repeat_views
+                            ),
+                            "completed_dense_service_before": (
+                                repeat_before_dense
+                            ),
+                            "completed_dense_service_after": int(
+                                mapper.mapping_replay_dense_updates
+                            ),
+                            "admission_service_clock": int(
+                                dense_primary_service_updates
+                            ),
+                            "selector_block_before": repeat_selector_before,
+                            "selector_block_after": (
+                                mapper._mapping_replay_queue.selector_block_snapshot()
+                            ),
+                        }
+                    )
                 replay_serviced_since_dispatch = True
                 register_pending_dense(f"event:{event_id}:post_fixed_dense")
             dense_pose_packet_refresh_candidate_packets += 1
@@ -2970,6 +3754,9 @@ def main() -> int:
                         after_frontier_steps - before_steps
                     ),
                     "fixed_dense_optimizer_steps_completed": fixed_dense_steps,
+                    "fixed_dense_repeat_optimizer_steps_completed": (
+                        fixed_dense_repeat_steps
+                    ),
                     "fixed_keyframe_optimizer_steps_completed": (
                         fixed_keyframe_steps
                     ),
@@ -2980,6 +3767,9 @@ def main() -> int:
                         after_frontier_views - before_views
                     ),
                     "fixed_dense_rasterized_view_updates": fixed_dense_views,
+                    "fixed_dense_repeat_rasterized_view_updates": (
+                        fixed_dense_repeat_views
+                    ),
                     "fixed_keyframe_rasterized_view_updates": (
                         fixed_keyframe_views
                     ),
@@ -2993,6 +3783,9 @@ def main() -> int:
 
     def idle_step(next_arrival: float | None, strict_deadline: float | None) -> bool:
         nonlocal replay_serviced_since_dispatch
+        if idle_callback is not None:
+            guard.next_control_due = None
+            return bool(idle_callback(mapper, next_arrival, strict_deadline, guard))
         if args.profile == "frontier_only" or args.time_scale == "unbounded":
             return False
         if not mapper.initialized or not mapper.current_window:
@@ -3030,6 +3823,9 @@ def main() -> int:
 
     torch.cuda.synchronize()
     replay_seconds = time.monotonic() - replay_start
+    extra_training_uids = set()
+    if completion_callback is not None:
+        extra_training_uids.update(completion_callback(mapper, archive, args, guard, scheduler_stats) or ())
     tracking_mapped_uids = {
         int(value)
         for value, viewpoint in mapper.viewpoints.items()
@@ -3067,6 +3863,7 @@ def main() -> int:
             )
         }
     )
+    dense_selected_uids.update(extra_training_uids - tracking_mapped_uids)
     mapped_uids = sorted(tracking_mapped_uids | dense_selected_uids)
     heldout_overlap = sorted(set(mapped_uids).intersection(archive.heldout_uids))
     origin_uids = sorted(
@@ -3116,6 +3913,18 @@ def main() -> int:
         "mapping_profile": args.profile,
         "fixed_work_dense_global_views": args.fixed_work_dense_global_views,
         "fixed_work_dense_selector": args.fixed_work_dense_selector,
+        "r4_unified_dense_global_views": int(
+            args.r4_unified_dense_global_views
+        ),
+        "r4_unified_dense_global_enabled": bool(
+            args.r4_unified_dense_global_views
+        ),
+        "r4_unified_dense_global_topology_stats_enabled": not bool(
+            args.r4_unified_dense_global_no_topology_stats
+        ),
+        "r4_unified_dense_global_geometry_mass_preservation": bool(
+            args.r4_unified_dense_global_preserve_geometry_mass
+        ),
         "fixed_work_ercb_beta": args.fixed_work_ercb_beta,
         "fixed_work_ercb_block_size": args.fixed_work_ercb_block_size,
         "fixed_iteration_projected_dense_selector": (
@@ -3145,16 +3954,29 @@ def main() -> int:
         "fixed_iteration_dedicated_dense_scope": (
             args.fixed_iteration_dedicated_dense_scope
         ),
+        "role_aware_dense_service": bool(
+            args.role_aware_dense_service
+        ),
+        "role_aware_dense_selector": args.role_aware_dense_selector,
+        "role_aware_dense_gamma": float(args.role_aware_dense_gamma),
+        "role_aware_dense_scope": args.role_aware_dense_scope,
         "compute_paced_dense_admission": args.compute_paced_dense_admission,
         "compute_paced_dense_token_cost": args.compute_paced_dense_token_cost,
         "service_shortfall_ercb_requested": args.service_shortfall_ercb,
         "ercb_selection_potential": args.ercb_selection_potential,
         "ercb_selection_potential_by_family": {
             family: (
+                "disabled"
+                if (
+                    family == "aux_kf"
+                    and args.stage6r_aux_kf_to_dense_repeat
+                )
+                else "rr"
+                if family in rr_families
+                else
                 "normalized_variance"
-                if args.ercb_selection_potential == "normalized_variance"
-                or family in normalized_families
-                else "service_shortfall"
+                if family in normalized_families
+                else args.ercb_selection_potential
             )
             for family in ("dense", "aux_kf", "native_kf")
         },
@@ -3170,6 +3992,15 @@ def main() -> int:
         ),
         "fixed_event_dense_opportunity_ledger": (
             fixed_event_dense_opportunity_ledger
+        ),
+        "stage6r_aux_kf_to_dense_repeat": bool(
+            args.stage6r_aux_kf_to_dense_repeat
+        ),
+        "fixed_event_dense_repeat_opportunity_ledger": (
+            fixed_event_dense_repeat_opportunity_ledger
+        ),
+        "dense_primary_service_updates": int(
+            dense_primary_service_updates
         ),
         "stage6r_keyframe_appearance_replay": (
             args.stage6r_keyframe_appearance_replay
@@ -3187,7 +4018,11 @@ def main() -> int:
             native_global_keyframe_selection_ledger
         ),
         "stage6r_source_quota_protocol": (
-            "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
+            (
+                "fixed_one_primary_dense_then_one_dense_repeat_per_packet_v1"
+                if args.stage6r_aux_kf_to_dense_repeat
+                else "fixed_one_dense_then_one_keyframe_per_eligible_packet_v1"
+            )
             if args.stage6r_keyframe_appearance_replay
             else None
         ),
@@ -3212,12 +4047,24 @@ def main() -> int:
         "dense_admission_ledger": dense_admission_ledger,
         "service_shortfall_ercb_parameters": (
             {
-                "block_size": 8,
+                "block_size": int(
+                    mapper_args.mapping_replay_service_shortfall_block_size
+                ),
                 "relative_floor_ratio": 0.75,
-                "gamma": math.log(1.5),
-                "maximum_bonus": 1.5,
+                # Legacy keys remain aliases for the dense queue so existing
+                # artifact validators keep reading the same schema.
+                "gamma": float(args.dense_ercb_gamma),
+                "maximum_bonus": math.exp(args.dense_ercb_gamma),
+                "dense_gamma": float(args.dense_ercb_gamma),
+                "dense_maximum_bonus": math.exp(args.dense_ercb_gamma),
+                "keyframe_gamma": math.log(1.5),
+                "keyframe_maximum_bonus": 1.5,
                 "global_epoch_no_repeat": bool(
                     c2_global_residue_semantics
+                    and not args.stage6r_aux_kf_to_dense_repeat
+                ),
+                "first_service_floor": bool(
+                    args.stage6r_aux_kf_to_dense_repeat
                 ),
             }
             if args.service_shortfall_ercb
@@ -3251,6 +4098,57 @@ def main() -> int:
             getattr(mapper, "_exp78b_pose_confidence_stats", None)
         ),
         "auto_topology_freeze_requested": args.auto_topology_freeze,
+        "skip_regular_filter_prune_requested": (
+            args.skip_regular_filter_prune
+        ),
+        "local_birth_requested": args.local_birth,
+        "local_birth_ticket": args.local_birth_ticket,
+        "local_birth_budget_mode": args.local_birth_budget_mode,
+        "local_birth_radius": args.local_birth_radius,
+        "dense_topology_evidence_probe_requested": bool(
+            args.dense_topology_evidence_probe
+        ),
+        "dense_topology_evidence": (
+            None
+            if dense_topology_evidence is None
+            else dense_topology_evidence.summary(mapper.gaussians.point_ids)
+        ),
+        "lpm_error_zone_evidence_probe_requested": bool(
+            args.lpm_error_zone_evidence_probe
+        ),
+        "lpm_error_zone_view_utility_requested": bool(
+            args.lpm_error_zone_view_utility
+        ),
+        "lpm_error_zone_view_utility_formula": (
+            "p_i proportional to (1+e_i)*exp(-gamma*n_i/(T+1))"
+            if args.lpm_error_zone_view_utility
+            else None
+        ),
+        "lpm_error_zone_mass_prior_requested": bool(
+            args.lpm_error_zone_mass_prior
+        ),
+        "lpm_error_zone_mass_prior_formula": (
+            "p_i proportional to ((active_pixels+256)/(H*W+256))*"
+            "exp(-gamma*n_i/(T+1))"
+            if args.lpm_error_zone_mass_prior
+            else None
+        ),
+        "lpm_error_zone_evidence": (
+            None
+            if lpm_error_zone_evidence is None
+            else lpm_error_zone_evidence.summary()
+        ),
+        "dense_topology_ticket_requested": bool(
+            args.dense_topology_ticket
+        ),
+        "dense_topology_first_persistence_ticket_requested": bool(
+            args.dense_topology_first_persistence_ticket
+        ),
+        "dense_topology_ticket": (
+            None
+            if dense_topology_ticket is None
+            else dense_topology_ticket.summary()
+        ),
         "observation_topology_gate_requested": (
             args.observation_topology_gate
         ),
@@ -3320,8 +4218,13 @@ def main() -> int:
         "work_contract": (
             (
                 (
-                    "d1_native_fixed_dense_plus_keyframe_opportunity_pair_"
-                    "with_native_global_audit_v1"
+                    (
+                        "d1_native_fixed_primary_dense_plus_repeat_dense_"
+                        "opportunity_pair_with_native_global_audit_v1"
+                        if args.stage6r_aux_kf_to_dense_repeat
+                        else "d1_native_fixed_dense_plus_keyframe_"
+                        "opportunity_pair_with_native_global_audit_v1"
+                    )
                     if args.stage6r_native_global_keyframe_selection_audit
                     else "d1_native_fixed_dense_plus_keyframe_opportunity_pair_v1"
                 )
@@ -3344,9 +4247,30 @@ def main() -> int:
             (
                 (
                     (
-                        "stage6r_r4_normalized_variance_ercb_v1"
-                        if args.ercb_selection_potential == "normalized_variance"
-                        else "stage6r_r4_native_global_keyframe_ercb_v1"
+                        (
+                            (
+                                "tracka_dense_repeat_rr_control_v1"
+                                if (
+                                    args.stage6r_aux_kf_to_dense_repeat
+                                    and "dense" in rr_families
+                                )
+                                else "tracka_dense_repeat_normalized_variance_v1"
+                                if args.stage6r_aux_kf_to_dense_repeat
+                                else "stage6r_r4_normalized_variance_ercb_v1"
+                            )
+                            if args.ercb_selection_potential
+                            == "normalized_variance"
+                            else (
+                                "tracka_dense_repeat_rr_control_v1"
+                                if (
+                                    args.stage6r_aux_kf_to_dense_repeat
+                                    and "dense" in rr_families
+                                )
+                                else "stage6r_r4_rr_selector_control_v1"
+                            )
+                            if args.ercb_selection_potential == "rr"
+                            else "stage6r_r4_native_global_keyframe_ercb_v1"
+                        )
                     )
                     if args.stage6r_native_global_keyframe_ercb
                     else "stage6r_r4_native_global_uniform_control_v1"
@@ -3388,6 +4312,10 @@ def main() -> int:
         "deadline_hit": scheduler_stats["deadline_reached"],
         "deadline_source_id": scheduler_stats["deadline_source_id"],
         "mapping_wall_seconds": replay_seconds,
+        "mapper_setup_in_mapping_clock": bool(include_mapper_setup_in_clock),
+        "mapper_setup_wall_seconds": mapper_setup_wall_seconds,
+        "input_boundary_guards": clocked_time_scale is not None,
+        "input_actions_rejected_at_deadline": guard.input_actions_rejected_at_deadline,
         "input_lag_seconds_max": scheduler_stats["arrival_lag_seconds_max"],
         "input_lag_seconds_mean": scheduler_stats["arrival_lag_seconds_mean"],
         "events_in_archive": len(archive.events),
@@ -3418,18 +4346,26 @@ def main() -> int:
             "observed_but_unsupported"
             if args.profile == "frontier_only"
             else (
-                "causal_dense_projected_into_fixed_adam_iteration"
-                if fixed_iteration_projected_enabled
+                "causal_dense_role_debt_equal_cardinality_photometric_service"
+                if args.role_aware_dense_service
                 else (
-                    "causal_dense_owns_fixed_adam_iteration_allocation"
-                    if fixed_iteration_dedicated_enabled
+                    "causal_dense_replaces_r4_flexible_historical_slot"
+                    if args.r4_unified_dense_global_views
                     else (
-                        "causal_dense_replaces_budgeted_global_slot"
-                        if args.fixed_work_dense_global_views > 0
+                        "causal_dense_projected_into_fixed_adam_iteration"
+                        if fixed_iteration_projected_enabled
                         else (
-                            "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
-                            if dense_pose_shaper is not None
-                            else "causally_registered_endpoint_interpolated_for_idle_replay"
+                            "causal_dense_owns_fixed_adam_iteration_allocation"
+                            if fixed_iteration_dedicated_enabled
+                            else (
+                                "causal_dense_replaces_budgeted_global_slot"
+                                if args.fixed_work_dense_global_views > 0
+                                else (
+                                    "causally_registered_raw_imu_rotation_shaped_for_idle_replay"
+                                    if dense_pose_shaper is not None
+                                    else "causally_registered_endpoint_interpolated_for_idle_replay"
+                                )
+                            )
                         )
                     )
                 )

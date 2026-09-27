@@ -22,6 +22,10 @@ data_trash_20260707/
 results/**
 !results/
 !results/README.md
+!results/experiments/
+!results/experiments/README.md
+!results/campaigns/
+!results/campaigns/README.md
 !results/logs/
 !results/logs/**
 

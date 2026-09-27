@@ -1,6 +1,6 @@
 # STATUS — 현재 상태 (1페이지 엄수)
 
-> 마지막 갱신: 2026-09-17. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
+> 마지막 갱신: 2026-09-24. 이 문서가 넘치면 내용을 `knowledge/` 또는 `rounds/`로 밀어낸다.
 
 ## 현재 1차 목표
 
@@ -88,6 +88,979 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-26 κ/τ/blur 탐색 완료:** 공통선택 k16_t4_no_blur, 기존immediate/tau1/blurOFF 대비 평균held-out PSNR+0.1734dB·합산mapper시간26.0%감소. aria25.5921→25.8851dB,54.54→35.11s / rpng25.1179→25.2309dB,144.35→115.36s / utmm22.1052→22.2194dB,56.11→38.28s. dense-only κ growth와 실제 pool별tau 보고 연결,40renders/KF·3:3:6·영상별Adam·누적ERVS·scaleON·densify/pruneOFF 유지. 유효21run/CPU30/저장지도평가2회/causal-prefix-cohort-source audit PASS. 초기runtime guard 학습전실패1건 보존·수정, baseline3개 명시재사용. 별도online_mapping_unified_tuned.json 저장, 기존baseline preset유지. 단일seed3개개발scene/frozen tracker/coarse search이며 live·geometry검증 아님. → [결과](experiments/campaigns/06_gain_attribution/growth_entropy_blur/SUMMARY.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_no_blur / utmm:** execution=True, audit=True, PSNR=22.219356218973797, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_no_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_no_blur / rpng:** execution=True, audit=True, PSNR=25.23090243983913, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_no_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_no_blur / aria:** execution=True, audit=True, PSNR=25.885081065520076, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_no_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_blur / utmm:** execution=True, audit=True, PSNR=22.234002501876265, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_blur / rpng:** execution=True, audit=True, PSNR=25.205477929330087, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t4_blur / aria:** execution=True, audit=True, PSNR=25.899103892668514, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t0.25_blur / utmm:** execution=True, audit=True, PSNR=21.865269357775464, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t0.25_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t0.25_blur / rpng:** execution=True, audit=True, PSNR=24.73448858175192, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t0.25_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t0.25_blur / aria:** execution=True, audit=True, PSNR=23.529499297833624, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t0.25_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t1_blur / utmm:** execution=True, audit=True, PSNR=22.07020735446318, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t1_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t1_blur / rpng:** execution=True, audit=True, PSNR=25.133578357181033, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t1_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k16_t1_blur / aria:** execution=True, audit=True, PSNR=25.831853204101098, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t1_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k8_t1_blur / utmm:** execution=True, audit=True, PSNR=21.978632038022266, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k8_t1_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k8_t1_blur / rpng:** execution=True, audit=True, PSNR=24.97500921369673, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k8_t1_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k8_t1_blur / aria:** execution=True, audit=True, PSNR=25.700358368968235, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k8_t1_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k4_t1_blur / utmm:** execution=True, audit=True, PSNR=22.043257966453645, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k4_t1_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k4_t1_blur / rpng:** execution=True, audit=True, PSNR=25.108031738556182, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k4_t1_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 κ/τ/blur 공통 설정 탐색 진행:** unified에 dense-only completed-step growth 연결, κ4/8/16+immediate→선택κ에서τ0.25/1/4→blurOFF 확인의21유효run 계획. 기존blur gate0.8/0.9고정,40renders/KF·3:3:6·영상별Adam·누적ERVS·3개개발scene 공통. v1은3개baseline완료 뒤 runtime full-pool guard에막혀κ4/Aria 학습전 실패; paired에만guard를남기고 runtime회귀테스트통과. v2는 baseline3개 재audit/명시적 source차이기록후18개이어감. 기본값변경아직없음. → [계획](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k4_t1_blur / aria:** execution=True, audit=True, PSNR=25.684785697296377, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k4_t1_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur k4_t1_blur / aria:** execution=False, audit=False, PSNR=None, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v1/k4_t1_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur immediate_t1_blur / utmm:** execution=True, audit=True, PSNR=22.09905055128498, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v1/immediate_t1_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur immediate_t1_blur / rpng:** execution=True, audit=True, PSNR=25.089143038225604, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v1/immediate_t1_blur/rpng. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 growth/entropy/blur immediate_t1_blur / aria:** execution=True, audit=True, PSNR=25.614341794079497, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v1/immediate_t1_blur/aria. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)
+
+- **2026-09-26 KF RGB-only 대조군 완료:** dense 자리를 full-KF RGB-only로 대체하고 KF native와 선택 UID/order/batch/LR/count exact match. 동일40 renders/KF·3:3:6·영상별Adam에서 KF native→KF RGB-only→dense RGB-only: Aria24.7299→25.0578→25.5921, RPNG24.8112→25.0035→25.1179, UTMM21.4156→21.7631→22.1052dB. Loss recipe 교체 평균+0.2892dB, dense 경로의 추가이득+0.3303dB. Dense가 여전히3/3높지만 mapper54.54/144.35/56.11초 vs KF RGB-only24.50/88.77/30.15초로 시간비용 큼. RGB항도 masked L1→L1+SSIM으로 달라 depth/normal 제거 단독효과는 아님. CPU27/GPU9/평가2회/모든causal·prefix·cohort·source audit PASS. 기본dense 유지. immediate admission으로κ64비활성, tau1/N 각pool·누적ERVS; κ growth의 근거 아님. 단일seed3개개발scene/frozen tracker이며 live검증 아님. → [결과](experiments/campaigns/06_gain_attribution/kf_rgb_control/SUMMARY.md)
+
+- **2026-09-26 KF RGB control kf_rgb / utmm:** execution=True, audit=True, PSNR=21.763058300371522, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_rgb/utmm. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control kf_native / utmm:** execution=True, audit=True, PSNR=21.41564631756441, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_native/utmm. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control dense_rgb / utmm:** execution=True, audit=True, PSNR=22.105193120461923, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/dense_rgb/utmm. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control kf_rgb / rpng:** execution=True, audit=True, PSNR=25.0034789798496, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_rgb/rpng. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control kf_native / rpng:** execution=True, audit=True, PSNR=24.81117957175315, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_native/rpng. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control dense_rgb / rpng:** execution=True, audit=True, PSNR=25.11788134531932, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/dense_rgb/rpng. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control kf_rgb / aria:** execution=True, audit=True, PSNR=25.05776095208321, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_rgb/aria. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control kf_native / aria:** execution=True, audit=True, PSNR=24.729860684343876, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/kf_native/aria. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 KF RGB control dense_rgb / aria:** execution=True, audit=True, PSNR=25.59209155308381, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/kf_rgb_control/gpu40_v1/dense_rgb/aria. → [카드](experiments/campaigns/06_gain_attribution/kf_rgb_control/README.md)
+
+- **2026-09-26 dense blur 후보 필터 검증 완료:** 실제 worker의 dense admission 앞에 CPU 상대선명도 gate 추가. 이미 도착한 KF구간 RGB만 사용, held-out/미래 입력0, 탈락 dense의 pose/GPU학습0 검증. 같은40 renders/KF·3:3:6·영상별Adam·누적ERVS·scale projection ON에서 필터OFF Aria/RPNG/UTMM25.5957/25.1127/22.1109→ON25.6071/25.0991/22.1037dB(+0.011/−0.014/−0.007). 7/110/23장 제외, no-dense3:9:0의24.7387/24.7991/21.3995 대비+0.868/+0.300/+0.704dB; 공식vanilla40 대비+4.856/+2.638/+3.279 유지. 초기보수적gate는0/2/0장 제외라 별도보존. 총12GPUrun/24CPUtests/저장지도평가2회 PASS. 품질향상·속도향상 근거는 없어 기본OFF 유지, online_mapping_unified_blur.json opt-in 제공. 단일seed·3개개발scene·frozen causal tracker이며 strict/live검증 아님. → [결과](experiments/campaigns/06_gain_attribution/dense_blur_filter/SUMMARY.md)
+
+- **2026-09-26 dense blur on / utmm:** execution=True, audit=True, PSNR=22.10371916971089, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v2/on/utmm. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur on / rpng:** execution=True, audit=True, PSNR=25.09907927985664, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v2/on/rpng. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur on / aria:** execution=True, audit=True, PSNR=25.607050022096125, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v2/on/aria. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur no_dense / utmm:** execution=True, audit=True, PSNR=21.39954235229963, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/no_dense/utmm. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur on / utmm:** execution=True, audit=True, PSNR=22.12322810844139, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/on/utmm. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur off / utmm:** execution=True, audit=True, PSNR=22.110949398558816, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/off/utmm. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur no_dense / rpng:** execution=True, audit=True, PSNR=24.79906783576484, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/no_dense/rpng. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur on / rpng:** execution=True, audit=True, PSNR=25.13288996241114, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/on/rpng. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur off / rpng:** execution=True, audit=True, PSNR=25.11266457841203, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/off/rpng. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur no_dense / aria:** execution=True, audit=True, PSNR=24.738654588015024, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/no_dense/aria. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur on / aria:** execution=True, audit=True, PSNR=25.573838343147102, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/on/aria. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 dense blur off / aria:** execution=True, audit=True, PSNR=25.595737493675173, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/dense_blur_filter/gpu40_v1/off/aria. → [카드](experiments/campaigns/06_gain_attribution/dense_blur_filter/README.md)
+
+- **2026-09-26 unified mapping 최종 검증/기본값 반영:** arrival당 packet1개로 tracker/control 반영과 학습을 통합. native optimizer0·별도 추가학습 packet0, recent-window uniform + full-KF/full-dense 누적 ERVS로 구성. 12장 비율4종×3scene, 영상별 Adam2종×3scene, 기존 scale≤0.1 후처리 복원1종×3scene 총21run 검증. 같은 선택 순서·각 영상 LR에서 묶음별→영상별 Adam으로 품질 회복 확인. 최종3:3:6·영상별 Adam·densify/prune/phase gate OFF·기존 scale 상한 유지,40 renders/KF·seed0에서 Aria/RPNG/UTMM25.5923/25.1177/22.1263 dB. paired OFF25.0216/24.7836/21.7006 대비 +0.5707/+0.3341/+0.4257(평균+0.4435)dB; mapper50.68→52.64 /130.16→138.62 /51.53→55.47초(+4~8%). 모든 arm causal/prefix/cohort/count/one-packet/topology guard 및 저장지도 평가2회 PASS, 최종CPU16tests PASS. 최초 통합 경로가 빠뜨린 native scale projection은 복원해 최종검증했으며 상한 없는26.26dB는 진단 결과로만 유지. integration unified 기본값과 configs/online_mapping_unified.json 반영; paired 재현 경로 및 생산 트리 유지. ratio 탐색용3scene 단일seed이며 실제 동시tracking/live 및 geometry 개선 검증 아님. → [결과](experiments/campaigns/06_gain_attribution/unified_batch/SUMMARY.md)
+
+- **2026-09-25 unified batch 336m1p / utmm:** execution=True, audit=True, held-out PSNR=22.126344736711477; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/projected_v1/336m1p/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336m1p / rpng:** execution=True, audit=True, held-out PSNR=25.117675599106796; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/projected_v1/336m1p/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336m1p / aria:** execution=True, audit=True, held-out PSNR=25.59231961956461; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/projected_v1/336m1p/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336m1 / utmm:** execution=True, audit=True, held-out PSNR=22.398476506456916; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/336m1/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336m1 / rpng:** execution=True, audit=True, held-out PSNR=25.278631107227223; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/336m1/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336m1 / aria:** execution=True, audit=True, held-out PSNR=26.264144904740895; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/336m1/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444m1 / utmm:** execution=True, audit=True, held-out PSNR=22.194252832436266; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/444m1/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444m1 / rpng:** execution=True, audit=True, held-out PSNR=25.27027747351844; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/444m1/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444m1 / aria:** execution=True, audit=True, held-out PSNR=24.47153246857738; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/optimizer1_v1/444m1/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336 / utmm:** execution=True, audit=True, held-out PSNR=19.986103846703045; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/336/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336 / rpng:** execution=True, audit=True, held-out PSNR=23.92392785012185; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/336/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 336 / aria:** execution=True, audit=True, held-out PSNR=23.067362428621482; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/336/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 363 / utmm:** execution=True, audit=True, held-out PSNR=19.94246701252313; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/363/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 363 / rpng:** execution=True, audit=True, held-out PSNR=23.79480908368085; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/363/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 363 / aria:** execution=True, audit=True, held-out PSNR=23.133291899702932; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/363/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 633 / utmm:** execution=True, audit=True, held-out PSNR=19.758660684397192; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/633/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 633 / rpng:** execution=True, audit=True, held-out PSNR=23.506363653921866; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/633/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 633 / aria:** execution=True, audit=True, held-out PSNR=22.703423805819213; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/633/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444 / utmm:** execution=True, audit=True, held-out PSNR=19.89654070948377; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/444/utmm. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444 / rpng:** execution=True, audit=True, held-out PSNR=23.73948145342303; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/444/rpng. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 unified batch 444 / aria:** execution=True, audit=True, held-out PSNR=22.753850383612946; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_batch/gpu40_v1/444/aria. → [카드](experiments/campaigns/06_gain_attribution/unified_batch/README.md)
+
+- **2026-09-25 densify/prune OFF40 최종 완료:** cumulative all_rgb·40 renders/KF·seed0·batch1에서 Aria/RPNG/UTMM held-out PSNR=25.0216/24.7836/21.7006 dB. 직전 cumulative ON 대비 +0.4170/+0.1173/+0.3711 dB(장면 평균 +0.3018), official vanilla 대비 +4.2703/+2.3226/+2.8760 dB. 세 실행 모두 동일 render/Adam/native·extraKF·dense 작업량, causal event/pose/cohort/count 및 저장 지도2회 평가 PASS. densify/prune/stats 금지 호출0회, topology event0회; observation topology gate·phase scheduler OFF, 관측 birth와 초기화/지도 reset 유지. 최종 Gaussian 131388→192623 / 273917→357071 / 76657→141545; mapper초 50.02→50.68 / 123.41→130.16 / 53.71→51.53. fixed-work 단일seed이므로 actual-live·geometry 개선은 미검증. 실험 옵션은 추가했으며 기존 기본 recipe 변경은 없음. → [결과](experiments/campaigns/06_gain_attribution/no_densify_prune/SUMMARY.md)
+
+- **2026-09-25 no densify/prune40 / utmm:** execution=True, audit=True, held-out PSNR=21.700596747574984; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/no_densify_prune/gpu40_v2/utmm. → [카드](experiments/campaigns/06_gain_attribution/no_densify_prune/README.md)
+
+- **2026-09-25 no densify/prune40 / rpng:** execution=True, audit=True, held-out PSNR=24.783596671164574; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/no_densify_prune/gpu40_v2/rpng. → [카드](experiments/campaigns/06_gain_attribution/no_densify_prune/README.md)
+
+- **2026-09-25 no densify/prune40 / aria:** execution=True, audit=True, held-out PSNR=25.021636082015874; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/no_densify_prune/gpu40_v2/aria. → [카드](experiments/campaigns/06_gain_attribution/no_densify_prune/README.md)
+
+- **2026-09-25 no densify/prune40 v1 실패 원인/정정:** Aria는 optimizer 0회에서 중단. pruning guard가 tracker 첫 packet의 `GSBackEnd.reset()`을 미허용하여 정상 초기 지도 reset을 차단했다. 품질 실패/결과가 아니라 실행 하네스 실패이며 결과는 보존. `reset` 및 `remove_all_gaussians` 내부만 허용하도록 보완하고 CPU guard에서 직접/nested reset·모델 교체·금지6경로를 확인했다. 학습 중 일반 prune 금지와 operator OFF 설정은 그대로이며 gpu40_v2에서 재실행한다. → [카드](experiments/campaigns/06_gain_attribution/no_densify_prune/README.md)
+
+- **2026-09-25 no densify/prune40 / aria:** execution=False, audit=False, held-out PSNR=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/no_densify_prune/gpu40_v1/aria. → [카드](experiments/campaigns/06_gain_attribution/no_densify_prune/README.md)
+
+- **2026-09-25 누적 ERVS40 최종 검증 완료:** 동일40 renders/KF·seed0·batch1에서 누적/최근 방식 총6회 실행 및 독립 count/work audit·저장 지도별 평가2회 모두 PASS. 누적 held-out PSNR Aria/RPNG/UTMM=24.6046/24.6663/21.3295 dB, 공식 vanilla40 대비 +3.8532/+2.2053/+2.5049 dB 유지. 현재 소스 recent 재실행 대비 −0.2551/−0.1609/−0.0774 dB(장면 평균 −0.1645). native window 사용까지 포함하는 all_rgb 누적 기본값 유지; 최근 방식의 우위를 누적 ERVS 오류로 해석하지 않음. 기억 기간과 native count 반영이 함께 바뀐 비교이며 causal fixed-work 결과로 actual-live/동시 tracking 성공을 뜻하지 않음. 반복 평가는 학습 seed 반복이 아님. → [결과](experiments/campaigns/06_gain_attribution/cumulative_ervs/SUMMARY.md)
+
+- **2026-09-25 cumulative ERVS40 / utmm / recent_photometric:** execution=True, audit=True, held-out PSNR=21.406847058990856; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/utmm/recent_photometric. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 cumulative ERVS40 / utmm / all_rgb:** execution=True, audit=True, held-out PSNR=21.32949548886146; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/utmm/all_rgb. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 cumulative ERVS40 / rpng / recent_photometric:** execution=True, audit=True, held-out PSNR=24.827265703355945; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/rpng/recent_photometric. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 cumulative ERVS40 / rpng / all_rgb:** execution=True, audit=True, held-out PSNR=24.666318010209917; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/rpng/all_rgb. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 cumulative ERVS40 / aria / recent_photometric:** execution=True, audit=True, held-out PSNR=24.859723265844448; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/aria/recent_photometric. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 cumulative ERVS40 / aria / all_rgb:** execution=True, audit=True, held-out PSNR=24.604614177732977; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cumulative_ervs/gpu40_v1/aria/all_rgb. → [카드](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 paired 누적 ERVS 복원:** 사용자 지시로 integration paired 기본 count를 recent_photometric→all_rgb로 변경. KF native+추가 및 dense 실제 완료 사용 횟수를 generation별 누적; 승격 시 보존, 취소 미집계, reset 시 새 generation. CLI로 과거recent 명시 재현 가능. 독립 service ledger audit 및 관련 CPU15test/compile PASS. sampling pool·교대·loss·배치수는 유지. 기존40회 PSNR은 recent 설정 결과이며 새 cumulative 품질 미검증. → [변경/검증](experiments/campaigns/06_gain_attribution/cumulative_ervs/README.md)
+
+- **2026-09-25 grouped render timing v2 완료:** 3scene, 같은 초기지도/Adam/영상96개, 1/2/4장 묶음 각6회 warm 측정. ms/render Aria3.407→2.940→2.770, RPNG6.615→6.125→5.950, UTMM2.457→2.077→1.916. 2장7.4–15.4%,4장10.0–22.0% 단축. 준비/전송/선택/guard 제외한 compute 진단이며 live/품질 유지 미검증. 생산 변경 없음. source unchanged 및 replay3run audit PASS. → [결과](experiments/campaigns/06_gain_attribution/grouped_render_timing/SUMMARY.md)
+
+- 2026-09-25 v1: causal Aria replay 완료 뒤 offline timing camera 준비가 닫힌 worker의 thread guard에 거부되어 측정 실패. 유효 timing 결과 없음. v2에서 diagnostic의 deferred camera preparation guard만 분리하며 production/EOS guard는 수정하지 않음. → [카드](experiments/campaigns/06_gain_attribution/grouped_render_timing/README.md)
+
+- **2026-09-25 — 40 renders/KF 공통 예산 검증 완료:** fixed-work 6회/live 6회 audit 및 저장 지도 평가2회 일치. 정확한40회 비교에서 우리−vanilla PSNR Aria +4.11/RPNG +2.37/UTMM +2.59dB; online40상한에서는 우리 실제17.32/12.39/9.79회(KF/dense 추가350/350,0/0,8/8)로 공통40회 실현 실패. Vanilla는39.87/40.00/39.50회, 처리65.76/150.49/54.25초(입력65.10/92.24/53.81초). RPNG 최종 tracker KF는 논문232/vanilla232/우리211로 과다 최종KF 근거 없음; mapping-off도111.477초. 40은 품질비교 후보이며 실시간 인증값 아님. 생산 mapper/논문/역할배분 변경 없음. → [종합 결과](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/SUMMARY.md)
+
+- **2026-09-25 (40 renders/KF / live / utmm / paired):** execution=True, PSNR=11.446189042962628. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/utmm/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / live / utmm / vanilla):** execution=True, PSNR=18.600026333773577. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/utmm/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / live / rpng / paired):** execution=True, PSNR=17.819775564176542. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/rpng/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / live / rpng / vanilla):** execution=True, PSNR=21.298174990404835. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/rpng/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / live / aria / paired):** execution=True, PSNR=19.30309359717915. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/aria/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / live / aria / vanilla):** execution=True, PSNR=19.935029801521594. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/live/aria/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / utmm / vanilla):** execution=True, PSNR=18.824628406100803. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/utmm/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / utmm / paired):** execution=True, PSNR=21.417964429031183. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/utmm/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / rpng / vanilla):** execution=True, PSNR=22.46096884925086. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/rpng/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / rpng / paired):** execution=True, PSNR=24.833668686462953. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/rpng/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / aria / vanilla):** execution=True, PSNR=20.751371936943695. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/aria/vanilla → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 (40 renders/KF / fixed / aria / paired):** execution=True, PSNR=24.859212001771418. Result=/home/intern/gs_floaterLab/results/campaigns/gain_attribution/render_budget40_feasibility/v1/fixed/aria/paired → [카드](experiments/campaigns/06_gain_attribution/render_budget40_feasibility/README.md)
+
+- **2026-09-25 최종 5090 동시 tracking 비교:** 공식 벤치마크 IMU pose prediction20/20/15 및 frontend4/2 복원, 15 training renders/KF 상한. 바닐라→우리 실제 학습량 Aria15.00→14.79/RPNG15.00→12.43/UTMM14.81→9.73, PSNR차 +0.22/−1.48/−4.44dB. 우리 extra KF/dense267/266,0/0,6/6. 6run 실행 audit·저장map 평가2회 일치 PASS이나 실시간/품질개선 주장은 불성립. RPNG mapping-off도111.477s>92.245s 입력(p95lag21.848s). 기존100000 설정 결과는 진단용 보존; 자세한 최종표는 SUMMARY.md. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / utmm / paired / IMU pose init 15):** renders/KF=9.725806451612904, complete=True, PSNR=11.333392038757419; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / utmm / vanilla / IMU pose init 15):** renders/KF=14.8125, complete=True, PSNR=15.772941839547805; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / rpng / paired / IMU pose init 20):** renders/KF=12.431506849315069, complete=True, PSNR=17.91506887384363; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / rpng / vanilla / IMU pose init 20):** renders/KF=15.0, complete=True, PSNR=19.393897207792815; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / aria / paired / IMU pose init 20):** renders/KF=14.794117647058824, complete=True, PSNR=19.369261101002003; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / aria / vanilla / IMU pose init 20):** renders/KF=15.0, complete=True, PSNR=19.15189616370747; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 설정 정정:** comparison15_v1, current_frontend, v3–v6 및 tracking_controls는 IMU_poseinit_after=100000을 상속했다. IMU preintegration/BA는 실행됐지만 IMU pose prediction은 사실상 비활성이다. 일반 벤치마크 설정으로 해석하지 않는다. 공식 RPNG=20/UTMM=15 및 Aria live=20을 복원한 comparison15_imu_v2를 별도로 실행한다. 기존 측정은 삭제하지 않는다. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 RPNG tracking-only):** official frontend4/2 설정·mapping0에서도 tracking114.451s/입력92.245s, p95lag24.644s. 같은 tracker+paired15의114.773s와 유사; 이 설정의 1×불가를 렌더 예산만으로 해결할 수 없음. 현재frontend1/0 별도 확인. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / utmm / paired):** renders/KF=9.338709677419354, complete=True, PSNR=10.661520877002198; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / utmm / vanilla):** renders/KF=15.0, complete=True, PSNR=15.932410775879283; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / rpng / paired):** renders/KF=12.356164383561644, complete=True, PSNR=17.74931611928854; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / rpng / vanilla):** renders/KF=14.9765625, complete=True, PSNR=19.750227318153726; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / aria / paired):** renders/KF=14.87, complete=True, PSNR=19.957373200482085; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live / aria / vanilla):** renders/KF=15.0, complete=True, PSNR=19.12804331306283; timing/quality 별도 판정. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 Aria capacity probe):** official frontend4/2+paired, 원속mapper1669render/100KF=16.69. Tracking67.901s/입력65.100s, p95lag3.719s로 안정적realtime capacity아님. 15/KF 공식mapper 비교 진행. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (5090 live render 계측 시작):** raw RGB/IMU 실제 tracking+paired15 Aria1545render/103admission=15.00, 65.124s, zero-tail. p95입력지연723ms; realtime 품질승인 아님. 준비단계 실패·runner 수정 기록. official4/2 동일조건 비교 진행. → [카드](experiments/campaigns/06_gain_attribution/live_render_capacity/README.md)
+
+- **2026-09-25 (15 renders/KF vanilla 비교 완료):** official vanilla3run 동일 prefix별 총렌더·평가cohort/trajectory·이중평가PASS. 새paired−vanilla Aria+1.8184/RPNG+1.0498/UTMM+2.5448dB, 평균+1.8044(seed0). 기존내부구조는 RPNG에서 vanilla보다낮음. fixed-work 진단, 원본source미수정·GPU종료. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15 renders/KF vanilla / utmm):** 15.875981dB, 1350 training renders. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15 renders/KF vanilla / rpng):** 21.228337dB, 3405 training renders. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15 renders/KF vanilla / aria):** 18.906699dB, 1785 training renders. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15 renders/KF 3scene 완료):** 초기화 포함 학습예산15/KF, 기존/paired6run 모두 prefix별 학습·보조포함총렌더 동일·이중평가PASS. paired Δ Aria+0.2596/RPNG+1.7789/UTMM+1.5918dB, 평균+1.2101(seed0). 실행시간은증가. fixed-work 진단이며 실시간/독립ERVS 효과 판정아님; production미수정. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / utmm / paired / seed0):** 18.420765dB, mapping 29.606s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / utmm / legacy_growth / seed0):** 16.828925dB, mapping 24.509s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / rpng / paired / seed0):** 22.278183dB, mapping 66.374s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / rpng / legacy_growth / seed0):** 20.499256dB, mapping 49.875s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / aria / paired / seed0):** 20.725142dB, mapping 22.322s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (15-render-per-KF / aria / legacy_growth / seed0):** 20.465558dB, mapping 12.870s. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (render budget 변경):** 사용자 지시로 30k 비교 중단, 총15 camera renders/KF 비교로 전환. 고예산 Aria 결과 보존·RPNG 중단·패널미완. → [카드](experiments/campaigns/06_gain_attribution/render_matched_kf15/README.md)
+
+- **2026-09-25 (render-matched / aria / paired / seed0):** 27.348867dB, mapping 138.726s. → [카드](experiments/campaigns/06_gain_attribution/render_matched/README.md)
+
+- **2026-09-25 (render-matched / aria / legacy_growth / seed0):** 27.708641dB, mapping 97.725s. → [카드](experiments/campaigns/06_gain_attribution/render_matched/README.md)
+
+- **2026-09-25 (paired v2 9run 판정):** 3scene×기존/paired/KF-only 실행·동일소스/평가/예산검증PASS. paired 기존대비평균−0.9490dB로 성능유지 실패. KF-only도 Aria/UTMM하락, RPNG유지; dense준비비용만으로 전체하락 설명불가. 구현완료·품질목표미달, production미반영·현재GPU작업없음. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / utmm / paired_kf_only / seed0):** 22.126928dB, mapping 80.639s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / rpng / paired_kf_only / seed0):** 24.584378dB, mapping 138.276s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / aria / paired_kf_only / seed0):** 26.496855dB, mapping 97.552s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired v2 3scene 완료):** 동일소스/예산/평가 검증PASS. paired−기존 Aria-1.3447,RPNG-0.6181,UTMM-0.8843dB, 평균-0.9490; 성능유지 실패. 모든최종지도 dense실사용/최근window/1:1교대검증PASS. KF-only 분리대조 진행. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / utmm / legacy_growth / seed0):** 23.269436dB, mapping 80.639s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / utmm / paired / seed0):** 22.385100dB, mapping 80.614s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / rpng / legacy_growth / seed0):** 24.538978dB, mapping 138.277s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / rpng / paired / seed0):** 23.920891dB, mapping 138.276s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / aria / legacy_growth / seed0):** 27.787554dB, mapping 97.553s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / aria / paired / seed0):** 26.442868dB, mapping 97.551s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired v1 구현검증 정정):** Aria26.5551dB이나 PGBA 후 전체보정KF 재학습 예외 확인; 최근window 전용 구조로는 미승인. v1보존·중단, 실제current_window 강제 및 별도검증 추가·6paired검사PASS. v2 3scene 비교 시작. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool / aria / paired / seed0):** 26.555117dB, mapping 97.575s. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (paired full-pool 구현):** 최근window native + KF RGBD/normal·denseRGB 교대 ERVS 구현. full-pool/취소·reset·loss경로 및 기존온라인49검사PASS. zero-depth 역수NaN 수정·대조군동일적용. 3scene seed0 비교 시작; 품질미확정. → [카드](experiments/campaigns/06_gain_attribution/paired_full_pool/README.md)
+
+- **2026-09-25 (worker dense 사용량 재분석):** RPNG dense226회는 모두 reset 이전 generation1; 최종generation7은182KF/4817step/dense진입·학습0. whole_pool κ64 조건이 최종지도 dense를 허용하지 않았음. Dense 무효 근거로 해석불가; admission정책 검증 필요. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (actual mapper worker / utmm square-1 growth):** 실패(exit 1); 로그와 상태 보존. seed0; 반복/교차장면/수렴/논문정렬 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (actual mapper worker / rpng table_06 kf_only):** 24.487964dB, whole mapping 138.309s; 실행계약/독립이중평가PASS. seed0; 반복/교차장면/수렴/논문정렬 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (actual mapper worker / rpng table_06 growth):** 24.460546dB, whole mapping 138.316s; 실행계약/독립이중평가PASS. seed0; 반복/교차장면/수렴/논문정렬 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (Aria 실제worker dense 이득):** 동일ERVS dense27.3407/KF27.1628, Δ+0.1779dB; whole-clock/이중평가PASS, seed0미확정. step마다2ms queue대기 발견·생산적학습시대기제거·CPU17검사PASS. v9 공통설정으로3scene 비교 진행. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (actual mapper worker / aria aria1253 kf_only):** 27.162762dB, whole mapping 97.557s; 실행계약/독립이중평가PASS. seed0; 반복/교차장면/수렴/논문정렬 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (actual mapper worker / aria aria1253 growth):** 27.340686dB, whole mapping 97.557s; 실행계약/독립이중평가PASS. seed0; 반복/교차장면/수렴/논문정렬 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (Aria 전체 mapper worker):** rescale/reset FIFO 연결·CPU32검사PASS. 9137step(native1016/photo8121), held-out27.41716dB 독립이중평가일치. 최초run 전체종료시각 계측부족은 명시미승인; v8에서 worker종료·입력준비 시간을 포함해 dense/KF 비교 중. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (CUDA stream 원인 수정검증):** 별도 DROID·LieTorch46개 launch를 current stream으로 수정·빌드. 실제worker 전용stream/default 대조 모두1024step·dense8개 pose보정 PASS, NaN/lateAdam0·선택횟수일치. 첫packet 실행검증이며 전체온라인 품질미검증; 다음은 rescale/reset worker routing. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (worker packet/CUDA 진단):** heldout 제외시 pose·scale 대응/packet index 수정·CPU28검사PASS. 실제 CUDA 전용stream은 첫dense pose NaN으로 실패(513step); 기본stream 대조는1024step/8dense PASS. legacy DROID·LieTorch current-stream 미사용 확인, 별도바이너리 수정검증 진행·품질목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** utmm/square-1/production: 20.18s:8.3025dB, 40.56s:12.7913dB, 60.54s:18.1897dB, 80.62s:21.3669dB. Fixed held-out cohort 324; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** utmm/square-1/kf_only: 20.18s:8.7536dB, 40.36s:14.1964dB, 60.54s:19.6447dB, 80.61s:22.9322dB. Fixed held-out cohort 324; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (실제 VIGS worker API 연결):** 별도본 공통runtime/도착RGB·IMU/pose준비/idle학습 연결·CPU31검사PASS. CUDA·전체control경로·품질반복은 미검증; heldout-only pose control은 현재 명시실패. v18/production 불변·목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** utmm/square-1/growth_ervs: 20.18s:8.7015dB, 40.36s:14.2734dB, 60.57s:20.0331dB, 80.61s:23.4843dB. Fixed held-out cohort 324; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** aria/aria1253/production: 24.44s:10.5841dB, 48.83s:15.1050dB, 73.24s:17.7968dB, 97.55s:25.8522dB. Fixed held-out cohort 262; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** aria/aria1253/kf_only: 24.43s:11.6382dB, 48.83s:16.2596dB, 73.24s:17.8599dB, 97.55s:27.5604dB. Fixed held-out cohort 262; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** aria/aria1253/growth_ervs: 24.42s:11.6880dB, 48.83s:16.5951dB, 73.24s:17.9812dB, 97.55s:27.7322dB. Fixed held-out cohort 262; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** rpng/table_06/production: 34.62s:14.4119dB, 69.52s:22.6222dB, 104.53s:23.9433dB, 138.29s:24.4509dB. Fixed held-out cohort 555; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** rpng/table_06/kf_only: 34.89s:14.4297dB, 69.33s:22.7280dB, 104.41s:23.8332dB, 138.27s:25.2330dB. Fixed held-out cohort 555; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 stream quality):** rpng/table_06/growth_ervs: 34.92s:14.3760dB, 69.51s:22.6861dB, 104.28s:23.9729dB, 138.28s:25.2114dB. Fixed held-out cohort 555; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 중간지도 평가 시작):** 공통KF pose 불일치로 최초export 거부; 정확히 같은 anchor만 사용한 공통좌표 export완료·7검사PASS. Aria75% 정렬잔차0.0713/3.315도 등 남아 곡선은 우선진단용·빠른수렴미확정. 9run 중간렌더평가 진행. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v18 3scene 비교 완료):** 9/9계약PASS, 후보−KF 평균+0.2341dB/운영대비+1.5860dB. RPNG−0.0216/Aria+0.1719/UTMM+0.5522로 반복검증 필요·미채택. 다음은 중간품질곡선·실제worker연결. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / utmm square-1 production):** held-out 21.366874dB, 80.618/80.714초, 7456 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / utmm square-1 kf_only):** held-out 22.932163dB, 80.614/80.714초, 19073 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (별도 worker 통합본 backend 연결):** 새 worktree에서 backend16개 optimizer경로+공통RGB step을 mapper전용 guard로 연결·CPU8검사PASS. 기존 v18/production 불변. 실제 worker·RGB/IMU입력·CUDA연결은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / utmm square-1 growth_ervs):** held-out 23.484316dB, 80.614/80.714초, 13869 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / aria aria1253 production):** held-out 25.852154dB, 97.552/97.650초, 11024 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / aria aria1253 kf_only):** held-out 27.560364dB, 97.552/97.650초, 16823 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / aria aria1253 growth_ervs):** held-out 27.732228dB, 97.553/97.650초, 13120 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (live worker 연결 준비):** mapper 인스턴스별 optimizer guard와 EOS/오류 시 queue 취소 worker 구현·CPU10검사PASS. tracker optimizer 불변·late completion 명시실패 확인. 실제 VIGS worker/CUDA연결은 아직 미완, v18 품질실험과 분리. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / rpng table_06 production):** held-out 24.450921dB, 138.288/138.367초, 3434 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / rpng table_06 kf_only):** held-out 25.233022dB, 138.271/138.367초, 6977 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online whole-pool growth / rpng table_06 growth_ervs):** held-out 25.211392dB, 138.277/138.367초, 6766 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (기하 교차진단 3scene 완료):** depth·normal 유지 dense이득 Aria+0.4321/RPNG+0.0489/UTMM+0.4085dB, 12arm계약PASS. offline진단으로 기하항만의 이득소실 설명기각·online목표미완. v1 NaN은 3번째 native batch의 rendered-depth0에서 재현·운영코드미변경. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (Aria 기하 교차진단 완료):** 동일체크포인트·RGB항·일정·10304render/5312update에서 dense 이득 RGB+0.5028dB, depth·normal유지+0.4321dB(상호작용−0.0707). 기하항만으로 이득소실 설명어려움. afterEOS 진단이며 online성공아님; RPNG/UTMM동일조건 전이예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v1 실패 위치 정정):** 기존 로그에는 native batch번호가 없어 첫 batch 실패 단정은 부정확. v2 첫 batch는 legacy항까지 정상. zero-depth edge case는 재현됐으나 실제 v1 실패지점은 별도계측 필요; 기존기록은 보존. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (기하 교차진단 v1 실패·v2 준비):** 첫 native loss 비정상값으로 중단·결과미산출. zero depth의 역수 후 mask 연산 문제를 CUDA edge case로 재현; 진단전용 유효픽셀 보존 수정검사PASS. 운영mapper 미변경·v1로그보존·전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (실제 Adam 계측 완료):** 3scene 948표본·학습이력/시간/zero-tail검사PASS. dense만의 파괴적 momentum 근거 없음(KF와 유사한 크기·방향). optimizer 미변경; RGB항/일정 고정한 depth·normal 교차진단이 다음 작업. 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v17 완료·다음은 optimizer 상호작용):** 3/3 계약PASS,25.0013/27.5497/23.3153dB. KF대비 평균+0.0411이나 RPNG−0.2245/Aria−0.0316로 미채택. native 다중영상 sum/단일RGB가 Adam을 공유하는 코드 확인·악영향 미검증. GPU idle·production 변경없음·전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online solver only / utmm square-1 growth_ervs):** held-out 23.315265dB, 80.614/80.714초, 13296 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online solver only / aria aria1253 growth_ervs):** held-out 27.549683dB, 97.551/97.650초, 11927 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online solver only / rpng table_06 growth_ervs):** held-out 25.001349dB, 138.268/138.367초, 5475 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (pose 계측 비용 확인·v17 준비):** 동일 warm solve60쌍 pose차이0, 선택적 잔차계측 비용 약0.84–0.87ms. 정책/solver 불변으로 진단계측만 끈 v17 3scene seed0 준비. 품질효과 미검증·전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (correspondence 갱신 진단 완료):** 같은 causal anchor의 cached/fresh 비교9사례에서 RGB재투영 차이 절대0.7%이내·방향불일치. 재계산 채택근거 없음. v16에 남은 선택적 pose잔차 계측 비용 분리가 다음 작업; 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (causal pose 색채널 진단 완료):** 3scene×3사례 비교 완료. 8/9 RGB재투영 오차 변화<0.4%, RPNG한 사례 약3.3%감소; map품질/pose GT 근거 아님·전처리 미변경. 초기 correspondence 재사용의 anchor갱신 영향이 다음 진단. 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v16 완료·pose 입력규약 확인):** v16 3/3 PASS:25.0552/27.5597/23.2430dB, KF 대비 평균+0.0383이나 RPNG−0.1707/Aria−0.0215로 미채택. 실제 encoder 입력검사에서 official tracker와 filler 채널규약 차이 확인(정규화 max차4.305); pose/품질 영향은 미검증. 평가·trace 변경 없이 causal pose 준비 진단이 다음 작업. 실행중 GPU 작업 없음. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online recent counts / utmm square-1 growth_ervs):** held-out 23.243007dB, 80.614/80.714초, 12596 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online recent counts / aria aria1253 growth_ervs):** held-out 27.559728dB, 97.555/97.650초, 11892 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online recent counts / rpng table_06 growth_ervs):** held-out 25.055159dB, 138.272/138.367초, 5422 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 ablation 완료·v16 준비):** v15 ablation6/6 PASS: Growth는 즉시추가보다 평균+2.4396dB, ERVS는 RR보다 -0.0721dB로 미채택. recent_photometric 실제 commit/reset 연결·24검사PASS·source36개. 같은3scene/예산 v16 준비; 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / utmm square-1 immediate_rr):** held-out 21.394431dB, 80.614/80.714초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / utmm square-1 growth_rr):** held-out 23.285823dB, 80.615/80.714초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (Growth 근거·최근 선택 횟수 후보):** Growth 비교 RPNG+2.9804dB/Aria+2.4470dB vs즉시추가 확인. 과거영상 재선택을 위한 recent-count 순수 helper 준비(현재pool N회 history, 전체영상pool 유지), CPU5검사PASS. 실제mapper 미적용·품질이득 미검증; 잠긴 v15 ablation 완료 뒤 연결 예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / aria aria1253 immediate_rr):** held-out 25.091564dB, 97.562/97.650초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / aria aria1253 growth_rr):** held-out 27.538596dB, 97.554/97.650초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / rpng table_06 immediate_rr):** held-out 22.041612dB, 138.271/138.367초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 실제 선택 이력):** 실제 완료된 RGB 선택 기록에서 후보의 후반 초반영상 선택 비중2.5/13.4/12.4%(KF18.0/29.2/32.4%) 확인. RPNG Growth+RR25.0220은 ERVS+0.0336이나 KF−0.2039. ERVS의 초반품질−0.588/후반+0.338 vsRR로 배분 tradeoff 관찰, 원인 확정·채택 아님. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 Growth/sampling / rpng table_06 growth_rr):** held-out 25.021991dB, 138.269/138.367초, 전체시간 계약 PASS. 동일 v15 소스·seed0 기여분리; 목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 전체 비교 완료):** v15 9실행 완료: 전체시간·zero-tail·held-out 분리 9/9 PASS. 후보 평균 운영대비+1.3023dB/KF대비−0.0377dB로 미채택. 같은 소스로 Growth+RR/즉시추가+RR의 3scene ablation6실행 시작 준비, source29개 보존. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 과거 영역 품질 진단):** v15 후보−KF 평균 차이 RPNG−0.2375/Aria−0.1876/UTMM+0.3121dB. 세 장면 모두 가장 이른 평가영상 1/4 구간은 하락(−0.681/−1.613/−1.148); 후반은 개선. 최종지도 진단이며 원인·수렴곡선 증거는 아님. Growth/RR/ERVS 비교로 확인 예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / utmm square-1 production):** held-out 21.382108dB, 80.620/80.714초, 7875 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / utmm square-1 kf_only):** held-out 22.935859dB, 80.614/80.714초, 19175 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / utmm square-1 growth_ervs):** held-out 23.247956dB, 80.614/80.714초, 12896 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / aria aria1253 production):** held-out 25.894696dB, 97.555/97.650초, 11139 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / aria aria1253 kf_only):** held-out 27.581262dB, 97.554/97.650초, 16827 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / aria aria1253 growth_ervs):** held-out 27.393702dB, 97.552/97.650초, 11860 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v15 RPNG paired diagnostic):** v15 RPNG候補24.9884/KF25.2258dB(−0.2375)。KF再転送0・候補RGB学習+501回でも品質改善なし。過去領域再学習の必要性は未検証仮説、全3scene対照とGrowth/ERVS比較を継続。 → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / rpng table_06 production):** held-out 24.446187dB, 138.279/138.367초, 3467 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / rpng table_06 kf_only):** held-out 25.225849dB, 138.276/138.367초, 6985 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online image residency / rpng table_06 growth_ervs):** held-out 24.988356dB, 138.275/138.367초, 5436 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v14완료·GPU영상재사용):** v14 count-scope 완료: 25.1400/27.5496/23.2829dB, 평균KF+0.0812이나 RPNG−0.1113/Aria−0.0765로 미채택. GPU 상주 영상 중복전송 제거: CPU2검사·실제Camera CUDA검사 PASS(픽셀차이0). 동일수정 대조군 포함 v15 9run 준비. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online photometric counts / utmm square-1 growth_ervs):** held-out 23.282853dB, 80.614/80.714초, 12544 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online photometric counts / aria aria1253 growth_ervs):** held-out 27.549634dB, 97.551/97.650초, 12045 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online photometric counts / rpng table_06 growth_ervs):** held-out 25.140033dB, 138.270/138.367초, 4928 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v13완료·v14 count-scope준비):** 평균25.2560=KF+0.0130이나RPNG−0.1741/Aria−0.1664로미채택. native RGBD횟수와추가RGB횟수분리ERVS가설: growth credit·기하학습은유지,photo-only counter선택만변경. 14CPU검사PASS/source23개,3scene공통v14예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online sparse pose refresh / utmm square-1 growth_ervs):** held-out 23.231007dB, 80.614/80.714초, 12603 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online sparse pose refresh / aria aria1253 growth_ervs):** held-out 27.459756dB, 97.553/97.650초, 11842 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v13 RPNG실측):** 동일계약에서pose refresh3.473→0.479초, 필요한KF560개만변환(기존경로31466개). RGB3015→3492회,25.0773dB(+0.0863 vs계측baseline/−0.1741 vsKF),전체시간PASS. 비용절감확인·품질목표미완,Aria/UTMM계속. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online sparse pose refresh / rpng table_06 growth_ervs):** held-out 25.077266dB, 138.273/138.367초, 5316 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v12완료·sparse pose-refresh실장):** 3run시간PASS, 잔차중앙0.804/0.962/0.774px는실제pose오차아님. 모든KF변환하던중복제거: 필요한anchor만변환, CUDA5case pose차이0·100KF합성17.86→0.64ms. 실제backend연결4case도0; v13동일조건3scene검증준비/source21개. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose-fit audit / utmm square-1 growth_ervs):** held-out 23.308588dB, 80.614/80.714초, 12535 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose-fit audit / aria aria1253 growth_ervs):** held-out 26.775464dB, 97.551/97.650초, 11160 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose-fit audit / rpng table_06 growth_ervs):** held-out 24.990947dB, 138.270/138.367초, 4847 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v11완료·v12 pose-fit준비):** 평균ERVS25.1519/RR25.1716<KF25.2430dB, RPNG·Aria손실로둘다미채택. 6run시간PASS. 현재anchor 대응점잔차wrapper CUDA검사PASS/정책변경없음; 계측비용포함v12 3scene 준비/source19개. 4native자동lock완료. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / utmm square-1 growth_rr):** held-out 23.400459dB, 80.614/80.714초, 12968 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v11 2scene쌍·pose잔차계측준비):** RPNG ERVS25.0092/RR25.0475, Aria27.2445/27.0669dB, 4run시간PASS지만둘다KF미달. UTMM계속. 현재anchor/대응점 fit계측4CPU검사PASS(실제mapper미연결). 실제simple-knn추가확인·4native보존. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / utmm square-1 growth_ervs):** held-out 23.202066dB, 80.614/80.714초, 12009 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / aria aria1253 growth_rr):** held-out 27.066925dB, 97.554/97.650초, 10724 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / aria aria1253 growth_ervs):** held-out 27.244456dB, 97.584/97.650초, 11274 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / rpng table_06 growth_rr):** held-out 25.047526dB, 138.269/138.367초, 4903 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online batched sampling / rpng table_06 growth_ervs):** held-out 25.009189dB, 138.275/138.367초, 5070 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (BA묶음검사·sampling ablation준비):** 합성4scale에서6×2와1×12 pose차이0, 약2.07→1.55ms/pose; 실제wrapper도current anchor/depth보존PASS. warm호출만묶음처리, 운영checkout clean. v11 ERVS/RR 3scene 공통비용비교/source16개보존, 실제품질이득은미검증. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v10 9run완료·미채택):** 후보평균25.0365dB, 운영+1.1453/KF−0.2064. RPNG−0.2634·Aria−0.6920·UTMM+0.3360 vsKF. 9run 전체시간PASS; UTMM입력경계guard 실제1회작동. 운영동시tracking통합/최종반복검증은미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / utmm square-1 production):** held-out 21.359501dB, 80.615/80.714초, 7737 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / utmm square-1 kf_only):** held-out 22.851490dB, 80.614/80.714초, 18106 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / utmm square-1 growth_ervs):** held-out 23.187510dB, 80.614/80.714초, 12810 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / aria aria1253 production):** held-out 25.866480dB, 97.555/97.650초, 10994 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v10 RPNG대조·binary보존):** 후보24.9880/KF25.2513/운영24.4477dB, 새시간계약PASS. 실제worker가로드한CUDA3개를maps로확인·복사/hash보존, no-Torch탐색결과일치. Aria후보26.9342 대조중. 실제vigs.py worker는legacyidle경로로향후통합필요; 비교중코드변경없음. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / aria aria1253 kf_only):** held-out 27.626149dB, 97.552/97.650초, 15800 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / aria aria1253 growth_ervs):** held-out 26.934161dB, 97.565/97.650초, 11164 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / rpng table_06 production):** held-out 24.447656dB, 138.280/138.367초, 3332 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / rpng table_06 kf_only):** held-out 25.251334dB, 138.272/138.367초, 6904 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v10 첫실행 검증):** RPNG24.9880dB, mapper·IMU·정책초기화0.1677초포함 138.2702/138.3670초PASS. source14개보존·운영checkout clean. 공통9arm진행중. 고정대응점BA 6×2→1×12 동등성/비용검사script 준비(미실행), v10도중refiner변경없음. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online setup clock / rpng table_06 growth_ervs):** held-out 24.987951dB, 138.270/138.367초, 4987 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v9 실패·v10 경계수정):** UTMM22.9296dB는전체시간41.7ms초과로무효. 마지막packet에서17render/0Adam 후중단. 준비전·decode후시간guard 및입력중단처리추가·3CPU검사PASS. mapper/IMU초기화포함clock으로v9동일정책+새대조군9run 준비(100ms공통여유유지). → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online entropy scale / utmm square-1 growth_ervs):** held-out 22.929621dB, 80.756/80.714초, 12654 Adam; 전체시간 계약 FAIL. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online entropy scale / aria aria1253 growth_ervs):** held-out 27.005081dB, 97.551/97.650초, 11122 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (시작비용 실측·v9 RPNG):** IMU초기로드 Aria69.7/RPNG35.3/UTMM7.6ms가 기존clock밖임을 확인; 최종비교는경계수정필요·과거소급PASS안함. v9 RPNG25.0097(+0.1670 vs v8/−0.2194 vsKF), 활성τ=1/N 확인. Aria/UTMM실행중. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online entropy scale / rpng table_06 growth_ervs):** held-out 25.009712dB, 138.273/138.367초, 4878 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 곡선완료·v9 실행):** 3scene paired PNG/SVG+JSON 저장·검수. Aria중간+0.17~0.25→끝−0.67, UTMM후반이득확대. sparse측정으로빠른도달확증없음·Aria좌표잔차주의. τ=1/N 공통v9시작/source14개보존. 최종비용감사에서 IMU1회로드가clock밖인점발견(추후수정필요). → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** utmm/square-1/kf_only: 20.18s:8.8651dB, 40.36s:14.1811dB, 60.54s:19.6820dB, 80.68s:22.4052dB. Fixed held-out cohort 324; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** utmm/square-1/growth_ervs: 20.18s:8.8491dB, 40.39s:14.2707dB, 60.54s:19.9868dB, 80.65s:23.1754dB. Fixed held-out cohort 324; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** aria/aria1253/kf_only: 24.43s:11.5658dB, 48.83s:16.2714dB, 73.24s:17.8717dB, 97.55s:27.5219dB. Fixed held-out cohort 262; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** aria/aria1253/growth_ervs: 24.53s:11.7732dB, 48.83s:16.5234dB, 73.24s:18.0409dB, 97.56s:26.8482dB. Fixed held-out cohort 262; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (RPNG v6 중간품질곡선):** 동일555held-out·공통좌표4시점 dense−KF=−0.0358/−0.1027/−0.0072/−0.2226dB. 관측시점상빠른수렴미입증. 75%근접후종료격차확대로후반배분도검토. Aria/UTMM곡선평가계속. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** rpng/table_06/kf_only: 34.90s:14.3551dB, 69.29s:22.7394dB, 104.35s:23.9699dB, 138.27s:25.2291dB. Fixed held-out cohort 555; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v9 ERVS 크기보정 준비):** 현재pool N에 τ=1/N을 적용하는 opt-in 구현·27CPU검사PASS. 고정τ default유지, 장면별설정없음. 이는가중정책변경이며 품질이득미검증; GPU는v6중간품질평가중이라 v9실행전. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v6 stream quality):** rpng/table_06/growth_ervs: 34.87s:14.3192dB, 69.27s:22.6367dB, 104.37s:23.9627dB, 138.27s:25.0065dB. Fixed held-out cohort 555; common evaluation coordinates; post-run rendering only. Alignment residuals remain unaccepted; no exact first-attainment claim. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v8 3scene완료·중간품질평가):** 평균25.1196dB로KF+0.0676/운영+1.2161이나 RPNG−0.3864·Aria−0.3401이 남아미채택. 재사용warm실제활성·3run전체시간PASS. v6 dense/KF 공통좌표·고정held-out 3scene 중간품질곡선 평가 시작. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online correspondence reuse / utmm square-1 growth_ervs):** held-out 23.334466dB, 80.620/80.714초, 12683 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online correspondence reuse / aria aria1253 growth_ervs):** held-out 27.181781dB, 97.556/97.650초, 11014 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v8 RPNG 비용감소·품질미개선):** warm336/409, pose6.711→3.275초·Adam4501→5110. 시간계약PASS지만 held-out24.8427dB로 v6보다−0.1638/KF보다−0.3864. 속도만으로미채택; 공통설정 Aria/UTMM 실행중. source_v8 14개보존·운영checkout clean. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online correspondence reuse / rpng table_06 growth_ervs):** held-out 24.842682dB, 138.273/138.367초, 5110 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v7 중단 정정·v8 재검증):** launcher중단 후 Aria자식도 결과저장 전에 종료되어 PSNR 없음(부분로그보존). immutable UID·calibration 기반 대응점key로 수정, RGB재할당·현재depth/pose CUDA검사PASS. 실제warm0이면 panel자동중단. v8 공통설정 3scene 재검증 준비. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (v7 대응점 재사용 비활성 발견):** RPNG24.9965dB지만 warm0/308로 개입실패. 같은UID의 Camera/RGB 재생성으로 tensor-id cache가 무효화되는 경로 확인. launcher정지·이미시작한Aria완료대기; v7 source14개보존. 다음은 immutable UID 기반 key 수정 후 실제warm발생부터 검증. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online correspondence reuse / rpng table_06 growth_ervs):** held-out 24.996542dB, 138.273/138.367초, 4410 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (중간지도 공통좌표 평가 준비):** RPNG/Aria dense–KF 각3시점의 평가궤적을 동일하게 export하고 원본state hash·실제시각 보존. 7CPU검사PASS. v7 대응점재사용 3scene 실행 중이며 중간PSNR은 아직 미측정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense v6完了・v7準備):** 3scene平均dense25.0100/KF25.0521/production23.9036dB、9run時間契約PASS。UTMM+0.7702対KFだがAria−0.6737/RPNG−0.2226で目標未達。v6 source13本保全、次は同設定で対応点再利用のみ変更。25CPU＋現在anchor CUDA検査PASS。 → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / utmm square-1 production):** held-out 21.381898dB, 80.678/80.714초, 7752 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense 중간지도 pose 대조):** Aria/RPNG 세 snapshot의 공통KF pose가 dense–KF-only 간 정확히 동일. Aria후반 정렬잔차는 두arm 공통이며 candidate 단독 pose오차 근거가 아님. 공통좌표·고정held-out 품질곡선평가 준비; GPU곡선은미측정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / utmm square-1 kf_only):** held-out 22.405205dB, 80.683/80.714초, 18103 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / utmm square-1 growth_ervs):** held-out 23.175359dB, 80.647/80.714초, 11075 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / aria aria1253 production):** held-out 25.872583dB, 97.554/97.650초, 10953 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred Aria대조·반복pose비용):** 새KF27.52186 대비dense26.84819(−0.67368), 복원미달. 동일(uid,anchor쌍) 반복보정은RPNG251회4.807초/Aria493회9.561초; 재사용절약은미측정. Aria75%snapshot정렬잔차7.13cm·3.31°로순수photo수렴해석보류. v6전이뒤대응점재사용단일변경검증예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / aria aria1253 kf_only):** held-out 27.521864dB, 97.553/97.650초, 16000 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / aria aria1253 growth_ervs):** held-out 26.848187dB, 97.559/97.650초, 9896 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense RPNG service 진단):** final세대dense70/KF186, 누적학습중앙값9/136; photo1601/2677회dense사용. 현재τ.01의종료시dense확률합0.3596, 대체τ는확률계산만하고실행안함. 최종held-out 4구간중첫구간만+0.028dB, 나머지−0.238/−0.433/−0.246; 수렴곡선과구분. v6공통패널계속. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / rpng table_06 production):** held-out 24.456206dB, 138.274/138.367초, 3476 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred 새RPNG대조·곡선평가 연결):** 동일계측KF25.22909 대비dense25.00646(−0.22263), 복원미달. 동일held-out cohort·실측시각·좌표잔차를보존하는중간평가기와CPU3test PASS; GPU평가는패널뒤진행. Native11–17뷰합산loss와단일photo의sharedAdam규모차이는후속가설로기록. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / rpng table_06 kf_only):** held-out 25.229089dB, 138.275/138.367초, 6711 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred RPNG pilot·실제snapshot검증):** 25.00646dB·138.268/138.367초·4501Adam, 전체계약PASS이나이전KF25.227미달. Dense1989후보중65장준비,RGB0.616초. 실제snapshot3개×3시점 PLY재로딩렌더오차0; 좌표계정렬잔차기록·수렴우위미판정. 새3scene공통controls패널시작. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online deferred / rpng table_06 growth_ervs):** held-out 25.006464dB, 138.268/138.367초, 4501 Adam; 전체시간 계약 PASS. 공통100ms여유·중간지도계측 seed0이며 전체목표미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense v6 연결):** v5 UTMM22.36261/22.33186으로lazy단독복원기각. UID metadata→Growth/ERVS선택→RGB/IMU/Camera준비를실제harness에연결, 중간지도observer·RGB비용계측추가. 공통100ms종료여유·1.5x예산으로RPNG v6 pilot시작. 새controls도동일계측필요, 목표미달. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth_lazy utmm square-1):** held-out 22.331859dB, 80.716/80.714초, 8691 Adam; 전체시간 포함 계약 FAIL. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense 입력준비 점검):** Growth 전에 모든dense RGB를decode·왜곡보정·Camera생성하는경로확인. 선택된admitted영상만준비하는metadata inventory와CPU4test PASS, 실험미연결. RPNG 미계측잔여시간약48초는decode외대기포함이라원인단정안함. Aria lazy26.79147이나KF미달·10.49ms예산초과실패기록. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth utmm square-1):** held-out 22.362610dB, 80.722/80.714초, 8353 Adam; 전체시간 포함 계약 FAIL. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth_lazy aria aria1253):** held-out 26.791474dB, 97.660/97.650초, 9793 Adam; 전체시간 포함 계약 FAIL. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth aria aria1253):** held-out 26.704641dB, 97.631/97.650초, 10142 Adam; 전체시간 포함 계약 PASS. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense v5 RPNG·수렴측정 준비):** lazy 갱신30,132→73회·packet drop74→60이나 PSNR24.57371→24.48664(−0.08708), 품질개선미달. 독립 중간지도 저장·좌표계정렬·PLY export와 CPU8test PASS; v5에는미연결, 실제수렴곡선은미검증. Aria/UTMM paired실행계속. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth_lazy rpng table_06):** held-out 24.486636dB, 138.351/138.367초, 3088 Adam; 전체시간 포함 계약 PASS. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online pose 준비 / v5_depth rpng table_06):** held-out 24.573715dB, 138.351/138.367초, 3100 Adam; 전체시간 포함 계약 PASS. seed0 진단이며 최종 목표 판정은 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense v4 종료·v5 준비):** UTMM dense22.59241은KF22.48108보다+0.11133이나 전체시간18.90ms 초과, Aria/RPNG는KF보다낮아미달. 실제 보간+IMU 함수의 eager/lazy pose4조건 완전일치·갱신12→4, CPU7test PASS. depth-aware cache를양쪽에반영한v5 paired3scene 실행 준비; 총mapping시간검증추가. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / utmm square-1 growth_ervs):** held-out 22.592412dB, 80.733/80.714초, 8960 Adam/16887 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / utmm square-1 kf_only):** held-out 22.481081dB, 80.706/80.714초, 17925 Adam/25915 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense RPNG 원인 점검):** dense24.80775dB는 운영24.40053보다 높지만 KF-only25.22700보다 낮음. 신경망 pose2.78초 외에49개 admitted 대비31,054회 eager dense pose 갱신 확인. 선택 직전 갱신 adapter와 CPU3test PASS, online 미검증. UTMM production 전체시간12.39ms 초과는 Adam deadline PASS와 구분해 기록. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / utmm square-1 production):** held-out 21.092689dB, 80.727/80.714초, 7658 Adam/15569 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / rpng table_06 growth_ervs):** held-out 24.807749dB, 138.351/138.367초, 3172 Adam/25224 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / rpng table_06 kf_only):** held-out 25.226998dB, 138.351/138.367초, 6695 Adam/32757 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / rpng table_06 production):** held-out 24.400529dB, 138.361/138.367초, 3373 Adam/25770 renders, 실행 계약 PASS. 공통 κ64 seed0 전이 실험, 전체 목표 판정은 대조군·3seed·수렴곡선 확인 후. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / κ64 Aria 결과·전이 시작):** κ64 held-out26.882017dB로κ16 coverage26.949130보다추가개선없고KF-only27.620639미달.161dense허용/9532photo, pose688회13.846초,97.65초내·held-out·zero-tail·double-eval PASS. 같은κ64정책의RPNGtable_06/UTMMsquare-1 production·KF-only·growth_ERVS 전이패널 시작. 목표 active,3seed/수렴곡선 미완. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / timed production 대조):** Aria production25.810882dB,1.5x97.65초·held-out·zero-tail·double-eval PASS. V3 growth+ERVS26.949130은production대비+1.1382이나 새KF-only27.620639대비−0.6715로목표미달. 공통κ64 실험으로 pose준비비용과 반복학습량 균형을 검증하며3scene/3seed/수렴곡선은남아있음. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / v3 coverage 수정):** Aria26.949130dB, v2대비+0.5297이나 새KF-only대비−0.6715. Dense439허용, 후반UID800이후144장(이전0)으로 coverage 회복. 97.65초내·held-out·zero-tail·double-eval PASS. 품질목표는미달; production대조 실행 후 같은정책의 공통κ64로 pose비용/반복학습 균형 검증 예정. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / v2 RR 대조·admission 수정):** Aria growth+RR25.831409dB, ERVS26.419423(+0.5880)이나 둘 다 KF-only27.620639 미달. Oldest-first admission이 후반dense343장을 전부 배제한 결함 확인. V3는 현재 도착 후보를 일괄 등록하고 temporal-maximin으로 허용;10CPU검증 PASS, v2소스 보존. 같은시간 Aria v3/production 비교 진행, 목표 active. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / growth+ERVS pilot 실패):** Aria1.5x97.65s에서26.419423dB, 새KF-only27.620639보다−1.201217. Native827+photo7157=Adam7984; dense497허용/455학습, pose676회14.689초. 공통count·인과성·held-out·zero-tail·double-eval PASS이나 품질실패. Growth+RR/production 대조로 원인분리 진행; 목표 active. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (online dense goal / 새 KF-only clocked pilot):** Aria held-out27.620639dB, 97.65초 예산 내97.6368초. native830+공통RGB14682=실제Adam15512, render27858. 공통count/실제optimizer 일치, held-out유입0·zero-tail·deadline후업데이트0·독립double-eval PASS. 새 구조 대조군 결과이며 목표 미달; growth+ERVS 같은 조건 pilot 시작. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (active goal / online dense 구조 구현):** 별도 research/online-view-training worktree에서 causal training pool·완료 RGB step 기반 Growth·논문 ERVS·native/photo 공통count 구현, CPU8검증 PASS. Full-Gaussian 공통RGB optimizer와 finite1.5x 하네스 연결. v1은 legacy profile 검증에서 매핑 전실패, v2는 geometry설정 유지+KF-only dense입력제외로 수정하여 Aria pilot 실행. 성능/3scene/3seed/수렴곡선 목표는 아직 미완료. → [카드](experiments/campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- **2026-09-25 (visual pose 교차장면 검증 완료):** 신규3장면 fixed-map5k에서 visual−KF는 table_06−0.0578/square-1+0.2838/ego-centric-1+0.2955dB; visual−원본dense는 모두 양수. Online pose 추가효과는 각각+0.05088/+0.02370/+0.01393dB로 작음. 동일 work/선택·causal·held-out·zero-tail·double-eval PASS, 추가 pose연산 포함 총시간동일/strict 검증 아님. UTMM refresh양수 assertion 실패는 별도 root 재실행으로 해결. 다음 방향은 pose준비+공통 photometric pool/service/count 연결, 3-family 사전고정 ablation이며 아직 미구현. Production 유지. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose 타 장면 / square-1 online):** control21.33320→visual21.35691dB(+0.02370). 동일9,345render/757Adam·dense/native 선택·causal·held-out·zero-tail·double-eval PASS. 실제IMU refresh호출0 확인; visual70회1.860초 추가, mapping40.603→42.141초. 고정지도 dense 우위와 달리 online 추가효과 작음. 마지막 ego-centric-1 진행. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose UTMM online / harness 실패):** square-1 대조군 매핑 종료 후 refreshed_views>0 사후검증 실패. 모든 장면에서 PGBA dense refresh가 발생해야 한다는 가정 오류; 품질 결과로 미판정. 실패 산출물 보존. 별도 continuation runner/root에서 refresh 미발생을 허용하고 실행 여부 기록, causal/held-out/work 검증은 유지하여 동일 recipe로 UTMM 재실행. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose 타 장면 / table_06 online):** repair-only24.44525→visual24.49613dB(+0.05088). 동일34,437render/2,714Adam·dense/native 선택순서·held-out·causal·zero-tail·double-eval PASS. Pose420회9.779초 추가, mapping143.223→155.765초(+8.76%). 고정지도+1.214dB 회복과 달리 online 이득은 작으며 총시간동일/strict 검증은 아님. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose 타 장면 / 고정지도 3-scene 완료):** ego-centric-1 KF-only21.8008/원본dense21.8361/visual22.0963dB, KF대비+0.2955. 신규3장면에서 pose보정은 원본dense 대비3/3개선, KF-only대비2/3개선(table_06−0.0578/square-1+0.2838/ego-centric-1+0.2955). 통제·held-out·saved reload PASS. EOS후5k+추가pose계산 진단이며 online pair 진행, production 유지. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose 타 장면 / UTMM square-1 고정지도):** 5k RGB 학습 KF-only23.3274, 원본 dense23.0744, visual dense23.6112dB. 원본 대비+0.5368, KF-only대비+0.2838로 Aria의 dense 이득이 다른 공개 장면에서도 재현. Pose-only·동일 map/Adam/순서·held-out324장·fixed topology·saved reload PASS. 71뷰 pose보정2.024초 추가, EOS 후진단이며 online 판정 별도. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (visual pose 타 장면 / RPNG table_06 고정지도):** 5k RGB 학습에서 KF-only25.8155, 원본 dense24.5434, visual dense25.7577dB. Pose 보정+1.2143이나 KF-only보다−0.0578로 우위는 미재현. 같은 snapshot/Adam·mixed순서·held-out555장·fixed topology·saved reload PASS; 244뷰 pose보정5.845초 추가, EOS 후진단. UTMM 두 장면 및 online pair 진행. → [카드](experiments/campaigns/06_gain_attribution/visual_pose_transfer/README.md)
+
+- **2026-09-25 (hypothesis1 판정 / pose 조건의 중요성 지지):** 같은 Aria 지도에서5000회 mixed 학습은 원본pose27.7515, IMU refresh-only27.9764, visual pose28.5812dB. Visual은 repair-only보다+0.6048, KF-only28.2619보다+0.3193으로 dense 이득을 고정지도에서 복원했다. Gaussian/Adam·KF pose·영상순서·loss 고정. 추가 pose연산/EOS후학습 포함이며 온라인대조는Aria−0.0159/RPNG+0.1162라 strict 복원은미완. 운영코드유지. → [카드](experiments/campaigns/06_gain_attribution/causal_visual_dense_pose/README.md)
+
+- **2026-09-25 (visual pose 고정지도5k / dense 이득 조건부 복원):** 동일 map·Adam·영상순서에서 dense pose만 visual6회 보정한 mixed가27.7515→28.5812dB(+0.8297), KF-only28.2619보다+0.3193dB 높다. 1000회에서는격차88.93% 회복,5000회에서는역전. Pose 조건이 중요한 원인이라는 근거를 확보했지만 EOS 후추가학습 진단이며 온라인은 Aria−0.0159/RPNG+0.1162로일관복원아님. IMU refresh-only5k control추가사전선언. → [카드](experiments/campaigns/06_gain_attribution/causal_visual_dense_pose/README.md)
+
+- **2026-09-25 (visual pose 고정지도 인과 진단):** Gaussian·Adam·KF pose·영상순서 고정, dense pose만 DROID visual6회 보정한1000-step mixed는26.3118→26.7288dB(+0.4170). KF-only26.7807와의 격차88.93% 회복하나0.0519dB 남음. 추가 pose 계산을 포함한 EOS 후 진단이며 strict 결과 아님. Pose 불일치가 이 고정지도 손실의 중요한 요인이라는 근거; 동일 corrected snapshot5000-step 확장 사전 선언. → [카드](experiments/campaigns/06_gain_attribution/causal_visual_dense_pose/README.md)
+
+- **2026-09-25 (causal visual dense pose RPNG transfer):** 같은 영상기반 dense pose 보정은 table_01에서 25.3664→25.4826dB(+0.1162). 38,302 mapping render/3,030 Adam·admission·dense 선택·zero-tail·held-out·double-eval PASS. 추가481회 pose 보정(2886 graph update),10.513초. Aria−0.0159와 달라 보편적 복원은 아니며 추가 총연산비 포함 해석 필요. → [카드](experiments/campaigns/06_gain_attribution/causal_visual_dense_pose/README.md)
+
+- **2026-09-25 (causal visual dense pose Aria pilot):** 과거 filler의 DROID feature+6회 motion-only 보정을 현재 non-held-out KF 두 장에만 적용했다. 122회/100 dense뷰 보정, anchor pose/depth 불변·same map render/Adam·admission/선택·zero-tail·double-eval PASS. PSNR 25.8400→25.8240dB(−0.0159), 보정 연산3.064초 추가. 영상기반 pose 보정만으로 online 이득은 미복원; RPNG 전이와 고정지도 pose-only 분리 진단 진행. 운영 코드 미변경. → [카드](experiments/campaigns/06_gain_attribution/causal_visual_dense_pose/README.md)
+
+- **2026-09-25 (dense 과거 조건 source audit / 해석 정정):** Exp66 +3dB는 RGB-only 약23–24k step·Adam reset·종료 후 visual trajectory filler(역사 commit b05e981d에서도 motion-only 6회)·D12 784뷰 조건이다. 현재 진단은 causal 보간+IMU pose·Adam restore·KF91+dense102·최대5k여서 학습량/pose/집합이 일치하지 않는다. 과거124뷰 aggregate PSNR과 현재262뷰 mean PSNR도 다르다. Depth/normal 영향은 아직 열려 있고, 5k 음성 결과로 일반적인 budget 가설까지 기각하지 않는다. 새 GPU 실험/운영 변경 없음. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense gain recovery 5k 고정지도 진단 / 복원 미달):** 같은 Aria checkpoint·Adam·실제 causal training pose에서 5000회 RGB 학습한 KF-only full은 28.2619dB, KF+dense full은 27.7515dB(−0.5104); SH는26.4171/26.4320. 1000회와 마찬가지로 dense 우위가 없어 단순 반복 횟수 확대도 복원책으로 미채택. 동일 snapshot·scope별 선택순서·held-out·고정 topology·saved/reload 검증 PASS. EOS 뒤5000회 진단이므로 strict27 달성 근거가 아니며 production 미변경. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense refresh repair RPNG transfer):** 같은 full-scope 조건의 pose 갱신 오류 수정은 table_01에서 25.3779→25.3664dB(−0.0115). 38,302 render/3,030 Adam·admission·dense 선택·held-out·zero-tail·double-eval PASS. Aria +0.0277과 함께 보면 correctness는 개선하지만 dense PSNR 회복 원인으로는 부족하다. 운영 코드 반영 없이 campaign adapter로 보존. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense refresh repair Aria pilot):** 현재 mapper KF bracket으로 IMU residual을 재계산하고 bracket 밖 pose의 보정 누적을 차단했다. 기존 함수 결함 재현을 포함한 CPU 6개 테스트 PASS. 동일 full-scope control 25.8123→25.8400dB(+0.0277), work·admission·dense 선택·held-out·zero-tail·double-eval PASS. 오류 수정은 작동하나 dense 이득 복원 근거로는 부족하며 production 미반영. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense scope RPNG transfer / scope-only 복원 기각):** native RGB-D를 보존한 table_01에서 dense SH→full은 25.5747→25.3779dB(−0.1968). Aria +0.0923과 반대여서 공통 개선으로 채택하지 않는다. 동일 render/Adam·admission·선택·zero-tail·held-out·double-eval PASS. IMU pose refresh 오류 수정은 별도로 비교한다. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense pose 진단):** 평가 trajectory를 학습에 넣지 않고 dense camera102개를 RGB로 각64회 pose-only 보정한 뒤 동일1000 map step을 반복해26.3118→26.5717dB. 추가6528 render/Adam 비용이 있고 KF-only full26.7807보다 낮으므로 matched-work 이득으로 해석하지 않는다. Pose 차이가 손실 일부에 영향을 준다는 근거만 확보. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense scope Aria online pair):** native RGB-D 학습을 보존하고 기존 dense 두 슬롯만 SH→full로 변경해 25.7200→25.8123dB(+0.0923). 13,620 render/1,055 Adam, admission·선택순서·zero-tail·held-out·독립 double-eval 일치. 단일 seed의 작은 이득이므로 채택/복원 판정은 보류. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-25 (dense gain recovery 고정지도 진단 / 단순 scope 가설 미지지):** 같은 Aria checkpoint·Adam·카메라에서 1000회 학습한 KF-only full은 26.7807dB, KF+dense full은 26.3118dB다(SH 양쪽 약26.22). SH-only를 푸는 것만으로 dense 우위는 복원되지 않았다. 평가용 trajectory는 학습에 사용하지 않았고, 이 결과는 post-EOS 고정지도 진단이다. native RGB-D를 보존한 online scope pair와 dense pose 일관성 후속 확인 진행. → [카드](experiments/campaigns/06_gain_attribution/dense_gain_recovery/README.md)
+
+- **2026-09-24 (exp124 role-aware dense service 3-family PASS / quality gain 미입증):**
+  keyframe RGB--D geometry carrier를 보존하면서 마지막 native iteration과 기존
+  aux-KF appearance slot을 dense photometric repeat로 재배치했다. UTMM/RPNG/Aria
+  대표 장면에서 total dense render share는 **11.50/11.03/11.58%**, normalized
+  ERCB↔RR trace 차이는 41/115/57행이며 render·Adam·causal·held-out·zero-tail·
+  geometry-scope gate가 모두 PASS했다. PSNR은 backbone 대비 평균
+  **−0.146190dB**, normalized−RR은 +0.007519dB라 “99% keyframe final” 문제의
+  구조적 해소와 품질 보존까지만 채택하고 ERCB quality gain은 주장하지 않는다.
+  v1 batch duplicate는 폐기하고 without-replacement v3와 128 test로 정정했다.
+  → [exp124](experiments/exp124_role_aware_dense_service.md)
+- **2026-09-24 (exp123 dense geometry-mass isolation PASS / 후보 기각):**
+  Exp122에서 남은 RPNG 손실이 aggregate geometry weight 때문인지
+  view-specific coverage 때문인지 분리했다. fresh control/stats-off/
+  stats-off+geometry-mass는 모두 38,302 render·3,030 Adam이며 PSNR은
+  25.561123/25.434710/25.412915dB다. Candidate는 dense replacement가 발생한
+  1,610/1,610 step에서 남은 RGB-D depth/normal을 `(D+1)/D`(평균1.062575)로
+  정확히 보정했지만 +회복이 아니라 **−0.021795dB** 더 악화됐다. 사전 판정상
+  `view_specific_geometry_coverage_dominates`: 특정 historical RGB-D KF의 공간
+  constraint를 RGB-only dense+전역 loss scaling으로 대체할 수 없다. 따라서
+  aggressive one-slot KF→dense는 폐기하고 ratio/temperature/scene phase 튜닝과
+  17-scene 확장을 금지한다. 품질 base의 모든 native RGB-D carrier는 보존하고,
+  dense/ERCB는 Exp109/111/117의 auxiliary service+downloaded-source bounded
+  topology ticket으로만 사용한다. 다음 Track B는 bulk R4 gain을 capacity/birth와
+  native RGB-D service structure 사이에서 분리한다.
+- **2026-09-24 (exp122 dense-global topology-stat isolation PASS):**
+  RPNG fresh control/unified-stats-on/unified-stats-off를 같은 38,302 render와
+  3,030 Adam으로 실행해 25.582787/25.410318/25.424374dB를 얻었다. Dense
+  global view의 native densification stat을 빼면 lifetime regular churn은
+  114,266→112,144(control112,062)로 사실상 복원되지만 PSNR은 +0.014056dB,
+  stats-on 손실의 8.15%만 회복한다. 따라서 Exp120 RPNG 손실의 주원인은
+  topology-stat 유입이 아니라 historical RGB-D KF 한 장을 RGB-only dense로
+  교체해 geometry supervision을 잃는 것이라는 진단이다. v1 verifier는 모든
+  1,610 commit이 topology stat 대상이라고 잘못 가정했지만 final-v7은
+  frontier에서만 허용하며 immutable ledger도 210회, actual skip도 210회다.
+  artifact-only v2로 이를 정정했고 mapping/eval은 재실행하지 않았다. 다음
+  Track-A는 recent/native RGB-D geometry carrier를 보존한 fixed-work dense
+  allocation만 허용하며, 새 primitive는 계속 pinned downloaded author code에서
+  가져온다. 새 local prune/TileGS CUDA/17-scene one-slot 확장은 금지한다.
+- **2026-09-24 (exp121 topology cost/source-code gate PASS):**
+  unified arm을 CUDA-sync profile한 결과 UTMM/RPNG densify-prune 총비용은
+  69.575/58.666ms로 mapping wall의 0.171/0.034%, max spike는
+  55.108/40.334ms다. 따라서 global topology는 평균 throughput 병목이
+  아니지만 regular churn 89,296/114,143행의 품질·해석성 문제와 strict-live
+  event spike는 남는다. 내려받은 pinned LPM/TileGS/Taming/RTG 실제 코드를
+  재감사해 LPM error-zone과 Taming bounded weighted sampling만 현 RGB causal
+  contract에 맞는 primitive로 유지한다. TileGS CUDA 전면이식, RTG의 RGB-D
+  stable/unstable lifecycle, 새 hard prune는 보류한다. 다음은 Exp120 RPNG
+  손실이 RGB-D historical slot 교체 때문인지 dense topology-stat 유입 때문인지
+  single-factor로 분리한다.
+- **2026-09-24 (exp120 frozen unified dense transfer 2/2 PASS / gain 미입증):**
+  Exp119의 exact one-slot, LPM mass prior, `gamma=16`을 무튜닝으로 RPNG
+  table_01과 Aria1253에 전이했다. dense share는 각각 1.40→5.61%,
+  1.48→6.37%이고 1,610/665 replacement가 전부 commit됐다. 모든 arm의
+  38,302/13,620 render·3,030/1,055 Adam과 causal/held-out/double-eval/
+  zero-tail/cardinality/lifecycle gate가 PASS했고 품질은 fresh control 대비
+  −0.186122/+0.054396dB다. UTMM 포함 3-family 평균은 −0.047930dB,
+  normalized−RR은 +0.000805dB라 ERCB quality gain은 아직 없다. dense가
+  native visibility/densification stats와 실제 mutation ledger를 바꾸는 active
+  path는 확보했지만 RPNG 손실 때문에 현재 rule을 17-scene quality result로
+  승격하지 않는다. 다음 구현 primitive도 pinned 저자 코드에서만 가져온다.
+- **2026-09-24 (exp119 corrected unified dense global slot PASS):**
+  control-equivalent global cardinality를 먼저 고정해 실제 flexible historical
+  render 1개만 unified LPM-mass dense ERCB로 교체했다. UTMM square-1에서
+  dense renders/share 142/1.52%→**625/6.69%**, total 9,345 render·757 Adam
+  exact, 483/483 commit·recent-window/cap/lifecycle/causal/eval gate 모두 PASS.
+  normalized는 control −0.012064dB로 품질을 보존하고 동일 dense work RR보다
+  +0.02562dB, global trace70행 차이. 처음으로 dense/ERCB가 native mapping과
+  topology statistics에 충분히 참여하면서 R4 품질을 유지했으나 단일장면
+  gain은 noise 수준이므로 exact one-slot rule을 RPNG/Aria에 무튜닝 전이한다.
+- **2026-09-24 (exp118 unified dense historical-slot pilot FAIL / render +49):**
+  recent KF window와 Adam757을 유지한 채 global slot 1개를 dense ERCB로
+  바꾸는 첫 구현은 dense share를 1.52→6.65%로 높이고 normalized/RR trace
+  70행을 갈랐으며 품질도 −0.033/−0.052dB로 안전했다. 그러나 초반
+  historical pool<6에서 dense가 replacement가 아니라 supplement가 되어
+  total render가 9,345→9,394(+49), fixed-work gate FAIL. 결과는 품질 근거로
+  사용하지 않는다. control-equivalent `G=min(6,available_history)`를 먼저
+  정한 뒤 `tracked=G-dense`로 교정한 새 source/root에서만 재실행한다.
+- **2026-09-24 (exp117 frozen LPM mass-prior transfer 2/2 PASS / gain 미입증):**
+  Exp116의 source-backed prior와 `gamma=16`을 무튜닝으로 RPNG table_01,
+  Aria1253에 전이했다. normalized 결합은 trace를 34/9행 바꾸고 모든
+  fixed-work·causal·held-out·double-eval·zero-tail gate PASS, control 대비
+  −0.010767/+0.031011dB. UTMM 포함 3-family 평균은 +0.0038dB이고 mass-only
+  RR 대비 normalized 효과 평균은 −0.0040dB라 quality gain은 여전히 없다.
+  dense/LPM+ERCB가 실제 동작하고 R4 품질을 보존한다는 결론까지만 채택한다.
+  약 1.4–1.5%인 dense render leverage를 키우기 위해 recent-window floor를
+  유지한 채 flexible historical-KF render slot을 unified dense pool로 옮기는
+  fixed-render isolation이 다음이며, 17-scene 반복은 보류한다.
+- **2026-09-24 (exp116 LPM zone-mass prior PASS / active·gain 미입증):**
+  PSNR 튜닝 없이 official patch 한 개 pseudocount로
+  `q_i=(active_pixels+256)/(HW+256)`,
+  `p_i∝q_i exp[-16n_i/(T+1)]`를 고정했다. UTMM square-1에서 normalized
+  결합이 dense trace 3행을 실제 변경했고 9,345 render·757 Adam·모든
+  causal/eval gate PASS, 품질은 control 대비 −0.008967dB로 보존됐다.
+  mass-only RR은 10행/+0.003089dB. dense/LPM+ERCB가 실제 동작하는 경로는
+  확보했으나 quality gain은 아직 없으므로, 수식을 고정해 RPNG table_01과
+  Aria1253에만 먼저 무튜닝 전이하고 17-scene panel은 보류한다.
+- **2026-09-24 (exp115 LPM dense-view utility FAIL / 품질 안전·선택 비활성):**
+  author LPM error-zone coverage를 `p_i∝(1+e_i)exp[-16n_i/(T+1)]`의
+  explicit base measure로 넣고 score를 successful Adam+queue commit에만
+  반영했다. UTMM square-1 4arm 모두 9,345 render·757 Adam·causal/eval gate
+  PASS이고 normalized 대비 −0.019673dB로 급락은 없었다. 그러나 combined
+  arm의 dense trace 변화가 **0행**이라 active-method gate FAIL. utility-only
+  RR은 9행 변화/+0.002957dB로 signal은 있으나 quality gain은 noise 수준이다.
+  PSNR로 multiplier를 맞추지 않고, LPM zone mass의 one-patch pseudocount
+  `q_i=e_i+1/P_i`를 KL prior로 쓰는 source-grounded trace gate를 다음 후보로
+  검토한다. 전체 scene 전이는 금지한다.
+- **2026-09-24 (exp114 official-LPM no-op repeat PASS / source-code implementation rule):**
+  논문은 아이디어 검토에만 쓰고 실제 이식은 `/home/intern/gs_topology_references`
+  아래 저자 코드를 pinned commit으로 대조한다는 규칙을 고정했다. LPM commit
+  `7c060267`의 `get_errormap(diff)`만 already-paid dense render에 이식해 fresh
+  control 두 개 사이에서 반복했다. 9,345 render·757 Adam·dense trace 불변,
+  control 평균 대비 +0.002144dB, GS 편차9/허용121, GPU share0.187%, wall
+  +0.306%, 142 call/95 unique score로 모든 교정 gate PASS. 다음은 이 detached
+  score를 successful Adam 뒤에만 반영하는 bounded dense-view utility이며 hard
+  prune/topology trigger로는 아직 쓰지 않는다.
+- **2026-09-24 (exp113 official-LPM probe FAIL / gate correction):**
+  동일 author operator의 첫 telemetry run은 추가 render·Adam·mutation 0,
+  +0.007276dB와 비퇴화 score를 보였지만 exact saved-PLY SHA가 달라 FAIL로
+  기록했다. 이후 untouched control끼리도 SHA와 GS count가 달라짐을 exp114가
+  입증했으므로 exp113을 소급 PASS시키지 않고, byte identity 대신 반복 control
+  spread와 0.1% topology tolerance를 쓰는 교정 실험을 별도 보존했다.
+- **2026-09-24 (exp112 active normalized temperature 3-family PASS / gain 미입증):**
+  Exp111 causal pool을 생산 queue로 재생해 quality를 보지 않고 UTMM square-1에서
+  trace차이≥10%·count-CV감소≥10%를 처음 만족하는 공통 `gamma=16`을 고정했다.
+  수식은 `exp[-gamma*n_i/(T+1)]`이며 `T`/scene scaling 없음. UTMM/RPNG/Aria
+  12arm의 render·Adam·admission·event·held-out·double-eval·zero-tail가 모두
+  PASS했고 RR과 실제 trace가 9/17/10행 달라지며 count CV도 일관되게 감소했다.
+  그러나 gamma16−R4 평균 **−0.013669dB**, gamma16−log1.5 −0.009751,
+  gamma16−RR −0.009250dB라 PSNR 이득은 미입증이다. Active ERCB가 품질 안전한
+  것은 확인했지만 단순 count balancing의 17-scene 확장은 하지 않고, 다음은
+  공개 저자 코드의 local residual/topology evidence를 fixed-work repeat utility로
+  연결한다. → [exp112](experiments/exp112_normalized_temperature.md)
+- **2026-09-24 (exp111 dense-repeat Track-A 3-family PASS):** 기존 aux-KF
+  one-view slot을 dense repeat로 재배치하고 primary service만 admission
+  credit을 만들며 신규 view first-service를 강제했다. UTMM/RPNG/Aria 3장면
+  9arm에서 render·Adam·admission·event·held-out·double-eval·zero-tail 전부
+  PASS. Dense/KF service는 70/70→140/0, 267/267→534/0,
+  100/100→200/0이고 dense share는 약 0.7%→1.4–1.5%, 추가 work 0이다.
+  Normalized repeat−R4 평균 **+0.015072dB**로 기존 이득을 보존했다. 다만
+  normalized−dense-only-RR 평균 +0.009767dB, 실제 선택 차이 1/2/0행이라
+  현 `gamma=log(1.5)` ERCB gain은 미입증이다. 다음은 개발 scene에서만
+  하나의 공통 normalized temperature를 정하되 `T`로 scale해 raw sampler를
+  재포장하지 않는다. Inline verifier 오판은 artifact-only v2로 정정했다.
+  → [exp111](experiments/exp111_dense_repeat_ercb.md)
+- **2026-09-24 (exp110 normalized ERCB/RR/ticket isolation):** UTMM 3장면의
+  normalized+ticket / zero-energy RR+ticket / normalized ticket-off 9arm을
+  실행했고 render·Adam·causal opportunity·held-out·zero-tail 검증은 모두
+  PASS했다. normalized−RR 평균 **−0.007705dB**, ticket−off 평균
+  **+0.002896dB**로 noise 수준이다. Dense와 aux-KF 선택 trace는 전부 같고
+  dense selection count 최대가 1이라 현재 one-pass service에서는 ERCB가
+  개입할 수 없었다. Native historical-KF만 반복 epoch에서 9/16 rows가
+  달랐으나 품질 효과는 없었다. 따라서 Exp109의 품질 보존은 유효하지만
+  ERCB/ticket을 causal gain으로 주장하지 않는다. 다음은 신규 view의 causal
+  first-service floor를 보존하면서 existing flexible work 일부만 dense repeat로
+  재배치하는 공통 rule을 격리 검증한다.
+  → [exp110](experiments/exp110_rr_ticket_ablation.md)
+- **2026-09-24 (exp109 first-persistence 17-scene B-track PASS):**
+  frozen common config로 RPNG8/UTMM7/Aria2의 fresh candidate/official-vanilla
+  pair를 모두 재실행했다. **17/17 승리, scene 평균 +1.286809dB**이며
+  RPNG +1.6165/UTMM +0.5743/Aria +2.4620, fairness/double-eval/zero-tail/
+  R4-floor 모두 PASS. Exact R4 대비 평균은 +0.000426dB라 기존 이득을
+  사실상 정확히 복원했고 Exp94 stretch(+1.253787,17/17)도 PASS다. Dense/
+  ERCB ticket은 총 6,782 clone을 실제 수행했으나 추가 render·Adam 0,
+  최종 GS 합계는 R4 대비 +0.043%뿐이다. 모든 pair 완료 뒤 inline summary가
+  compact JSON field 누락으로 실패했지만 immutable artifact-only reporter로
+  공식 MD/JSON을 복구했다. 현 B-track custom composition으로 채택하되 ticket
+  자체의 R4 대비 causal quality gain과 strict-live는 아직 미증명이다.
+  → [exp109](experiments/exp109_first_persistence_panel.md)
+- **2026-09-24 (exp108 first-persistence Aria transfer PASS):**
+  Exp106/107 common rule을 Aria `aria1253`에 무튜닝 전이했다. generation2
+  첫 persistence에서 repeated148/small70/actual clone70, native stats 보존,
+  추가 render·Adam 0이다. PSNR **25.755865dB**, Exp94 R4 −0.019837,
+  fresh vanilla **+1.776532**이며 SSIM +0.045087/LPIPS −0.088476이다.
+  13,620 physical render exact match·fairness/double-eval/held-out disjointness/
+  zero-tail 모두 PASS. UTMM/RPNG/Aria family gate가 모두 통과해 common
+  first-persistence config를 17-scene B-track panel용으로 freeze한다.
+  Strict-live latency와 ticket 자체의 R4 대비 품질 우월성은 아직 미증명이다.
+  → [exp108](experiments/exp108_first_persistence_aria.md)
+- **2026-09-24 (exp107 first-persistence RPNG transfer PASS):**
+  Exp106 common rule을 RPNG `table_01`에 무튜닝 전이해 final-generation
+  repeated532/small396/actual clone396, native stats 보존을 확인했다. PSNR
+  **25.584830dB**, Exp94 R4 +0.003415, fresh vanilla **+1.645150**이며
+  38,302 render·3,030 Adam·native topology2·fairness/double-eval/zero-tail PASS.
+  Final GS는 R4 대비 192개(+0.046%)만 증가했다. 따라서 현 preferred는
+  `R4 + normalized ERCB dense evidence + generation당 first-persistence 1회
+  top-1,024 bounded clone + native stats preservation`이다. UTMM work-poor
+  활성과 RPNG 핵심 이득 보존은 확인했지만 strict-live/전체 panel 주장은 아직
+  금지하며, 동일 rule의 Aria gate 뒤 17-scene 확장을 결정한다.
+  → [exp107](experiments/exp107_first_persistence_rpng.md)
+- **2026-09-24 (exp106 first-persistence local topology PASS):**
+  native event 뒤에 evidence가 생겨 mutation 0이던 UTMM `slow-straight-2`에서
+  generation당 첫 persistence dense step에 top-1,024 ticket을 1회 사용했다.
+  Mid-cycle native densification stats를 보존했고 반복619/small443/actual clone443,
+  추가 render·Adam 0이다. PSNR **17.309940dB**, Exp94 R4 +0.086496,
+  Exp105 mutation-0보다 +0.063801이나 fresh vanilla에는 −0.054132다.
+  Fairness/double-eval/zero-tail PASS. Work-poor scene에서 contribution이 실제
+  작동하면서 품질을 보존한 isolation이지 패배 해결 확정은 아니다. 다음은 같은
+  rule로 RPNG table01의 기존 +1.6dB 이득과 −0.5dB stop을 재검증한다.
+  → [exp106](experiments/exp106_first_persistence_ticket.md)
+- **2026-09-24 (exp105 dense-ticket transfer pilot, scheduling 한계):**
+  Exp104 rule을 고정하고 fresh vanilla pair로 UTMM `slow-straight-2`와 Aria
+  `aria1253`에 전이했다. UTMM은 R4 +0.0227dB/fresh vanilla −0.0356dB이나
+  4 dense update 뒤 반복 후보 619개가 생겼을 때 native topology가 이미 끝나
+  mutation 0이었다. Aria는 1,453 mutation이 활성이고 R4 −0.0520dB,
+  fresh vanilla **+1.7636dB**다. fairness/double-eval/zero-tail 모두 PASS.
+  Native-event-only 방식은 짧고 work가 부족한 장면에서 contribution이 늦으므로
+  17-scene 확장을 보류한다. 다음은 generation당 1회 observation-triggered
+  ticket을 쓰되 mid-cycle native densification stats를 보존해 UTMM에서 먼저 검증한다.
+  → [exp105](experiments/exp105_dense_ticket_transfer_pilot.md)
+- **2026-09-24 (exp104 active dense/ERCB bounded topology ticket PASS):**
+  normalized ERCB dense backward top-1,024를 generation-scoped ID로 누적하고,
+  서로 다른 dense UID 2회 이상 반복된 small Gaussian을 Taming 저자 코드의
+  weighted without-replacement ticket으로 기존 topology event에서만 clone했다.
+  Ticket은 event의 regular add와 매칭하며 실제 1,706개가 mutation됐다. 추가
+  render/Adam 0, 38,302 render·3,030 Adam·fairness/zero-tail 전부 PASS. PSNR
+  **25.595663dB**로 R4 +0.010645, vanilla **+1.631399**이며 GS +0.41%, wall
+  +1.52%다. Dense/ERCB가 topology를 실제 제어하면서 R4 이득을 보존한 첫
+  조합이나 R4 대비 gain은 noise 수준이므로 common rule을 고정해 무튜닝
+  transfer하고, scene별 −0.5dB 하락 시 즉시 중단한다. Hard prune은 아직 금지.
+  → [exp104](experiments/exp104_dense_topology_ticket.md)
+- **2026-09-24 (exp103 generation-scoped dense evidence PASS / exp102 정정):**
+  VIGS map reset마다 point ID가 0부터 재사용되므로 Exp102 bare-ID persistence는
+  서로 다른 Gaussian을 합칠 수 있음을 발견했다. `(map_generation, point_id)`로
+  고쳐 동일 run을 재실행했고 3 generation을 분리한 상태에서 38,302 render·
+  3,030 Adam·opportunity UID·topology2/2·zero-tail 모두 PASS. PSNR
+  **25.579016dB**(R4 −0.006001, vanilla **+1.614753**)이며 최종 generation의
+  반복 top-1,024 live ID도 25,330개다. Exp102 품질/gradient concentration은
+  유효하지만 persistence 표는 폐기하고 Exp103만 topology ticket 근거로 쓴다.
+  다음은 R4 birth/prune/cadence를 보존하고 Taming 저자 코드의 weighted
+  without-replacement ticket을 반복 dense ID에만 적용한다.
+  → [exp103](experiments/exp103_generation_scoped_dense_evidence.md)
+- **2026-09-24 (exp102 behavior-neutral ERCB dense topology evidence PASS):**
+  normalized R4의 paid dense backward에서 기존 `f_dc` gradient만 읽어 stable
+  point-ID evidence를 계측했다. 269 fixed opportunity의 UID 순서를 모두
+  일치시켰고 추가 render/Adam/mutation 0, 38,302 render·3,030 Adam·topology2/2·
+  zero-tail 등 isolation PASS. PSNR **25.577882dB**, Exp95 R4 대비 −0.007136,
+  fresh vanilla 대비 **+1.613619dB**다. top 1,024가 gradient mass 29.84%,
+  연속 set Jaccard 0.3180, 반복 nomination 후 final map에 생존한 ID 25,264개라
+  dense/ERCB가 bounded local topology의 실제 신호가 될 근거를 확보했다.
+  아직 topology 성능 이득 주장은 아니며 다음은 R4 birth를 보존한 채 공식
+  author-code의 without-replacement ticket 구조로 반복 ID만 제한한다.
+  → [exp102](experiments/exp102_dense_topology_evidence_probe.md)
+- **2026-09-24 (exp101 R4-preserving official residual supplement PASS):**
+  R4 blanket PPM birth/RNG를 bit-for-bit 먼저 보존하고 별도 RNG에서 공식
+  Gaussian-SLAM residual-mask+radius birth를 1× causal allocation으로 추가했다.
+  RPNG table01 **25.609319dB**, Exp95 R4 대비 +0.024301, fresh vanilla 대비
+  **+1.645055dB**이고 SSIM/LPIPS도 개선. 38,302 render·3,030 Adam·full-view
+  density trace·opportunity·topology2/2·zero-tail 전부 PASS. 235 event에서
+  residual 286,549개가 실제 생겨 module은 active하나, GS +52.0%, wall
+  +11.2%, peak allocated +26.1%, reserved +84.6%, final-generation churn
+  +33.8%라 1× supplement는 최종안이 아니다. 안전한 composition은
+  replacement가 아니라 supplement임을 채택하고, 다음은 dense/ERCB evidence로
+  이 local service를 ration/nominate한다. Strict-live 주장은 아직 없음.
+  → [exp101](experiments/exp101_residual_birth_supplement.md)
+- **2026-09-24 (exp100 capacity-matched official birth replacement FAIL):**
+  full-view causal density trace와 R4 per-view target을 보존하고 official
+  Gaussian-SLAM mask/radius만 후보 선택에 적용해 모든 fixed-work/causality
+  check를 통과했다. 그러나 PSNR **23.581536dB**, Exp95 R4 대비
+  **−2.003482dB**로 중단선 실패. 351,624 offer/314,590 accept, final GS
+  276,837로 control 417,656보다 33.7% 적다. 즉 residual-only rule은 현재
+  VIGS global-map/online-depth에서 blanket PPM birth의 drop-in replacement가
+  아니다. Dense 결합은 미진행하며, 다음 안전한 분리는 R4 birth/RNG를
+  bit-for-bit 보존하고 official residual operator를 별도 stream의 bounded
+  supplement로 추가하는 것이다.
+  → [exp100 실패 카드](experiments/exp100_capacity_matched_local_birth_failed.md)
+- **2026-09-24 (exp99 official local birth quality gate FAIL):** Exp98의
+  legacy-cap 결합을 고쳐 final topology cap deletion 0/0·event 2/2와
+  fixed 38,302 render/3,030 Adam·causality를 모두 지켰지만 PSNR은
+  **23.072144dB**, Exp95 R4 대비 **−2.512874dB**라 −0.5dB 중단선이
+  발동했다. 1,024 ticket는 저자 config가 아니라 우리 adapter 선택이며,
+  235 event에서 185,508 birth만 생존해 final GS가 417,656→173,415
+  (−58.5%)로 급감했다. 공식 Gaussian-SLAM configs는 30k/100k/unlimited다.
+  또한 depth zero-mask가 causal density의 full-view Sobel rank까지 바꿨다.
+  Dense 결합은 진행하지 않고, 다음은 full-view R4 allocation을 유지한 채
+  공식 seed mask/radius만 candidate 선택에 쓰는 capacity-matched isolation이다.
+  → [exp99 실패 카드](experiments/exp99_gaussian_slam_local_birth_corrected_failed.md)
+- **2026-09-24 (exp98 official Gaussian-SLAM local birth 즉시 중단):** 저자
+  공식 코드 commit `eaec10d7`의 low-alpha/positive-depth-residual mask,
+  bounded ticket, current-frustum radius reject를 포팅해 실행했으나 기존
+  Aria-derived content curve가 ticket 이전 target으로 lineage cap을 기록했다.
+  그 결과 final generation topology event에서 cap이 1,007/11,958 birth를
+  다시 삭제해 단일요인 검증이 아니었다. PLY·PSNR 전에 중단했고 partial
+  output은 재개 금지다. VIGS `d00e2263`에서 `max_points=None`인 R4 산술은
+  유지한 채 cap을 최종 ticket 뒤로 옮겼으며 새 source/root로 재검증한다.
+  → [exp98 실패 카드](experiments/exp98_gaussian_slam_local_birth_stopped.md)
+- **2026-09-24 (exp97 shadow-count filter-prune isolation PASS):** Exp96의
+  scheduler 결합을 제거해 actual tensor에는 regular filter 후보를 보존하고
+  controller에만 counterfactual post-prune count를 전달했다. RPNG `table_01`
+  topology event 2/2, render 38,302·Adam 3,030·zero-tail·이중 평가·모든
+  isolation check PASS. PSNR **25.680925**로 Exp95 R4보다 +0.095907,
+  fresh vanilla보다 **+1.716662dB**이고 SSIM/LPIPS도 개선. 단 GS +11.0%,
+  peak allocated +7.1%, reserved +16.5%, mapping wall +6.1% 비용이 있어
+  no-prune 자체는 최종 method가 아님. 다음은 공개 저자 코드 기반 bounded
+  current-view local birth를 별도 포팅하고 cleanup은 이후 독립 검증한다.
+  → [exp97](experiments/exp97_shadow_filter_prune_isolation.md)
+- **2026-09-24 (exp96 naive filter-prune isolation 즉시 중단):** RPNG
+  `table_01`에서 regular opacity/size deletion만 물리적으로 끄자 Exp95
+  control의 topology 2회와 달리 frame657에 3회차가 열렸다. R4 controller가
+  실제 post-prune Gaussian count의 net-prune/recovery를 phase certificate로
+  사용하므로 pruning 제거가 cadence까지 바꾼다. 원인 분리 위반을 확인한 즉시
+  중단했고 final PLY·PSNR 없음. Partial log는 보존하며 재개/공식 비교 금지.
+  다음은 controller에는 counterfactual post-prune count를 주고 실제 tensor만
+  보존하는 shadow-count 진단을 새 source/root에서 수행한다.
+  → [exp96 실패 카드](experiments/exp96_filter_prune_isolation_stopped.md)
+- **2026-09-24 (exp95 behavior-neutral topology churn probe):** RPNG `table_01`
+  normalized R4 **25.585018**, fresh vanilla **23.964263dB**, Δ **+1.620754dB**.
+  양 arm physical render 38,302, zero-tail·저장-map 이중 평가·pair fairness
+  10/10 PASS이고 기존 R4 대비 −0.039298dB라 급락 중단선은 미발동. 최종
+  mapper generation의 topology 2회는 19,552 add/48,965 remove, 총
+  **68,517 row churn**으로 event 수와 달리 전역 mutation이 큼. raw log의
+  reset 포함 4 transaction은 111,650 churn이나 현 telemetry가 generation
+  reset 전 lifetime을 보존하지 않아 진단값으로만 사용. 다음은 scheduler와
+  growth를 고정한 채 ordinary filter-prune만 분리하고, 이후 공개 저자 코드
+  기반 bounded current-view birth를 별도 이식한다. B-track 결과이며 strict-live
+  주장은 아니다. → [exp95](experiments/exp95_topology_churn_probe.md)
 - **2026-09-22 (Fig.2 패널 문자·checkpoint 표기):** (a)/(b) 왼쪽, 방법명은
   사진 아래로 이동. 실제 논문 figure의 학습량 표기를 참고해 두 결과에 1,400 iter.를
   적고 그래프의1.4k 위치를 표시했다. 글자 크기·데이터 유지, PDF 렌더 검수 및
