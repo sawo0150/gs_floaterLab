@@ -60,3 +60,22 @@ official vanilla 대비 bulk gain의 원인 분해와 strict-live 검증은 아�
 render ledger와 geometry/appearance role separation을 먼저 구현했으며, 다음
 attribution은 이 active path 위에서 V0--V6의 아직 미분리된 schedule/birth 효과를
 분해해야 한다.
+
+## 2026-09-25 — dense gain recovery diagnosis
+
+[복원 진단 카드](dense_gain_recovery/README.md): full-Gaussian dense routing은 Aria +0.092/RPNG −0.197dB로 일반화되지 않았다. 실제 IMU pose-refresh 오류 두 가지를 수정하고 6개 CPU regression test를 통과했으나 품질 차이는 +0.028/−0.012dB다. Aria 고정지도에서 1000/5000회 모두 KF-only full이 KF+dense full보다 높아 단순 scope/반복량 변경으로 과거 이득은 복원되지 않았다. 추가 pose alignment는 일부 회복하나 별도 compute를 사용한다. Production은 유지하고 causal dense pose와 view inventory 차이를 다음 분리 대상으로 남긴다.
+
+## 2026-09-25 — hypothesis1 visual pose verified in fixed-map diagnostic
+
+[영상 기반 dense pose 검증](causal_visual_dense_pose/README.md): 동일 Aria 지도·Adam·학습순서에서5000회 mixed 학습의 pose만 바꿔27.7515→28.5812dB(+0.8297), KF-only28.2619보다+0.3193dB로 dense 이득이 복원됐다. IMU refresh-only27.9764보다도+0.6048dB라 알려진 보정 오류만의 효과는 아니다. 반면 causal online pair는Aria−0.0159/RPNG+0.1162dB에 추가3.064/10.513초가 들어 일관된 online/strict 복원은 미완이다. Production은 변경하지 않았다.
+
+## 2026-09-25 — visual pose 교차장면 완료
+
+[3-scene 전이 검증](visual_pose_transfer/README.md): fixed-map5k에서는 visual pose가 원본dense보다3/3 개선하고 KF-only보다2/3 개선했다. 그러나 online pose 추가효과는 +0.014~0.051dB로 작다. Pose만으로 online dense 이득을 복원하지 못했으며, 공통 photometric 학습 경로·실제 count·성장 정책의 연결을 후속 방향으로 정리했다. Production 미변경.
+
+- 2026-09-26 [Dense blur 후보 선별](dense_blur_filter/SUMMARY.md):12runs, dense 이득유지, gate 자체의 PSNR/속도개선은 미확인. opt-in 구현 및 검증 완료.
+
+## 2026-09-26 추가 검증
+
+- [KF RGB-only 대조군](kf_rgb_control/SUMMARY.md)
+- [κ / τ / blur 공통 설정 탐색](growth_entropy_blur/SUMMARY.md)

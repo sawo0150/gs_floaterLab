@@ -227,11 +227,16 @@ class FrozenTimelineScheduler:
                 self._stats["deadline_reached"] = True
                 break
 
-            self._ingest_due(
-                now,
-                process_control=process_control,
-                process_dense=process_dense,
-            )
+            try:
+                self._ingest_due(
+                    now,
+                    process_control=process_control,
+                    process_dense=process_dense,
+                )
+            except DeadlineReached:
+                self._stats["deadline_reached"] = True
+                self._stats["deadline_source_id"] = "input_preparation"
+                break
 
             if self._pending:
                 item = self._pending.popleft()

@@ -1049,6 +1049,7 @@ class BoundaryGuard:
         self.auxiliary_adam_steps_completed = 0
         self.optimizer_steps_rejected_at_deadline = 0
         self.topology_actions_rejected_at_deadline = 0
+        self.input_actions_rejected_at_deadline = 0
         self.control_preemptions = 0
         self.optimizer_completion_times: list[float] = []
 
@@ -1064,6 +1065,8 @@ class BoundaryGuard:
         if self.deadline is not None and now >= self.deadline - self.reserve_seconds:
             if kind == "optimizer":
                 self.optimizer_steps_rejected_at_deadline += 1
+            elif kind in ("packet", "dense_input", "control_input"):
+                self.input_actions_rejected_at_deadline += 1
             else:
                 self.topology_actions_rejected_at_deadline += 1
             raise DeadlineReached(kind)
@@ -1654,7 +1657,16 @@ def scale_pending_dense(records: list[tuple], scale: float) -> None:
         pose[:3, 3] *= float(scale)
 
 
-def main() -> int:
+def main(*, clocked_time_scale=None, configure_mapper=None,
+         idle_callback=None, completion_callback=None, skip_dense_input=False,
+         dense_callback=None, include_mapper_setup_in_clock=False) -> int:
+    """Run the legacy recipe, optionally in an explicitly clocked campaign.
+
+    Legacy CLI recipe validation is unchanged. clocked_time_scale applies the
+    validated work recipe to a finite timestamp-paced timeline; output records
+    the effective finite time scale, never an unbounded result label. Callbacks
+    are campaign extension points and are absent from historical runs.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--archive", type=Path, required=True)
     parser.add_argument(
@@ -2697,6 +2709,14 @@ def main() -> int:
             "full-geometry keyframe replay requires an explicit source quota"
         )
 
+    if clocked_time_scale is not None:
+        if not math.isfinite(clocked_time_scale) or clocked_time_scale <= 0:
+            raise ValueError("clocked_time_scale must be finite and positive")
+        if args.time_scale != "unbounded":
+            raise ValueError("Clocked adapter expects a validated fixed-work recipe")
+        args.time_scale = str(clocked_time_scale)
+    if include_mapper_setup_in_clock and clocked_time_scale is None:
+        raise ValueError("Setup-inclusive clock requires the finite clocked adapter")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     archive = FrozenTrackerArchive(args.archive)
@@ -2786,6 +2806,7 @@ def main() -> int:
     mapper_args.mapping_replay_service_shortfall_gamma = float(
         args.dense_ercb_gamma
     )
+    mapper_setup_start = time.monotonic()
     mapper = GSBackEnd(config, str(output), mapper_args, use_gui=False)
     normalized_families = set(args.ercb_normalized_family)
     rr_families = set(args.ercb_rr_family)
@@ -3017,7 +3038,7 @@ def main() -> int:
         stage6r_keyframe_queue.draw = captured_keyframe_draw
     dense_pose_shaper = (
         CausalImuDensePoseShaper(archive)
-        if args.profile in ("dense_rr_imu", "d1_fixed_state_rr_imu")
+        if not skip_dense_input and args.profile in ("dense_rr_imu", "d1_fixed_state_rr_imu")
         else None
     )
     if dense_pose_shaper is not None:
@@ -3078,7 +3099,7 @@ def main() -> int:
             mapper, dense_topology_ticket
         )
 
-    replay_start = time.monotonic()
+    replay_start = mapper_setup_start if include_mapper_setup_in_clock else time.monotonic()
     sensor_timestamp0 = float(archive.arrivals[0]["sensor_timestamp"])
     sensor_timestamp_last = float(archive.arrivals[-1]["sensor_timestamp"])
     time_scale = None if args.time_scale == "unbounded" else float(args.time_scale)
@@ -3091,6 +3112,9 @@ def main() -> int:
     original_adam_step = install_adam_guard(mapper, guard)
     install_topology_guard(mapper, guard)
     telemetry = install_render_telemetry(mapper)
+    if configure_mapper is not None:
+        configure_mapper(mapper, archive, args, guard)
+    mapper_setup_wall_seconds = time.monotonic() - mapper_setup_start
 
     event_records: list[dict[str, object]] = []
     processed_event_ids: set[int] = set()
@@ -3197,6 +3221,9 @@ def main() -> int:
 
     def process_control(item: TimelineItem, input_lag: float) -> None:
         nonlocal imu_metric_ready, map_generation
+        if clocked_time_scale is not None:
+            guard.next_control_due = None
+            guard.reject_if_unsafe("control_input")
         metadata = item.metadata
         event_id = int(metadata["event_id"])
         payload = archive.load_event_payload(metadata)
@@ -3266,6 +3293,16 @@ def main() -> int:
 
     def process_dense(item: TimelineItem, input_lag: float) -> None:
         nonlocal dense_records_available
+        if skip_dense_input and dense_callback is None:
+            return
+        if clocked_time_scale is not None:
+            guard.next_control_due = None
+            guard.reject_if_unsafe("dense_input")
+        if dense_callback is not None:
+            dense_records_available += int(dense_callback(mapper, item.metadata, dense_pose_shaper))
+            return
+        if skip_dense_input:
+            return
         records = archive.dense_records(item.metadata, seen_uids=seen_dense_uids)
         dense_records_available += len(records)
         if args.profile != "frontier_only":
@@ -3310,6 +3347,9 @@ def main() -> int:
         nonlocal dense_pose_packet_refresh_candidate_packets
         metadata = item.metadata
         event_id = int(metadata["event_id"])
+        if clocked_time_scale is not None:
+            guard.next_control_due = next_control_due
+            guard.reject_if_unsafe("packet")
         if (
             args.mapping_after_metric_init
             or bool(mapper_args.mapping_after_imu_init)
@@ -3335,6 +3375,8 @@ def main() -> int:
             )
             return
         packet = archive.mapping_packet(metadata, filter_heldout=True)
+        if clocked_time_scale is not None:
+            guard.reject_if_unsafe("packet")
         if packet is None:
             processed_event_ids.add(event_id)
             return
@@ -3741,6 +3783,9 @@ def main() -> int:
 
     def idle_step(next_arrival: float | None, strict_deadline: float | None) -> bool:
         nonlocal replay_serviced_since_dispatch
+        if idle_callback is not None:
+            guard.next_control_due = None
+            return bool(idle_callback(mapper, next_arrival, strict_deadline, guard))
         if args.profile == "frontier_only" or args.time_scale == "unbounded":
             return False
         if not mapper.initialized or not mapper.current_window:
@@ -3778,6 +3823,9 @@ def main() -> int:
 
     torch.cuda.synchronize()
     replay_seconds = time.monotonic() - replay_start
+    extra_training_uids = set()
+    if completion_callback is not None:
+        extra_training_uids.update(completion_callback(mapper, archive, args, guard, scheduler_stats) or ())
     tracking_mapped_uids = {
         int(value)
         for value, viewpoint in mapper.viewpoints.items()
@@ -3815,6 +3863,7 @@ def main() -> int:
             )
         }
     )
+    dense_selected_uids.update(extra_training_uids - tracking_mapped_uids)
     mapped_uids = sorted(tracking_mapped_uids | dense_selected_uids)
     heldout_overlap = sorted(set(mapped_uids).intersection(archive.heldout_uids))
     origin_uids = sorted(
@@ -4263,6 +4312,10 @@ def main() -> int:
         "deadline_hit": scheduler_stats["deadline_reached"],
         "deadline_source_id": scheduler_stats["deadline_source_id"],
         "mapping_wall_seconds": replay_seconds,
+        "mapper_setup_in_mapping_clock": bool(include_mapper_setup_in_clock),
+        "mapper_setup_wall_seconds": mapper_setup_wall_seconds,
+        "input_boundary_guards": clocked_time_scale is not None,
+        "input_actions_rejected_at_deadline": guard.input_actions_rejected_at_deadline,
         "input_lag_seconds_max": scheduler_stats["arrival_lag_seconds_max"],
         "input_lag_seconds_mean": scheduler_stats["arrival_lag_seconds_mean"],
         "events_in_archive": len(archive.events),
