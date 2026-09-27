@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
-"""Convergence figure on an absolute optimizer-iteration axis.
+"""Evaluation PSNR against map optimization step, in the HAMMER Fig. 5 idiom.
 
-Follows the idiom these papers use (e.g. 3DGS^2, SIGGRAPH 2025, Fig. 4): a
-group of representative per-scene convergence plots with iterations on the x
-axis, rather than one curve averaged over scenes. Averaging is what would force
-a normalised axis here, because trajectory length sets the iteration count and
-it varies 37x across our scenes (901 to 33,901).
+A fixed held-out set spanning the whole trajectory (llffhold-8, never trained
+by any arm) is re-rendered from the map as it stands at each checkpoint, and
+its mean PSNR is plotted against cumulative optimizer steps. The last point of
+each curve is exactly the number that arm contributes to the table.
 
-Selection rule, stated so it cannot be read as cherry-picking: for each dataset
-we show the scene whose final Delta is the median of that dataset, and the
-scene whose final Delta is the lowest. All 19 scenes appear in the summary bar.
+One panel per dataset, stacked; the scene shown is the one whose final Delta is
+the median of that dataset, so the choice cannot be read as cherry-picking.
+Both arms receive the identical causal stream, identical arrival times and the
+identical number of optimizer steps; only the candidate pool differs.
 
-Both arms of every panel receive the identical causal stream, identical arrival
-times and the identical number of optimizer iterations; only the candidate pool
-differs. The horizontal arrow is the iteration saving in real iterations.
+Usage: plot_convergence.py [evidence/manifest_curve.json]
 """
 
 from __future__ import annotations
@@ -30,7 +28,8 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 FAMILIES = ("aria", "utmm", "rpng")
-GREY, BLUE = "#8c8c8c", "#1f6fb4"
+ARMS = (("kf_only", "Keyframes only", "#c0392b"),
+        ("kf_dense", "+ in-between frames", "#7d5bbe"))
 
 
 def series(job: dict) -> tuple[np.ndarray, np.ndarray]:
@@ -41,16 +40,6 @@ def series(job: dict) -> tuple[np.ndarray, np.ndarray]:
             np.array([statistics.fmean(r["per_view_psnr"].values()) for r in test]))
 
 
-def crossing(x: np.ndarray, y: np.ndarray, target: float) -> float | None:
-    for i in range(len(y)):
-        if y[i] >= target:
-            if i == 0:
-                return float(x[0])
-            x0, y0, x1, y1 = x[i - 1], y[i - 1], x[i], y[i]
-            return float(x0 + (x1 - x0) * (target - y0) / (y1 - y0))
-    return None
-
-
 def main() -> None:
     name = sys.argv[1] if len(sys.argv) > 1 else "evidence/manifest_curve.json"
     manifest = json.loads((HERE / name).read_text())
@@ -58,69 +47,36 @@ def main() -> None:
             for j in manifest["jobs"] if j.get("state") == "complete"}
     scenes = sorted({(f, s) for f, s, _ in jobs
                      if (f, s, "kf_only") in jobs and (f, s, "kf_dense") in jobs})
-
-    record = {}
-    for family, scene in scenes:
-        xa, ya = series(jobs[(family, scene, "kf_only")])
-        xb, yb = series(jobs[(family, scene, "kf_dense")])
-        point = crossing(xb, yb, ya[-1])
-        record[(family, scene)] = {
-            "kf": (xa, ya), "dn": (xb, yb), "total": xa[-1],
-            "delta": yb[-1] - ya[-1], "cross": point,
-            "saved": None if point is None else xa[-1] - point,
-        }
-
-    # selection: per dataset, the median-Delta scene and the lowest-Delta scene
+    delta = {(f, s): series(jobs[(f, s, "kf_dense")])[1][-1] - series(jobs[(f, s, "kf_only")])[1][-1]
+             for f, s in scenes}
     chosen = []
     for family in FAMILIES:
-        pool = sorted((s for f, s in scenes if f == family),
-                      key=lambda s: record[(family, s)]["delta"])
+        pool = sorted((s for f, s in scenes if f == family), key=lambda s: delta[(family, s)])
         chosen.append((family, pool[len(pool) // 2]))
-        chosen.append((family, pool[0]))
 
-    fig, axes = plt.subplots(2, 3, figsize=(10.2, 5.4))
-    for index, (family, scene) in enumerate(chosen):
-        ax = axes[index % 2][index // 2]
-        entry = record[(family, scene)]
-        ax.plot(*entry["kf"], color=GREY, lw=1.8)
-        ax.plot(*entry["dn"], color=BLUE, lw=1.8)
-        target = entry["kf"][1][-1]
-        ax.axhline(target, color="#777777", ls=":", lw=0.9)
-        if entry["cross"] is not None and entry["saved"] > 0:
-            ax.annotate("", xy=(entry["cross"], target), xytext=(entry["total"], target),
-                        arrowprops=dict(arrowstyle="<|-", color=BLUE, lw=1.1,
-                                        shrinkA=0, shrinkB=0))
-        saving = ("" if entry["cross"] is None or entry["saved"] <= 0
-                  else f",  $-${entry['saved']:,.0f} it. to match")
-        ax.set_title(f"{family}/{scene}   ({entry['total']:,.0f} it.)\n"
-                     rf"$\Delta$={entry['delta']:+.2f} dB{saving}", fontsize=8.5)
-        ax.tick_params(labelsize=7.5)
-        ax.grid(alpha=0.25, lw=0.5)
-        if index % 2 == 1:
-            ax.set_xlabel("optimizer iterations", fontsize=8.5)
-        if index // 2 == 0:
-            ax.set_ylabel("held-out PSNR (dB)", fontsize=8.5)
-    axes[0][0].plot([], [], color=GREY, lw=1.8, label="Keyframes only")
-    axes[0][0].plot([], [], color=BLUE, lw=1.8, label="+ in-between frames")
-    axes[0][0].legend(loc="lower right", fontsize=7.5, frameon=False)
-    fig.tight_layout()
+    plt.rcParams.update({"font.size": 15, "axes.linewidth": 1.4})
+    fig, axes = plt.subplots(len(chosen), 1, figsize=(8.0, 3.1 * len(chosen)))
+    for ax, (family, scene) in zip(np.atleast_1d(axes), chosen):
+        for arm, _, color in ARMS:
+            ax.plot(*series(jobs[(family, scene, arm)]), color=color, lw=3.6,
+                    solid_capstyle="round")
+        ax.set_xlabel("Map Optimization Step")
+        ax.set_ylabel("Evaluation PSNR")
+        ax.set_xlim(0, series(jobs[(family, scene, "kf_only")])[0][-1])
+        ax.text(0.975, 0.07, f"{family.upper()} / {scene}", transform=ax.transAxes,
+                ha="right", va="bottom", fontsize=16, fontweight="bold",
+                bbox=dict(boxstyle="round,pad=0.45", facecolor="#c8c8c8",
+                          edgecolor="#e8e8e8", linewidth=3))
+        ax.tick_params(width=1.4, length=5)
+    handles = [plt.Line2D([], [], color=color, lw=5, solid_capstyle="round")
+               for _, _, color in ARMS]
+    fig.legend(handles, [label for _, label, _ in ARMS], loc="lower center",
+               ncol=len(ARMS), frameon=False, fontsize=16,
+               bbox_to_anchor=(0.5, -0.004), handlelength=1.6, columnspacing=2.4)
+    fig.tight_layout(rect=(0, 0.055, 1, 1))
     for suffix in ("pdf", "png"):
         fig.savefig(HERE / f"figure_convergence.{suffix}", dpi=220)
-
-    print(f"{'scene':24s} {'T':>7} {'cross':>8} {'saved':>8} {'saved %':>8} {'final d':>8}")
-    saved_pct = []
-    for family, scene in scenes:
-        e = record[(family, scene)]
-        if e["cross"] is None:
-            print(f"{family+'/'+scene:24s} {e['total']:7,.0f} {'never':>8}")
-            continue
-        pct = 100 * e["saved"] / e["total"]
-        saved_pct.append(pct)
-        mark = " *" if (family, scene) in chosen else ""
-        print(f"{family+'/'+scene:24s} {e['total']:7,.0f} {e['cross']:8,.0f} "
-              f"{e['saved']:8,.0f} {pct:7.1f}% {e['delta']:+8.2f}{mark}")
-    print(f"\nmedian iteration saving: {statistics.median(saved_pct):.1f}%  "
-          f"({len(saved_pct)}/{len(scenes)} scenes reach the keyframe-only endpoint early)")
+    print("panels:", ", ".join(f"{f}/{s} (d={delta[(f,s)]:+.2f})" for f, s in chosen))
     print(HERE / "figure_convergence.pdf")
 
 
