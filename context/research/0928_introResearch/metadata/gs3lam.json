@@ -1,0 +1,36 @@
+{
+  "citation_title": [
+    "GS3LAM: Gaussian Semantic Splatting SLAM"
+  ],
+  "citation_author": [
+    "Li, Linfei",
+    "Zhang, Lin",
+    "Wang, Zhong",
+    "Shen, Ying"
+  ],
+  "citation_doi": [
+    "10.1145/3664647.3680739"
+  ],
+  "citation_date": [
+    "2026/03/29"
+  ],
+  "citation_online_date": [
+    "2026/03/29"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2603.27781"
+  ],
+  "citation_arxiv_id": [
+    "2603.27781"
+  ],
+  "citation_abstract": [
+    "Recently, the multi-modal fusion of RGB, depth, and semantics has shown great potential in dense Simultaneous Localization and Mapping (SLAM). However, a prerequisite for generating consistent semantic maps is the availability of dense, efficient, and scalable scene representations. Existing semantic SLAM systems based on explicit representations are often limited by resolution and an inability to predict unknown areas. Conversely, implicit representations typically rely on time-consuming ray tracing, failing to meet real-time requirements. Fortunately, 3D Gaussian Splatting (3DGS) has emerged as a promising representation that combines the efficiency of point-based methods with the continuity of geometric structures. To this end, we propose GS3LAM, a Gaussian Semantic Splatting SLAM framework that processes multimodal data to render consistent, dense semantic maps in real-time. GS3LAM models the scene as a Semantic Gaussian Field (SG-Field) and jointly optimizes camera poses and the field via multimodal error constraints. Furthermore, a Depth-adaptive Scale Regularization (DSR) scheme is introduced to resolve misalignments between scale-invariant Gaussians and geometric surfaces. To mitigate catastrophic forgetting, we propose a Random Sampling-based Keyframe Mapping (RSKM) strategy, which demonstrates superior performance over common local covisibility optimization methods. Extensive experiments on benchmark datasets show that GS3LAM achieves increased tracking robustness, superior rendering quality, and enhanced semantic precision compared to state-of-the-art methods. Source code is available at https://github.com/lif314/GS3LAM."
+  ],
+  "arxiv_id": "2603.27781",
+  "name": "gs3lam",
+  "pdf_url": "https://arxiv.org/pdf/2603.27781",
+  "pages": 18,
+  "sha256": "7c3409e74e9bcdd7650aaf299e15f3f0c4655cb0df71fe90644d0deb42b4049d",
+  "retrieved_at": "2026-09-27T15:09:36.226207+00:00",
+  "history": "Submission history From: Linfei Li [ view email ] [v1] Sun, 29 Mar 2026 17:25:18 UTC (9,364 KB)"
+}

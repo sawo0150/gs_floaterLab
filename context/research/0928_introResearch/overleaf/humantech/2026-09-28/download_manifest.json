@@ -1,0 +1,27 @@
+{
+  "project_url": "https://www.overleaf.com/project/6aadda772e7b434d4382dc48",
+  "downloaded_at": "2026-09-28T05:34:29.590572+00:00",
+  "source_zip_files": [
+    "README.md",
+    "figure/convergece_comparasion.pdf",
+    "figure/overview.pdf",
+    "abbrv_first_et_al.bst",
+    "rpm_acronyms.sty",
+    "figure/carve_comparison.pdf",
+    "figure/rgb_comparison.pdf",
+    "figure/merged_map.pdf",
+    "figure/main.pdf",
+    "figure/exchange.pdf",
+    "paper.tex",
+    "humantech.cls",
+    "bibliography.bib"
+  ],
+  "sha256": {
+    "original.pdf": "65e1311bf29d76e708492a321891bee43b9ef7edcc0ea415ca497d456e62c5cc",
+    "comments-2026-09-28.md": "79bc73c23b3b9400da8378dc3fb5be9daa4f8b0583b143932a2758e83802c33c",
+    "project_source.zip": "9942d173a416744395fa4e9005f7e6375a0d19f33bb0397077b561c7f955557f",
+    "commented.pdf": "8de24169b0a65b2bcd164cc8796c8e44b81d4bfe7720fe808b3a3bb4c5338196",
+    "comments.jsonl": "add615a66490ba82954db813247f4d3cdf414685a99ebdcc88b056493041aa68",
+    "comments.json": "09a85b1340fdece44ea6cc04bf2b145e25a82d53ae4c6af2db11142eaf7dd528"
+  }
+}

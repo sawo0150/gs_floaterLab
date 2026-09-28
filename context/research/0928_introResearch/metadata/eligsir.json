@@ -1,0 +1,32 @@
+{
+  "citation_title": [
+    "EliGSiR: Continual RGB-D Mapping with Gaussian Splatting under Bounded Compute"
+  ],
+  "citation_author": [
+    "Ellensohn, Björn",
+    "Rueckert, Elmar",
+    "Rauch, Christian"
+  ],
+  "citation_date": [
+    "2026/09/17"
+  ],
+  "citation_online_date": [
+    "2026/09/17"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2609.20348"
+  ],
+  "citation_arxiv_id": [
+    "2609.20348"
+  ],
+  "citation_abstract": [
+    "Conventional 3D Gaussian Splatting assumes a closed set of observations and long optimization schedules. Continual RGB-D mapping in contrast poses the problem that new observations arrive online, while previously reconstructed regions must be preserved. We present EliGSiR (Evidence-guided Load-adaptive Incremental Gaussian Splatting with Image Replay), a continual Gaussian mapper that controls how the available optimization budget is used as the reconstruction evolves. Map-Guided View Scheduling filters redundant incoming views and reconsiders retained views according to the current state of the map. Load-Adaptive Fidelity adjusts supervision resolution to the current mapping load instead of following a fixed resolution schedule. Targeted Geometry Growth separates depth supervision from Gaussian creation and adds geometric capacity only where repeated RGB-D observations indicate missing or misplaced structure. Together, these mechanisms adapt which views are optimized, how much image detail is used, and where the representation grows while mapping remains active. We evaluate EliGSiR on Replica, TUM RGB-D, ScanNet++, and real RGB-D sensor sequences, considering both the final reconstruction and the map available throughout acquisition. On TUM RGB-D fr3/long_office_household, EliGSiR reaches 21.52 dB with the same ground-truth mapping poses used by the controlled baselines, compared with 19.42 dB for SplaTAM. In the tracked-pose comparison, EliGSiR with live ORB-SLAM3 poses reaches 23.02 dB in 155.5 s, compared with 20.10 dB in 230.9 s for CaRtGS using its native tracker. We further evaluate reconstruction throughout acquisition and show how EliGSiR adaptive view scheduling, supervision fidelity, and geometry growth improve the use of the available mapping budget."
+  ],
+  "arxiv_id": "2609.20348",
+  "name": "eligsir",
+  "pdf_url": "https://arxiv.org/pdf/2609.20348",
+  "pages": 8,
+  "sha256": "fddbdd1f515b827d002e21fb791408fabab52b805338e305ce7efab905f95803",
+  "retrieved_at": "2026-09-27T15:09:40.890177+00:00",
+  "history": "Submission history From: Björn Ellensohn [ view email ] [v1] Thu, 17 Sep 2026 13:12:49 UTC (36,712 KB)"
+}

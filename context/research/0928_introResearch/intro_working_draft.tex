@@ -1,0 +1,60 @@
+% Working narrative, 2026-09-28. Not a completed submission or a claim of
+% validated live/geometry performance. See 03_claims_and_validation.md.
+% Citation keys match the accompanying references.bib (arXiv records).
+\section{Introduction}
+
+A robot's map can support more than pose estimation: it can provide visual
+observations for learned policies and spatial information for navigation
+\cite{splat_nav,splatsim}. Gaussian representations make these uses possible
+within a renderable scene model, motivating their adoption in robotic mapping
+\cite{gs_autonomy}. For a robot acquiring new observations, however, the
+relevant object is the map available during acquisition, not only the
+reconstruction obtained after processing ends. Its usefulness depends on both
+visual fidelity and reliable geometry, which must be developed while the
+mapper continues to receive new data.
+
+A central decision is which observations supervise this evolving map.
+Keyframes provide an economical basis for tracking and reconstruction, but
+the views selected for pose estimation need not exhaust the useful evidence
+in the image stream. Coverage deficiencies can remain between selected views,
+even when additional images of those regions have already been captured.
+Prior systems address this issue through post-acquisition keyframe insertion
+or by selecting non-keyframes for additional training
+\cite{hi_slam2,online_nvs}. These findings motivate treating mapping
+supervision as a separate decision rather than restricting it to the
+tracking keyframes.
+
+Expanding supervision introduces a second problem. Previously observed views
+can constrain regions that would otherwise receive little attention as the
+camera moves on, making historical replay valuable \cite{imap,monogs}.
+Yet a growing replay pool also distributes finite updates across an
+increasing number of views. Earlier observations accumulate more opportunities
+for optimization, while newly admitted views may receive only limited training
+before acquisition ends \cite{cartgs}. Thus, access to more observations does
+not by itself ensure that their information is incorporated into the map.
+
+Existing work has already developed uncertainty-based view selection,
+adaptive keyframe optimization, and map-guided replay under limited compute
+\cite{online_nvs,cartgs,eligsir}. We build on this line of work to study a
+specific question: how should an RGB--inertial mapper admit additional past
+observations and distribute repeated supervision when optimization must stop
+with the stream? We distinguish the set of observations retained for possible
+use from the small set selected for each update. This distinction allows
+historical coverage to remain available without requiring every view to be
+optimized at every step.
+
+Our design admits non-keyframe RGB observations according to completed mapping
+work and allocates updates among recent keyframes, historical keyframes, and
+admitted non-keyframes. The tracking keyframes continue to provide geometric
+supervision, while additional RGB observations broaden the supervision
+available for appearance fitting. Within the historical pools, a count-based
+sampling policy adjusts training opportunities using completed view usage.
+We evaluate these choices with causal inputs, held-out views excluded from
+training, and no optimizer updates after the final input. Controlled
+comparisons separate the effects of additional observations from changes in
+the loss and update schedule; rendering quality, geometry, and elapsed time
+must be assessed separately.
+
+% Before submission, replace the last evaluation sentences with precisely
+% completed results. Current evidence uses frozen causal tracking and matched
+% renders, not a concurrent live SLAM validation. Geometry remains unverified.

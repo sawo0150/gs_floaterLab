@@ -1,0 +1,35 @@
+{
+  "citation_title": [
+    "VIGS-SLAM: Visual Inertial Gaussian Splatting SLAM"
+  ],
+  "citation_author": [
+    "Zhu, Zihan",
+    "Zhang, Wei",
+    "Li, Moyang",
+    "Haala, Norbert",
+    "Pollefeys, Marc",
+    "Barath, Daniel"
+  ],
+  "citation_date": [
+    "2025/12/02"
+  ],
+  "citation_online_date": [
+    "2026/03/13"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2512.02293"
+  ],
+  "citation_arxiv_id": [
+    "2512.02293"
+  ],
+  "citation_abstract": [
+    "We present VIGS-SLAM, a visual-inertial 3D Gaussian Splatting SLAM system that achieves robust real-time tracking and high-fidelity reconstruction. Although recent 3DGS-based SLAM methods achieve dense and photorealistic mapping, their purely visual design degrades under challenging conditions such as motion blur, low texture, and exposure variations. Our method tightly couples visual and inertial cues within a unified optimization framework, jointly optimizing camera poses, depths, and IMU states. It features robust IMU initialization, time-varying bias modeling, and loop closure with consistent Gaussian updates. Experiments on five challenging datasets demonstrate our superiority over state-of-the-art methods. Project page: https://vigs-slam.github.io"
+  ],
+  "arxiv_id": "2512.02293",
+  "name": "vigs_slam",
+  "pdf_url": "https://arxiv.org/pdf/2512.02293",
+  "pages": 31,
+  "sha256": "fab75631de2dfc8fa45cdf236d4fb7be24a4e1bb15cdc1b0d919129aaa0e1132",
+  "retrieved_at": "2026-09-27T15:08:27.360011+00:00",
+  "history": "Submission history From: Zihan Zhu [ view email ] [v1] Tue, 2 Dec 2025 00:19:13 UTC (10,630 KB) [v2] Fri, 13 Mar 2026 01:37:41 UTC (27,189 KB)"
+}

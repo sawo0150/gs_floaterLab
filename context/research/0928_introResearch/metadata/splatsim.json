@@ -1,0 +1,35 @@
+{
+  "citation_title": [
+    "SplatSim: Zero-Shot Sim2Real Transfer of RGB Manipulation Policies Using Gaussian Splatting"
+  ],
+  "citation_author": [
+    "Qureshi, Mohammad Nomaan",
+    "Garg, Sparsh",
+    "Yandun, Francisco",
+    "Held, David",
+    "Kantor, George",
+    "Silwal, Abhisesh"
+  ],
+  "citation_date": [
+    "2024/09/16"
+  ],
+  "citation_online_date": [
+    "2024/10/07"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2409.10161"
+  ],
+  "citation_arxiv_id": [
+    "2409.10161"
+  ],
+  "citation_abstract": [
+    "Sim2Real transfer, particularly for manipulation policies relying on RGB images, remains a critical challenge in robotics due to the significant domain shift between synthetic and real-world visual data. In this paper, we propose SplatSim, a novel framework that leverages Gaussian Splatting as the primary rendering primitive to reduce the Sim2Real gap for RGB-based manipulation policies. By replacing traditional mesh representations with Gaussian Splats in simulators, SplatSim produces highly photorealistic synthetic data while maintaining the scalability and cost-efficiency of simulation. We demonstrate the effectiveness of our framework by training manipulation policies within SplatSim and deploying them in the real world in a zero-shot manner, achieving an average success rate of 86.25%, compared to 97.5% for policies trained on real-world data. Videos can be found on our project page: https://splatsim.github.io"
+  ],
+  "arxiv_id": "2409.10161",
+  "name": "splatsim",
+  "pdf_url": "https://arxiv.org/pdf/2409.10161",
+  "pages": 8,
+  "sha256": "0c8741dcb67b1cdb5afa3ee85bb2dd185d4b8de583519d96e1b501c42242d247",
+  "retrieved_at": "2026-09-27T15:08:28.966813+00:00",
+  "history": "Submission history From: Mohammad Nomaan Qureshi [ view email ] [v1] Mon, 16 Sep 2024 10:52:16 UTC (25,807 KB) [v2] Sat, 28 Sep 2024 20:02:31 UTC (17,813 KB) [v3] Mon, 7 Oct 2024 03:37:36 UTC (12,761 KB)"
+}

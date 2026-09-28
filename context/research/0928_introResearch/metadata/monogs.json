@@ -1,0 +1,33 @@
+{
+  "citation_title": [
+    "Gaussian Splatting SLAM"
+  ],
+  "citation_author": [
+    "Matsuki, Hidenobu",
+    "Murai, Riku",
+    "Kelly, Paul H. J.",
+    "Davison, Andrew J."
+  ],
+  "citation_date": [
+    "2023/12/11"
+  ],
+  "citation_online_date": [
+    "2024/04/14"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2312.06741"
+  ],
+  "citation_arxiv_id": [
+    "2312.06741"
+  ],
+  "citation_abstract": [
+    "We present the first application of 3D Gaussian Splatting in monocular SLAM, the most fundamental but the hardest setup for Visual SLAM. Our method, which runs live at 3fps, utilises Gaussians as the only 3D representation, unifying the required representation for accurate, efficient tracking, mapping, and high-quality rendering. Designed for challenging monocular settings, our approach is seamlessly extendable to RGB-D SLAM when an external depth sensor is available. Several innovations are required to continuously reconstruct 3D scenes with high fidelity from a live camera. First, to move beyond the original 3DGS algorithm, which requires accurate poses from an offline Structure from Motion (SfM) system, we formulate camera tracking for 3DGS using direct optimisation against the 3D Gaussians, and show that this enables fast and robust tracking with a wide basin of convergence. Second, by utilising the explicit nature of the Gaussians, we introduce geometric verification and regularisation to handle the ambiguities occurring in incremental 3D dense reconstruction. Finally, we introduce a full SLAM system which not only achieves state-of-the-art results in novel view synthesis and trajectory estimation but also reconstruction of tiny and even transparent objects."
+  ],
+  "arxiv_id": "2312.06741",
+  "name": "monogs",
+  "pdf_url": "https://arxiv.org/pdf/2312.06741",
+  "pages": 21,
+  "sha256": "d7a1ef9b7f313156c61f23ea76423eecd3f8f7d2a795a74774dfbaf23f7a803e",
+  "retrieved_at": "2026-09-27T15:08:12.879120+00:00",
+  "history": "Submission history From: Hidenobu Matsuki [ view email ] [v1] Mon, 11 Dec 2023 18:19:04 UTC (19,523 KB) [v2] Sun, 14 Apr 2024 22:33:27 UTC (20,624 KB)"
+}

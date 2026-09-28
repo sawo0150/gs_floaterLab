@@ -1,0 +1,36 @@
+{
+  "citation_title": [
+    "SplaTAM: Splat, Track & Map 3D Gaussians for Dense RGB-D SLAM"
+  ],
+  "citation_author": [
+    "Keetha, Nikhil",
+    "Karhade, Jay",
+    "Jatavallabhula, Krishna Murthy",
+    "Yang, Gengshan",
+    "Scherer, Sebastian",
+    "Ramanan, Deva",
+    "Luiten, Jonathon"
+  ],
+  "citation_date": [
+    "2023/12/04"
+  ],
+  "citation_online_date": [
+    "2024/04/16"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2312.02126"
+  ],
+  "citation_arxiv_id": [
+    "2312.02126"
+  ],
+  "citation_abstract": [
+    "Dense simultaneous localization and mapping (SLAM) is crucial for robotics and augmented reality applications. However, current methods are often hampered by the non-volumetric or implicit way they represent a scene. This work introduces SplaTAM, an approach that, for the first time, leverages explicit volumetric representations, i.e., 3D Gaussians, to enable high-fidelity reconstruction from a single unposed RGB-D camera, surpassing the capabilities of existing methods. SplaTAM employs a simple online tracking and mapping system tailored to the underlying Gaussian representation. It utilizes a silhouette mask to elegantly capture the presence of scene density. This combination enables several benefits over prior representations, including fast rendering and dense optimization, quickly determining if areas have been previously mapped, and structured map expansion by adding more Gaussians. Extensive experiments show that SplaTAM achieves up to 2x superior performance in camera pose estimation, map construction, and novel-view synthesis over existing methods, paving the way for more immersive high-fidelity SLAM applications."
+  ],
+  "arxiv_id": "2312.02126",
+  "name": "splatam",
+  "pdf_url": "https://arxiv.org/pdf/2312.02126",
+  "pages": 11,
+  "sha256": "c8067647cb2ba3b446017c730dfd39a453570f34e41c5b2b27d2d8a1861830fb",
+  "retrieved_at": "2026-09-27T15:08:15.622416+00:00",
+  "history": "Submission history From: Nikhil Keetha [ view email ] [v1] Mon, 4 Dec 2023 18:53:24 UTC (10,459 KB) [v2] Tue, 26 Mar 2024 21:20:57 UTC (10,463 KB) [v3] Tue, 16 Apr 2024 15:50:56 UTC (10,463 KB)"
+}

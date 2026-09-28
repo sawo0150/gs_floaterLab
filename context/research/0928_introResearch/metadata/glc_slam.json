@@ -1,0 +1,37 @@
+{
+  "citation_title": [
+    "GLC-SLAM: Gaussian Splatting SLAM with Efficient Loop Closure"
+  ],
+  "citation_author": [
+    "Xu, Ziheng",
+    "Li, Qingfeng",
+    "Chen, Chen",
+    "Liu, Xuefeng",
+    "Niu, Jianwei"
+  ],
+  "citation_doi": [
+    "10.1016/j.eswa.2026.133585"
+  ],
+  "citation_date": [
+    "2024/09/17"
+  ],
+  "citation_online_date": [
+    "2024/09/17"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2409.10982"
+  ],
+  "citation_arxiv_id": [
+    "2409.10982"
+  ],
+  "citation_abstract": [
+    "3D Gaussian Splatting (3DGS) has gained significant attention for its application in dense Simultaneous Localization and Mapping (SLAM), enabling real-time rendering and high-fidelity mapping. However, existing 3DGS-based SLAM methods often suffer from accumulated tracking errors and map drift, particularly in large-scale environments. To address these issues, we introduce GLC-SLAM, a Gaussian Splatting SLAM system that integrates global optimization of camera poses and scene models. Our approach employs frame-to-model tracking and triggers hierarchical loop closure using a global-to-local strategy to minimize drift accumulation. By dividing the scene into 3D Gaussian submaps, we facilitate efficient map updates following loop corrections in large scenes. Additionally, our uncertainty-minimized keyframe selection strategy prioritizes keyframes observing more valuable 3D Gaussians to enhance submap optimization. Experimental results on various datasets demonstrate that GLC-SLAM achieves superior or competitive tracking and mapping performance compared to state-of-the-art dense RGB-D SLAM systems."
+  ],
+  "arxiv_id": "2409.10982",
+  "name": "glc_slam",
+  "pdf_url": "https://arxiv.org/pdf/2409.10982",
+  "pages": 7,
+  "sha256": "eb89b943efc8cb45ebab051a702f1df729b5024c290131d1fa97168939319bcb",
+  "retrieved_at": "2026-09-27T15:08:21.862814+00:00",
+  "history": "Submission history From: Ziheng Xu [ view email ] [v1] Tue, 17 Sep 2024 08:33:55 UTC (3,346 KB)"
+}

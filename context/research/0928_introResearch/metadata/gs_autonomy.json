@@ -1,0 +1,35 @@
+{
+  "citation_title": [
+    "Gaussian Splatting as a Unified Representation for Autonomy in Unstructured Environments"
+  ],
+  "citation_author": [
+    "Ong, Dexter",
+    "Tao, Yuezhan",
+    "Murali, Varun",
+    "Spasojevic, Igor",
+    "Kumar, Vijay",
+    "Chaudhari, Pratik"
+  ],
+  "citation_date": [
+    "2025/05/17"
+  ],
+  "citation_online_date": [
+    "2025/05/17"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2505.11794"
+  ],
+  "citation_arxiv_id": [
+    "2505.11794"
+  ],
+  "citation_abstract": [
+    "In this work, we argue that Gaussian splatting is a suitable unified representation for autonomous robot navigation in large-scale unstructured outdoor environments. Such environments require representations that can capture complex structures while remaining computationally tractable for real-time navigation. We demonstrate that the dense geometric and photometric information provided by a Gaussian splatting representation is useful for navigation in unstructured environments. Additionally, semantic information can be embedded in the Gaussian map to enable large-scale task-driven navigation. From the lessons learned through our experiments, we highlight several challenges and opportunities arising from the use of such a representation for robot autonomy."
+  ],
+  "arxiv_id": "2505.11794",
+  "name": "gs_autonomy",
+  "pdf_url": "https://arxiv.org/pdf/2505.11794",
+  "pages": 8,
+  "sha256": "1b39f5b8715ec6e98f4925579537c3777449e38e76229ed6d1b114008cf3fa2e",
+  "retrieved_at": "2026-09-27T15:08:40.784305+00:00",
+  "history": "Submission history From: Dexter Ong [ view email ] [v1] Sat, 17 May 2025 02:49:13 UTC (46,426 KB)"
+}

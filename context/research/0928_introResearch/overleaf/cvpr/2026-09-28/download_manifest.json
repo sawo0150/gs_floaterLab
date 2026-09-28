@@ -1,0 +1,40 @@
+{
+  "project_url": "https://www.overleaf.com/project/6a9c1b93c9b98e33cf8e5770",
+  "downloaded_at": "2026-09-28T05:43:27.363926+00:00",
+  "source_zip_files": [
+    "README.md",
+    "figs/dummy.png",
+    "temp.tex",
+    "sec/7_appendix.tex",
+    "sec/6_conclusion.tex",
+    "sec/5_results.tex",
+    "sec/4_method.tex",
+    "sec/4-3_algorithm.tex",
+    "sec/4-2_algorithm.tex",
+    "sec/4-1_algorithm.tex",
+    "sec/2_related_work.tex",
+    "sec/1_intro.tex",
+    "sec/0_abstract.tex",
+    "rpm_packages/string-short.bib",
+    "rpm_packages/string-long.bib",
+    "rpm_packages/rpm_misc.sty",
+    "rpm_packages/rpm_math.sty",
+    "rpm_packages/rpm_acronyms.sty",
+    "rpm_packages/rpm_SIunits.sty",
+    "preamble.tex",
+    "note.tex",
+    "main.tex",
+    "main.bib",
+    "ieeenat_fullname.bst",
+    "cvpr.sty",
+    "X_suppl.tex"
+  ],
+  "sha256": {
+    "original.pdf": "172a7ab639e663f57a0285f9a3720570efeae81ad47d60f4990a47229d35d76d",
+    "comments-2026-09-28.md": "8589e7c48002ddeefd48668c89dc9d8af0590c62389e42f6770583f0b36c3fe2",
+    "project_source.zip": "335909f716571aa2c2915dcd632bf9004baec2fe37a18a415b492bfbebcfa8d9",
+    "commented.pdf": "a5276fb786d08e9566854bcecd508692ac5c5c798d3435d5268b79c3d1ef07e1",
+    "comments.jsonl": "8290eb6a2247d2e3c2a4262bad0b078509da06bd2d27ef5116bacb3b67afec32",
+    "comments.json": "03fc201faf7447ed6307e47959b42363e6b1bc20278838cff5fadcbd8415ce5e"
+  }
+}

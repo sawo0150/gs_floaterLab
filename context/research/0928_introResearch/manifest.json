@@ -1,0 +1,233 @@
+[
+  {
+    "name": "cartgs",
+    "arxiv_id": "2410.00486",
+    "version": "4",
+    "title": "CaRtGS: Computational Alignment for Real-Time Gaussian Splatting SLAM",
+    "pdf": "papers/cartgs_2410.00486.pdf",
+    "pages": 8,
+    "sha256": "66b996a1e0fb74b3d90961a2069661d09ba7a9f3a599ade2f8088f79f24a9880",
+    "retrieved_at": "2026-09-27T15:08:08.254498+00:00",
+    "source": "https://arxiv.org/abs/2410.00486v4"
+  },
+  {
+    "name": "monogs",
+    "arxiv_id": "2312.06741",
+    "version": "2",
+    "title": "Gaussian Splatting SLAM",
+    "pdf": "papers/monogs_2312.06741.pdf",
+    "pages": 21,
+    "sha256": "d7a1ef9b7f313156c61f23ea76423eecd3f8f7d2a795a74774dfbaf23f7a803e",
+    "retrieved_at": "2026-09-27T15:08:12.879120+00:00",
+    "source": "https://arxiv.org/abs/2312.06741v2"
+  },
+  {
+    "name": "photo_slam",
+    "arxiv_id": "2311.16728",
+    "version": "2",
+    "title": "Photo-SLAM: Real-time Simultaneous Localization and Photorealistic Mapping for Monocular, Stereo, and RGB-D Cameras",
+    "pdf": "papers/photo_slam_2311.16728.pdf",
+    "pages": 15,
+    "sha256": "eb406bea411423dd0971c3341da372b61ff32abb084eab52fd00409fcb19412c",
+    "retrieved_at": "2026-09-27T15:08:18.614756+00:00",
+    "source": "https://arxiv.org/abs/2311.16728v2"
+  },
+  {
+    "name": "co_slam",
+    "arxiv_id": "2304.14377",
+    "version": "1",
+    "title": "Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM",
+    "pdf": "papers/co_slam_2304.14377.pdf",
+    "pages": 21,
+    "sha256": "fa4a71014ee32d3a40ec7fef4022a21a8af2878a2a9eac277eadbec8e7ef4e07",
+    "retrieved_at": "2026-09-27T15:08:15.213264+00:00",
+    "source": "https://arxiv.org/abs/2304.14377v1"
+  },
+  {
+    "name": "splatam",
+    "arxiv_id": "2312.02126",
+    "version": "3",
+    "title": "SplaTAM: Splat, Track & Map 3D Gaussians for Dense RGB-D SLAM",
+    "pdf": "papers/splatam_2312.02126.pdf",
+    "pages": 11,
+    "sha256": "c8067647cb2ba3b446017c730dfd39a453570f34e41c5b2b27d2d8a1861830fb",
+    "retrieved_at": "2026-09-27T15:08:15.622416+00:00",
+    "source": "https://arxiv.org/abs/2312.02126v3"
+  },
+  {
+    "name": "splat_slam",
+    "arxiv_id": "2405.16544",
+    "version": "1",
+    "title": "Splat-SLAM: Globally Optimized RGB-only SLAM with 3D Gaussians",
+    "pdf": "papers/splat_slam_2405.16544.pdf",
+    "pages": 21,
+    "sha256": "0b5662c1d4e2618c48f681898425efa3b5bdaa012c74dde48a12d7cbb55a9e67",
+    "retrieved_at": "2026-09-27T15:08:20.961225+00:00",
+    "source": "https://arxiv.org/abs/2405.16544v1"
+  },
+  {
+    "name": "hi_slam2",
+    "arxiv_id": "2411.17982",
+    "version": "3",
+    "title": "HI-SLAM2: Geometry-Aware Gaussian SLAM for Fast Monocular Scene Reconstruction",
+    "pdf": "papers/hi_slam2_2411.17982.pdf",
+    "pages": 16,
+    "sha256": "ee0bfee969f3a4cf38871fa9ba113f747b35ac68233829f4ebab4cef1b14aba0",
+    "retrieved_at": "2026-09-27T15:08:20.474108+00:00",
+    "source": "https://arxiv.org/abs/2411.17982v3"
+  },
+  {
+    "name": "vigs_slam",
+    "arxiv_id": "2512.02293",
+    "version": "2",
+    "title": "VIGS-SLAM: Visual Inertial Gaussian Splatting SLAM",
+    "pdf": "papers/vigs_slam_2512.02293.pdf",
+    "pages": 31,
+    "sha256": "fab75631de2dfc8fa45cdf236d4fb7be24a4e1bb15cdc1b0d919129aaa0e1132",
+    "retrieved_at": "2026-09-27T15:08:27.360011+00:00",
+    "source": "https://arxiv.org/abs/2512.02293v2"
+  },
+  {
+    "name": "rp_slam",
+    "arxiv_id": "2412.09868",
+    "version": "1",
+    "title": "RP-SLAM: Real-time Photorealistic SLAM with Efficient 3D Gaussian Splatting",
+    "pdf": "papers/rp_slam_2412.09868.pdf",
+    "pages": 13,
+    "sha256": "1718ae260bd1370d8b644c13b0ef7bc3b89b70c0aca291b5932635bbffffcad4",
+    "retrieved_at": "2026-09-27T15:08:32.609932+00:00",
+    "source": "https://arxiv.org/abs/2412.09868v1"
+  },
+  {
+    "name": "glc_slam",
+    "arxiv_id": "2409.10982",
+    "version": "1",
+    "title": "GLC-SLAM: Gaussian Splatting SLAM with Efficient Loop Closure",
+    "pdf": "papers/glc_slam_2409.10982.pdf",
+    "pages": 7,
+    "sha256": "eb89b943efc8cb45ebab051a702f1df729b5024c290131d1fa97168939319bcb",
+    "retrieved_at": "2026-09-27T15:08:21.862814+00:00",
+    "source": "https://arxiv.org/abs/2409.10982v1"
+  },
+  {
+    "name": "splat_nav",
+    "arxiv_id": "2403.02751",
+    "version": "3",
+    "title": "Splat-Nav: Safe Real-Time Robot Navigation in Gaussian Splatting Maps",
+    "pdf": "papers/splat_nav_2403.02751.pdf",
+    "pages": 20,
+    "sha256": "177c23604a70e21096dbc296172a045f2517e671f8a4e05fa285f894441aa84c",
+    "retrieved_at": "2026-09-27T15:08:29.697902+00:00",
+    "source": "https://arxiv.org/abs/2403.02751v3"
+  },
+  {
+    "name": "splatsim",
+    "arxiv_id": "2409.10161",
+    "version": "3",
+    "title": "SplatSim: Zero-Shot Sim2Real Transfer of RGB Manipulation Policies Using Gaussian Splatting",
+    "pdf": "papers/splatsim_2409.10161.pdf",
+    "pages": 8,
+    "sha256": "0c8741dcb67b1cdb5afa3ee85bb2dd185d4b8de583519d96e1b501c42242d247",
+    "retrieved_at": "2026-09-27T15:08:28.966813+00:00",
+    "source": "https://arxiv.org/abs/2409.10161v3"
+  },
+  {
+    "name": "gs_autonomy",
+    "arxiv_id": "2505.11794",
+    "version": "1",
+    "title": "Gaussian Splatting as a Unified Representation for Autonomy in Unstructured Environments",
+    "pdf": "papers/gs_autonomy_2505.11794.pdf",
+    "pages": 8,
+    "sha256": "1b39f5b8715ec6e98f4925579537c3777449e38e76229ed6d1b114008cf3fa2e",
+    "retrieved_at": "2026-09-27T15:08:40.784305+00:00",
+    "source": "https://arxiv.org/abs/2505.11794v1"
+  },
+  {
+    "name": "3dgs",
+    "arxiv_id": "2308.04079",
+    "version": "1",
+    "title": "3D Gaussian Splatting for Real-Time Radiance Field Rendering",
+    "pdf": "papers/3dgs_2308.04079.pdf",
+    "pages": 14,
+    "sha256": "f4c0c9f27e2d02b0265017f66049d471eb66cb50203bc918f51ba07d20cbbe11",
+    "retrieved_at": "2026-09-27T15:08:36.058250+00:00",
+    "source": "https://arxiv.org/abs/2308.04079v1"
+  },
+  {
+    "name": "imap",
+    "arxiv_id": "2103.12352",
+    "version": "2",
+    "title": "iMAP: Implicit Mapping and Positioning in Real-Time",
+    "pdf": "papers/imap_2103.12352.pdf",
+    "pages": 10,
+    "sha256": "bd10370f5fc5eedc1ea3ebc4bd6fd7164164b3b7aad38668035b69b4038f378c",
+    "retrieved_at": "2026-09-27T15:08:34.438693+00:00",
+    "source": "https://arxiv.org/abs/2103.12352v2"
+  },
+  {
+    "name": "online_nvs",
+    "arxiv_id": "2508.14014",
+    "version": "2",
+    "title": "Online 3D Gaussian Splatting Modeling with Novel View Selection",
+    "pdf": "papers/online_nvs_2508.14014.pdf",
+    "pages": 17,
+    "sha256": "b75f0a1a872004cccb098886d5e6f1cd52b75411ea1a732422a5dce17552e9d5",
+    "retrieved_at": "2026-09-27T15:09:40.483272+00:00",
+    "source": "https://arxiv.org/abs/2508.14014v2"
+  },
+  {
+    "name": "mvs_gs",
+    "arxiv_id": "2412.19130",
+    "version": "1",
+    "title": "MVS-GS: High-Quality 3D Gaussian Splatting Mapping via Online Multi-View Stereo",
+    "pdf": "papers/mvs_gs_2412.19130.pdf",
+    "pages": 7,
+    "sha256": "c6586fd712335e3e16b492b25600692c0870c630738f4dd6ac6d5b55d0804cfa",
+    "retrieved_at": "2026-09-27T15:09:33.080074+00:00",
+    "source": "https://arxiv.org/abs/2412.19130v1"
+  },
+  {
+    "name": "rtg_slam",
+    "arxiv_id": "2404.19706",
+    "version": "3",
+    "title": "RTG-SLAM: Real-time 3D Reconstruction at Scale using Gaussian Splatting",
+    "pdf": "papers/rtg_slam_2404.19706.pdf",
+    "pages": 15,
+    "sha256": "6fb4d4d7473eaccff2636122c40e6a85ffa7cff60f2ea903e56fa079638ba803",
+    "retrieved_at": "2026-09-27T15:09:33.766331+00:00",
+    "source": "https://arxiv.org/abs/2404.19706v3"
+  },
+  {
+    "name": "gs3lam",
+    "arxiv_id": "2603.27781",
+    "version": "1",
+    "title": "GS3LAM: Gaussian Semantic Splatting SLAM",
+    "pdf": "papers/gs3lam_2603.27781.pdf",
+    "pages": 18,
+    "sha256": "7c3409e74e9bcdd7650aaf299e15f3f0c4655cb0df71fe90644d0deb42b4049d",
+    "retrieved_at": "2026-09-27T15:09:36.226207+00:00",
+    "source": "https://arxiv.org/abs/2603.27781v1"
+  },
+  {
+    "name": "eligsir",
+    "arxiv_id": "2609.20348",
+    "version": "1",
+    "title": "EliGSiR: Continual RGB-D Mapping with Gaussian Splatting under Bounded Compute",
+    "pdf": "papers/eligsir_2609.20348.pdf",
+    "pages": 8,
+    "sha256": "fddbdd1f515b827d002e21fb791408fabab52b805338e305ce7efab905f95803",
+    "retrieved_at": "2026-09-27T15:09:40.890177+00:00",
+    "source": "https://arxiv.org/abs/2609.20348v1"
+  },
+  {
+    "name": "gs_vla",
+    "arxiv_id": "2608.19066",
+    "version": "1",
+    "title": "GS-VLA: Plug-and-Play Viewpoint Canonicalization for Frozen VLA Policies via Gaussian Splatting",
+    "pdf": "papers/gs_vla_2608.19066.pdf",
+    "pages": 20,
+    "sha256": "eb52464fd644e8c913a8f677d805e411a9e11e8af7f0a89b63789e5f216058d9",
+    "retrieved_at": "2026-09-27T15:11:19.739074+00:00",
+    "source": "https://arxiv.org/abs/2608.19066v1"
+  }
+]

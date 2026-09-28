@@ -1,0 +1,32 @@
+{
+  "citation_title": [
+    "Co-SLAM: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time SLAM"
+  ],
+  "citation_author": [
+    "Wang, Hengyi",
+    "Wang, Jingwen",
+    "Agapito, Lourdes"
+  ],
+  "citation_date": [
+    "2023/04/27"
+  ],
+  "citation_online_date": [
+    "2023/04/27"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2304.14377"
+  ],
+  "citation_arxiv_id": [
+    "2304.14377"
+  ],
+  "citation_abstract": [
+    "We present Co-SLAM, a neural RGB-D SLAM system based on a hybrid representation, that performs robust camera tracking and high-fidelity surface reconstruction in real time. Co-SLAM represents the scene as a multi-resolution hash-grid to exploit its high convergence speed and ability to represent high-frequency local features. In addition, Co-SLAM incorporates one-blob encoding, to encourage surface coherence and completion in unobserved areas. This joint parametric-coordinate encoding enables real-time and robust performance by bringing the best of both worlds: fast convergence and surface hole filling. Moreover, our ray sampling strategy allows Co-SLAM to perform global bundle adjustment over all keyframes instead of requiring keyframe selection to maintain a small number of active keyframes as competing neural SLAM approaches do. Experimental results show that Co-SLAM runs at 10-17Hz and achieves state-of-the-art scene reconstruction results, and competitive tracking performance in various datasets and benchmarks (ScanNet, TUM, Replica, Synthetic RGBD). Project page: https://hengyiwang.github.io/projects/CoSLAM"
+  ],
+  "arxiv_id": "2304.14377",
+  "name": "co_slam",
+  "pdf_url": "https://arxiv.org/pdf/2304.14377",
+  "pages": 21,
+  "sha256": "fa4a71014ee32d3a40ec7fef4022a21a8af2878a2a9eac277eadbec8e7ef4e07",
+  "retrieved_at": "2026-09-27T15:08:15.213264+00:00",
+  "history": "Submission history From: Hengyi Wang [ view email ] [v1] Thu, 27 Apr 2023 17:46:45 UTC (27,428 KB)"
+}

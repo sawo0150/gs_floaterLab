@@ -1,0 +1,36 @@
+{
+  "citation_title": [
+    "Splat-SLAM: Globally Optimized RGB-only SLAM with 3D Gaussians"
+  ],
+  "citation_author": [
+    "Sandström, Erik",
+    "Tateno, Keisuke",
+    "Oechsle, Michael",
+    "Niemeyer, Michael",
+    "Van Gool, Luc",
+    "Oswald, Martin R.",
+    "Tombari, Federico"
+  ],
+  "citation_date": [
+    "2024/05/26"
+  ],
+  "citation_online_date": [
+    "2024/05/26"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2405.16544"
+  ],
+  "citation_arxiv_id": [
+    "2405.16544"
+  ],
+  "citation_abstract": [
+    "3D Gaussian Splatting has emerged as a powerful representation of geometry and appearance for RGB-only dense Simultaneous Localization and Mapping (SLAM), as it provides a compact dense map representation while enabling efficient and high-quality map rendering. However, existing methods show significantly worse reconstruction quality than competing methods using other 3D representations, e.g. neural points clouds, since they either do not employ global map and pose optimization or make use of monocular depth. In response, we propose the first RGB-only SLAM system with a dense 3D Gaussian map representation that utilizes all benefits of globally optimized tracking by adapting dynamically to keyframe pose and depth updates by actively deforming the 3D Gaussian map. Moreover, we find that refining the depth updates in inaccurate areas with a monocular depth estimator further improves the accuracy of the 3D reconstruction. Our experiments on the Replica, TUM-RGBD, and ScanNet datasets indicate the effectiveness of globally optimized 3D Gaussians, as the approach achieves superior or on par performance with existing RGB-only SLAM methods methods in tracking, mapping and rendering accuracy while yielding small map sizes and fast runtimes. The source code is available at https://github.com/eriksandstroem/Splat-SLAM."
+  ],
+  "arxiv_id": "2405.16544",
+  "name": "splat_slam",
+  "pdf_url": "https://arxiv.org/pdf/2405.16544",
+  "pages": 21,
+  "sha256": "0b5662c1d4e2618c48f681898425efa3b5bdaa012c74dde48a12d7cbb55a9e67",
+  "retrieved_at": "2026-09-27T15:08:20.961225+00:00",
+  "history": "Submission history From: Erik Sandström [ view email ] [v1] Sun, 26 May 2024 12:26:54 UTC (23,944 KB)"
+}
