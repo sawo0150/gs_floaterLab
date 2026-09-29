@@ -1,0 +1,22 @@
+{
+  "name": "unified_ervs_birth125_protected_prune01_period300",
+  "adopted_by_user": "2026-09-28",
+  "scope": "Validated causal mapper replay recipe; live deployment integration is separate",
+  "worker_args": [
+    "--renders-per-kf", "40", "--seed", "0",
+    "--membership", "growth", "--kappa", "16", "--tau", "4",
+    "--growth-budget-scope", "dense_only", "--selector", "ervs",
+    "--schedule", "unified", "--selection-count-scope", "all_rgb",
+    "--batch-quotas", "3", "3", "6",
+    "--disable-densify-prune", "--optimizer-batch-size", "1",
+    "--unified-scale-projection", "--birth-downsample-multiplier", "0.8",
+    "--protected-opacity-prune", "--prune-opacity-threshold", "0.1",
+    "--prune-every-renders", "300"
+  ],
+  "effective_birth_denominators": {"initial": 51.2, "subsequent_kf": 204.8},
+  "protected_recent_nonempty_kf_birth_batches": 10,
+  "ppm": true,
+  "blur_filter": false,
+  "carve": false,
+  "evidence": "results/campaigns/gain_attribution/protected_prune/init_increase300_v1/comparison.json"
+}

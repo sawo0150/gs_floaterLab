@@ -1,5 +1,7 @@
 # ATTR — attribute the bulk gain over vanilla
 
+> **현재 채택 설정 실행:** [동료용 인계 안내](selected_recipe/HANDOFF.md) — 3:3:6, 40 renders/KF, init1.25×, 보호 opacity pruning 0.1/300. 이전 ablation 기본값과 구분한다.
+
 Status: **Exp124 representative 3-family gate complete; full causal attribution remains active.**
 
 ## 질문

@@ -1,0 +1,121 @@
+diff --git a/vigs/unified_view_training.py b/vigs/unified_view_training.py
+index 896edfe1..f56ac60d 100644
+--- a/vigs/unified_view_training.py
++++ b/vigs/unified_view_training.py
+@@ -1,5 +1,6 @@
+ """One distinct-view batch: recent KF, full-history KF ERVS, dense ERVS."""
+ from collections import Counter
++import copy
+ import math
+ 
+ from online_view_training import OnlineTrainingSet, Selection, ervs_probabilities
+@@ -13,8 +14,8 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+ 
+     def __init__(self, *, batch_quotas=DEFAULT_BATCH_QUOTAS, auxiliary_mode="dense_rgb", **options):
+         super().__init__(**options)
+-        if self.membership not in ('immediate', 'growth') or self.selector != 'ervs' or self.selection_count_scope != 'all_rgb':
+-            raise ValueError('Unified batches require immediate/growth membership and cumulative ERVS')
++        if self.membership not in ('immediate', 'growth') or self.selection_count_scope != 'all_rgb':
++            raise ValueError('Unified batches require immediate/growth membership and cumulative counts')
+         if auxiliary_mode not in ("dense_rgb", "kf_rgb", "kf_native"):
+             raise ValueError(auxiliary_mode)
+         self.auxiliary_mode = auxiliary_mode
+@@ -24,6 +25,8 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+             raise ValueError('Expected three nonnegative quotas with positive total')
+         self._pending_batch = None
+         self.selection_batches_completed = 0
++        self._rr_pools = {r: {'remaining': [], 'seen': set(), 'epoch': 0} for r in self.roles[1:]}
++        self._pending_rr_states = None
+ 
+     def reserve(self, batch_size=None, *, window=()):
+         if self._pending is not None:
+@@ -47,6 +50,16 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+         order = sorted(range(3), key=lambda i: (-(exact[i]-quotas[i]), (i-rotation)%3))
+         for i in order[:size-sum(quotas)]: quotas[i] += 1
+         selected = []; selected_roles = []; used = set(); actual = Counter()
++        rr = copy.deepcopy(self._rr_pools) if self.selector == 'rr' else None
++        rr_states = []
++        if rr is not None:
++            for role, state in rr.items():
++                pool = set(pools[role])
++                state['remaining'] = [u for u in state['remaining'] if u in pool]
++                state['seen'].intersection_update(pool)
++                newcomers = sorted(pool - state['seen'] - set(state['remaining']))
++                self.rng.shuffle(newcomers)
++                state['remaining'].extend(newcomers)
+         # Gibbs weights are computed over each full pool, then renormalized
+         # over remaining candidates (sampling without replacement).
+         scales = {}
+@@ -60,11 +73,29 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+             if not candidates: return False
+             if role == 'window':
+                 uid = self.rng.choice(candidates)
++            elif rr is not None:
++                state = rr[role]
++                if not state['remaining']:
++                    state['remaining'] = list(pools[role])
++                    self.rng.shuffle(state['remaining'])
++                    state['seen'].clear()
++                    state['epoch'] += 1
++                # Keep temporarily blocked UIDs queued for the next batch.
++                uid = next(u for u in state['remaining'] if u not in used)
+             else:
+                 low = min(self.counts[u] for u in candidates)
+                 weights = [math.exp(-(self.counts[u]-low)/scales[role]) for u in candidates]
+                 uid = self.rng.choices(candidates, weights=weights, k=1)[0]
+             used.add(uid); selected.append(uid); selected_roles.append(role); actual[role] += 1
++            if rr is not None:
++                # Any service satisfies every pool epoch containing that UID,
++                # including window and optional KF RGB-only control services.
++                for served_role in self.roles[1:]:
++                    if uid in pools[served_role]:
++                        state = rr[served_role]
++                        if uid in state['remaining']: state['remaining'].remove(uid)
++                        state['seen'].add(uid)
++                rr_states.append(copy.deepcopy(rr))
+             return True
+         for role, quota in zip(self.roles, quotas):
+             for _ in range(quota):
+@@ -76,6 +107,7 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+             draw(role)
+         self._next_token += 1
+         self._pending = Selection(self._next_token, self.generation, tuple(selected))
++        self._pending_rr_states = rr_states if rr is not None else None
+         self._pending_batch = {'roles': tuple(selected_roles), 'window_uids': window,
+             'selection_batch_token': self._next_token, 'selection_batch_size': len(selected),
+             'lr_render_position': self.rgb_view_services + 1,
+@@ -109,6 +141,9 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+         uids = selection.uids[:size]
+         roles = record['roles'][:size]
+         self._commit_rgb(uids, source='photometric')
++        if self._pending_rr_states is not None:
++            self._rr_pools = self._pending_rr_states[size - 1]
++            self._pending_rr_states = self._pending_rr_states[size:]
+         self.service_ledger[-1].update({**record, 'roles': roles,
+             'actual_quotas': tuple(roles.count(r) for r in self.roles),
+             'counts_before': record['counts_before'][:size],
+@@ -122,12 +157,14 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+         else:
+             self._pending = None
+             self._pending_batch = None
++            self._pending_rr_states = None
+             self.selection_batches_completed += 1
+         return self._pending
+ 
+     def cancel(self, selection):
+         super().cancel(selection)
+         self._pending_batch = None
++        self._pending_rr_states = None
+ 
+     def snapshot(self):
+         result = super().snapshot()
+@@ -137,6 +174,9 @@ class UnifiedTrainingSet(OnlineTrainingSet):
+                           if self.entropy_weight_policy == 'per_view' else self.tau for r in self.roles[1:]},
+                       selection_batches_completed=self.selection_batches_completed,
+                       count_definition='all completed image uses, including window selections')
++        if self.selector == 'rr':
++            result['rr_pools'] = {r: {**s, 'seen': sorted(s['seen'])} for r, s in self._rr_pools.items()}
++            result['rr_rule'] = 'independent pool epochs; shuffled newcomers appended; window services retire KF epoch entries; commit-only progress'
+         return result
+ 
+ 

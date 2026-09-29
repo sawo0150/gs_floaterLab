@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- **2026-09-29 확정 mapping 인계:** 3:3:6 / 40renders/KF / κ16·τ₀4 / init1.25× / opacity0.1·300render·최근10birth보호를 단일 recipe와 실행 launcher로 고정. Source/setup/CUDA hash preflight, 선택적 held-out 평가, backend base+patch, 동료용 실행 안내 포함. 세 장면 preflight와 CPU28테스트 PASS; 신규 GPU 실험 없음. [인계 문서](experiments/campaigns/06_gain_attribution/selected_recipe/HANDOFF.md).
+
 - **2026-09-26 κ/τ/blur 탐색 완료:** 공통선택 k16_t4_no_blur, 기존immediate/tau1/blurOFF 대비 평균held-out PSNR+0.1734dB·합산mapper시간26.0%감소. aria25.5921→25.8851dB,54.54→35.11s / rpng25.1179→25.2309dB,144.35→115.36s / utmm22.1052→22.2194dB,56.11→38.28s. dense-only κ growth와 실제 pool별tau 보고 연결,40renders/KF·3:3:6·영상별Adam·누적ERVS·scaleON·densify/pruneOFF 유지. 유효21run/CPU30/저장지도평가2회/causal-prefix-cohort-source audit PASS. 초기runtime guard 학습전실패1건 보존·수정, baseline3개 명시재사용. 별도online_mapping_unified_tuned.json 저장, 기존baseline preset유지. 단일seed3개개발scene/frozen tracker/coarse search이며 live·geometry검증 아님. → [결과](experiments/campaigns/06_gain_attribution/growth_entropy_blur/SUMMARY.md)
 
 - **2026-09-26 growth/entropy/blur k16_t4_no_blur / utmm:** execution=True, audit=True, PSNR=22.219356218973797, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/growth_entropy_blur/gpu40_v2/k16_t4_no_blur/utmm. → [카드](experiments/campaigns/06_gain_attribution/growth_entropy_blur/README.md)

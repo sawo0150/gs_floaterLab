@@ -8,6 +8,8 @@ are exported after worker shutdown and are never used for pose preparation.
 import argparse
 import hashlib
 import json
+import math
+import os
 from pathlib import Path
 import random
 import shutil
@@ -51,8 +53,23 @@ def main():
     parser.add_argument('--blur-frequency-ratio',type=float,default=.9)
     parser.add_argument('--selection-count-scope',choices=['all_rgb','photometric','recent_photometric'])
     parser.add_argument('--disable-densify-prune',action='store_true')
+    parser.add_argument('--protected-opacity-prune',action='store_true',
+                        help='Unified diagnostic: low-opacity prune only, protect latest 10 KF births')
+    parser.add_argument('--prune-opacity-threshold',type=float,default=None)
+    parser.add_argument('--prune-every-renders',type=int,default=300,
+                        help='Protected pruning interval in completed training renders (default: 300)')
+    parser.add_argument('--birth-downsample-multiplier',type=float,default=1.,
+                        help='Scale sampling denominators for initial and subsequent KF Gaussian births')
     args=parser.parse_args()
+    if not math.isfinite(args.birth_downsample_multiplier) or args.birth_downsample_multiplier <= 0.:
+        parser.error('birth-downsample-multiplier must be finite and > 0')
     if args.schedule=='unified': args.disable_densify_prune=True
+    if args.protected_opacity_prune and args.schedule != 'unified':
+        parser.error('protected opacity pruning requires unified schedule')
+    if args.prune_opacity_threshold is not None and (not args.protected_opacity_prune or not 0 < args.prune_opacity_threshold < 1):
+        parser.error('prune-opacity-threshold requires pruning enabled and 0 < threshold < 1')
+    if args.prune_every_renders <= 0:
+        parser.error('prune-every-renders must be positive')
     args.output.mkdir(parents=True,exist_ok=False)
     for name in ('vigs_backends','lietorch_backends'):
         sys.path.insert(0,str((args.extensions/name).resolve()))
@@ -101,6 +118,8 @@ def main():
     if args.disable_densify_prune:
         source_files += [Path(__file__).with_name('densify_prune_ablation_audit.py'),
                          root/'vigs/gaussian/scene/gaussian_model.py']
+    if args.protected_opacity_prune:
+        source_files += [Path(__file__).with_name('protected_opacity_prune.py')]
     source_dir=args.output/'source';source_dir.mkdir()
     source_lock={}
     for path in source_files:
@@ -116,13 +135,21 @@ def main():
         raise RuntimeError('Invalid or mismatched fixed-work reference')
     audit=RenderWorkAudit(gs_backend,torch)
     started=time.monotonic();deadline=None
+    torch.cuda.reset_peak_memory_stats()
     # All input preparation and mapper setup below is inside the whole budget.
     native_args.imus=load_processed_imu(Path(archive.manifest['input_imu']),sensor_config)
     density=replay.configure_density_policy(config,'online_rank',2.5,2.0)[1]
+    for key in ('pcd_downsample_init','pcd_downsample'):
+        config['Dataset'][key] *= args.birth_downsample_multiplier
+    os.environ['VIGS_KF_CONTENT_LOG']=str((args.output/'birth_sampling.csv').resolve())
     replay.install_online_density_policy(density)
     mapper=GSBackEnd(config,str(args.output),native_args,use_gui=False)
     topology_audit=None
-    if args.disable_densify_prune:
+    if args.protected_opacity_prune:
+        from protected_opacity_prune import ProtectedOpacityPrune
+        topology_audit=ProtectedOpacityPrune(mapper,threshold=args.prune_opacity_threshold,
+                                            every_renders=args.prune_every_renders)
+    elif args.disable_densify_prune:
         from densify_prune_ablation_audit import NoDensifyPruneAudit
         topology_audit=NoDensifyPruneAudit(mapper)
     host=SimpleNamespace(gs=mapper,args=native_args,config=config,
@@ -147,7 +174,12 @@ def main():
     dispatch_native=runtime.worker.dispatch
     def dispatch_counted(packet):
         if '_render_target' not in packet:
-            return dispatch_native(packet)
+            result=dispatch_native(packet)
+            if args.protected_opacity_prune:
+                with torch.cuda.stream(host._gs_stream),mapper._gaussian_lock:
+                    topology_audit.after_packet(audit.training, packet['_arrival_uid'])
+                    host._gs_stream.synchronize()
+            return result
         target=int(packet['_render_target'])
         if audit.training>target:
             raise RuntimeError(f'Native work exceeded prefix budget: {audit.training}>{target}')
@@ -265,7 +297,7 @@ def main():
         for name in ('xyz','scaling','rotation','opacity','features_dc','features_rest'))
     checks=training_checks(trainer,main_steps)
     if topology_audit is not None:
-        checks['no_densify_or_prune']=topology_audit.report()['pass']
+        checks['prune_only_contract' if args.protected_opacity_prune else 'no_densify_or_prune']=topology_audit.report()['pass']
     service_renders=sum(len(s['uids']) for g in trainer['generations'] for s in g['services'])
     checks.update(render_backward_matches=audit.training==audit.counts['backward'],
                   render_service_matches=audit.training==service_renders,
@@ -286,6 +318,12 @@ def main():
         'optimizer_steps':observed_steps,'main_optimizer_steps':main_steps,
         'native_commits':native,'photometric_commits':photo,'heldout_overlap':overlap,
         'gaussian_parameters_finite':finite,'gaussians':len(mapper.gaussians.get_xyz),
+        'birth_density':{'downsample_multiplier':args.birth_downsample_multiplier,
+                         'pcd_downsample_init':config['Dataset']['pcd_downsample_init'],
+                         'pcd_downsample':config['Dataset']['pcd_downsample'],
+                         'scope':'initial map and every subsequent KF birth'},
+        'peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated(),
+        'peak_cuda_reserved_bytes':torch.cuda.max_memory_reserved(),
         'arrivals':arrived,'submitted_events':submitted,'extension_binaries':binaries,
         'dataset':provenance['dataset'],'scene':provenance['scene'],
         'seed':args.seed,'membership':args.membership,'selector':args.selector,'schedule':args.schedule,
