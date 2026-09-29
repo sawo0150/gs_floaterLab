@@ -1,0 +1,38 @@
+{
+  "citation_title": [
+    "CaRtGS: Computational Alignment for Real-Time Gaussian Splatting SLAM"
+  ],
+  "citation_author": [
+    "Feng, Dapeng",
+    "Chen, Zhiqiang",
+    "Yin, Yizhen",
+    "Zhong, Shipeng",
+    "Qi, Yuhua",
+    "Chen, Hongbo"
+  ],
+  "citation_doi": [
+    "10.1109/LRA.2025.3544928"
+  ],
+  "citation_date": [
+    "2024/10/01"
+  ],
+  "citation_online_date": [
+    "2025/03/10"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2410.00486"
+  ],
+  "citation_arxiv_id": [
+    "2410.00486"
+  ],
+  "citation_abstract": [
+    "Simultaneous Localization and Mapping (SLAM) is pivotal in robotics, with photorealistic scene reconstruction emerging as a key challenge. To address this, we introduce Computational Alignment for Real-Time Gaussian Splatting SLAM (CaRtGS), a novel method enhancing the efficiency and quality of photorealistic scene reconstruction in real-time environments. Leveraging 3D Gaussian Splatting (3DGS), CaRtGS achieves superior rendering quality and processing speed, which is crucial for scene photorealistic reconstruction. Our approach tackles computational misalignment in Gaussian Splatting SLAM (GS-SLAM) through an adaptive strategy that enhances optimization iterations, addresses long-tail optimization, and refines densification. Experiments on Replica, TUM-RGBD, and VECtor datasets demonstrate CaRtGS's effectiveness in achieving high-fidelity rendering with fewer Gaussian primitives. This work propels SLAM towards real-time, photorealistic dense rendering, significantly advancing photorealistic scene representation. For the benefit of the research community, we release the code and accompanying videos on our project website: https://dapengfeng.github.io/cartgs."
+  ],
+  "arxiv_id": "2410.00486",
+  "name": "cartgs",
+  "pdf_url": "https://arxiv.org/pdf/2410.00486",
+  "pages": 8,
+  "sha256": "66b996a1e0fb74b3d90961a2069661d09ba7a9f3a599ade2f8088f79f24a9880",
+  "retrieved_at": "2026-09-27T15:08:08.254498+00:00",
+  "history": "Submission history From: Dapeng Feng [ view email ] [v1] Tue, 1 Oct 2024 08:18:12 UTC (1,179 KB) [v2] Wed, 2 Oct 2024 14:07:56 UTC (1,179 KB) [v3] Thu, 20 Feb 2025 12:14:13 UTC (1,145 KB) [v4] Mon, 10 Mar 2025 02:15:03 UTC (1,145 KB)"
+}

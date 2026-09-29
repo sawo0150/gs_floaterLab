@@ -1,0 +1,38 @@
+{
+  "citation_title": [
+    "Splat-Nav: Safe Real-Time Robot Navigation in Gaussian Splatting Maps"
+  ],
+  "citation_author": [
+    "Chen, Timothy",
+    "Shorinwa, Ola",
+    "Bruno, Joseph",
+    "Swann, Aiden",
+    "Yu, Javier",
+    "Zeng, Weijia",
+    "Nagami, Keiko",
+    "Dames, Philip",
+    "Schwager, Mac"
+  ],
+  "citation_date": [
+    "2024/03/05"
+  ],
+  "citation_online_date": [
+    "2025/01/11"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2403.02751"
+  ],
+  "citation_arxiv_id": [
+    "2403.02751"
+  ],
+  "citation_abstract": [
+    "We present Splat-Nav, a real-time robot navigation pipeline for Gaussian Splatting (GSplat) scenes, a powerful new 3D scene representation. Splat-Nav consists of two components: 1) Splat-Plan, a safe planning module, and 2) Splat-Loc, a robust vision-based pose estimation module. Splat-Plan builds a safe-by-construction polytope corridor through the map based on mathematically rigorous collision constraints and then constructs a B\\'ezier curve trajectory through this corridor. Splat-Loc provides real-time recursive state estimates given only an RGB feed from an on-board camera, leveraging the point-cloud representation inherent in GSplat scenes. Working together, these modules give robots the ability to recursively re-plan smooth and safe trajectories to goal locations. Goals can be specified with position coordinates, or with language commands by using a semantic GSplat. We demonstrate improved safety compared to point cloud-based methods in extensive simulation experiments. In a total of 126 hardware flights, we demonstrate equivalent safety and speed compared to motion capture and visual odometry, but without a manual frame alignment required by those methods. We show online re-planning at more than 2 Hz and pose estimation at about 25 Hz, an order of magnitude faster than Neural Radiance Field (NeRF)-based navigation methods, thereby enabling real-time navigation. We provide experiment videos on our project page at https://chengine.github.io/splatnav/. Our codebase and ROS nodes can be found at https://github.com/chengine/splatnav."
+  ],
+  "arxiv_id": "2403.02751",
+  "name": "splat_nav",
+  "pdf_url": "https://arxiv.org/pdf/2403.02751",
+  "pages": 20,
+  "sha256": "177c23604a70e21096dbc296172a045f2517e671f8a4e05fa285f894441aa84c",
+  "retrieved_at": "2026-09-27T15:08:29.697902+00:00",
+  "history": "Submission history From: Timothy Chen [ view email ] [v1] Tue, 5 Mar 2024 08:10:11 UTC (44,693 KB) [v2] Fri, 26 Apr 2024 22:51:38 UTC (30,742 KB) [v3] Sat, 11 Jan 2025 05:02:32 UTC (28,057 KB)"
+}

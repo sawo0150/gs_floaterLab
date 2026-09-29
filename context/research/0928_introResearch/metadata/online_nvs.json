@@ -1,0 +1,33 @@
+{
+  "citation_title": [
+    "Online 3D Gaussian Splatting Modeling with Novel View Selection"
+  ],
+  "citation_author": [
+    "Lee, Byeonggwon",
+    "Park, Junkyu",
+    "Giang, Khang Truong",
+    "Song, Soohwan"
+  ],
+  "citation_date": [
+    "2025/08/19"
+  ],
+  "citation_online_date": [
+    "2025/09/05"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2508.14014"
+  ],
+  "citation_arxiv_id": [
+    "2508.14014"
+  ],
+  "citation_abstract": [
+    "This study addresses the challenge of generating online 3D Gaussian Splatting (3DGS) models from RGB-only frames. Previous studies have employed dense SLAM techniques to estimate 3D scenes from keyframes for 3DGS model construction. However, these methods are limited by their reliance solely on keyframes, which are insufficient to capture an entire scene, resulting in incomplete reconstructions. Moreover, building a generalizable model requires incorporating frames from diverse viewpoints to achieve broader scene coverage. However, online processing restricts the use of many frames or extensive training iterations. Therefore, we propose a novel method for high-quality 3DGS modeling that improves model completeness through adaptive view selection. By analyzing reconstruction quality online, our approach selects optimal non-keyframes for additional training. By integrating both keyframes and selected non-keyframes, the method refines incomplete regions from diverse viewpoints, significantly enhancing completeness. We also present a framework that incorporates an online multi-view stereo approach, ensuring consistency in 3D information throughout the 3DGS modeling process. Experimental results demonstrate that our method outperforms state-of-the-art methods, delivering exceptional performance in complex outdoor scenes."
+  ],
+  "arxiv_id": "2508.14014",
+  "name": "online_nvs",
+  "pdf_url": "https://arxiv.org/pdf/2508.14014",
+  "pages": 17,
+  "sha256": "b75f0a1a872004cccb098886d5e6f1cd52b75411ea1a732422a5dce17552e9d5",
+  "retrieved_at": "2026-09-27T15:09:40.483272+00:00",
+  "history": "Submission history From: Byeong Gwon Lee [ view email ] [v1] Tue, 19 Aug 2025 17:25:12 UTC (14,722 KB) [v2] Fri, 5 Sep 2025 01:14:16 UTC (38,044 KB)"
+}

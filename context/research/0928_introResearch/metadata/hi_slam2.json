@@ -1,0 +1,38 @@
+{
+  "citation_title": [
+    "HI-SLAM2: Geometry-Aware Gaussian SLAM for Fast Monocular Scene Reconstruction"
+  ],
+  "citation_author": [
+    "Zhang, Wei",
+    "Cheng, Qing",
+    "Skuddis, David",
+    "Zeller, Niclas",
+    "Cremers, Daniel",
+    "Haala, Norbert"
+  ],
+  "citation_doi": [
+    "10.1109/TRO.2025.3626627"
+  ],
+  "citation_date": [
+    "2024/11/27"
+  ],
+  "citation_online_date": [
+    "2026/02/02"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2411.17982"
+  ],
+  "citation_arxiv_id": [
+    "2411.17982"
+  ],
+  "citation_abstract": [
+    "We present HI-SLAM2, a geometry-aware Gaussian SLAM system that achieves fast and accurate monocular scene reconstruction using only RGB input. Existing Neural SLAM or 3DGS-based SLAM methods often trade off between rendering quality and geometry accuracy, our research demonstrates that both can be achieved simultaneously with RGB input alone. The key idea of our approach is to enhance the ability for geometry estimation by combining easy-to-obtain monocular priors with learning-based dense SLAM, and then using 3D Gaussian splatting as our core map representation to efficiently model the scene. Upon loop closure, our method ensures on-the-fly global consistency through efficient pose graph bundle adjustment and instant map updates by explicitly deforming the 3D Gaussian units based on anchored keyframe updates. Furthermore, we introduce a grid-based scale alignment strategy to maintain improved scale consistency in prior depths for finer depth details. Through extensive experiments on Replica, ScanNet, and ScanNet++, we demonstrate significant improvements over existing Neural SLAM methods and even surpass RGB-D-based methods in both reconstruction and rendering quality. The project page and source code will be made available at https://hi-slam2.github.io/."
+  ],
+  "arxiv_id": "2411.17982",
+  "name": "hi_slam2",
+  "pdf_url": "https://arxiv.org/pdf/2411.17982",
+  "pages": 16,
+  "sha256": "ee0bfee969f3a4cf38871fa9ba113f747b35ac68233829f4ebab4cef1b14aba0",
+  "retrieved_at": "2026-09-27T15:08:20.474108+00:00",
+  "history": "Submission history From: Wei Zhang [ view email ] [v1] Wed, 27 Nov 2024 01:39:21 UTC (18,221 KB) [v2] Tue, 29 Apr 2025 12:03:55 UTC (17,530 KB) [v3] Mon, 2 Feb 2026 17:08:35 UTC (14,912 KB)"
+}

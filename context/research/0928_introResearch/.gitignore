@@ -1,0 +1,7 @@
+# Downloaded third-party papers are restored from manifest.json.
+/papers/*.pdf
+/text/*.txt
+/metadata/*.html
+# Exporter diagnostics and generated agent instructions stay local.
+/overleaf/**/comments.log
+/overleaf/**/agents.md

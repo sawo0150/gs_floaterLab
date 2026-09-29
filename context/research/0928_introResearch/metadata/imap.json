@@ -1,0 +1,33 @@
+{
+  "citation_title": [
+    "iMAP: Implicit Mapping and Positioning in Real-Time"
+  ],
+  "citation_author": [
+    "Sucar, Edgar",
+    "Liu, Shikun",
+    "Ortiz, Joseph",
+    "Davison, Andrew J."
+  ],
+  "citation_date": [
+    "2021/03/23"
+  ],
+  "citation_online_date": [
+    "2021/09/13"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2103.12352"
+  ],
+  "citation_arxiv_id": [
+    "2103.12352"
+  ],
+  "citation_abstract": [
+    "We show for the first time that a multilayer perceptron (MLP) can serve as the only scene representation in a real-time SLAM system for a handheld RGB-D camera. Our network is trained in live operation without prior data, building a dense, scene-specific implicit 3D model of occupancy and colour which is also immediately used for tracking. Achieving real-time SLAM via continual training of a neural network against a live image stream requires significant innovation. Our iMAP algorithm uses a keyframe structure and multi-processing computation flow, with dynamic information-guided pixel sampling for speed, with tracking at 10 Hz and global map updating at 2 Hz. The advantages of an implicit MLP over standard dense SLAM techniques include efficient geometry representation with automatic detail control and smooth, plausible filling-in of unobserved regions such as the back surfaces of objects."
+  ],
+  "arxiv_id": "2103.12352",
+  "name": "imap",
+  "pdf_url": "https://arxiv.org/pdf/2103.12352",
+  "pages": 10,
+  "sha256": "bd10370f5fc5eedc1ea3ebc4bd6fd7164164b3b7aad38668035b69b4038f378c",
+  "retrieved_at": "2026-09-27T15:08:34.438693+00:00",
+  "history": "Submission history From: Edgar Sucar [ view email ] [v1] Tue, 23 Mar 2021 07:21:22 UTC (47,769 KB) [v2] Mon, 13 Sep 2021 17:04:05 UTC (7,068 KB)"
+}

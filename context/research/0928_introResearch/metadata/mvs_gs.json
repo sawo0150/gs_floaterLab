@@ -1,0 +1,34 @@
+{
+  "citation_title": [
+    "MVS-GS: High-Quality 3D Gaussian Splatting Mapping via Online Multi-View Stereo"
+  ],
+  "citation_author": [
+    "Lee, Byeonggwon",
+    "Park, Junkyu",
+    "Giang, Khang Truong",
+    "Jo, Sungho",
+    "Song, Soohwan"
+  ],
+  "citation_date": [
+    "2024/12/26"
+  ],
+  "citation_online_date": [
+    "2024/12/26"
+  ],
+  "citation_pdf_url": [
+    "https://arxiv.org/pdf/2412.19130"
+  ],
+  "citation_arxiv_id": [
+    "2412.19130"
+  ],
+  "citation_abstract": [
+    "This study addresses the challenge of online 3D model generation for neural rendering using an RGB image stream. Previous research has tackled this issue by incorporating Neural Radiance Fields (NeRF) or 3D Gaussian Splatting (3DGS) as scene representations within dense SLAM methods. However, most studies focus primarily on estimating coarse 3D scenes rather than achieving detailed reconstructions. Moreover, depth estimation based solely on images is often ambiguous, resulting in low-quality 3D models that lead to inaccurate renderings. To overcome these limitations, we propose a novel framework for high-quality 3DGS modeling that leverages an online multi-view stereo (MVS) approach. Our method estimates MVS depth using sequential frames from a local time window and applies comprehensive depth refinement techniques to filter out outliers, enabling accurate initialization of Gaussians in 3DGS. Furthermore, we introduce a parallelized backend module that optimizes the 3DGS model efficiently, ensuring timely updates with each new keyframe. Experimental results demonstrate that our method outperforms state-of-the-art dense SLAM methods, particularly excelling in challenging outdoor environments."
+  ],
+  "arxiv_id": "2412.19130",
+  "name": "mvs_gs",
+  "pdf_url": "https://arxiv.org/pdf/2412.19130",
+  "pages": 7,
+  "sha256": "c6586fd712335e3e16b492b25600692c0870c630738f4dd6ac6d5b55d0804cfa",
+  "retrieved_at": "2026-09-27T15:09:33.080074+00:00",
+  "history": "Submission history From: Byeong Gwon Lee [ view email ] [v1] Thu, 26 Dec 2024 09:20:04 UTC (4,968 KB)"
+}
