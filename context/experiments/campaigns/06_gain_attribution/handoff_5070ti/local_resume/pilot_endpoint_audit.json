@@ -1,0 +1,380 @@
+[
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f",
+      "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+      "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "mapped_uids": "f19bd453bb03ae2fc4666a8277a8665fa2f664fe429fd7a62946c34261d70650",
+      "ply": "85a8a3221815fea94231260243f2d60358748c425c0a3efaac0d41640babae9d"
+    },
+    "psnr": 23.46318665715574
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f",
+      "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+      "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+      "ply": "9ddaa33182f69d3fac117146e7aeb49c51ecb03ee336c3f0629c87bbc11ba311"
+    },
+    "psnr": 18.954430743938183
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f",
+      "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+      "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "mapped_uids": "25f75211a4a04c3ae30a97beffc21512ab88e75ec7b168d895edb1dc6471fed9",
+      "ply": "c6c1ea05f88f4b7ebc5713b8826c0f2e01cc647aeeaf3c7eff4fd8769b1c3a9f"
+    },
+    "psnr": 25.760522092571694
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f",
+      "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+      "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+      "ply": "742629ef80a4f0532dd75e299746cd126366715252d471dcdecdecef97467442"
+    },
+    "psnr": 20.856434509044384
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 15,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "dc75e1ce0c7a40611c0cf208091d1fc9c47b19127e2efcddd1c0ac8a952e406a",
+      "full_trajectory": "d3f29fceddbcd0a492e5877e7c354b8803433bcfdb32b67da2f1e951575e0437",
+      "kf_trajectory": "e8495750161db009db339f4ed467b2ac9a569a2984df679acb4bbef6d1bda97a",
+      "mapped_uids": "2d89277490ea9c5aaf9f4ed6353fe48508bef178057c31ec547396f51dd6b80a",
+      "ply": "aa8c037a3b4cf9247a5cff835a49e816d81d6354663c9c97e428029e30309c58"
+    },
+    "psnr": 23.861218289212065
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 15,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "dc75e1ce0c7a40611c0cf208091d1fc9c47b19127e2efcddd1c0ac8a952e406a",
+      "full_trajectory": "d3f29fceddbcd0a492e5877e7c354b8803433bcfdb32b67da2f1e951575e0437",
+      "kf_trajectory": "e8495750161db009db339f4ed467b2ac9a569a2984df679acb4bbef6d1bda97a",
+      "mapped_uids": "6d6f6f78d72e572f010582682dea5efa13c1b5a0312fd7ea48db4401ec9d5ebf",
+      "ply": "66de4d1dcfbdebc7e824b70b7a4610970d16d9047c29be65e1faf04ed56bb16c"
+    },
+    "psnr": 20.943542109309018
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 40,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "dc75e1ce0c7a40611c0cf208091d1fc9c47b19127e2efcddd1c0ac8a952e406a",
+      "full_trajectory": "d3f29fceddbcd0a492e5877e7c354b8803433bcfdb32b67da2f1e951575e0437",
+      "kf_trajectory": "e8495750161db009db339f4ed467b2ac9a569a2984df679acb4bbef6d1bda97a",
+      "mapped_uids": "a93c5c7b864a2b69160b75093af2cd7bd36731b3d5d408af6fa1890d25cb48c5",
+      "ply": "2693945e4cd5743769e63b6796cea07eef4a6b1c44c360f7c9cb097fd3b4fb38"
+    },
+    "psnr": 25.12768618265788
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 40,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "dc75e1ce0c7a40611c0cf208091d1fc9c47b19127e2efcddd1c0ac8a952e406a",
+      "full_trajectory": "d3f29fceddbcd0a492e5877e7c354b8803433bcfdb32b67da2f1e951575e0437",
+      "kf_trajectory": "e8495750161db009db339f4ed467b2ac9a569a2984df679acb4bbef6d1bda97a",
+      "mapped_uids": "6d6f6f78d72e572f010582682dea5efa13c1b5a0312fd7ea48db4401ec9d5ebf",
+      "ply": "8d551144f93c12eb44e26dbe362d9555738fd1a6ee7fe1ac4ffdd0409185f2d6"
+    },
+    "psnr": 22.59568762908111
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26",
+      "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+      "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+      "mapped_uids": "49ad6f81350a3e7a8011c9e6e5e431c3c244521a7cc890f57abe8bcdf36a26a3",
+      "ply": "22a06b8e0d04d29fec6377384c1e6954cdf5aca4e43a3739e66f43176432b69a"
+    },
+    "psnr": 20.9630809713293
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26",
+      "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+      "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+      "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+      "ply": "1dd89c07a9fc483b3478cb07fcd0f751a10136e58851c34c09a18943a9ef675a"
+    },
+    "psnr": 15.88441706881111
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "d3",
+    "valid_execution": true,
+    "checks": {
+      "common_commits_match_adam": true,
+      "photometric_counts_match_services": true,
+      "cumulative_counts_match_committed_history": true,
+      "growth_capacity": true,
+      "unified_batches_distinct": true,
+      "unified_window_membership": true,
+      "unified_cumulative_before_draw": true,
+      "unified_dense_anchors": true,
+      "no_separate_native_steps": true,
+      "membership_matches_admission": true,
+      "prune_only_contract": true,
+      "render_backward_matches": true,
+      "render_service_matches": true,
+      "no_render_errors": true,
+      "exact_kf_credit": true,
+      "prefix_budget_matches": true,
+      "per_kf_budget": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26",
+      "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+      "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+      "mapped_uids": "cc5bc83eb283fd1a0f4bd0e2831ae4aad5fad83d324700aca0b6c382fb237728",
+      "ply": "f5d48f9679d02709ca9debceb2a4d1939e515d543cb7c6cbea517fcd6d50aef6"
+    },
+    "psnr": 22.092828626985902
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "vanilla",
+    "valid_execution": true,
+    "checks": {
+      "prefix_budget_matches": true,
+      "training_render_matches_telemetry": true,
+      "render_backward_matches": true,
+      "no_render_errors": true,
+      "all_renders_match": true,
+      "optimizer_hooks_match": true,
+      "heldout_disjoint": true,
+      "finite_gaussians": true,
+      "causal_render_uids": true,
+      "zero_tail": true
+    },
+    "double_evaluation_pass": true,
+    "input_sha256": {
+      "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26",
+      "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+      "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+      "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+      "ply": "05269687b73e8bb95e2e279749c0c6285607f24418520a2f94e1b1ce14321aa3"
+    },
+    "psnr": 18.871978459534823
+  }
+]

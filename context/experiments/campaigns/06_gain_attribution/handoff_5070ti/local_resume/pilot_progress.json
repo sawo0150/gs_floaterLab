@@ -94,5 +94,53 @@
     "gaussians": 234499,
     "training_renders": 9080,
     "mapping_seconds": 169.21153692808002
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "d3",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 20.9630809713293,
+    "gaussians": 137768,
+    "training_renders": 1350,
+    "mapping_seconds": 40.33246859302744
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/utmm/square-1/vanilla",
+    "status": "passed",
+    "psnr": 15.88441706881111,
+    "gaussians": 177916,
+    "training_renders": 1350,
+    "mapping_seconds": 25.08437054604292
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "d3",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 22.092828626985902,
+    "gaussians": 122803,
+    "training_renders": 3600,
+    "mapping_seconds": 41.69144761422649
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/vanilla",
+    "status": "passed",
+    "psnr": 18.871978459534823,
+    "gaussians": 163783,
+    "training_renders": 3600,
+    "mapping_seconds": 35.94191544223577
   }
 ]

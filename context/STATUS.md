@@ -88,6 +88,14 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 CVPR utmm/square-1 40renders/KF vanilla: status=passed, PSNR=18.871978459534823; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 40renders/KF d3: status=passed, PSNR=22.092828626985902; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/d3 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 15renders/KF vanilla: status=passed, PSNR=15.88441706881111; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/utmm/square-1/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 15renders/KF d3: status=passed, PSNR=20.9630809713293; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/utmm/square-1/d3 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR rpng/table_06 40renders/KF vanilla: status=passed, PSNR=22.59568762908111; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 CVPR rpng/table_06 40renders/KF d3: status=passed, PSNR=25.12768618265788; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/d3 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)

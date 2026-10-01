@@ -70,3 +70,7 @@ All three pilot inputs passed manifest/event hash and file-readiness checks; the
 RPNG table_06 at 15 training renders/KF passed both arms, including execution gates, saved-map double evaluation, matched prefix-render and trajectory checks. D3/vanilla held-out PSNR is 23.861218/20.943542 dB. The 40-render D3 arm then started.
 
 [Workload audit](rpng15_workload_audit.json): both arms perform 3,405 training renders, but D3 has 3,405 Gaussian Adam updates and vanilla has 445 (its logged optimizer-completion list). D3 adds 1,901 proxy renders. This is matched **training-render** work, not matched optimizer steps or total computation. The collector now reports vanilla's recorded Adam count instead of leaving it missing. No training code or recipe was changed for this bookkeeping correction.
+
+## Three-scene migration pilot completed
+
+All 12 endpoint runs pass their execution checks and saved-map double evaluation; see [endpoint audit](pilot_endpoint_audit.json). RPNG table_06 at 40 training renders/KF gives D3/vanilla 25.127686/22.595688 dB. UTMM square-1 gives 20.963081/15.884417 dB at 15, and 22.092829/18.871978 dB at 40. The pilot queue has moved to checkpoint evaluation; missing controls have not started yet at this update. These remain fixed training-render comparisons, with different Adam counts and extra D3 proxy renders.
