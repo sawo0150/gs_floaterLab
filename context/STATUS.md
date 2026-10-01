@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 ERVS window-replacement test (window off = quota 0:6:6, 4 scenes, budget 15/25, seed0): replacement claim not supported — RR degrades without window only on square-1 (R1 2/8), ERVS never resolved-worse (R2 8/8), ERVS gain larger without window 4/8; first-service latency not shorter under ERVS. Exploratory: removing the window raises 4-scene mean ~+0.1dB (aria +0.4~0.9), recent-third favours ERVS 7/8 without window. Single seed. → [card](experiments/campaigns/06_gain_attribution/ervs_window_replacement/README.md)
+
 - 2026-10-01 ERVS vs RR on B (4 scenes, budget 15/25, seed0, 16 cells): mechanism moved in 8/8 (KF-pool CV down), but quality inconsistent — ERVS−RR b15 rot +0.13/rpng +0.45/aria +0.14/utmm −0.21, b25 −0.06/+0.27/−0.41/−0.05dB. C2 rule (≥3/4) not met (b15 2/4, b25 1/4); only RPNG table_06 shows a consistent ERVS gain. Not a final claim. → [card](experiments/campaigns/06_gain_attribution/b_ablation_v2/README.md)
 
 - 2026-10-01 B ablation chain pilot 24/24 (rot·RPNG table_06, budget 15/40, seed0, B main 6d200f0f): R1 window→R2 +KF pool +2.5~3.7dB, R2→R3 dense RGB +0.19~0.39dB (4/4 signal), R3→R4 pacing −0.00~+0.19dB (1/4, no signal), ERVS−RR +0.13/−0.28/+0.45/+0.22dB inconsistent; κ4 amplification not observed. ERVS lowers only KF-pool service CV (6/6), recent-third PSNR ERVS ahead 5/6 (hint). Single-seed pilot, not a final claim. → [card](experiments/campaigns/06_gain_attribution/b_ablation_chain/README.md)

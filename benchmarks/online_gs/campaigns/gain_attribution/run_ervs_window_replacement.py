@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_b_ablation_chain as base  # noqa: E402
 
 V2 = base.ROOT / 'results/campaigns/gain_attribution/b_ablation_v2/v1'
+PILOT = base.OUT
 base.OUT = base.ROOT / 'results/campaigns/gain_attribution/ervs_window_replacement/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/ervs_window_replacement/PREREG.md'
 NEW = [('w0_ervs', ['--batch-quotas', '0', '6', '6']),
@@ -48,9 +49,12 @@ def main():
     rows = []
     for key in SCENES:
         for budget in BUDGETS:
-            for arm, ref in (('B', 'ervs'), ('B_rr', 'rr')):
-                row = dict(base.read(V2 / 'ervs' / key / f'render{budget}' / f'{ref}.row.json'))
-                row.update(phase='w0', arm=arm, reused_from=f'b_ablation_v2/ervs/{key}/render{budget}/{ref}')
+            for arm, ref, pilot_arm in (('B', 'ervs', 'R4'), ('B_rr', 'rr', 'R4rr')):
+                src = V2 / 'ervs' / key / f'render{budget}' / f'{ref}.row.json'
+                if not src.exists():   # b_ablation_v2 itself reused the pilot for rot/rpng budget 15
+                    src = PILOT / 'chain' / key / f'render{budget}' / f'{pilot_arm}.row.json'
+                row = dict(base.read(src))
+                row.update(phase='w0', arm=arm, reused_from=str(src.relative_to(base.ROOT / 'results/campaigns')))
                 rows.append(row)
             for arm, extra in NEW:
                 print('START', key, budget, arm, flush=True)
