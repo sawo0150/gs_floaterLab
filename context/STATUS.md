@@ -88,6 +88,10 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 archived controls19/19의 checkpoint 133/133 평가 완료, 정합통과 133/133. Colin 학습 지도만 local5070에서 평가(재학습0); pilot coordinator 자동재개 확인. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
+- 2026-10-01 CVPR archived19/controls_checkpoint_evaluation_5070ti checkpoint_curverenders/KF saved_maps_no_retraining: status=passed, PSNR=None; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_archived_curves_v1 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR aria/aria1253 regionrenders/KF Vanilla_40: status=evaluated, PSNR=20.856434509044384; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 CVPR aria/aria1253 regionrenders/KF D3_40: status=evaluated, PSNR=25.760522092571694; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)

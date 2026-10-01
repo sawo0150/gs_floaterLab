@@ -48,3 +48,7 @@ The immutable local Aria maps were evaluated on the same hash-locked manual empt
 |40|155|447|188.507|324.063|
 
 [Full result](aria_manual_regions.json) includes eroded/nominal/dilated-mask sensitivity, hashes, held-out quality and alignment details. This is a single-scene whole-system comparison; it does not isolate the D3 term and provides no dense-surface accuracy/completeness measurement. The separate zero-weight control is still pending.
+
+## Archived controls evaluated while inputs transfer
+
+All 19 existing Colin control maps completed checkpoint evaluation on the local GPU: 133 immutable/final states evaluated, 133 accepted by the pose-alignment gate. No training was repeated. See [audit](archived_control_curve_audit.json). The waiting local coordinator was held only to serialize GPU use and was automatically resumed after evaluation; its original input-transfer wait continues. The later follow-up will recognize and skip these already completed curve evaluations.

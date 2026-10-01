@@ -1,0 +1,124 @@
+{
+  "runs": 19,
+  "checkpoints": 133,
+  "alignment_accepted": 133,
+  "training_repeated": false,
+  "trained_hardware": "Colin RTX5090",
+  "evaluation_hardware": "local RTX5070Ti",
+  "runs_detail": [
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "5cd3021d3196220303c2d33ae9c8ac2641617d94000ea110f428e77f30e91f32"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "5f9edeb6eb04ac59935002d1bff8cab1db431f89337f4545218f1501ddc6c83c"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "4a07d25f3e8cc0457ad97dafcd6845c8aaaa52b2a79392c89038d4052a97f391"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "e66f279396c99dace6c671dc9afd2f29ded4e60d3d1035ad0524962e983158a2"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "1d5c9eff7cb99f5984451e03210d3e14724cfbb65f52c660af8035ea1c88962e"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "6b523fe057649ceb009eb2abd873ee7f4284c8b53d094879147b16970671f8bc"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "2180f77da74193ae58646d05de97face8cf26950cafaea8309cd9e5e0f6e88fc"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "fb2502928018e487e2ece2d9560b79a38ad6be8355134905f10365aa3547dcce"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "bd78e9adda356af6b2386c21813e36d82f26d49bc5736910ca4c053a2ba29c97"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "3f2d528f306922c8ed584c8973106a6a29c3cef23da19490e735348fa142c915"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/native_geometry",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "c04d68097ecb8ea2ad63c0ba1ff393bc1449d7242e083883f077601c7b07daeb"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "efc73d7551b9c1dfc7de239c7fdc28057d28f9f90f7287dffe01d44b83bbf864"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "efed7f2ded82b9ef29b1420f69a672e14f4e286cd49eb57dc6a6a0790a0f29d7"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "1a65cca10b94b550d53019b6018ac065bd3cf05c30d5101891cbc89d939c65ab"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/native_geometry",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "59a4723188e93c23c68af88bb5ca2f99e36fac7f7d35e0231a5fcb0c0efbb4d0"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "2949fc42d04f25922832410781ce30cbcef081af989f8c9d6cdb55919b7a656f"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "e6939df2d8f4cf3a9e9cd69738609bc76202e44719a12db54417d5d831ef01d3"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/ervs_kf_rgb",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "b47a1be81b6dc1d4abf682374e20647ff205cc26595e7d2a97bb29c094ef0962"
+    },
+    {
+      "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/rr_dense",
+      "checkpoints": 7,
+      "alignment_accepted": 7,
+      "summary_sha256": "327d6799b8cca5a3afe5d7886435b2535be559e5bc2e28d295565eede108d189"
+    }
+  ]
+}
