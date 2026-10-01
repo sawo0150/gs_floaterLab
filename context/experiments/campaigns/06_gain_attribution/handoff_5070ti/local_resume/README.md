@@ -22,7 +22,7 @@ These are frozen causal tracker fixed-work results, not concurrent tracking or r
 
 Failed or partial runs stop the queue; no output is overwritten or silently relabeled as passed. Checkpoint alignment rejection remains visible and does not support convergence claims. Geometry zero-weight controls and original 15/30/60 sampler reproduction remain subsequent work; FIFO/time panels remain deferred.
 
-Local runtime status: `results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v1/queue_status.json`. The companion queue log and per-run logs identify failures. The 3-scene pilot and remaining-input transfers were still in progress when this card was written.
+Local runtime status: `results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v2/queue_status.json`. The companion queue log and per-run logs identify failures. The 3-scene pilot and remaining-input transfers were still in progress when this card was written.
 
 ## Checkpoint and historical-source audit
 
@@ -52,3 +52,11 @@ The immutable local Aria maps were evaluated on the same hash-locked manual empt
 ## Archived controls evaluated while inputs transfer
 
 All 19 existing Colin control maps completed checkpoint evaluation on the local GPU: 133 immutable/final states evaluated, 133 accepted by the pose-alignment gate. No training was repeated. See [audit](archived_control_curve_audit.json). The waiting local coordinator was held only to serialize GPU use and was automatically resumed after evaluation; its original input-transfer wait continues. The later follow-up will recognize and skip these already completed curve evaluations.
+
+## Input-ready scheduling (controls v2 / follow-up v3)
+
+Before any new control training, the waiting coordinators were superseded and preserved. The replacement still requires the complete three-scene pilot, but then admits each remaining scene only after its own full input hash audit. It evaluates already trained checkpoints while waiting for additional scenes. All 121 missing controls, the declared 20-scene cohort, source/configuration locks and final gates are unchanged; ordering uses file availability, never quality scores. Completion still waits for the full input transfer before the geometry follow-up.
+
+A real-input readiness check found that RPNG v2 geometry references are bundled-file strings, while Aria v3 uses split depth/normal dictionaries. The orchestration validator now follows the frozen reader's support for both formats. The original archives and mapper reader were not changed. Complete Aria inputs pass both readiness and hash validation; the incomplete RPNG archive correctly remains ineligible. The missing-control count remains 121.
+
+Active paths are `rtx5070ti_controls_v2`, `rtx5070ti_references_v2`, and `rtx5070ti_followup_v3`. The pilot remains `rtx5070ti_fixed_pilot_v1`; all completed pilot and archived-control evaluations are reused.

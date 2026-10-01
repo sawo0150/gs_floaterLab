@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-01 local queue 입력준비 순 실행으로 보완: controls121·전체cohort·recipe 유지, 장면별 full input audit 후 시작, 대기 중 완료지도 checkpoint 평가. RPNG v2 bundled/Aria v3 split geometry 두 archive 형식 검증 지원. 대기 coordinator만 controls_v2/followup_v3로 대체; 기존 결과 보존. → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
 - 2026-10-01 archived controls19/19의 checkpoint 133/133 평가 완료, 정합통과 133/133. Colin 학습 지도만 local5070에서 평가(재학습0); pilot coordinator 자동재개 확인. → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
 
 - 2026-10-01 CVPR archived19/controls_checkpoint_evaluation_5070ti checkpoint_curverenders/KF saved_maps_no_retraining: status=passed, PSNR=None; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_archived_curves_v1 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)

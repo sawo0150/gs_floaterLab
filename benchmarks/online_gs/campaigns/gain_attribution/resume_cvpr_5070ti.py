@@ -23,6 +23,37 @@ from collect_cvpr_assets import ROOT, MAIN, OUT, read, write, sha
 PILOTS = {"aria1253", "table_06", "square-1"}
 
 
+def geometry_files(reference):
+    # The frozen reader accepts bundled v2 tensors and split depth/normal v3.
+    return [reference] if isinstance(reference, str) else [reference['depth'], reference['normal']]
+
+
+def pending_input_files(row, cache):
+    """Readiness only; the full input hash audit still runs before training."""
+    key = (row['dataset'], row['scene'])
+    archive = Path(row['archive'])
+    manifest = archive / 'archive_manifest.json'
+    if not manifest.is_file(): return [str(manifest)]
+    if key not in cache:
+        assert sha(manifest) == row['archive_sha256'], manifest
+        m = read(manifest)
+        arrivals = archive / m['arrivals']
+        if not arrivals.is_file(): return [str(arrivals)]
+        paths = {Path(row[k]) for k in ('fixed_manifest', 'calibration', 'imu', 'input_config')}
+        paths.add(arrivals)
+        for k in ('final_tracker_state', 'evaluation_only_post_eos_trajectory'):
+            if m.get(k): paths.add(archive / m[k])
+        for event in m['events']:
+            paths.add(archive / event['payload'])
+            for g in event.get('geometry_refs', []):
+                paths.update(archive / f for f in geometry_files(g))
+        for line in arrivals.read_text().splitlines():
+            if line: paths.add(Path(row['image_dir']) / json.loads(line)['source_name'])
+        cache[key] = paths
+    cache[key] = {p for p in cache[key] if not p.is_file()}
+    return cache[key]
+
+
 def alive(pid):
     stat = Path(f"/proc/{pid}/stat")
     return stat.exists() and stat.read_text().rsplit(")", 1)[1].split()[0] != "Z"
@@ -47,7 +78,7 @@ def inputs_ready(rows):
             files.add(e["payload"])
             assert sha(archive / e["payload"]) == e["payload_sha256"], e["payload"]
             for g in e.get("geometry_refs", []):
-                files.update([g["depth"], g["normal"]])
+                files.update(geometry_files(g))
         missing = [name for name in files if not (archive / name).is_file()]
         assert not missing, (r["scene"], missing[:5])
         for k in ("calibration", "imu", "input_config"):
@@ -110,7 +141,9 @@ def main():
             "queue_sha256": sha(Path(__file__)), "lab_head": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
             "custom_head": subprocess.check_output(["git", "-C", str(MAIN), "rev-parse", "HEAD"], text=True).strip(),
             "gpu": subprocess.check_output(["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"], text=True).strip(),
-            "time_comparison": False})
+            "time_comparison": False,
+            "scene_execution_order": "input availability only; no metric-based selection",
+            "training_policy_changed": False})
         inventory = read(OUT / "scene_inventory.json")
         pilots = [r for r in inventory if r["scene"] in PILOTS]
         completed = ROOT / "context/experiments/campaigns/06_gain_attribution/handoff_5070ti/completed_controls.json"
@@ -142,11 +175,34 @@ def main():
                    "--skip-completed", str(completed), "--budgets", "15", "40", "--snapshots"]
         run([*control, "--scenes", *sorted(PILOTS)], a.controls / "pilot_controls.log", status, "pilot_controls")
         passed(a.controls, 21)
-        wait_for([a.remaining_transfer_pid], status, "waiting_remaining_transfer")
-        inputs_ready(inventory)
-        run(control, a.controls / "remaining_controls.log", status, "remaining_controls")
+        historical = read(completed)
+        skipped = lambda r: sum(x['status'] == 'passed' and (x['dataset'], x['scene']) == (r['dataset'], r['scene']) for x in historical)
+        pending = [r for r in inventory if r['scene'] not in PILOTS and skipped(r) < 7]
+        cache = {}
+        while pending:
+            ready = [r for r in pending if not pending_input_files(r, cache)]
+            if not ready:
+                # Use otherwise idle GPU time for already trained maps.
+                evaluate_curves(read(a.controls / 'summary.json'), a.controls, status, 'control_curves')
+                if not alive(a.remaining_transfer_pid):
+                    inputs_ready(pending)  # Raise with the missing/corrupt input, never retry training.
+                write(status, {'stage': 'waiting_scene_inputs', 'transfer_pid': a.remaining_transfer_pid,
+                               'pending_scenes': [r['scene'] for r in pending], 'updated': time.time()})
+                time.sleep(10)
+                continue
+            for r in ready:
+                inputs_ready([r])
+                count = len(read(a.controls / 'summary.json'))
+                log = a.controls / f"controls_{r['dataset']}_{r['scene']}.log"
+                run([*control, '--scenes', r['scene']], log, status, 'remaining_controls')
+                passed(a.controls, count + 7 - skipped(r))
+                pending.remove(r)
+        # This only skips passed outputs and restores the full-cohort protocol metadata.
+        run(control, a.controls / 'finalize_controls.log', status, 'finalize_control_metadata')
         rows = passed(a.controls, 121)
         evaluate_curves(rows, a.controls, status, "control_curves")
+        wait_for([a.remaining_transfer_pid], status, 'waiting_final_input_transfer')
+        inputs_ready(inventory)
         write(status, {"stage": "fixed_work_controls_and_curves_complete", "controls_passed": 121,
                        "previous_controls_passed": 19, "geometry_and_original_sampler": "pending_followup", "updated": time.time()})
     except BaseException:
