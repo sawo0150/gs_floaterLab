@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-01 local pilot checkpoint28/28 평가·pose alignment 통과. Original sampler 소스는 별도 worktree에서 과거152-run train/scheduler SHA와 정확히 복원; init cloud114/114 일치, metadata/schedule171 hash 고정. controls 이후 D3 zero-weight20 및 original sampler114 후속 준비(아직 미실행). → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
 - 2026-10-01 local RTX5070Ti 재개: source119·extension hash 일치, RPNG/UTMM16-scene RGB checksum 일치; Aria 15/40 D3+vanilla pilot4/4 held-out 이중 평가 통과. 나머지 pilot·미완료controls121·checkpoint 평가 준비, 실시간 비교 보류. → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
 
 - 2026-10-01 CVPR aria/aria1253 40renders/KF vanilla: status=passed, PSNR=20.856434509044384; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)

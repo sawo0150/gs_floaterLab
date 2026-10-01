@@ -1,0 +1,79 @@
+diff --git a/runtime/scheduler.py b/runtime/scheduler.py
+index e9d2c1c..1c767ad 100644
+--- a/runtime/scheduler.py
++++ b/runtime/scheduler.py
+@@ -18,6 +18,46 @@ class CausalRandomReshuffling:
+         item = self.remaining.pop(); self.counts[item] += 1
+         return item
+ 
++class RecentIntervalWindowRandomReshuffling:
++    """Causal RR over frames from only the most recent keyframe intervals.
++
++    Each non-empty ``add`` call closes one keyframe interval.  The active pool
++    is the union of the most recent ``window_size`` intervals.  Frames evicted
++    with an old interval can no longer be drawn, while newly arrived frames are
++    inserted into a random position of the unfinished RR epoch.  Consequently,
++    a stable window is exact random reshuffling and no future interval is used.
++    """
++
++    def __init__(self, seed=0, window_size=10):
++        self.rng = random.Random(seed)
++        self.window_size = int(window_size)
++        if self.window_size < 1:
++            raise ValueError("window_size must be >= 1")
++        self.active, self.remaining, self.counts = [], [], Counter()
++        self.intervals = []
++
++    def add(self, ids):
++        ids = list(ids)
++        if not ids:
++            return
++        self.intervals.append(ids)
++        for item in ids:
++            self.counts[item] += 0
++        retained = self.intervals[-self.window_size:]
++        self.active = [item for interval in retained for item in interval]
++        active_set = set(self.active)
++        self.remaining = [item for item in self.remaining if item in active_set]
++        for item in ids:
++            self.remaining.insert(self.rng.randrange(len(self.remaining) + 1), item)
++
++    def draw(self):
++        if not self.remaining:
++            self.remaining = self.active.copy()
++            self.rng.shuffle(self.remaining)
++        item = self.remaining.pop()
++        self.counts[item] += 1
++        return item
++
+ class CountBalancedRandomReshuffling:
+     """Uniform draw among least-trained views; static-pool behavior is exact RR."""
+     def __init__(self, seed=0):
+@@ -672,6 +712,7 @@ class StagedTwoPassSizeAwareIntervalSoftmaxRandomReshuffling(
+ def make_scheduler(name, seed=0, beta=1.0, block_size=128, phase_start=0,
+                    loss_alpha=.5):
+     return {"causal_rr": CausalRandomReshuffling,
++            "recent_interval_window_rr": lambda s: RecentIntervalWindowRandomReshuffling(s, block_size),
+             "count_balanced_rr": CountBalancedRandomReshuffling,
+             "soft_count": lambda s: SoftCountBalancedSampler(s, beta),
+             "floor_rr": lambda s: FloorProtectedRandomReshuffling(s, beta),
+@@ -729,4 +770,6 @@ def scheduler_summary(scheduler, image_names, arrivals, total):
+         payload["gamma"] = float(scheduler.gamma)
+     if hasattr(scheduler, "relative_floor_ratio"):
+         payload["relative_floor_ratio"] = float(scheduler.relative_floor_ratio)
++    if hasattr(scheduler, "window_size"):
++        payload["window_size"] = int(scheduler.window_size)
+     return payload
+diff --git a/train.py b/train.py
+index fe923d1..a9d42f7 100644
+--- a/train.py
++++ b/train.py
+@@ -741,7 +741,7 @@ if __name__ == "__main__":
+                         help="Path to carve loss YAML config. None = disabled. "
+                              "Example: configs/carve_loss/exp38_carve.yaml")
+     parser.add_argument("--view_schedule", type=str, default=None)
+-    parser.add_argument("--view_scheduler", choices=["static_rr", "causal_rr", "count_balanced_rr", "soft_count", "floor_rr", "lag_rr", "mixed_deficit_rr", "block_weighted_rr", "stable_pool_block_rr", "entropy_floor_rr", "interval_softmax_rr", "interval_size_softmax_rr", "normalized_interval_size_softmax_rr", "staged_interval_size_softmax_rr", "loss_interval_size_softmax_rr", "staged_loss_interval_size_softmax_rr", "bounded_interval_size_softmax_rr", "staged_bounded_interval_size_softmax_rr", "two_pass_interval_size_softmax_rr", "staged_two_pass_interval_size_softmax_rr", "relative_floor_interval_softmax_rr"], default="static_rr")
++    parser.add_argument("--view_scheduler", choices=["static_rr", "causal_rr", "recent_interval_window_rr", "count_balanced_rr", "soft_count", "floor_rr", "lag_rr", "mixed_deficit_rr", "block_weighted_rr", "stable_pool_block_rr", "entropy_floor_rr", "interval_softmax_rr", "interval_size_softmax_rr", "normalized_interval_size_softmax_rr", "staged_interval_size_softmax_rr", "loss_interval_size_softmax_rr", "staged_loss_interval_size_softmax_rr", "bounded_interval_size_softmax_rr", "staged_bounded_interval_size_softmax_rr", "two_pass_interval_size_softmax_rr", "staged_two_pass_interval_size_softmax_rr", "relative_floor_interval_softmax_rr"], default="static_rr")
+     parser.add_argument("--scheduler_seed", type=int, default=0)
+     parser.add_argument("--scheduler_beta", type=float, default=1.0)
+     parser.add_argument("--scheduler_block_size", type=int, default=128)

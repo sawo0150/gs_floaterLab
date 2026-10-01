@@ -1,0 +1,30 @@
+[
+  {
+    "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3",
+    "snapshots_plus_final": 7,
+    "all_evaluated": true,
+    "all_alignment_accepted": true,
+    "summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3/curve_evaluation/summary.json"
+  },
+  {
+    "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla",
+    "snapshots_plus_final": 7,
+    "all_evaluated": true,
+    "all_alignment_accepted": true,
+    "summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla/curve_evaluation/summary.json"
+  },
+  {
+    "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3",
+    "snapshots_plus_final": 7,
+    "all_evaluated": true,
+    "all_alignment_accepted": true,
+    "summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3/curve_evaluation/summary.json"
+  },
+  {
+    "run": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla",
+    "snapshots_plus_final": 7,
+    "all_evaluated": true,
+    "all_alignment_accepted": true,
+    "summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla/curve_evaluation/summary.json"
+  }
+]

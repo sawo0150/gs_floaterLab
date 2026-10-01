@@ -23,3 +23,11 @@ These are frozen causal tracker fixed-work results, not concurrent tracking or r
 Failed or partial runs stop the queue; no output is overwritten or silently relabeled as passed. Checkpoint alignment rejection remains visible and does not support convergence claims. Geometry zero-weight controls and original 15/30/60 sampler reproduction remain subsequent work; FIFO/time panels remain deferred.
 
 Local runtime status: `results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v1/queue_status.json`. The companion queue log and per-run logs identify failures. The 3-scene pilot and remaining-input transfers were still in progress when this card was written.
+
+## Checkpoint and historical-source audit
+
+Aria pilot checkpoint evaluation finished: 4 runs × (6 immutable snapshots + final) = 28/28 evaluated, all 28 pass the pose-alignment acceptance gate. See [curve audit](aria_curve_audit.json). These use the predeclared 64-view convergence subset, not the full endpoint cohort.
+
+The local original sampler worktree contained later edits. A new detached worktree `3dgs-custom-benchmark-b-handoff-20261001` was created at the historical `2debc8a` base. [Restoration patch](original_sampler_source_restore.patch) recovers the exact train/scheduler hashes recorded in all 152 historical benchmark-B executions; the original dirty worktree is untouched. The packet scheduler also matches. All 114 selected jobs' initial clouds match their historical `input.ply`; 171 metadata/schedule files are hashed in the [prepared manifest](original_sampler_manifest.json).
+
+The new `resume_cvpr_5070ti_followup.py` waits for the verified controls coordinator and requires its successful endpoint/curve completion before running 20 clean D3 zero-weight controls and then the 114 historical sampler runs. It excludes live/time panels. Original replay checks camera cohorts and sampler histories against archived runs and evaluates the saved map twice for PSNR/SSIM/LPIPS. This follow-up was prepared but had not executed GPU jobs at this update.

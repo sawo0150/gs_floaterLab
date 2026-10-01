@@ -31,15 +31,16 @@ def wait_gpu():
 
 def command_run(command, log, env):
     wait_gpu()
+    log.parent.mkdir(parents=True, exist_ok=True)
     write(log.with_suffix('.command.json'), command)
     with log.open('x') as f:
         subprocess.run(command, cwd=ROOT, env=env, stdout=f,
                        stderr=subprocess.STDOUT, check=True)
 
 
-def geometry_control(item, output, py, source):
+def geometry_control(item, output, py, source, reference_root=None):
     dataset, scene = item['dataset'], item['scene']
-    panel = RESULTS / ('cvpr_assets/fixed_work_12f_v1' if scene == 'aria301_12F' else 'cvpr_assets/fixed_work_v1')
+    panel = reference_root or RESULTS / ('cvpr_assets/fixed_work_12f_v1' if scene == 'aria301_12F' else 'cvpr_assets/fixed_work_v1')
     reference = panel / 'render40' / dataset / scene / 'd3'
     setup = panel / 'inputs' / dataset / scene / 'setup'
     out = output / 'render40' / dataset / scene / 'geometry_zero_weights'
