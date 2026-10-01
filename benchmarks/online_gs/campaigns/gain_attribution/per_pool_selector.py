@@ -63,7 +63,10 @@ def install():
 if __name__ == '__main__':
     # Worker entry: install, then hand over to the official B worker with the same argv.
     import runpy
-    install()
     worker = Path(os.environ['B_SELECTED_WORKER'])
+    # Same sys.path[0] as running the worker directly: this folder holds an older selected_mapping_check.py
+    # that must not shadow the official one next to the worker.
+    sys.path[0] = str(worker.parent)
+    install()
     sys.argv = [str(worker), *sys.argv[1:]]
     runpy.run_path(str(worker), run_name='__main__')
