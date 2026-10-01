@@ -88,6 +88,22 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 pilot-scene controls21/21 검증(기존19 포함40/140). Aria40 RR+dense 평가 signal11 이후 동일지도 재평가2회 일치25.883835dB. 실패로그 보존 중 NTFS rename 대기 미해결·GPU점유0; 새 controls_v4/followup_v5로 결과 재사용 후 aria1253rot 시작. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF native_geometry: status=passed, PSNR=25.82559433420196; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/native_geometry → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF rr_kf_rgb: status=passed, PSNR=25.33093212215045; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/rr_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF ervs_kf_rgb: status=passed, PSNR=25.046267920777996; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/ervs_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF rr_dense: status=failed, PSNR=None; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/rr_dense → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF rr_kf_rgb: status=passed, PSNR=22.838645927778636; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/aria/aria1253/rr_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF ervs_kf_rgb: status=passed, PSNR=23.1710033926345; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/aria/aria1253/ervs_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF rr_dense: status=passed, PSNR=23.14226299751806; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/aria/aria1253/rr_dense → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR utmm/square-1 40renders/KF native_geometry: status=passed, PSNR=22.16141046712428; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/native_geometry → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 CVPR utmm/square-1 40renders/KF rr_kf_rgb: status=passed, PSNR=21.74469624625312; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/rr_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)

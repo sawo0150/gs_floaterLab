@@ -1,0 +1,385 @@
+[
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "rr_dense",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253/rr_dense",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 23.14226299751806,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1785,
+      "optimizer_steps": 1785,
+      "gaussians": 220427,
+      "loss_routes": {
+        "native_rgbd_normal": 1022,
+        "rgb_only": 763
+      },
+      "roles": {
+        "window": 514,
+        "keyframe": 508,
+        "dense": 763
+      }
+    },
+    "mapping_seconds": 28.468194231390953,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "8a2d3fb8cce6f271365c8f002c759637a4f14f94c7f48a5804797155af47e328",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "ac4990d5b4d2d0af47e33514939fcab19c221c13d624835adc8bb1f11f24c7ff",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.14226299751806,
+      "fixed_psnr_second": 23.14226299751806,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253/ervs_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 23.1710033926345,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1785,
+      "optimizer_steps": 1785,
+      "gaussians": 221687,
+      "loss_routes": {
+        "native_rgbd_normal": 940,
+        "rgb_only": 845
+      },
+      "roles": {
+        "window": 471,
+        "keyframe": 469,
+        "keyframe_rgb": 845
+      }
+    },
+    "mapping_seconds": 16.70322293182835,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "7cb1d3ce38b1532bf07218ac2c4141d9f563e5b8d21feac06f9d455bacc98aaa",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.1710033926345,
+      "fixed_psnr_second": 23.1710033926345,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "rr_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253/rr_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 22.838645927778636,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1785,
+      "optimizer_steps": 1785,
+      "gaussians": 221688,
+      "loss_routes": {
+        "native_rgbd_normal": 940,
+        "rgb_only": 845
+      },
+      "roles": {
+        "window": 471,
+        "keyframe": 469,
+        "keyframe_rgb": 845
+      }
+    },
+    "mapping_seconds": 16.649379454087466,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "ef518fdad16446701f15aa2e59aca84ace2d884b38e11498ea2a5e13f257c52e",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 22.838645927778636,
+      "fixed_psnr_second": 22.838645927778636,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "rr_dense",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253/rr_dense",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 25.883835210144976,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4760,
+      "optimizer_steps": 4760,
+      "gaussians": 192952,
+      "loss_routes": {
+        "native_rgbd_normal": 2467,
+        "rgb_only": 2293
+      },
+      "roles": {
+        "window": 1235,
+        "keyframe": 1232,
+        "dense": 2293
+      }
+    },
+    "evaluation": {
+      "checks": {
+        "lpips_agrees": true,
+        "psnr_agrees": true,
+        "same_fixed_view_count": true,
+        "same_gaussian_count": true,
+        "same_views": true,
+        "ssim_agrees": true,
+        "unchanged_inputs": true
+      },
+      "cooldown_seconds": 15,
+      "fixed_psnr_first": 25.883835210144976,
+      "fixed_psnr_second": 25.883835210144976,
+      "input_sha256": {
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "b21521de4f0d89db8e9f7ac08e25fb994e897362fc5776818adfb69c71b1c8ff",
+        "ply": "9eef2ca5063f82a4e61113bbac5c487767be5ae91ad4f0a4bc0944731e0c7458"
+      },
+      "max_abs_per_view_difference": {
+        "lpips": 0.0,
+        "psnr": 0.0,
+        "ssim": 0.0
+      },
+      "pass": true,
+      "protocol": "saved_map_independent_double_evaluation_v1"
+    },
+    "mapping_seconds": 44.75703258858994,
+    "evaluation_recovery": {
+      "training_rerun": false,
+      "prior_error": "Traceback (most recent call last):\n  File \"/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/run_cvpr_ablations.py\", line 92, in main\n    ev = fixed.trial.common.evaluation.panel.run_evaluation_twice(out, d, s, Path(r['fixed_manifest']))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/run_exp91_normalized_metric_v2_reliable.py\", line 99, in run_evaluation_twice\n    v2.run_to_file(command, run / \"evaluation_repeat.log\", custom=True)\n  File \"/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/run_exp88_normalized_metric_v2.py\", line 127, in run_to_file\n    subprocess.run(\n  File \"/home/wosas/miniconda3/envs/vigs-slam-5090/lib/python3.11/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['/home/wosas/miniconda3/envs/vigs-slam-5090/bin/python', '/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/exp78_evaluate_vigs_ply.py', '--run-dir', '/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/rr_dense', '--image-dir', '/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/aria1253_pilot_input/rgb', '--calib', '/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/calib/aria1253.txt', '--manifest', '/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/context/experiments/exp78/b_strict_fair_comparison/manifests/aria_aria1253.json', '--rgb-file-in-nanoseconds', '--mapped-uids-json', '/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/rr_dense/mapped_uids.json', '--result-subdir', 'strict_fixed_manifest_repeat']' died with <Signals.SIGKILL: 9>.\n",
+      "filesystem_preservation": "rename hung; original directory preserved"
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253/ervs_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 25.046267920777996,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4760,
+      "optimizer_steps": 4760,
+      "gaussians": 196761,
+      "loss_routes": {
+        "native_rgbd_normal": 2400,
+        "rgb_only": 2360
+      },
+      "roles": {
+        "window": 1201,
+        "keyframe": 1199,
+        "keyframe_rgb": 2360
+      }
+    },
+    "mapping_seconds": 27.140326257795095,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "31f555f1fffbf510c66467486ac183c1fa86e066861e2d12ea409505c4c0f20e",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.046267920777996,
+      "fixed_psnr_second": 25.046267920777996,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "rr_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253/rr_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 25.33093212215045,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4760,
+      "optimizer_steps": 4760,
+      "gaussians": 196919,
+      "loss_routes": {
+        "native_rgbd_normal": 2400,
+        "rgb_only": 2360
+      },
+      "roles": {
+        "window": 1201,
+        "keyframe": 1199,
+        "keyframe_rgb": 2360
+      }
+    },
+    "mapping_seconds": 27.271812750957906,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "08cebae221ac3a87eb0680706673606a8410d56cb1567374a42f3103f1a4876e",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "da80e77eb37bf1c87b6ad0608cb34168f5973d8d6917967df46c9942832d9e3e",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.33093212215045,
+      "fixed_psnr_second": 25.33093212215045,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "native_geometry",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253/native_geometry",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 25.82559433420196,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4760,
+      "optimizer_steps": 4760,
+      "gaussians": 192869,
+      "loss_routes": {
+        "native_rgbd_normal": 2467,
+        "rgb_only": 2293
+      },
+      "roles": {
+        "window": 1240,
+        "keyframe": 1227,
+        "dense": 2293
+      }
+    },
+    "mapping_seconds": 42.16026210412383,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "9c1a3422062e065f1966a3205d5f89488021ff1a0dfc66aae6f0d14f962fd4f4",
+        "full_trajectory": "6f6c3c2b9cfe586bc0031f399fad88e3dca9a439714433d1edd9036a753ce197",
+        "kf_trajectory": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+        "mapped_uids": "25f75211a4a04c3ae30a97beffc21512ab88e75ec7b168d895edb1dc6471fed9",
+        "fixed_manifest": "40df31333e5bddd13ba178c7246d7d8fb364a32886a1345ac0d5e9748572713f"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.82559433420196,
+      "fixed_psnr_second": 25.82559433420196,
+      "pass": true
+    }
+  }
+]

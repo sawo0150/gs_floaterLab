@@ -130,3 +130,11 @@ All seven square-1 controls pass endpoint execution, paired prefix/pose/cohort c
 | keyframe |21.744696|21.814367|+0.069671|
 
 At 40, native geometry reaches 22.161410 dB versus D3 22.092829 dB (D3 −0.068582 dB). Neither this nor the RPNG native comparison establishes a PSNR benefit from D3; geometry claims require their own evidence. The queue has moved to Aria1253 controls.
+
+## Aria controls and second evaluator recovery
+
+All seven Aria1253 controls pass endpoint gates; [summary](aria_controls_summary.json), [15-budget CSV](aria15_factorial.csv), [40-budget CSV](aria40_factorial.csv). Aria40 RR+dense is 25.883835 dB, ERVS+dense 25.760522 dB; native geometry 25.825594 dB. These do not establish a universal ERVS or D3 PSNR benefit.
+
+The first Aria40 RR+dense evaluator wrote metrics but its leader exited with signal11 and left threads alive. Those owned threads were terminated; the failure row/log was preserved. A new evaluation-only sibling directory reused the immutable training map and passed two evaluations at exactly 25.883835 dB, with unchanged inputs and paired prefix/pose/cohort checks. No training was repeated.
+
+The recovery helper then hung in the NTFS3 `lock_two_nondirectories` kernel wait while archiving an old evaluation file. A SIGKILL is pending for that helper (PID3348123); the filesystem wait is unresolved, and its paths are preserved without further mutation. It holds no GPU allocation. The old coordinator was stopped and its pending follow-up exited. A fresh coordinator now reuses all 21 passed pilot-scene controls via an explicit manifest and symlinks, including the successful evaluation-only retry, with original source locks. Active paths: **controls_v4 / references_v4 / followup_v5**; PIDs3348918/3348919. Input-audited aria1253rot training has started, confirming the new queue progresses. Remaining input transfer PID3333438 continues.

@@ -129,11 +129,31 @@ def main():
     p.add_argument("--initial-panel-pid", type=int, required=True)
     p.add_argument("--pilot-transfer-pid", type=int, required=True)
     p.add_argument("--remaining-transfer-pid", type=int, required=True)
+    p.add_argument("--reuse-controls-manifest", type=Path,
+                   help="Inspected passed pilot controls to preserve in a fresh namespace")
+    p.add_argument("--reuse-source-lock", type=Path)
     a = p.parse_args()
     assert os.environ.get("ROGO_MACHINE_PROFILE"), "An explicit machine profile is required"
     a.controls.mkdir(parents=True, exist_ok=False)
     status = a.controls / "queue_status.json"
     try:
+        if a.reuse_controls_manifest:
+            reused = read(a.reuse_controls_manifest)
+            assert len(reused) == 21 and all(r['status'] == 'passed' for r in reused)
+            assert a.reuse_source_lock and a.reuse_source_lock.is_file()
+            for row in reused:
+                original = Path(row['output'])
+                assert read(original / 'render_result.json')['valid_execution']
+                assert read(original / 'evaluation_consistency.json')['pass']
+                target = a.controls / f"render{row['budget']}" / row['dataset'] / row['scene'] / row['arm']
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.symlink_to(original.resolve(), target_is_directory=True)
+                row['output'] = str(target)
+            write(a.controls / 'summary.json', reused)
+            shutil.copyfile(a.reuse_source_lock, a.controls / 'source_lock.json')
+            write(a.controls / 'reused_controls_provenance.json', {
+                'manifest': str(a.reuse_controls_manifest), 'sha256': sha(a.reuse_controls_manifest),
+                'training_rerun': False})
         profile = Path(os.environ["ROGO_MACHINE_PROFILE"])
         write(a.controls / "machine_provenance.json", {
             "profile": read(profile), "profile_sha256": sha(profile),
