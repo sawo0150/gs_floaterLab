@@ -506,3 +506,5 @@
 - 2026-10-01 CVPR utmm/square-1 40renders/KF vanilla: status=passed, PSNR=18.871978459534823; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/vanilla
 
 - 2026-10-01 CVPR rpng/table_06 15renders/KF rr_dense: status=passed, PSNR=23.392751422229114; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/rpng/table_06/rr_dense
+
+- 2026-10-01 CVPR rpng/table_06 15renders/KF ervs_kf_rgb: status=passed, PSNR=23.793912650443414; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/rpng/table_06/ervs_kf_rgb
