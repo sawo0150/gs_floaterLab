@@ -488,3 +488,5 @@
 - 2026-10-01 CVPR aria/aria1253 regionrenders/KF Vanilla_40: status=evaluated, PSNR=20.856434509044384; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json
 
 - 2026-10-01 CVPR archived19/controls_checkpoint_evaluation_5070ti checkpoint_curverenders/KF saved_maps_no_retraining: status=passed, PSNR=None; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_archived_curves_v1
+
+- 2026-10-01 CVPR rpng/table_06 15renders/KF d3: status=passed, PSNR=23.861218289212065; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/rpng/table_06/d3

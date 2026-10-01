@@ -60,3 +60,7 @@ Before any new control training, the waiting coordinators were superseded and pr
 A real-input readiness check found that RPNG v2 geometry references are bundled-file strings, while Aria v3 uses split depth/normal dictionaries. The orchestration validator now follows the frozen reader's support for both formats. The original archives and mapper reader were not changed. Complete Aria inputs pass both readiness and hash validation; the incomplete RPNG archive correctly remains ineligible. The missing-control count remains 121.
 
 Active paths are `rtx5070ti_controls_v2`, `rtx5070ti_references_v2`, and `rtx5070ti_followup_v3`. The pilot remains `rtx5070ti_fixed_pilot_v1`; all completed pilot and archived-control evaluations are reused.
+
+## First RPNG pilot passed
+
+All three pilot inputs passed manifest/event hash and file-readiness checks; the pilot transfer exited successfully. RPNG table_06 D3 at 15 training renders/KF passed all execution checks and saved-map double evaluation: 3,405 training renders, PSNR 23.861218 dB. Vanilla at the same budget then started. This extends the completed Aria pilots; the full three-scene 12-run pilot remains in progress. See [current measured progress](pilot_progress.json). The new scene runs use the controls-v2 machine provenance, copied into the pilot output as `remaining_scenes_machine_provenance.json`.
