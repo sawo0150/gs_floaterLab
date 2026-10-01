@@ -93,19 +93,26 @@ def run_one(phase, key, budget, arm, extra, ctx):
     if done.exists():
         return read(done)
     setup, ext = Path(lock['datasets'][key]['setup']), Path(lock['extensions'])
-    provenance = preflight(setup, ext, out)                     # refuses an existing output directory
-    args = list(read(RECIPE)['worker_args']) + ['--renders-per-kf', str(budget)] + extra
-    cmd = [sys.executable, str(SEL / 'run_selected_worker.py'), *args,
-           '--setup', str(setup), '--extensions', str(ext), '--output', str(out)]
-    env = recipe_environment(trial.BASE.mapping_environment(True), lock)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    write(out.parent / f'{arm}.command.json', dict(cmd=cmd, overrides=extra, budget=budget,
-          environment={k: env[k] for k in read(RECIPE)['environment']}))
-    gpu_idle()
-    t0 = time.monotonic()
-    with (out.parent / f'{arm}.log').open('x') as f:
-        subprocess.run(cmd, env=env, stdout=f, stderr=subprocess.STDOUT, check=True)
-    wall = time.monotonic() - t0
+    timing = out.parent / f'{arm}.timing.json'
+    if (out / 'render_result.json').exists() and timing.exists():
+        # Mapping finished in an earlier attempt that stopped at evaluation: evaluate the immutable map only.
+        provenance = read(setup / 'provenance.json')
+        wall = read(timing)['process_wall_s']
+    else:
+        provenance = preflight(setup, ext, out)                 # refuses an existing output directory
+        args = list(read(RECIPE)['worker_args']) + ['--renders-per-kf', str(budget)] + extra
+        cmd = [sys.executable, str(SEL / 'run_selected_worker.py'), *args,
+               '--setup', str(setup), '--extensions', str(ext), '--output', str(out)]
+        env = recipe_environment(trial.BASE.mapping_environment(True), lock)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        write(out.parent / f'{arm}.command.json', dict(cmd=cmd, overrides=extra, budget=budget,
+              environment={k: env[k] for k in read(RECIPE)['environment']}))
+        gpu_idle()
+        t0 = time.monotonic()
+        with (out.parent / f'{arm}.log').open('x') as f:
+            subprocess.run(cmd, env=env, stdout=f, stderr=subprocess.STDOUT, check=True)
+        wall = time.monotonic() - t0
+        write(timing, dict(process_wall_s=wall))
     report = read(out / 'render_result.json')
     runtime = read(out / 'geometry_runtime.json')
     if not report['valid_execution'] or not all(report['checks'].values()):

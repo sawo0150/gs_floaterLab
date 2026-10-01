@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 B ablation chain pilot 24/24 (rot·RPNG table_06, budget 15/40, seed0, B main 6d200f0f): R1 window→R2 +KF pool +2.5~3.7dB, R2→R3 dense RGB +0.19~0.39dB (4/4 signal), R3→R4 pacing −0.00~+0.19dB (1/4, no signal), ERVS−RR +0.13/−0.28/+0.45/+0.22dB inconsistent; κ4 amplification not observed. ERVS lowers only KF-pool service CV (6/6), recent-third PSNR ERVS ahead 5/6 (hint). Single-seed pilot, not a final claim. → [card](experiments/campaigns/06_gain_attribution/b_ablation_chain/README.md)
+
 - 2026-10-01 사용자 확정 B(KF metric RGBD + dense RGB)를 VIGS-SLAM-custom main에 merge/commit: 6d200f0f. 40/KF, normal OFF, dense depth OFF, warp backward ON. 공식 run.py 네 장면 재검증 PSNR 25.7747/25.0222/21.8619/24.9850dB, 기존 B seed0와 최대차 0.0144dB; trace/pose/cohort/budget 동일, CPU22 tests 통과. GitHub main push 완료. → [card](experiments/campaigns/06_gain_attribution/b_condition_main_adoption/README.md)
 
 - 2026-10-01 fixed40 dense-depth 4scene×3arm×2seed 24/24 완료: held-out PSNR은 dense RGB(B)가 4/4 최고. dense depth(C)는 B 대비 −0.066/−0.092/−0.216/−0.100dB; Aria MPS front mass −2.69/−1.60%p, behind +0.86/+0.88%p, 수동 floater영역 count −11.8%. normal/hard-proxy OFF, depth L1 λ0.25, causal frozen replay/zero-tail. 독립 GT 없는 RPNG·UTMM은 BA 보조지표로 한정. PLY24개와 원자료는 results/campaigns/gain_attribution/dense_depth_four_scene/v1, main 미변경. → [card](experiments/campaigns/06_gain_attribution/dense_depth_four_scene/README.md)
