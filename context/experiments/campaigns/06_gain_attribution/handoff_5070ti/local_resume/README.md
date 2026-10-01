@@ -82,3 +82,14 @@ The UTMM square-1 vanilla15 checkpoint evaluator terminated its leader with sign
 The coordinator now accepts a previously completed 12-run migration pilot when starting a fresh queue, instead of requiring only the initial four Aria runs. Active queues are **controls_v3 / references_v3 / followup_v4**. Completed evaluations are skipped; failed artifacts and old queue logs are preserved. Python fault reporting is enabled for the retry queue.
 
 All 12 pilot runs now have their 84/84 checkpoint/final states evaluated; 84/84 pass the alignment gate. See [curve audit](pilot_curve_audit.json). The local queue has started the 21 pilot-scene controls, the first subset of 121 missing controls.
+
+## First complete local 2×2 control cell
+
+RPNG table_06, seed0, 15 training renders/KF; all four cells pass execution, paired prefix/trajectory/cohort checks and double evaluation. Each performs 3,405 training renders and Adam updates. [Measured CSV](rpng15_factorial.csv).
+
+| Photometric RGB source | RR PSNR | ERVS PSNR | ERVS − RR |
+|---|---:|---:|---:|
+| dense |23.392751|23.861218|+0.468467|
+| keyframe |23.802125|23.793913|−0.008212|
+
+Dense minus keyframe is +0.067306 dB under ERVS and −0.409374 dB under RR. This single scene/seed does not establish aggregate benefit or statistical significance; the paired 2×2 layout preserves the interaction rather than claiming independent additive gains. Keyframe-vs-dense substitution remains a whole-system service comparison, not a claim of identical realized role histories. The 40-budget controls are running next.
