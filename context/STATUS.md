@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-02 depth-off sampler diagnostic (KF depth weight 0, per-pool 2x2, 4 scenes, budget 15/25, seed0): H rejected — joint ERVS−RR b15 +0.05/+0.53/+0.56/−0.28, b25 −0.11/+0.22/−0.95/−0.16dB; removing depth amplifies scene-dependent swings (aria +0.14→+0.56 at 15, −0.41→−0.95 at 25). Exploratory: KF depth term lowers PSNR on RPNG/UTMM, raises on Aria. Diagnostic only. → [card](experiments/campaigns/06_gain_attribution/ervs_depth_off/README.md)
+
 - 2026-10-02 ERVS per-pool 2x2 (keyframe pool × dense pool, 4 scenes, budget 15/25, seed0): no consistent pool effect (KF b15 +0.11/+0.19/−0.36/−0.20, dense b15 +0.02/+0.26/+0.50/−0.01dB; b25 mixed), cancellation only in aria15, interactions up to ±0.4dB; 4-scene means of all four arms within 0.25dB. Across all ERVS tests the sampler is second-order on B. → [card](experiments/campaigns/06_gain_attribution/ervs_per_pool/README.md)
 
 - 2026-10-01 ERVS window-replacement test (window off = quota 0:6:6, 4 scenes, budget 15/25, seed0): replacement claim not supported — RR degrades without window only on square-1 (R1 2/8), ERVS never resolved-worse (R2 8/8), ERVS gain larger without window 4/8; first-service latency not shorter under ERVS. Exploratory: removing the window raises 4-scene mean ~+0.1dB (aria +0.4~0.9), recent-third favours ERVS 7/8 without window. Single seed. → [card](experiments/campaigns/06_gain_attribution/ervs_window_replacement/README.md)
