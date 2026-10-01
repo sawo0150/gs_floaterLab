@@ -4,6 +4,12 @@
 
 Status: **Exp124 representative 3-family gate complete; full causal attribution remains active.**
 
+- 2026-10-01 **ADOPTED B**: [main 채택·병합 검증](b_condition_main_adoption/README.md) — `6d200f0f`, KF metric RGBD + dense RGB, normal OFF, warp backward ON; 공식 진입점 4/4 재검증 완료.
+
+- 2026-10-01 **EVIDENCE**: [four-scene fixed40 dense-depth 비교](dense_depth_four_scene/README.md)
+  — 24/24 완료, seeds0·1. dense RGB가 PSNR 4/4 최고; dense depth 추가는 −0.066~−0.216dB,
+  Aria 독립 front mass/수동 floater 감소와 behind mass 증가를 함께 확인. 기본값 채택·main merge 없음.
+
 ## 질문
 
 R4와 비교하는 것이 아니라 official vanilla에 비해 어떤 변경이 동일 physical

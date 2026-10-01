@@ -1,5 +1,11 @@
 # Experiment Index
 
+- 2026-10-01 사용자 확정 B(KF metric RGBD + dense RGB)를 VIGS-SLAM-custom main에 merge/commit: 6d200f0f. 40/KF, normal OFF, dense depth OFF, warp backward ON. 공식 run.py 네 장면 재검증 PSNR 25.7747/25.0222/21.8619/24.9850dB, 기존 B seed0와 최대차 0.0144dB; trace/pose/cohort/budget 동일, CPU22 tests 통과. GitHub main push 완료. → [card](campaigns/06_gain_attribution/b_condition_main_adoption/README.md)
+
+- 2026-10-01 fixed40 dense-depth 4scene×3arm×2seed 24/24 완료: held-out PSNR은 dense RGB(B)가 4/4 최고. dense depth(C)는 B 대비 −0.066/−0.092/−0.216/−0.100dB; Aria MPS front mass −2.69/−1.60%p, behind +0.86/+0.88%p, 수동 floater영역 count −11.8%. normal/hard-proxy OFF, depth L1 λ0.25, causal frozen replay/zero-tail. 독립 GT 없는 RPNG·UTMM은 BA 보조지표로 한정. PLY24개와 원자료는 results/campaigns/gain_attribution/dense_depth_four_scene/v1, main 미변경. → [card](campaigns/06_gain_attribution/dense_depth_four_scene/README.md)
+
+- 2026-10-01 dense-depth four-scene fixed40 비교 진행: branch 37fb9152, KF RGBD / +dense RGB / +dense RGBD, seeds0·1. held-out/geometry/PLY는 campaign 경로로 기록하며 main은 미변경. → [card](campaigns/06_gain_attribution/dense_depth_four_scene/README.md)
+
 - 2026-10-01 aria1253rot controls7/7 완료, 기존19+로컬28=47/140. NTFS metadata 대기로 controls_v4 평가 정지; 필수 입력17장면 모두 준비 확인. 검증된28개 manifest/source lock 재사용하는 controls_v5/followup_v6 시작, rpng table_03 학습 진행. → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
 
 - 2026-10-01 CVPR aria/aria1253rot 40renders/KF native_geometry: status=passed, PSNR=24.991874407158523; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253rot/native_geometry → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
