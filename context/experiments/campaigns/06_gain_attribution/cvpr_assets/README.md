@@ -546,3 +546,9 @@
 - 2026-10-01 CVPR aria/aria1253 40renders/KF rr_kf_rgb: status=passed, PSNR=25.33093212215045; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/rr_kf_rgb
 
 - 2026-10-01 CVPR aria/aria1253 40renders/KF native_geometry: status=passed, PSNR=25.82559433420196; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/aria/aria1253/native_geometry
+
+- 2026-10-01 CVPR aria/aria1253rot 15renders/KF rr_dense: status=passed, PSNR=23.721168493051998; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253rot/rr_dense
+
+- 2026-10-01 CVPR aria/aria1253rot 15renders/KF ervs_kf_rgb: status=passed, PSNR=23.61231665689437; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253rot/ervs_kf_rgb
+
+- 2026-10-01 CVPR aria/aria1253rot 15renders/KF rr_kf_rgb: status=passed, PSNR=23.62655188763728; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253rot/rr_kf_rgb
