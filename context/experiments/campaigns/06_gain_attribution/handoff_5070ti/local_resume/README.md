@@ -93,3 +93,14 @@ RPNG table_06, seed0, 15 training renders/KF; all four cells pass execution, pai
 | keyframe |23.802125|23.793913|−0.008212|
 
 Dense minus keyframe is +0.067306 dB under ERVS and −0.409374 dB under RR. This single scene/seed does not establish aggregate benefit or statistical significance; the paired 2×2 layout preserves the interaction rather than claiming independent additive gains. Keyframe-vs-dense substitution remains a whole-system service comparison, not a claim of identical realized role histories. The 40-budget controls are running next.
+
+## RPNG 40-budget 2×2 completed
+
+The same scene/seed at 40 training renders/KF passes the paired execution and double-evaluation gates in all four cells; [CSV](rpng40_factorial.csv).
+
+| Photometric RGB source | RR PSNR | ERVS PSNR | ERVS − RR |
+|---|---:|---:|---:|
+| dense |24.936771|25.127686|+0.190915|
+| keyframe |24.947570|25.105440|+0.157870|
+
+Dense minus keyframe is +0.022246 dB under ERVS and −0.010800 dB under RR. The RGB-source effect is small here; a general dense-view gain is not established by this scene. Native-geometry comparison at 40 is now running.
