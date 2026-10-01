@@ -19,7 +19,7 @@ import run_cvpr_measurements as fixed
 from collect_cvpr_assets import ROOT, MAIN, OUT, read, write, sha
 from run_cvpr_asset_pipeline import process_identity
 from run_cvpr_followup_panel import geometry_control, wait_gpu
-from resume_cvpr_5070ti import evaluate_curves, inputs_ready
+from resume_cvpr_5070ti import evaluate_curves, inputs_ready, wait_for
 
 
 def reproduce(manifest_path, output, status):
@@ -93,6 +93,8 @@ def main():
     p.add_argument('--reference', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--original-manifest', type=Path, required=True)
+    p.add_argument('--archived-controls', type=Path, required=True)
+    p.add_argument('--archived-transfer-pid', type=int, required=True)
     a = p.parse_args()
     identity = process_identity(a.wait_pid)
     assert identity is not None and 'resume_cvpr_5070ti.py' in identity['cmd'], identity
@@ -120,6 +122,21 @@ def main():
         inventory = read(OUT / 'scene_inventory.json')
         assert len(inventory) == 20
         inputs_ready(inventory)
+        fixed.journal(dict(dataset='all20', scene='local_controls_121_curves', budget='checkpoint_curve',
+                           arm='checkpoint_evaluation', status='passed', output=str(a.controls)))
+        wait_for([a.archived_transfer_pid], status, 'waiting_archived_controls_transfer')
+        archived = [r for r in read(a.archived_controls / 'summary.json') if r['status'] == 'passed']
+        declared = read(ROOT / 'context/experiments/campaigns/06_gain_attribution/handoff_5070ti/completed_controls.json')
+        identity_key = lambda r: (r['dataset'], r['scene'], r['budget'], r['arm'])
+        assert len(archived) == 19 and {identity_key(r) for r in archived} == {identity_key(r) for r in declared}
+        evaluate_curves(archived, a.output, status, 'archived_control_curves')
+        fixed.journal(dict(dataset='archived19', scene='controls_5090_maps_evaluated_on_5070ti', budget='checkpoint_curve',
+                           arm='checkpoint_evaluation', status='passed', output=str(a.archived_controls)))
+        table_command = [sys.executable, str(ROOT / 'paper/scripts/build_measured_control_tables.py'),
+                         '--panels', str(a.archived_controls / 'summary.json'), str(a.controls / 'summary.json'),
+                         '--output-dir', str(a.output / 'control_table_review'), '--require-complete']
+        with (a.output / 'control_table_review.log').open('x') as log:
+            subprocess.run(table_command, stdout=log, stderr=subprocess.STDOUT, check=True)
         source = {str(f): sha(f) for f in [*MAIN.glob('vigs/**/*.py'), *fixed.GEOM.glob('*.py'),
                   Path(fixed.__file__), HERE / 'run_cvpr_followup_panel.py', Path(__file__)]}
         write(a.output / 'source_lock.json', source)

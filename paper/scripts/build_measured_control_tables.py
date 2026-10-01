@@ -4,6 +4,7 @@
 The original offline15/30/60 ERCB template remains a separate unmeasured panel.
 No current15/40 result is relabeled as an original-replay measurement.
 """
+import argparse
 import csv
 import json
 from pathlib import Path
@@ -21,10 +22,9 @@ METRICS = ['psnr', 'ssim', 'lpips', 'gaussians']
 CASES = ['rr_dense', 'ervs_kf_rgb', 'rr_kf_rgb']
 
 
-def collect():
-    panel = RESULTS / 'cvpr_assets/current_controls_v1/summary.json'
-    if not panel.exists(): return [], []
-    states = read(panel)
+def collect(panels=None):
+    panels = panels or [RESULTS / 'cvpr_assets/current_controls_v1/summary.json']
+    states = [{**r, 'source_summary': str(panel)} for panel in panels if panel.exists() for r in read(panel)]
     rows = []
     for item in states:
         if item['status'] != 'passed' or item['arm'] not in CASES: continue
@@ -34,6 +34,8 @@ def collect():
         assert audit['same_prefix_renders_poses_cohort']
         a, b = read(run / 'render_result.json'), read(reference / 'render_result.json')
         assert a['valid_execution'] and all(a['checks'].values())
+        assert b['valid_execution'] and all(b['checks'].values())
+        assert read(reference / 'evaluation_consistency.json')['pass']
         prefix = lambda x: [(r['uid'], r['training_renders']) for r in x['render_prefixes']]
         assert prefix(a) == prefix(b)
         for name in ['traj_full_beforeBA.txt', 'traj_kf_beforeBA.txt']:
@@ -42,9 +44,11 @@ def collect():
             row = endpoint('current_control', path, item['dataset'], item['scene'], case, item['budget'])
             assert row is not None
             row.update(case=case, budget=item['budget'], audit_path=str(run / 'comparison_audit.json'),
-                       audit_sha256=sha(run / 'comparison_audit.json'))
-            if not any((r['dataset'], r['scene'], r['budget'], r['case']) ==
-                       (row['dataset'], row['scene'], row['budget'], row['case']) for r in rows): rows.append(row)
+                       audit_sha256=sha(run / 'comparison_audit.json'), source_summary=item['source_summary'])
+            duplicate = next((r for r in rows if (r['dataset'], r['scene'], r['budget'], r['case']) ==
+                             (row['dataset'], row['scene'], row['budget'], row['case'])), None)
+            if duplicate is None: rows.append(row)
+            else: assert duplicate['metric_sha256'] == row['metric_sha256'], 'Conflicting records for the same table cell'
         pair = [r for r in rows if (r['dataset'], r['scene'], r['budget']) ==
                 (item['dataset'], item['scene'], item['budget']) and r['case'] in [item['arm'], 'ervs_dense']]
         assert len({r['cohort_uid_sha256'] for r in pair}) == 1
@@ -91,9 +95,35 @@ def table(kind, rows):
 
 
 def main():
-    rows, failures = collect()
+    p = argparse.ArgumentParser()
+    p.add_argument('--panels', type=Path, nargs='+', help='Explicit summary.json files to combine')
+    p.add_argument('--output-dir', type=Path, help='Write a review bundle instead of replacing current manuscript assets')
+    p.add_argument('--require-complete', action='store_true', help='Require every declared paired scene at both budgets')
+    a = p.parse_args()
+    if a.panels: assert all(panel.is_file() for panel in a.panels), 'Missing requested panel'
+    rows, failures = collect(a.panels)
     if not rows:
+        if a.require_complete: raise RuntimeError('No audited pairs: complete tables cannot be produced')
         print('No audited control pair completed yet'); return
+    rendered = {kind: table(kind, rows) for kind in ('sampling', 'source')}
+    if a.require_complete:
+        assert all(g['count'] == g['expected'] for _, groups in rendered.values() for g in groups), 'Incomplete paired cohort'
+    if a.output_dir:
+        a.output_dir.mkdir(parents=True, exist_ok=False)
+        data = a.output_dir / 'measurements.csv'
+        with data.open('w', newline='') as f:
+            w = csv.DictWriter(f, list(dict.fromkeys(k for r in rows for k in r))); w.writeheader(); w.writerows(rows)
+        for kind, (tex, groups) in rendered.items():
+            (a.output_dir / f'{kind}.tex').write_text(tex)
+        write = lambda p, x: p.write_text(json.dumps(x, indent=2) + '\n')
+        write(a.output_dir / 'provenance.json', dict(rows=rows, failures=failures,
+            groups={kind: groups for kind, (_, groups) in rendered.items()},
+            panels={str(p): sha(p) for p in (a.panels or [RESULTS / 'cvpr_assets/current_controls_v1/summary.json'])},
+            complete_required=a.require_complete, cross_gpu_time_comparison=False,
+            scope='Held-out quality only; each control retains its explicit paired reference',
+            generator_sha256=sha(Path(__file__)), data_sha256=sha(data)))
+        print('CONTROL_TABLE_REVIEW_BUNDLE', a.output_dir)
+        return
     data = PAPER / 'results/tables/cvpr_control_measurements.csv'
     with data.open('w', newline='') as f:
         w = csv.DictWriter(f, list(dict.fromkeys(k for r in rows for k in r))); w.writeheader(); w.writerows(rows)
