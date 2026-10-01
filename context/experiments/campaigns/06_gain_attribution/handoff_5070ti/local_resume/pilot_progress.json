@@ -70,5 +70,29 @@
     "gaussians": 199134,
     "training_renders": 3405,
     "mapping_seconds": 107.38377073593438
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 40,
+    "arm": "d3",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/d3",
+    "status": "passed",
+    "psnr": 25.12768618265788,
+    "gaussians": 224080,
+    "training_renders": 9080,
+    "mapping_seconds": 231.1328303660266
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 40,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/vanilla",
+    "status": "passed",
+    "psnr": 22.59568762908111,
+    "gaussians": 234499,
+    "training_renders": 9080,
+    "mapping_seconds": 169.21153692808002
   }
 ]

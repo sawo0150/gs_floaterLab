@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 CVPR rpng/table_06 40renders/KF vanilla: status=passed, PSNR=22.59568762908111; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR rpng/table_06 40renders/KF d3: status=passed, PSNR=25.12768618265788; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/rpng/table_06/d3 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 RPNG15 양 arm 통과: D3/vanilla held-out23.861218/20.943542 dB. Training renders3405 동일, Adam updates3405/445·D3 proxy1901로 optimizer/총연산 동일 비교는 아님. 누락되던 vanilla completion-list update count 집계 보완; 학습 코드 변경 없음. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
