@@ -86,7 +86,7 @@ def recent_third(final_result):
     return dict(n=len(sel), psnr=statistics.mean(sel) if sel else None)
 
 
-def run_one(phase, key, budget, arm, extra, ctx):
+def run_one(phase, key, budget, arm, extra, ctx, worker=None, env_extra=None):
     lock, trial, preflight, gpu_idle, recipe_environment = ctx
     out = OUT / phase / key / f'render{budget}' / arm
     done = out.parent / f'{arm}.row.json'
@@ -101,11 +101,12 @@ def run_one(phase, key, budget, arm, extra, ctx):
     else:
         provenance = preflight(setup, ext, out)                 # refuses an existing output directory
         args = list(read(RECIPE)['worker_args']) + ['--renders-per-kf', str(budget)] + extra
-        cmd = [sys.executable, str(SEL / 'run_selected_worker.py'), *args,
+        cmd = [sys.executable, str(worker or SEL / 'run_selected_worker.py'), *args,
                '--setup', str(setup), '--extensions', str(ext), '--output', str(out)]
         env = recipe_environment(trial.BASE.mapping_environment(True), lock)
+        env.update(env_extra or {})
         out.parent.mkdir(parents=True, exist_ok=True)
-        write(out.parent / f'{arm}.command.json', dict(cmd=cmd, overrides=extra, budget=budget,
+        write(out.parent / f'{arm}.command.json', dict(cmd=cmd, overrides=extra, budget=budget, env_extra=env_extra,
               environment={k: env[k] for k in read(RECIPE)['environment']}))
         gpu_idle()
         t0 = time.monotonic()
