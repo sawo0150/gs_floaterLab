@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-02 ERVS per-pool 2x2 (keyframe pool × dense pool, 4 scenes, budget 15/25, seed0): no consistent pool effect (KF b15 +0.11/+0.19/−0.36/−0.20, dense b15 +0.02/+0.26/+0.50/−0.01dB; b25 mixed), cancellation only in aria15, interactions up to ±0.4dB; 4-scene means of all four arms within 0.25dB. Across all ERVS tests the sampler is second-order on B. → [card](experiments/campaigns/06_gain_attribution/ervs_per_pool/README.md)
+
 - 2026-10-01 ERVS window-replacement test (window off = quota 0:6:6, 4 scenes, budget 15/25, seed0): replacement claim not supported — RR degrades without window only on square-1 (R1 2/8), ERVS never resolved-worse (R2 8/8), ERVS gain larger without window 4/8; first-service latency not shorter under ERVS. Exploratory: removing the window raises 4-scene mean ~+0.1dB (aria +0.4~0.9), recent-third favours ERVS 7/8 without window. Single seed. → [card](experiments/campaigns/06_gain_attribution/ervs_window_replacement/README.md)
 
 - 2026-10-01 ERVS vs RR on B (4 scenes, budget 15/25, seed0, 16 cells): mechanism moved in 8/8 (KF-pool CV down), but quality inconsistent — ERVS−RR b15 rot +0.13/rpng +0.45/aria +0.14/utmm −0.21, b25 −0.06/+0.27/−0.41/−0.05dB. C2 rule (≥3/4) not met (b15 2/4, b25 1/4); only RPNG table_06 shows a consistent ERVS gain. Not a final claim. → [card](experiments/campaigns/06_gain_attribution/b_ablation_v2/README.md)
