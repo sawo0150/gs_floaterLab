@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-02 ERVS vs RR on B at 5/10 renders/KF (4 scenes, seed0): budget 5 is the first positive signal (+0.30/+0.09/+0.64/+0.07dB, 4/4) but the mechanism is reversed there (ERVS KF-pool CV higher than RR); budget 10 no signal (+0.00/−0.26/+0.41/−0.08). Budget curves non-monotonic; budget 5 far below live operating point. Candidate only, needs multi-seed. → [card](experiments/campaigns/06_gain_attribution/ervs_low_budget/README.md)
+
 - 2026-10-02 depth-off sampler diagnostic (KF depth weight 0, per-pool 2x2, 4 scenes, budget 15/25, seed0): H rejected — joint ERVS−RR b15 +0.05/+0.53/+0.56/−0.28, b25 −0.11/+0.22/−0.95/−0.16dB; removing depth amplifies scene-dependent swings (aria +0.14→+0.56 at 15, −0.41→−0.95 at 25). Exploratory: KF depth term lowers PSNR on RPNG/UTMM, raises on Aria. Diagnostic only. → [card](experiments/campaigns/06_gain_attribution/ervs_depth_off/README.md)
 
 - 2026-10-02 ERVS per-pool 2x2 (keyframe pool × dense pool, 4 scenes, budget 15/25, seed0): no consistent pool effect (KF b15 +0.11/+0.19/−0.36/−0.20, dense b15 +0.02/+0.26/+0.50/−0.01dB; b25 mixed), cancellation only in aria15, interactions up to ±0.4dB; 4-scene means of all four arms within 0.25dB. Across all ERVS tests the sampler is second-order on B. → [card](experiments/campaigns/06_gain_attribution/ervs_per_pool/README.md)
