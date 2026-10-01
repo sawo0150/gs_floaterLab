@@ -104,3 +104,7 @@ The same scene/seed at 40 training renders/KF passes the paired execution and do
 | keyframe |24.947570|25.105440|+0.157870|
 
 Dense minus keyframe is +0.022246 dB under ERVS and −0.010800 dB under RR. The RGB-source effect is small here; a general dense-view gain is not established by this scene. Native-geometry comparison at 40 is now running.
+
+## RPNG pilot-scene controls completed
+
+All seven table_06 controls pass the paired execution and saved-map double-evaluation gates; see [measured summary](rpng_controls_summary.json). At 40 training renders/KF, native geometry reaches 25.164496 dB versus D3 25.127686 dB: D3 is lower by 0.036810 dB on this scene. This does not demonstrate a photometric benefit from D3. Free-space/surface claims still require independent geometry metrics and the pending zero-weight control. Control checkpoint evaluation is pending; endpoint success alone does not establish convergence. The queue has moved to UTMM square-1.

@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-01 CVPR rpng/table_06 40renders/KF native_geometry: status=passed, PSNR=25.16449649226558; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/rpng/table_06/native_geometry → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR rpng/table_06 40renders/KF rr_kf_rgb: status=passed, PSNR=24.947570405564868; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/rpng/table_06/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 CVPR rpng/table_06 40renders/KF ervs_kf_rgb: status=passed, PSNR=25.10544005729057; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/rpng/table_06/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
