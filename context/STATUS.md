@@ -88,6 +88,10 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 RPNG15 양 arm 통과: D3/vanilla held-out23.861218/20.943542 dB. Training renders3405 동일, Adam updates3405/445·D3 proxy1901로 optimizer/총연산 동일 비교는 아님. 누락되던 vanilla completion-list update count 집계 보완; 학습 코드 변경 없음. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
+- 2026-10-01 CVPR rpng/table_06 15renders/KF vanilla: status=passed, PSNR=20.943542109309018; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/rpng/table_06/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR rpng/table_06 15renders/KF d3: status=passed, PSNR=23.861218289212065; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/rpng/table_06/d3 → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 local queue 입력준비 순 실행으로 보완: controls121·전체cohort·recipe 유지, 장면별 full input audit 후 시작, 대기 중 완료지도 checkpoint 평가. RPNG v2 bundled/Aria v3 split geometry 두 archive 형식 검증 지원. 대기 coordinator만 controls_v2/followup_v3로 대체; 기존 결과 보존. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)

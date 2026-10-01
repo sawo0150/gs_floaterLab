@@ -64,3 +64,9 @@ Active paths are `rtx5070ti_controls_v2`, `rtx5070ti_references_v2`, and `rtx507
 ## First RPNG pilot passed
 
 All three pilot inputs passed manifest/event hash and file-readiness checks; the pilot transfer exited successfully. RPNG table_06 D3 at 15 training renders/KF passed all execution checks and saved-map double evaluation: 3,405 training renders, PSNR 23.861218 dB. Vanilla at the same budget then started. This extends the completed Aria pilots; the full three-scene 12-run pilot remains in progress. See [current measured progress](pilot_progress.json). The new scene runs use the controls-v2 machine provenance, copied into the pilot output as `remaining_scenes_machine_provenance.json`.
+
+## RPNG15 pair and workload scope
+
+RPNG table_06 at 15 training renders/KF passed both arms, including execution gates, saved-map double evaluation, matched prefix-render and trajectory checks. D3/vanilla held-out PSNR is 23.861218/20.943542 dB. The 40-render D3 arm then started.
+
+[Workload audit](rpng15_workload_audit.json): both arms perform 3,405 training renders, but D3 has 3,405 Gaussian Adam updates and vanilla has 445 (its logged optimizer-completion list). D3 adds 1,901 proxy renders. This is matched **training-render** work, not matched optimizer steps or total computation. The collector now reports vanilla's recorded Adam count instead of leaving it missing. No training code or recipe was changed for this bookkeeping correction.

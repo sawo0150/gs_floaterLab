@@ -58,5 +58,17 @@
     "gaussians": 261533,
     "training_renders": 3405,
     "mapping_seconds": 340.4446674687788
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_06",
+    "budget": 15,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/rpng/table_06/vanilla",
+    "status": "passed",
+    "psnr": 20.943542109309018,
+    "gaussians": 199134,
+    "training_renders": 3405,
+    "mapping_seconds": 107.38377073593438
   }
 ]

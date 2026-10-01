@@ -96,6 +96,8 @@ def endpoint(protocol, run, dataset, scene, arm, budget=None, scale=None):
     renders = x.get("render_counts", {}).get("training", x.get("training_renders"))
     queues = x.get("worker", {}).get("queue", {})
     row = {"protocol": protocol, "dataset": dataset, "scene": scene, "arm": arm, "renders_per_kf_cap": budget, "time_scale": scale, "psnr": q["mean_psnr"], "ssim": q["mean_ssim"], "lpips": q["mean_lpips"], "eval_views": q["view_count"], "gaussians": m["gaussians"], "training_renders": renders, "proxy_renders": proxy, "mapping_seconds": x.get("mapping_seconds"), "sensor_seconds": x.get("sensor_duration_seconds"), "allowed_seconds": x.get("duration_seconds"), "tracking_seconds": x.get("tracking_elapsed_seconds"), "peak_cuda_allocated_bytes": x.get("peak_cuda_allocated_bytes", x.get("peak_cuda_allocated")), "optimizer_steps": x.get("main_optimizer_steps", x.get("optimizer_steps")), "mapping_disjoint": True, "zero_tail": x.get("zero_tail_observed", x.get("checks", {}).get("zero_tail")), "output": str(run), "metric_path": str(mp), "metric_sha256": sha(mp), "cohort_uid_sha256": hashlib.sha256(json.dumps(sorted(v["uid"] for v in valid)).encode()).hexdigest(), "result_sha256": sha(rp)}
+    if row['optimizer_steps'] is None and isinstance(x.get('optimizer_completions'), list):
+        row['optimizer_steps'] = len(x['optimizer_completions'])
     if protocol == "live_fifo":
         row["tracking_config_scope"] = "same_between_arms" if dataset == "aria" else "end_to_end_different_motion_window_radius"
         row["dropped_packets"] = queues.get("dropped_packets", x.get("worker", {}).get("dropped_packets"))
