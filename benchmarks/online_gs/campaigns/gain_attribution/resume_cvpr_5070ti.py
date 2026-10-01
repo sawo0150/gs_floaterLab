@@ -148,7 +148,10 @@ def main():
         pilots = [r for r in inventory if r["scene"] in PILOTS]
         completed = ROOT / "context/experiments/campaigns/06_gain_attribution/handoff_5070ti/completed_controls.json"
         wait_for([a.initial_panel_pid], status, "waiting_initial_pilot")
-        evaluate_curves(passed(a.pilot, 4), a.controls, status, "initial_pilot_curves")
+        initial_rows = read(a.pilot / "summary.json")
+        # A fresh queue may resume after the complete migration pilot, too.
+        assert len(initial_rows) in (4, 12), "Incomplete pilot requires inspection"
+        evaluate_curves(passed(a.pilot, len(initial_rows)), a.controls, status, "initial_pilot_curves")
         wait_for([a.pilot_transfer_pid], status, "waiting_pilot_transfer")
         inputs_ready(pilots)
         for r in pilots:

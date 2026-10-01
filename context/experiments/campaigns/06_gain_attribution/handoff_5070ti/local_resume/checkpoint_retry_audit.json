@@ -1,0 +1,18 @@
+{
+  "failed_attempt": {
+    "pid": 3341973,
+    "proc_stat": "3341973 (python) Z 3338413 3338413 3338413 0 -1 4227084 516863 4300 0 0 489 161 0 0 20 0 37 0 266111832 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 0 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 11\n",
+    "run": "render15/utmm/square-1/vanilla",
+    "training_changed": false,
+    "action": "terminate remaining threads of failed owned evaluator; preserve partial output"
+  },
+  "preserved_output": "curve_evaluation_failed_signal11",
+  "retry_summary": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/utmm/square-1/vanilla/curve_evaluation/summary.json",
+  "retry_evaluated": 7,
+  "retry_alignment_accepted": 7,
+  "training_rerun": false,
+  "recipe_changed": false,
+  "root_cause": "undetermined",
+  "active_controls": "rtx5070ti_controls_v3",
+  "active_followup": "rtx5070ti_followup_v4"
+}

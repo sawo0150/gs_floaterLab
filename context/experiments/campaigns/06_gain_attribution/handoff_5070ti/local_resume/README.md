@@ -74,3 +74,11 @@ RPNG table_06 at 15 training renders/KF passed both arms, including execution ga
 ## Three-scene migration pilot completed
 
 All 12 endpoint runs pass their execution checks and saved-map double evaluation; see [endpoint audit](pilot_endpoint_audit.json). RPNG table_06 at 40 training renders/KF gives D3/vanilla 25.127686/22.595688 dB. UTMM square-1 gives 20.963081/15.884417 dB at 15, and 22.092829/18.871978 dB at 40. The pilot queue has moved to checkpoint evaluation; missing controls have not started yet at this update. These remain fixed training-render comparisons, with different Adam counts and extra D3 proxy renders.
+
+## Checkpoint evaluator failure and recovery
+
+The UTMM square-1 vanilla15 checkpoint evaluator terminated its leader with signal 11 and left worker threads alive. Its partial output is preserved as `curve_evaluation_failed_signal11`; the remaining threads of that owned evaluator were terminated, causing the old controls-v2 and follow-up-v3 queues to stop with failure records. The root cause is not established. An unchanged evaluation retry passed all 7 states and alignment gates. No map was retrained and no recipe changed. See [retry audit](checkpoint_retry_audit.json).
+
+The coordinator now accepts a previously completed 12-run migration pilot when starting a fresh queue, instead of requiring only the initial four Aria runs. Active queues are **controls_v3 / references_v3 / followup_v4**. Completed evaluations are skipped; failed artifacts and old queue logs are preserved. Python fault reporting is enabled for the retry queue.
+
+All 12 pilot runs now have their 84/84 checkpoint/final states evaluated; 84/84 pass the alignment gate. See [curve audit](pilot_curve_audit.json). The local queue has started the 21 pilot-scene controls, the first subset of 121 missing controls.
