@@ -108,3 +108,14 @@ Dense minus keyframe is +0.022246 dB under ERVS and −0.010800 dB under RR. The
 ## RPNG pilot-scene controls completed
 
 All seven table_06 controls pass the paired execution and saved-map double-evaluation gates; see [measured summary](rpng_controls_summary.json). At 40 training renders/KF, native geometry reaches 25.164496 dB versus D3 25.127686 dB: D3 is lower by 0.036810 dB on this scene. This does not demonstrate a photometric benefit from D3. Free-space/surface claims still require independent geometry metrics and the pending zero-weight control. Control checkpoint evaluation is pending; endpoint success alone does not establish convergence. The queue has moved to UTMM square-1.
+
+## UTMM square-1 15-budget 2×2 completed
+
+All four cells pass execution and double-evaluation gates; paired controls match prefix renders, poses, and held-out cohort. [Measured CSV](utmm15_factorial.csv).
+
+| Photometric RGB source | RR PSNR | ERVS PSNR | ERVS − RR |
+|---|---:|---:|---:|
+| dense |21.275085|20.963081|−0.312004|
+| keyframe |20.736773|20.716585|−0.020187|
+
+At this budget, RR exceeds ERVS on both RGB sources; this contradicts a universal ERVS advantage. Dense minus keyframe is +0.246496 dB under ERVS and +0.538312 dB under RR. These are one-scene, one-seed measurements; preserve every scene in the aggregate. The 40-budget controls are now running.
