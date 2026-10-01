@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 CVPR rpng/table_06 15renders/KF rr_dense: status=passed, PSNR=23.392751422229114; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/rpng/table_06/rr_dense → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 UTMM vanilla15 checkpoint evaluator signal11 비정상 종료 기록·부분출력 보존. 동일 설정 재평가7/7·정합7/7 통과, 재학습0. 완료12-run pilot 재개 지원; controls_v3/followup_v4로 이어감. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
 
 - 2026-10-01 CVPR utmm/square-1 40renders/KF vanilla: status=passed, PSNR=18.871978459534823; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/vanilla → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
