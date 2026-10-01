@@ -29,7 +29,14 @@ def main():
     p.add_argument('--budgets', nargs='+', type=int, default=[15, 40])
     p.add_argument('--cases', nargs='+', choices=list(CASES), default=list(CASES))
     p.add_argument('--snapshots', action='store_true')
+    p.add_argument('--reference-root', type=Path,
+                   help='Explicit reference panel with inputs/ and render15,40/; defaults to archived Colin panels')
+    p.add_argument('--skip-completed', type=Path,
+                   help='Handoff summary: skip only passed dataset/scene/budget/arm identities')
     a = p.parse_args()
+    completed = read(a.skip_completed) if a.skip_completed else []
+    skipped = {(r['dataset'], r['scene'], r['budget'], r['arm'])
+               for r in completed if r['status'] == 'passed'}
     fixed.install_paths()
     sys.path.insert(0, str(MAIN / 'scripts/selected_mapping'))
     from selected_mapping_check import verify_files
@@ -47,17 +54,21 @@ def main():
         'pruning': 'opacity .1, every 300 renders, protect 10 births', 'quotas': [3, 3, 6],
         'optimizer_batch_size': 1, 'reference': 'fresh D3+ERVS+dense at same budget',
         'dense_vs_kf_claim': 'system-level source replacement; realized RGB/native counts and LR positions may differ',
-        'geometry_claim': 'native RGBD/normal vs D3; not an isolated add/remove term', 'snapshots': a.snapshots})
+        'geometry_claim': 'native RGBD/normal vs D3; not an isolated add/remove term', 'snapshots': a.snapshots,
+        'reference_root': str(a.reference_root) if a.reference_root else None,
+        'skip_completed_sha256': sha(a.skip_completed) if a.skip_completed else None,
+        'skipped_passed_identities': sorted(skipped)})
     rows = read(a.output / 'summary.json') if (a.output / 'summary.json').exists() else []
     py = str(fixed.trial.BASE.PYTHON_ENV / 'bin/python')
     for r in inventory:
         d, s = r['dataset'], r['scene']
-        panel = RESULTS / ('cvpr_assets/fixed_work_12f_v1' if s == 'aria301_12F' else 'cvpr_assets/fixed_work_v1')
+        panel = a.reference_root or RESULTS / ('cvpr_assets/fixed_work_12f_v1' if s == 'aria301_12F' else 'cvpr_assets/fixed_work_v1')
         setup = panel / 'inputs' / d / s / 'setup'
         for budget in a.budgets:
             reference = panel / f'render{budget}' / d / s / 'd3'
             for case in a.cases:
                 if case == 'native_geometry' and budget != 40: continue
+                if (d, s, budget, case) in skipped: continue
                 out = a.output / f'render{budget}' / d / s / case
                 if any(row['output'] == str(out) for row in rows): continue
                 arm, selector, auxiliary = CASES[case]

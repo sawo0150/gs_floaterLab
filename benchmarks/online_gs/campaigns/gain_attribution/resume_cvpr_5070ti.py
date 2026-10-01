@@ -1,0 +1,157 @@
+"""Resume the handoff's fixed-work panels without rerunning passed controls.
+
+Run under the explicit machine profile. Transfer processes are observed, never
+killed. Input readiness and result gates are checked independently of exit codes.
+Failed runs stop this queue and require a fresh output namespace for retry.
+"""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import time
+import traceback
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import run_cvpr_measurements as fixed
+from collect_cvpr_assets import ROOT, MAIN, OUT, read, write, sha
+
+PILOTS = {"aria1253", "table_06", "square-1"}
+
+
+def alive(pid):
+    stat = Path(f"/proc/{pid}/stat")
+    return stat.exists() and stat.read_text().rsplit(")", 1)[1].split()[0] != "Z"
+
+
+def wait_for(pids, status, stage):
+    while any(alive(pid) for pid in pids):
+        write(status, {"stage": stage, "waiting_pids": [p for p in pids if alive(p)], "updated": time.time()})
+        time.sleep(10)
+
+
+def inputs_ready(rows):
+    for r in rows:
+        archive = Path(r["archive"])
+        assert sha(archive / "archive_manifest.json") == r["archive_sha256"], r["scene"]
+        assert sha(Path(r["fixed_manifest"])) == r["fixed_manifest_sha256"], r["scene"]
+        m = read(archive / "archive_manifest.json")
+        files = {m["arrivals"]}
+        for k in ("final_tracker_state", "evaluation_only_post_eos_trajectory"):
+            if m.get(k): files.add(m[k])
+        for e in m["events"]:
+            files.add(e["payload"])
+            assert sha(archive / e["payload"]) == e["payload_sha256"], e["payload"]
+            for g in e.get("geometry_refs", []):
+                files.update([g["depth"], g["normal"]])
+        missing = [name for name in files if not (archive / name).is_file()]
+        assert not missing, (r["scene"], missing[:5])
+        for k in ("calibration", "imu", "input_config"):
+            assert Path(r[k]).is_file(), r[k]
+        arrivals = [json.loads(line) for line in (archive / m["arrivals"]).read_text().splitlines() if line]
+        assert all((Path(r["image_dir"]) / a["source_name"]).is_file() for a in arrivals), r["image_dir"]
+
+
+def passed(directory, expected):
+    rows = read(directory / "summary.json")
+    assert len(rows) == expected and all(r["status"] == "passed" for r in rows), directory
+    return rows
+
+
+def run(command, log, status, stage):
+    while subprocess.check_output(["nvidia-smi", "--query-compute-apps=pid", "--format=csv,noheader"], text=True).strip():
+        write(status, {"stage": "waiting_gpu", "next": stage, "updated": time.time()})
+        time.sleep(10)
+    write(status, {"stage": stage, "command": command, "log": str(log), "updated": time.time()})
+    env = fixed.environment("vanilla")
+    env["PYTHONPATH"] = str(MAIN / "scripts/selected_mapping") + os.pathsep + env["PYTHONPATH"]
+    with log.open("x") as f:
+        subprocess.run(command, env=env, stdout=f, stderr=subprocess.STDOUT, check=True)
+
+
+def evaluate_curves(rows, logs, status, label):
+    for i, r in enumerate(rows):
+        directory = Path(r["output"])
+        expected = len(read(directory / "snapshots/manifest.json")["snapshots"]) + 1
+        result = directory / "curve_evaluation/summary.json"
+        if result.exists():
+            curves = read(result)
+            if len(curves) == expected and all(c["status"] == "evaluated" for c in curves):
+                continue
+            raise RuntimeError(f"Partial/failed curve evaluation requires inspection: {result}")
+        run([sys.executable, str(HERE / "evaluate_cvpr_checkpoints.py"), "--run", r["output"],
+             "--dataset", r["dataset"], "--scene", r["scene"]],
+            logs / f"{label}_{i:03d}.log", status, label)
+        curves = read(result)
+        assert len(curves) == expected and all(c["status"] == "evaluated" for c in curves), r["output"]
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--pilot", type=Path, required=True)
+    p.add_argument("--controls", type=Path, required=True)
+    p.add_argument("--reference", type=Path, required=True)
+    p.add_argument("--initial-panel-pid", type=int, required=True)
+    p.add_argument("--pilot-transfer-pid", type=int, required=True)
+    p.add_argument("--remaining-transfer-pid", type=int, required=True)
+    a = p.parse_args()
+    assert os.environ.get("ROGO_MACHINE_PROFILE"), "An explicit machine profile is required"
+    a.controls.mkdir(parents=True, exist_ok=False)
+    status = a.controls / "queue_status.json"
+    try:
+        profile = Path(os.environ["ROGO_MACHINE_PROFILE"])
+        write(a.controls / "machine_provenance.json", {
+            "profile": read(profile), "profile_sha256": sha(profile),
+            "adapter_sha256": sha(HERE / "rtx5070ti_profile/sitecustomize.py"),
+            "queue_sha256": sha(Path(__file__)), "lab_head": subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip(),
+            "custom_head": subprocess.check_output(["git", "-C", str(MAIN), "rev-parse", "HEAD"], text=True).strip(),
+            "gpu": subprocess.check_output(["nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"], text=True).strip(),
+            "time_comparison": False})
+        inventory = read(OUT / "scene_inventory.json")
+        pilots = [r for r in inventory if r["scene"] in PILOTS]
+        completed = ROOT / "context/experiments/campaigns/06_gain_attribution/handoff_5070ti/completed_controls.json"
+        wait_for([a.initial_panel_pid], status, "waiting_initial_pilot")
+        evaluate_curves(passed(a.pilot, 4), a.controls, status, "initial_pilot_curves")
+        wait_for([a.pilot_transfer_pid], status, "waiting_pilot_transfer")
+        inputs_ready(pilots)
+        for r in pilots:
+            rel = Path("inputs") / r["dataset"] / r["scene"] / "setup"
+            dst = a.pilot / rel
+            if not dst.exists(): shutil.copytree(fixed.RESULTS / "cvpr_assets/fixed_work_v1" / rel, dst)
+        py = sys.executable
+        run([py, str(HERE / "run_cvpr_measurements.py"), "--output", str(a.pilot), "--scenes", *sorted(PILOTS),
+             "--budgets", "15", "40", "--arms", "d3", "vanilla", "--snapshots"],
+            a.controls / "pilot_remaining.log", status, "three_scene_pilot")
+        evaluate_curves(passed(a.pilot, 12), a.controls, status, "pilot_curves")
+        references = []
+        for r in inventory:
+            d, s = r["dataset"], r["scene"]
+            origin = a.pilot if s in PILOTS else fixed.RESULTS / ("cvpr_assets/fixed_work_12f_v1" if s == "aria301_12F" else "cvpr_assets/fixed_work_v1")
+            for prefix in ("inputs", "render15", "render40"):
+                rel = Path(prefix) / d / s
+                dest = a.reference / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.symlink_to((origin / rel).resolve(), target_is_directory=True)
+            references.append({"dataset": d, "scene": s, "reference": str(origin), "same_gpu": s in PILOTS})
+        write(a.reference / "provenance.json", {"references": references, "cross_gpu_time_comparison": False})
+        control = [py, str(HERE / "run_cvpr_ablations.py"), "--output", str(a.controls), "--reference-root", str(a.reference),
+                   "--skip-completed", str(completed), "--budgets", "15", "40", "--snapshots"]
+        run([*control, "--scenes", *sorted(PILOTS)], a.controls / "pilot_controls.log", status, "pilot_controls")
+        passed(a.controls, 21)
+        wait_for([a.remaining_transfer_pid], status, "waiting_remaining_transfer")
+        inputs_ready(inventory)
+        run(control, a.controls / "remaining_controls.log", status, "remaining_controls")
+        rows = passed(a.controls, 121)
+        evaluate_curves(rows, a.controls, status, "control_curves")
+        write(status, {"stage": "fixed_work_controls_and_curves_complete", "controls_passed": 121,
+                       "previous_controls_passed": 19, "geometry_and_original_sampler": "pending_followup", "updated": time.time()})
+    except BaseException:
+        write(status, {"stage": "failed", "traceback": traceback.format_exc(), "updated": time.time()})
+        raise
+
+
+if __name__ == "__main__": main()

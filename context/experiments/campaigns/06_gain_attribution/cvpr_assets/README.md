@@ -470,3 +470,11 @@
 - 2026-10-01 CVPR rpng/table_03 40renders/KF ervs_kf_rgb: status=passed, PSNR=24.934068734227505; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/ervs_kf_rgb
 
 - 2026-10-01 RTX5070Ti 인계: 사용자 요청으로 local GPU queue/worker 중단, fixed80/80 및 controls19/140 보존. 코드·입력 inventory·실행 가이드 정리; 5070 설치/CUDA/실제 실행은 새 컴퓨터에서 검증. 시간 실험 보류.
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF d3: status=passed, PSNR=23.46318665715574; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF vanilla: status=passed, PSNR=18.954430743938183; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF d3: status=passed, PSNR=25.760522092571694; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF vanilla: status=passed, PSNR=20.856434509044384; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla

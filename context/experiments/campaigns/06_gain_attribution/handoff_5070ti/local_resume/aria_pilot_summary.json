@@ -1,0 +1,50 @@
+[
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "d3",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 23.46318665715574,
+    "gaussians": 221335,
+    "training_renders": 1785,
+    "mapping_seconds": 23.632795278914273
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 15,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla",
+    "status": "passed",
+    "psnr": 18.954430743938183,
+    "gaussians": 263337,
+    "training_renders": 1785,
+    "mapping_seconds": 31.84884834755212
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "d3",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3",
+    "status": "passed",
+    "psnr": 25.760522092571694,
+    "gaussians": 194300,
+    "training_renders": 4760,
+    "mapping_seconds": 59.325655004009604
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria1253",
+    "budget": 40,
+    "arm": "vanilla",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla",
+    "status": "passed",
+    "psnr": 20.856434509044384,
+    "gaussians": 190447,
+    "training_renders": 4760,
+    "mapping_seconds": 31.97687854198739
+  }
+]

@@ -1,0 +1,42 @@
+{
+  "pid": 3332748,
+  "command": [
+    "/home/wosas/miniconda3/envs/vigs-slam-5090/bin/python",
+    "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/run_cvpr_measurements.py",
+    "--output",
+    "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1",
+    "--scenes",
+    "aria1253",
+    "--budgets",
+    "15",
+    "40",
+    "--arms",
+    "d3",
+    "vanilla",
+    "--snapshots"
+  ],
+  "started": "2026-10-01T09:25:01.500770+09:00",
+  "profile": {
+    "path_prefixes": {
+      "/home/intern/gs_floaterLab/results": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results",
+      "/home/intern/gs_floaterLab/data": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/data",
+      "/home/intern/gs_floaterLab": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab",
+      "/home/intern/VIGS-SLAM-custom": "/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828",
+      "/home/colin/miniconda3/envs/vigs-slam-5090": "/home/wosas/miniconda3/envs/vigs-slam-5090",
+      "/home/intern": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern",
+      "/home/intern/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_06/rgb": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/rpng/prepared/rpngar/table_06/rgb",
+      "/home/intern/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-1/rgb_timestamp": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/data/benchmarks/utmm/prepared/UTMM_Dataset/square-1/rgb_timestamp",
+      "/home/intern/p28_5090_20260813/VIGS-SLAM-custom/data/aria1253_repro": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/aria1253_pilot_input"
+    }
+  },
+  "profile_sha256": "28ea93a6491bace09d3830b630fe97b6c4661e530bd2f839f1437b5ec4383d20",
+  "adapter_sha256": "4a31e0af1758d991538be2b5e717a8539f06b24858878096e144f573356c0dff",
+  "lab_head": "362fcbd7b1fb31f9fac8da83d1006f3e937b6ff6",
+  "custom_head": "50286727b4ab91b79285bcde6063d7c19aea73bf",
+  "locked_sources_verified": 119,
+  "locked_extensions_verified": true,
+  "torch": "2.8.0+cu128",
+  "driver": "595.84",
+  "gpu": "RTX 5070 Ti",
+  "time_comparison": false
+}

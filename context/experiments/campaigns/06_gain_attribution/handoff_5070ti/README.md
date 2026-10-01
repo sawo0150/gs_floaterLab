@@ -47,6 +47,9 @@ rsync -arL --info=progress2 --files-from=transfer_inputs_pilot.txt <OLD_HOST>:/ 
 rsync -arL --info=progress2 --files-from=transfer_runtime.txt <OLD_HOST>:/ /path/to/transfer-root/
 ```
 
+`--files-from` 사용 시 `-a`만으로 하위 파일이 재귀 복사되지 않으므로 위 명령의
+`-r`을 생략하지 않는다. `--dry-run --stats`에서 실제 RGB 파일 수를 확인한다.
+
 `-L`은 기존 서버의 symlink 대상도 함께 복사한다. 전송은 학습 GPU를 점유하지 않는다.
 Runtime 목록에는 큰 환경과 기존 결과가 있어 전송량을 확인한 뒤 필요한 장면부터
 축소해도 된다. 기존 `/home/intern`·`/home/colin` 경로를 새 컴퓨터에서 그대로
