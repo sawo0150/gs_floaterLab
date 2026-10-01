@@ -1,5 +1,13 @@
 # Experiment Index
 
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF Vanilla_40: status=evaluated, PSNR=20.856434509044384; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF D3_40: status=evaluated, PSNR=25.760522092571694; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF Vanilla_15: status=evaluated, PSNR=18.954430743938183; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF D3_15: status=evaluated, PSNR=23.46318665715574; results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/aria_manual_regions.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 handoff 집계 보완: 기존controls19도 raw map/snapshot 회수 후 checkpoint 평가에 포함(재학습 없음). 실제6-control로 집계 검증, 불완전 cohort 최종집계 차단 확인. 후속v1은 GPU 실행 전 보존·대체하고 archived19를 포함한 v2 준비. → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
 
 - 2026-10-01 local pilot checkpoint28/28 평가·pose alignment 통과. Original sampler 소스는 별도 worktree에서 과거152-run train/scheduler SHA와 정확히 복원; init cloud114/114 일치, metadata/schedule171 hash 고정. controls 이후 D3 zero-weight20 및 original sampler114 후속 준비(아직 미실행). → [card](campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)

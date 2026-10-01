@@ -37,3 +37,14 @@ The new `resume_cvpr_5070ti_followup.py` waits for the verified controls coordin
 The local controls coordinator covers 121 new runs. The 19 previously passed Colin runs also need checkpoint evaluation and table aggregation. Their raw maps/snapshots/metrics are now being transferred, without rerunning training. Follow-up v1 was stopped while still waiting (no GPU job started) and preserved with `superseded_before_gpu_work`; follow-up v2 includes these 19 evaluations before the geometry stage.
 
 `build_measured_control_tables.py --panels ... --output-dir ... --require-complete` audits both old and new control summaries with their explicit paired references. It rejects conflicting cells and incomplete paired cohorts, and writes a review bundle without overwriting current manuscript assets. A real six-control subset passed source/pose/prefix/cohort/metric checks (8 unique rows including references); strict completion correctly rejected its incomplete coverage. See [validation](control_table_builder_validation.json). This is validation of the table pipeline, not a new training result.
+
+## Local pilot independent free-space evaluation
+
+The immutable local Aria maps were evaluated on the same hash-locked manual empty-space voxel mask and evaluation-only ORB trajectory. Registration median/p90 is 2.42/3.84 cm, common across all four maps. No optimizer or GPU training operation was performed for this evaluation.
+
+| Training renders/KF | D3 count (opacity > .3) | Vanilla count | D3 opacity support mass | Vanilla opacity support mass |
+|---|---:|---:|---:|---:|
+|15|229|1098|265.851|805.572|
+|40|155|447|188.507|324.063|
+
+[Full result](aria_manual_regions.json) includes eroded/nominal/dilated-mask sensitivity, hashes, held-out quality and alignment details. This is a single-scene whole-system comparison; it does not isolate the D3 term and provides no dense-surface accuracy/completeness measurement. The separate zero-weight control is still pending.

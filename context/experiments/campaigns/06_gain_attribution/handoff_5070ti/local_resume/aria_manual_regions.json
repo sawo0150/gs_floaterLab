@@ -1,0 +1,361 @@
+{
+  "schema": "exp68.manual-floater-region.v2",
+  "scene": "aria1253",
+  "keyframes": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/aria1253_orb_keyframes.jsonl",
+  "region_mask": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/1253_region_gt.npz",
+  "mask_voxel_m": 0.075,
+  "registration_warning": "Counts are relative diagnostics: the manual mask and VIGS map are joined by trajectory Sim3, so erosion/dilation stability must be reported. Support metrics use center + covariance-axis +/-2 sigma points with weights [1/4, 1/8 x 6].",
+  "runs": [
+    {
+      "label": "D3_15",
+      "run_dir": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3",
+      "gaussians": 221335,
+      "visible_opacity_gt_0_3": 160686,
+      "max_scale": 0.13732249860193424,
+      "scale_gt_0_1": 6635,
+      "scale_gt_0_5": 0,
+      "scale_gt_1_0": 0,
+      "scale_p95": 0.08301518821418463,
+      "scale_p99": 0.10534525564525815,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 21378,
+        "opacity_0_1_to_0_3": 39271,
+        "opacity_gt_0_3": 160686
+      },
+      "opacity_area_global": 151.4009069837535,
+      "opacity_area_p99": 0.009843713698065068,
+      "sim3_scale": 1.050200066849966,
+      "alignment_pairs": 54,
+      "alignment_median_m": 0.024155650617591024,
+      "alignment_p90_m": 0.038418808688928226,
+      "counts": {
+        "eroded_1": {
+          "all": 957,
+          "opacity_gt_0_1": 293,
+          "opacity_gt_0_3": 104,
+          "opacity_gt_0_5": 44,
+          "opacity_bands": {
+            "opacity_le_0_1": 664,
+            "opacity_0_1_to_0_3": 189,
+            "opacity_gt_0_3": 104
+          },
+          "support_any_count": 1519,
+          "support_mass": 979.5,
+          "opacity_support_mass": 120.32780129873272,
+          "opacity_area_support_mass": 0.3705568132773824
+        },
+        "nominal": {
+          "all": 1708,
+          "opacity_gt_0_1": 613,
+          "opacity_gt_0_3": 229,
+          "opacity_gt_0_5": 118,
+          "opacity_bands": {
+            "opacity_le_0_1": 1095,
+            "opacity_0_1_to_0_3": 384,
+            "opacity_gt_0_3": 229
+          },
+          "support_any_count": 2922,
+          "support_mass": 1751.875,
+          "opacity_support_mass": 265.8511782863823,
+          "opacity_area_support_mass": 0.6664655734262533
+        },
+        "dilated_1": {
+          "all": 3374,
+          "opacity_gt_0_1": 1637,
+          "opacity_gt_0_3": 738,
+          "opacity_gt_0_5": 477,
+          "opacity_bands": {
+            "opacity_le_0_1": 1737,
+            "opacity_0_1_to_0_3": 899,
+            "opacity_gt_0_3": 738
+          },
+          "support_any_count": 6135,
+          "support_mass": 3515.125,
+          "opacity_support_mass": 789.6727516660599,
+          "opacity_area_support_mass": 1.357695361295245
+        }
+      },
+      "heldout_quality": {
+        "mapping_disjoint": true,
+        "mapping_view_overlap_count": 0,
+        "mean_lpips": 0.3395061305802287,
+        "mean_psnr": 23.46318665715574,
+        "mean_ssim": 0.8126588179409959,
+        "tracking_keyframe_overlap_count": 23,
+        "view_count": 262
+      },
+      "metric_path": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "7d955aa330cbbdf31d788b7bde0234a12ba36d168b1a82d29b690c0c066ae20f",
+      "map_sha256": "85a8a3221815fea94231260243f2d60358748c425c0a3efaac0d41640babae9d",
+      "pose_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "registration_p90_in_voxels": 0.512250782519043
+    },
+    {
+      "label": "Vanilla_15",
+      "run_dir": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla",
+      "gaussians": 263337,
+      "visible_opacity_gt_0_3": 236104,
+      "max_scale": 0.10502000332693608,
+      "scale_gt_0_1": 2406,
+      "scale_gt_0_5": 0,
+      "scale_gt_1_0": 0,
+      "scale_p95": 0.05201412236559487,
+      "scale_p99": 0.0979931937481294,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 1863,
+        "opacity_0_1_to_0_3": 25370,
+        "opacity_gt_0_3": 236104
+      },
+      "opacity_area_global": 119.73405948764027,
+      "opacity_area_p99": 0.005939803649826482,
+      "sim3_scale": 1.050200066849966,
+      "alignment_pairs": 54,
+      "alignment_median_m": 0.024155650617591024,
+      "alignment_p90_m": 0.038418808688928226,
+      "counts": {
+        "eroded_1": {
+          "all": 1074,
+          "opacity_gt_0_1": 1024,
+          "opacity_gt_0_3": 560,
+          "opacity_gt_0_5": 258,
+          "opacity_bands": {
+            "opacity_le_0_1": 50,
+            "opacity_0_1_to_0_3": 464,
+            "opacity_gt_0_3": 560
+          },
+          "support_any_count": 1690,
+          "support_mass": 1096.75,
+          "opacity_support_mass": 403.13003428962884,
+          "opacity_area_support_mass": 1.3837226340900388
+        },
+        "nominal": {
+          "all": 1890,
+          "opacity_gt_0_1": 1808,
+          "opacity_gt_0_3": 1098,
+          "opacity_gt_0_5": 594,
+          "opacity_bands": {
+            "opacity_le_0_1": 82,
+            "opacity_0_1_to_0_3": 710,
+            "opacity_gt_0_3": 1098
+          },
+          "support_any_count": 3095,
+          "support_mass": 1943.625,
+          "opacity_support_mass": 805.5715823333866,
+          "opacity_area_support_mass": 2.1375776123059236
+        },
+        "dilated_1": {
+          "all": 3569,
+          "opacity_gt_0_1": 3413,
+          "opacity_gt_0_3": 2266,
+          "opacity_gt_0_5": 1396,
+          "opacity_bands": {
+            "opacity_le_0_1": 156,
+            "opacity_0_1_to_0_3": 1147,
+            "opacity_gt_0_3": 2266
+          },
+          "support_any_count": 6188,
+          "support_mass": 3726.625,
+          "opacity_support_mass": 1709.3451246165093,
+          "opacity_area_support_mass": 3.3885824610688586
+        }
+      },
+      "heldout_quality": {
+        "mapping_disjoint": true,
+        "mapping_view_overlap_count": 0,
+        "mean_lpips": 0.5825888649880431,
+        "mean_psnr": 18.954430743938183,
+        "mean_ssim": 0.6747029218964904,
+        "tracking_keyframe_overlap_count": 23,
+        "view_count": 262
+      },
+      "metric_path": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render15/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "d54820d1e75a8cf099bbab7a2da586938e3f213c96fee13d017b99b28176e6c5",
+      "map_sha256": "9ddaa33182f69d3fac117146e7aeb49c51ecb03ee336c3f0629c87bbc11ba311",
+      "pose_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "registration_p90_in_voxels": 0.512250782519043
+    },
+    {
+      "label": "D3_40",
+      "run_dir": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3",
+      "gaussians": 194300,
+      "visible_opacity_gt_0_3": 138274,
+      "max_scale": 0.1661973577807927,
+      "scale_gt_0_1": 11402,
+      "scale_gt_0_5": 0,
+      "scale_gt_1_0": 0,
+      "scale_p95": 0.10198795842628494,
+      "scale_p99": 0.10848196673298262,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 21596,
+        "opacity_0_1_to_0_3": 34430,
+        "opacity_gt_0_3": 138274
+      },
+      "opacity_area_global": 177.1789986270882,
+      "opacity_area_p99": 0.010706387212566948,
+      "sim3_scale": 1.050200066849966,
+      "alignment_pairs": 54,
+      "alignment_median_m": 0.024155650617591024,
+      "alignment_p90_m": 0.038418808688928226,
+      "counts": {
+        "eroded_1": {
+          "all": 864,
+          "opacity_gt_0_1": 160,
+          "opacity_gt_0_3": 72,
+          "opacity_gt_0_5": 36,
+          "opacity_bands": {
+            "opacity_le_0_1": 704,
+            "opacity_0_1_to_0_3": 88,
+            "opacity_gt_0_3": 72
+          },
+          "support_any_count": 1350,
+          "support_mass": 882.0,
+          "opacity_support_mass": 81.81966948318026,
+          "opacity_area_support_mass": 0.22766597699189234
+        },
+        "nominal": {
+          "all": 1479,
+          "opacity_gt_0_1": 337,
+          "opacity_gt_0_3": 155,
+          "opacity_gt_0_5": 98,
+          "opacity_bands": {
+            "opacity_le_0_1": 1142,
+            "opacity_0_1_to_0_3": 182,
+            "opacity_gt_0_3": 155
+          },
+          "support_any_count": 2579,
+          "support_mass": 1545.875,
+          "opacity_support_mass": 188.50651548027753,
+          "opacity_area_support_mass": 0.4484398678546567
+        },
+        "dilated_1": {
+          "all": 2785,
+          "opacity_gt_0_1": 989,
+          "opacity_gt_0_3": 530,
+          "opacity_gt_0_5": 365,
+          "opacity_bands": {
+            "opacity_le_0_1": 1796,
+            "opacity_0_1_to_0_3": 459,
+            "opacity_gt_0_3": 530
+          },
+          "support_any_count": 5528,
+          "support_mass": 2988.875,
+          "opacity_support_mass": 589.0208925359664,
+          "opacity_area_support_mass": 1.0786356453917687
+        }
+      },
+      "heldout_quality": {
+        "mapping_disjoint": true,
+        "mapping_view_overlap_count": 0,
+        "mean_lpips": 0.2582561249155125,
+        "mean_psnr": 25.760522092571694,
+        "mean_ssim": 0.856752100109144,
+        "tracking_keyframe_overlap_count": 23,
+        "view_count": 262
+      },
+      "metric_path": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e5de406afc98956cb9316a8e6c4b770c5640153d1330feae48bd9be8a58853b3",
+      "map_sha256": "c6c1ea05f88f4b7ebc5713b8826c0f2e01cc647aeeaf3c7eff4fd8769b1c3a9f",
+      "pose_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "registration_p90_in_voxels": 0.512250782519043
+    },
+    {
+      "label": "Vanilla_40",
+      "run_dir": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla",
+      "gaussians": 190447,
+      "visible_opacity_gt_0_3": 189322,
+      "max_scale": 0.10502000332693608,
+      "scale_gt_0_1": 1615,
+      "scale_gt_0_5": 0,
+      "scale_gt_1_0": 0,
+      "scale_p95": 0.05827159103382352,
+      "scale_p99": 0.0960475237392501,
+      "opacity_bands_global": {
+        "opacity_le_0_1": 0,
+        "opacity_0_1_to_0_3": 1125,
+        "opacity_gt_0_3": 189322
+      },
+      "opacity_area_global": 137.93313274175554,
+      "opacity_area_p99": 0.007236617038548615,
+      "sim3_scale": 1.050200066849966,
+      "alignment_pairs": 54,
+      "alignment_median_m": 0.024155650617591024,
+      "alignment_p90_m": 0.038418808688928226,
+      "counts": {
+        "eroded_1": {
+          "all": 183,
+          "opacity_gt_0_1": 183,
+          "opacity_gt_0_3": 176,
+          "opacity_gt_0_5": 100,
+          "opacity_bands": {
+            "opacity_le_0_1": 0,
+            "opacity_0_1_to_0_3": 7,
+            "opacity_gt_0_3": 176
+          },
+          "support_any_count": 355,
+          "support_mass": 189.125,
+          "opacity_support_mass": 111.73168651511854,
+          "opacity_area_support_mass": 0.3610347548640159
+        },
+        "nominal": {
+          "all": 462,
+          "opacity_gt_0_1": 462,
+          "opacity_gt_0_3": 447,
+          "opacity_gt_0_5": 331,
+          "opacity_bands": {
+            "opacity_le_0_1": 0,
+            "opacity_0_1_to_0_3": 15,
+            "opacity_gt_0_3": 447
+          },
+          "support_any_count": 933,
+          "support_mass": 477.875,
+          "opacity_support_mass": 324.06338906277074,
+          "opacity_area_support_mass": 0.6766302658158598
+        },
+        "dilated_1": {
+          "all": 1178,
+          "opacity_gt_0_1": 1178,
+          "opacity_gt_0_3": 1140,
+          "opacity_gt_0_5": 964,
+          "opacity_bands": {
+            "opacity_le_0_1": 0,
+            "opacity_0_1_to_0_3": 38,
+            "opacity_gt_0_3": 1140
+          },
+          "support_any_count": 2641,
+          "support_mass": 1281.0,
+          "opacity_support_mass": 953.7811176849985,
+          "opacity_area_support_mass": 1.3903098342334308
+        }
+      },
+      "heldout_quality": {
+        "mapping_disjoint": true,
+        "mapping_view_overlap_count": 0,
+        "mean_lpips": 0.51052429157359,
+        "mean_psnr": 20.856434509044384,
+        "mean_ssim": 0.7094424985747301,
+        "tracking_keyframe_overlap_count": 23,
+        "view_count": 262
+      },
+      "metric_path": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "0fecd0892108ed23c12bef2e5198de866589d29b973d45d8d7a70384640525a2",
+      "map_sha256": "742629ef80a4f0532dd75e299746cd126366715252d471dcdecdecef97467442",
+      "pose_sha256": "24b8cb2bcf2452ce8083bb96fb7c47b056f14a191ce7edd28462a4c0dc99bcdb",
+      "registration_p90_in_voxels": 0.512250782519043
+    }
+  ],
+  "provenance": {
+    "evaluator": "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/exp70_axes/evaluate_manual_floater_regions.py",
+    "evaluator_sha256": "70ec6fe932395fcdb99d125e01db95083f0d2136ba7c5cd90b0634932c0a553a",
+    "script": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/evaluate_cvpr_regions.py",
+    "script_sha256": "415c141d77863981995515914cbee45781e3a10301e44c0237e589225d3383e2",
+    "assets": {
+      "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/1253_region_gt.npz": "2caae887350ba59aa1d80486a8f370dfcc119b58931af07afbe08e30e508359c",
+      "/media/wosas/\uc0c8 \ubcfc\ub968/rogo_5070ti_handoff/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/aria1253_orb_keyframes.jsonl": "814bdf340efcac85d01f4e4c3ccc6e0f1d83f5367a9814fc71ceebc891678abe"
+    },
+    "evaluation_only": true,
+    "reference_used_by_mapper": false,
+    "independent_reference": "pre-existing manually annotated empty-space voxel mask",
+    "dense_surface_accuracy_completeness_fscore": "NA; this mask contains no dense surface reference",
+    "selection_uses_quality_scores": false
+  }
+}
