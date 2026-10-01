@@ -1,0 +1,29 @@
+% Archived benchmark-B measurements, not current-code reruns.
+\begin{table}[tbp]
+\centering
+\caption{Original interval-sampling comparison: archived fixed-topology 3DGS replay measurements. Equal scene-weighted PSNR over 19 available scenes.}
+\label{tab:order}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Metric & Sampling policy & \shortstack{15 updates\\per interval} & \shortstack{30 updates\\per interval} & \shortstack{60 updates\\per interval} \\
+\midrule
+PSNR $\uparrow$ & RR & 20.77 & 22.22 & 22.88 \\
+PSNR $\uparrow$ & Interval ERCB & 21.39 & 22.33 & 23.11 \\
+\midrule
+SSIM $\uparrow$ & RR & \textemdash & \textemdash & \textemdash \\
+SSIM $\uparrow$ & Interval ERCB & \textemdash & \textemdash & \textemdash \\
+\midrule
+LPIPS $\downarrow$ & RR & \textemdash & \textemdash & \textemdash \\
+LPIPS $\downarrow$ & Interval ERCB & \textemdash & \textemdash & \textemdash \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright Historical scheduler-isolation replay with fixed final poses/initialization, RGB-only loss, seed0, resolution4, llffhold-8 and zero tail; this is not an online-system comparison. Both samplers use the same map (mean91.3k Gaussians). UTMM \texttt{slow-straight-1} was unavailable (19/20 scenes). SSIM/LPIPS are absent from the archived report. JSON/CSV values and completed-job manifests agree, but the original dirty source and raw maps are not restored; these are not fresh reproductions. Current per-view ERVS at 15/40 renders/KF is reported separately.
+\end{minipage}
+\end{table}

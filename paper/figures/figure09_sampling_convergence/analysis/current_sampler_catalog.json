@@ -1,0 +1,249 @@
+{
+  "kind": "actual_current_sampler_curve_catalog",
+  "expected_pairs": 40,
+  "measured_pairs": 0,
+  "pairs": [
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "budget": 15,
+      "status": "awaiting_checkpoint_pair"
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "budget": 40,
+      "status": "awaiting_checkpoint_pair"
+    }
+  ],
+  "complete_candidate_curve_review": false,
+  "script_sha256": "988f89a623c444f620e8445ac818f763dc769581b23a9f2b7bb2d7a9dd267b09"
+}

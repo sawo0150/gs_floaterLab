@@ -1,0 +1,362 @@
+% ============================================================
+% 4. Experiments   ← 이 파일이 §4다 (파일명은 Overleaf 템플릿 것을 그대로 둠)
+% 계획: sections/04_experiments/README.md
+%
+% 구조 (2026-09-08 개정): 번호 붙은 소절 3개.
+%   4.1 Setup / 4.2 Main Results / 4.3 Ablations
+%   ⚠ 이전엔 Setup 을 번호 없는 도입으로 뒀으나, 표본을 5편→8편으로 늘리니
+%     번호 있음 5편(MonoGS·SparseGS·CoMapGS·CaRtGS·Taming) : 없음 3편(chen·lmrs·vigsslam)로
+%     다수가 번호를 준다. 길이도 15~37줄로 번호 유무와 무관했다.
+%
+% 2026-09-08 결정 반영 (notes/decisions/2026-09-08_single-gpu-realtime.md):
+%   · 5090 한 대, 1× 실시간만. GPU 2대·pace 배수 언급하지 않는다
+%   · 예산은 "스트림 길이 그 자체" → 1.5× 같은 배수 서술 삭제
+%   · Fig.4 rate invariance 폐기 (그릴 실험이 없음) → 그림 5개 → 4개
+%   · Table 1 은 시스템 baseline, scheduler arm 6개는 Table 3 으로 이동
+%
+% 분량: 한 쪽 ≈ 110줄. §4 목표 2.2p
+%   4.1  35줄 0.32p   run-in 4개. CaRtGS 37 · SparseGS 37 · MonoGS 31 과 같은 급
+%   4.2  74줄 0.67p   문단 4 + Table 1(2단) + Table 2
+%   4.3  76줄 0.69p   봉인문장 + Table 3 + run-in 3개 + Fig.4
+% ============================================================
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Setup}
+\label{ssec:setup}
+
+% ---- Datasets ----
+% 방침: 자체 Aria 촬영분 1개 + 표준 1~2개. 후보 조사는 notes/datasets/CURRENT.md
+%   제약이 빡빡하다 — 단안 RGB(렌더 평가) + IMU(tracking) 를 동시에 주는 공개 데이터셋이 적다.
+%   EuRoC 은 흑백이라 렌더 평가에 못 쓴다 (vigsslam 도 같은 이유로 렌더는 다른 데이터셋에서 본다).
+\noindent\textbf{Datasets.}\;
+\slot{DATASETS}{9}{%
+  \pend{not yet chosen --- see notes/datasets/CURRENT.md}
+  One self-captured Aria sequence plus one or two public sets, each with a clause saying what
+  makes it different (the corpus does this: cartgs, MonoGS). \textbf{State the held-out split
+  exactly}, in the manner of SparseGS's ``every eighth image as testing view'' --- ours are the
+  frames in \texttt{test.txt}, which no method uses for supervision. \textbf{If a sequence is
+  excluded, say why in place} (MonoGS: ``Since Replica is designed for RGB-D \dots we hence use
+  it for RGB-D evaluation only'').}
+
+% ---- Metrics ----
+% 코퍼스 9편 실측: 렌더는 PSNR/SSIM/LPIPS 가 사실상 전부, tracking 은 ATE RMSE.
+%   그리고 논문마다 자기 주장에 맞는 지표를 하나씩 만들어 쓴다 —
+%   CaRtGS 의 IPF, Taming3DGS 의 Peak #G, VIGS-SLAM 의 Recall@5cm.
+%   ★ CaRtGS 가 IPF 를 Setup 에서 정의한다 → 우리 ρ_H 도 여기서 정의한다 (§3.2 에서 옮겨옴).
+\noindent\textbf{Metrics.}\;
+\slot{METRICS}{10}{%
+  \emph{Quality}: PSNR, SSIM, LPIPS on held-out views. \emph{Resources}: wall-clock time, number
+  of streaming updates, number of admitted views, and peak and final model size --- peak matters
+  because a method that oversamples and prunes is otherwise indistinguishable from one that stays
+  within budget (Taming3DGS's \texttt{Peak \#G}). \textbf{Define $\rho_H$ here}, as cartgs defines
+  IPF in its setup: the entropy of the draw normalised by that of an unweighted draw, so $1.0$
+  means no randomness was given up. Name the tools (\texttt{evo}, \texttt{torchmetrics}) the way
+  cartgs does, with footnote URLs. All numbers are mean\,$\pm$\,std over three seeds.
+  Numbers reported under a post-processed-pose protocol \emph{are not directly comparable to
+  ours}.}
+
+% ---- Implementation details ----
+% 6/8 편에 있는 항목인데 우리에겐 통째로 없었다. CaRtGS: "RTX 4090, Ryzen 9 7950X, 128GB RAM".
+%   CaRtGS 형식 = "기본값 유지, 바꾼 것만" 나열.
+% ★ zero-tail 이 여기 산다. 별도 run-in(`Streaming contract.`) 은 두지 않는다 —
+%   코퍼스 어디에도 그런 run-in 이 없고, 실제로 논문에 필요한 것은 zero-tail 과 online pose 둘뿐이다.
+%   vigsslam 이 같은 내용을 `Baselines.` 안 한 문장으로 처리한 선례를 따른다.
+\noindent\textbf{Implementation details.}\;
+\slot{IMPLEMENTATION DETAILS}{9}{%
+  Hardware in one clause (a single RTX 5090). \textbf{Retain the VIGS-SLAM defaults and list only
+  what changed} --- $\kappa$, $\beta$, $K$ --- which is how cartgs writes it; these three values
+  appear nowhere else in the paper. \textbf{Then the contract, in one sentence}: each method
+  receives the sensor stream in real time and performs \emph{zero optimizer updates after the last
+  frame}, so the compute budget is the duration of the stream itself; poses and depths are the
+  online-estimated ones, never the post-processed trajectory. \textbf{One sentence that the same
+  configuration is used on every sequence} --- nothing retuned per scene, which is what makes
+  Table~\ref{tab:scene} worth reading (exp59: a configuration tuned on one trajectory lost
+  $1.85$\,dB on another). Results with a post-stream refinement tail are in the supplement.}
+
+% ---- Baselines ----
+% MonoGS 형식: 목록이 아니라 선정 기준을 말한다.
+%   ("methods that, like ours, do not have explicit loop closure" / "selected based on their public
+%    reporting or the availability of source code" / "the method which uses ground truth poses
+%    for initialisation is not considered")
+% 출처 표기는 CoMapGS·VIGS-SLAM 형식: Setup 에서 규칙을 말하고 표에서 기호로 표시.
+\noindent\textbf{Baselines.}\;
+\slot{BASELINES \textemdash\ CRITERIA, NOT A LIST}{7}{%
+  Photo-SLAM, MonoGS, CaRtGS and VIGS-SLAM. \textbf{Give the criteria that select them}, as MonoGS
+  does: they run in real time from monocular input and build a photorealistic map; code or
+  published numbers exist; and they do not presuppose a depth sensor or a post-processed pose ---
+  which is what excludes the RGB-D-only systems. \textbf{State the provenance rule here} and mark
+  it in the tables: reproduced by us, cited from the paper, or failed.}
+
+% ============================================================
+\subsection{Main Results}
+\label{ssec:main}
+
+\begin{table}[t]
+\centering
+\caption{
+Quantitative rendering comparison on RPNG, UTMM, and Aria.
+Values are averaged over the valid scenes of each dataset.
+Best results are shown in bold.
+}
+\label{tab:rendering_comparison}
+
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clccc}
+\toprule
+Metric & Method & RPNG & UTMM & Aria \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& VIGS-SLAM
+& 22.49
+& 18.73
+& 22.99 \\
+& \textbf{Ours}
+& \textbf{24.09}
+& \textbf{19.25}
+& \textbf{25.44} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& VIGS-SLAM
+& 0.7460
+& 0.6441
+& 0.7840 \\
+& \textbf{Ours}
+& \textbf{0.8052}
+& \textbf{0.6634}
+& \textbf{0.8331} \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& VIGS-SLAM
+& 0.2426
+& 0.4216
+& 0.4555 \\
+& \textbf{Ours}
+& \textbf{0.1789}
+& \textbf{0.4123}
+& \textbf{0.3451} \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+
+
+\slot{P1 \textemdash\ RESULTS POINTER}{7}{%
+  Point at Table~\ref{tab:main} and Table~\ref{tab:scene} at once, state the highlighting
+  convention, and \textbf{state the provenance marks here} (reproduced by us / cited / failed) ---
+  cartgs opens its results with exactly this sentence, and CoMapGS marks reproduced numbers with
+  a dagger.}
+
+\slot{P2 \textemdash\ SAME STREAM, SAME TIME}{18}{%
+  Read the quality columns of Table~\ref{tab:main} \emph{against} the resource columns, not apart
+  from them: the claim is not that we render better but that we render better \emph{from the same
+  stream in the same time}. Note what the peak-versus-final gap says about methods that oversample
+  before pruning.
+  \textbf{Close with what we did not use} --- MonoGS's ``without requiring any deep priors'' move:
+  no post-processed trajectory, no depth sensor, and no optimization after the stream ends. This
+  is where the contract declared in \S\ref{ssec:setup} earns its keep; declaring it and never
+  cashing it in would be wasted.}
+
+\begin{table}[t]
+\centering\small
+\caption{\skel{TABLE 2} One configuration, every sequence. Nothing was retuned per scene
+  (\S\ref{ssec:setup}). Mean\,$\pm$\,std over three seeds.}
+\label{tab:scene}
+\begin{tabular}{l|ccc}
+\hline
+Sequence & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+\hline
+\pend{sequences TBD} & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+\slot{P3 \textemdash\ WHERE THE SCENES DIVERGE}{14}{%
+  Table~\ref{tab:scene}, one configuration across every sequence. Say where the self-captured
+  Aria sequence and the public one behave differently \textbf{and why} --- CoMapGS does this per
+  dataset rather than reporting an average and moving on. \pend{scenes not yet chosen; see
+  notes/datasets/CURRENT.md}}
+
+\slot{P4 \textemdash\ WHERE WE LOSE}{11}{%
+  \textbf{Name the losses before a reviewer does.} CoMapGS: ``second only to ReconFusion in the
+  3-view case. This difference is likely due to \dots''; chen2026cover concedes that a random
+  baseline is already strong. Where a method beats us, say so and say what it uses that we
+  contractually do not --- a depth sensor, a post-processed pose, or time after the stream.
+  \pend{fill once numbers exist; the slot is reserved so the concession is not an afterthought}}
+
+% ============================================================
+\subsection{Ablations}
+\label{ssec:abl}
+% ============================================================
+
+\begin{table}[t]
+\centering
+\caption{
+Ablation on the source of mapping supervision.
+Both policies use 60 mapping updates per keyframe.
+Results are averaged over 19 scenes.
+Best results are shown in bold.
+}
+\label{tab:abl}
+
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clcccc}
+\toprule
+Metric & Policy
+& RPNG (8)
+& UTMM (7)
+& Aria (4)
+& All (19) \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& Keyframes only
+& \textbf{23.41}
+& 20.25
+& 28.50
+& 23.31 \\
+& \textbf{+ in-between frames}
+& 23.06
+& \textbf{21.12}
+& \textbf{29.25}
+& \textbf{23.65} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& Keyframes only
+& -- & -- & -- & -- \\
+& \textbf{+ in-between frames}
+& -- & -- & -- & -- \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Keyframes only
+& -- & -- & -- & -- \\
+& \textbf{+ in-between frames}
+& -- & -- & -- & -- \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{
+Ablation on view ordering under different mapping budgets.
+The budget denotes the number of mapping updates per interval.
+Results are averaged over 19 scenes.
+Best results are shown in bold.
+}
+\label{tab:order}
+
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.05}
+
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{clccc}
+\toprule
+Metric & Policy
+& 15 upd./interval
+& 30 upd./interval
+& 60 upd./interval \\
+\midrule
+
+\multirow{2}{*}{PSNR $\uparrow$}
+& Random reshuffling
+& 20.77
+& 22.22
+& 22.88 \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& \textbf{21.39}
+& \textbf{22.33}
+& \textbf{23.11} \\
+\midrule
+
+\multirow{2}{*}{SSIM $\uparrow$}
+& Random reshuffling
+& -- & -- & -- \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& -- & -- & -- \\
+\midrule
+
+\multirow{2}{*}{LPIPS $\downarrow$}
+& Random reshuffling
+& -- & -- & -- \\
+& \shortstack{\textbf{Entropy-Regularized}\\\textbf{View Sampling}}
+& -- & -- & -- \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+\slot{OPENER \textemdash\ scope, data, seal, pointer (3 sentences)}{5}{%
+  \textbf{What varies and on what data} --- one sentence, as SparseGS opens (``We ablate our
+  method on the Mip-NeRF360 dataset 12-view setting'').
+  \textbf{Then the seal}: every configuration receives the same stream, the same real-time budget,
+  the same seeds, and no per-scene retuning; only the policy under test differs (Taming3DGS seals
+  the Gaussian count, TIDI-GS seals budget \emph{and} camera paths --- we have three confounds to
+  seal, so we name all three).
+  \textbf{Then point at Table~\ref{tab:abl}, Table~\ref{tab:order} and Fig.~\ref{fig:carve}
+  at once.}}
+
+
+
+\noindent\textbf{View growth.}\;
+\slot{ITEM 1 \textemdash\ lmrs shape: purpose+\S ref, table, rows in order, one number}{11}{%
+  \textbf{Restate the purpose with the section reference in the sentence}, as lmrs writes it
+  (``We propose a view sampling approach in Sec.~4.3 to ensure that\dots''): \S\ref{ssec:growth}
+  lets completed service, not the keyframe rule, set how fast the pool may grow.
+  Then read the two replacement rows of Table~\ref{tab:abl} in order.
+  \textbf{Report the $\kappa$ sweep in prose, not in the table} --- hyperparameter sweeps sit
+  outside the ablation table in the corpus (Taming3DGS puts its budget sweep in Fig.~1) --- and
+  \textbf{state the $\kappa{=}16$ anomaly here rather than omitting it} \pend{22.163\,dB,
+  $-5.545$ against trend; full sweep in the supplement}. Close on one number.}
+
+
+\noindent\textbf{Entropy-Regularized View Sampling.}\;
+\slot{ITEM 2 \textemdash\ REGIME FRAMING first, matches \S\ref{ssec:ercb}}{15}{%
+  \textbf{Concede the regime first}, as chen2026cover does (``only as good as the random baseline
+  in very sparse initialization regimes''): where blocks are long, random reshuffling is already
+  strong, and the gain appears where $K \ll N_t$. Read Table~\ref{tab:order} down $K$ before
+  across $\beta$, so the reader sees which of the two axes is the larger effect --- lmrs prints
+  the table in which its own contribution loses to batch size and says so.
+  Then the proxy-versus-goal divergence from \S\ref{ssec:ercb}, with both numbers.
+  \pend{the $K{=}128,\beta{=}0$ arm does not exist yet, so the effect of $\beta$ alone is
+  unmeasured; say this in the text --- an empty cell alone will read as an oversight}
+  Close on one number.}
+
+\begin{figure}[t]
+  \centering
+  \fcolorbox{slotgray}{slotbg}{\parbox[c][3.0cm][c]{0.92\linewidth}{\centering
+    {\sffamily\scriptsize\bfseries\color{skelblue}FIG.\,4}\\[3pt]
+    {\sffamily\scriptsize\color{slotgray}same-viewpoint renders + PLY cross-section\\
+     carve off / v7-64 / ported \quad\textbullet\quad P04}}}
+  \caption{Carving removes free-space Gaussians.}
+  \label{fig:carve}
+\end{figure}
+
+\noindent\textbf{Carving.}\;
+\slot{ITEM 3 \textemdash\ same shape, matches \S\ref{ssec:carve}}{9}{%
+  \pend{teammate} Purpose with the \S\ref{ssec:carve} reference, the removal row of
+  Table~\ref{tab:abl}, then Fig.~\ref{fig:carve} for what the number does not show ---
+  SparseGS pairs its floater-pruning row with a qualitative figure for exactly this reason.
+  Close on one number.}
+
+% 종합 문장. vigsslam 은 항목 끝에서, tidigs 는 독립 문단으로 표 전체를 한 번 읽는다.
+% 우리에겐 §3 도입의 '한 원인, 세 결과'가 여기서 회수된다 — 세 정책이 서로 다른 방식으로
+% 품질을 잃어야 세 소절이 한 문제의 세 얼굴이라는 주장이 증거를 얻는다.
+\slot{CLOSING \textemdash\ read the table as a whole}{3}{%
+  Removing any one of the three costs quality, \emph{and the three losses differ in kind} ---
+  which is the claim of \S\ref{sec:method}'s opening recovered as a measurement, not restated.}

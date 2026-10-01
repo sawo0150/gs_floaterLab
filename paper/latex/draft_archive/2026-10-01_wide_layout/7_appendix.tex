@@ -1,0 +1,36 @@
+\clearpage
+\renewcommand{\thepage}{S\arabic{page}}
+\setcounter{page}{1}
+\onecolumn
+\appendix
+\begin{center}
+  \Large\textbf{ROGO-SLAM: Supplementary Material}\\[0.3cm]
+  \large Figure and Table Layout Draft
+\end{center}
+
+\noindent\textbf{Draft status.}
+All metric cells below are intentionally blank. Candidate methods and sequences
+are listed to review coverage before measurements are installed. A dash means
+not measured; it does not indicate zero, failure, or an unavailable metric.
+The same scene subset and source data must generate both dataset means and
+sequence-level results.
+
+\section{Per-Sequence Rendering Comparison}
+\label{app:rendering}
+The templates use metric--method rows and sequence columns, following the
+sequence-level presentation of VIGS-SLAM. They also reserve final Gaussian
+counts. Input modalities are retained beside method names, and the conditional
+MM3DGS-SLAM row is not an established RGB--IMU baseline.
+
+\input{tab/t1_supp_draft}
+\clearpage
+
+\section{Per-Sequence Equal-Time Comparison}
+\label{app:time}
+These templates separate 1$\times$ and 1.5$\times$ time allowances with concurrent
+tracking. Quality and resource columns will be filled from the same runs.
+Pending-input FIFO drops must not be confused with removal from the retained
+training pool.
+
+\input{tab/t2_supp_draft}
+\clearpage

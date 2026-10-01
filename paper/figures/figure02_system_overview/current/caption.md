@@ -1,0 +1,1 @@
+Overview reused from HumanTech. View-set growth, image selection, and depth-based supervision refine a shared Gaussian map. \textbf{Draft reuse:} reconcile labels with the final implementation.

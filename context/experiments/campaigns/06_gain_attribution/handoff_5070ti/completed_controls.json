@@ -1,0 +1,1028 @@
+[
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 15,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 24.458256155371192,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3765,
+      "optimizer_steps": 3765,
+      "gaussians": 313685,
+      "loss_routes": {
+        "native_rgbd_normal": 2096,
+        "rgb_only": 1669
+      },
+      "roles": {
+        "window": 1054,
+        "keyframe": 1042,
+        "dense": 1669
+      }
+    },
+    "mapping_seconds": 74.93444148101844,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "eff08ebc0078997e9228e6267c008364bf3da898fe121bbbeb97ee4a21df2757",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "bee0b59b82dbc366b3700249576ad9825965220e75c4450c20988a78bee0e5ff",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.458256155371192,
+      "fixed_psnr_second": 24.458256155371192,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 15,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 24.597321282344986,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3765,
+      "optimizer_steps": 3765,
+      "gaussians": 316105,
+      "loss_routes": {
+        "native_rgbd_normal": 1975,
+        "rgb_only": 1790
+      },
+      "roles": {
+        "window": 989,
+        "keyframe": 986,
+        "keyframe_rgb": 1790
+      }
+    },
+    "mapping_seconds": 62.62324817595072,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "2d845fca17cafaf109ade645721103c7e97eeb709ce0a5745ac7153ac9c66d4d",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "c552768b0e58d6e8dbfff52d8a76ac7f5be286238d3204d533eb0846ed44b7e9",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.597321282344986,
+      "fixed_psnr_second": 24.597321282344986,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 15,
+    "arm": "rr_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 24.503652960180762,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3765,
+      "optimizer_steps": 3765,
+      "gaussians": 313591,
+      "loss_routes": {
+        "native_rgbd_normal": 1975,
+        "rgb_only": 1790
+      },
+      "roles": {
+        "window": 989,
+        "keyframe": 986,
+        "keyframe_rgb": 1790
+      }
+    },
+    "mapping_seconds": 62.561011906014755,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "42920055a4878a7b2e22b57df83b5a78f2f451ed11c5d261a0e96c34ee6852ba",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "c552768b0e58d6e8dbfff52d8a76ac7f5be286238d3204d533eb0846ed44b7e9",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.503652960180762,
+      "fixed_psnr_second": 24.503652960180762,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 40,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 25.660401146725356,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 10040,
+      "optimizer_steps": 10040,
+      "gaussians": 243196,
+      "loss_routes": {
+        "native_rgbd_normal": 5124,
+        "rgb_only": 4916
+      },
+      "roles": {
+        "window": 2568,
+        "keyframe": 2556,
+        "dense": 4916
+      }
+    },
+    "mapping_seconds": 119.4291321770288,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "7575d2a3c2272a40f85207206db1d5ad445474963353c66d2373535c3761cc34",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "b3b6d0e84d23cec7847cb0ced4c0bf492a2fa7123ab1c0f2b5d4a0b6359ad7ec",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.660401146725356,
+      "fixed_psnr_second": 25.660401146725356,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 40,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 25.85854049697815,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 10040,
+      "optimizer_steps": 10040,
+      "gaussians": 252889,
+      "loss_routes": {
+        "native_rgbd_normal": 5002,
+        "rgb_only": 5038
+      },
+      "roles": {
+        "window": 2503,
+        "keyframe": 2499,
+        "keyframe_rgb": 5038
+      }
+    },
+    "mapping_seconds": 90.60795478406362,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "5b89dca822837898415839b556368b9f7191a2d57edce071bd2ace8af19a740f",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "c552768b0e58d6e8dbfff52d8a76ac7f5be286238d3204d533eb0846ed44b7e9",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.85854049697815,
+      "fixed_psnr_second": 25.85854049697815,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 40,
+    "arm": "rr_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 25.85563205627806,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 10040,
+      "optimizer_steps": 10040,
+      "gaussians": 243988,
+      "loss_routes": {
+        "native_rgbd_normal": 5002,
+        "rgb_only": 5038
+      },
+      "roles": {
+        "window": 2503,
+        "keyframe": 2499,
+        "keyframe_rgb": 5038
+      }
+    },
+    "mapping_seconds": 91.12859067320824,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "07362f1a325fd558262fd883481d552a61e028addf4a515b1a36b2ea6212506b",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "c552768b0e58d6e8dbfff52d8a76ac7f5be286238d3204d533eb0846ed44b7e9",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.85563205627806,
+      "fixed_psnr_second": 25.85563205627806,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_01",
+    "budget": 40,
+    "arm": "native_geometry",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/native_geometry",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3",
+    "status": "passed",
+    "psnr": 25.70282517391372,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 10040,
+      "optimizer_steps": 10040,
+      "gaussians": 259385,
+      "loss_routes": {
+        "native_rgbd_normal": 5124,
+        "rgb_only": 4916
+      },
+      "roles": {
+        "window": 2573,
+        "keyframe": 2551,
+        "dense": 4916
+      }
+    },
+    "mapping_seconds": 114.03617103281431,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "fc217dce788689a3a991994b94f367e2639da7f4edcc398a5d776fdd0a3086c7",
+        "full_trajectory": "2659f8c044d834d459e1556e552a36fe550947e6280ecff54b5070abd411cb18",
+        "kf_trajectory": "7ca36561e2fc4f37b518dd225e5b0f1445e229c6fc4e5d86351c90fbbc44326d",
+        "mapped_uids": "5f0b5c790b0261840ae6915e218b3703698208494ae6736d44e373c19d125a34",
+        "fixed_manifest": "f6bbdd74211c3bf75776f2d381db93fadf07e20fb8f2ec251118211cba925589"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 25.70282517391372,
+      "fixed_psnr_second": 25.70282517391372,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 15,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 21.27773225144164,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4950,
+      "optimizer_steps": 4950,
+      "gaussians": 430009,
+      "loss_routes": {
+        "native_rgbd_normal": 2725,
+        "rgb_only": 2225
+      },
+      "roles": {
+        "window": 1371,
+        "keyframe": 1354,
+        "dense": 2225
+      }
+    },
+    "mapping_seconds": 103.64142030803487,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "54d0d040a9bbf20cdf25c9413ecd1ab3fdfc60c5a767f215c2ebfb9ed3ba8988",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "56f2092781ff815e51b31de8b32b7dcdd7c87c6eb6ceabf4cca1901265e8d558",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.27773225144164,
+      "fixed_psnr_second": 21.27773225144164,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 15,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 21.47495967721286,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4950,
+      "optimizer_steps": 4950,
+      "gaussians": 428239,
+      "loss_routes": {
+        "native_rgbd_normal": 2613,
+        "rgb_only": 2337
+      },
+      "roles": {
+        "window": 1308,
+        "keyframe": 1305,
+        "keyframe_rgb": 2337
+      }
+    },
+    "mapping_seconds": 85.57279870612547,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "54956c0c2c9ab2d624c98129c109865b6e7180fb872ee746f476216683bdb31f",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "32476f3561f9db43a7cdd1f84dfd97328eccad5f10068fd63db68471051a48fb",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.47495967721286,
+      "fixed_psnr_second": 21.47495967721286,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 15,
+    "arm": "rr_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 21.479047011022697,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 4950,
+      "optimizer_steps": 4950,
+      "gaussians": 424477,
+      "loss_routes": {
+        "native_rgbd_normal": 2613,
+        "rgb_only": 2337
+      },
+      "roles": {
+        "window": 1308,
+        "keyframe": 1305,
+        "keyframe_rgb": 2337
+      }
+    },
+    "mapping_seconds": 83.86190751404501,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "6780c91a6cbad5548966758127385acf6ee424f045399ac1da1c12a22facd17f",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "32476f3561f9db43a7cdd1f84dfd97328eccad5f10068fd63db68471051a48fb",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.479047011022697,
+      "fixed_psnr_second": 21.479047011022697,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 40,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 23.858373576647615,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 13200,
+      "optimizer_steps": 13200,
+      "gaussians": 305532,
+      "loss_routes": {
+        "native_rgbd_normal": 6695,
+        "rgb_only": 6505
+      },
+      "roles": {
+        "window": 3360,
+        "keyframe": 3335,
+        "dense": 6505
+      }
+    },
+    "mapping_seconds": 170.2200839421712,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "1f6140d826bd33b92131621e0c901cd86f73d8ca36223bf77a87cbca7bcc4387",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "01f7b68ad55021a8898684a9a93e5535cffa3115db29dfba254ae5b202c1dc02",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.858373576647615,
+      "fixed_psnr_second": 23.858373576647615,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 40,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 24.178258804425802,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 13200,
+      "optimizer_steps": 13200,
+      "gaussians": 323171,
+      "loss_routes": {
+        "native_rgbd_normal": 6598,
+        "rgb_only": 6602
+      },
+      "roles": {
+        "window": 3301,
+        "keyframe": 3297,
+        "keyframe_rgb": 6602
+      }
+    },
+    "mapping_seconds": 129.6122477168683,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "ef95877fe9d495c7979802e7167cd4ff9c7d1edf3cea1656546e12349ee697dd",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "32476f3561f9db43a7cdd1f84dfd97328eccad5f10068fd63db68471051a48fb",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.178258804425802,
+      "fixed_psnr_second": 24.178258804425802,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 40,
+    "arm": "rr_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 24.2738583022601,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 13200,
+      "optimizer_steps": 13200,
+      "gaussians": 306455,
+      "loss_routes": {
+        "native_rgbd_normal": 6598,
+        "rgb_only": 6602
+      },
+      "roles": {
+        "window": 3301,
+        "keyframe": 3297,
+        "keyframe_rgb": 6602
+      }
+    },
+    "mapping_seconds": 122.02846258017235,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "2b0935ce9abd475e2790f5e445edfdc5f051e3d255fd8cd3bedff2100d383fd8",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "32476f3561f9db43a7cdd1f84dfd97328eccad5f10068fd63db68471051a48fb",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.2738583022601,
+      "fixed_psnr_second": 24.2738583022601,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_02",
+    "budget": 40,
+    "arm": "native_geometry",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/native_geometry",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3",
+    "status": "passed",
+    "psnr": 24.242548713945364,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 13200,
+      "optimizer_steps": 13200,
+      "gaussians": 346733,
+      "loss_routes": {
+        "native_rgbd_normal": 6695,
+        "rgb_only": 6505
+      },
+      "roles": {
+        "window": 3360,
+        "keyframe": 3335,
+        "dense": 6505
+      }
+    },
+    "mapping_seconds": 149.0384138619993,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "2eeb6a0037deaf731f488fb58ec76833f3a443620fa5bbb875458c8c58f7e471",
+        "full_trajectory": "efe600efdcac663acbcaba748374d2c6d763229f8f139519f67ecda12dc86d37",
+        "kf_trajectory": "0b392d10013885196481051a00ae0ff73016108e277cf2e975bd857003d9c071",
+        "mapped_uids": "eab5f77f96bcdc23b7dbd1f4fc9bc6c4fec17d30ac4fed9e9b8906ae6aa71943",
+        "fixed_manifest": "8d688bf6cb04fc3e289de5e28e03248891dc3e8dd63bf286d44033268b626551"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.242548713945364,
+      "fixed_psnr_second": 24.242548713945364,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "budget": 15,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/d3",
+    "status": "passed",
+    "psnr": 23.31877180445041,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 7155,
+      "optimizer_steps": 7155,
+      "gaussians": 487913,
+      "loss_routes": {
+        "native_rgbd_normal": 3907,
+        "rgb_only": 3248
+      },
+      "roles": {
+        "window": 1960,
+        "keyframe": 1947,
+        "dense": 3248
+      }
+    },
+    "mapping_seconds": 205.9351905118674,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "9722e61e874c8609cd99bfa300e8da5f6abfc9d085ddc6a5d54a20fac4e242aa",
+        "full_trajectory": "b3fb3b46fedd910aa78dff316089a101d7d48fde3f2ac9adafae30b3d3b91065",
+        "kf_trajectory": "4b0d7350b117ad5c0a53e6d49b308f2ab40b2c070c01dccfc296bf407c6aa687",
+        "mapped_uids": "1ade948492cb5d619d882a683fed982e2bccbed17a822f72fd5ba71ec71e3a3a",
+        "fixed_manifest": "4b4a53e1e7fd804838cf862a19e091f983c6463a8e5747fb65c22d47ea27e608"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.31877180445041,
+      "fixed_psnr_second": 23.31877180445041,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "budget": 15,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/d3",
+    "status": "passed",
+    "psnr": 23.316275889115055,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 7155,
+      "optimizer_steps": 7155,
+      "gaussians": 496771,
+      "loss_routes": {
+        "native_rgbd_normal": 3786,
+        "rgb_only": 3369
+      },
+      "roles": {
+        "window": 1893,
+        "keyframe": 1893,
+        "keyframe_rgb": 3369
+      }
+    },
+    "mapping_seconds": 178.49629893200472,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "5779ded2cc5dd60cc10ee6ceafac9db1c4152156aab74c0e48b9411d3a15b6a5",
+        "full_trajectory": "b3fb3b46fedd910aa78dff316089a101d7d48fde3f2ac9adafae30b3d3b91065",
+        "kf_trajectory": "4b0d7350b117ad5c0a53e6d49b308f2ab40b2c070c01dccfc296bf407c6aa687",
+        "mapped_uids": "a36f39607501f745c9d2f400ee6ebd89c5e182b97e9067a40c5a7df6f29b6ccb",
+        "fixed_manifest": "4b4a53e1e7fd804838cf862a19e091f983c6463a8e5747fb65c22d47ea27e608"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.316275889115055,
+      "fixed_psnr_second": 23.316275889115055,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "budget": 15,
+    "arm": "rr_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/d3",
+    "status": "passed",
+    "psnr": 23.366801742140133,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 7155,
+      "optimizer_steps": 7155,
+      "gaussians": 488515,
+      "loss_routes": {
+        "native_rgbd_normal": 3786,
+        "rgb_only": 3369
+      },
+      "roles": {
+        "window": 1893,
+        "keyframe": 1893,
+        "keyframe_rgb": 3369
+      }
+    },
+    "mapping_seconds": 179.50345223909244,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "d1cc5fb2bb51fa3185a19c415d4a91634950f544a5dcc21f25ac08c79e27df15",
+        "full_trajectory": "b3fb3b46fedd910aa78dff316089a101d7d48fde3f2ac9adafae30b3d3b91065",
+        "kf_trajectory": "4b0d7350b117ad5c0a53e6d49b308f2ab40b2c070c01dccfc296bf407c6aa687",
+        "mapped_uids": "a36f39607501f745c9d2f400ee6ebd89c5e182b97e9067a40c5a7df6f29b6ccb",
+        "fixed_manifest": "4b4a53e1e7fd804838cf862a19e091f983c6463a8e5747fb65c22d47ea27e608"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.366801742140133,
+      "fixed_psnr_second": 23.366801742140133,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "budget": 40,
+    "arm": "rr_dense",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/rr_dense",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3",
+    "status": "passed",
+    "psnr": 23.97124403655614,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 19080,
+      "optimizer_steps": 19080,
+      "gaussians": 340151,
+      "loss_routes": {
+        "native_rgbd_normal": 9659,
+        "rgb_only": 9421
+      },
+      "roles": {
+        "window": 4836,
+        "keyframe": 4823,
+        "dense": 9421
+      }
+    },
+    "mapping_seconds": 329.1639990080148,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "c72389036f029908a9e1887780e086543feb19ce705905f3aae92214a01c485a",
+        "full_trajectory": "b3fb3b46fedd910aa78dff316089a101d7d48fde3f2ac9adafae30b3d3b91065",
+        "kf_trajectory": "4b0d7350b117ad5c0a53e6d49b308f2ab40b2c070c01dccfc296bf407c6aa687",
+        "mapped_uids": "cc8d4e4e85df4b490c29fdf12108c37c6066ab9138947567eca9cb338a6688a3",
+        "fixed_manifest": "4b4a53e1e7fd804838cf862a19e091f983c6463a8e5747fb65c22d47ea27e608"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 23.97124403655614,
+      "fixed_psnr_second": 23.97124403655614,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "rpng",
+    "scene": "table_03",
+    "budget": 40,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/ervs_kf_rgb",
+    "reference": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3",
+    "status": "passed",
+    "psnr": 24.934068734227505,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 19080,
+      "optimizer_steps": 19080,
+      "gaussians": 364307,
+      "loss_routes": {
+        "native_rgbd_normal": 9540,
+        "rgb_only": 9540
+      },
+      "roles": {
+        "window": 4771,
+        "keyframe": 4769,
+        "keyframe_rgb": 9540
+      }
+    },
+    "mapping_seconds": 229.76649107201956,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "f58d97d09fd6742eeceb9528d0b1ec21cc4772e78fa19334f8a31c3457646730",
+        "full_trajectory": "b3fb3b46fedd910aa78dff316089a101d7d48fde3f2ac9adafae30b3d3b91065",
+        "kf_trajectory": "4b0d7350b117ad5c0a53e6d49b308f2ab40b2c070c01dccfc296bf407c6aa687",
+        "mapped_uids": "a36f39607501f745c9d2f400ee6ebd89c5e182b97e9067a40c5a7df6f29b6ccb",
+        "fixed_manifest": "4b4a53e1e7fd804838cf862a19e091f983c6463a8e5747fb65c22d47ea27e608"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 24.934068734227505,
+      "fixed_psnr_second": 24.934068734227505,
+      "pass": true
+    }
+  }
+]

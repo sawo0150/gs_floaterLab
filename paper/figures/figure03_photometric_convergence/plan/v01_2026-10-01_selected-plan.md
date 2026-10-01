@@ -1,0 +1,42 @@
+# F3 — Photometric convergence: 곡선·사진 갱신
+
+작성: 2026-10-01. 상태: **계획 작성 완료 / 최종 산출물 미제작**. ID는 논의용이며 최종 LaTeX 번호가 아니다.
+
+## 목적
+
+휴먼테크의 그래프+전체 영상+확대 구도를 유지하고, 최신 실행의 측정값과 이미지를 넣는다.
+
+## 만들 구성
+
+- (a) x: 완료한 학습 image-render 수, y: 고정 held-out PSNR. optimizer step 수는 별도 메타데이터로 보존한다.
+- 양쪽이 같은 batch/step 정의이면 mapping iterations 축을 사용할 수 있다. 그렇지 않으면 renders라고 쓴다.
+- (b) 공통 checkpoint의 VIGS-SLAM / Ours / GT 전체 영상과 동일 ROI 확대.
+- baseline 검정, Ours 파랑(#0057FF)을 유지한다. checkpoint 점선으로 그래프와 사진을 연결한다.
+- 원고 Fig.2였던 휴먼테크 자산은 작업 폴더 `figure03/current/fig3.*`에 있다. CVPR ID는 F3다.
+- 시간 기준 그래프는 F11에 두어 중복을 줄인다. 별표 또는 기준선은 T6의 실제 first-crossing 결과로 다시 계산한다.
+
+## 비교 조건과 해석
+
+기존 1400/2400 iteration 및 1000회 절감 수치는 재사용하지 않는다. 학습 로그의 실제 checkpoint만 연결한다. 예산별 최종 점들을 한 실행의 수렴 곡선으로 표현하지 않는다. 평가 cohort/pose/해상도는 각 비교 arm에서 고정한다. 기존 꺾인 y축은 필수 요소가 아니며 새 데이터 범위로 결정하고 비선형 축이면 표시한다.
+
+[공통 프로토콜](../../../plan/visual_assets/protocol.md) · [원본 확인 기록](../../../plan/visual_assets/source_audit.md) · [방법 후보](../../../plan/visual_assets/baseline_registry.md)
+
+## 확인한 원본과 관련 자료
+
+- [README.md](../../../../humanteck/sections/02_method/figure03/README.md)
+- [provenance.json](../../../../humanteck/sections/02_method/figure03/current/provenance.json)
+- [build_selected_B.py](../../../../humanteck/sections/02_method/figure03/scripts/build_selected_B.py)
+- [SUMMARY.md](../../../../context/experiments/campaigns/06_gain_attribution/main_validation/SUMMARY.md)
+- [SUMMARY.md](../../../../context/experiments/campaigns/06_gain_attribution/geometry_main_validation/SUMMARY.md)
+
+## 다음 제작 작업
+
+신규 checkpoint별 metric·저장 지도·동일 view 렌더를 확보한다. current에는 새 증거의 provenance가 완성된 산출물만 설치한다.
+
+## 산출물 및 완료 기준
+
+- 데이터 출처: run ID, code/config hash, scene/evaluation IDs, checkpoint, budget unit을 provenance에 보존한다.
+- Figure: scripts → output 검토본 → PDF 재렌더 확인 → current의 PDF/SVG/PNG/caption/provenance.
+- Table: raw metric 참조 → 경량 집계 데이터 → output의 TeX/preview → 수치·단위·평균 확인 → current.
+- 값이 없는 칸은 —(미측정), 실패 F, 적용 불가 NA, 목표 미도달 NR로 구별한다.
+- 이번 단계는 MD 계획만 작성한다. GPU 실험·논문 TeX 삽입·휴먼테크 원본 교체는 수행하지 않았다.

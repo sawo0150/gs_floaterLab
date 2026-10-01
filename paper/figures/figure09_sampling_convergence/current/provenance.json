@@ -1,0 +1,12 @@
+{
+  "kind": "dummy_graph",
+  "synthetic": true,
+  "experimental_evidence": false,
+  "data_file": "paper/figures/figure09_sampling_convergence/analysis/dummy_data.json",
+  "builder": "paper/scripts/build_draft_assets.py",
+  "asset_id": "F9",
+  "stage": "layout_draft",
+  "caption": "\\textbf{Dummy data.} Sampling convergence at 15/30/60 updates per keyframe interval. Sampler labels await reconciliation with the measured replay implementation.",
+  "pdf_sha256": "97824d28b59a5ed782b9aa72707575e25afc78973dded471c28089be8f46796a",
+  "manuscript_width": "one_column"
+}

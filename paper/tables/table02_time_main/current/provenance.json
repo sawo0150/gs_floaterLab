@@ -1,0 +1,785 @@
+{
+  "kind": "measured_results",
+  "experimental_evidence": true,
+  "complete_cohort": false,
+  "coverage": [
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1,
+      "dataset": "rpng",
+      "paired": 1,
+      "candidates": 8
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1,
+      "dataset": "utmm",
+      "paired": 0,
+      "candidates": 8
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1,
+      "dataset": "aria",
+      "paired": 1,
+      "candidates": 4
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1.5,
+      "dataset": "rpng",
+      "paired": 1,
+      "candidates": 8
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1.5,
+      "dataset": "utmm",
+      "paired": 0,
+      "candidates": 8
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "time_scale": 1.5,
+      "dataset": "aria",
+      "paired": 1,
+      "candidates": 4
+    }
+  ],
+  "other_method_rows_measured": false,
+  "manuscript_width": "one_column",
+  "data": "/home/intern/gs_floaterLab/paper/results/tables/cvpr_endpoint_measurements.csv",
+  "data_sha256": "d05740a4ce84899829762714e604ac26634d56e88de42d6cccc31bcba158df37",
+  "records": [
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/aria/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "0b47df59d0fc81981159641af255e08f33bd2731149263b0653cbe9c464303a0"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/aria/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "d815f1f7254564c835b8c8e81d5908ccc05c802323aff00b79ab760a0f677fa7"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/aria/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c0ca6ae90ea23c4019622d97fa653470f551f7170093f53b29d38632a6255eca"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/aria/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f92aecddc437acf2488887965a49cd19306fc897e25d8e435751fe69dc3e37ce"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253rot",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rot/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "76b3c2415d39b7c5443f1e99ac523e867a155996c03367cf57b479cd0cf2543d"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253rot",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rot/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "5dc3c00e78d2f829bc14dfe661076b36bef4f2a9e04477edd9df660d93a48cf5"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253rot",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rot/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "fb0e47ac88e845feb167507b86a5d47d831b124cc3e8c122a97cd9c79a634334"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "aria1253rot",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rot/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "dbc6490194d386bd04a5911b60fc9746e629731de858faad39936e477d009556"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "table_06",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rpng/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "27684305798097f1e582cb76a9a8020209f5af430aeb60e174c49fcf1b3b44ce"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "table_06",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rpng/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "00b7dc0b9d34c603c7975c98f76676efb35b37c3fc080f85fef4cfa5166acbda"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "table_06",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rpng/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "9c4f0e41a47be322d9e5a9a9c8aaf9a4fe3424aef65f23afa13e1dfc74903a86"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "table_06",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rpng/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "219cb57332bae3065e6251a76d67bd3c90523524de6380356577025ede222d73"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "square-1",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/utmm/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "713de7e87bf6746d0b5ff98f9ba902d184515a88f677fc43d6f0c17a0634d317"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "square-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/utmm/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "06fbd4230962c89ec3c85365e38e1d357a5d17bc61f06ee830e1ad448689949d"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "square-1",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/utmm/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "1fedbe893f573c48c0f2fa59c8795e660e20e064fd4795f30e982042bd0d34f1"
+    },
+    {
+      "protocol": "live_fifo",
+      "scene": "square-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/utmm/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "25db9ea6f7a2182065dd28ba8dea2055c3a553c08fed3bc5b348e48f1ec589cd"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria1253rot",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "9727caf4f0dbf088b9efc73860eca77a6e45dac9b1dc5b61a83cb5319e371eb4"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria1253rot",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a6a04c29ef33d18283439114970a4e277a1e6af476fc856c1582d6dd9d9aeecb"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_03",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "3bcd54ecce317941044e4acecbd3bf41085c6f97b7fbc41db6728e4495182224"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_03",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f1c113a41a1e6ef98e2a6c38801caf09c9edbc0575db9bc5351ec0ca227e48b9"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "slow-straight-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "b371b1b26ae2eba8da2adfcc8c377c0eec2cd87909d55fa8ab2285817b4aaa91"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "slow-straight-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "fa388b9df13ce37ea3fc63cb994f1dfbfd3836d9279ea44050771ebbd287f674"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "square-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "cc0f916ae8eba4b7c3eee82c7fa508634285ce9349d4072bda0ff8ff35d9ae2e"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "square-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "762941253d2d995f01d4aa396ad7dbd70e3fc98e7906c3bd930ca72e9a000bfc"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_07",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f99193a06230749d7837360475bb2cf8627a154e0f654f11a606c407241c9639"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_07",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "3fe6ba677d35ff291fa347dfcc2fb027e8009c660e0a9e966d09cad7478dace1"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "square-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c5d788530ddb749cd1caae22341a49268da2514a9292409e18e813bf915722cf"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "square-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "fbce7e7ab97cf47e044f2a037f5f3539a4609b74e151c27edf2bd6c5c3029a46"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria1253",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "bcdaee84c70b10592bb1066d556d065d4481b33e3b6f2aaf7e070defd704ea23"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "4cc510b4a22c3bb8cad2039d005cee825b4b24a4adcf955668c58fa71c6e4c9f"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria1253rot",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253rot/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "14e2ec7dc2468fd55b4530cf7a2cbe6e0ce8153a67c3988d6bb095321663377e"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria1253rot",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253rot/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "b837fe17be68fa0bc2fc13e599576f37243e849c3accc96db29fe85cf764ab8e"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "slow-straight-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "dccd6620c3a2d0f34fadb0b056a7f6b3f8b7e7a014c8f5106fff5f76f4e2bf17"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "slow-straight-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "3ec01d57a96d29f60c8eb4c1a294b55f76e10f2afa8ce4451ad202bdd08ad29a"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-centric-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f376b67b9588a200268e82691f5daacfd2e8fcd8fa82ab5f4ed6cab11aee3819"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-centric-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "64a3be68a6ad34749a419a5d486045a0e532a108994b95191ce5dd01bb648ff3"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "square-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "160e911dd4b244cc5ba2ee1a2f294dd4aa900319c7084c2d44661fc66cef437c"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "square-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "6f6abba5ef15e913cd936e5e715b0357a2b5fdb1664ceec3b9bdb16f3a7e2193"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_01",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "57802993fbe5b8da0529ae7abc9844a8721919bde09d674d7a83a07183f4c042"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_01",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "59d855be4633403bc71dee57005cbbdec281800434a2691a508382d70c0e4dfc"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_07",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_07/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f65382a690ca90ac0aa831c0479c4dbde8f25164c53c2bc52aec99083a4ee7bf"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_07",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_07/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c41d6b97468be0a8eff369529f3ad55dd7b7179dc6e465dd5e9fe20d84e7444c"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria1253",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "0ec45a4d31b43436c5a971df77a9e8942133e2fbd10eae3c83fdcb97475e7aaf"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e5cc959f7d2421837d71b9ef58a225919becc7d0237474310558cad89dbc1926"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_02",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f3bbb058728c6f62571228c58b1030cd7bc7065af278447091a6cd484bc4401f"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_02",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "7d2932d1911ae5fc854a417a79d055eda1127ea7c874252239d33d12f5455c19"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-centric-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e95ebd80fad4859fc0673193a4bee6b7ad8b8b1d1f31e93e44157cbfd4dc05dd"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-centric-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "3963480e3ba3d5997d6b6e4e6cdb8027d03e6aece3cfb73ecd0cd758c365cab4"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-centric-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e34437cc1be61b39a0a96dddbf2845a3dd8b4f3947bc16e6ece8d9326bfa3489"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-centric-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "ee3b09a4f1e1fc72558f09c74e145fe2f6fd4643ce4a33aa6e5e9f70a2c7bd03"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_01",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "59766fc10346e4a778f04e46ff1eefa8b87a4cbc58d019920918fd327814db4b"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_01",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "eb3deba492296e2b7ac3209427206dcdc6cadbbbeaeebe1018c1fb08816f6bf3"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_06",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a2853270cc771a6ad890773d976c3c2bf929dbbf6221327269db7979e7254364"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_06",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "d4e5041f7cca52bddc0c9a2a9bf9e8b994a166c004d474b1e445c91e320423ee"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "slow-straight-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "0241a7c9590584eb914c11d405623dfdd9129e20db16058bd325f0a135b3839e"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "slow-straight-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "d6bb2031c9ae6ca6a78c976427c4f7b4e323c508001a3d5a194460b69c90e60d"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_02",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f5ae0702a97627f0a32950af13af11557bf8913f3579c117e7f9c2767a00f050"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_02",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "05c71326e746d49abf90ef07ea720e1b001454951376b87fd865178e8356b6c7"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria301_305",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "51cd1854290f11e1dc23bab2e4b85228daebd53df3c758126d38b84644c5d81d"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria301_305",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "7f0681fe20f142f375b43ad7d9acf5ccbe0bf2c32c70ab6f6f4684c015b9cc16"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_08",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "781870517f117e833ccf50f62af84dbd050984f399badaa7885f1320334b1b0f"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_08",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "bb0352e312616e01a48df785853c79080c9debd04789c65853a76735e6b3f67f"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-centric-2",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-2/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "668ca0256202d89e55018ec2e1dcd4ae961a1abfa1ab44e3206035e02c22d97a"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-centric-2",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-2/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "343ea6dcb8af176303b965abfb2f1f4c0315171859d5676b89e6700ff8ea3b55"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_04",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "b30399e4da52e0b80085acf9b0cc64bfc78b0263b015edbcf5ace29e62b88bd7"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_04",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "630216e52ec4f1ea1e7c69cc880f33dba310244a4cad0e6a1c207ae0bad7dc64"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-drive",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "6264e25170410507d8d10ead906d7c236621f4af0573c6c7c8a629a102db5938"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "ego-drive",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c6829b33c7cee56b39c7f83ec000b215969198ebb1b639e1c8ebfe452d43a681"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_06",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_06/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a1b28d0f3f26e605e80b60a18e8baf441c78ab0e0cd4bdb811bd8a3e6cf5753d"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_06",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_06/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f375b5984b4497800d1dd2f8aa0ac16de690afb035f370b6fe942a84400933ef"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "slow-straight-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "3b455d3a00b2a4c40d9148310713c2214076f5b918134e1afb3de6664f45c66f"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "slow-straight-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e89a08206a5b9e3ca129d590c798bf79eb32af8b816fdc16ed225dfb98c94692"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_05",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "5427eac29dd722d157b4bcd33f53a8fa541a695be9494be3a9f043c5508191da"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_05",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a15e04930448a915bb3ed0909b81f4e820320f5e6f7594b1ec6dadf4887344a5"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "fast-straight",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/fast-straight/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a2a6ca7068569970e25c0e42bb45f0093a6a72253ca1c869d6d0269b55553c72"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "fast-straight",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/fast-straight/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f9cacc1916dd4dd6a39b520f49e3f3da747b92bdb292abb8024284963f0b3de5"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "fast-straight",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "527b3b74cb6ba4547b312e2af0d9126e7195cb6e4e6582c2be0e49161e70fbdb"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "fast-straight",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "5ea922020e02e97a601172a32680bf3287447ab0d12c9510315abe03532fe3bf"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_03",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "9b11456030a901c2bfc66f13171580c979aab5324c2c4424a057a9b9ba5382ea"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "table_03",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "f0d021073441e8cb84eab6c25cd6bac3ec723d2e12356952bdaad87c1c8e9395"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_04",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_04/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "aebc0dc090067a35eab138ccece1b52d1b010f2ea4686ba8cbea9f0fcf8cbc38"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_04",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_04/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "8b182fcd1196838203d929d49982ed7bdf6d89c452d70e74d2bad06b93b18d42"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-drive",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-drive/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "0f8329ff705a870109ee9c7660c81f00de46ce90e51d01911ffdec4394b6cec4"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "ego-drive",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-drive/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "beb8b00b64b19773953994a3f2365d0b41de3c9e5686a502e59fdcda7567a1b9"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria301_305",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria301_305/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "13b1992ead272ba788f0287f5b3ca2c1fe4b42d87abd8a45a662bb4afdb33ac5"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria301_305",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria301_305/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "cfe61504bb4dd2c2fc4796f8e69bdcdc6d1073b6c907d8c9aae4517eca4aca80"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_08",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_08/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "8c4fc1c760f02c4942d3f25ff50c725916b30c02df8aadd01c8280fec30f02cb"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_08",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_08/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "22a68260ae9ad13453b46e4db1d7bc9d8596bee8d07011a5a5694225d44b3b5a"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_05",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_05/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "88ba0ddb22511f3d1ffb55cf1c596d0f0f863407b4860f154f308a6a0a60eb6c"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "table_05",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_05/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c0f8e1768ef826d8a7bfd12d3b124a886decbec40c4c06a0af0946e61432df15"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "square-1",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "4fe759733de5c58f2eb1c95cfacc9d6199383c3e735fc83d7b2c621181066c1b"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "square-1",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "1456b7695491812fd6f8b51095c145b5f311d43902920c8b865b76fb4e339a2e"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria301_12F",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "9f44299eab2db014aff65725bb213c554ae0ab4a0f172014b8e2841b367c03ff"
+    },
+    {
+      "protocol": "fixed_training15_d3",
+      "scene": "aria301_12F",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e39c9f408cc5dd9759246611fd3528aef2fee23f82f2b6aa088973800f948806"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria301_12F",
+      "arm": "d3",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "a232cc8f525d89e0ece4297d9e0f0f9bc4303b09796beb84d25f1c5ab6a70dc0"
+    },
+    {
+      "protocol": "fixed_training40_d3",
+      "scene": "aria301_12F",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "625ac55da2940a9437b6ba6da8e841fd280c6de28008449fb8f0b747a9b3fe3b"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "aria1253",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "2740805003e9eb8208f0d0df8de5af5ec2f3d0a81e118ffba5e68312ae180b73"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "18feaf85e9beceb091dd4620f951f3c9216099031168b10c054260161c6358ed"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "aria1253",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "ada6a70c4a60cd69b1ec00d3c73bd99f802e512a81b08382aa3f97a4cf31cae2"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "aria1253",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c078c4562fa2d544338e8d471df0f8002a0815a0af41f7ca793f9abd3778ceed"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "table_01",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "dfbd89455860b8ba270150d3268a6482a39928477d27c83ed4166951ab70d5c9"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "table_01",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e1438ef2c2a7a86a45af553b20749dc0d6efc7fee293f15e9fdad7fc84697d91"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "table_01",
+      "arm": "ours",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "eba77c95de9e9b8e75761c5e084c8c71eb33be99d67d089f3e6c9bc47d840a5c"
+    },
+    {
+      "protocol": "live_fifo_shared_tracking",
+      "scene": "table_01",
+      "arm": "vanilla",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "6169f7dca61ccd6d40b4e6ba2702342b0c97125db3ccb58fb0fd93e1b3fcb6d6"
+    }
+  ],
+  "failed_runs": [],
+  "table_sha256": "dd9ac9382988c05f550a6b510a7f09c3aab05f80b6453c51a3bbca428b8e6d42"
+}

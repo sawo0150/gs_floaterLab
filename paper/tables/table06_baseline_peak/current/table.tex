@@ -1,0 +1,46 @@
+\begin{table}[tbp]
+\centering
+\caption{Per-sequence cost of reaching the highest observed VIGS-SLAM PSNR on a shared checkpoint schedule at 40 training renders/KF. 20/20 candidate scenes evaluated.}
+\label{tab:baseline_peak}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.04}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Sequence & \shortstack{Peak\\(dB)} & \shortstack{VIGS\\renders} & \shortstack{Ours\\renders} & \shortstack{Saved\\renders} & \shortstack{Saved\\(\%)} & \shortstack{Final PSNR\\VIGS / Ours} \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{RPNG}} \\
+table\_01 & 22.61 & 10040 & 6681 & 3359 & 33.5 & \shortstack{22.61\\25.64} \\
+table\_02 & 20.32 & 12012 & 8321 & 3691 & 30.7 & \shortstack{20.01\\24.17} \\
+table\_03 & 21.06 & 11013 & 8481 & 2532 & 23.0 & \shortstack{20.73\\25.12} \\
+table\_04 & 20.90 & 14760 & 9761 & 4999 & 33.9 & \shortstack{20.90\\23.28} \\
+table\_05 & 20.81 & 12680 & 9201 & 3479 & 27.4 & \shortstack{20.81\\23.11} \\
+table\_06 & 22.51 & 9080 & 7201 & 1879 & 20.7 & \shortstack{22.51\\25.08} \\
+table\_07 & 23.93 & 8080 & 4361 & 3719 & 46.0 & \shortstack{23.93\\27.40} \\
+table\_08 & 22.61 & 16773 & 6841 & 9932 & 59.2 & \shortstack{21.93\\24.92} \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{UTMM}} \\
+ego-centric-1 & 17.03 & 2373 & 1881 & 492 & 20.7 & \shortstack{16.74\\20.15} \\
+ego-centric-2 & 18.09 & 2560 & 1761 & 799 & 31.2 & \shortstack{18.09\\19.55} \\
+ego-drive & 18.82 & 4560 & 4361 & 199 & 4.4 & \shortstack{18.82\\21.44} \\
+fast-straight & 15.51 & 1080 & 1080 & 0 & 0.0 & \shortstack{15.51\\18.72} \\
+slow-straight-1 & 13.52 & 200 & 200 & 0 & 0.0 & \shortstack{13.52\\16.94} \\
+slow-straight-2 & 15.06 & 2080 & 2080 & 0 & 0.0 & \shortstack{15.06\\22.72} \\
+square-1 & 18.75 & 3600 & 3041 & 559 & 15.5 & \shortstack{18.75\\22.01} \\
+square-2 & 18.79 & 3080 & 2881 & 199 & 6.5 & \shortstack{18.79\\22.21} \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Aria}} \\
+aria1253 & 21.05 & 4253 & 4241 & 12 & 0.3 & \shortstack{20.48\\25.51} \\
+aria1253rot & 21.80 & 6120 & 6120 & 0 & 0.0 & \shortstack{21.80\\24.89} \\
+aria301\_12F & 24.13 & 11480 & 10161 & 1319 & 11.5 & \shortstack{24.13\\27.33} \\
+aria301\_305 & 20.69 & 5840 & 5840 & 0 & 0.0 & \shortstack{20.69\\24.75} \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright Dashes mean unmeasured; NR means not reached on the measured grid; NA means undefined. Costs count training image renders, with D3 proxy work additional. Peak and final scores use the same fixed uniform subset of up to 64 held-out views, rather than the full cohort in Table~\ref{tab:rendering_comparison}. Only measured states with acceptable pose alignment enter the comparison. Costs locate the first sampled crossing, not the exact continuous crossing. No interpolation is used; negative savings are retained.
+\end{minipage}
+\end{table}

@@ -1,0 +1,174 @@
+{
+  "kind": "actual_independent_region_checkpoints",
+  "experimental_evidence": true,
+  "data": "/home/intern/gs_floaterLab/paper/figures/figure07_geometry_convergence/analysis/measured_region_curve.csv",
+  "data_sha256": "e95689f53299b03826e6b9c62fc72ae1aee381eb74bbf3cc20dee9c6286fe2f3",
+  "source": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region_curve40_v2.json",
+  "source_sha256": "20dca0316d9c85ebf67d16554b1f4f43917908dcb7043c4f051d860078fe4768",
+  "rows": [
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_00",
+      "training_renders": 401,
+      "gaussians": 31519,
+      "region_centers_alpha_gt_0p3": 245,
+      "region_opacity_support": 213.99196183435419,
+      "full_mask_frustum_fraction": 0.7183563835302599,
+      "source_sha256": "c361db30f04120b879314168454193572265ead86d8a4217327f7103d0277c7c"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_01",
+      "training_renders": 2041,
+      "gaussians": 58485,
+      "region_centers_alpha_gt_0p3": 94,
+      "region_opacity_support": 89.16039947916663,
+      "full_mask_frustum_fraction": 0.7183860089172415,
+      "source_sha256": "6f7de634ac44eb02caa2b48efb79cd0d95d427db002b3ed2d3897d7020dfba28"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_02",
+      "training_renders": 2641,
+      "gaussians": 80222,
+      "region_centers_alpha_gt_0p3": 104,
+      "region_opacity_support": 88.5806763302852,
+      "full_mask_frustum_fraction": 0.7184057591752292,
+      "source_sha256": "7ea3eb25aca8d21e5e269fb74987fbdec37a55ab75b3471c5aeeea95a3170730"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_03",
+      "training_renders": 3201,
+      "gaussians": 113731,
+      "region_centers_alpha_gt_0p3": 157,
+      "region_opacity_support": 129.42206554872345,
+      "full_mask_frustum_fraction": 0.9999851873065092,
+      "source_sha256": "009e5c3871e2a8a57342ee36e788119b960a277c2e2f2dec8b271f6890327882"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_04",
+      "training_renders": 3561,
+      "gaussians": 133462,
+      "region_centers_alpha_gt_0p3": 120,
+      "region_opacity_support": 103.69322821044057,
+      "full_mask_frustum_fraction": 0.9999851873065092,
+      "source_sha256": "9289d99551f7f4868341f43b5593c4d9efdcec06778c5396bf8ecb3d5db85050"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "snapshot_05",
+      "training_renders": 4241,
+      "gaussians": 168954,
+      "region_centers_alpha_gt_0p3": 469,
+      "region_opacity_support": 357.8773461235845,
+      "full_mask_frustum_fraction": 1.0,
+      "source_sha256": "c3ba6c3f8ed8f62600a7f692af856294f29f42ccdcd6ee4bb4274083e20b42f2"
+    },
+    {
+      "arm": "d3",
+      "checkpoint": "final",
+      "training_renders": 4760,
+      "gaussians": 194312,
+      "region_centers_alpha_gt_0p3": 124,
+      "region_opacity_support": 144.57101335296335,
+      "full_mask_frustum_fraction": 1.0,
+      "source_sha256": "89ab4663d4572db8ba47da85b71576675bca422bd044e8486a0b13deb3f980a7"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_00",
+      "training_renders": 411,
+      "gaussians": 45423,
+      "region_centers_alpha_gt_0p3": 705,
+      "region_opacity_support": 548.553554320516,
+      "full_mask_frustum_fraction": 0.7183563835302599,
+      "source_sha256": "b2fe4930bdf53f11d9ee39fdf4a1c3afa4d5a5e77196d6cb7a4d3e50ea74a94c"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_01",
+      "training_renders": 2053,
+      "gaussians": 78301,
+      "region_centers_alpha_gt_0p3": 390,
+      "region_opacity_support": 290.8501956011917,
+      "full_mask_frustum_fraction": 0.7183860089172415,
+      "source_sha256": "1fab98e7c180bc51b2eae933fd1905384dedf1e9d1bf6d11a90cf7562d435bdd"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_02",
+      "training_renders": 2653,
+      "gaussians": 128761,
+      "region_centers_alpha_gt_0p3": 339,
+      "region_opacity_support": 251.07123830958906,
+      "full_mask_frustum_fraction": 0.7184057591752292,
+      "source_sha256": "1c624f0eb93050abc9910d426fd5c8d09b013b61503eea9eefd01445d7dd3ffc"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_03",
+      "training_renders": 3213,
+      "gaussians": 118084,
+      "region_centers_alpha_gt_0p3": 316,
+      "region_opacity_support": 253.84134434905465,
+      "full_mask_frustum_fraction": 0.9999851873065092,
+      "source_sha256": "94ba92cbf22d4dedd0b9a61a6582ff5827bafd480bbc77fb4e0a43ecbbec6262"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_04",
+      "training_renders": 3573,
+      "gaussians": 148360,
+      "region_centers_alpha_gt_0p3": 200,
+      "region_opacity_support": 176.4525964264049,
+      "full_mask_frustum_fraction": 0.9999851873065092,
+      "source_sha256": "68732fdac0613b11905ac78f566a1cde93cc93b19e72a030ffe21b5d572e30ba"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "snapshot_05",
+      "training_renders": 4253,
+      "gaussians": 205542,
+      "region_centers_alpha_gt_0p3": 755,
+      "region_opacity_support": 470.73146120101785,
+      "full_mask_frustum_fraction": 1.0,
+      "source_sha256": "a6da313b9eac6c275a25147fddc53aed44dcaa75de7fa37fbae92cc8c2d537bb"
+    },
+    {
+      "arm": "vanilla",
+      "checkpoint": "final",
+      "training_renders": 4760,
+      "gaussians": 190254,
+      "region_centers_alpha_gt_0p3": 289,
+      "region_opacity_support": 195.38086457488316,
+      "full_mask_frustum_fraction": 1.0,
+      "source_sha256": "39f9540db93562ad90e0877385907cb5c956a6b46f199f8c89d57c008493c21e"
+    }
+  ],
+  "fixed_region": {
+    "shared_first_checkpoint_keyframe_uids": [
+      4,
+      11,
+      29,
+      33,
+      49,
+      56,
+      62,
+      77,
+      86,
+      102,
+      131
+    ],
+    "mask_path": "results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region_curve40_v2.npz",
+    "mask_sha256": "d4326a03dbd583ac44859c34f7d27bbb3a7b41ee14f75822e0290d9bd4f429d2",
+    "mask_voxels": 145488,
+    "fraction_of_full_annotation": 0.7183563835302599,
+    "selection": "manual voxels in shared first-checkpoint camera frusta; no quality scores, predicted depths or reconstruction used"
+  },
+  "manuscript_width": "one_column",
+  "geometry_loss_isolated": false,
+  "surface_completeness_available": false,
+  "remaining_work": "native geometry recipe control and wall-clock checkpoint axis"
+}

@@ -1,6 +1,629 @@
 # Experiment Index
 
+- 2026-10-01 RTX5070Ti 인계: 사용자 요청으로 local GPU queue/worker 중단, fixed80/80 및 controls19/140 보존. 코드·입력 inventory·실행 가이드 정리; 5070 설치/CUDA/실제 실행은 새 컴퓨터에서 검증. 시간 실험 보류. → [card](campaigns/06_gain_attribution/handoff_5070ti/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 40renders/KF ervs_kf_rgb: status=passed, PSNR=24.934068734227505; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 40renders/KF rr_dense: status=passed, PSNR=23.97124403655614; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 15renders/KF rr_kf_rgb: status=passed, PSNR=23.366801742140133; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 15renders/KF ervs_kf_rgb: status=passed, PSNR=23.316275889115055; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR 실제 자산 설치/19쪽 PDF 갱신: fixed80+curve80 완료, controls14/140와 live8/80 진행 중 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 15renders/KF rr_dense: status=passed, PSNR=23.31877180445041; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_03/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF native_geometry: status=passed, PSNR=24.242548713945364; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/native_geometry → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF rr_kf_rgb: status=passed, PSNR=24.2738583022601; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF ervs_kf_rgb: status=passed, PSNR=24.178258804425802; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF rr_dense: status=passed, PSNR=23.858373576647615; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_02/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 15renders/KF rr_kf_rgb: status=passed, PSNR=21.479047011022697; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 15renders/KF ervs_kf_rgb: status=passed, PSNR=21.47495967721286; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 15renders/KF rr_dense: status=passed, PSNR=21.27773225144164; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_02/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF native_geometry: status=passed, PSNR=25.70282517391372; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/native_geometry → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF rr_kf_rgb: status=passed, PSNR=25.85563205627806; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF ervs_kf_rgb: status=passed, PSNR=25.85854049697815; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF rr_dense: status=passed, PSNR=25.660401146725356; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_01/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 15renders/KF rr_kf_rgb: status=passed, PSNR=24.503652960180762; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 15renders/KF ervs_kf_rgb: status=passed, PSNR=24.597321282344986; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/ervs_kf_rgb → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 15renders/KF rr_dense: status=passed, PSNR=24.458256155371192; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render15/rpng/table_01/rr_dense → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_305_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_305_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_305_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_305_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_305_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_305_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_305_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_305_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_12F_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_12F_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_12F_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_12F_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_12F_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_12F_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria301_12F_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria301_12F_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253rot_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253rot_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253rot_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253rot_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/first_supported_region_observations CPU_annotationrenders/KF shared_RGB_reference: status=measured, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/region_observations_v1/summary.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253rot_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253rot_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253rot_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253rot_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_aria_aria1253_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_aria_aria1253_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-2_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-2_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-2_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-2_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-2_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-2_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-2_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-2_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-1_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-1_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-1_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-1_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-1_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-1_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_square-1_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_square-1_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-2_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-2_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-2_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-2_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-2_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-2_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-2_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-2_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-1_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-1_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-1_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-1_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-1_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-1_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_slow-straight-1_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_slow-straight-1_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_fast-straight_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_fast-straight_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_fast-straight_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_fast-straight_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_fast-straight_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_fast-straight_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_fast-straight_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_fast-straight_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-drive_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-drive_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-drive_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-drive_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-drive_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-drive_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-drive_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-drive_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-2_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-2_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-2_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-2_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-2_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-2_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-2_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-2_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-1_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-1_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-1_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-1_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-1_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-1_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_utmm_ego-centric-1_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_utmm_ego-centric-1_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_08_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_08_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_08_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_08_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_08_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_08_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_08_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_08_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_07_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_07_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_07_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_07_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_07_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_07_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_07_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_07_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_06_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_06_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_06_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_06_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_06_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_06_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_06_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_06_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_05_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_05_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_05_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_05_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_05_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_05_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_05_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_05_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_04_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_04_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_04_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_04_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_04_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_04_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_04_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_04_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_03_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_03_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_03_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_03_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_03_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_03_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_03_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_03_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_02_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_02_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_02_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_02_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_02_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_02_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_02_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_02_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_01_40_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_01_40_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_01_40_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_01_40_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_01_15_vanilla full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_01_15_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/curve_rpng_table_01_15_d3 full_asset_panelrenders/KF actual_measurement: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/full_asset_panel_v1/curve_rpng_table_01_15_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/shared_tracking_pilot measurement_stagerenders/KF pipeline: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/pipeline_v2/shared_tracking_pilot.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF live_vanilla_1.5x: status=passed, PSNR=20.92910993372211; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF live_ours_1.5x: status=passed, PSNR=25.751155314554694; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/ours → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF live_vanilla_1x: status=passed, PSNR=20.122959835838724; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF live_ours_1x: status=passed, PSNR=23.428837302986903; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/ours → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF live_vanilla_1.5x: status=passed, PSNR=22.95078182030484; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF live_ours_1.5x: status=passed, PSNR=25.358613965995758; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/ours → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF live_vanilla_1x: status=passed, PSNR=22.444745099876982; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF live_ours_1x: status=passed, PSNR=23.667279053494276; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/ours → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/pilot_checkpoint_vanilla measurement_stagerenders/KF pipeline: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/pipeline_v2/pilot_checkpoint_vanilla.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/pilot_checkpoint_d3 measurement_stagerenders/KF pipeline: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/pipeline_v2/pilot_checkpoint_d3.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/fixed_work_12f measurement_stagerenders/KF pipeline: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/pipeline_v2/fixed_work_12f.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_12F 40renders/KF vanilla: status=passed, PSNR=24.271544135700573; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_12F 40renders/KF d3: status=passed, PSNR=27.450468639893966; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253_region_checkpoints 40renders/KF d3_vs_vanilla: status=evaluated, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region_curve40_v2.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253_region_checkpoints 40renders/KF d3_vs_vanilla: status=evaluated, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region_curve40_v1.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_12F 15renders/KF vanilla: status=passed, PSNR=22.064716050841593; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_12F 15renders/KF d3: status=passed, PSNR=25.69641070365906; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR cvpr/capture_12f measurement_stagerenders/KF pipeline: status=passed, PSNR=None; results/campaigns/gain_attribution/cvpr_assets/pipeline_v2/capture_12f.log → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_305 40renders/KF vanilla: status=passed, PSNR=20.71910099638194; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_305 40renders/KF d3: status=passed, PSNR=24.840737277368888; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_305 15renders/KF vanilla: status=passed, PSNR=19.008593502646253; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria301_305/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria301_305 15renders/KF d3: status=passed, PSNR=23.474117611688673; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria301_305/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF vanilla: status=evaluated, PSNR=20.62817724606463; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v2.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF d3: status=evaluated, PSNR=25.747064095417052; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v2.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF vanilla: status=evaluated, PSNR=19.01287403907485; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region15_v2.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF d3: status=evaluated, PSNR=23.479717014400105; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region15_v2.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF vanilla: status=passed, PSNR=21.83502317960145; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF d3: status=passed, PSNR=24.998510898527552; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 15renders/KF vanilla: status=passed, PSNR=20.373812591052445; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253rot/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 15renders/KF d3: status=passed, PSNR=23.803835471731716; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253rot/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF vanilla: status=passed, PSNR=20.62817724606463; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR snapshot CPU audit: 332 immutable states checked, 324 satisfy shared pose-alignment limits, 8 do not; held-out exclusion passed for all332. This is readiness for post-run evaluation, not map-quality validation. Result: results/campaigns/gain_attribution/cvpr_assets/checkpoint_alignment_v1.json. → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 40renders/KF d3: status=passed, PSNR=25.747064095417052; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF vanilla: status=passed, PSNR=19.01287403907485; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF d3: status=passed, PSNR=23.479717014400105; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/aria/aria1253/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-2 40renders/KF vanilla: status=passed, PSNR=18.786255019051687; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-2 40renders/KF d3: status=passed, PSNR=22.23544576216717; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-2 15renders/KF vanilla: status=passed, PSNR=16.45605817911576; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-2 15renders/KF d3: status=passed, PSNR=21.19905044399962; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 40renders/KF vanilla: status=passed, PSNR=18.79899032027633; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 40renders/KF d3: status=passed, PSNR=22.100768560244713; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 15renders/KF vanilla: status=passed, PSNR=15.860937889711357; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/square-1 15renders/KF d3: status=passed, PSNR=20.965688475856073; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/square-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-2 40renders/KF vanilla: status=passed, PSNR=15.12111733964652; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-2 40renders/KF d3: status=passed, PSNR=22.77454875126358; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-2 15renders/KF vanilla: status=passed, PSNR=16.816587519054572; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-2 15renders/KF d3: status=passed, PSNR=20.954066347484748; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-1 40renders/KF vanilla: status=passed, PSNR=13.546598517894745; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-1 40renders/KF d3: status=passed, PSNR=16.95625534057617; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-1 15renders/KF vanilla: status=passed, PSNR=12.621661043167114; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/slow-straight-1 15renders/KF d3: status=passed, PSNR=15.127045559883118; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/slow-straight-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/fast-straight 40renders/KF vanilla: status=passed, PSNR=15.550470758886899; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/fast-straight 40renders/KF d3: status=passed, PSNR=18.735907512552597; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/fast-straight 15renders/KF vanilla: status=passed, PSNR=14.058433939428891; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/fast-straight/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/fast-straight 15renders/KF d3: status=passed, PSNR=17.02004697743584; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/fast-straight/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-drive 40renders/KF vanilla: status=passed, PSNR=18.83111600434653; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR asset update: RPNG8/8 ×15/40 ×D3/vanilla32 runs passed; T1/T2 audited CSV, T3 independent manual region4 records, F11/F12 actual live measurements installed. Source hashes unchanged. UTMM/Aria/full checkpoint assets remain in progress. → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-drive 40renders/KF d3: status=passed, PSNR=21.516879920009192; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-drive 15renders/KF vanilla: status=passed, PSNR=17.366720756177802; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-drive/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-drive 15renders/KF d3: status=passed, PSNR=20.772115279771256; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-drive/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-2 40renders/KF vanilla: status=passed, PSNR=18.08685510642684; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-2 40renders/KF d3: status=passed, PSNR=19.55067374423089; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-2 15renders/KF vanilla: status=passed, PSNR=16.139085963311324; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-2/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-2 15renders/KF d3: status=passed, PSNR=19.130685996278494; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-2/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-1 40renders/KF vanilla: status=passed, PSNR=16.759209010508155; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-1 40renders/KF d3: status=passed, PSNR=20.153859510050193; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-1 15renders/KF vanilla: status=passed, PSNR=14.564862241992703; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-1/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR utmm/ego-centric-1 15renders/KF d3: status=passed, PSNR=20.653921477206342; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/utmm/ego-centric-1/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_08 40renders/KF vanilla: status=passed, PSNR=21.88165073709297; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_08 40renders/KF d3: status=passed, PSNR=24.87198794267203; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_08 15renders/KF vanilla: status=passed, PSNR=21.47925835868916; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_08/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_08 15renders/KF d3: status=passed, PSNR=24.521692992660828; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_08/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF vanilla: status=evaluated, PSNR=19.023149574075948; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region15_v1.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF d3: status=evaluated, PSNR=23.46339702606201; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region15_v1.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF vanilla: status=evaluated, PSNR=20.872029646662355; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v1.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 regionrenders/KF d3: status=evaluated, PSNR=25.749060383279815; results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v1.json → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_07 40renders/KF vanilla: status=passed, PSNR=24.011500866278727; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_07 40renders/KF d3: status=passed, PSNR=27.549992338351764; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_07 15renders/KF vanilla: status=passed, PSNR=22.01145080335454; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_07/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_07 15renders/KF d3: status=passed, PSNR=25.496817031334736; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_07/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_06 40renders/KF vanilla: status=passed, PSNR=22.56127199396357; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_06 40renders/KF d3: status=passed, PSNR=25.12607385790026; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_06 15renders/KF vanilla: status=passed, PSNR=20.698803021886327; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_06/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_06 15renders/KF d3: status=passed, PSNR=23.865029927846546; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_06/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_05 40renders/KF vanilla: status=passed, PSNR=20.942781929065575; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_05 40renders/KF d3: status=passed, PSNR=23.31833450063894; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_05 15renders/KF vanilla: status=passed, PSNR=19.83612312180876; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_05/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_05 15renders/KF d3: status=passed, PSNR=22.14680972091576; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_05/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_04 40renders/KF vanilla: status=passed, PSNR=20.809272621688528; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_04 40renders/KF d3: status=passed, PSNR=23.145880527260864; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_04 15renders/KF vanilla: status=passed, PSNR=20.002419714280116; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_04/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_04 15renders/KF d3: status=passed, PSNR=21.60679450329439; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_04/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 40renders/KF vanilla: status=passed, PSNR=20.682447953162963; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 40renders/KF d3: status=passed, PSNR=24.990276752967127; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 15renders/KF vanilla: status=passed, PSNR=20.04718496183866; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_03 15renders/KF d3: status=passed, PSNR=23.397692402827417; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_03/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF vanilla: status=passed, PSNR=20.073584814594216; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 40renders/KF d3: status=passed, PSNR=24.167826538216577; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 15renders/KF vanilla: status=passed, PSNR=19.18900990486145; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_02 15renders/KF d3: status=passed, PSNR=21.446611975970335; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_02/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF vanilla: status=passed, PSNR=22.743234839572374; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 40renders/KF d3: status=passed, PSNR=25.7536418618434; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 15renders/KF vanilla: status=passed, PSNR=21.345150768994333; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR rpng/table_01 15renders/KF d3: status=passed, PSNR=24.407874449315774; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render15/rpng/table_01/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF vanilla: status=passed, PSNR=19.023149574075948; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/pilot_v1/render15/aria/aria1253/vanilla → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253 15renders/KF d3: status=passed, PSNR=23.46339702606201; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/pilot_v1/render15/aria/aria1253/d3 → [card](campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-09-30 FIFO live 검증 코드·결과 main 반영 완료: bb2d6ce48cbf668d3e910a2fa77c6cbe5d412461, origin/main 및 colin-sync/main push 확인. 기본 unbounded worker는 유지하고 max_pending_packets=2를 opt-in으로 제공; CPU 13 tests, 16 actual-tracker runs, 32 saved-map evaluations 통과. → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 actual-tracking FIFO 완료: 4 scenes × 1x/1.5x × ours/vanilla = 16회, saved-map double eval 32회. 8/8 PSNR 이득 유지(mean +2.920/+3.524dB). Mapper optimizer tail=0이나 tracking 지연으로 전조건 realtime 달성은 아님. RPNG/UTMM tracking 설정 차이를 유지한 end-to-end 비교; mapper-only 인과 주장 금지. → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x rot/vanilla: PSNR=21.183946256168554, execution=True, tracking=80.33240165095776s / budget=75.99999987499996s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rot/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x rot/ours: PSNR=23.96086298207768, execution=True, tracking=93.42219292395748s / budget=75.99999987499996s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rot/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 FIFO live 해석 추가: Aria 두 시퀀스는 Tracking config가 동일하지만 RPNG/UTMM은 기존 custom motion threshold/window/radius=3.6/15/1, vanilla=2.4/25/2를 유지했다. 둘 다 frontend 반복은 실제 4/2이나, KF 수와 tracking 비용까지 다른 전체 시스템 비교다. mapper-only 인과 효과 또는 동일 tracking 비용 비교로 주장하지 않는다. → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x utmm/vanilla: PSNR=18.752133696167558, execution=True, tracking=54.34218886308372s / budget=53.80941700935364s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/utmm/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x utmm/ours: PSNR=21.17349331761584, execution=True, tracking=54.335821729153395s / budget=53.80941700935364s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/utmm/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x rpng/vanilla: PSNR=20.861975919018995, execution=True, tracking=151.89595809811726s / budget=92.24467062950134s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rpng/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x rpng/ours: PSNR=24.12675006282222, execution=True, tracking=124.73897861503065s / budget=92.24467062950134s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/rpng/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x rot/vanilla: PSNR=21.61899426569704, execution=True, tracking=114.02218396705575s / budget=113.99999981249994s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rot/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x rot/ours: PSNR=24.75129418920298, execution=True, tracking=116.03360276599415s / budget=113.99999981249994s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rot/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x utmm/vanilla: PSNR=18.58018343536942, execution=True, tracking=80.8669381190557s / budget=80.71412551403046s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/utmm/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x utmm/ours: PSNR=21.098959104514417, execution=True, tracking=80.88742585689761s / budget=80.71412551403046s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/utmm/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x rpng/vanilla: PSNR=21.142978231756537, execution=True, tracking=169.3865443880204s / budget=138.367005944252s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rpng/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x rpng/ours: PSNR=24.98133297138386, execution=True, tracking=142.05981872300617s / budget=138.367005944252s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/rpng/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x aria/vanilla: PSNR=21.16782244835191, execution=True, tracking=97.67272765398957s / budget=97.64999836950005s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/aria/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.5x aria/ours: PSNR=25.77303850013791, execution=True, tracking=97.67256407812238s / budget=97.64999836950005s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1p5/aria/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x aria/vanilla: PSNR=20.065057652597208, execution=True, tracking=65.5566164997872s / budget=65.09999891300004s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/aria/vanilla → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 live FIFO 1.0x aria/ours: PSNR=23.283798996728795, execution=True, tracking=69.41958943894133s / budget=65.09999891300004s; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/fifo_live/v1/scale1/aria/ours → [card](campaigns/06_gain_attribution/fifo_live/README.md)
+
+- 2026-09-30 FIFO sensor1x aria/vanilla: PSNR=None, pass=False; results/campaigns/gain_attribution/fifo_sensor1x/gpu_v1/aria/vanilla → [card](campaigns/06_gain_attribution/fifo_sensor1x/README.md)
+
+- 2026-09-30 FIFO sensor1x aria/d3: PSNR=25.778139150779666, pass=True; results/campaigns/gain_attribution/fifo_sensor1x/gpu_v1/aria/d3 → [card](campaigns/06_gain_attribution/fifo_sensor1x/README.md)
+
+- **2026-09-30 geometry main GPU 검증 완료:** main a2f3f62b에서 D3+fixed raster/warp 4회와 official vanilla 4회 새 실행, 각 지도 2회 held-out 평가 통과. Aria/RPNG/UTMM/rot 이득 +4.877/+2.450/+3.222/+3.155 dB(평균 +3.426). 이전 native 저장 결과 대비 평균 −0.087 dB. 입력 prefix 학습량·trajectory·cohort 일치. D3는 40 training renders/KF 외 약 20~21 proxy renders/KF 추가하므로 동일 총 연산 비교 아님. maintenance off/density 유지; 독립 geometry GT는 미평가. 기본 recipe는 변경하지 않음. → [결과](campaigns/06_gain_attribution/geometry_main_validation/SUMMARY.md)
+
+- 2026-09-30 geometry main rot/vanilla: PSNR=21.830012555982247, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/rot/vanilla → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main rot/d3: PSNR=24.98509907956983, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/rot/d3 → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main utmm/vanilla: PSNR=18.87227068123994, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/utmm/vanilla → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main utmm/d3: PSNR=22.09443043779444, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/utmm/d3 → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main rpng/vanilla: PSNR=22.678571195860165, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/rpng/vanilla → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main rpng/d3: PSNR=25.128307569349133, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/rpng/d3 → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main aria/vanilla: PSNR=20.872029646662355, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/aria/vanilla → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- 2026-09-30 geometry main aria/d3: PSNR=25.749060383279815, pass=True; results/campaigns/gain_attribution/geometry_main_validation/gpu_v1/aria/d3 → [card](campaigns/06_gain_attribution/geometry_main_validation/README.md)
+
+- **2026-09-29 병합 main 실제 GPU 4scene 검증 완료:** tested5fa8c76e, fresh ours/vanilla8회PASS. Aria25.776/20.743(+5.033),RPNG25.224/22.473(+2.750),UTMM22.285/18.882(+3.403),rot25.018/21.801(+3.217)dB. 평균+3.601dB. 기존3scene 병합전 대비 최대0.0131dB차이. Rot원본전체1521/heldout305 신규준비,MPS0,동일causal archive·prefix40renders/KF·zero-tail. Fixed-work이며live/geometry검증아님. → [결과](campaigns/06_gain_attribution/main_validation/SUMMARY.md)
+
+- **2026-09-29 main validation aria_rot/vanilla:** PSNR=21.801056358462475, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/rot_gpu40_v1/vanilla. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation aria_rot/ours:** PSNR=25.018266165061075, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/rot_gpu40_v1/ours. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation utmm/vanilla:** PSNR=18.88187265984806, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/utmm/vanilla. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation utmm/ours:** PSNR=22.285248650444878, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/utmm/ours. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation rpng/vanilla:** PSNR=22.47345105420362, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/rpng/vanilla. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation rpng/ours:** PSNR=25.223718175802144, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/rpng/ours. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation aria/vanilla:** PSNR=20.743402051561663, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/aria/vanilla. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
+- **2026-09-29 main validation aria/ours:** PSNR=25.77617167698518, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/main_validation/gpu40_v1/aria/ours. → [카드](campaigns/06_gain_attribution/main_validation/README.md)
+
 - **2026-09-29 selected mapping handoff:** 확정 336/40render/init1.25×/prune0.1@300 recipe, backend patch 및 checksum 고정; preflight 3scene·CPU28 PASS, 새 GPU실험 없음. [실행 안내](campaigns/06_gain_attribution/selected_recipe/HANDOFF.md).
+
+- **2026-09-28 window quota 비교 완료:** 채택 init1.25×·prune0.1/300·최근10KF birth보호·40renders/KF에서 3:3:6 대비 1:5:6은 Aria/RPNG/UTMM +0.025/−0.042/−0.058dB, 0:6:6은 −0.004/−0.293/−0.166dB. 신규6회 audit PASS; render/Adam·birth·pool·prune시점 일치(066 일부 KF/dense ±1회). 3:3:6 유지, 1:5:6은 대안. Full-history retention과 recent allocation은 양립하며, geometry/실시간성 증명은 아님. → [결과](campaigns/06_gain_attribution/window_quota/SUMMARY.md)
+
+- **2026-09-28 window quota 066 / utmm40:** PSNR=22.10634505012889, GS=121305, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/utmm/066. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 window quota 156 / utmm40:** PSNR=22.214482425171653, GS=121702, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/utmm/156. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 window quota 066 / rpng40:** PSNR=24.9324430826548, GS=193157, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/rpng/066. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 window quota 156 / rpng40:** PSNR=25.183229226464622, GS=199189, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/rpng/156. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 window quota 066 / aria40:** PSNR=25.778746939797436, GS=193307, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/aria/066. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 window quota 156 / aria40:** PSNR=25.8073416193023, GS=194674, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/window_quota/gpu40_v1/aria/156. → [카드](campaigns/06_gain_attribution/window_quota/README.md)
+
+- **2026-09-28 protected prune opacity01 / utmm40 period=300 birth_denominator=0.8:** PSNR=22.27217948583909, GS=121363, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/utmm/increase/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-28 protected prune opacity01 / utmm40 period=300 birth_denominator=1.0:** PSNR=22.129522300060884, GS=98000, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/utmm/base/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-28 protected prune opacity01 / rpng40 period=300 birth_denominator=0.8:** PSNR=25.225351079305014, GS=202838, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/rpng/increase/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-28 protected prune opacity01 / rpng40 period=300 birth_denominator=1.0:** PSNR=25.08195193866352, GS=164895, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/rpng/base/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-28 protected prune opacity01 / aria40 period=300 birth_denominator=0.8:** PSNR=25.782753099922004, GS=195316, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/aria/increase/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-28 protected prune opacity01 / aria40 period=300 birth_denominator=1.0:** PSNR=25.838654343408482, GS=158393, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/init_increase300_v1/aria/base/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune opacity01 / utmm40:** PSNR=22.12074293324977, GS=96733, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/transfer40_v1/utmm/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune opacity01 / aria40:** PSNR=25.81622082222509, GS=151604, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/transfer40_v1/aria/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune opacity01 / RPNG40:** PSNR=25.070940272013345, GS=159616, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/rpng40_low_v2/opacity01. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune opacity07 / RPNG40:** PSNR=24.533669085116, GS=68439, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/rpng40_v1/opacity07. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune opacity07 / RPNG40:** PSNR=None, GS=None, audit=False, error=Traceback (most recent call last):
+  File "/home/intern/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/run_protected_prune_comparison.py", line 113, in main
+    assert births - removed - resets == x['gaussians']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/rpng40_v1/opacity07. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 protected prune off / RPNG40:** PSNR=25.223685410645633, GS=357071, audit=True, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/protected_prune/rpng40_v1/off. → [카드](campaigns/06_gain_attribution/protected_prune/README.md)
+
+- **2026-09-27 init density budget40 b40_vanilla_count / aria:** execution=True, audit=True, PSNR=25.876509426204304, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/vanilla_count_gpu15_40_v1/b40_vanilla_count/aria. → [카드](campaigns/06_gain_attribution/init_density/vanilla_budget/README.md)
+
+- **2026-09-27 init density budget15 b15_vanilla_count / utmm:** execution=True, audit=True, PSNR=20.996181264335725, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/vanilla_count_gpu15_40_v1/b15_vanilla_count/utmm. → [카드](campaigns/06_gain_attribution/init_density/vanilla_budget/README.md)
+
+- **2026-09-27 init density budget15 b15_vanilla_count / rpng:** execution=True, audit=True, PSNR=23.915152496475358, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/vanilla_count_gpu15_40_v1/b15_vanilla_count/rpng. → [카드](campaigns/06_gain_attribution/init_density/vanilla_budget/README.md)
+
+- **2026-09-27 init density budget15 b15_vanilla_count / aria:** execution=True, audit=True, PSNR=23.243475120486195, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/vanilla_count_gpu15_40_v1/b15_vanilla_count/aria. → [카드](campaigns/06_gain_attribution/init_density/vanilla_budget/README.md)
+
+- **2026-09-27 init density budget40 b40_d4 / utmm:** execution=True, audit=True, PSNR=20.53334234967644, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d4/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d4 / rpng:** execution=True, audit=True, PSNR=24.59093381520864, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d4/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d4 / aria:** execution=True, audit=True, PSNR=25.409114167890475, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d4/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d2 / utmm:** execution=True, audit=True, PSNR=21.528685793464568, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d2/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d2 / rpng:** execution=True, audit=True, PSNR=25.011698600837775, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d2/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d2 / aria:** execution=True, audit=True, PSNR=25.699089334211276, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d2/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d1 / utmm:** execution=True, audit=True, PSNR=22.223149417359153, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d1/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d1 / rpng:** execution=True, audit=True, PSNR=25.220881003302498, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d1/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget40 b40_d1 / aria:** execution=True, audit=True, PSNR=25.910708995265814, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b40_d1/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d4 / utmm:** execution=True, audit=True, PSNR=19.369094477759468, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d4/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d4 / rpng:** execution=True, audit=True, PSNR=23.506212351343653, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d4/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d4 / aria:** execution=True, audit=True, PSNR=23.317019058547857, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d4/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d2 / utmm:** execution=True, audit=True, PSNR=20.284989053820386, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d2/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d2 / rpng:** execution=True, audit=True, PSNR=23.892736204680023, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d2/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d2 / aria:** execution=True, audit=True, PSNR=23.232974969703733, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d2/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d1 / utmm:** execution=True, audit=True, PSNR=20.87415121808464, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d1/utmm. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d1 / rpng:** execution=True, audit=True, PSNR=24.023711683943464, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d1/rpng. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 init density budget15 b15_d1 / aria:** execution=True, audit=True, PSNR=23.25464710206476, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/init_density/gpu15_40_v1/b15_d1/aria. → [카드](campaigns/06_gain_attribution/init_density/README.md)
+
+- **2026-09-27 15renders/KF RR/ERVS+dense 2×2 완료:** κ16/τ4·3:3:6·영상별Adam유지. Dense에서RR→ERVS Aria22.8292→23.2723(+0.4431),RPNG23.4701→24.0295(+0.5594),UTMM21.1453→20.8756(−0.2696)dB;평균+0.2443(40회+0.0755). Dense−KF RGB-only는ERVS평균+0.2022(3/3개선),RR+0.0640(RPNG−0.4159). GPU12개/평가2회/CPU36/audit PASS;render·Adam·admission·pose·GS동일. Dense↔KF replacement는pool/초기quota로RGB횟수·batch/LR일부상이한시스템비교임을명시. ERVS mapper합계96.52→113.96s(+18.1%). 단일seed3개개발scene/frozen tracker;15회재튜닝/live/geometry검증아님. 기본설정유지. → [결과](campaigns/06_gain_attribution/unified_rr_ervs/SUMMARY15.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 rr / utmm:** execution=True, audit=True, PSNR=20.6493724098912, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/rr/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 rr / rpng:** execution=True, audit=True, PSNR=23.88601891801164, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/rr/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 rr / aria:** execution=True, audit=True, PSNR=22.71711030625205, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/rr/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 ervs / utmm:** execution=True, audit=True, PSNR=20.63515997227327, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/ervs/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 ervs / rpng:** execution=True, audit=True, PSNR=23.876651110949815, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/ervs/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 KF RGB replacement RR/ERVS budget15 ervs / aria:** execution=True, audit=True, PSNR=23.059171130638997, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/dense_control_gpu15_v1/ervs/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/dense_control/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 rr / utmm:** execution=True, audit=True, PSNR=21.145271783993568, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/rr/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 rr / rpng:** execution=True, audit=True, PSNR=23.470087779964413, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/rr/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 rr / aria:** execution=True, audit=True, PSNR=22.8291896208552, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/rr/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 ervs / utmm:** execution=True, audit=True, PSNR=20.87563637745233, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/ervs/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 ervs / rpng:** execution=True, audit=True, PSNR=24.029511869275893, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/ervs/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS budget15 ervs / aria:** execution=True, audit=True, PSNR=23.27230923776408, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu15_v1/ervs/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR vs ERVS 완료:** κ16/τ4·40renders/KF·3:3:6·영상별Adam에서 RR→ERVS: Aria25.7931→25.8847(+0.0916), RPNG25.0777→25.2298(+0.1521), UTMM22.2401→22.2229(−0.0171)dB; 평균+0.0755dB. GPU6개 개별audit/평가2회PASS, 총·prefix render/Adam/admission/pool/loss/LR/GS동일. Pair exact-role audit는 폐기되는Aria 초기generation의window↔KF5회차이로실패; 차이를보존하고loss schedule·최종generation exact-role 일치 재검증. RR공유KF-control CPU오류수정후36tests·기본dense경로1500batch동등성PASS. 기본ERVS유지. 단일seed3개개발scene/frozen tracker이며 보편적우월성·live·geometry근거아님. → [결과](campaigns/06_gain_attribution/unified_rr_ervs/SUMMARY.md)
+
+- **2026-09-27 unified RR/ERVS rr / utmm:** execution=True, audit=True, PSNR=22.240062716566484, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/rr/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS rr / rpng:** execution=True, audit=True, PSNR=25.077735567522478, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/rr/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS rr / aria:** execution=True, audit=True, PSNR=25.793071950664956, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/rr/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS ervs / utmm:** execution=True, audit=True, PSNR=22.222941828362735, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/ervs/utmm. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS ervs / rpng:** execution=True, audit=True, PSNR=25.229798847920186, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/ervs/rpng. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
+
+- **2026-09-27 unified RR/ERVS ervs / aria:** execution=True, audit=True, PSNR=25.884680151029396, error=None; /home/intern/gs_floaterLab/results/campaigns/gain_attribution/unified_rr_ervs/gpu40_v1/ervs/aria. → [카드](campaigns/06_gain_attribution/unified_rr_ervs/README.md)
 
 - **2026-09-26 κ/τ/blur 탐색 완료:** 공통선택 k16_t4_no_blur, 기존immediate/tau1/blurOFF 대비 평균held-out PSNR+0.1734dB·합산mapper시간26.0%감소. aria25.5921→25.8851dB,54.54→35.11s / rpng25.1179→25.2309dB,144.35→115.36s / utmm22.1052→22.2194dB,56.11→38.28s. dense-only κ growth와 실제 pool별tau 보고 연결,40renders/KF·3:3:6·영상별Adam·누적ERVS·scaleON·densify/pruneOFF 유지. 유효21run/CPU30/저장지도평가2회/causal-prefix-cohort-source audit PASS. 초기runtime guard 학습전실패1건 보존·수정, baseline3개 명시재사용. 별도online_mapping_unified_tuned.json 저장, 기존baseline preset유지. 단일seed3개개발scene/frozen tracker/coarse search이며 live·geometry검증 아님. → [결과](campaigns/06_gain_attribution/growth_entropy_blur/SUMMARY.md)
 
@@ -1101,3 +1724,15 @@ raw 프레임)만 보고 birth를 만든 keyframe 자체는 영원히 폴리시 
 - 2026-09-25 | ATTR first v10 clock validation | RPNG24.9880dB; setup0.1677s included,138.2702/138.3670s PASS;9-arm panel continues. Warm BA batching diagnostic prepared but not GPU-tested | [card](campaigns/06_gain_attribution/online_dense_training/README.md)
 
 - 2026-09-25 | ATTR v10 RPNG / runtime provenance |24.9880 vsKF25.2513/prod24.4477, budgetPASS;3 actual mapped CUDA libraries preserved, no-Torch probe matches live paths/hashes; real worker integration still pending | [card](campaigns/06_gain_attribution/online_dense_training/README.md)
+
+- 2026-09-27: [init density 15/40 종합](campaigns/06_gain_attribution/init_density/SUMMARY.md) — 18회 PASS; 절반/1/4 공통 축소 품질 미보존, 기본 설정 유지.
+
+- 2026-09-27: [PPM 유지·바닐라 개수 근사 부분 결과](campaigns/06_gain_attribution/init_density/vanilla_budget/README.md) — 4회 완료, 사용자 범위 정정으로 나머지 중단; 추가 튜닝 없음.
+
+- 2026-09-27: [RPNG40 보호 pruning-only](campaigns/06_gain_attribution/protected_prune/SUMMARY.md) — OFF/0.7/0.1 세 조건 완료; 최근10KF 보호, 0.1은GS−55.3%·PSNR−0.153dB·mapper−7.9%, 기본값 미변경.
+
+- 2026-09-27: [opacity0.1 보호 pruning 교차검증](campaigns/06_gain_attribution/protected_prune/TRANSFER40.md) — Aria/UTMM추가2회PASS;PSNR−0.094/−0.102dB,GS−21.3/−31.7%;init증가미실행.
+
+- 2026-09-28: [init+25%/prune0.1/300주기](campaigns/06_gain_attribution/protected_prune/init_increase/SUMMARY.md) — 6회PASS;Aria−0.056/RPNG+0.143/UTMM+0.143dB,기본값미변경.
+
+| 2026-10-01 | CVPR full fixed-work + measured F6/F7 | 20 scenes,80 runs passed; independent region14 states; source106 files unchanged | [card](campaigns/06_gain_attribution/cvpr_assets/README.md) |

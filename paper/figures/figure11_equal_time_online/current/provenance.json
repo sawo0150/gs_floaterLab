@@ -1,0 +1,182 @@
+{
+  "kind": "actual_equal_time_endpoints",
+  "experimental_evidence": true,
+  "complete_candidate_cohort": false,
+  "tracking_recipe": "shared_official_dataset_Tracking_config",
+  "data": "/home/intern/gs_floaterLab/paper/figures/figure11_equal_time_online/analysis/measured_time_endpoints.csv",
+  "rows": [
+    {
+      "scene": "aria/aria1253",
+      "scale": 1,
+      "arm": "vanilla",
+      "psnr": 20.122959835838724,
+      "committed_renders": 4146,
+      "allowed_seconds": 65.09999891300004,
+      "tracking_seconds": 65.36323386593722,
+      "cohort_sha256": "065c82f1592a2fb21a0297b6639cee99bb7a8a4790474a87e6bce10f02505b0b",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "18feaf85e9beceb091dd4620f951f3c9216099031168b10c054260161c6358ed",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/vanilla/result.json",
+      "result_sha256": "f8e844e2dd198cb4631ebdb87995dc8ca1f06e66c652eefcb417524b698c94c6"
+    },
+    {
+      "scene": "aria/aria1253",
+      "scale": 1,
+      "arm": "ours",
+      "psnr": 23.428837302986903,
+      "committed_renders": 3320,
+      "allowed_seconds": 65.09999891300004,
+      "tracking_seconds": 68.1597485691309,
+      "cohort_sha256": "065c82f1592a2fb21a0297b6639cee99bb7a8a4790474a87e6bce10f02505b0b",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "2740805003e9eb8208f0d0df8de5af5ec2f3d0a81e118ffba5e68312ae180b73",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/ours/result.json",
+      "result_sha256": "165d2010041a3b0a8085bb23509cceb5dfcc78451efdb9b994e2cb4606c36e79"
+    },
+    {
+      "scene": "aria/aria1253",
+      "scale": 1.5,
+      "arm": "vanilla",
+      "psnr": 20.92910993372211,
+      "committed_renders": 4200,
+      "allowed_seconds": 97.64999836950005,
+      "tracking_seconds": 97.67124323593453,
+      "cohort_sha256": "065c82f1592a2fb21a0297b6639cee99bb7a8a4790474a87e6bce10f02505b0b",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "c078c4562fa2d544338e8d471df0f8002a0815a0af41f7ca793f9abd3778ceed",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/vanilla/result.json",
+      "result_sha256": "e498720bf02929cf578f31cc9f464c7118c242635512a49237dda9144f4a3d41"
+    },
+    {
+      "scene": "aria/aria1253",
+      "scale": 1.5,
+      "arm": "ours",
+      "psnr": 25.751155314554694,
+      "committed_renders": 3640,
+      "allowed_seconds": 97.64999836950005,
+      "tracking_seconds": 97.66988690220751,
+      "cohort_sha256": "065c82f1592a2fb21a0297b6639cee99bb7a8a4790474a87e6bce10f02505b0b",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "ada6a70c4a60cd69b1ec00d3c73bd99f802e512a81b08382aa3f97a4cf31cae2",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/ours/result.json",
+      "result_sha256": "822825012b205dd94bce3f9904b07f5f3b5cdec1bd84596c0ac0b5f042080d8c"
+    },
+    {
+      "scene": "rpng/table_01",
+      "scale": 1,
+      "arm": "vanilla",
+      "psnr": 22.444745099876982,
+      "committed_renders": 6520,
+      "allowed_seconds": 83.53692960739136,
+      "tracking_seconds": 120.79299507802352,
+      "cohort_sha256": "62507c2519a76094e4b69ad945d27b1b1e4fbbecc894b378b7e3ba9b011304ed",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "e1438ef2c2a7a86a45af553b20749dc0d6efc7fee293f15e9fdad7fc84697d91",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/vanilla/result.json",
+      "result_sha256": "b11eff094a32c903228a3414fa77acff1680648e2ad2e51c0deb2b8ff680d270"
+    },
+    {
+      "scene": "rpng/table_01",
+      "scale": 1,
+      "arm": "ours",
+      "psnr": 23.667279053494276,
+      "committed_renders": 4951,
+      "allowed_seconds": 83.53692960739136,
+      "tracking_seconds": 132.95566471596248,
+      "cohort_sha256": "62507c2519a76094e4b69ad945d27b1b1e4fbbecc894b378b7e3ba9b011304ed",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "dfbd89455860b8ba270150d3268a6482a39928477d27c83ed4166951ab70d5c9",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/ours/result.json",
+      "result_sha256": "fb5ea45999b7d5b4dac4e50199f3612cfe7daa4bda8f579f2bb147c4c9676e2b"
+    },
+    {
+      "scene": "rpng/table_01",
+      "scale": 1.5,
+      "arm": "vanilla",
+      "psnr": 22.95078182030484,
+      "committed_renders": 8640,
+      "allowed_seconds": 125.30539441108704,
+      "tracking_seconds": 136.83547167503275,
+      "cohort_sha256": "62507c2519a76094e4b69ad945d27b1b1e4fbbecc894b378b7e3ba9b011304ed",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/vanilla/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "6169f7dca61ccd6d40b4e6ba2702342b0c97125db3ccb58fb0fd93e1b3fcb6d6",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/vanilla/result.json",
+      "result_sha256": "c647e4f4634714f20d315063e0dc67c61735fcadb677014c240f3b95e0b9516a"
+    },
+    {
+      "scene": "rpng/table_01",
+      "scale": 1.5,
+      "arm": "ours",
+      "psnr": 25.358613965995758,
+      "committed_renders": 6786,
+      "allowed_seconds": 125.30539441108704,
+      "tracking_seconds": 148.3015306747984,
+      "cohort_sha256": "62507c2519a76094e4b69ad945d27b1b1e4fbbecc894b378b7e3ba9b011304ed",
+      "metric_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/ours/psnr/strict_fixed_manifest/final_result.json",
+      "metric_sha256": "eba77c95de9e9b8e75761c5e084c8c71eb33be99d67d089f3e6c9bc47d840a5c",
+      "result_path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/ours/result.json",
+      "result_sha256": "3146228d8e15f4a033837d97e65804bfe8045333e64d2168b7ed60aa0bfcc42b"
+    }
+  ],
+  "aggregate": [
+    {
+      "arm": "vanilla",
+      "scale": 1,
+      "metric": "psnr",
+      "mean": 21.283852467857855,
+      "scenes": 2
+    },
+    {
+      "arm": "vanilla",
+      "scale": 1.5,
+      "metric": "psnr",
+      "mean": 21.939945877013475,
+      "scenes": 2
+    },
+    {
+      "arm": "vanilla",
+      "scale": 1,
+      "metric": "committed_renders",
+      "mean": 5.333,
+      "scenes": 2
+    },
+    {
+      "arm": "vanilla",
+      "scale": 1.5,
+      "metric": "committed_renders",
+      "mean": 6.42,
+      "scenes": 2
+    },
+    {
+      "arm": "ours",
+      "scale": 1,
+      "metric": "psnr",
+      "mean": 23.548058178240588,
+      "scenes": 2
+    },
+    {
+      "arm": "ours",
+      "scale": 1.5,
+      "metric": "psnr",
+      "mean": 25.554884640275226,
+      "scenes": 2
+    },
+    {
+      "arm": "ours",
+      "scale": 1,
+      "metric": "committed_renders",
+      "mean": 4.1354999999999995,
+      "scenes": 2
+    },
+    {
+      "arm": "ours",
+      "scale": 1.5,
+      "metric": "committed_renders",
+      "mean": 5.213,
+      "scenes": 2
+    }
+  ],
+  "within_run_convergence": false,
+  "manuscript_width": "one_column",
+  "remaining_work": "shared-tracker full cohort and checkpoint-based wall-clock convergence"
+}

@@ -1,0 +1,49 @@
+{
+  "kind": "archived_original_interval_sampling_measurements",
+  "archived_metrics": true,
+  "experimental_evidence": true,
+  "fresh_reproduction": false,
+  "raw_maps_available_here": false,
+  "original_source_restored": false,
+  "sources": {
+    "/home/intern/gs_floaterLab/context/experiments/ERCB_ablation/benchmark-B/evidence/summary.json": "aedace404d42a75f650218155666e9591fa1d741cc7bb06de8ead22f6f6a5fb1",
+    "/home/intern/gs_floaterLab/context/experiments/ERCB_ablation/benchmark-B/evidence/summary.csv": "155f17be03a5bb4d6521b7d59d56486e8bfc9c759fadad506b9ea5486a4785dc",
+    "/home/intern/gs_floaterLab/context/experiments/ERCB_ablation/benchmark-B/evidence/manifest.json": "80ea07c81665ded7039d49998174f6dca68d8c91cde484a48d0d308a57facea9"
+  },
+  "original_source_hashes": {
+    "train.py": "aa1c8917684a069493b9698cf8fb62fab41684a02afad285481dd4844d546757",
+    "runtime/scheduler.py": "ba22bc5012d2b49ac1d0a41c9bfb8445dc3ec45819abe6236a239566e5a0afc3",
+    "exp77/run_training.py": "78a5582682aa2f101e0674a8714b50844436125fa3a7ff9997bde1ad434dd92a"
+  },
+  "currently_available_source_hashes": {
+    "train.py": "e1c3d75ea5d08bafecdfca32eb2001b4fed691f556c87747385d249fe54eaf41",
+    "runtime/scheduler.py": "ca357ea685d8904ecadcb12a7d7edd757187e3fb5c32bfdcade842d1550ac27b"
+  },
+  "paired_runs": 114,
+  "available_scenes": 19,
+  "requested_scenes": 20,
+  "unavailable": {
+    "utmm/slow-straight-1": "returncode=1 or required export missing"
+  },
+  "averages": {
+    "rr": [
+      20.772348081704724,
+      22.220307774954332,
+      22.88124633937785
+    ],
+    "ercb": [
+      21.38775165844741,
+      22.333985357082263,
+      23.11257223531747
+    ]
+  },
+  "missing_metrics": [
+    "SSIM",
+    "LPIPS"
+  ],
+  "manuscript_width": "one_column",
+  "generator_sha256": "5800df09cc954106484b8b615d510fa6e0cc267d76ce0e2b26ed0f2ddbbc2fb6",
+  "data": "/home/intern/gs_floaterLab/paper/tables/table04_sampling_budget/analysis/archived_original_sampling_measurements.csv",
+  "data_sha256": "f9b959c7c6b2142af370797ef362c81e540dd4e1b1d6c19c7618ae9486324271",
+  "table_sha256": "14a2f7ad772c6f57f0b30d76c58e2f3656e04cb496b84e12dfee069dda48a81f"
+}

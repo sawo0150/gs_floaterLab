@@ -1,0 +1,106 @@
+{
+  "date": "2026-10-01",
+  "task": "Move time-insensitive experiments to RTX5070Ti",
+  "fixed_work_passed": 80,
+  "controls_passed": 19,
+  "controls_planned": 140,
+  "interrupted_output": "current_controls_v1/render40/rpng/table_03/rr_kf_rgb",
+  "local_gpu_queue_stopped": true,
+  "new_gpu_runtime_verified": false,
+  "time_comparisons_deferred": true,
+  "production_algorithm_changed_for_handoff": false,
+  "fixed20_scene_cohort": [
+    [
+      "rpng",
+      "table_01"
+    ],
+    [
+      "rpng",
+      "table_02"
+    ],
+    [
+      "rpng",
+      "table_03"
+    ],
+    [
+      "rpng",
+      "table_04"
+    ],
+    [
+      "rpng",
+      "table_05"
+    ],
+    [
+      "rpng",
+      "table_06"
+    ],
+    [
+      "rpng",
+      "table_07"
+    ],
+    [
+      "rpng",
+      "table_08"
+    ],
+    [
+      "utmm",
+      "ego-centric-1"
+    ],
+    [
+      "utmm",
+      "ego-centric-2"
+    ],
+    [
+      "utmm",
+      "ego-drive"
+    ],
+    [
+      "utmm",
+      "fast-straight"
+    ],
+    [
+      "utmm",
+      "slow-straight-1"
+    ],
+    [
+      "utmm",
+      "slow-straight-2"
+    ],
+    [
+      "utmm",
+      "square-1"
+    ],
+    [
+      "utmm",
+      "square-2"
+    ],
+    [
+      "aria",
+      "aria1253"
+    ],
+    [
+      "aria",
+      "aria1253rot"
+    ],
+    [
+      "aria",
+      "aria301_12F"
+    ],
+    [
+      "aria",
+      "aria301_305"
+    ]
+  ],
+  "pre_handoff_heads": {
+    "/home/intern/gs_floaterLab": "4aa4f71086d2374494a4ed6fcaf083aa3e20d33e",
+    "/home/intern/VIGS-SLAM-custom": "bb2d6ce48cbf668d3e910a2fa77c6cbe5d412461"
+  },
+  "source_lock_sha256": "c60d7e43e50155f97b1a510d922e8a44ed1b99f86d5c21bfd60596cbd64d4df3",
+  "custom_handoff_commit": "50286727b4ab91b79285bcde6063d7c19aea73bf",
+  "cpu_validation": {
+    "source_lock_files": 119,
+    "source_lock_unchanged": true,
+    "python_compile": "passed",
+    "gpu_runs_on_5070ti": "not_performed"
+  }
+}

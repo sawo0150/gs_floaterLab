@@ -1,0 +1,1 @@
+Final held-out quality and completed training renders with concurrent tracking at 1x and 1.5x sensor-duration allowances. Each point is an equal-weight mean over 2 completed sequence pairs from separate runs, not a within-run convergence curve. The mapper stops at the deadline; tracking may finish later. Both systems use the same dataset Tracking configuration.

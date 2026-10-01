@@ -1,0 +1,1094 @@
+{
+  "kind": "actual_matched_region_refinement",
+  "experimental_evidence": true,
+  "generator": "/home/intern/gs_floaterLab/paper/scripts/build_measured_new_region_figure.py",
+  "generator_sha256": "6d47974cb6b72c49174412f6b6ba08b8c81e6b518f0b3571410687650430cdd9",
+  "all_candidate_scenes_reviewed": true,
+  "region_source": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/region_observations_v1",
+  "region_protocol_sha256": "8c55787f4d6c165937d8e768e7ec595e22ae91f58401ed77cc58b7f718d48ab9",
+  "catalog_sha256": "68837d8c6bff0e2f87701be82d57ee7075d5e7acd4bef16ace6f2c32fbb066cb",
+  "data": "/home/intern/gs_floaterLab/paper/figures/figure04_new_region_convergence/analysis/measured_region_psnr.csv",
+  "data_sha256": "c613dfb7b0c5d050696e57ac08e8c0f6c29b174930da87ae118498e610afe1b8",
+  "inspected_candidate_regions": 179,
+  "eligible_regions": 83,
+  "selected": [
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "target_frame": 3465,
+      "crop_rank": 0,
+      "gt_structure_score": 0.06660299903893203,
+      "crop": [
+        359,
+        230,
+        564,
+        344
+      ],
+      "status": "eligible",
+      "source": "results/campaigns/gain_attribution/cvpr_assets/region_observations_v1/rpng/table_04/regions.json",
+      "source_sha256": "e26aba7368bdfded5d8cf56ba5fa4310b71af069c8d63344e12ce0cadf6a1d5a",
+      "match": {
+        "feature_inliers": 11,
+        "reprojection_p95_px": 0.32010501376539713,
+        "parallax_median_degrees": 17.81288919904499,
+        "triangulated_points_world": [
+          [
+            0.6196320254542194,
+            0.06106484533078393,
+            1.818202043932461
+          ],
+          [
+            0.35479589540418965,
+            0.12052407486816406,
+            1.6099823364881896
+          ],
+          [
+            0.6080718527766508,
+            0.1001510344556113,
+            1.5231138326604854
+          ],
+          [
+            0.38812157761910937,
+            0.09071955287578244,
+            1.804553634174468
+          ],
+          [
+            0.3716837028888268,
+            0.10939650622680616,
+            1.6933726472538124
+          ],
+          [
+            0.6750795275965336,
+            0.08169059458354622,
+            1.618156066106218
+          ],
+          [
+            0.7069054179819628,
+            0.05322255486270903,
+            1.80718432357621
+          ],
+          [
+            0.7741283913636279,
+            0.06270048479920103,
+            1.6446802868070227
+          ],
+          [
+            0.7652205692637144,
+            0.07096188072910413,
+            1.594061166306984
+          ],
+          [
+            0.7741283913636279,
+            0.06270048479920103,
+            1.6446802868070227
+          ],
+          [
+            0.5013590960170721,
+            0.11450084132817874,
+            1.507656304495296
+          ]
+        ],
+        "first_observed_frame": 959,
+        "first_observed_sensor_time": 1662919187.7128627,
+        "target_sensor_time": 1662919271.288053,
+        "qualifies_as_new_region": true
+      },
+      "point_counts": {
+        "vanilla": 6,
+        "d3": 6
+      },
+      "points": [
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_01",
+          "prefix_frame": 1519,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919206.382487,
+          "sensor_seconds_since_supported_observation": 18.66962432861328,
+          "training_renders": 3812,
+          "png_roi_psnr_db": 15.622510585648413,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_01/images/003465_render.png",
+          "prediction_sha256": "70feb0b44dd4995da07b9557204b61e9c7d83397773979caf1cb77ada34f1071",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_01/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_02",
+          "prefix_frame": 2461,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919237.8048885,
+          "sensor_seconds_since_supported_observation": 50.09202575683594,
+          "training_renders": 5213,
+          "png_roi_psnr_db": 15.360490387908388,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_02/images/003465_render.png",
+          "prediction_sha256": "79672d466c8fc800d0c7c71355c476fc94a119904ed6c2e8bc0b34b293a66599",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_02/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 3346,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919267.312473,
+          "sensor_seconds_since_supported_observation": 79.59961032867432,
+          "training_renders": 7053,
+          "png_roi_psnr_db": 15.352325271645885,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_03/images/003465_render.png",
+          "prediction_sha256": "7febb41e13b0933fbd899819b9ef2cf229c77631ea86f6d714871ceb07391080",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_03/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 4254,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919297.5986953,
+          "sensor_seconds_since_supported_observation": 109.88583254814148,
+          "training_renders": 9773,
+          "png_roi_psnr_db": 18.273208326067447,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_04/images/003465_render.png",
+          "prediction_sha256": "d26dcfc82a57a70cb299d44f3b48d5dc1916731730d57496a0101ce05571530e",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_04/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 5160,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919327.8032637,
+          "sensor_seconds_since_supported_observation": 140.09040093421936,
+          "training_renders": 12533,
+          "png_roi_psnr_db": 17.066883038296858,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_05/images/003465_render.png",
+          "prediction_sha256": "283e32cd2d5675986cb17e2d1e03d11e7aed0f0bc260bc524f1d947d64bf34a2",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/snapshot_05/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "final",
+          "prefix_frame": 6067,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919358.0665197,
+          "sensor_seconds_since_supported_observation": 170.3536570072174,
+          "training_renders": 14760,
+          "png_roi_psnr_db": 17.525553753111456,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/final/images/003465_render.png",
+          "prediction_sha256": "1ff4ebf3d1d6e77c926e376119d447e58261af93d02a86ac26b89eb574380a44",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/final/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_01",
+          "prefix_frame": 1519,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919206.382487,
+          "sensor_seconds_since_supported_observation": 18.66962432861328,
+          "training_renders": 3801,
+          "png_roi_psnr_db": 16.579560657026487,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_01/images/003465_render.png",
+          "prediction_sha256": "8e4ed32c37ee9a4f938fec13cd7b2736d8f85d874c6edb817dff0b632348c343",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_01/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_02",
+          "prefix_frame": 2461,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919237.8048885,
+          "sensor_seconds_since_supported_observation": 50.09202575683594,
+          "training_renders": 5201,
+          "png_roi_psnr_db": 17.595817079077015,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_02/images/003465_render.png",
+          "prediction_sha256": "cb56d74bfb74575a767edf38ab559ad0e92761322cfeadc087b635ba04985162",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_02/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 3346,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919267.312473,
+          "sensor_seconds_since_supported_observation": 79.59961032867432,
+          "training_renders": 7041,
+          "png_roi_psnr_db": 16.06865443147234,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_03/images/003465_render.png",
+          "prediction_sha256": "c8c47177c90aba03c4d03e5937b2119cef8004c9b676d1ad029760a39c520687",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_03/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 4254,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919297.5986953,
+          "sensor_seconds_since_supported_observation": 109.88583254814148,
+          "training_renders": 9761,
+          "png_roi_psnr_db": 21.221647003209206,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_04/images/003465_render.png",
+          "prediction_sha256": "db9507e713964833b2d75d129ddb85e676cc690e48abfafce31355fef159e097",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_04/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 5160,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919327.8032637,
+          "sensor_seconds_since_supported_observation": 140.09040093421936,
+          "training_renders": 12521,
+          "png_roi_psnr_db": 21.404885046103644,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_05/images/003465_render.png",
+          "prediction_sha256": "9978f36e2c85acba14e049255d72175a213548cdaf9b27bfd7f40bf5e01c200d",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/snapshot_05/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        },
+        {
+          "dataset": "rpng",
+          "scene": "table_04",
+          "target_frame": 3465,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "final",
+          "prefix_frame": 6067,
+          "first_supported_frame": 959,
+          "first_supported_sensor_time": 1662919187.7128627,
+          "prefix_sensor_time": 1662919358.0665197,
+          "sensor_seconds_since_supported_observation": 170.3536570072174,
+          "training_renders": 14760,
+          "png_roi_psnr_db": 24.170744786456364,
+          "crop": [
+            359,
+            230,
+            564,
+            344
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/final/images/003465_render.png",
+          "prediction_sha256": "1e2d7d2a9768b891eb35555ae3c7a7d9dee0f9b418df2080b792622b86cc1911",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/final/images/003465_gt.png",
+          "gt_sha256": "036ccee21740a164215df4970238b188922f6f306952845fc815ed2fd2ff145b",
+          "checkpoint_summary_sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "target_frame": 460,
+      "crop_rank": 0,
+      "gt_structure_score": 0.06318345200870233,
+      "crop": [
+        270,
+        82,
+        486,
+        191
+      ],
+      "status": "eligible",
+      "source": "results/campaigns/gain_attribution/cvpr_assets/region_observations_v1/utmm/square-1/regions.json",
+      "source_sha256": "1888433dc52620492275bad7bd7ec731255a7fc4a7de8ad3a43323b4792a19b5",
+      "match": {
+        "feature_inliers": 9,
+        "reprojection_p95_px": 1.8581248918808022,
+        "parallax_median_degrees": 0.3569022248125387,
+        "triangulated_points_world": [
+          [
+            7.860928615539176,
+            -0.7201393547357439,
+            6.762459914211255
+          ],
+          [
+            8.547230371578646,
+            -1.9933641009102199,
+            6.915279611390107
+          ],
+          [
+            8.446019539133307,
+            -1.9374492321138634,
+            7.048557463067276
+          ],
+          [
+            5.313595547539542,
+            -0.49272545136028073,
+            6.188967439152418
+          ],
+          [
+            8.435218098099615,
+            -2.4568440707581067,
+            5.785860974542473
+          ],
+          [
+            9.139157307462282,
+            -2.3273149822508348,
+            5.768632615817147
+          ],
+          [
+            7.502304296316873,
+            -2.2875602546506566,
+            5.927568923955461
+          ],
+          [
+            7.502304296316873,
+            -2.2875602546506566,
+            5.927568923955461
+          ],
+          [
+            7.165970536548944,
+            -0.4819462836289181,
+            4.732671343125714
+          ]
+        ],
+        "first_observed_frame": 362,
+        "first_observed_sensor_time": 1706737748.9001713,
+        "target_sensor_time": 1706737752.1748796,
+        "qualifies_as_new_region": true
+      },
+      "point_counts": {
+        "vanilla": 6,
+        "d3": 6
+      },
+      "points": [
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_01",
+          "prefix_frame": 491,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737753.217841,
+          "sensor_seconds_since_supported_observation": 4.317669630050659,
+          "training_renders": 1533,
+          "png_roi_psnr_db": 11.660561018228663,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_01/images/000460_render.png",
+          "prediction_sha256": "a6e1d9a49a247b5ad1f8be5c4457b1330bd5da31bc12945398d3c2e984b9a320",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_01/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_02",
+          "prefix_frame": 651,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737758.5469968,
+          "sensor_seconds_since_supported_observation": 9.646825551986694,
+          "training_renders": 1893,
+          "png_roi_psnr_db": 15.664536384665176,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_02/images/000460_render.png",
+          "prediction_sha256": "cb3dfa410ae268487d0af81fa7a917e18eb60bd3388464b9ef3c98057ab02bc1",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_02/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 899,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737766.7986233,
+          "sensor_seconds_since_supported_observation": 17.898452043533325,
+          "training_renders": 2213,
+          "png_roi_psnr_db": 14.898857905679277,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_03/images/000460_render.png",
+          "prediction_sha256": "f25730de670e0fe63a088de7e69ea49148dd089c37555a369bb3c2571100b753",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_03/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 1140,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737774.853547,
+          "sensor_seconds_since_supported_observation": 25.953375816345215,
+          "training_renders": 2613,
+          "png_roi_psnr_db": 15.373970441515446,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_04/images/000460_render.png",
+          "prediction_sha256": "da2e26ce89076d6fcf1021f7514d60ae45ffc64e00d3c5e8e56177c29c5f8ee6",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_04/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 1385,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737783.0234087,
+          "sensor_seconds_since_supported_observation": 34.1232373714447,
+          "training_renders": 3053,
+          "png_roi_psnr_db": 15.946139688906209,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_05/images/000460_render.png",
+          "prediction_sha256": "b3151bea977ddf622062ea0507bc980004ac870ada7054861b36c055c87953ad",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/snapshot_05/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "final",
+          "prefix_frame": 1613,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737790.6253395,
+          "sensor_seconds_since_supported_observation": 41.725168228149414,
+          "training_renders": 3600,
+          "png_roi_psnr_db": 16.76822996829546,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/final/images/000460_render.png",
+          "prediction_sha256": "4031537fad0f0a32657f5a45a0834bbbb8bbf755858feeaf585329cb86d4f4a5",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/final/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_01",
+          "prefix_frame": 491,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737753.217841,
+          "sensor_seconds_since_supported_observation": 4.317669630050659,
+          "training_renders": 1521,
+          "png_roi_psnr_db": 12.260093963978155,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_01/images/000460_render.png",
+          "prediction_sha256": "457860a5fdb1c0afa6ade15c05dd96b2505ea1dcc1c4a3f8ee0846f72452e4d4",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_01/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_02",
+          "prefix_frame": 651,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737758.5469968,
+          "sensor_seconds_since_supported_observation": 9.646825551986694,
+          "training_renders": 1881,
+          "png_roi_psnr_db": 18.413003099215913,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_02/images/000460_render.png",
+          "prediction_sha256": "e4004728904a2e085028bcca370072e4b058f9accae0aac98e18eb953c80898b",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_02/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 899,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737766.7986233,
+          "sensor_seconds_since_supported_observation": 17.898452043533325,
+          "training_renders": 2201,
+          "png_roi_psnr_db": 19.06109151389915,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_03/images/000460_render.png",
+          "prediction_sha256": "c4342852934981cc66aa06a84fafcdd70d1aaf41546114d7b828acd68401b912",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_03/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 1140,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737774.853547,
+          "sensor_seconds_since_supported_observation": 25.953375816345215,
+          "training_renders": 2601,
+          "png_roi_psnr_db": 20.876495519835878,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_04/images/000460_render.png",
+          "prediction_sha256": "2890b19d28a87c2c5ba74b88361d9947e9b9643255c82227a12f87994c94577f",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_04/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 1385,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737783.0234087,
+          "sensor_seconds_since_supported_observation": 34.1232373714447,
+          "training_renders": 3041,
+          "png_roi_psnr_db": 20.936957923917117,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_05/images/000460_render.png",
+          "prediction_sha256": "09016f1ac2c650e605da2ed64c6becd28271d7ccacf6398a40aae07a70e18b45",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/snapshot_05/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        },
+        {
+          "dataset": "utmm",
+          "scene": "square-1",
+          "target_frame": 460,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "final",
+          "prefix_frame": 1613,
+          "first_supported_frame": 362,
+          "first_supported_sensor_time": 1706737748.9001713,
+          "prefix_sensor_time": 1706737790.6253395,
+          "sensor_seconds_since_supported_observation": 41.725168228149414,
+          "training_renders": 3600,
+          "png_roi_psnr_db": 21.154775653694927,
+          "crop": [
+            270,
+            82,
+            486,
+            191
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000460_render.png",
+          "prediction_sha256": "a6e7e05c4e37c48b0e52da32e8b17198e78fc323996f8f1cc56e70d1a9a1d9cd",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000460_gt.png",
+          "gt_sha256": "b5d44cb2aec98a2390c4baa9fc64ac76a38e722831c7501c2f69ad9501b9efb0",
+          "checkpoint_summary_sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "target_frame": 745,
+      "crop_rank": 0,
+      "gt_structure_score": 0.029473161201128265,
+      "crop": [
+        193,
+        271,
+        347,
+        425
+      ],
+      "status": "eligible",
+      "source": "results/campaigns/gain_attribution/cvpr_assets/region_observations_v1/aria/aria1253/regions.json",
+      "source_sha256": "2997168c5946883db6de58c11092e07e307a8ccc3f2b1f02aa336cc3cd1f51d7",
+      "match": {
+        "feature_inliers": 8,
+        "reprojection_p95_px": 1.0769001759772021,
+        "parallax_median_degrees": 19.813359706261565,
+        "triangulated_points_world": [
+          [
+            -1.1702797036854733,
+            -8.117320338773341,
+            2.4592808274375297
+          ],
+          [
+            -0.7718249212419412,
+            -8.032417436734825,
+            2.671812719102177
+          ],
+          [
+            -0.9554560373192121,
+            -8.076250665298307,
+            2.5718037211803346
+          ],
+          [
+            -1.2688155227740079,
+            -8.080636403563904,
+            2.4348573635797623
+          ],
+          [
+            -1.408291758805791,
+            -8.283540263649044,
+            2.5738296505852003
+          ],
+          [
+            -1.2491856580580933,
+            -8.204872208136946,
+            2.542178828603087
+          ],
+          [
+            -1.3609068837668576,
+            -8.523105361443882,
+            3.255625090596208
+          ],
+          [
+            -1.2491856580580933,
+            -8.204872208136946,
+            2.542178828603087
+          ]
+        ],
+        "first_observed_frame": 707,
+        "first_observed_sensor_time": 3850.119940925,
+        "target_sensor_time": 3852.019941725,
+        "qualifies_as_new_region": true
+      },
+      "point_counts": {
+        "vanilla": 4,
+        "d3": 4
+      },
+      "points": [
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 753,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3852.419946475,
+          "sensor_seconds_since_supported_observation": 2.300005550000151,
+          "training_renders": 3213,
+          "png_roi_psnr_db": 10.601828142023296,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_03/images/000745_render.png",
+          "prediction_sha256": "db18816cd6d64b9ad215e5976140e53ab2ef4e4f71b8bd7b5aa7c69a2e5c0939",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_03/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 913,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3860.419946725,
+          "sensor_seconds_since_supported_observation": 10.300005800000235,
+          "training_renders": 3573,
+          "png_roi_psnr_db": 18.06263261320603,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_04/images/000745_render.png",
+          "prediction_sha256": "28d3a47338c26efde30f408bd9756134f191bd8630fd137af7ddb06a01efc656",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_04/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 1111,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3870.319946925,
+          "sensor_seconds_since_supported_observation": 20.20000600000003,
+          "training_renders": 4253,
+          "png_roi_psnr_db": 19.222990746987524,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_05/images/000745_render.png",
+          "prediction_sha256": "4f1cb300ba2fa47fd5299e5eb36456a50906054b2ba321c6df66f32425082754",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/snapshot_05/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "vanilla",
+          "checkpoint": "final",
+          "prefix_frame": 1302,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3879.86993855,
+          "sensor_seconds_since_supported_observation": 29.749997625000105,
+          "training_renders": 4760,
+          "png_roi_psnr_db": 17.49706818012917,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/final/images/000745_render.png",
+          "prediction_sha256": "021eacccd7e1f0dcea03183457cfb6950cdb1feba84f5838a6106771fea501ab",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/final/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_03",
+          "prefix_frame": 753,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3852.419946475,
+          "sensor_seconds_since_supported_observation": 2.300005550000151,
+          "training_renders": 3201,
+          "png_roi_psnr_db": 13.583461919291365,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_03/images/000745_render.png",
+          "prediction_sha256": "b471a1a2b97a9441674e087b5c168f6cc8346d18f7ed3dc99693c4b8bf1929da",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_03/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_04",
+          "prefix_frame": 913,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3860.419946725,
+          "sensor_seconds_since_supported_observation": 10.300005800000235,
+          "training_renders": 3561,
+          "png_roi_psnr_db": 17.03594371841808,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_04/images/000745_render.png",
+          "prediction_sha256": "6cad0fc3fbbc25e46091cadd17638adc3203aeb886da3768cf6c3d977270e3f6",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_04/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "snapshot_05",
+          "prefix_frame": 1111,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3870.319946925,
+          "sensor_seconds_since_supported_observation": 20.20000600000003,
+          "training_renders": 4241,
+          "png_roi_psnr_db": 22.980677321753923,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_05/images/000745_render.png",
+          "prediction_sha256": "a2ac839f155d03693d23638a317cbf932c2b012be9ee9812c8c25e58681f654e",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/snapshot_05/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        },
+        {
+          "dataset": "aria",
+          "scene": "aria1253",
+          "target_frame": 745,
+          "crop_rank": 0,
+          "arm": "d3",
+          "checkpoint": "final",
+          "prefix_frame": 1302,
+          "first_supported_frame": 707,
+          "first_supported_sensor_time": 3850.119940925,
+          "prefix_sensor_time": 3879.86993855,
+          "sensor_seconds_since_supported_observation": 29.749997625000105,
+          "training_renders": 4760,
+          "png_roi_psnr_db": 28.929818038417054,
+          "crop": [
+            193,
+            271,
+            347,
+            425
+          ],
+          "prediction": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/000745_render.png",
+          "prediction_sha256": "a482f262c26a026fb17f65f213e9e91ecdf16d95105a47ed19a2e4ad9914ba9b",
+          "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/000745_gt.png",
+          "gt_sha256": "870a52e0f4ebc9dcd51ee607bfca6038a72529d5e81a41ef44db8fa382f2ede2",
+          "checkpoint_summary_sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        }
+      ]
+    }
+  ],
+  "selection": "highest GT-structure score among eligible regions per dataset",
+  "selection_uses_prediction_scores": false,
+  "quality": "PSNR of quantized RGB PNG ROI, not raw full-frame T1 PSNR",
+  "time_axis": "sensor time in fixed causal replay, not elapsed wall time",
+  "depth_surface_reference_available": false,
+  "manuscript_width": "one_column",
+  "image_content_modified": false
+}

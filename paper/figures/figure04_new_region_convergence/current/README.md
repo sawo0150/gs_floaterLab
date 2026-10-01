@@ -1,0 +1,3 @@
+# 실제 새 관측 영역의 RGB 수렴
+
+Refinement of matched held-out RGB regions at 40 training renders/KF. The horizontal axis is sensor time after the first supported training-image match, not wall-clock time. SIFT matches, parallax and reprojection establish physical patch correspondence; this is not proof that the patch was never visible earlier. Points are actual 8-bit PNG ROI evaluations at accepted map checkpoints. The three examples are selected by GT structure after reviewing all 20 scenes; no map-quality score selects a region. D3 adds proxy rendering work. No independent surface-error claim is made.

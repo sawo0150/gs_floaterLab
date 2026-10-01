@@ -1,0 +1,317 @@
+[
+  {
+    "name": "MonoGS",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/monogs_cvpr2024.pdf",
+    "source_url": "https://arxiv.org/abs/2312.06741",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.08,
+      0.295,
+      0.91,
+      0.462
+    ],
+    "image": "monogs_cvpr2024_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "SplaTAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/splatam_cvpr2024.pdf",
+    "source_url": "https://arxiv.org/abs/2312.02126",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.09,
+      0.244,
+      0.91,
+      0.465
+    ],
+    "image": "splatam_cvpr2024_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "HI-SLAM2",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/hi_slam2_2411.17982v3.pdf",
+    "source_url": "https://arxiv.org/abs/2411.17982",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.075,
+      0.183,
+      0.925,
+      0.35
+    ],
+    "image": "hi_slam2_2411.17982v3_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "VIGS-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/vigs_slam/vigs_slam_zhu_et_al_arxiv_2512.02293v2.pdf",
+    "source_url": "https://arxiv.org/abs/2512.02293",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.22,
+      0.515,
+      0.78,
+      0.69
+    ],
+    "image": "vigs_slam_zhu_et_al_arxiv_2512.02293v2_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "PGSR",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/teaser_design/pgsr.pdf",
+    "source_url": "https://zju3dv.github.io/pgsr/paper/pgsr.pdf",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.075,
+      0.245,
+      0.93,
+      0.62
+    ],
+    "image": "pgsr_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "2DGS",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/teaser_design/2dgs.pdf",
+    "source_url": "https://www.cvlibs.net/publications/Huang2024SIGGRAPH.pdf",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.08,
+      0.244,
+      0.915,
+      0.495
+    ],
+    "image": "2dgs_fig1.png",
+    "group": "01_scene_and_representation",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "EDGS",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/edgs_cvpr2026.pdf",
+    "source_url": "https://compvis.github.io/EDGS/",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.095,
+      0.287,
+      0.91,
+      0.485
+    ],
+    "image": "edgs_cvpr2026_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "3DGS-LM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/3dgs_lm_iccv2025.pdf",
+    "source_url": "https://lukashoel.github.io/3DGS-LM/",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.085,
+      0.264,
+      0.91,
+      0.472
+    ],
+    "image": "3dgs_lm_iccv2025_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "LM-RS",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/lm_rs_2504.12905v3.pdf",
+    "source_url": "https://arxiv.org/abs/2504.12905",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.51,
+      0.3,
+      0.905,
+      0.434
+    ],
+    "image": "lm_rs_2504.12905v3_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "QuickSplat",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/quicksplat_iccv2025.pdf",
+    "source_url": "https://openaccess.thecvf.com/content/ICCV2025/papers/Liu_QuickSplat_Fast_3D_Surface_Reconstruction_via_Learned_Gaussian_Initialization_ICCV_2025_paper.pdf",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.1,
+      0.282,
+      0.925,
+      0.45
+    ],
+    "image": "quicksplat_iccv2025_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Taming 3DGS (published)",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/teaser_design/taming_published.pdf",
+    "source_url": "https://humansensinglab.github.io/taming-3dgs/docs/paper.pdf",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.08,
+      0.249,
+      0.93,
+      0.404
+    ],
+    "image": "taming_published_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Speedy-Splat",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/teaser_design/speedy_splat.pdf",
+    "source_url": "https://arxiv.org/pdf/2412.00578",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.09,
+      0.31,
+      0.91,
+      0.46
+    ],
+    "image": "speedy_splat_fig1.png",
+    "group": "02_convergence_and_budget",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "CaRtGS",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/cartgs_2410.00486v2.pdf",
+    "source_url": "https://arxiv.org/abs/2410.00486",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.08,
+      0.178,
+      0.94,
+      0.447
+    ],
+    "image": "cartgs_2410.00486v2_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Gaussian-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/gaussian_slam_2312.10070v1.pdf",
+    "source_url": "https://arxiv.org/abs/2312.10070",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.085,
+      0.26,
+      0.895,
+      0.48
+    ],
+    "image": "gaussian_slam_2312.10070v1_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Splat-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/splat_slam_cvprw2025.pdf",
+    "source_url": "https://arxiv.org/abs/2405.16544",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.105,
+      0.28,
+      0.91,
+      0.495
+    ],
+    "image": "splat_slam_cvprw2025_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "RTG-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/rtg_slam_2404.19706v1.pdf",
+    "source_url": "https://arxiv.org/abs/2404.19706",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.09,
+      0.365,
+      0.955,
+      0.6
+    ],
+    "image": "rtg_slam_2404.19706v1_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "SplatMAP (page 2)",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/topology/splatmap_2501.07015.pdf",
+    "source_url": "https://arxiv.org/abs/2501.07015",
+    "pdf_page": 2,
+    "crop_fraction": [
+      0.14,
+      0.154,
+      0.87,
+      0.433
+    ],
+    "image": "splatmap_p2_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Gaussian Opacity Fields",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/teaser_design/gof.pdf",
+    "source_url": "https://arxiv.org/pdf/2404.10772",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.09,
+      0.228,
+      0.92,
+      0.366
+    ],
+    "image": "gof_fig1.png",
+    "group": "03_direct_comparisons",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "Photo-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/photo_slam_cvpr2024.pdf",
+    "source_url": "https://arxiv.org/abs/2311.16728",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.508,
+      0.29,
+      0.893,
+      0.565
+    ],
+    "image": "photo_slam_cvpr2024_fig1.png",
+    "group": "04_problem_specific",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "AERGS-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/view_selection/aergs_slam_cvpr2026.pdf",
+    "source_url": "https://github.com/zzy-2021/AERGS-SLAM",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.515,
+      0.267,
+      0.9,
+      0.437
+    ],
+    "image": "aergs_slam_cvpr2026_fig1.png",
+    "group": "04_problem_specific",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  },
+  {
+    "name": "GeoGS-SLAM",
+    "source_pdf": "/home/intern/gs_floaterLab/paper/ref/convergence/geogs_slam_2607.07452v1.pdf",
+    "source_url": "https://arxiv.org/abs/2607.07452",
+    "pdf_page": 1,
+    "crop_fraction": [
+      0.52,
+      0.19,
+      0.93,
+      0.56
+    ],
+    "image": "geogs_slam_2607.07452v1_fig1.png",
+    "group": "04_problem_specific",
+    "kind": "original_paper_figure_excerpt_not_our_results"
+  }
+]

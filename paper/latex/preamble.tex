@@ -24,7 +24,18 @@
 
 %basic
 
+% Keep the CVPR Times text fonts available with pdfLaTeX and XeTeX/Tectonic.
+\usepackage[T1]{fontenc}
+\usepackage{newunicodechar}
+\newunicodechar{—}{\textemdash}
 \usepackage{graphicx}
+% Keep floats after their introduction and align float-only columns at the top.
+\usepackage{flafter}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{12pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
 \usepackage{amsmath}
 \usepackage{amssymb}  % assumes amsmath package installed
 \usepackage{lipsum}

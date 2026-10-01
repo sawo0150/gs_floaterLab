@@ -1,0 +1,203 @@
+{
+  "kind": "actual_photometric_convergence",
+  "generator": "/home/intern/gs_floaterLab/paper/scripts/build_measured_photometric_figure.py",
+  "generator_sha256": "c87eba405c5d2c98c0fc2a7cb9122d5494fd1cea8acf4ef859713c5712398c37",
+  "experimental_evidence": true,
+  "all_candidate_scenes_evaluated_before_selection": true,
+  "catalog": "/home/intern/gs_floaterLab/paper/figures/figure05_rendering_comparison/analysis/rendering_catalog.json",
+  "catalog_sha256": "68837d8c6bff0e2f87701be82d57ee7075d5e7acd4bef16ace6f2c32fbb066cb",
+  "dataset": "rpng",
+  "scene": "table_06",
+  "selection_reason": "All20 candidate scenes reviewed before scene selection. Shared saved past frame1975 exposes the poster text; enlarged region selected by inspecting GT only. All scene metrics retained in T1/appendix.",
+  "frame": 1975,
+  "crop": [
+    195,
+    40,
+    435,
+    174
+  ],
+  "view_selection": "manual shared held-out view after full-cohort review",
+  "crop_selection": "manual GT-only semantic detail box",
+  "stream_prefix_uid": 2357,
+  "selected_checkpoints": {
+    "vanilla": {
+      "name": "snapshot_05",
+      "renders": 8373,
+      "psnr": 21.773129016160965,
+      "arrival_uid": 2357,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_05"
+    },
+    "d3": {
+      "name": "snapshot_05",
+      "renders": 8361,
+      "psnr": 23.17319744825363,
+      "arrival_uid": 2357,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_05"
+    }
+  },
+  "star": {
+    "baseline": {
+      "name": "final",
+      "renders": 9080,
+      "psnr": 22.50980442762375,
+      "arrival_uid": null,
+      "final": true,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/final"
+    },
+    "ours": {
+      "name": "snapshot_04",
+      "renders": 7201,
+      "psnr": 23.25950026512146,
+      "arrival_uid": 1959,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_04"
+    }
+  },
+  "curves": [
+    {
+      "arm": "vanilla",
+      "name": "snapshot_00",
+      "renders": 247,
+      "psnr": 12.660829216241837,
+      "arrival_uid": 277,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_00"
+    },
+    {
+      "arm": "vanilla",
+      "name": "snapshot_01",
+      "renders": 2933,
+      "psnr": 14.20143224298954,
+      "arrival_uid": 691,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_01"
+    },
+    {
+      "arm": "vanilla",
+      "name": "snapshot_02",
+      "renders": 4253,
+      "psnr": 20.15760651230812,
+      "arrival_uid": 1116,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_02"
+    },
+    {
+      "arm": "vanilla",
+      "name": "snapshot_03",
+      "renders": 5773,
+      "psnr": 20.704823404550552,
+      "arrival_uid": 1559,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_03"
+    },
+    {
+      "arm": "vanilla",
+      "name": "snapshot_04",
+      "renders": 7213,
+      "psnr": 21.55927485227585,
+      "arrival_uid": 1959,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_04"
+    },
+    {
+      "arm": "vanilla",
+      "name": "snapshot_05",
+      "renders": 8373,
+      "psnr": 21.773129016160965,
+      "arrival_uid": 2357,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_05"
+    },
+    {
+      "arm": "vanilla",
+      "name": "final",
+      "renders": 9080,
+      "psnr": 22.50980442762375,
+      "arrival_uid": null,
+      "final": true,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/final"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_00",
+      "renders": 241,
+      "psnr": 13.719643719494343,
+      "arrival_uid": 277,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_00"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_01",
+      "renders": 2921,
+      "psnr": 14.749495558440685,
+      "arrival_uid": 691,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_01"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_02",
+      "renders": 4241,
+      "psnr": 21.792670875787735,
+      "arrival_uid": 1116,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_02"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_03",
+      "renders": 5761,
+      "psnr": 22.003046929836273,
+      "arrival_uid": 1559,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_03"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_04",
+      "renders": 7201,
+      "psnr": 23.25950026512146,
+      "arrival_uid": 1959,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_04"
+    },
+    {
+      "arm": "d3",
+      "name": "snapshot_05",
+      "renders": 8361,
+      "psnr": 23.17319744825363,
+      "arrival_uid": 2357,
+      "final": false,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_05"
+    },
+    {
+      "arm": "d3",
+      "name": "final",
+      "renders": 9080,
+      "psnr": 25.08021917939186,
+      "arrival_uid": null,
+      "final": true,
+      "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final"
+    }
+  ],
+  "data_sha256": "e651793801997fbc3a85132fa9312f73f516fd4860d7b5cc3d89be10b70f6f8f",
+  "images": {
+    "vanilla": {
+      "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_05/images/001975_render.png",
+      "sha256": "020b4de0cac50e00548e30fb101ca3b6c1c51faf0ca93ac754ead51604e8e584"
+    },
+    "d3": {
+      "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_05/images/001975_render.png",
+      "sha256": "502b4f4a386137f578cf761ec5c3a667b20e88a9b68fe4dda5d323d95fd0cc41"
+    },
+    "gt": {
+      "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_05/images/001975_gt.png",
+      "sha256": "42292ac593038e38d45cf828f4a241294e0b6509035f64dc2e880c7abf3936e5"
+    }
+  },
+  "manuscript_width": "one_column",
+  "exact_equal_work_intermediate_images": false
+}

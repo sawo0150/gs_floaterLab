@@ -1,0 +1,57 @@
+{
+  "kind": "actual_covariance_solid_ellipsoids",
+  "experimental_evidence": true,
+  "renderer": "/home/intern/gs_floaterLab/paper/scripts/build_measured_ellipsoid_figure.py",
+  "renderer_sha256": "5bdf936e52fdb03a4f37ff58d597b5146a2507ae63ed8abcd4bc1dbdbfe85b93",
+  "source_region_result": "results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v2.json",
+  "source_region_result_sha256": "bf2b2d2ef62d6ea56894c0602f33b0bf31f084fe682485cd4ad96ba838c2f516",
+  "reference": {
+    "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/1253_region_gt.npz": "2caae887350ba59aa1d80486a8f370dfcc119b58931af07afbe08e30e508359c",
+    "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/aria1253_orb_keyframes.jsonl": "814bdf340efcac85d01f4e4c3ccc6e0f1d83f5367a9814fc71ceebc891678abe"
+  },
+  "reference_used_by_mapper": false,
+  "bounds_m": [
+    [
+      -5.533868980407714,
+      -14.44747371673584,
+      -1.610736680030823
+    ],
+    [
+      1.5161310195922852,
+      0.17752628326415942,
+      1.5392633199691774
+    ]
+  ],
+  "cut_z_m": 0.6392633199691775,
+  "sigma": 2,
+  "opacity_cutoff": 0.3,
+  "camera": "orthographic +ORB-world-z looking downward, +x right, +y up",
+  "display_colors": "region membership, not RGB reconstruction",
+  "maps_modified": false,
+  "scene_selection": "only scene with independent manual free-space reference; no PSNR-based selection",
+  "geometry_loss_isolated": false,
+  "runs": [
+    {
+      "arm": "vanilla",
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla",
+      "ply_sha256": "39f9540db93562ad90e0877385907cb5c956a6b46f199f8c89d57c008493c21e",
+      "map_gaussians": 190254,
+      "opacity_filter_pass": 189120,
+      "displayed_candidates": 96999,
+      "mask_centers_alpha_gt_0p3": 414,
+      "registration_median_m": 0.024155650617591024,
+      "registration_p90_m": 0.038418808688928226
+    },
+    {
+      "arm": "d3",
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3",
+      "ply_sha256": "89ab4663d4572db8ba47da85b71576675bca422bd044e8486a0b13deb3f980a7",
+      "map_gaussians": 194312,
+      "opacity_filter_pass": 138653,
+      "displayed_candidates": 74167,
+      "mask_centers_alpha_gt_0p3": 150,
+      "registration_median_m": 0.024155650617591024,
+      "registration_p90_m": 0.038418808688928226
+    }
+  ]
+}

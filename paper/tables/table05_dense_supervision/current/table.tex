@@ -1,0 +1,36 @@
+\begin{table}[tbp]
+\centering
+\caption{Current merged mapper: replace the extra RGB slots with keyframe RGB-only supervision or use in-between RGB images; both use ERVS.}
+\label{tab:abl}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.04}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llrlrrrr@{}}
+\toprule
+Dataset & Budget & RGB supervision & $n/N$ & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ & \#G (k) \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{15 training renders/KF}} \\
+RPNG & 15 & KF RGB only & 2/8 & 23.04 & 0.779 & 0.223 & 372.2 \\
+ &  & + in-between RGB & 2/8 & 22.93 & 0.777 & 0.220 & 375.5 \\
+UTMM & 15 & KF RGB only & 0/8 & \textemdash & \textemdash & \textemdash & \textemdash \\
+ &  & + in-between RGB & 0/8 & \textemdash & \textemdash & \textemdash & \textemdash \\
+Aria & 15 & KF RGB only & 0/4 & \textemdash & \textemdash & \textemdash & \textemdash \\
+ &  & + in-between RGB & 0/4 & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{40 training renders/KF}} \\
+RPNG & 40 & KF RGB only & 2/8 & 25.02 & 0.857 & 0.141 & 288.0 \\
+ &  & + in-between RGB & 2/8 & 24.96 & 0.856 & 0.139 & 280.3 \\
+UTMM & 40 & KF RGB only & 0/8 & \textemdash & \textemdash & \textemdash & \textemdash \\
+ &  & + in-between RGB & 0/8 & \textemdash & \textemdash & \textemdash & \textemdash \\
+Aria & 40 & KF RGB only & 0/4 & \textemdash & \textemdash & \textemdash & \textemdash \\
+ &  & + in-between RGB & 0/4 & \textemdash & \textemdash & \textemdash & \textemdash \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright Equal scene-weighted means over completed pairs only; $n/N$ gives coverage of the declared dataset. Dashes mean unmeasured. The paired sensor trace, poses, render prefixes and held-out cohort are verified. The current D3 objective and protected opacity pruning are common; D3 proxy renders are additional work. This is a whole-system supervision-source replacement, not a comparison to vanilla. Realized role counts and learning-rate positions may differ.
+\end{minipage}
+\end{table}

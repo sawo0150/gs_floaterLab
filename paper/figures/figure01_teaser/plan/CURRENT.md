@@ -1,0 +1,1 @@
+v02_2026-10-01_scene-centered-A.md

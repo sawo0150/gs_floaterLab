@@ -1,12 +1,37 @@
 \clearpage
+\renewcommand{\thepage}{S\arabic{page}}
 \setcounter{page}{1}
-\onecolumn
+\appendix
+% Reserve the supplementary heading above column floats.
+% Supplementary figures and tables retain one-column widths.
+\twocolumn[{
 \begin{center}
-    \Large
-    \textbf{Write Title Here}
-        
-    \vspace{0.4cm}
-    \large
-    Supplementary Material
+  \Large\textbf{ROGO-SLAM: Supplementary Material}\\[0.3cm]
+  \large Figure and Table Layout Draft
 \end{center}
+}]
 
+\noindent\textbf{Draft status.}
+Measured cells below come from saved strict held-out evaluations. All candidate sequences remain listed while full-cohort experiments are in progress. A dash means
+not measured; it does not indicate zero, failure, or an unavailable metric.
+The same scene subset and source data must generate both dataset means and
+sequence-level results.
+
+\section{Per-Sequence Rendering Comparison}
+\label{app:rendering}
+The tables give sequence-level comparisons between VIGS-SLAM and our method. They also reserve final Gaussian
+counts. Input modalities are retained beside method names, and the conditional
+MM3DGS-SLAM row is not an established RGB--IMU baseline.
+
+\input{tab/t1_supp_draft}
+\clearpage
+
+\section{Per-Sequence Equal-Time Comparison}
+\label{app:time}
+These tables separate 1$\times$ and 1.5$\times$ time allowances with concurrent
+tracking. Measured cells use the same runs as the main tables.
+Pending-input FIFO drops must not be confused with removal from the retained
+training pool.
+
+\input{tab/t2_supp_draft}
+\clearpage

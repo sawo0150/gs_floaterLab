@@ -1,0 +1,110 @@
+% Generated from audited experiment JSON by build_measured_tables.py.
+\begin{table}[tbp]
+\centering
+\caption{Measured end-to-end held-out quality with 1$\times$ sensor-duration allowance, concurrent tracking, FIFO capacity two, and zero optimizer tail. Only completed paired scenes contribute to means; other methods await measurement.}
+\label{tab:time_comparison}
+\label{tab:time_comparison_1x}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{1.02}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Dataset & Method & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ & \#G (k) & \shortstack{Lag p95\\(s)} \\
+\midrule
+RPNG & VIGS-SLAM\textsuperscript{VI} & 22.44 & 0.742 & 0.250 & 178.4 & 39.60 \\
+ & \textbf{Ours}\textsuperscript{VI} & 23.67 & 0.805 & 0.158 & 213.5 & 51.27 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+UTMM & VIGS-SLAM\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & \textbf{Ours}\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+Aria & VIGS-SLAM\textsuperscript{VI} & 20.12 & 0.694 & 0.501 & 247.4 & 1.81 \\
+ & \textbf{Ours}\textsuperscript{VI} & 23.43 & 0.764 & 0.298 & 174.1 & 4.15 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright \textsuperscript{VI}: RGB+IMU; \textsuperscript{R}: RGB only; \textsuperscript{C}: conditional adapter. Dashes denote unmeasured cells; F denotes a failed run. Paired coverage: RPNG 1/8; UTMM 0/8; Aria 1/4. Scene means have equal weight. These partial means are not full-dataset results. Both systems use the same dataset Tracking configuration. The mapper stops at its deadline; tracking may finish later, so this is not proof of real-time end-to-end completion.
+\end{minipage}
+\end{table}
+
+% Generated from audited experiment JSON by build_measured_tables.py.
+\begin{table}[tbp]
+\centering
+\caption{Measured end-to-end held-out quality with 1.5$\times$ sensor-duration allowance, concurrent tracking, FIFO capacity two, and zero optimizer tail. Only completed paired scenes contribute to means; other methods await measurement.}
+\label{tab:time_comparison_1p5x}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{1.02}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Dataset & Method & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ & \#G (k) & \shortstack{Lag p95\\(s)} \\
+\midrule
+RPNG & VIGS-SLAM\textsuperscript{VI} & 22.95 & 0.770 & 0.230 & 245.4 & 19.22 \\
+ & \textbf{Ours}\textsuperscript{VI} & 25.36 & 0.861 & 0.134 & 240.6 & 29.36 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+UTMM & VIGS-SLAM\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & \textbf{Ours}\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+Aria & VIGS-SLAM\textsuperscript{VI} & 20.93 & 0.708 & 0.508 & 186.5 & 0.73 \\
+ & \textbf{Ours}\textsuperscript{VI} & 25.75 & 0.856 & 0.259 & 185.0 & 1.40 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash & \textemdash \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright \textsuperscript{VI}: RGB+IMU; \textsuperscript{R}: RGB only; \textsuperscript{C}: conditional adapter. Dashes denote unmeasured cells; F denotes a failed run. Paired coverage: RPNG 1/8; UTMM 0/8; Aria 1/4. Scene means have equal weight. These partial means are not full-dataset results. Both systems use the same dataset Tracking configuration. The mapper stops at its deadline; tracking may finish later, so this is not proof of real-time end-to-end completion.
+\end{minipage}
+\end{table}

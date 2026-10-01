@@ -1,0 +1,27 @@
+% Generated from audited experiment JSON by build_measured_tables.py.
+\begin{table}[tbp]
+\centering
+\caption{Independent manual free-space diagnostics on Aria1253 at 15 and 40 training renders/KF. Held-out RGB quality is reported alongside opacity in the annotated empty space.}
+\label{tab:geometry}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{1.02}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Renders/KF & Method & $N_{.3}\downarrow$ & $M_\alpha\downarrow$ & PSNR $\uparrow$ & \#G (k) \\
+\midrule
+15 & VIGS-SLAM & 1095 & 798.8 & 19.01 & 263.4 \\
+ & \textbf{Ours} & 237 & 267.7 & 23.48 & 221.3 \\
+\midrule
+40 & VIGS-SLAM & 414 & 291.7 & 20.63 & 190.3 \\
+ & \textbf{Ours} & 150 & 186.6 & 25.75 & 194.3 \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright $N_{.3}$ counts Gaussian centers with opacity $>0.3$ in the manual empty-space mask. $M_\alpha$ sums opacity times region overlap using seven covariance support points. One-voxel eroded/nominal/dilated counts: 15, ours: 94/237/735; 15, VIGS: 560/1095/2397; 40, ours: 61/150/523; 40, VIGS: 169/414/1067. Voxel size 7.5 cm; shared trajectory-registration median/p90 error 2.42/3.84 cm. The reference is evaluation-only. Surface accuracy, completeness and F-score are NA because no independent dense surface reference is available. This compares complete systems; it does not isolate the D3 loss, which incurs extra proxy renders.
+\end{minipage}
+\end{table}

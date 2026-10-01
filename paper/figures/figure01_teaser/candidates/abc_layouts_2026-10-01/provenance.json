@@ -1,0 +1,44 @@
+{
+  "created": "2026-10-01",
+  "tool": "built-in image_gen",
+  "kind": "ai_generated_layout_mockup",
+  "experimental_evidence": false,
+  "approved_for_manuscript": false,
+  "manuscript_modified": false,
+  "source_intro": "paper/latex/sec/1_intro.tex",
+  "reference_survey": "paper/figures/figure01_teaser/references/2026-10-01_survey/sources.json",
+  "files": [
+    {
+      "id": "A",
+      "source": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-6b219072-6c53-4a4b-b30e-194c9bb89d51.png",
+      "file": "teaser_A_scene_centered_v01.png"
+    },
+    {
+      "id": "B",
+      "source": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-8a9f4112-303b-4947-8518-23c664ff2532.png",
+      "file": "teaser_B_matched_budget_v02.png"
+    },
+    {
+      "id": "C",
+      "source": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-0539a966-e442-49c2-b928-80779640cee9.png",
+      "file": "teaser_C_observation_progression_v03.png"
+    }
+  ],
+  "prompts": "prompts.json",
+  "refinement_prompts": "refinement_prompts.json",
+  "final_C_edit": {
+    "path": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-ec975ab8-5f67-41b8-8fd0-8a57882fe2ff.png",
+    "prompt": "Edit ONLY the title at the very top left. Completely erase the entire existing title line, and replace it with the much shorter exact text \"C · Online mapping\" in Times New Roman serif. Spell Online mapping precisely. Keep ALL other pixels/content/layout unchanged as much as possible, including the scientific comparison panels, observation strip, footer disclaimer, labels and wide 3:1 proportions. No other changes."
+  },
+  "qa": {
+    "A": "지도-확대 비교-수렴 그래프의 연결이 명확하다. 생성된 기하 crop은 측정 기반 geometry 증거가 아니다.",
+    "B": "동일 예산 전체 지도 비교 구도. 허구의 통계처럼 보일 수 있는 음영 띠를 제거했다. 확대 crop은 엄밀히 동일 시점/시점각이 아니므로 최종 제작 시 실제 동일 카메라 렌더로 교체해야 한다.",
+    "C": "짧은 관측과 이후 개선이라는 Intro 동기 연결이 가장 직접적이다. 제목 오타 수정 완료. 최종 제작 시 동일 평가 카메라와 최초 관측 이후 checkpoint를 실제 로그로 맞춰야 한다."
+  },
+  "limitations": [
+    "모든 장면, 비교 차이, 곡선은 AI가 만든 가상 예시이며 실험 증거가 아니다.",
+    "A/B/C의 장면은 같은 종류의 방으로 요청했으나 완전히 같은 장면은 아니다.",
+    "Times New Roman 계열로 요청한 래스터 글자이며 정확한 폰트 임베딩을 보장하지 않는다.",
+    "선택 후 실제 RGB/기하 렌더와 검증된 수렴 데이터, 벡터 텍스트로 재제작해야 한다."
+  ]
+}

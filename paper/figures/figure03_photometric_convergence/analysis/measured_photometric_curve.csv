@@ -1,0 +1,15 @@
+arm,name,renders,psnr,arrival_uid,final,output
+vanilla,snapshot_00,247,12.660829216241837,277,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_00
+vanilla,snapshot_01,2933,14.20143224298954,691,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_01
+vanilla,snapshot_02,4253,20.15760651230812,1116,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_02
+vanilla,snapshot_03,5773,20.704823404550552,1559,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_03
+vanilla,snapshot_04,7213,21.55927485227585,1959,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_04
+vanilla,snapshot_05,8373,21.773129016160965,2357,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/snapshot_05
+vanilla,final,9080,22.50980442762375,,True,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/final
+d3,snapshot_00,241,13.719643719494343,277,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_00
+d3,snapshot_01,2921,14.749495558440685,691,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_01
+d3,snapshot_02,4241,21.792670875787735,1116,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_02
+d3,snapshot_03,5761,22.003046929836273,1559,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_03
+d3,snapshot_04,7201,23.25950026512146,1959,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_04
+d3,snapshot_05,8361,23.17319744825363,2357,False,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/snapshot_05
+d3,final,9080,25.08021917939186,,True,/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final

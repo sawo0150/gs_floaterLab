@@ -1,0 +1,12 @@
+[
+  {
+    "id": "B",
+    "path": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-6227e908-52be-49b5-b5f7-0f6d1c79a075.png",
+    "prompt": "Edit only the graph in the RIGHTMOST quarter of this research teaser mockup. Remove the pale blue and pale gray filled uncertainty bands entirely, leaving just TWO simple smooth single-line curves, blue Ours and gray Baseline, on a plain white plot background. Preserve existing axes, all labels, dashed same-budget line, legend labels and layout. Keep every other part of the image unchanged: the two maps, RGB/geometry split, crops, all typography, title and AI-GENERATED LAYOUT MOCKUP footer. Preserve wide 3:1 aspect ratio. Do not add numbers or statistics."
+  },
+  {
+    "id": "C",
+    "path": "/home/colin/.codex/generated_images/01a0b7a7-0986-7af2-b91e-c69cc822613c/exec-83500d72-1d2f-4253-bd1f-cbb11375291b.png",
+    "prompt": "Change ONLY the malformed top-left title. Erase that title cleanly and replace it with exactly \"C · Brief observations, continued refinement\" in a modest-size Times New Roman serif font on one line across the top-left, with sufficient white margin. All characters must be correct and legible without overlaps. Preserve ALL other image contents unchanged: three zones, room map, observation strip, 2-by-2 baseline/ours comparison grid, geometry crops, labels, footer, wide 3:1 dimensions. Do not add anything else."
+  }
+]

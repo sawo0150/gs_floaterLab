@@ -1,0 +1,39 @@
+# F4 — 새 관측 영역의 수렴
+
+작성: 2026-10-01. 상태: **계획 작성 완료 / 최종 산출물 미제작**. ID는 논의용이며 최종 LaTeX 번호가 아니다.
+
+## 목적
+
+새 영역이 처음 관측된 뒤 사용할 만한 appearance/geometry에 도달하는 속도를 보여준다.
+
+## 만들 구성
+
+- x: 해당 영역이 최초로 관측된 뒤의 센서 시간 또는 실제 경과 시간(s). 두 시간은 혼용하지 않는다.
+- y: 동일 held-out ROI의 PSNR; 독립 geometry reference가 있으면 depth/표면 오차를 두 번째 패널에 둔다.
+- 여러 영역의 곡선과 공통 시간의 ROI 이미지를 제시한다. 영역별 최초 관측 시점을 기록한다.
+- 영역 선정은 공간 coverage/가시성에 근거해 먼저 정하고, 성능 차이를 보고 바꾸지 않는다.
+- 서로 다른 영역 평균에는 기여 영역 수와 dispersion을 표시한다.
+
+## 비교 조건과 해석
+
+평가 mask는 두 방법에 공통이며, 미래 지도나 한 방법의 잘 복원된 픽셀만 골라서 정하지 않는다. 새 영역을 관측한 시점과 늦게 학습 pool에 들어간 시점을 구분한다. 기존 과거 계획의 age-aligned 축 기각과 달리 2026-10-01 사용자 선택으로 신규 분석 후보가 되었으며, F3의 표준 전역 곡선도 함께 유지한다.
+
+[공통 프로토콜](../../../plan/visual_assets/protocol.md) · [원본 확인 기록](../../../plan/visual_assets/source_audit.md) · [방법 후보](../../../plan/visual_assets/baseline_registry.md)
+
+## 확인한 원본과 관련 자료
+
+- [0_abstract.tex](../../../latex/sec/0_abstract.tex)
+- [PLAN.md](../../../../context/experiments/ERCB_ablation/paper-figures/PLAN.md)
+- [README.md](../../../../context/experiments/campaigns/06_gain_attribution/fifo_live/README.md)
+
+## 다음 제작 작업
+
+영역 manifest, 공통 visibility mask, first-observed timestamp, online checkpoint를 새로 계측해야 한다.
+
+## 산출물 및 완료 기준
+
+- 데이터 출처: run ID, code/config hash, scene/evaluation IDs, checkpoint, budget unit을 provenance에 보존한다.
+- Figure: scripts → output 검토본 → PDF 재렌더 확인 → current의 PDF/SVG/PNG/caption/provenance.
+- Table: raw metric 참조 → 경량 집계 데이터 → output의 TeX/preview → 수치·단위·평균 확인 → current.
+- 값이 없는 칸은 —(미측정), 실패 F, 적용 불가 NA, 목표 미도달 NR로 구별한다.
+- 이번 단계는 MD 계획만 작성한다. GPU 실험·논문 TeX 삽입·휴먼테크 원본 교체는 수행하지 않았다.

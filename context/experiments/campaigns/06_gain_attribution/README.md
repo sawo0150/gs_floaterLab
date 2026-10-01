@@ -81,3 +81,13 @@ attribution은 이 active path 위에서 V0--V6의 아직 미분리된 schedule/
 
 - [KF RGB-only 대조군](kf_rgb_control/SUMMARY.md)
 - [κ / τ / blur 공통 설정 탐색](growth_entropy_blur/SUMMARY.md)
+
+- 2026-09-27 [현재 unified RR vs ERVS](unified_rr_ervs/SUMMARY.md): 3scene 평균ERVS+0.0755dB,2승1패.
+
+- 2026-09-27 [15회예산2×2](unified_rr_ervs/SUMMARY15.md): ERVS효과+dense효과분리,단일seed12run.
+
+- 2026-09-27: [최근 생성 점 보호 pruning-only](protected_prune/SUMMARY.md) — RPNG40 세 조건 한정; 0.7은−0.690dB, 0.1은−0.153dB/GS−55.3%.
+
+## 2026-09-28 recent KF quota
+
+[Window 비율 비교](window_quota/SUMMARY.md): 3:3:6 / 1:5:6 / 0:6:6, 세 장면 fixed40. 작은 recent 몫은 대체로 보존되지만 제거 시 RPNG·UTMM 하락. 채택 3:3:6 유지.

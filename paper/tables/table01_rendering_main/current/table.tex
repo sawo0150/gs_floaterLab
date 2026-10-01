@@ -1,0 +1,55 @@
+% Generated from audited experiment JSON by build_measured_tables.py.
+\begin{table}[tbp]
+\centering
+\caption{Measured held-out rendering quality at 40 training renders per admitted keyframe, using a shared causal tracking trace and evaluation cohort. Ours includes the merged D3 geometry objective. Unmeasured baseline rows remain reserved.}
+\label{tab:rendering_comparison}
+\label{tab:main}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{1.02}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Dataset & Method & PSNR $\uparrow$ & SSIM $\uparrow$ & LPIPS $\downarrow$ & \#G (k) \\
+\midrule
+RPNG & VIGS-SLAM\textsuperscript{VI} & 21.71 & 0.720 & 0.276 & 295.2 \\
+ & \textbf{Ours}\textsuperscript{VI} & 24.87 & 0.845 & 0.131 & 286.5 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+UTMM & VIGS-SLAM\textsuperscript{VI} & 16.94 & 0.578 & 0.561 & 97.9 \\
+ & \textbf{Ours}\textsuperscript{VI} & 20.50 & 0.724 & 0.304 & 79.5 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash \\
+\midrule
+Aria & VIGS-SLAM\textsuperscript{VI} & 21.86 & 0.759 & 0.503 & 334.3 \\
+ & \textbf{Ours}\textsuperscript{VI} & 25.76 & 0.867 & 0.285 & 254.1 \\
+ & VINGS-Mono\textsuperscript{VI} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Splat-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & HI-SLAM2\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MonoGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & Photo-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & CaRtGS\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & IG-SLAM\textsuperscript{R} & \textemdash & \textemdash & \textemdash & \textemdash \\
+ & MM3DGS-SLAM\textsuperscript{C} & \textemdash & \textemdash & \textemdash & \textemdash \\
+\bottomrule
+\end{tabular}}
+\endgroup
+\par\vspace{3pt}
+\begin{minipage}{\linewidth}
+\scriptsize\raggedright \textsuperscript{VI}: RGB+IMU; \textsuperscript{R}: RGB only; \textsuperscript{C}: conditional adapter. Dashes denote unmeasured cells; F denotes a failed run. Paired coverage: RPNG 8/8; UTMM 8/8; Aria 4/4. Scene means have equal weight. All declared candidate scenes are measured for VIGS-SLAM and ours. Ours uses D3 plus the fixed raster/warp implementation. Its proxy forwards are additional to 40 training renders/KF; this is not equal total computation.
+\end{minipage}
+\end{table}

@@ -12,7 +12,8 @@ not necessarily provide the observations required for rapid appearance
 refinement, whereas naively adding every frame dilutes the updates available
 to each view. Moreover, photometric loss can be reduced by Gaussians with
 incorrect depth or opacity, leaving spurious structure in observed free space.
-We address these bottlenecks in a DROID-SLAM-based Gaussian mapping pipeline.
+We introduce ROGO-SLAM (Rethinking Online Gaussian Optimization) to address
+these bottlenecks in a DROID-SLAM-based Gaussian mapping pipeline.
 For photometric convergence, we expand the mapping-view set beyond tracking
 keyframes at a rate determined by completed mapping updates, and introduce
 Entropy-Regularized View Sampling to favor less frequently selected views

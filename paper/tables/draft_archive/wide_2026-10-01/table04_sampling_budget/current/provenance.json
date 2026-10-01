@@ -1,0 +1,102 @@
+{
+  "asset_id": "table04_sampling_budget",
+  "status": "draft_blank_template",
+  "measurements_present": false,
+  "created_date": "2026-10-01",
+  "generation_command": "python paper/scripts/build_draft_tables.py",
+  "generator": "paper/scripts/build_draft_tables.py",
+  "portable_copy": "paper/latex/tab/t4_sampling_draft.tex",
+  "labels": [
+    "tab:order"
+  ],
+  "required_packages": [
+    "booktabs"
+  ],
+  "float_environment": "table*",
+  "float_placement": "tbp",
+  "structure": {
+    "data_rows": 6,
+    "measurement_columns": 3,
+    "float_count": 1,
+    "structural_budgets": [
+      15,
+      30,
+      60
+    ]
+  },
+  "measurement_placeholder": "\\textemdash",
+  "methods": [],
+  "datasets": {
+    "RPNG": [
+      "table_01",
+      "table_02",
+      "table_03",
+      "table_04",
+      "table_05",
+      "table_06",
+      "table_07",
+      "table_08"
+    ],
+    "UTMM": [
+      "ego-centric-1",
+      "ego-centric-2",
+      "ego-drive",
+      "fast-straight",
+      "slow-straight-1",
+      "slow-straight-2",
+      "square-1",
+      "square-2"
+    ],
+    "Aria": [
+      "aria1253",
+      "aria1253rot",
+      "aria301_12F",
+      "aria301_305"
+    ]
+  },
+  "cohort_status": "unassigned; no results or averages computed",
+  "run_ids": [],
+  "experiment_data_files": [],
+  "sources": [
+    {
+      "path": "paper/plan/visual_assets/CURRENT.md",
+      "sha256": "dd506ba1c2907a1287307b924190cb46abe496b265b9c9bf225f8d45bffe0c99"
+    },
+    {
+      "path": "paper/plan/visual_assets/baseline_registry.md",
+      "sha256": "b0ede3addc7c7feffc998d4a70188d247b09d1a90e814ef8ea3e73f3803fd274"
+    },
+    {
+      "path": "paper/plan/visual_assets/dataset_registry.md",
+      "sha256": "a5d6689c31b48fba0f9a268739e127b14d8087f454aa5b9c735bd70b0f4fd7a7"
+    },
+    {
+      "path": "paper/plan/visual_assets/protocol.md",
+      "sha256": "4aa6d3b6b3098cedbb11d4c63f1497096fd0972cf33feda09eb2f8466dc73148"
+    },
+    {
+      "path": "paper/tables/table04_sampling_budget/plan/CURRENT.md",
+      "sha256": "2bf3d12fc83f3a2c3084f286c76e24e51d30dfecc60b9a185d95700832d47911"
+    },
+    {
+      "path": "paper/scripts/build_draft_tables.py",
+      "sha256": "b18f85140a2533421df3818deff4d2f4ef09de358b90387021300d5025350ada"
+    }
+  ],
+  "table_sha256": "c7a643473af9a8d13acfbe983e9f3463ea91ab1dd300ac0079c9bb0c23a36f45",
+  "preview": {
+    "source": "preview.tex",
+    "expected_pdf": "preview.pdf",
+    "expected_png": "preview-01.png",
+    "compile_command": "/tmp/cvpr_tools/tectonic paper/tables/table04_sampling_budget/current/preview.tex --outdir paper/tables/table04_sampling_budget/current --keep-logs",
+    "uses_cvpr_dimensions": true,
+    "compile_status": "passed",
+    "layout_overflow_warnings": [],
+    "pages": 1,
+    "pdf_sha256": "4219d464d8371cd8c34aed25968897143f41615dc3f9e358d2ba4bb64662e85f",
+    "png_pages": [
+      "preview-01.png"
+    ]
+  },
+  "measurement_cells_verified_blank": 18
+}

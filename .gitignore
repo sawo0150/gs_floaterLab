@@ -143,3 +143,13 @@ paper/.sync-snapshot/
 # Colin intentionally has a skip-worktree local directory at this tracked symlink.
 # Keep its external training source local; do not accidentally vendor it.
 /repos/main/3dgs-custom/
+
+# CVPR reproducible assets: keep current sources/data, omit render caches.
+/paper/output/
+/paper/figures/*/output/
+/paper/tables/*/output/
+/paper/figures/**/references/*.pdf
+/paper/figures/**/references/*.png
+/paper/figures/**/references/*.jpg
+**/preview.log
+/codex-session-*.md

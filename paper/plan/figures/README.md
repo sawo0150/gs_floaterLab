@@ -12,3 +12,4 @@
 |---|---|---|---|---|
 | [v01](v01_2026-09-05_initial.md) | 2026-09-05 | paper/ 폴더 개설 | 최초 작성 | — |
 | [v02](v02_2026-09-06_structure-fixed.md) | 2026-09-06 | §3/§4 구조 확정 | 6그림 → 5그림. Fig.3을 §3.1 안으로, Fig.4를 §4.1 run-in으로. 옛 Fig.5는 Table 3의 열로 흡수 | 옛 Fig.5 (entropy & count spread 그림) |
+| [v03](v03_2026-10-01_selected-cvpr-assets.md) | 2026-10-01 | 사용자 선택 F1–F7/F9/F11 및 tracking capacity 그림 반영 | 선택한 10개 Figure와 항목별 제작 폴더 연결 | 기존 5개 그림으로 제한하는 배치 |

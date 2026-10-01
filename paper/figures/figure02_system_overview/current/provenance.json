@@ -1,0 +1,11 @@
+{
+  "kind": "humanteck_reused_overview",
+  "new_experiment": false,
+  "source": "humanteck/sections/02_method/figure01/production/current/overview",
+  "source_pdf_sha256": "03b066119e4c4d83e3386a6c17f993081e74e8a680792b07a9511bea3cbff0b2",
+  "asset_id": "F2",
+  "stage": "layout_draft",
+  "caption": "Overview reused from HumanTech. View-set growth, image selection, and depth-based supervision refine a shared Gaussian map. \\textbf{Draft reuse:} reconcile labels with the final implementation.",
+  "pdf_sha256": "03b066119e4c4d83e3386a6c17f993081e74e8a680792b07a9511bea3cbff0b2",
+  "manuscript_width": "two_columns"
+}

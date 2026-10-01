@@ -1,0 +1,7 @@
+# F7 — Geometric convergence 계획 이력
+
+정본: [CURRENT.md](CURRENT.md). 새 버전은 `paper/scripts/newver.sh`로 추가한다.
+
+| 버전 | 날짜 | 트리거 | 무엇이 바뀌었나 | 폐기된 주장 |
+|---|---|---|---|---|
+| [v01](v01_2026-10-01_selected-plan.md) | 2026-10-01 | 사용자 선택 목록 | 항목별 구성·출처·조건·다음 작업 작성 | 이전 전체 후보 자동 채택 안 함 |

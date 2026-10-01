@@ -1,0 +1,25 @@
+{
+  "reason": "User moves time-insensitive experiments to another RTX5070Ti machine; release current GPU",
+  "signals": [
+    {
+      "pid": 1201418,
+      "command": "/home/colin/miniconda3/envs/vigs-slam-5090/bin/python benchmarks/online_gs/campaigns/gain_attribution/run_cvpr_followup_panel.py --wait-pid 1185421 --output results/campaigns/gain_attribution/cvpr_assets/followup_panel_v3 ",
+      "signal": "SIGTERM"
+    },
+    {
+      "pid": 1185421,
+      "command": "/home/colin/miniconda3/envs/vigs-slam-5090/bin/python /home/intern/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/run_cvpr_ablations.py --output /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1 --scenes table_01 table_02 table_03 table_04 table_05 table_06 table_07 table_08 ego-centric-1 ego-centric-2 ego-drive fast-straight slow-straight-1 slow-straight-2 square-1 square-2 aria1253 aria1253rot aria301_12F aria301_305 --snapshots ",
+      "signal": "SIGTERM"
+    },
+    {
+      "pid": 1221051,
+      "command": "/home/colin/miniconda3/envs/vigs-slam-5090/bin/python /home/intern/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/run_cvpr_measurements.py --stage worker --dataset rpng --scene table_03 --budget 40 --arm d3 --selector rr --auxiliary-mode kf_rgb --setup /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/inputs/rpng/table_03/setup --output /home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/current_controls_v1/render40/rpng/table_03/rr_kf_rgb --snapshots ",
+      "signal": "SIGINT"
+    }
+  ],
+  "completed_control_records": 19,
+  "interrupted_run": "current_controls_v1/render40/rpng/table_03/rr_kf_rgb",
+  "preserve_outputs": true,
+  "no_restart_local": true,
+  "recorded_at": 1790812540.9997604
+}

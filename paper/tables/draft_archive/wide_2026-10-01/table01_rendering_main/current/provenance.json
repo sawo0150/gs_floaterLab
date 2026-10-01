@@ -1,0 +1,149 @@
+{
+  "asset_id": "table01_rendering_main",
+  "status": "draft_blank_template",
+  "measurements_present": false,
+  "created_date": "2026-10-01",
+  "generation_command": "python paper/scripts/build_draft_tables.py",
+  "generator": "paper/scripts/build_draft_tables.py",
+  "portable_copy": "paper/latex/tab/t1_main_draft.tex",
+  "labels": [
+    "tab:rendering_comparison",
+    "tab:main"
+  ],
+  "required_packages": [
+    "booktabs"
+  ],
+  "float_environment": "table*",
+  "float_placement": "tbp",
+  "structure": {
+    "data_rows": 30,
+    "measurement_columns": 4,
+    "float_count": 1
+  },
+  "measurement_placeholder": "\\textemdash",
+  "methods": [
+    {
+      "name": "VIGS-SLAM",
+      "input": "RGB+IMU",
+      "conditional": false
+    },
+    {
+      "name": "Ours",
+      "input": "RGB+IMU",
+      "conditional": false
+    },
+    {
+      "name": "VINGS-Mono",
+      "input": "RGB+IMU",
+      "conditional": false
+    },
+    {
+      "name": "Splat-SLAM",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "HI-SLAM2",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "MonoGS",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "Photo-SLAM",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "CaRtGS",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "IG-SLAM",
+      "input": "RGB",
+      "conditional": false
+    },
+    {
+      "name": "MM3DGS-SLAM",
+      "input": "mono+IMU (conditional)",
+      "conditional": true
+    }
+  ],
+  "datasets": {
+    "RPNG": [
+      "table_01",
+      "table_02",
+      "table_03",
+      "table_04",
+      "table_05",
+      "table_06",
+      "table_07",
+      "table_08"
+    ],
+    "UTMM": [
+      "ego-centric-1",
+      "ego-centric-2",
+      "ego-drive",
+      "fast-straight",
+      "slow-straight-1",
+      "slow-straight-2",
+      "square-1",
+      "square-2"
+    ],
+    "Aria": [
+      "aria1253",
+      "aria1253rot",
+      "aria301_12F",
+      "aria301_305"
+    ]
+  },
+  "cohort_status": "unassigned; no results or averages computed",
+  "run_ids": [],
+  "experiment_data_files": [],
+  "sources": [
+    {
+      "path": "paper/plan/visual_assets/CURRENT.md",
+      "sha256": "dd506ba1c2907a1287307b924190cb46abe496b265b9c9bf225f8d45bffe0c99"
+    },
+    {
+      "path": "paper/plan/visual_assets/baseline_registry.md",
+      "sha256": "b0ede3addc7c7feffc998d4a70188d247b09d1a90e814ef8ea3e73f3803fd274"
+    },
+    {
+      "path": "paper/plan/visual_assets/dataset_registry.md",
+      "sha256": "a5d6689c31b48fba0f9a268739e127b14d8087f454aa5b9c735bd70b0f4fd7a7"
+    },
+    {
+      "path": "paper/plan/visual_assets/protocol.md",
+      "sha256": "4aa6d3b6b3098cedbb11d4c63f1497096fd0972cf33feda09eb2f8466dc73148"
+    },
+    {
+      "path": "paper/tables/table01_rendering_main/plan/CURRENT.md",
+      "sha256": "79217a83279a03e05e814a6ea50ae14d3a6627bee7a263a1e3a91056230601ee"
+    },
+    {
+      "path": "paper/scripts/build_draft_tables.py",
+      "sha256": "b18f85140a2533421df3818deff4d2f4ef09de358b90387021300d5025350ada"
+    }
+  ],
+  "table_sha256": "b63043730f3c488dada1362aa9d0db767fd5173a60f918bc79d7f5eabaf0273f",
+  "preview": {
+    "source": "preview.tex",
+    "expected_pdf": "preview.pdf",
+    "expected_png": "preview-01.png",
+    "compile_command": "/tmp/cvpr_tools/tectonic paper/tables/table01_rendering_main/current/preview.tex --outdir paper/tables/table01_rendering_main/current --keep-logs",
+    "uses_cvpr_dimensions": true,
+    "compile_status": "passed",
+    "layout_overflow_warnings": [],
+    "pages": 1,
+    "pdf_sha256": "367f9ade524248f2cba4bdaea7647d83f1c07aadbba423552f9c1b7d08ffd1fa",
+    "png_pages": [
+      "preview-01.png"
+    ]
+  },
+  "measurement_cells_verified_blank": 120
+}

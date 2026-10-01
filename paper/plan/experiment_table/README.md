@@ -13,3 +13,4 @@
 | [v01](v01_2026-09-05_initial.md) | 2026-09-05 | paper/ 폴더 개설 | 최초 작성 | — |
 | [v02](v02_2026-09-05_after-exp73.md) | 2026-09-05 | P01 exp73 부분 결과와 후속 경로 반영 | P01을 부분 완료로 전환하고 P03를 `κ=22` token-only 위의 다음 단계로 갱신 | P01 미착수, exp73을 순수 gate-removal로 보는 해석 |
 | [v03](v03_2026-09-06_structure-fixed.md) | 2026-09-06 | §3/§4 구조 확정 | 표 5→4, 그림 6→5. Table 1·3 설계 확정. peak pool·총 admission 계측 추가. P06에 clustering sampler 추가 | 옛 Table 2·4·5 번호 체계 |
+| [v04](v04_2026-10-01_selected-cvpr-tables.md) | 2026-10-01 | 사용자 선택 T1–T6 및 본문/부록 분리 반영 | T1/T2 본문·부록 분리 및 T3–T6 계획 연결 | T4를 기능 제거식 ablation으로 바꾸는 제안 |

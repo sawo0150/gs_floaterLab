@@ -1,0 +1,2839 @@
+{
+  "kind": "actual_shared_tracking_live_curve_catalog",
+  "expected_runs": 80,
+  "live_runs_measured": 8,
+  "curves_measured": 0,
+  "all_candidate_live_runs_considered": false,
+  "all_candidate_runs_evaluated": false,
+  "clock": "actual time.monotonic capture minus recorded stream origin; warm load outside clock",
+  "final_state_rule": "deadline-held map; successful optimizers and recorded mutations end before allowance",
+  "bins_rule": "fixed5seconds; CPU tracking call wall time; frame-sampled admission counts; no capacity extrapolation",
+  "generator": "/home/intern/gs_floaterLab/paper/scripts/collect_measured_live_curves.py",
+  "generator_sha256": "a29ee0b435616c6525a40a5caebd2664f8e0e0d56b550569d730c5de502ade8f",
+  "runs": [
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/vanilla",
+      "elapsed_allowance_seconds": 83.53692960739136,
+      "tracking_elapsed_seconds": 120.79299507802352,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 6520,
+      "committed_training_renders": 6520,
+      "additional_proxy_renders": 0,
+      "snapshot_copy_seconds": 0.01693186815828085,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 2.4
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "b11eff094a32c903228a3414fa77acff1680648e2ad2e51c0deb2b8ff680d270",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.230099978391081,
+          "tracking_call_wall_fraction": 0.4460199956782162,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 4.237484844634309,
+          "tracking_call_wall_fraction": 0.8474969689268619,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.999830793123692,
+          "tracking_call_wall_fraction": 0.9999661586247385,
+          "committed_training_renders": 769,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 54.92857142857143,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 4.9994681717362255,
+          "tracking_call_wall_fraction": 0.9998936343472451,
+          "committed_training_renders": 1028,
+          "frame_observed_mapper_admissions": 33,
+          "renders_per_frame_observed_admission": 31.151515151515152,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 4.999086100142449,
+          "tracking_call_wall_fraction": 0.9998172200284898,
+          "committed_training_renders": 643,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 45.92857142857143,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 4.999075696337968,
+          "tracking_call_wall_fraction": 0.9998151392675936,
+          "committed_training_renders": 480,
+          "frame_observed_mapper_admissions": 12,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 4.999461833620444,
+          "tracking_call_wall_fraction": 0.9998923667240888,
+          "committed_training_renders": 412,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 41.2,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 4.999374753329903,
+          "tracking_call_wall_fraction": 0.9998749506659805,
+          "committed_training_renders": 428,
+          "frame_observed_mapper_admissions": 12,
+          "renders_per_frame_observed_admission": 35.666666666666664,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 4.999332976760343,
+          "tracking_call_wall_fraction": 0.9998665953520686,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 45.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 4.999385423725471,
+          "tracking_call_wall_fraction": 0.9998770847450942,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 4.999256249051541,
+          "tracking_call_wall_fraction": 0.9998512498103083,
+          "committed_training_renders": 253,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 36.142857142857146,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.999412592733279,
+          "tracking_call_wall_fraction": 0.9998825185466558,
+          "committed_training_renders": 347,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 43.375,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.9994524891953915,
+          "tracking_call_wall_fraction": 0.9998904978390784,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 4.999334801919758,
+          "tracking_call_wall_fraction": 0.9998669603839516,
+          "committed_training_renders": 276,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 46.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 4.999399588909,
+          "tracking_call_wall_fraction": 0.9998799177818001,
+          "committed_training_renders": 284,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 35.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 4.99674201849848,
+          "tracking_call_wall_fraction": 0.999348403699696,
+          "committed_training_renders": 373,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 37.3,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 83.53692960739136,
+          "tracking_call_wall_seconds": 3.5365522818174213,
+          "tracking_call_wall_fraction": 0.9998933183252651,
+          "committed_training_renders": 147,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 49.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/rpng/table_01/ours",
+      "elapsed_allowance_seconds": 83.53692960739136,
+      "tracking_elapsed_seconds": 132.95566471596248,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 4952,
+      "committed_training_renders": 4951,
+      "additional_proxy_renders": 2508,
+      "snapshot_copy_seconds": 0.012227785075083375,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 2.4
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "fb5ea45999b7d5b4dac4e50199f3612cfe7daa4bda8f579f2bb147c4c9676e2b",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.3247621098998934,
+          "tracking_call_wall_fraction": 0.46495242197997866,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 4.326741333119571,
+          "tracking_call_wall_fraction": 0.8653482666239143,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.999563114717603,
+          "tracking_call_wall_fraction": 0.9999126229435206,
+          "committed_training_renders": 273,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 19.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 4.999286169419065,
+          "tracking_call_wall_fraction": 0.999857233883813,
+          "committed_training_renders": 601,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 60.1,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 4.999327445169911,
+          "tracking_call_wall_fraction": 0.9998654890339822,
+          "committed_training_renders": 562,
+          "frame_observed_mapper_admissions": 12,
+          "renders_per_frame_observed_admission": 46.833333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 4.999250672990456,
+          "tracking_call_wall_fraction": 0.9998501345980912,
+          "committed_training_renders": 465,
+          "frame_observed_mapper_admissions": 12,
+          "renders_per_frame_observed_admission": 38.75,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 4.999591325642541,
+          "tracking_call_wall_fraction": 0.9999182651285082,
+          "committed_training_renders": 379,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 42.111111111111114,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 4.999533819966018,
+          "tracking_call_wall_fraction": 0.9999067639932037,
+          "committed_training_renders": 321,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.125,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 4.9993624412454665,
+          "tracking_call_wall_fraction": 0.9998724882490932,
+          "committed_training_renders": 353,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 39.22222222222222,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 4.999634715728462,
+          "tracking_call_wall_fraction": 0.9999269431456923,
+          "committed_training_renders": 246,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 41.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 4.99956538178958,
+          "tracking_call_wall_fraction": 0.999913076357916,
+          "committed_training_renders": 292,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 36.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.99943650723435,
+          "tracking_call_wall_fraction": 0.99988730144687,
+          "committed_training_renders": 228,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 45.6,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.999497223412618,
+          "tracking_call_wall_fraction": 0.9998994446825236,
+          "committed_training_renders": 286,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 4.999589634593576,
+          "tracking_call_wall_fraction": 0.9999179269187153,
+          "committed_training_renders": 290,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 36.25,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 4.999408904463053,
+          "tracking_call_wall_fraction": 0.9998817808926106,
+          "committed_training_renders": 257,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 42.833333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 4.9995843837969005,
+          "tracking_call_wall_fraction": 0.9999168767593801,
+          "committed_training_renders": 219,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 36.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 83.53692960739136,
+          "tracking_call_wall_seconds": 3.5366254097316414,
+          "tracking_call_wall_fraction": 0.9999139938609238,
+          "committed_training_renders": 179,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 44.75,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/vanilla",
+      "elapsed_allowance_seconds": 125.30539441108704,
+      "tracking_elapsed_seconds": 136.83547167503275,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 8640,
+      "committed_training_renders": 8640,
+      "additional_proxy_renders": 0,
+      "snapshot_copy_seconds": 0.02935681212693453,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 2.4
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "c647e4f4634714f20d315063e0dc67c61735fcadb677014c240f3b95e0b9516a",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.258158228127286,
+          "tracking_call_wall_fraction": 0.45163164562545716,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.328361074673012,
+          "tracking_call_wall_fraction": 0.46567221493460237,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.181494246004149,
+          "tracking_call_wall_fraction": 0.8362988492008299,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 4.999924222473055,
+          "tracking_call_wall_fraction": 0.999984844494611,
+          "committed_training_renders": 1077,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 76.92857142857143,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 4.999338837806135,
+          "tracking_call_wall_fraction": 0.9998677675612271,
+          "committed_training_renders": 881,
+          "frame_observed_mapper_admissions": 36,
+          "renders_per_frame_observed_admission": 24.47222222222222,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 4.998981555225328,
+          "tracking_call_wall_fraction": 0.9997963110450655,
+          "committed_training_renders": 602,
+          "frame_observed_mapper_admissions": 15,
+          "renders_per_frame_observed_admission": 40.13333333333333,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 4.999087947187945,
+          "tracking_call_wall_fraction": 0.999817589437589,
+          "committed_training_renders": 479,
+          "frame_observed_mapper_admissions": 11,
+          "renders_per_frame_observed_admission": 43.54545454545455,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 4.999390573473647,
+          "tracking_call_wall_fraction": 0.9998781146947294,
+          "committed_training_renders": 401,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 40.1,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 4.999450527830049,
+          "tracking_call_wall_fraction": 0.9998901055660099,
+          "committed_training_renders": 400,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 4.999084594426677,
+          "tracking_call_wall_fraction": 0.9998169188853353,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 4.999463229440153,
+          "tracking_call_wall_fraction": 0.9998926458880305,
+          "committed_training_renders": 320,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.999243800994009,
+          "tracking_call_wall_fraction": 0.9998487601988018,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.999364273389801,
+          "tracking_call_wall_fraction": 0.9998728546779603,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 4.999189944472164,
+          "tracking_call_wall_fraction": 0.9998379888944328,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 4.999453917844221,
+          "tracking_call_wall_fraction": 0.9998907835688442,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 4.999488704605028,
+          "tracking_call_wall_fraction": 0.9998977409210056,
+          "committed_training_renders": 293,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 36.625,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 85.0,
+          "tracking_call_wall_seconds": 4.999330444494262,
+          "tracking_call_wall_fraction": 0.9998660888988524,
+          "committed_training_renders": 319,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 45.57142857142857,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 17,
+          "start_seconds": 85.0,
+          "end_seconds": 90.0,
+          "tracking_call_wall_seconds": 4.9993093113880605,
+          "tracking_call_wall_fraction": 0.9998618622776121,
+          "committed_training_renders": 188,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 37.6,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 18,
+          "start_seconds": 90.0,
+          "end_seconds": 95.0,
+          "tracking_call_wall_seconds": 4.999175016302615,
+          "tracking_call_wall_fraction": 0.9998350032605231,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 19,
+          "start_seconds": 95.0,
+          "end_seconds": 100.0,
+          "tracking_call_wall_seconds": 4.999370576115325,
+          "tracking_call_wall_fraction": 0.999874115223065,
+          "committed_training_renders": 306,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 38.25,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 20,
+          "start_seconds": 100.0,
+          "end_seconds": 105.0,
+          "tracking_call_wall_seconds": 4.99948366638273,
+          "tracking_call_wall_fraction": 0.999896733276546,
+          "committed_training_renders": 267,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 38.142857142857146,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 21,
+          "start_seconds": 105.0,
+          "end_seconds": 110.0,
+          "tracking_call_wall_seconds": 4.999320137547329,
+          "tracking_call_wall_fraction": 0.9998640275094658,
+          "committed_training_renders": 267,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 44.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 22,
+          "start_seconds": 110.0,
+          "end_seconds": 115.0,
+          "tracking_call_wall_seconds": 4.999414729885757,
+          "tracking_call_wall_fraction": 0.9998829459771514,
+          "committed_training_renders": 400,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 23,
+          "start_seconds": 115.0,
+          "end_seconds": 120.0,
+          "tracking_call_wall_seconds": 4.999286724021658,
+          "tracking_call_wall_fraction": 0.9998573448043316,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 24,
+          "start_seconds": 120.0,
+          "end_seconds": 125.0,
+          "tracking_call_wall_seconds": 4.999520835233852,
+          "tracking_call_wall_fraction": 0.9999041670467704,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 25,
+          "start_seconds": 125.0,
+          "end_seconds": 125.30539441108704,
+          "tracking_call_wall_seconds": 0.30531256669200957,
+          "tracking_call_wall_fraction": 0.9997320042801856,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/rpng/table_01/ours",
+      "elapsed_allowance_seconds": 125.30539441108704,
+      "tracking_elapsed_seconds": 148.3015306747984,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 6787,
+      "committed_training_renders": 6786,
+      "additional_proxy_renders": 3425,
+      "snapshot_copy_seconds": 0.05172190140001476,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 2.4
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "3146228d8e15f4a033837d97e65804bfe8045333e64d2168b7ed60aa0bfcc42b",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.280951142543927,
+          "tracking_call_wall_fraction": 0.4561902285087854,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.3244998613372445,
+          "tracking_call_wall_fraction": 0.4648999722674489,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.34612167510204,
+          "tracking_call_wall_fraction": 0.8692243350204081,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 4.999543070560321,
+          "tracking_call_wall_fraction": 0.9999086141120642,
+          "committed_training_renders": 432,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 30.857142857142858,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 4.9992782233748585,
+          "tracking_call_wall_fraction": 0.9998556446749717,
+          "committed_training_renders": 588,
+          "frame_observed_mapper_admissions": 13,
+          "renders_per_frame_observed_admission": 45.23076923076923,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 4.9993045795708895,
+          "tracking_call_wall_fraction": 0.9998609159141779,
+          "committed_training_renders": 556,
+          "frame_observed_mapper_admissions": 13,
+          "renders_per_frame_observed_admission": 42.76923076923077,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 4.9992475542239845,
+          "tracking_call_wall_fraction": 0.9998495108447969,
+          "committed_training_renders": 436,
+          "frame_observed_mapper_admissions": 11,
+          "renders_per_frame_observed_admission": 39.63636363636363,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 4.9995302855968475,
+          "tracking_call_wall_fraction": 0.9999060571193695,
+          "committed_training_renders": 372,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 41.333333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 4.999603313859552,
+          "tracking_call_wall_fraction": 0.9999206627719104,
+          "committed_training_renders": 336,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 42.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 4.999412850243971,
+          "tracking_call_wall_fraction": 0.9998825700487941,
+          "committed_training_renders": 291,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 36.375,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 4.999516240088269,
+          "tracking_call_wall_fraction": 0.9999032480176538,
+          "committed_training_renders": 305,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 43.57142857142857,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.9995895735919476,
+          "tracking_call_wall_fraction": 0.9999179147183895,
+          "committed_training_renders": 244,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.666666666666664,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.999325253302231,
+          "tracking_call_wall_fraction": 0.9998650506604463,
+          "committed_training_renders": 265,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 37.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 4.999596032546833,
+          "tracking_call_wall_fraction": 0.9999192065093666,
+          "committed_training_renders": 279,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 39.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 4.999344097916037,
+          "tracking_call_wall_fraction": 0.9998688195832074,
+          "committed_training_renders": 296,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 42.285714285714285,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 4.999606597237289,
+          "tracking_call_wall_fraction": 0.9999213194474578,
+          "committed_training_renders": 239,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 39.833333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 85.0,
+          "tracking_call_wall_seconds": 4.999609753955156,
+          "tracking_call_wall_fraction": 0.9999219507910311,
+          "committed_training_renders": 241,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 48.2,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 17,
+          "start_seconds": 85.0,
+          "end_seconds": 90.0,
+          "tracking_call_wall_seconds": 4.999133189674467,
+          "tracking_call_wall_fraction": 0.9998266379348933,
+          "committed_training_renders": 292,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 32.44444444444444,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 18,
+          "start_seconds": 90.0,
+          "end_seconds": 95.0,
+          "tracking_call_wall_seconds": 4.999605661723763,
+          "tracking_call_wall_fraction": 0.9999211323447526,
+          "committed_training_renders": 228,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 45.6,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 19,
+          "start_seconds": 95.0,
+          "end_seconds": 100.0,
+          "tracking_call_wall_seconds": 4.999467384070158,
+          "tracking_call_wall_fraction": 0.9998934768140316,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 20,
+          "start_seconds": 100.0,
+          "end_seconds": 105.0,
+          "tracking_call_wall_seconds": 4.999375505140051,
+          "tracking_call_wall_fraction": 0.9998751010280102,
+          "committed_training_renders": 212,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 35.333333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 21,
+          "start_seconds": 105.0,
+          "end_seconds": 110.0,
+          "tracking_call_wall_seconds": 4.999500916339457,
+          "tracking_call_wall_fraction": 0.9999001832678914,
+          "committed_training_renders": 268,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 38.285714285714285,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 22,
+          "start_seconds": 110.0,
+          "end_seconds": 115.0,
+          "tracking_call_wall_seconds": 4.999710557749495,
+          "tracking_call_wall_fraction": 0.999942111549899,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 48.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 23,
+          "start_seconds": 115.0,
+          "end_seconds": 120.0,
+          "tracking_call_wall_seconds": 4.999341513728723,
+          "tracking_call_wall_fraction": 0.9998683027457446,
+          "committed_training_renders": 263,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 37.57142857142857,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 24,
+          "start_seconds": 120.0,
+          "end_seconds": 125.0,
+          "tracking_call_wall_seconds": 4.999658037908375,
+          "tracking_call_wall_fraction": 0.9999316075816751,
+          "committed_training_renders": 243,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 25,
+          "start_seconds": 125.0,
+          "end_seconds": 125.30539441108704,
+          "tracking_call_wall_seconds": 0.30535964923910797,
+          "tracking_call_wall_fraction": 0.9998861739224224,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/vanilla",
+      "elapsed_allowance_seconds": 65.09999891300004,
+      "tracking_elapsed_seconds": 65.36323386593722,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 4159,
+      "committed_training_renders": 4146,
+      "additional_proxy_renders": 0,
+      "snapshot_copy_seconds": 0.01985038723796606,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 3.6
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "f8e844e2dd198cb4631ebdb87995dc8ca1f06e66c652eefcb417524b698c94c6",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.523456038441509,
+          "tracking_call_wall_fraction": 0.5046912076883018,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.286152153275907,
+          "tracking_call_wall_fraction": 0.45723043065518143,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.566010216949508,
+          "tracking_call_wall_fraction": 0.9132020433899015,
+          "committed_training_renders": 1088,
+          "frame_observed_mapper_admissions": 28,
+          "renders_per_frame_observed_admission": 38.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 2.2499598022550344,
+          "tracking_call_wall_fraction": 0.44999196045100687,
+          "committed_training_renders": 538,
+          "frame_observed_mapper_admissions": 13,
+          "renders_per_frame_observed_admission": 41.38461538461539,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 3.224157868186012,
+          "tracking_call_wall_fraction": 0.6448315736372023,
+          "committed_training_renders": 387,
+          "frame_observed_mapper_admissions": 10,
+          "renders_per_frame_observed_admission": 38.7,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 2.806694697123021,
+          "tracking_call_wall_fraction": 0.5613389394246042,
+          "committed_training_renders": 227,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 45.4,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 3.5526647376827896,
+          "tracking_call_wall_fraction": 0.7105329475365579,
+          "committed_training_renders": 360,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 2.3031262967269868,
+          "tracking_call_wall_fraction": 0.46062525934539733,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 2.4332929705269635,
+          "tracking_call_wall_fraction": 0.4866585941053927,
+          "committed_training_renders": 200,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 2.9266629442572594,
+          "tracking_call_wall_fraction": 0.5853325888514519,
+          "committed_training_renders": 320,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 3.448198960861191,
+          "tracking_call_wall_fraction": 0.6896397921722383,
+          "committed_training_renders": 320,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.9993183927144855,
+          "tracking_call_wall_fraction": 0.9998636785428971,
+          "committed_training_renders": 226,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 37.666666666666664,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.999157970305532,
+          "tracking_call_wall_fraction": 0.9998315940611064,
+          "committed_training_renders": 320,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 65.09999891300004,
+          "tracking_call_wall_seconds": 0.09999891300003583,
+          "tracking_call_wall_fraction": 1.0,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1/aria/aria1253/ours",
+      "elapsed_allowance_seconds": 65.09999891300004,
+      "tracking_elapsed_seconds": 68.1597485691309,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 3320,
+      "committed_training_renders": 3320,
+      "additional_proxy_renders": 1690,
+      "snapshot_copy_seconds": 0.020043382421135902,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 3.6
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "165d2010041a3b0a8085bb23509cceb5dfcc78451efdb9b994e2cb4606c36e79",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 2.828184826299548,
+          "tracking_call_wall_fraction": 0.5656369652599096,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.8826634003780782,
+          "tracking_call_wall_fraction": 0.5765326800756156,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 4.626402152935043,
+          "tracking_call_wall_fraction": 0.9252804305870086,
+          "committed_training_renders": 424,
+          "frame_observed_mapper_admissions": 14,
+          "renders_per_frame_observed_admission": 30.285714285714285,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 2.927787304390222,
+          "tracking_call_wall_fraction": 0.5855574608780444,
+          "committed_training_renders": 588,
+          "frame_observed_mapper_admissions": 12,
+          "renders_per_frame_observed_admission": 49.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 4.408444573171437,
+          "tracking_call_wall_fraction": 0.8816889146342873,
+          "committed_training_renders": 387,
+          "frame_observed_mapper_admissions": 9,
+          "renders_per_frame_observed_admission": 43.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 3.814037724630907,
+          "tracking_call_wall_fraction": 0.7628075449261814,
+          "committed_training_renders": 241,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.166666666666664,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 4.264992265030742,
+          "tracking_call_wall_fraction": 0.8529984530061483,
+          "committed_training_renders": 300,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 37.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 3.291432538535446,
+          "tracking_call_wall_fraction": 0.6582865077070892,
+          "committed_training_renders": 205,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 41.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 3.1032378184609115,
+          "tracking_call_wall_fraction": 0.6206475636921823,
+          "committed_training_renders": 215,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 43.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 3.930266221985221,
+          "tracking_call_wall_fraction": 0.7860532443970442,
+          "committed_training_renders": 320,
+          "frame_observed_mapper_admissions": 8,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 4.385677531827241,
+          "tracking_call_wall_fraction": 0.8771355063654482,
+          "committed_training_renders": 328,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 46.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 4.999524062965065,
+          "tracking_call_wall_fraction": 0.999904812593013,
+          "committed_training_renders": 192,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 32.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 4.9997014061082155,
+          "tracking_call_wall_fraction": 0.9999402812216431,
+          "committed_training_renders": 120,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 65.09999891300004,
+          "tracking_call_wall_seconds": 0.09997779013838226,
+          "tracking_call_wall_fraction": 0.9997887690873843,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/vanilla",
+      "elapsed_allowance_seconds": 97.64999836950005,
+      "tracking_elapsed_seconds": 97.67124323593453,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 4200,
+      "committed_training_renders": 4200,
+      "additional_proxy_renders": 0,
+      "snapshot_copy_seconds": 0.021481811068952084,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 3.6
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "e498720bf02929cf578f31cc9f464c7118c242635512a49237dda9144f4a3d41",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 1.713476573349908,
+          "tracking_call_wall_fraction": 0.3426953146699816,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.2808782518841326,
+          "tracking_call_wall_fraction": 0.4561756503768265,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 2.4291777685284615,
+          "tracking_call_wall_fraction": 0.4858355537056923,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 3.5061173755675554,
+          "tracking_call_wall_fraction": 0.7012234751135111,
+          "committed_training_renders": 1253,
+          "frame_observed_mapper_admissions": 32,
+          "renders_per_frame_observed_admission": 39.15625,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 1.8532200856134295,
+          "tracking_call_wall_fraction": 0.3706440171226859,
+          "committed_training_renders": 227,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 45.4,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 1.7005594363436103,
+          "tracking_call_wall_fraction": 0.34011188726872205,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 2.350815129466355,
+          "tracking_call_wall_fraction": 0.47016302589327097,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 2.386350437067449,
+          "tracking_call_wall_fraction": 0.4772700874134898,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 1.7873921520076692,
+          "tracking_call_wall_fraction": 0.3574784304015338,
+          "committed_training_renders": 80,
+          "frame_observed_mapper_admissions": 2,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 2.53162041422911,
+          "tracking_call_wall_fraction": 0.506324082845822,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 2.0638181229587644,
+          "tracking_call_wall_fraction": 0.41276362459175286,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 1.7752498108893633,
+          "tracking_call_wall_fraction": 0.35504996217787266,
+          "committed_training_renders": 120,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 1.7574856274295598,
+          "tracking_call_wall_fraction": 0.35149712548591194,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 1.8981104486156255,
+          "tracking_call_wall_fraction": 0.3796220897231251,
+          "committed_training_renders": 146,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 36.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 2.213302476797253,
+          "tracking_call_wall_fraction": 0.44266049535945057,
+          "committed_training_renders": 214,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 42.8,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 2.2550881737843156,
+          "tracking_call_wall_fraction": 0.45101763475686313,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 85.0,
+          "tracking_call_wall_seconds": 3.8848590042907745,
+          "tracking_call_wall_fraction": 0.7769718008581549,
+          "committed_training_renders": 173,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 34.6,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 17,
+          "start_seconds": 85.0,
+          "end_seconds": 90.0,
+          "tracking_call_wall_seconds": 4.050360461231321,
+          "tracking_call_wall_fraction": 0.8100720922462642,
+          "committed_training_renders": 147,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 49.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 18,
+          "start_seconds": 90.0,
+          "end_seconds": 95.0,
+          "tracking_call_wall_seconds": 3.3813992962241173,
+          "tracking_call_wall_fraction": 0.6762798592448235,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 19,
+          "start_seconds": 95.0,
+          "end_seconds": 97.64999836950005,
+          "tracking_call_wall_seconds": 1.7361473620403558,
+          "tracking_call_wall_fraction": 0.6551503510426294,
+          "committed_training_renders": 80,
+          "frame_observed_mapper_admissions": 2,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_checkpoint_evaluation",
+      "points": [],
+      "run": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/live_shared_tracking_v1/scale1p5/aria/aria1253/ours",
+      "elapsed_allowance_seconds": 97.64999836950005,
+      "tracking_elapsed_seconds": 97.66988690220751,
+      "tracking_exceeds_allowance": true,
+      "training_renders": 3640,
+      "committed_training_renders": 3640,
+      "additional_proxy_renders": 1850,
+      "snapshot_copy_seconds": 0.01939607271924615,
+      "tracking_config": {
+        "disable_mono": false,
+        "motion_filter": {
+          "init_thresh": 4.0,
+          "thresh": 3.6
+        },
+        "frontend": {
+          "keyframe_thresh": 4.0,
+          "keep_kf_once_deleted": false,
+          "frontend_thresh": 16.0,
+          "frontend_window": 25,
+          "frontend_radius": 2,
+          "frontend_nms": 1,
+          "mono_depth_alpha": 0.01,
+          "imu_late_init_from": 20
+        },
+        "backend": {
+          "backend_thresh": 22.0,
+          "backend_radius": 2,
+          "backend_nms": 3,
+          "covis_thresh": 0.3
+        },
+        "pgba": {
+          "active": true,
+          "pgba_thresh": 22.0
+        }
+      },
+      "frontend_iterations": [
+        4,
+        2
+      ],
+      "result_source_sha256": "822825012b205dd94bce3f9904b07f5f3b5cdec1bd84596c0ac0b5f042080d8c",
+      "bins": [
+        {
+          "bin_index": 0,
+          "start_seconds": 0.0,
+          "end_seconds": 5.0,
+          "tracking_call_wall_seconds": 1.8403464669827372,
+          "tracking_call_wall_fraction": 0.3680692933965474,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 1,
+          "start_seconds": 5.0,
+          "end_seconds": 10.0,
+          "tracking_call_wall_seconds": 2.5098167597316206,
+          "tracking_call_wall_fraction": 0.5019633519463241,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 2,
+          "start_seconds": 10.0,
+          "end_seconds": 15.0,
+          "tracking_call_wall_seconds": 2.494030769681558,
+          "tracking_call_wall_fraction": 0.4988061539363116,
+          "committed_training_renders": 0,
+          "frame_observed_mapper_admissions": 0,
+          "renders_per_frame_observed_admission": "",
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "NA"
+        },
+        {
+          "bin_index": 3,
+          "start_seconds": 15.0,
+          "end_seconds": 20.0,
+          "tracking_call_wall_seconds": 3.206270956201479,
+          "tracking_call_wall_fraction": 0.6412541912402958,
+          "committed_training_renders": 584,
+          "frame_observed_mapper_admissions": 17,
+          "renders_per_frame_observed_admission": 34.35294117647059,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 4,
+          "start_seconds": 20.0,
+          "end_seconds": 25.0,
+          "tracking_call_wall_seconds": 2.2765758910682052,
+          "tracking_call_wall_fraction": 0.45531517821364104,
+          "committed_training_renders": 336,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 56.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 5,
+          "start_seconds": 25.0,
+          "end_seconds": 30.0,
+          "tracking_call_wall_seconds": 2.1280614025890827,
+          "tracking_call_wall_fraction": 0.4256122805178165,
+          "committed_training_renders": 138,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 34.5,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 6,
+          "start_seconds": 30.0,
+          "end_seconds": 35.0,
+          "tracking_call_wall_seconds": 3.045001587830484,
+          "tracking_call_wall_fraction": 0.6090003175660967,
+          "committed_training_renders": 302,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 43.142857142857146,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 7,
+          "start_seconds": 35.0,
+          "end_seconds": 40.0,
+          "tracking_call_wall_seconds": 3.1261064731515944,
+          "tracking_call_wall_fraction": 0.6252212946303188,
+          "committed_training_renders": 224,
+          "frame_observed_mapper_admissions": 6,
+          "renders_per_frame_observed_admission": 37.333333333333336,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 8,
+          "start_seconds": 40.0,
+          "end_seconds": 45.0,
+          "tracking_call_wall_seconds": 2.20618596393615,
+          "tracking_call_wall_fraction": 0.44123719278723,
+          "committed_training_renders": 96,
+          "frame_observed_mapper_admissions": 2,
+          "renders_per_frame_observed_admission": 48.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 9,
+          "start_seconds": 45.0,
+          "end_seconds": 50.0,
+          "tracking_call_wall_seconds": 3.1383145013824105,
+          "tracking_call_wall_fraction": 0.6276629002764821,
+          "committed_training_renders": 184,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 36.8,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 10,
+          "start_seconds": 50.0,
+          "end_seconds": 55.0,
+          "tracking_call_wall_seconds": 2.865482531953603,
+          "tracking_call_wall_fraction": 0.5730965063907206,
+          "committed_training_renders": 216,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 43.2,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 11,
+          "start_seconds": 55.0,
+          "end_seconds": 60.0,
+          "tracking_call_wall_seconds": 2.141555139096454,
+          "tracking_call_wall_fraction": 0.42831102781929076,
+          "committed_training_renders": 120,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 12,
+          "start_seconds": 60.0,
+          "end_seconds": 65.0,
+          "tracking_call_wall_seconds": 2.2017171536572278,
+          "tracking_call_wall_fraction": 0.44034343073144555,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 13,
+          "start_seconds": 65.0,
+          "end_seconds": 70.0,
+          "tracking_call_wall_seconds": 2.416355520254001,
+          "tracking_call_wall_fraction": 0.4832711040508002,
+          "committed_training_renders": 120,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 30.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 14,
+          "start_seconds": 70.0,
+          "end_seconds": 75.0,
+          "tracking_call_wall_seconds": 2.892143555684015,
+          "tracking_call_wall_fraction": 0.578428711136803,
+          "committed_training_renders": 240,
+          "frame_observed_mapper_admissions": 5,
+          "renders_per_frame_observed_admission": 48.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 15,
+          "start_seconds": 75.0,
+          "end_seconds": 80.0,
+          "tracking_call_wall_seconds": 2.799120893701911,
+          "tracking_call_wall_fraction": 0.5598241787403822,
+          "committed_training_renders": 280,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 16,
+          "start_seconds": 80.0,
+          "end_seconds": 85.0,
+          "tracking_call_wall_seconds": 4.704602883430198,
+          "tracking_call_wall_fraction": 0.9409205766860396,
+          "committed_training_renders": 160,
+          "frame_observed_mapper_admissions": 4,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 17,
+          "start_seconds": 85.0,
+          "end_seconds": 90.0,
+          "tracking_call_wall_seconds": 4.827506821136922,
+          "tracking_call_wall_fraction": 0.9655013642273843,
+          "committed_training_renders": 120,
+          "frame_observed_mapper_admissions": 3,
+          "renders_per_frame_observed_admission": 40.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 18,
+          "start_seconds": 90.0,
+          "end_seconds": 95.0,
+          "tracking_call_wall_seconds": 4.933007339248434,
+          "tracking_call_wall_fraction": 0.9866014678496867,
+          "committed_training_renders": 244,
+          "frame_observed_mapper_admissions": 7,
+          "renders_per_frame_observed_admission": 34.857142857142854,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        },
+        {
+          "bin_index": 19,
+          "start_seconds": 95.0,
+          "end_seconds": 97.64999836950005,
+          "tracking_call_wall_seconds": 2.0974711207672954,
+          "tracking_call_wall_fraction": 0.7914990231344944,
+          "committed_training_renders": 116,
+          "frame_observed_mapper_admissions": 2,
+          "renders_per_frame_observed_admission": 58.0,
+          "admission_timestamp_rule": "first frame-end query reporting cumulative admission count",
+          "no_admission_status": "measured"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "allowance": 1.0,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "allowance": 1.0,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "allowance": 1.5,
+      "arm": "vanilla",
+      "status": "awaiting_live_run",
+      "points": []
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "allowance": 1.5,
+      "arm": "ours",
+      "status": "awaiting_live_run",
+      "points": []
+    }
+  ]
+}

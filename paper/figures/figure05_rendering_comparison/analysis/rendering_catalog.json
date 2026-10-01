@@ -1,0 +1,748 @@
+{
+  "rows": [
+    {
+      "dataset": "rpng",
+      "scene": "table_01",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_01",
+        "frame_index": 1550,
+        "gt_structure_score": 0.06560243762439387,
+        "crop": [
+          154,
+          201,
+          359,
+          315
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3/curve_evaluation/final/images/001550_gt.png",
+        "gt_sha256": "3f9dc402d243f664e2bc75d655ca565308d9e4c17d18b9e668d3504bfa8f176a",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/vanilla/curve_evaluation/final/images/001550_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3/curve_evaluation/final/images/001550_render.png",
+        "vanilla_sha256": "a705d1128a0bc507f04ff9e95451f36fdce0befefd1a24bb5c93dbcf43090e0b",
+        "d3_sha256": "0cffebde356c4421f4b3edc1e1201d90b2d667ed8e446e80b0869f0f380fd796",
+        "vanilla_psnr": 21.208803176879883,
+        "ours_psnr": 23.520490646362305
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/vanilla/curve_evaluation/summary.json",
+          "sha256": "e576a1874cf05fa094a61b1d7daa77249ce4c8a1d7dc1ac553e41bfe1a9947c3"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_01/d3/curve_evaluation/summary.json",
+          "sha256": "83489bca17be5afdd4fdf219ca3f71b16d5b1769f7d8b86de186e9af97bfd7ed"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_02",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_02",
+        "frame_index": 1755,
+        "gt_structure_score": 0.07467518791582274,
+        "crop": [
+          154,
+          172,
+          359,
+          286
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3/curve_evaluation/final/images/001755_gt.png",
+        "gt_sha256": "82d932dd7d5ba3703006af50c3c21dd791fa6b4379e4bd2fe6f860f4a0fbaac1",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/vanilla/curve_evaluation/final/images/001755_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3/curve_evaluation/final/images/001755_render.png",
+        "vanilla_sha256": "2d16528bf5ac093a69af0295e878954089db63cb0823cda756730ed9842bdad8",
+        "d3_sha256": "87e83a14b4b4ff20a7d01f3a2080cffe6f8bdf639c1e2164ff510c37de65ce3a",
+        "vanilla_psnr": 20.16574478149414,
+        "ours_psnr": 24.406909942626953
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/vanilla/curve_evaluation/summary.json",
+          "sha256": "128bd3ef151e3a1d351a19f7923fe3382196abeefee7a4bb2a16535ad15714c1"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_02/d3/curve_evaluation/summary.json",
+          "sha256": "320e5ac529cca1b7a27b5aceaf5bfe610b02b369c46fd62a585aa1c4f3693136"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_03",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_03",
+        "frame_index": 1110,
+        "gt_structure_score": 0.07164380758111198,
+        "crop": [
+          102,
+          115,
+          307,
+          229
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3/curve_evaluation/final/images/001110_gt.png",
+        "gt_sha256": "4781c68cce2a9cc15e572e9e5085f46d49506da9e045b75926f1cdc97f488d18",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/vanilla/curve_evaluation/final/images/001110_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3/curve_evaluation/final/images/001110_render.png",
+        "vanilla_sha256": "47b6185bd5a21d0b3f1312d28d107c33f3ffc220a80e4f15417058f4a192d447",
+        "d3_sha256": "0733d6f5a19d3365ede52975a992d9eef8e61aec40aaf30174d9ee7dd24521f4",
+        "vanilla_psnr": 20.07957649230957,
+        "ours_psnr": 25.099014282226562
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/vanilla/curve_evaluation/summary.json",
+          "sha256": "19199993896b66891fcff374ba3a8c156a09a07900fd1a484fa605046107f42f"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_03/d3/curve_evaluation/summary.json",
+          "sha256": "a94e1c0e166d19098e4e8521285acacc3dd138fec9dd02154b72e17f795a35f6"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_04",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_04",
+        "frame_index": 5875,
+        "gt_structure_score": 0.06911328427495987,
+        "crop": [
+          102,
+          230,
+          307,
+          344
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/final/images/005875_gt.png",
+        "gt_sha256": "b4ac0c33ae0570bde434e7aae6db2c9190e2b74c75e5c8141217df8871f83414",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/final/images/005875_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/final/images/005875_render.png",
+        "vanilla_sha256": "c2b67a310dffd6ab451acd277fff43d9c36603a8c846f352c0566af216e0cec3",
+        "d3_sha256": "21e143adc26237ac17fc363df570f58cacc0ae9ba79e4d3570cb4c0c8edb8f7d",
+        "vanilla_psnr": 21.64144515991211,
+        "ours_psnr": 23.813335418701172
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/vanilla/curve_evaluation/summary.json",
+          "sha256": "5b2c97985f50b31c46e9854eac8a305e7c33ceb05af4d2b09846be1aef33af93"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_04/d3/curve_evaluation/summary.json",
+          "sha256": "4265e15ffa3f485f26c5d0137f04a7f8646980782b65d170ce05e6c477fa6cb3"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_05",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_05",
+        "frame_index": 4010,
+        "gt_structure_score": 0.06634419688410063,
+        "crop": [
+          256,
+          230,
+          461,
+          344
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/d3/curve_evaluation/final/images/004010_gt.png",
+        "gt_sha256": "e8798c33db7215f182306d47477996edfb2d1926e07a0fddc21f1f43489c7771",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/vanilla/curve_evaluation/final/images/004010_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/d3/curve_evaluation/final/images/004010_render.png",
+        "vanilla_sha256": "56967f2c02d3fb7123bb55c52c3c491b8efa14fd7ebcec241011342cea92f1fa",
+        "d3_sha256": "1f5b6495e152b1b4d1523448346e4946955fee68c5c49fbc6c3ed2179a17ad6d",
+        "vanilla_psnr": 20.71533203125,
+        "ours_psnr": 22.121450424194336
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/vanilla/curve_evaluation/summary.json",
+          "sha256": "3b8a4353329b0d2dbc5b62b0edb839802efb2abef4b824b4ad1c7d61419de1b5"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_05/d3/curve_evaluation/summary.json",
+          "sha256": "5170c213021de1f738033a1094f420c2738da22c34a72e679e3c3a688f0a699e"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_06",
+        "frame_index": 1930,
+        "gt_structure_score": 0.07142375302925644,
+        "crop": [
+          411,
+          86,
+          616,
+          200
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final/images/001930_gt.png",
+        "gt_sha256": "bcfe8a541061a3ee86b19b6743ce4cb1d456097982905b0a8048b11b6131a663",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/final/images/001930_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final/images/001930_render.png",
+        "vanilla_sha256": "3886ac420b3ad595656e5c8b166f7f8c2e8ddbd1b9c7eb676dbbce1077b4142b",
+        "d3_sha256": "a5c2cd565734eb312ec7999d753b177c2c8eee472336f53075e2f43d22dda99b",
+        "vanilla_psnr": 22.966964721679688,
+        "ours_psnr": 26.156465530395508
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/summary.json",
+          "sha256": "a35ab2c0c6093057f6ac6ac032435aa8e0169a033f742f0b243870fded8f95a4"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/summary.json",
+          "sha256": "b6413d4ee8ccc98b030ac675c4f5ac06f126268d6590508138183a2f3fb03dcb"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_07",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_07",
+        "frame_index": 2125,
+        "gt_structure_score": 0.06816278194401006,
+        "crop": [
+          0,
+          172,
+          205,
+          286
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/d3/curve_evaluation/final/images/002125_gt.png",
+        "gt_sha256": "d9288bfca98137e3aab6a8c64085fe3a10fa9343c30e1fb472182f6ff5bfbf7f",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/vanilla/curve_evaluation/final/images/002125_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/d3/curve_evaluation/final/images/002125_render.png",
+        "vanilla_sha256": "fdfb86fc1201451cba18d510a7cd3936126dc3e739223ea8d3ab094e89529475",
+        "d3_sha256": "baeda45106641961286e4d02648d4053472d8ec77580e1a7ce0c598be6b9c642",
+        "vanilla_psnr": 25.050838470458984,
+        "ours_psnr": 30.76148796081543
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/vanilla/curve_evaluation/summary.json",
+          "sha256": "e6308bcb50c6d826e86383cec16cc880a4b70222dbf46bb567520a3d31ab9987"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_07/d3/curve_evaluation/summary.json",
+          "sha256": "6c329aefab83dc56956c32a6ba2535aed3e095f0e09d3f6dfd603795802b3b23"
+        }
+      ]
+    },
+    {
+      "dataset": "rpng",
+      "scene": "table_08",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_08",
+        "frame_index": 7270,
+        "gt_structure_score": 0.0734796762508434,
+        "crop": [
+          0,
+          143,
+          205,
+          257
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/d3/curve_evaluation/final/images/007270_gt.png",
+        "gt_sha256": "7ddad4d2fa4c057fcb194af2ac1538942b1dab2dd7ccac6cfddff7d6d740ebca",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/vanilla/curve_evaluation/final/images/007270_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/d3/curve_evaluation/final/images/007270_render.png",
+        "vanilla_sha256": "0022551ccf5d15ea7b7cb98e1d6ed02c66414b6ac4f24657268c756a3754b3b1",
+        "d3_sha256": "dbfdd30a4fe6c9f76b12b05d8dfcbe15d7c6359c4bb6b391007bcd1071e23505",
+        "vanilla_psnr": 23.944454193115234,
+        "ours_psnr": 24.176912307739258
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/vanilla/curve_evaluation/summary.json",
+          "sha256": "88a8eef16ada2a359ef44c3b6b33c8f5a8360e98cbb2cf25d58872e40b0d7433"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_08/d3/curve_evaluation/summary.json",
+          "sha256": "5e54b14b9651acad54eb43c3463c7881b2df2861cdb101069bda49fe7da88adb"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-1",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "ego-centric-1",
+        "frame_index": 1190,
+        "gt_structure_score": 0.05956212795869479,
+        "crop": [
+          216,
+          0,
+          432,
+          109
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/d3/curve_evaluation/final/images/001190_gt.png",
+        "gt_sha256": "4cc20ad9402cf79911e190ad6696b141815583242558aef10ae07863ecf4f211",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/vanilla/curve_evaluation/final/images/001190_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/d3/curve_evaluation/final/images/001190_render.png",
+        "vanilla_sha256": "ea8a1aa32c529af0173104bfca0eaccc279b18656cf2e18f8522aa3aea81b54b",
+        "d3_sha256": "bd46c9f90d3946059091b417d41edea4e3e403b96da8fade624e7bb940afd3cf",
+        "vanilla_psnr": 20.003093719482422,
+        "ours_psnr": 21.24810218811035
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/vanilla/curve_evaluation/summary.json",
+          "sha256": "b268634b86211be531d2124e8cd438fa143cd31b120589a82a58c6e5a027f016"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-1/d3/curve_evaluation/summary.json",
+          "sha256": "0188e2c9bf6bce64e2601a95accf669e43287c9dd8b34e2d0649a1a3cd5eda2f"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-centric-2",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "ego-centric-2",
+        "frame_index": 680,
+        "gt_structure_score": 0.05989182998135451,
+        "crop": [
+          270,
+          0,
+          486,
+          109
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/d3/curve_evaluation/final/images/000680_gt.png",
+        "gt_sha256": "9f4160041b988e8a0c4fcf92f347b1b0358f5367bfa1d4ff887962ef1f17c930",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/vanilla/curve_evaluation/final/images/000680_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/d3/curve_evaluation/final/images/000680_render.png",
+        "vanilla_sha256": "94bcae80b970c5a1fefa30464e982aa1ec6e85d4960e2f025d9360b9e520d2e0",
+        "d3_sha256": "f1f41a14d0233f08327df558dd41363fba542fc6357dc05cc9db2a0b800880f0",
+        "vanilla_psnr": 18.29031753540039,
+        "ours_psnr": 21.391254425048828
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/vanilla/curve_evaluation/summary.json",
+          "sha256": "d4349ee8cc361f31e5439544af0ab59731aa267c6175f1aa12952f0017225e8f"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-centric-2/d3/curve_evaluation/summary.json",
+          "sha256": "c2279fad42a54c66d6354af6d6e459e8fa9db1745f18f7264aee366ece46df95"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "ego-drive",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "ego-drive",
+        "frame_index": 375,
+        "gt_structure_score": 0.06145735709371934,
+        "crop": [
+          216,
+          54,
+          432,
+          163
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/d3/curve_evaluation/final/images/000375_gt.png",
+        "gt_sha256": "1c8b861c059c83e4b36eee29a12e5471b04564e544bc6132356ad16cda7ff350",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/vanilla/curve_evaluation/final/images/000375_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/d3/curve_evaluation/final/images/000375_render.png",
+        "vanilla_sha256": "7a30d95187c552be0a7556644663f555860af0be1cac0ec5ad40b4942e5acaa3",
+        "d3_sha256": "3b5ef83885098a057d43bd72c62ff9261c7a558555a8af8f990d8a8a196c372a",
+        "vanilla_psnr": 14.955352783203125,
+        "ours_psnr": 20.482213973999023
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/vanilla/curve_evaluation/summary.json",
+          "sha256": "16a9fb7deea572b2d7dce8f5d35c363ddcfc142c59ab27c2fb35891db6032720"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/ego-drive/d3/curve_evaluation/summary.json",
+          "sha256": "47f951f69d53c055ff51fccebd91b956b21e5376bb9bd1519c7315a6df36257f"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "fast-straight",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "fast-straight",
+        "frame_index": 315,
+        "gt_structure_score": 0.049148072145053866,
+        "crop": [
+          54,
+          0,
+          270,
+          109
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/d3/curve_evaluation/final/images/000315_gt.png",
+        "gt_sha256": "bb755a507949f63adf023f136341a5daa448d1c6487a08f2fadab9d0501a02c3",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/vanilla/curve_evaluation/final/images/000315_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/d3/curve_evaluation/final/images/000315_render.png",
+        "vanilla_sha256": "1c904d5b631341be84b0f55172508216aa5c56896f0a0a8cae2c10b88770d49f",
+        "d3_sha256": "0e1e62bb7a24451df237e85f5e9fbb0dc9ef436ca128728644cb29891e6433eb",
+        "vanilla_psnr": 15.811532974243164,
+        "ours_psnr": 16.876399993896484
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/vanilla/curve_evaluation/summary.json",
+          "sha256": "d1162a5b9181b0f19bce896e05c69417d94409d23a4e703217ef0f9fdfa7ec3f"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/fast-straight/d3/curve_evaluation/summary.json",
+          "sha256": "af34af5af831d916aefd5479c26f713c6e8ce4c52656f69677d4a11b8c2583c1"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-1",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "slow-straight-1",
+        "frame_index": 175,
+        "gt_structure_score": 0.038235440814249594,
+        "crop": [
+          432,
+          109,
+          648,
+          218
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/d3/curve_evaluation/final/images/000175_gt.png",
+        "gt_sha256": "46acdcb327b2fda5d1b1a4279e1bd69a20fcd8177423a82596ccd273973a1a6f",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/vanilla/curve_evaluation/final/images/000175_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/d3/curve_evaluation/final/images/000175_render.png",
+        "vanilla_sha256": "73a6fef2ca6025dc9c2ab1870bb6c9f1be378ddd9ba46fd31d1c841c6fff1f3e",
+        "d3_sha256": "0a80d01bfb812a8513680d99a31d60af7c018d61f33410b272021a92d19d5dea",
+        "vanilla_psnr": 19.763057708740234,
+        "ours_psnr": 23.102550506591797
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/vanilla/curve_evaluation/summary.json",
+          "sha256": "1cd6cddbe2b6d4402aee977ad522bbb951cce2c2c4f4c3e943a7c569fccd82a6"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-1/d3/curve_evaluation/summary.json",
+          "sha256": "5d0ab4300bd745e04c93ce4bb030d2fe6d8d5cd50674af611e84ed9e0de029c7"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "slow-straight-2",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "slow-straight-2",
+        "frame_index": 540,
+        "gt_structure_score": 0.04511169166518929,
+        "crop": [
+          270,
+          109,
+          486,
+          218
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/d3/curve_evaluation/final/images/000540_gt.png",
+        "gt_sha256": "89c7bf2f281d6c3b0e6e57cc78e00f736502f24493e2137e93919f1243b49599",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/vanilla/curve_evaluation/final/images/000540_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/d3/curve_evaluation/final/images/000540_render.png",
+        "vanilla_sha256": "646b75347f4b99e0332d91a6b4e554f65f20c86713afc8af825585e7fb3198f1",
+        "d3_sha256": "2f07ecc46c9a479f2c5a2f9edd44ecd2b35badc4aad46481a1f308dc03fa3137",
+        "vanilla_psnr": 15.924175262451172,
+        "ours_psnr": 20.252351760864258
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/vanilla/curve_evaluation/summary.json",
+          "sha256": "d0c98cdd71745a4eb693b7645b3af9731a387836234d8c38ebdc5dce181c803e"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/slow-straight-2/d3/curve_evaluation/summary.json",
+          "sha256": "43859eb46def4eb7dc6083b3cf58e974c05767286286bd2d558178faf9dc0063"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "square-1",
+        "frame_index": 740,
+        "gt_structure_score": 0.06666513608143165,
+        "crop": [
+          378,
+          27,
+          594,
+          136
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000740_gt.png",
+        "gt_sha256": "2270cda1efd490561ed086f499bda3135725ef66339ff5374d075da74b8955e6",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/final/images/000740_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000740_render.png",
+        "vanilla_sha256": "aa956bcc9e2f16e6682347b5be6ea2bbb3c91ea20c039756a7a942261d8d76ac",
+        "d3_sha256": "6b12571241a88fcbb17914da5313072e7bc1f8ba17b1080310cfc86b4169cf18",
+        "vanilla_psnr": 20.610633850097656,
+        "ours_psnr": 26.609333038330078
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/summary.json",
+          "sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/summary.json",
+          "sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-2",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "square-2",
+        "frame_index": 1065,
+        "gt_structure_score": 0.06339491654411683,
+        "crop": [
+          54,
+          54,
+          270,
+          163
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/d3/curve_evaluation/final/images/001065_gt.png",
+        "gt_sha256": "91c9704e885d3b8245345be94e05b2f76e03cf7fbb114a7946168044f419492c",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/vanilla/curve_evaluation/final/images/001065_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/d3/curve_evaluation/final/images/001065_render.png",
+        "vanilla_sha256": "00c8a56d1564975f0435a973ee06311e4df2a7ce9346c956a42fbee45583a5bf",
+        "d3_sha256": "4d4615822941ae0ea3ead3fbc24bac2d38bbd8d6da091422f9d6178bddac41e7",
+        "vanilla_psnr": 17.475936889648438,
+        "ours_psnr": 20.72239112854004
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/vanilla/curve_evaluation/summary.json",
+          "sha256": "f33738374d5311a5e748a44fa2a03662d67af897bd3a1a1641ec576a4ad5cb30"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-2/d3/curve_evaluation/summary.json",
+          "sha256": "e2e8b7521e1167066cbf7f3a04b8f76771d56789dfa215cf15ff3379137216b9"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "aria",
+        "scene": "aria1253",
+        "frame_index": 1075,
+        "gt_structure_score": 0.03886986792249335,
+        "crop": [
+          155,
+          155,
+          309,
+          309
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/001075_gt.png",
+        "gt_sha256": "6d1631333a735a41bd3c692864f382b79fcbf2a21ce99ed6bf7010260d07662b",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/final/images/001075_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/001075_render.png",
+        "vanilla_sha256": "a0d64fa099181b929100d1a0a51d0c7dfa89abd86567214d2d08aa639a778bbe",
+        "d3_sha256": "fc4f60945d2566a77236ba527b9523450700f42a581cbe90771a2a16a765fb62",
+        "vanilla_psnr": 20.29372215270996,
+        "ours_psnr": 23.164846420288086
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/summary.json",
+          "sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/summary.json",
+          "sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253rot",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "aria",
+        "scene": "aria1253rot",
+        "frame_index": 0,
+        "gt_structure_score": 0.041867535564095275,
+        "crop": [
+          116,
+          77,
+          270,
+          231
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/d3/curve_evaluation/final/images/000000_gt.png",
+        "gt_sha256": "87092ddc557c130b8813053d995925957f73b506097a4ef31cf879f0e8d7ade3",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/vanilla/curve_evaluation/final/images/000000_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/d3/curve_evaluation/final/images/000000_render.png",
+        "vanilla_sha256": "dc3c73b57248d6efc253128fb28df0048dfbd77710879612b28a2253db09fc9a",
+        "d3_sha256": "ee8f14a1e3149b97831caa9c15f9da3778f927e04fa47acb03b7ca9f786de3b1",
+        "vanilla_psnr": 19.385028839111328,
+        "ours_psnr": 19.984329223632812
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/vanilla/curve_evaluation/summary.json",
+          "sha256": "b826f5d3072982053af1a21f13502911fdfcf652be016b89fe1d36a906666d27"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253rot/d3/curve_evaluation/summary.json",
+          "sha256": "60171ba782e15c70ca15a56be242aa1dff7fd031c4687df57854d01fba913529"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_12F",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "aria",
+        "scene": "aria301_12F",
+        "frame_index": 2192,
+        "gt_structure_score": 0.019596931022335003,
+        "crop": [
+          232,
+          155,
+          386,
+          309
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3/curve_evaluation/final/images/002192_gt.png",
+        "gt_sha256": "722e003abae629d17c4be4566b122965a547df42d15f11d955a063639c72ab72",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/vanilla/curve_evaluation/final/images/002192_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3/curve_evaluation/final/images/002192_render.png",
+        "vanilla_sha256": "7fea836c20030ce520aec9add3e2478e853743d04deebd25aedf5eeb28acf0fb",
+        "d3_sha256": "5700cd32b66220e75f6e2fec464178b7d4532532d2f93cddf71578333cbf6ecc",
+        "vanilla_psnr": 18.061521530151367,
+        "ours_psnr": 18.774736404418945
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/vanilla/curve_evaluation/summary.json",
+          "sha256": "66957ca43ad513ca4ce6c99107a385c81bbbeebb71aff591622c89d69f430471"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3/curve_evaluation/summary.json",
+          "sha256": "ebc915e52275d7a012aa34f7443cef69e926419ee1ff9f7cbfb93fe5eb2e4154"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria301_305",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "aria",
+        "scene": "aria301_305",
+        "frame_index": 1535,
+        "gt_structure_score": 0.028578823409667508,
+        "crop": [
+          193,
+          77,
+          347,
+          231
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/d3/curve_evaluation/final/images/001535_gt.png",
+        "gt_sha256": "79762cde7d099adbc9ce6d8642d0c4f22fac6b92a0f915e65174134c95a90c87",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/vanilla/curve_evaluation/final/images/001535_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/d3/curve_evaluation/final/images/001535_render.png",
+        "vanilla_sha256": "fa5c939cdf3a5ae250c63201213a79e47049cfadbab9d7a3ef3fb854a7e57c84",
+        "d3_sha256": "fd65ce1a926ef37023a136835822dfdddb146b7b011ed962f9de0d34c3d8c43b",
+        "vanilla_psnr": 21.929763793945312,
+        "ours_psnr": 25.882823944091797
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/vanilla/curve_evaluation/summary.json",
+          "sha256": "62b78953759a34a078168820fc35f5af3cad956f727323def0bf6b19eb0a79eb"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria301_305/d3/curve_evaluation/summary.json",
+          "sha256": "574bc8f9765827f5e0a397b0fd9ec2dab852e08715ad0fa88e6a76f86fd002a9"
+        }
+      ]
+    }
+  ],
+  "complete_candidate_render_review": true,
+  "expected_scenes": 20,
+  "crop_selection_uses_prediction": false,
+  "script_sha256": "52cad5c4b5a8f6f81424e0700fd65d6990db59c16901fba0ab7ad6c465ca148d"
+}

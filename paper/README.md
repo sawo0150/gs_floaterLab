@@ -12,6 +12,7 @@
 
 | 무엇 | 어디 |
 |---|---|
+| **선택한 Figure/Table 제작 계획 (2026-10-01)** | [`plan/visual_assets/CURRENT.md`](plan/visual_assets/CURRENT.md) → 항목별 폴더 |
 | 지금 상태와 다음 할 일 | [`PAPER_STATUS.md`](PAPER_STATUS.md) |
 | **§3·§4 를 읽을 수 있게 옮긴 것** (PDF 가 greeking 이라) | [`PARAGRAPH_MAP.md`](PARAGRAPH_MAP.md) |
 | 섹션별 무슨 내용을 쓸지 | [`sections/README.md`](sections/README.md) → 각 절 폴더 |

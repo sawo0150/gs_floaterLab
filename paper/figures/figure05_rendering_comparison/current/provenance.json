@@ -1,0 +1,128 @@
+{
+  "kind": "actual_final_heldout_renderings",
+  "experimental_evidence": true,
+  "generator": "/home/intern/gs_floaterLab/paper/scripts/build_measured_rendering_figure.py",
+  "generator_sha256": "eed276e643c2637dc96c373f5f07a9eab068a3958df8dad133c05232ea4183da",
+  "catalog": "/home/intern/gs_floaterLab/paper/figures/figure05_rendering_comparison/analysis/rendering_catalog.json",
+  "catalog_sha256": "68837d8c6bff0e2f87701be82d57ee7075d5e7acd4bef16ace6f2c32fbb066cb",
+  "all_candidate_renderings_reviewed": true,
+  "selection_reason": "All20 candidate scenes reviewed before one example per dataset. table_06 poster text, square-1 indoor structures, aria1253 wearable equipment details. Manual RPNG crop chosen from GT only; no per-view score chooses an enlargement.",
+  "examples": [
+    {
+      "dataset": "rpng",
+      "scene": "table_06",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "rpng",
+        "scene": "table_06",
+        "frame_index": 1930,
+        "gt_structure_score": 0.07142375302925644,
+        "crop": [
+          105,
+          22,
+          340,
+          145
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final/images/001930_gt.png",
+        "gt_sha256": "bcfe8a541061a3ee86b19b6743ce4cb1d456097982905b0a8048b11b6131a663",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/final/images/001930_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/final/images/001930_render.png",
+        "vanilla_sha256": "3886ac420b3ad595656e5c8b166f7f8c2e8ddbd1b9c7eb676dbbce1077b4142b",
+        "d3_sha256": "a5c2cd565734eb312ec7999d753b177c2c8eee472336f53075e2f43d22dda99b",
+        "vanilla_psnr": 22.966964721679688,
+        "ours_psnr": 26.156465530395508,
+        "crop_selection": "manual GT-only poster text, applied identically to both methods"
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/vanilla/curve_evaluation/summary.json",
+          "sha256": "a35ab2c0c6093057f6ac6ac032435aa8e0169a033f742f0b243870fded8f95a4"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/rpng/table_06/d3/curve_evaluation/summary.json",
+          "sha256": "b6413d4ee8ccc98b030ac675c4f5ac06f126268d6590508138183a2f3fb03dcb"
+        }
+      ]
+    },
+    {
+      "dataset": "utmm",
+      "scene": "square-1",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "utmm",
+        "scene": "square-1",
+        "frame_index": 740,
+        "gt_structure_score": 0.06666513608143165,
+        "crop": [
+          378,
+          27,
+          594,
+          136
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000740_gt.png",
+        "gt_sha256": "2270cda1efd490561ed086f499bda3135725ef66339ff5374d075da74b8955e6",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/final/images/000740_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/final/images/000740_render.png",
+        "vanilla_sha256": "aa956bcc9e2f16e6682347b5be6ea2bbb3c91ea20c039756a7a942261d8d76ac",
+        "d3_sha256": "6b12571241a88fcbb17914da5313072e7bc1f8ba17b1080310cfc86b4169cf18",
+        "vanilla_psnr": 20.610633850097656,
+        "ours_psnr": 26.609333038330078
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/vanilla/curve_evaluation/summary.json",
+          "sha256": "d6b5d949242654fcc9901f02d949c59dc4bce105ebcd342de207f5b474cfce21"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/utmm/square-1/d3/curve_evaluation/summary.json",
+          "sha256": "03db1e7ae6f59d8a1a2cab78304771c5a7a1d01ff1f89ff2771f87648dd17d61"
+        }
+      ]
+    },
+    {
+      "dataset": "aria",
+      "scene": "aria1253",
+      "status": "actual_renderings_reviewed",
+      "proposed_view": {
+        "dataset": "aria",
+        "scene": "aria1253",
+        "frame_index": 1075,
+        "gt_structure_score": 0.03886986792249335,
+        "crop": [
+          155,
+          155,
+          309,
+          309
+        ],
+        "gt": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/001075_gt.png",
+        "gt_sha256": "6d1631333a735a41bd3c692864f382b79fcbf2a21ce99ed6bf7010260d07662b",
+        "vanilla": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/final/images/001075_render.png",
+        "d3": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/final/images/001075_render.png",
+        "vanilla_sha256": "a0d64fa099181b929100d1a0a51d0c7dfa89abd86567214d2d08aa639a778bbe",
+        "d3_sha256": "fc4f60945d2566a77236ba527b9523450700f42a581cbe90771a2a16a765fb62",
+        "vanilla_psnr": 20.29372215270996,
+        "ours_psnr": 23.164846420288086
+      },
+      "view_selection": "maximum blurred-GT gradient energy times exposure coverage; no prediction scores",
+      "evaluated_heldout_views": 64,
+      "curve_summaries": [
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/vanilla/curve_evaluation/summary.json",
+          "sha256": "0b3dc0e97c8eb80b75402091dcc9358e424e24a24147c01db364d9dc9d24edbc"
+        },
+        {
+          "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_v1/render40/aria/aria1253/d3/curve_evaluation/summary.json",
+          "sha256": "81702343f8dbb0a662a0d3ce920d48caf0ea17c255014883874d1e6c4c938ffb"
+        }
+      ]
+    }
+  ],
+  "crop_selection_uses_prediction_scores": false,
+  "manuscript_width": "one_column",
+  "loss_isolated": false,
+  "image_content_modified": false
+}

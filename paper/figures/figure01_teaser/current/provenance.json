@@ -1,0 +1,14 @@
+{
+  "kind": "ai_generated_mockup",
+  "experimental_evidence": false,
+  "generator": "built-in image_gen",
+  "prompt": "Create a rough scientific-paper teaser layout mockup for online 3D Gaussian mapping. Very wide landscape composition, white background, clean understated academic style, three aligned columns titled 'Baseline', 'Ours', 'Reference'. Show the exact same small indoor robotics lab corner with a wooden table, a printed wall poster, chair legs, and books from the same camera. Left looks like a slightly incomplete blurry 3D reconstruction with translucent floating blobs; middle sharper more complete reconstruction; right clean reference view. Include a bottom row of simple solid ellipsoid cutaway views illustrating the same scene's geometry and a thin footer. This is an explicitly fictional layout study. Prominently and legibly print 'DRAFT - AI-GENERATED LAYOUT MOCKUP' across the top and 'Not experimental results' at the bottom. No quantitative results, no PSNR, no graphs, no claimed improvement numbers. Generative mockup only. Labels should be plain, easy-to-read academic sans-serif. Make all columns balanced and leave ample white margins. High resolution enough to preview as a two-column conference figure.",
+  "original_file": "/home/colin/.codex/generated_images/01a0b9e1-e0c7-7dd0-9515-0988bb1a8e70/exec-a0d1375f-47e4-40f6-abcc-3df253abed37.png",
+  "local_source": "paper/figures/figure01_teaser/candidates/ai_mockup_2026-10-01.png",
+  "image_sha256": "b09fde3bfa5ddb976715571733ad4342b1fa8cbb536bf457d26f1458420c032f",
+  "asset_id": "F1",
+  "stage": "layout_draft",
+  "caption": "\\textbf{AI-generated teaser mockup.} Fictional appearance and solid-ellipsoid comparisons for online Gaussian mapping.",
+  "pdf_sha256": "228329fa54ee0690f281b36ba0452306686b38fa6d865ea7c87b81885e80c64e",
+  "manuscript_width": "two_columns"
+}

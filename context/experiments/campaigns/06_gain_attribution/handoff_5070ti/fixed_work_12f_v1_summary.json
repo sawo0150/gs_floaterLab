@@ -1,0 +1,50 @@
+[
+  {
+    "dataset": "aria",
+    "scene": "aria301_12F",
+    "budget": 15,
+    "arm": "d3",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/d3",
+    "status": "passed",
+    "psnr": 25.69641070365906,
+    "gaussians": 521655,
+    "training_renders": 4305,
+    "mapping_seconds": 47.22888777311891
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria301_12F",
+    "budget": 15,
+    "arm": "vanilla",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render15/aria/aria301_12F/vanilla",
+    "status": "passed",
+    "psnr": 22.064716050841593,
+    "gaussians": 622976,
+    "training_renders": 4305,
+    "mapping_seconds": 35.63022961909883
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria301_12F",
+    "budget": 40,
+    "arm": "d3",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/d3",
+    "status": "passed",
+    "psnr": 27.450468639893966,
+    "gaussians": 452484,
+    "training_renders": 11480,
+    "mapping_seconds": 96.51259845797904
+  },
+  {
+    "dataset": "aria",
+    "scene": "aria301_12F",
+    "budget": 40,
+    "arm": "vanilla",
+    "output": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/fixed_work_12f_v1/render40/aria/aria301_12F/vanilla",
+    "status": "passed",
+    "psnr": 24.271544135700573,
+    "gaussians": 617718,
+    "training_renders": 11480,
+    "mapping_seconds": 66.70043378206901
+  }
+]

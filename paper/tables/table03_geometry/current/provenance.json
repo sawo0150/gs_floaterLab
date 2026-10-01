@@ -1,0 +1,52 @@
+{
+  "kind": "measured_manual_free_space_diagnostics",
+  "experimental_evidence": true,
+  "complete_candidate_cohort": false,
+  "independent_reference_scenes": [
+    "aria1253"
+  ],
+  "data": "/home/intern/gs_floaterLab/paper/results/tables/cvpr_manual_region_measurements.csv",
+  "data_sha256": "01f2adccca9a2ac5c757e5315a0071043ae658cca8a7907dcaba8d835d31bc91",
+  "source_results": [
+    {
+      "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region15_v2.json",
+      "sha256": "1df849f386176fd94693df5ab8b6f650bd6433eafb819e0f41e377d0183bcdbd",
+      "provenance": {
+        "evaluator": "/home/intern/VIGS-SLAM-paper-full/exp70_axes/evaluate_manual_floater_regions.py",
+        "evaluator_sha256": "70ec6fe932395fcdb99d125e01db95083f0d2136ba7c5cd90b0634932c0a553a",
+        "script": "/home/intern/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/evaluate_cvpr_regions.py",
+        "script_sha256": "415c141d77863981995515914cbee45781e3a10301e44c0237e589225d3383e2",
+        "assets": {
+          "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/1253_region_gt.npz": "2caae887350ba59aa1d80486a8f370dfcc119b58931af07afbe08e30e508359c",
+          "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/aria1253_orb_keyframes.jsonl": "814bdf340efcac85d01f4e4c3ccc6e0f1d83f5367a9814fc71ceebc891678abe"
+        },
+        "evaluation_only": true,
+        "reference_used_by_mapper": false,
+        "independent_reference": "pre-existing manually annotated empty-space voxel mask",
+        "dense_surface_accuracy_completeness_fscore": "NA; this mask contains no dense surface reference",
+        "selection_uses_quality_scores": false
+      }
+    },
+    {
+      "path": "/home/intern/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/collection_v1/aria_manual_region40_v2.json",
+      "sha256": "bf2b2d2ef62d6ea56894c0602f33b0bf31f084fe682485cd4ad96ba838c2f516",
+      "provenance": {
+        "evaluator": "/home/intern/VIGS-SLAM-paper-full/exp70_axes/evaluate_manual_floater_regions.py",
+        "evaluator_sha256": "70ec6fe932395fcdb99d125e01db95083f0d2136ba7c5cd90b0634932c0a553a",
+        "script": "/home/intern/gs_floaterLab/benchmarks/online_gs/campaigns/gain_attribution/evaluate_cvpr_regions.py",
+        "script_sha256": "415c141d77863981995515914cbee45781e3a10301e44c0237e589225d3383e2",
+        "assets": {
+          "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/1253_region_gt.npz": "2caae887350ba59aa1d80486a8f370dfcc119b58931af07afbe08e30e508359c",
+          "/home/intern/VIGS-SLAM-paper-full/exp70_axes/region_gt/aria1253_orb_keyframes.jsonl": "814bdf340efcac85d01f4e4c3ccc6e0f1d83f5367a9814fc71ceebc891678abe"
+        },
+        "evaluation_only": true,
+        "reference_used_by_mapper": false,
+        "independent_reference": "pre-existing manually annotated empty-space voxel mask",
+        "dense_surface_accuracy_completeness_fscore": "NA; this mask contains no dense surface reference",
+        "selection_uses_quality_scores": false
+      }
+    }
+  ],
+  "manuscript_width": "one_column",
+  "geometry_loss_isolated": false
+}

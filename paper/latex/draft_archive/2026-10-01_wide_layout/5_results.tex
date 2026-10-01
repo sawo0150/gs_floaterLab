@@ -1,0 +1,98 @@
+% Layout assembly, 2026-10-01. Previous tables and prose slots are preserved in
+% draft_archive/2026-10-01_before_asset_mockups/5_results.tex.
+% No new experimental measurements are reported by this draft.
+\section{Experiments}
+\label{sec:exp}
+
+\noindent\textbf{Layout draft.}
+The following figures and tables specify the planned comparisons.
+AI-generated scenes and synthetic curves are explicitly marked and are not
+experimental evidence. The HumanTech convergence figure contains historical
+results and will be replaced with measurements from the final implementation.
+All quantitative table entries are left blank.
+
+\subsection{Setup}
+\label{ssec:setup}
+
+\noindent\textbf{Datasets and metrics.}
+The candidate evaluation set comprises the public RGB--IMU datasets RPNG and
+UTMM, and sequences captured with Aria glasses.
+We reserve PSNR, SSIM, and LPIPS columns for images excluded from training,
+alongside tracking error, final Gaussian count, and peak memory.
+The complete candidate sequence list appears in the supplementary tables;
+the final common evaluation subset and split remain to be locked.
+
+\noindent\textbf{Comparison protocols.}
+We separate matched training-render budgets from matched elapsed-time budgets.
+For equal-time comparisons, tracking runs concurrently and the same sensor
+timestamps determine frame arrivals. The two time allowances are
+1$\times$ and 1.5$\times$ the sensor-record duration, with no optimization
+after the last input frame.
+Candidate systems are grouped by their actual input modality. Monocular
+RGB methods and RGB--IMU methods must not be interpreted as identical-input
+comparisons. Any method requiring sensor depth is excluded from this protocol;
+the conditional MM3DGS-SLAM row requires a verified monocular RGB--IMU setup.
+
+\subsection{Rendering Quality and Convergence}
+\label{ssec:main}
+
+Table~\ref{tab:rendering_comparison} reserves dataset-mean comparisons;
+Table~\ref{tab:scene} gives the corresponding sequence-level template.
+Figure~\ref{fig:photometric_convergence} reuses the HumanTech convergence
+layout, while Figure~\ref{fig:new_region} specifies how appearance and geometry
+will be evaluated after a region first becomes observable.
+Figure~\ref{fig:rgb_comparison} reserves matched held-out views and common
+enlarged regions for qualitative comparison.
+
+\input{tab/t1_main_draft}
+\input{fig/f3_draft}
+\input{fig/f4_draft}
+\input{fig/f5_draft}
+
+\subsection{Equal-Time Online Comparison}
+\label{ssec:time_results}
+
+Table~\ref{tab:time_comparison} reserves quality and resource measurements
+under both time allowances. Figure~\ref{fig:equal_time} aligns quality curves
+with completed training work at common elapsed-time checkpoints.
+Figure~\ref{fig:tracking_capacity} relates tracking load and keyframe arrivals
+to achieved mapping work per keyframe; it does not estimate a hardware limit
+from the synthetic example.
+Table~\ref{tab:baseline_peak} compares the work needed to first reach each
+sequence's highest observed baseline PSNR. An unreached target will be marked
+NR rather than assigned a fabricated crossing cost.
+
+\input{tab/t2_main_draft}
+\input{fig/f11_draft}
+\input{fig/f12_draft}
+\input{tab/t6_peak_draft}
+
+\subsection{Geometry}
+\label{ssec:geometry_results}
+
+Table~\ref{tab:geometry} reserves free-space and surface-quality measurements
+alongside held-out rendering quality.
+Figures~\ref{fig:carve} and~\ref{fig:geometry_convergence} specify complementary
+solid-ellipsoid cutaways and geometry-convergence curves. Reference geometry,
+region masks, and evaluation thresholds must be fixed before populating them.
+
+\input{tab/t3_geometry_draft}
+\input{fig/f6_draft}
+\input{fig/f7_draft}
+
+\subsection{Ablations}
+\label{ssec:abl}
+
+Table~\ref{tab:order} retains the original replay experiment's
+15/30/60-update comparison between random reshuffling and the entropy-regularized
+sampler. Figure~\ref{fig:sampling_convergence} reserves the corresponding
+convergence curves. Results from the original replay sampler and the current
+online ERVS implementation will be identified separately.
+Table~\ref{tab:abl} compares keyframe-only supervision with additional
+between-keyframe images in one shared engine and under the same budget.
+These tables contain no historical or synthetic scores.
+
+\input{tab/t4_sampling_draft}
+\input{fig/f9_draft}
+\input{tab/t5_dense_draft}
+\clearpage

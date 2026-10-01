@@ -1,0 +1,39 @@
+# F6 — Geometry 및 solid ellipsoid 비교
+
+작성: 2026-10-01. 상태: **계획 작성 완료 / 최종 산출물 미제작**. ID는 논의용이며 최종 LaTeX 번호가 아니다.
+
+## 목적
+
+free-space artifact 감소와 표면 보존을 RGB 이외의 시각화로 확인한다.
+
+## 만들 구성
+
+- 열: 기하 항 off / on / 독립 reference. 필요하면 VIGS-SLAM 전체 비교는 별도 열로 둔다.
+- 행: RGB, rendered depth 또는 normal, 꽉 찬 타원체 cutaway/단면.
+- 동일 좌표의 표면 앞 빈 공간과 실제 표면을 함께 보여준다.
+- 표시용 ellipsoid는 공통 sigma radius·camera·clip plane·opacity cutoff를 사용한다.
+- caption에 solid ellipsoid가 공간 분포를 보여주는 표시 방식임을 명시한다.
+
+## 비교 조건과 해석
+
+표시용 절단은 두 arm에 동일하게 적용하고 PLY 원본을 변경하지 않는다. 표시 Gaussian 수 감소만으로 geometry 향상을 주장하지 않는다. 평가 GT는 학습 depth와 독립적으로 준비한다. geometry method는 Carve/D3 중 실제 채택한 것을 정확히 표기한다.
+
+[공통 프로토콜](../../../plan/visual_assets/protocol.md) · [원본 확인 기록](../../../plan/visual_assets/source_audit.md) · [방법 후보](../../../plan/visual_assets/baseline_registry.md)
+
+## 확인한 원본과 관련 자료
+
+- [README.md](../../../../humanteck/sections/02_method/figure01/production/README.md)
+- [4_method.tex](../../../latex/sec/4_method.tex)
+- [SUMMARY.md](../../../../context/experiments/campaigns/06_gain_attribution/geometry_main_validation/SUMMARY.md)
+
+## 다음 제작 작업
+
+최종 기하 항과 독립 reference를 확정하고, off/on 통제 실험과 T3의 정량 평가를 함께 준비한다.
+
+## 산출물 및 완료 기준
+
+- 데이터 출처: run ID, code/config hash, scene/evaluation IDs, checkpoint, budget unit을 provenance에 보존한다.
+- Figure: scripts → output 검토본 → PDF 재렌더 확인 → current의 PDF/SVG/PNG/caption/provenance.
+- Table: raw metric 참조 → 경량 집계 데이터 → output의 TeX/preview → 수치·단위·평균 확인 → current.
+- 값이 없는 칸은 —(미측정), 실패 F, 적용 불가 NA, 목표 미도달 NR로 구별한다.
+- 이번 단계는 MD 계획만 작성한다. GPU 실험·논문 TeX 삽입·휴먼테크 원본 교체는 수행하지 않았다.
