@@ -119,3 +119,14 @@ All four cells pass execution and double-evaluation gates; paired controls match
 | keyframe |20.736773|20.716585|−0.020187|
 
 At this budget, RR exceeds ERVS on both RGB sources; this contradicts a universal ERVS advantage. Dense minus keyframe is +0.246496 dB under ERVS and +0.538312 dB under RR. These are one-scene, one-seed measurements; preserve every scene in the aggregate. The 40-budget controls are now running.
+
+## UTMM controls completed
+
+All seven square-1 controls pass endpoint execution, paired prefix/pose/cohort checks, and double evaluation; [measured summary](utmm_controls_summary.json). Checkpoint evaluation remains pending. The 40-budget [factorial CSV](utmm40_factorial.csv) is:
+
+| Photometric RGB source | RR PSNR | ERVS PSNR | ERVS − RR |
+|---|---:|---:|---:|
+| dense |22.114579|22.092829|−0.021751|
+| keyframe |21.744696|21.814367|+0.069671|
+
+At 40, native geometry reaches 22.161410 dB versus D3 22.092829 dB (D3 −0.068582 dB). Neither this nor the RPNG native comparison establishes a PSNR benefit from D3; geometry claims require their own evidence. The queue has moved to Aria1253 controls.

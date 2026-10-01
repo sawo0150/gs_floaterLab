@@ -1,0 +1,5 @@
+sampler,rgb_source,psnr,output
+ERVS,dense,22.092828626985902,/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_fixed_pilot_v1/render40/utmm/square-1/d3
+RR,dense,22.114579368520666,/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/rr_dense
+ERVS,keyframe,21.814367011741357,/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/ervs_kf_rgb
+RR,keyframe,21.74469624625312,/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/rr_kf_rgb

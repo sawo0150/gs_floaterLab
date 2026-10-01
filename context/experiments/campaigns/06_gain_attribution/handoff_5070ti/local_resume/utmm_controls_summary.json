@@ -1,0 +1,380 @@
+[
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "rr_dense",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/utmm/square-1/rr_dense",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 21.27508465743359,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1350,
+      "optimizer_steps": 1350,
+      "gaussians": 138449,
+      "loss_routes": {
+        "native_rgbd_normal": 793,
+        "rgb_only": 557
+      },
+      "roles": {
+        "window": 398,
+        "keyframe": 395,
+        "dense": 557
+      }
+    },
+    "mapping_seconds": 29.814754859078676,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "dd9130a3d7b25775b2a2e139ec0ee7fec6aa87e56ae5f661d75911013ab53454",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "998733093fa02abacbfe73f3e07b3f6f53aaaf4ee409dc4daaca97406b5f557e",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.27508465743359,
+      "fixed_psnr_second": 21.27508465743359,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/utmm/square-1/ervs_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 20.716585324134357,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1350,
+      "optimizer_steps": 1350,
+      "gaussians": 137224,
+      "loss_routes": {
+        "native_rgbd_normal": 706,
+        "rgb_only": 644
+      },
+      "roles": {
+        "window": 361,
+        "keyframe": 345,
+        "keyframe_rgb": 644
+      }
+    },
+    "mapping_seconds": 25.136215039994568,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "52f263196f65286df2a26bec1d4b3de040550d2f7e2c2f1d5aa831eeb3580c68",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 20.716585324134357,
+      "fixed_psnr_second": 20.716585324134357,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 15,
+    "arm": "rr_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render15/utmm/square-1/rr_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render15/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 20.736772810971296,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 1350,
+      "optimizer_steps": 1350,
+      "gaussians": 138203,
+      "loss_routes": {
+        "native_rgbd_normal": 706,
+        "rgb_only": 644
+      },
+      "roles": {
+        "window": 361,
+        "keyframe": 345,
+        "keyframe_rgb": 644
+      }
+    },
+    "mapping_seconds": 25.219047296326607,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "988108cd0684c38924d4f38ef0cb70c38d3a87dbb8454ad551eb1c48043ee78b",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 20.736772810971296,
+      "fixed_psnr_second": 20.736772810971296,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "rr_dense",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/rr_dense",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 22.114579368520666,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3600,
+      "optimizer_steps": 3600,
+      "gaussians": 122149,
+      "loss_routes": {
+        "native_rgbd_normal": 1886,
+        "rgb_only": 1714
+      },
+      "roles": {
+        "window": 945,
+        "keyframe": 941,
+        "dense": 1714
+      }
+    },
+    "mapping_seconds": 43.45957859093323,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "b54b4c992a84b3238ace714fa7ebea49c1ecfb33e0ddd421cb19abede518b671",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "fa39b85f318d407d214ab016f3109fb92e626f12e61cc385908b15eeef99efd8",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 22.114579368520666,
+      "fixed_psnr_second": 22.114579368520666,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "ervs_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/ervs_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 21.814367011741357,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3600,
+      "optimizer_steps": 3600,
+      "gaussians": 124129,
+      "loss_routes": {
+        "native_rgbd_normal": 1802,
+        "rgb_only": 1798
+      },
+      "roles": {
+        "window": 922,
+        "keyframe": 880,
+        "keyframe_rgb": 1798
+      }
+    },
+    "mapping_seconds": 32.33388596819714,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "2b708fab7b79373c158b25164fc893ad695147aadd6e78909d16ce049df7c5bf",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.814367011741357,
+      "fixed_psnr_second": 21.814367011741357,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "rr_kf_rgb",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/rr_kf_rgb",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 21.74469624625312,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3600,
+      "optimizer_steps": 3600,
+      "gaussians": 123531,
+      "loss_routes": {
+        "native_rgbd_normal": 1802,
+        "rgb_only": 1798
+      },
+      "roles": {
+        "window": 922,
+        "keyframe": 880,
+        "keyframe_rgb": 1798
+      }
+    },
+    "mapping_seconds": 32.73603658284992,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "12fbf6b80cacab9d7c846ba0f8b2e562dda6280e87303eada3ce5df1cf5dad7a",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "c325d740f4ec137acfc0ab2d52ebace4c47ea5d224d73fa3642429c07eb427fa",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 21.74469624625312,
+      "fixed_psnr_second": 21.74469624625312,
+      "pass": true
+    }
+  },
+  {
+    "dataset": "utmm",
+    "scene": "square-1",
+    "budget": 40,
+    "arm": "native_geometry",
+    "output": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v3/render40/utmm/square-1/native_geometry",
+    "reference": "/home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_references_v3/render40/utmm/square-1/d3",
+    "status": "passed",
+    "psnr": 22.16141046712428,
+    "audit": {
+      "same_prefix_renders_poses_cohort": true,
+      "training_renders": 3600,
+      "optimizer_steps": 3600,
+      "gaussians": 119788,
+      "loss_routes": {
+        "native_rgbd_normal": 1886,
+        "rgb_only": 1714
+      },
+      "roles": {
+        "window": 945,
+        "keyframe": 941,
+        "dense": 1714
+      }
+    },
+    "mapping_seconds": 41.90492443880066,
+    "evaluation": {
+      "protocol": "saved_map_independent_double_evaluation_v1",
+      "cooldown_seconds": 15,
+      "input_sha256": {
+        "ply": "be110d02c50cb1a79b5915e036a121d7ac91b70ce7162b287724d6483257109b",
+        "full_trajectory": "2e5dda345db17cd26b29378f44248ef1ece9f67b84732f9a864d6ae4c1ceb140",
+        "kf_trajectory": "10ed236e5429d0c7ef0fe77a77f92a8f25f6632ca4e1056619c1da47b2270ad7",
+        "mapped_uids": "cc5bc83eb283fd1a0f4bd0e2831ae4aad5fad83d324700aca0b6c382fb237728",
+        "fixed_manifest": "6a54fdd3ccf272b762c4c4ebca13803f09e28efe4f43cbddf940cbb80dba8e26"
+      },
+      "checks": {
+        "unchanged_inputs": true,
+        "same_views": true,
+        "same_gaussian_count": true,
+        "same_fixed_view_count": true,
+        "psnr_agrees": true,
+        "ssim_agrees": true,
+        "lpips_agrees": true
+      },
+      "max_abs_per_view_difference": {
+        "psnr": 0.0,
+        "ssim": 0.0,
+        "lpips": 0.0
+      },
+      "fixed_psnr_first": 22.16141046712428,
+      "fixed_psnr_second": 22.16141046712428,
+      "pass": true
+    }
+  }
+]
