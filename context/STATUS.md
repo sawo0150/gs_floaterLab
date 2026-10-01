@@ -88,6 +88,16 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-01 aria1253rot controls7/7 완료, 기존19+로컬28=47/140. NTFS metadata 대기로 controls_v4 평가 정지; 필수 입력17장면 모두 준비 확인. 검증된28개 manifest/source lock 재사용하는 controls_v5/followup_v6 시작, rpng table_03 학습 진행. → [card](experiments/campaigns/06_gain_attribution/handoff_5070ti/local_resume/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF native_geometry: status=passed, PSNR=24.991874407158523; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253rot/native_geometry → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF rr_kf_rgb: status=passed, PSNR=24.99573585635326; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253rot/rr_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF ervs_kf_rgb: status=passed, PSNR=24.69144163913414; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253rot/ervs_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
+- 2026-10-01 CVPR aria/aria1253rot 40renders/KF rr_dense: status=passed, PSNR=25.235142848530753; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render40/aria/aria1253rot/rr_dense → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
+
 - 2026-10-01 CVPR aria/aria1253rot 15renders/KF rr_kf_rgb: status=passed, PSNR=23.62655188763728; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253rot/rr_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)
 
 - 2026-10-01 CVPR aria/aria1253rot 15renders/KF ervs_kf_rgb: status=passed, PSNR=23.61231665689437; /home/wosas/Desktop/Incremental_mapping_test/gs_floaterLab/results/campaigns/gain_attribution/cvpr_assets/rtx5070ti_controls_v4/render15/aria/aria1253rot/ervs_kf_rgb → [card](experiments/campaigns/06_gain_attribution/cvpr_assets/README.md)

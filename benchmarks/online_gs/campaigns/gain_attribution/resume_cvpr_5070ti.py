@@ -132,6 +132,8 @@ def main():
     p.add_argument("--reuse-controls-manifest", type=Path,
                    help="Inspected passed pilot controls to preserve in a fresh namespace")
     p.add_argument("--reuse-source-lock", type=Path)
+    p.add_argument("--reuse-verified-manifest", action="store_true",
+                   help="Reuse an audited immutable manifest without reopening map files")
     a = p.parse_args()
     assert os.environ.get("ROGO_MACHINE_PROFILE"), "An explicit machine profile is required"
     a.controls.mkdir(parents=True, exist_ok=False)
@@ -139,21 +141,27 @@ def main():
     try:
         if a.reuse_controls_manifest:
             reused = read(a.reuse_controls_manifest)
-            assert len(reused) == 21 and all(r['status'] == 'passed' for r in reused)
+            assert len(reused) >= 21 and all(r['status'] == 'passed' for r in reused)
+            identities = {(r['dataset'], r['scene'], r['budget'], r['arm']) for r in reused}
+            assert len(identities) == len(reused), 'Duplicate reused control identity'
             assert a.reuse_source_lock and a.reuse_source_lock.is_file()
             for row in reused:
                 original = Path(row['output'])
-                assert read(original / 'render_result.json')['valid_execution']
-                assert read(original / 'evaluation_consistency.json')['pass']
+                if a.reuse_verified_manifest:
+                    assert row['audit']['same_prefix_renders_poses_cohort']
+                    assert row['evaluation']['pass']
+                else:
+                    assert read(original / 'render_result.json')['valid_execution']
+                    assert read(original / 'evaluation_consistency.json')['pass']
                 target = a.controls / f"render{row['budget']}" / row['dataset'] / row['scene'] / row['arm']
                 target.parent.mkdir(parents=True, exist_ok=True)
-                target.symlink_to(original.resolve(), target_is_directory=True)
+                target.symlink_to(original.absolute(), target_is_directory=True)
                 row['output'] = str(target)
             write(a.controls / 'summary.json', reused)
             shutil.copyfile(a.reuse_source_lock, a.controls / 'source_lock.json')
             write(a.controls / 'reused_controls_provenance.json', {
                 'manifest': str(a.reuse_controls_manifest), 'sha256': sha(a.reuse_controls_manifest),
-                'training_rerun': False})
+                'training_rerun': False, 'manifest_only_reuse': a.reuse_verified_manifest})
         profile = Path(os.environ["ROGO_MACHINE_PROFILE"])
         write(a.controls / "machine_provenance.json", {
             "profile": read(profile), "profile_sha256": sha(profile),
@@ -197,10 +205,11 @@ def main():
         control = [py, str(HERE / "run_cvpr_ablations.py"), "--output", str(a.controls), "--reference-root", str(a.reference),
                    "--skip-completed", str(completed), "--budgets", "15", "40", "--snapshots"]
         run([*control, "--scenes", *sorted(PILOTS)], a.controls / "pilot_controls.log", status, "pilot_controls")
-        passed(a.controls, 21)
+        passed(a.controls, max(21, len(reused) if a.reuse_controls_manifest else 0))
         historical = read(completed)
         skipped = lambda r: sum(x['status'] == 'passed' and (x['dataset'], x['scene']) == (r['dataset'], r['scene']) for x in historical)
-        pending = [r for r in inventory if r['scene'] not in PILOTS and skipped(r) < 7]
+        existing = lambda r: sum(x['status'] == 'passed' and (x['dataset'], x['scene']) == (r['dataset'], r['scene']) for x in read(a.controls / 'summary.json'))
+        pending = [r for r in inventory if r['scene'] not in PILOTS and skipped(r) + existing(r) < 7]
         cache = {}
         while pending:
             ready = [r for r in pending if not pending_input_files(r, cache)]
@@ -216,9 +225,10 @@ def main():
             for r in ready:
                 inputs_ready([r])
                 count = len(read(a.controls / 'summary.json'))
+                existing_before = existing(r)
                 log = a.controls / f"controls_{r['dataset']}_{r['scene']}.log"
                 run([*control, '--scenes', r['scene']], log, status, 'remaining_controls')
-                passed(a.controls, count + 7 - skipped(r))
+                passed(a.controls, count + 7 - skipped(r) - existing_before)
                 pending.remove(r)
         # This only skips passed outputs and restores the full-cohort protocol metadata.
         run(control, a.controls / 'finalize_controls.log', status, 'finalize_control_metadata')
