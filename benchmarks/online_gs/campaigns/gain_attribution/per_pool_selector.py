@@ -28,6 +28,26 @@ ANCHORS = {
 }
 
 
+def install_kf_depth_weight():
+    """Optional: override B's keyframe metric-depth weight (B_KF_DEPTH_W) after fixed40_geometry reads its config.
+
+    The official worker requires the B environment, so the weight is changed in the loaded CFG instead; the loss
+    reads CFG['w_plain'] at call time and the worker records the effective CFG in geometry_runtime.json.
+    """
+    value = os.environ.get('B_KF_DEPTH_W')
+    if value is None:
+        return None
+    import fixed40_geometry as geometry
+    native_install = geometry.install
+
+    def install(*args, **kwargs):
+        cfg = native_install(*args, **kwargs)
+        cfg['w_plain'] = float(value)
+        return cfg
+    geometry.install = install
+    return float(value)
+
+
 def install():
     roles = tuple(r for r in os.environ.get('B_RR_ROLES', '').split(',') if r)
     assert roles and set(roles) <= {'keyframe', 'dense'}, roles
@@ -67,6 +87,9 @@ if __name__ == '__main__':
     # Same sys.path[0] as running the worker directly: this folder holds an older selected_mapping_check.py
     # that must not shadow the official one next to the worker.
     sys.path[0] = str(worker.parent)
-    install()
+    sys.path.insert(1, str(worker.parent / 'geometry_merge'))
+    install_kf_depth_weight()
+    if os.environ.get('B_RR_ROLES'):
+        install()
     sys.argv = [str(worker), *sys.argv[1:]]
     runpy.run_path(str(worker), run_name='__main__')
