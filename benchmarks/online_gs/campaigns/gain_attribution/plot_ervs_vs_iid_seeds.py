@@ -146,6 +146,8 @@ for j, (arm, label, color, ls) in enumerate(ARMS):
     for xi, v in zip(x, binmeans[arm]):
         bx.text(xi + (-0.08 if j == 0 else 0.08), v, f'{v:.2f}', ha='right' if j == 0 else 'left', va='center', fontsize=8)
 bx.set_xticks(range(5), ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'])
+lo = min(v.min() for v in binmeans.values()); hi = max(v.max() for v in binmeans.values())
+bx.set_ylim(lo - 0.2, hi + 0.15); bx.set_xlim(-0.6, 4.6)
 bx.set_ylabel('mean held-out PSNR per time bin (dB)'); bx.set_xlabel('stream time bin')
 bx.set_title('Five-bin means (all cells and seeds; axis not from zero)', fontsize=10); bx.legend(frameon=False, fontsize=8, loc='upper right')
 for a in (ax, bx):
