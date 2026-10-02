@@ -125,9 +125,27 @@ td.num { font-family: var(--mono) }
   </section>
 
   <section class="panel">
+    <h2>시간에 따른 학습 횟수</h2>
+    <div class="controls" style="padding:0">
+      <div><span class="ctl-label">view 종류</span>
+        <div class="seg" id="roleSeg" role="group" aria-label="view 종류">
+          <button data-v="dense" aria-pressed="true">dense view</button><button data-v="kf" aria-pressed="false">KF view (window + KF pool)</button>
+        </div></div>
+    </div>
+    <p class="cap">x축은 view가 스트림에 도착한 시점(20구간)이고, y축은 그 구간에 도착한 view가 끝까지 받은 평균 학습 횟수입니다. 장면마다 횟수 규모가 달라서, 장면 평균으로 나눈 상대값(1 = 그 장면 평균)을 장면끼리 평균했습니다. 세로축은 로그 눈금입니다.</p>
+    <div class="two">
+      <div class="chart" id="cCount"></div>
+      <div class="chart" id="cRatio"></div>
+    </div>
+    <div class="stats" id="cvStats"></div>
+  </section>
+
+  <section class="panel">
     <h2>장면 하나씩 보기</h2>
     <div><label class="ctl-label" for="sceneSel">장면</label><select id="sceneSel"></select></div>
     <div class="chart" id="cScene"></div>
+    <p class="cap" id="sceneCountCap"></p>
+    <div class="chart" id="cSceneCount"></div>
   </section>
 
   <section class="panel">
@@ -138,6 +156,7 @@ td.num { font-family: var(--mono) }
 
   <section class="notes">
     <p><b>지표.</b> 최저 구간 PSNR은 스트림을 다섯 구간으로 나눴을 때 평균이 가장 낮은 구간의 값입니다. worst-Q1은 PSNR이 가장 낮은 하위 25% view의 평균입니다. 95% 신뢰구간은 장면 단위 bootstrap(4,000회)으로 계산했습니다.</p>
+    <p><b>학습 횟수.</b> view 하나가 optimizer step에서 render된 횟수입니다. KF view는 window와 KF pool에서 뽑힌 횟수를 합쳤고, mapper reset 이후의 generation도 모두 셉니다. CV는 같은 종류 view들의 학습 횟수 표준편차를 평균으로 나눈 값입니다.</p>
     <p><b>조건.</b> 매퍼는 채택된 B 레시피(κ 16, quota 3:3:6, KF metric depth L1 0.25, dense RGB)입니다. tracking archive는 장면마다 하나로 고정했고, seed는 매핑 난수만 바꿉니다. aria1253rot과 square-1은 K=16을 고를 때 쓴 장면입니다.</p>
   </section>
 </div>
@@ -145,7 +164,7 @@ td.num { font-family: var(--mono) }
 <script>
 const DATA = /*__DATA__*/null;
 const G = DATA.grid;
-const state = { set: 'all', ds: 'any', metric: 'psnr', scene: null, sort: { key: 'dpsnr', dir: -1 } };
+const state = { set: 'all', ds: 'any', metric: 'psnr', role: 'dense', scene: null, sort: { key: 'dpsnr', dir: -1 } };
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
 const sd = a => { if (a.length < 2) return 0; const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
@@ -190,7 +209,7 @@ function yAxis(f, lo, hi, label, fmtT = v => v.toFixed(1)) {
     el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: css('--grid'), 'stroke-width': 1 }, f.svg);
     el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = fmtT(t);
   }
-  const t = el('text', { class: 'axis-title', transform: `translate(14 ${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg); t.textContent = label;
+  const t = el('text', { class: 'axis-title', transform: `translate(${Math.max(14, f.x0 - 50)} ${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg); t.textContent = label;
   return y;
 }
 function xAxisTime(f) {
@@ -217,6 +236,95 @@ function crosshair(f, x, onMove) {
   };
   hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move);
   hit.addEventListener('pointerleave', () => { line.setAttribute('visibility', 'hidden'); f.tip.hidden = true; });
+}
+
+
+/* ---------- service counts ---------- */
+const NB = DATA.count_bins || 20, BC = Array.from({ length: NB }, (_, i) => (i + .5) / NB);
+const ROLE = { dense: 'dense view', kf: 'KF view' };
+const arr = v => v.map(x => x == null ? NaN : x);
+const nmean = a => { const f = a.filter(x => !isNaN(x)); return f.length ? mean(f) : NaN; };
+const nse = a => { const f = a.filter(x => !isNaN(x)); return f.length > 1 ? sd(f) / Math.sqrt(f.length) : 0; };
+function logAxis(f, lo, hi, label) {
+  const L = Math.log10, y = v => f.y0 - (L(v) - L(lo)) / (L(hi) - L(lo)) * (f.y0 - f.y1);
+  const ticks = [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200].filter(t => t >= lo && t <= hi);
+  for (const t of ticks) {
+    el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: t === 1 ? css('--faint') : css('--grid'), 'stroke-width': 1 }, f.svg);
+    el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = t;
+  }
+  el('text', { class: 'axis-title', transform: `translate(14 ${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg).textContent = label;
+  return y;
+}
+function xArrival(f) {
+  const x = v => f.x0 + v * (f.x1 - f.x0);
+  for (const t of [0, .2, .4, .6, .8, 1]) {
+    el('line', { x1: x(t), x2: x(t), y1: f.y1, y2: f.y0, stroke: css('--grid'), 'stroke-width': 1 }, f.svg);
+    el('text', { x: x(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = t.toFixed(1);
+  }
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = 'view 도착 시점 (0 = 시작, 1 = 끝)';
+  return x;
+}
+function seg(xs, ys, x, y) { let d = '', pen = false; xs.forEach((v, i) => { if (isNaN(ys[i])) { pen = false; return; } d += (pen ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1); pen = true; }); return d; }
+function binHover(f, x, host, html) {
+  const line = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
+  const hit = el('rect', { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, fill: 'transparent' }, f.svg);
+  const mv = ev => { const r = f.svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * f.W / r.width;
+    const i = Math.min(NB - 1, Math.max(0, Math.floor((sx - f.x0) / (f.x1 - f.x0) * NB)));
+    line.setAttribute('x1', x(BC[i])); line.setAttribute('x2', x(BC[i])); line.setAttribute('visibility', 'visible');
+    f.tip.innerHTML = html(i); f.tip.hidden = false;
+    f.tip.style.left = Math.min(host.clientWidth - f.tip.offsetWidth - 4, (x(BC[i]) / f.W) * r.width + 12) + 'px'; f.tip.style.top = '8px'; };
+  hit.addEventListener('pointermove', mv); hit.addEventListener('pointerdown', mv);
+  hit.addEventListener('pointerleave', () => { line.setAttribute('visibility', 'hidden'); f.tip.hidden = true; });
+}
+function renderCounts(sc) {
+  const k = state.role, hostA = document.getElementById('cCount'), hostB = document.getElementById('cRatio');
+  if (!sc.length) { hostA.innerHTML = hostB.innerHTML = ''; document.getElementById('cvStats').innerHTML = ''; return; }
+  const norm = a => sc.map(s => arr(s.count[k][a]).map(v => v / s.count_scale[k]));
+  const E = norm('ervs_k16'), U = norm('uniform_iid');
+  const em = BC.map((_, i) => nmean(E.map(r => r[i]))), um = BC.map((_, i) => nmean(U.map(r => r[i])));
+  const R = sc.map(s => { const e = arr(s.count[k].ervs_k16), u = arr(s.count[k].uniform_iid); return e.map((v, i) => v / u[i]); });
+  const rm = BC.map((_, i) => nmean(R.map(r => r[i]))), rse = BC.map((_, i) => nse(R.map(r => r[i])));
+  // A: normalized counts, log scale
+  let f = frame(hostA, 300, { l: 52, r: 14, t: 12, b: 46 });
+  const vals = em.concat(um).filter(v => !isNaN(v) && v > 0);
+  const lo = Math.max(.05, Math.min(...vals) * .8), hi = Math.max(...vals) * 1.25;
+  let y = logAxis(f, lo, hi, '상대 학습 횟수 (장면 평균 = 1)'), x = xArrival(f);
+  el('path', { d: seg(BC, um, x, y), fill: 'none', stroke: css('--iid'), 'stroke-width': 2.2, 'stroke-dasharray': '6 4' }, f.svg);
+  el('path', { d: seg(BC, em, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 2.2 }, f.svg);
+  for (const [m, c] of [[um, '--iid'], [em, '--ervs']]) BC.forEach((v, i) => { if (!isNaN(m[i])) el('circle', { cx: x(v), cy: y(m[i]), r: 2.6, fill: css(c) }, f.svg); });
+  binHover(f, x, hostA, i => `<b>도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}</b> · ${ROLE[k]}<br><span style="color:var(--ervs)">●</span> ERVS ${em[i].toFixed(2)}<br><span style="color:var(--iid)">●</span> 균등 ${um[i].toFixed(2)}`);
+  // B: ratio ERVS / uniform
+  f = frame(hostB, 300, { l: 64, r: 14, t: 12, b: 46 });
+  const rv = rm.flatMap((v, i) => [v - rse[i], v + rse[i]]).filter(v => !isNaN(v));
+  const ext = Math.max(.15, Math.ceil(Math.max(...rv.map(v => Math.abs(v - 1))) * 20) / 20);
+  y = yAxis(f, 1 - ext, 1 + ext, '학습 횟수 비율 (ERVS ÷ 균등)', v => v.toFixed(2)); x = xArrival(f);
+  el('line', { x1: f.x0, x2: f.x1, y1: y(1), y2: y(1), stroke: css('--faint'), 'stroke-width': 1.2 }, f.svg);
+  const okI = BC.map((_, i) => !isNaN(rm[i]));
+  const bx = BC.filter((_, i) => okI[i]), bl = rm.filter((_, i) => okI[i]).map((v, j) => v - rse.filter((_, i) => okI[i])[j]), bh = rm.filter((_, i) => okI[i]).map((v, j) => v + rse.filter((_, i) => okI[i])[j]);
+  if (bx.length > 1) el('path', { d: bandPath(bx, bl, bh, x, y), fill: css('--band-ervs') }, f.svg);
+  el('path', { d: seg(BC, rm, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 2.4 }, f.svg);
+  BC.forEach((v, i) => { if (!isNaN(rm[i])) el('circle', { cx: x(v), cy: y(rm[i]), r: 2.8, fill: css('--ervs') }, f.svg); });
+  binHover(f, x, hostB, i => `<b>도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}</b> · ${ROLE[k]}<br>ERVS ÷ 균등 ${rm[i].toFixed(2)} (±${rse[i].toFixed(2)} s.e.)`);
+  // CV cards
+  const ce = mean(sc.map(s => s.count_cv[k].ervs_k16)), cu = mean(sc.map(s => s.count_cv[k].uniform_iid));
+  const lower = sc.filter(s => s.count_cv[k].ervs_k16 < s.count_cv[k].uniform_iid).length;
+  const early = nmean(R.map(r => nmean(r.slice(0, Math.round(NB * .2))))), mid = nmean(R.map(r => nmean(r.slice(Math.round(NB * .4), Math.round(NB * .8)))));
+  document.getElementById('cvStats').innerHTML =
+    `<div class="stat"><span class="k">${ROLE[k]} 학습 횟수 CV</span><span class="v">${ce.toFixed(2)} / ${cu.toFixed(2)}</span><span class="s">ERVS / 균등 · ERVS가 더 고른 장면 ${lower} / ${sc.length}</span></div>` +
+    `<div class="stat"><span class="k">처음 20%에 도착한 view</span><span class="v">×${early.toFixed(2)}</span><span class="s">ERVS ÷ 균등 학습 횟수, 장면 평균</span></div>` +
+    `<div class="stat"><span class="k">40–80%에 도착한 view</span><span class="v">×${mid.toFixed(2)}</span><span class="s">ERVS ÷ 균등 학습 횟수, 장면 평균</span></div>`;
+}
+function renderSceneCount() {
+  const s = DATA.scenes.find(q => q.scene === state.scene), host = document.getElementById('cSceneCount'), k = state.role;
+  if (!s) { host.innerHTML = ''; return; }
+  document.getElementById('sceneCountCap').textContent = `${s.scene}의 ${ROLE[k]} 학습 횟수 (실제 횟수, 로그 눈금). 위 "시간에 따른 학습 횟수"의 view 종류 선택을 따릅니다.`;
+  const e = arr(s.count[k].ervs_k16), u = arr(s.count[k].uniform_iid);
+  const f = frame(host, 260, { l: 52, r: 16, t: 12, b: 46 });
+  const vals = e.concat(u).filter(v => !isNaN(v) && v > 0);
+  const y = logAxis(f, Math.max(.5, Math.min(...vals) * .8), Math.max(...vals) * 1.25, '학습 횟수 / view'), x = xArrival(f);
+  el('path', { d: seg(BC, u, x, y), fill: 'none', stroke: css('--iid'), 'stroke-width': 2.2, 'stroke-dasharray': '6 4' }, f.svg);
+  el('path', { d: seg(BC, e, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 2.2 }, f.svg);
+  binHover(f, x, host, i => `<b>${s.scene}</b> · 도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}<br><span style="color:var(--ervs)">●</span> ERVS ${isNaN(e[i]) ? '–' : e[i].toFixed(1)}<br><span style="color:var(--iid)">●</span> 균등 ${isNaN(u[i]) ? '–' : u[i].toFixed(1)}`);
 }
 
 /* ---------- aggregates ---------- */
@@ -347,16 +455,16 @@ function renderScene() {
 
 function renderTable(sc) {
   const rows = sc.map(s => { const p = sceneMetric(s, 'psnr'), mb = sceneMetric(s, 'minbin'), w = sceneMetric(s, 'wq1'), ss = sceneMetric(s, 'ssim'), lp = sceneMetric(s, 'lpips');
-    return { scene: s.scene, ds: DSN[s.dataset], group: s.group, seeds: s.seeds.length, e: p.e, u: p.u, dpsnr: p.d, dsd: sd(s.per_seed.map(q => q.ervs.psnr - q.iid.psnr)), dmin: mb.d, dwq1: w.d, dssim: ss.d, dlpips: lp.d }; });
+    return { scene: s.scene, ds: DSN[s.dataset], group: s.group, seeds: s.seeds.length, e: p.e, u: p.u, dpsnr: p.d, dsd: sd(s.per_seed.map(q => q.ervs.psnr - q.iid.psnr)), dmin: mb.d, dwq1: w.d, dssim: ss.d, dlpips: lp.d, cve: s.count_cv.dense.ervs_k16, cvu: s.count_cv.dense.uniform_iid }; });
   const k = state.sort.key, dir = state.sort.dir;
   rows.sort((a, b) => (typeof a[k] === 'string' ? a[k].localeCompare(b[k]) : a[k] - b[k]) * dir);
-  const cols = [['scene', '장면'], ['ds', '데이터셋'], ['seeds', 'seed'], ['e', 'ERVS'], ['u', '균등'], ['dpsnr', 'ΔPSNR'], ['dsd', 'seed sd'], ['dmin', 'Δ최저 구간'], ['dwq1', 'Δworst-Q1'], ['dssim', 'ΔSSIM'], ['dlpips', 'ΔLPIPS']];
+  const cols = [['scene', '장면'], ['ds', '데이터셋'], ['seeds', 'seed'], ['e', 'ERVS'], ['u', '균등'], ['dpsnr', 'ΔPSNR'], ['dsd', 'seed sd'], ['dmin', 'Δ최저 구간'], ['dwq1', 'Δworst-Q1'], ['dssim', 'ΔSSIM'], ['dlpips', 'ΔLPIPS'], ['cve', 'dense CV ERVS'], ['cvu', 'dense CV 균등']];
   const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
   const t = document.getElementById('tbl');
   t.innerHTML = '<thead><tr>' + cols.map(([key, n]) => `<th data-k="${key}" aria-sort="${key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'}">${n}${key === k ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>' +
     rows.map(r => `<tr><td>${r.scene}${r.group === 'pinned' ? ' <span class="tag">기존</span>' : ''}</td><td>${r.ds}</td><td class="num">${r.seeds}</td><td class="num">${r.e.toFixed(2)}</td><td class="num">${r.u.toFixed(2)}</td>` +
       `<td class="num ${c(r.dpsnr)}">${fmt(r.dpsnr)}</td><td class="num">${r.dsd.toFixed(2)}</td><td class="num ${c(r.dmin)}">${fmt(r.dmin)}</td><td class="num ${c(r.dwq1)}">${fmt(r.dwq1)}</td>` +
-      `<td class="num ${c(r.dssim)}">${fmt(r.dssim, 4)}</td><td class="num ${c(-r.dlpips)}">${fmt(r.dlpips, 4)}</td></tr>`).join('') + '</tbody>';
+      `<td class="num ${c(r.dssim)}">${fmt(r.dssim, 4)}</td><td class="num ${c(-r.dlpips)}">${fmt(r.dlpips, 4)}</td><td class="num">${r.cve.toFixed(2)}</td><td class="num">${r.cvu.toFixed(2)}</td></tr>`).join('') + '</tbody>';
   t.querySelectorAll('th').forEach(th => th.addEventListener('click', () => { const key = th.dataset.k; state.sort = { key, dir: state.sort.key === key ? -state.sort.dir : -1 }; renderTable(selected()); }));
 }
 
@@ -367,18 +475,19 @@ function renderAll() {
   renderStats(sc);
   if (sc.length) { const A = agg(sc); renderMean(A, sc.length); renderDiff(A); renderBins(A); }
   else for (const id of ['cMean', 'cDiff', 'cBins']) document.getElementById(id).innerHTML = '';
-  renderForest(sc); renderTable(sc);
+  renderForest(sc); renderTable(sc); renderCounts(sc);
   const sel = document.getElementById('sceneSel');
   sel.innerHTML = sc.map(s => `<option value="${s.scene}">${s.scene} (${DSN[s.dataset]})</option>`).join('');
   if (!sc.find(s => s.scene === state.scene)) state.scene = sc[0] ? sc[0].scene : null;
-  sel.value = state.scene || ''; renderScene();
+  sel.value = state.scene || ''; renderScene(); renderSceneCount();
 }
 function bindSeg(id, key) {
   document.getElementById(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
     state[key] = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderAll(); });
 }
 bindSeg('setSeg', 'set'); bindSeg('dsSeg', 'ds'); bindSeg('metricSeg', 'metric');
-document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); });
+document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); renderSceneCount(); });
+bindSeg('roleSeg', 'role');
 let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderAll, 120); }).observe(document.querySelector('.wrap'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
 new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

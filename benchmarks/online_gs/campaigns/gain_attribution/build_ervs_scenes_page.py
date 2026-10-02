@@ -13,6 +13,7 @@ ROOT = HERE.parents[3]
 R = ROOT / 'results/campaigns/gain_attribution'
 OUT = R / 'ervs_vs_iid_scenes/v1'
 GRID = np.linspace(0, 1, 101)
+NB = 20   # arrival-time bins for service counts
 SEEDS, BUDGET, ARMS = (0, 1, 2), 25, ('ervs_k16', 'uniform_iid')
 PINNED = [('aria', 'aria1253', 'aria'), ('rpng', 'table_06', 'rpng'), ('rot', 'aria1253rot', 'aria'),
           ('utmm', 'square-1', 'utmm')]
@@ -47,6 +48,28 @@ def views(d):
             fx.get('mean_ssim'), fx.get('mean_lpips'))
 
 
+def counts(d):
+    """Mean completed RGB services per view, by arrival-time bin (KF views: window + KF pool; dense views)."""
+    r = json.loads((d / 'render_result.json').read_text())
+    arr = {a['uid']: a['seconds'] for a in r['arrivals']}
+    t0, t1 = min(arr.values()), max(arr.values())
+    n, kind = {}, {}
+    for x in r['training']['loss_routes']:
+        n[x['uid']] = n.get(x['uid'], 0) + 1
+        kind[x['uid']] = 'dense' if x['role'] == 'dense' else 'kf'
+    out = {}
+    for k in ('kf', 'dense'):
+        sums, cnt = np.zeros(NB), np.zeros(NB)
+        for u, c in n.items():
+            if kind[u] != k: continue
+            b = min(NB - 1, int((arr[u] - t0) / (t1 - t0) * NB))
+            sums[b] += c; cnt[b] += 1
+        out[k] = dict(mean=np.where(cnt > 0, sums / np.maximum(cnt, 1), np.nan), views=cnt,
+                      overall=float(sum(n[u] for u in n if kind[u] == k) / max(1, sum(kind[u] == k for u in n))),
+                      cv=float(np.std([n[u] for u in n if kind[u] == k]) / np.mean([n[u] for u in n if kind[u] == k])))
+    return out
+
+
 def smooth(y, frac):
     k = np.ones(max(3, int(round(frac * len(y)))))
     return np.convolve(y, k, 'same') / np.convolve(np.ones_like(y), k, 'same')
@@ -67,7 +90,17 @@ def scene_record(scene, dataset, group, dirfn):
     if not seeds:
         return None
     rec = dict(scene=scene, dataset=dataset, group=group, seeds=seeds, n_views=int(len(runs[('ervs_k16', seeds[0])][1])),
-               curve={}, bins={}, per_seed=[])
+               curve={}, bins={}, per_seed=[], count={}, count_scale={}, count_cv={})
+    cnt = {(a, s): counts(dirfn(a, s)) for a in ARMS for s in seeds}
+    for k in ('kf', 'dense'):
+        scale = float(np.mean([cnt[(a, s)][k]['overall'] for a in ARMS for s in seeds]))
+        rec['count_scale'][k] = round(scale, 3)
+        rec['count'][k], rec['count_cv'][k] = {}, {}
+        for a in ARMS:
+            with np.errstate(all='ignore'):
+                m = np.nanmean([cnt[(a, s)][k]['mean'] for s in seeds], 0)
+            rec['count'][k][a] = [None if np.isnan(v) else round(float(v), 3) for v in m]
+            rec['count_cv'][k][a] = round(float(np.mean([cnt[(a, s)][k]['cv'] for s in seeds])), 4)
     for arm in ARMS:
         cs, bs = [], []
         for s in seeds:
@@ -98,7 +131,7 @@ for scene, ds in NEW:
     r = scene_record(scene, ds, 'new',
                      lambda a, s, sc=scene: OUT / f'scenes/{sc}/render{BUDGET}/{a}_s{s}')
     if r: scenes.append(r)
-data = dict(grid=np.round(GRID, 3).tolist(), budget=BUDGET, scenes=scenes,
+data = dict(grid=np.round(GRID, 3).tolist(), count_bins=NB, budget=BUDGET, scenes=scenes,
             expected=dict(new=len(NEW), pinned=len(PINNED), seeds=len(SEEDS)))
 (OUT / 'page_data.json').write_text(json.dumps(data))
 tmpl = (HERE / 'ervs_scenes_page.html').read_text()
