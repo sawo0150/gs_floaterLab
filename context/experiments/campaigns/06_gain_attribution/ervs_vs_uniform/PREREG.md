@@ -46,3 +46,28 @@ larger (single seed).
 - Runner: `benchmarks/online_gs/campaigns/gain_attribution/run_ervs_vs_uniform.py`
 - Raw: `results/campaigns/gain_attribution/ervs_vs_uniform/v1/uniform/<scene>/render<budget>/uniform/`
 - Card: this folder's `README.md`
+
+## Amendment 1 — before any completed run (2026-10-02)
+
+The revised method (colin `paper/latex/sec/4_method.tex`, 2026-10-02 21:53) defines the baseline as uniform sampling
+and ERVS as two parts: count-dependent Gibbs weights (β > 0) and K-group sampling without replacement (K > 1). The
+earlier queued uniform run was stopped by the user before completing any cell (kept in `failed_attempts/`).
+
+Arms (all B, fixed-work, seed 0, 4 scenes, budgets 5/10/15/25):
+
+| Arm | β | K | Implementation |
+|---|---|---|---|
+| uniform_iid | 0 | 1 (with replacement) | `--tau 1e12` + `sampling_mode_patch.py` (`B_WITH_REPLACEMENT=1`): keyframe/dense draws no longer exclude views already chosen in the batch; window unchanged |
+| uniform_group | 0 | role quota (without replacement) | `--tau 1e12` |
+| ERVS (B) | > 0 | role quota | reused |
+
+Gates: recorded policy tau ≥ 1e11 for both uniform arms; uniform_iid must log repeated in-batch draws > 0 in the
+keyframe or dense pool.
+
+Metrics, in addition to the list above:
+- **min-bin PSNR** = lowest of the five time-bin (20%) mean held-out PSNRs — **co-primary with worst-Q1** for the
+  balancing claim;
+- mean PSNR / SSIM / LPIPS are always reported next to them, whatever their sign.
+
+Reading: ERVS vs each uniform arm separately (β effect = ERVS − uniform_group; K effect = uniform_group − uniform_iid).
+A signal requires ≥3/4 scenes in the same direction above the scene noise reference (dB metrics).

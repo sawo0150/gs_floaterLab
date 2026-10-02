@@ -19,6 +19,8 @@ base.OUT = base.ROOT / 'results/campaigns/gain_attribution/ervs_vs_uniform/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/ervs_vs_uniform/PREREG.md'
 SCENES, BUDGETS = ('rot', 'rpng', 'aria', 'utmm'), (5, 10, 15, 25)
 UNIFORM = ['--tau', '1e12']
+HERE = Path(__file__).resolve().parent
+ARMS = [('uniform_group', None), ('uniform_iid', '1')]
 
 
 def main():
@@ -42,20 +44,31 @@ def main():
     rows = []
     for key in SCENES:
         for budget in BUDGETS:
-            print('START', key, budget, 'uniform', flush=True)
+          for arm, replacement in ARMS:
+            print('START', key, budget, arm, flush=True)
             try:
-                row = base.run_one('uniform', key, budget, 'uniform', UNIFORM, ctx)
+                env_extra = dict(B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'))
+                if replacement:
+                    env_extra['B_WITH_REPLACEMENT'] = replacement
+                row = base.run_one('uniform', key, budget, arm, UNIFORM, ctx,
+                                   worker=HERE / 'sampling_mode_patch.py', env_extra=env_extra)
                 rep = base.read(Path(row['output']) / 'render_result.json')
                 tau = rep['training']['generations'][-1]['policy']['tau']
                 if float(tau) < 1e11:
                     raise RuntimeError(f'uniform override not applied: tau={tau}')
+                if replacement:
+                    st = base.read(Path(row['output']) / 'sampling_mode.json')['stats']
+                    if not (st.get('repeat_in_batch/keyframe', 0) + st.get('repeat_in_batch/dense', 0)):
+                        raise RuntimeError(f'no repeated in-batch draws: {st}')
+                    row['sampling_mode'] = st
+                    base.write(Path(row['output']).parent / f'{arm}.row.json', row)
             except Exception:
-                base.write(base.OUT / 'failure.json', dict(key=key, budget=budget,
+                base.write(base.OUT / 'failure.json', dict(key=key, budget=budget, arm=arm,
                                                            traceback=traceback.format_exc(), time=time.time()))
                 raise
             rows.append(row)
             base.summarize(rows)
-            print('DONE', key, budget, 'uniform', f"psnr={row['psnr']:.4f}", f"map_s={row['mapping_seconds']:.1f}",
+            print('DONE', key, budget, arm, f"psnr={row['psnr']:.4f}", f"map_s={row['mapping_seconds']:.1f}",
                   flush=True)
     print('ABLATION_PASS_COMPLETE', len(rows), flush=True)
 
