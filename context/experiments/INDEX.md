@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-02 ERVS K16 vs uniform K16 vs uniform with replacement on held-out aria1253/table_06 (budget 15/25, seed0): ERVS count weighting lowers min-bin PSNR (−0.04…−0.44) and worst-Q1 (−0.10…−0.45) vs uniform K16 in 4/4 cells, mean PSNR 3/4 lower; K-group without replacement helps vs with replacement (min-bin 4/4 ≥0, PSNR +0.64/+0.23 in 2 cells). Balancing claim not supported at τ=4 per_view. → [card](campaigns/06_gain_attribution/ervs_vs_uniform_k16/README.md)
+
 - 2026-10-02 ERVS group size K on B (persistent per-pool group queue, rot·square-1, budget 15/25, seed0): selected K=16 (4-cell mean 22.731 vs current per-batch 22.620; K32 22.600, K64 22.625); K16 higher in 3/4 cells (square-1 +0.17/+0.18). Min-bin PSNR / worst-Q1 slightly lower than current (−0.08/−0.07). → [card](campaigns/06_gain_attribution/ervs_group_k/README.md)
 
 - 2026-10-02 ERVS/ERCB vs RR temporal+tail analysis (post-hoc, no training): on B, ERVS raises worst-Q1 in 4/4 scenes at budgets 5/10/15 (+0.71/+0.22/+0.24dB) and lowers per-view std 4/4 at 5/10, mean comparable; no general late-sequence decline. 3dgs-custom ERCB budget-15 gain is early-sequence (+1.97, 18/19) and worse late (−1.01). RR-hard-Q1 is selection-biased. → [card](campaigns/06_gain_attribution/ervs_temporal_analysis/README.md)
