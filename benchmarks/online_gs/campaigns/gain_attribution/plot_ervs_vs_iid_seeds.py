@@ -125,3 +125,30 @@ fig.tight_layout(); fig.savefig(OUT / 'temporal_paired_seedmean.png', dpi=130, b
 report['bin_mean'] = bm.round(3).tolist(); report['bin_se'] = bse.round(3).tolist(); report['missing'] = missing
 (OUT / 'temporal_seedmean.json').write_text(json.dumps(report, indent=1))
 print(json.dumps({k: v for k, v in report.items() if k != 'missing'}, indent=0))
+
+# Fig 3: the two arms' mean held-out PSNR curves alone (8 cells × 3 seeds), plus five-bin means.
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(15, 5), gridspec_kw=dict(width_ratios=[1.6, 1]))
+binmeans = {}
+for arm, label, color, ls in ARMS:
+    cs = [np.interp(GRID, data[k][0], smooth(data[k][1], 0.10)) for k in data if k[2] == arm]
+    bs = [bins5(data[k][1]) for k in data if k[2] == arm]
+    m = np.mean(cs, axis=0); se = np.std(cs, axis=0, ddof=1) / np.sqrt(len(cs))
+    allmean = np.mean([data[k][1].mean() for k in data if k[2] == arm])
+    ax.fill_between(GRID, m - se, m + se, color=color, alpha=0.12, lw=0)
+    ax.plot(GRID, m, color=color, ls=ls, lw=2.5, label=f'{label} — mean {allmean:.2f} dB')
+    binmeans[arm] = np.mean(bs, axis=0)
+ax.set_title(f'Mean held-out PSNR along the stream ({len(cells)} cells × {len(SEEDS)} seeds; band ±1 s.e.)', fontsize=10)
+ax.set_xlabel('stream time (0 = start, 1 = end)'); ax.set_ylabel('held-out PSNR (dB), moving avg 10% views')
+ax.legend(frameon=False, loc='lower center')
+for j, (arm, label, color, ls) in enumerate(ARMS):
+    x = np.arange(5) + (j - 0.5) * 0.18
+    bx.plot(x, binmeans[arm], color=color, ls=ls, lw=1.5, marker='o', ms=9, label=label)
+    for xi, v in zip(x, binmeans[arm]):
+        bx.text(xi + (-0.08 if j == 0 else 0.08), v, f'{v:.2f}', ha='right' if j == 0 else 'left', va='center', fontsize=8)
+bx.set_xticks(range(5), ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'])
+bx.set_ylabel('mean held-out PSNR per time bin (dB)'); bx.set_xlabel('stream time bin')
+bx.set_title('Five-bin means (all cells and seeds; axis not from zero)', fontsize=10); bx.legend(frameon=False, fontsize=8, loc='upper right')
+for a in (ax, bx):
+    a.grid(alpha=0.25, lw=0.6); a.spines[['top', 'right']].set_visible(False)
+fig.tight_layout(); fig.savefig(OUT / 'temporal_mean_curves.png', dpi=130, bbox_inches='tight')
+print({a: np.round(v, 2).tolist() for a, v in binmeans.items()})
