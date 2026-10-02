@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-02 live B operating point on RTX 5070 Ti (actual tracking+mapping, TensorRT, 1/1.2/1.5x, ERVS): every admitted KF gets the full 40 renders; the constraint is KF admission (admitted/tracking KFs 1x: aria 70%, rot 54%, rpng 42%, utmm 74%) from tracking lag (rpng +62s, rot +33s at 1x). Renders per tracking KF 1x ≈17–30. PSNR 1x/1.5x: aria 23.29/23.00, rot 22.19/24.48, rpng 23.82/24.03, utmm 20.87/20.84. TRT vs PyTorch tracking at 1x: +0.2…+2.9dB. → [card](experiments/campaigns/06_gain_attribution/live_operating_point_5070ti/README.md)
+
 - 2026-10-02 ERVS vs RR on B at 5/10 renders/KF (4 scenes, seed0): budget 5 is the first positive signal (+0.30/+0.09/+0.64/+0.07dB, 4/4) but the mechanism is reversed there (ERVS KF-pool CV higher than RR); budget 10 no signal (+0.00/−0.26/+0.41/−0.08). Budget curves non-monotonic; budget 5 far below live operating point. Candidate only, needs multi-seed. → [card](experiments/campaigns/06_gain_attribution/ervs_low_budget/README.md)
 
 - 2026-10-02 depth-off sampler diagnostic (KF depth weight 0, per-pool 2x2, 4 scenes, budget 15/25, seed0): H rejected — joint ERVS−RR b15 +0.05/+0.53/+0.56/−0.28, b25 −0.11/+0.22/−0.95/−0.16dB; removing depth amplifies scene-dependent swings (aria +0.14→+0.56 at 15, −0.41→−0.95 at 25). Exploratory: KF depth term lowers PSNR on RPNG/UTMM, raises on Aria. Diagnostic only. → [card](experiments/campaigns/06_gain_attribution/ervs_depth_off/README.md)
