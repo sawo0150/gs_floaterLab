@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-03 ERVS K16 vs uniform with replacement, 3 seeds × 4 B scenes × budget 15/25: mean ΔPSNR +0.085±0.058 (6/8 cells), min-bin −0.06 and worst-Q1 +0.01 (3/8 each); temporal paired Δ by fifth −0.22/+0.07/+0.34/+0.23/0.00 — ERVS loses on the earliest stream and gains mid-stream. → [card](experiments/campaigns/06_gain_attribution/ervs_vs_iid_seeds/README.md)
+
 - 2026-10-02 ERVS K16 vs uniform K16 vs uniform with replacement on held-out aria1253/table_06 (budget 15/25, seed0): ERVS count weighting lowers min-bin PSNR (−0.04…−0.44) and worst-Q1 (−0.10…−0.45) vs uniform K16 in 4/4 cells, mean PSNR 3/4 lower; K-group without replacement helps vs with replacement (min-bin 4/4 ≥0, PSNR +0.64/+0.23 in 2 cells). Balancing claim not supported at τ=4 per_view. → [card](experiments/campaigns/06_gain_attribution/ervs_vs_uniform_k16/README.md)
 
 - 2026-10-02 ERVS group size K on B (persistent per-pool group queue, rot·square-1, budget 15/25, seed0): selected K=16 (4-cell mean 22.731 vs current per-batch 22.620; K32 22.600, K64 22.625); K16 higher in 3/4 cells (square-1 +0.17/+0.18). Min-bin PSNR / worst-Q1 slightly lower than current (−0.08/−0.07). → [card](experiments/campaigns/06_gain_attribution/ervs_group_k/README.md)
