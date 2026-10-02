@@ -23,7 +23,13 @@ ROOT = HERE.parents[3]
 MAIN = Path('/home/intern/VIGS-SLAM-custom')               # relocated by the machine profile
 SEL = MAIN / 'scripts/selected_mapping'
 RECIPE = MAIN / 'configs/selected_mapping_fixed40.json'
-OUT = ROOT / 'results/campaigns/gain_attribution/live_operating_point_5070ti/v1'
+OUT_ROOT = ROOT / 'results/campaigns/gain_attribution/live_operating_point_5070ti'
+OLD_VIGS = Path('/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM/pretrained_models')
+GEN = Path('/home/wosas/Desktop/26-1_RPM/gsProjects/VIGS-SLAM-main-integration-20260828/pretrained_models')
+# TensorRT engines built on this RTX 5070 Ti (TensorRT 10.13); all deserialize and match each scene's resolution.
+TRT_ENGINES = {'aria': OLD_VIGS, 'rot': OLD_VIGS, 'rpng': GEN / 'generated_rpng_344x616',
+               'utmm': GEN / 'generated_utmm_328x648'}
+OMNIDATA = [OLD_VIGS / 'omnidata_depth_512_simplified_fp16.engine', OLD_VIGS / 'omnidata_normal_512_simplified_fp16.engine']
 SCENES = {'aria': ('aria', 'aria1253'), 'rot': ('aria', 'aria1253rot'), 'rpng': ('rpng', 'table_06'),
           'utmm': ('utmm', 'square-1')}
 
@@ -46,6 +52,8 @@ def main():
     p.add_argument('--scales', nargs='+', type=float, default=[1.0, 1.2, 1.5])
     p.add_argument('--keys', nargs='+', choices=list(SCENES), default=['aria', 'rot', 'rpng', 'utmm'])
     p.add_argument('--tag', default='')
+    p.add_argument('--trt', action='store_true')
+    p.add_argument('--version', default='v1')
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(SEL))
@@ -55,10 +63,17 @@ def main():
     import run_online_dense_training as trial
     from selected_recipe import recipe_environment, install_scene_adapter
     install_scene_adapter()
+    global OUT
+    OUT = OUT_ROOT / a.version
     OUT.mkdir(parents=True, exist_ok=True)
-    engine_cwd = OUT / 'no_trt_cwd'
+    engine_cwd = OUT / ('trt_cwd' if a.trt else 'no_trt_cwd')
     engine_cwd.mkdir(exist_ok=True)
-    if not (engine_cwd / 'pretrained_models').exists():   # tracking loads omnidata/droid weights by relative path
+    if a.trt and not (engine_cwd / 'pretrained_models').exists():
+        pm = engine_cwd / 'pretrained_models'; pm.mkdir()
+        for f in [MAIN / 'pretrained_models/droid.pth', MAIN / 'pretrained_models/omnidata_dpt_depth_v2.ckpt',
+                  MAIN / 'pretrained_models/omnidata_dpt_normal_v2.ckpt', *OMNIDATA]:
+            (pm / Path(f).name).symlink_to(Path(f).resolve())
+    if not a.trt and not (engine_cwd / 'pretrained_models').exists():   # tracking loads weights by relative path
         (engine_cwd / 'pretrained_models').symlink_to(MAIN / 'pretrained_models', target_is_directory=True)
     measure = HERE / 'measure_fifo_live_b.py'
     proto = OUT / 'protocol.json'
@@ -66,7 +81,9 @@ def main():
         write(proto, dict(main_head=subprocess.check_output(['git', '-C', str(MAIN), 'rev-parse', 'HEAD'], text=True).strip(),
                           lab_head=subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip(),
                           recipe=read(RECIPE), measure=str(measure), measure_sha256=sha(measure),
-                          driver_sha256=sha(Path(__file__)), trt='disabled (VIGS_DISABLE_TRT=1; no 5070 Ti engines)',
+                          driver_sha256=sha(Path(__file__)), trt=('enabled: ' + json.dumps({k: str(v) for k, v in TRT_ENGINES.items()}) + ' omnidata ' + str(OMNIDATA)
+                              + ' sha ' + json.dumps({str(f): sha(f) for d in set(TRT_ENGINES.values()) for f in sorted(Path(d).glob('*.engine'))}
+                                                  | {str(f): sha(f) for f in OMNIDATA})) if a.trt else 'disabled (VIGS_DISABLE_TRT=1)',
                           queue_size=2, renders_per_kf_cap=40, frontend_iters='official',
                           machine_profile=os.environ['ROGO_MACHINE_PROFILE'],
                           gpu=subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version',
@@ -88,7 +105,15 @@ def main():
                     out.mkdir(parents=True, exist_ok=False)
                     gpu_idle()
                     env = recipe_environment(trial.BASE.mapping_environment(True), lock)
-                    env.update(VIGS_DISABLE_TRT='1', VIGS_PIPELINE_TELEMETRY='1')
+                    env.update(VIGS_PIPELINE_TELEMETRY='1')
+                    if a.trt:
+                        d = TRT_ENGINES[key]
+                        env.update(VIGS_FNET_TRT_ENGINE=str(d / 'droidnet_fnet_fp16.engine'),
+                                   VIGS_UPDATE_TRT_ENGINE=str(d / 'update_module_partial_fp16.engine'),
+                                   VIGS_UPDATE_PGBA_TRT_ENGINE=str(d / 'update_module_partial_pgba_fp16.engine'))
+                        env.pop('VIGS_DISABLE_TRT', None)
+                    else:
+                        env['VIGS_DISABLE_TRT'] = '1'
                     cmd = [sys.executable, str(measure), '--worker', '--dataset', key, '--time-scale', str(scale),
                            '--queue-size', '2', '--renders-per-kf', '40', '--frontend-iters', 'official',
                            '--selector', a.selector, '--output', str(out)]
@@ -97,6 +122,9 @@ def main():
                     with (out / 'run.log').open('x') as f:
                         subprocess.run(cmd, env=env, cwd=engine_cwd, stdout=f, stderr=subprocess.STDOUT, check=True)
                 r = read(out / 'result.json')
+                log = (out / 'run.log').read_text(errors='replace')
+                if a.trt:
+                    assert 'falling back to PyTorch' not in log and not r['trt_disabled'], 'TRT fallback detected'
                 assert not r['error'] and r['source_unchanged'] and r['zero_tail_observed'], 'execution contract'
                 assert r['tracked_frames'] == r['input_frames'] and not r['worker']['error'], 'tracking contract'
                 cfg = r['geometry']['config']
@@ -113,7 +141,7 @@ def main():
                            over_budget_s=r['tracking_elapsed_seconds'] - r['duration_seconds'],
                            end_lag_ms=r['end_lag_ms'], track_call_ms=r['track_call_ms'],
                            mapper_queue_max=r['mapper_queue_max'], trt_disabled=r['trt_disabled'],
-                           overruns=r['overruns'], model_load_s=r['model_load_seconds'])
+                           overruns=r['overruns'], model_load_s=r['model_load_seconds'], trt=a.trt)
             except Exception:
                 row['error'] = traceback.format_exc()
             rows = [x for x in rows if x['output'] != str(out)] + [row]
