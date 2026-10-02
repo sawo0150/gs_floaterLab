@@ -25,6 +25,9 @@ NEW = ("            candidates = (list(pools[role]) if role in ('keyframe', 'den
        "                          else [u for u in pools[role] if u not in used])")
 STAT = "            used.add(uid); selected.append(uid)"
 STAT_NEW = "            _STATS['repeat_in_batch', role] += int(uid in used); _STATS['draws', role] += 1; " + STAT.strip()
+# Audit record: with repeats, an image's count before its own service includes earlier occurrences in the batch.
+CB = "'counts_before': tuple(self.counts[u] for u in selected),"
+CB_NEW = "'counts_before': tuple(self.counts[u] + selected[:i].count(u) for i, u in enumerate(selected)),"
 
 
 def install():
@@ -33,7 +36,7 @@ def install():
     digest = hashlib.sha256(src.encode()).hexdigest()
     if digest != RESERVE_SHA256:
         raise RuntimeError(f'UnifiedTrainingSet.reserve changed: {digest}')
-    for old, new in ((OLD, NEW), (STAT, STAT_NEW)):
+    for old, new in ((OLD, NEW), (STAT, STAT_NEW), (CB, CB_NEW)):
         assert src.count(old.strip()) == 1, old
         src = src.replace(old.strip(), new.strip())
     stats = Counter()
