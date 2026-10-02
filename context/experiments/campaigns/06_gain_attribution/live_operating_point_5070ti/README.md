@@ -55,3 +55,24 @@ The live operating point is "full 40 renders per admitted keyframe, but fewer ad
 keyframe". The fixed-work regime where ERVS showed a signal (budget 5) does not occur live; at 40 renders/KF the
 fixed-work ERVS−RR results were mixed. A live ERVS vs RR comparison is therefore not expected to favour ERVS, and the
 dominant live lever on this machine is tracking throughput / keyframe admission.
+
+## Live ERVS vs RR on aria1253 and square-1 (PREREG_ERVS_RR.md, committed `15a8ebe`)
+
+Same live setup (TensorRT, queue 2, credit 40, sensor deadline). 1× has two runs per arm (`_r2`).
+
+| Scene | Speed | ERVS | RR | ERVS−RR | Admitted KFs ERVS/RR | Recent-third Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| aria1253 | 1× | 23.287, 23.262 | 22.766, 23.432 | +0.175 (mean) | 81, 81 / 76, 81 | +0.71 |
+| aria1253 | 1.2× | 23.325 | 23.640 | −0.315 | 83 / 83 | −0.23 |
+| aria1253 | 1.5× | 22.997 | 23.570 | −0.572 | 87 / 86 | +0.28 |
+| square-1 | 1× | 20.870, 20.876 | 20.840, 20.833 | +0.037 (mean) | 51 / 51 | +0.04 |
+| square-1 | 1.2× | 20.825 | 20.791 | +0.034 | 51 / 51 | +0.01 |
+| square-1 | 1.5× | 20.836 | 20.800 | +0.036 | 51 / 51 | +0.03 |
+
+Live run-to-run noise (max |run1 − run2| at 1×): aria1253 **0.666 dB** (one RR run admitted 76 instead of 81 KFs after
+a larger tracking lag), square-1 **0.007 dB**.
+
+Reading: aria1253 — no cell resolved (all |Δ| < 0.666; RR higher at 1.2× and 1.5×). square-1 — ERVS higher by
++0.03…+0.04 dB at all three speeds, resolved against its very small noise but negligible in size. The preregistered
+"ERVS helps live" criterion (resolved-positive in both scenes at ≥2 speeds) is **not met**. On aria1253 live variance
+is dominated by tracking lag and keyframe admission, not by the sampler.
