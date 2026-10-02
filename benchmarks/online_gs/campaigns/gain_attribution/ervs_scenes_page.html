@@ -1,0 +1,386 @@
+<title>ERVS 장면 확장 비교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column of figure panels; summary strip first, then stream-time curves, bins, per-scene detail. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4;
+  --ervs: #2a6fdb; --iid: #2e9e6b; --band-ervs: rgba(42,111,219,.14); --band-iid: rgba(46,158,107,.14);
+  --good: #1f7a4d; --bad: #b4452c; --chip: #eef1f6;
+  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
+  --ervs: #5b93f0; --iid: #34a877; --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
+  --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
+  --ervs: #5b93f0; --iid: #34a877; --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
+  --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 0 }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 22px }
+header { display: grid; gap: 6px }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); text-transform: uppercase }
+h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; margin: 0; font-weight: 700; text-wrap: balance }
+h2 { font-size: 18px; margin: 0; font-weight: 600; text-wrap: balance }
+p { margin: 0; max-width: 72ch }
+.lede { color: var(--muted) }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 13.5px; color: var(--ink) }
+.key { display: inline-flex; align-items: center; gap: 8px }
+.key svg { flex: none }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; padding-block: 4px }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--surface) }
+.seg button { font: 500 13px var(--sans); color: var(--muted); background: none; border: 0; padding: 7px 12px; cursor: pointer }
+.seg button + button { border-left: 1px solid var(--rule) }
+.seg button[aria-pressed="true"] { background: var(--chip); color: var(--ink) }
+.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--ervs); outline-offset: 1px }
+.ctl-label { font-size: 12.5px; color: var(--muted); margin-right: 6px }
+select { font: 13px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
+.stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0 }
+.stat .k { font-size: 12.5px; color: var(--muted) }
+.stat .v { font: 500 24px/1.2 var(--mono); font-variant-numeric: tabular-nums }
+.stat .s { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums }
+.pos { color: var(--good) } .neg { color: var(--bad) }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0 }
+.panel .cap { font-size: 13px; color: var(--muted) }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 22px }
+@media (max-width: 520px) { .two { grid-template-columns: 1fr } .wrap { padding-inline: 16px } }
+.chart { position: relative; width: 100%; min-width: 0 }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible }
+.chart text { fill: var(--muted); font: 11.5px var(--mono); font-variant-numeric: tabular-nums }
+.chart .axis-title { font: 12px var(--sans); fill: var(--muted) }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 10px; font: 12px/1.5 var(--mono); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.12); white-space: nowrap; z-index: 2 }
+.tip b { font-family: var(--sans); font-weight: 600 }
+.tablewrap { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap }
+th { font-weight: 600; color: var(--muted); font-size: 12px; cursor: pointer; user-select: none }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left }
+td.num { font-family: var(--mono) }
+.tag { font: 500 11px var(--mono); padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--muted) }
+.notes { display: grid; gap: 8px; font-size: 13.5px; color: var(--muted) }
+.notes b { color: var(--ink); font-weight: 600 }
+.progress { font: 12.5px var(--mono); color: var(--muted) }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ROGO-SLAM · 조건 B · 25 renders/KF · seed 0–2</div>
+    <h1>ERVS K16 vs 균등 복원 추출, 장면 확장 비교</h1>
+    <p class="lede">같은 B 매퍼에서 KF·dense pool 샘플링만 바꿔 held-out PSNR을 비교했습니다. ERVS는 학습 횟수에 따라 확률을 낮추고 16장 group을 비복원으로 뽑습니다. 균등 복원은 매번 독립적으로 뽑습니다(K=1). 곡선은 장면마다 seed 평균을 낸 뒤 장면끼리 평균했습니다.</p>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <div class="controls">
+    <div><span class="ctl-label">장면</span>
+      <div class="seg" id="setSeg" role="group" aria-label="장면 묶음">
+        <button data-v="all" aria-pressed="true">전체</button><button data-v="new" aria-pressed="false">새 장면 15</button><button data-v="pinned" aria-pressed="false">기존 4</button>
+      </div></div>
+    <div><span class="ctl-label">데이터셋</span>
+      <div class="seg" id="dsSeg" role="group" aria-label="데이터셋">
+        <button data-v="any" aria-pressed="true">모두</button><button data-v="aria" aria-pressed="false">Aria</button><button data-v="rpng" aria-pressed="false">RPNG</button><button data-v="utmm" aria-pressed="false">UTMM</button>
+      </div></div>
+    <div class="legend">
+      <span class="key"><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(--ervs)" stroke-width="2.5"/></svg>ERVS K16</span>
+      <span class="key"><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(--iid)" stroke-width="2.5" stroke-dasharray="6 4"/></svg>균등 복원 (K=1)</span>
+    </div>
+  </div>
+
+  <section class="stats" id="stats" aria-label="요약"></section>
+
+  <section class="panel">
+    <h2>스트림 시간에 따른 held-out PSNR</h2>
+    <p class="cap">x축은 held-out view가 스트림에서 놓인 위치(0 = 시작, 1 = 끝)입니다. view 10% 창 이동평균, 띠는 장면 간 ±1 표준오차입니다.</p>
+    <div class="chart" id="cMean"></div>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <h2>같은 view끼리의 차이 (ERVS − 균등)</h2>
+      <p class="cap">view마다 두 방식의 PSNR을 빼서 장면 난이도를 상쇄했습니다. view 20% 창 이동평균. 옅은 선은 개별 장면입니다.</p>
+      <div class="chart" id="cDiff"></div>
+    </section>
+    <section class="panel">
+      <h2>5구간 평균 PSNR</h2>
+      <p class="cap">스트림을 다섯 구간으로 나눈 평균입니다. 아래 숫자는 ERVS − 균등 차이(dB)입니다. 세로축은 0에서 시작하지 않습니다.</p>
+      <div class="chart" id="cBins"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>장면별 차이</h2>
+    <div class="controls" style="padding:0">
+      <div><span class="ctl-label">지표</span>
+        <div class="seg" id="metricSeg" role="group" aria-label="지표">
+          <button data-v="psnr" aria-pressed="true">평균 PSNR</button><button data-v="minbin" aria-pressed="false">최저 구간 PSNR</button><button data-v="wq1" aria-pressed="false">worst-Q1</button>
+        </div></div>
+    </div>
+    <p class="cap">점은 seed 평균 차이(ERVS − 균등), 가로선은 seed별 최솟값~최댓값입니다. 0보다 오른쪽이면 ERVS가 높습니다.</p>
+    <div class="chart" id="cForest"></div>
+  </section>
+
+  <section class="panel">
+    <h2>장면 하나씩 보기</h2>
+    <div><label class="ctl-label" for="sceneSel">장면</label><select id="sceneSel"></select></div>
+    <div class="chart" id="cScene"></div>
+  </section>
+
+  <section class="panel">
+    <h2>장면별 수치</h2>
+    <p class="cap">seed 평균입니다. 열 머리글을 누르면 정렬됩니다. Δ는 ERVS − 균등입니다.</p>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
+
+  <section class="notes">
+    <p><b>지표.</b> 최저 구간 PSNR은 스트림을 다섯 구간으로 나눴을 때 평균이 가장 낮은 구간의 값입니다. worst-Q1은 PSNR이 가장 낮은 하위 25% view의 평균입니다. 95% 신뢰구간은 장면 단위 bootstrap(4,000회)으로 계산했습니다.</p>
+    <p><b>조건.</b> 매퍼는 채택된 B 레시피(κ 16, quota 3:3:6, KF metric depth L1 0.25, dense RGB)입니다. tracking archive는 장면마다 하나로 고정했고, seed는 매핑 난수만 바꿉니다. aria1253rot과 square-1은 K=16을 고를 때 쓴 장면입니다.</p>
+  </section>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const G = DATA.grid;
+const state = { set: 'all', ds: 'any', metric: 'psnr', scene: null, sort: { key: 'dpsnr', dir: -1 } };
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+const sd = a => { if (a.length < 2) return 0; const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
+const se = a => a.length > 1 ? sd(a) / Math.sqrt(a.length) : 0;
+const fmt = (x, d = 2) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d);
+const DSN = { aria: 'Aria', rpng: 'RPNG', utmm: 'UTMM' };
+
+function sceneMetric(s, key) {
+  const e = s.per_seed.map(p => p.ervs[key]), u = s.per_seed.map(p => p.iid[key]);
+  const d = s.per_seed.map(p => p.ervs[key] - p.iid[key]);
+  return { e: mean(e), u: mean(u), d: mean(d), dmin: Math.min(...d), dmax: Math.max(...d) };
+}
+function selected() {
+  return DATA.scenes.filter(s => (state.set === 'all' || s.group === state.set) && (state.ds === 'any' || s.dataset === state.ds));
+}
+function bootCI(vals, n = 4000) {
+  if (vals.length < 2) return [NaN, NaN];
+  let a = 1234567; const r = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const ms = [];
+  for (let i = 0; i < n; i++) { let s = 0; for (let j = 0; j < vals.length; j++) s += vals[Math.floor(r() * vals.length)]; ms.push(s / vals.length); }
+  ms.sort((x, y) => x - y); return [ms[Math.floor(.025 * n)], ms[Math.floor(.975 * n)]];
+}
+
+/* ---------- small SVG helpers ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo, step0 = span / n, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) || mag * 10;
+  const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6)); return out;
+}
+function frame(host, H, pad) {
+  host.innerHTML = '';
+  const W = Math.max(300, host.clientWidth || 600);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img' }, host);
+  const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; host.appendChild(tip);
+  return { svg, tip, W, H, x0: pad.l, x1: W - pad.r, y0: H - pad.b, y1: pad.t };
+}
+function yAxis(f, lo, hi, label, fmtT = v => v.toFixed(1)) {
+  const y = v => f.y0 - (v - lo) / (hi - lo) * (f.y0 - f.y1);
+  for (const t of niceTicks(lo, hi, 5)) {
+    el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: css('--grid'), 'stroke-width': 1 }, f.svg);
+    el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = fmtT(t);
+  }
+  const t = el('text', { class: 'axis-title', transform: `translate(14 ${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg); t.textContent = label;
+  return y;
+}
+function xAxisTime(f) {
+  const x = v => f.x0 + v * (f.x1 - f.x0);
+  for (const t of [0, .2, .4, .6, .8, 1]) {
+    el('line', { x1: x(t), x2: x(t), y1: f.y1, y2: f.y0, stroke: css('--grid'), 'stroke-width': 1 }, f.svg);
+    el('text', { x: x(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = t.toFixed(1);
+  }
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '스트림 시간 (0 = 시작, 1 = 끝)';
+  return x;
+}
+const path = (xs, ys, x, y) => xs.map((v, i) => (i ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1)).join('');
+const bandPath = (xs, lo, hi, x, y) => path(xs, hi, x, y) + xs.slice().reverse().map((v, i) => 'L' + x(v).toFixed(1) + ' ' + y(lo[lo.length - 1 - i]).toFixed(1)).join('') + 'Z';
+function crosshair(f, x, onMove) {
+  const line = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-width': 1, 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
+  const hit = el('rect', { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, fill: 'transparent' }, f.svg);
+  const move = ev => {
+    const r = f.svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * f.W / r.width;
+    const t = Math.min(1, Math.max(0, (sx - f.x0) / (f.x1 - f.x0))), i = Math.round(t * (G.length - 1));
+    line.setAttribute('x1', x(G[i])); line.setAttribute('x2', x(G[i])); line.setAttribute('visibility', 'visible');
+    f.tip.innerHTML = onMove(i); f.tip.hidden = false;
+    const px = (x(G[i]) / f.W) * r.width, hostW = f.svg.parentNode.clientWidth;
+    f.tip.style.left = Math.min(hostW - f.tip.offsetWidth - 4, px + 12) + 'px'; f.tip.style.top = '8px';
+  };
+  hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move);
+  hit.addEventListener('pointerleave', () => { line.setAttribute('visibility', 'hidden'); f.tip.hidden = true; });
+}
+
+/* ---------- aggregates ---------- */
+function agg(scenes) {
+  const arms = {};
+  for (const a of ['ervs_k16', 'uniform_iid']) {
+    const C = scenes.map(s => s.curve[a]);
+    arms[a] = { m: G.map((_, i) => mean(C.map(c => c[i]))), se: G.map((_, i) => se(C.map(c => c[i]))),
+                bins: [0, 1, 2, 3, 4].map(b => mean(scenes.map(s => s.bins[a][b]))) };
+  }
+  const D = scenes.map(s => s.diff_curve);
+  const dm = G.map((_, i) => mean(D.map(c => c[i]))), dse = G.map((_, i) => se(D.map(c => c[i])));
+  const binD = [0, 1, 2, 3, 4].map(b => scenes.map(s => s.bins.ervs_k16[b] - s.bins.uniform_iid[b]));
+  return { arms, dm, dse, D, binD };
+}
+
+/* ---------- renderers ---------- */
+function renderStats(sc) {
+  const box = document.getElementById('stats');
+  if (!sc.length) { box.innerHTML = '<div class="stat"><span class="k">선택한 조건에 해당하는 장면이 없습니다.</span></div>'; return; }
+  const P = sc.map(s => sceneMetric(s, 'psnr')), M = sc.map(s => sceneMetric(s, 'minbin')), W = sc.map(s => sceneMetric(s, 'wq1'));
+  const dP = P.map(p => p.d), ci = bootCI(dP), wins = dP.filter(d => d > 0).length;
+  const card = (k, v, s, cls) => `<div class="stat"><span class="k">${k}</span><span class="v ${cls}">${v}</span><span class="s">${s}</span></div>`;
+  const cls = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  box.innerHTML =
+    card('평균 PSNR 차이 (ERVS − 균등)', fmt(mean(dP)) + ' dB', isNaN(ci[0]) ? `장면 ${sc.length}개` : `95% CI ${fmt(ci[0])} ~ ${fmt(ci[1])} · 장면 ${sc.length}개`, cls(mean(dP))) +
+    card('ERVS가 앞선 장면', `${wins} / ${sc.length}`, `ERVS ${mean(P.map(p => p.e)).toFixed(2)} · 균등 ${mean(P.map(p => p.u)).toFixed(2)} dB`, '') +
+    card('최저 구간 PSNR 차이', fmt(mean(M.map(m => m.d))) + ' dB', `ERVS 우세 ${M.filter(m => m.d > 0).length} / ${sc.length}`, cls(mean(M.map(m => m.d)))) +
+    card('worst-Q1 차이', fmt(mean(W.map(m => m.d))) + ' dB', `ERVS 우세 ${W.filter(m => m.d > 0).length} / ${sc.length}`, cls(mean(W.map(m => m.d))));
+}
+
+function renderMean(A, n) {
+  const host = document.getElementById('cMean');
+  const f = frame(host, 330, { l: 52, r: 16, t: 12, b: 46 });
+  const all = ['ervs_k16', 'uniform_iid'].flatMap(a => A.arms[a].m.flatMap((v, i) => [v - A.arms[a].se[i], v + A.arms[a].se[i]]));
+  const lo = Math.floor(Math.min(...all) * 2) / 2 - .25, hi = Math.ceil(Math.max(...all) * 2) / 2 + .25;
+  const y = yAxis(f, lo, hi, 'held-out PSNR (dB)'), x = xAxisTime(f);
+  const spec = [['uniform_iid', '--iid', '--band-iid', '6 4'], ['ervs_k16', '--ervs', '--band-ervs', null]];
+  for (const [a, c, b] of spec) el('path', { d: bandPath(G, A.arms[a].m.map((v, i) => v - A.arms[a].se[i]), A.arms[a].m.map((v, i) => v + A.arms[a].se[i]), x, y), fill: css(b), stroke: 'none' }, f.svg);
+  for (const [a, c, , dash] of spec) { const p = el('path', { d: path(G, A.arms[a].m, x, y), fill: 'none', stroke: css(c), 'stroke-width': 2.4, 'stroke-linejoin': 'round' }, f.svg); if (dash) p.setAttribute('stroke-dasharray', dash); }
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면 ${n}개<br><span style="color:var(--ervs)">●</span> ERVS ${A.arms.ervs_k16.m[i].toFixed(2)} dB<br><span style="color:var(--iid)">●</span> 균등 ${A.arms.uniform_iid.m[i].toFixed(2)} dB<br>차이 ${fmt(A.arms.ervs_k16.m[i] - A.arms.uniform_iid.m[i])} dB`);
+}
+
+function renderDiff(A) {
+  const host = document.getElementById('cDiff');
+  const f = frame(host, 300, { l: 52, r: 14, t: 12, b: 46 });
+  const all = A.D.flat().concat(A.dm.map((v, i) => v + A.dse[i]), A.dm.map((v, i) => v - A.dse[i]));
+  const ext = Math.max(.5, Math.ceil(Math.max(...all.map(Math.abs)) * 4) / 4);
+  const y = yAxis(f, -ext, ext, 'Δ PSNR (dB)', v => (v > 0 ? '+' : '') + v.toFixed(1)), x = xAxisTime(f);
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--faint'), 'stroke-width': 1.2 }, f.svg);
+  for (const c of A.D) el('path', { d: path(G, c, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 1, opacity: .22 }, f.svg);
+  el('path', { d: bandPath(G, A.dm.map((v, i) => v - A.dse[i]), A.dm.map((v, i) => v + A.dse[i]), x, y), fill: css('--band-ervs') }, f.svg);
+  el('path', { d: path(G, A.dm, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 2.6 }, f.svg);
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b><br>평균 차이 ${fmt(A.dm[i])} dB<br>±1 s.e. ${A.dse[i].toFixed(2)}`);
+}
+
+function renderBins(A) {
+  const host = document.getElementById('cBins');
+  const f = frame(host, 300, { l: 52, r: 14, t: 12, b: 62 });
+  const e = A.arms.ervs_k16.bins, u = A.arms.uniform_iid.bins;
+  const lo = Math.floor(Math.min(...e, ...u) * 2) / 2 - .25, hi = Math.ceil(Math.max(...e, ...u) * 2) / 2 + .1;
+  const y = yAxis(f, lo, hi, '구간 평균 PSNR (dB)');
+  const labels = ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'];
+  const xc = i => f.x0 + (i + .5) * (f.x1 - f.x0) / 5;
+  const pts = (vals, off) => vals.map((v, i) => [xc(i) + off, y(v)]);
+  for (const [vals, c, off, dash] of [[u, '--iid', 7, '5 4'], [e, '--ervs', -7, null]]) {
+    const p = el('path', { d: pts(vals, off).map((q, i) => (i ? 'L' : 'M') + q[0] + ' ' + q[1]).join(''), fill: 'none', stroke: css(c), 'stroke-width': 1.6 }, f.svg);
+    if (dash) p.setAttribute('stroke-dasharray', dash);
+  }
+  for (let i = 0; i < 5; i++) {
+    const d = A.binD[i], m = mean(d), s = se(d);
+    for (const [vals, c, off, name] of [[u, '--iid', 7, '균등'], [e, '--ervs', -7, 'ERVS']]) {
+      const ring = el('circle', { cx: xc(i) + off, cy: y(vals[i]), r: 6, fill: css(c), stroke: css('--surface'), 'stroke-width': 2 }, f.svg);
+      const hit = el('circle', { cx: xc(i) + off, cy: y(vals[i]), r: 14, fill: 'transparent' }, f.svg);
+      const show = () => { f.tip.innerHTML = `<b>${labels[i]}</b><br>${name} ${vals[i].toFixed(2)} dB<br>차이 ${fmt(m)} ± ${s.toFixed(2)} (s.e.)`; f.tip.hidden = false;
+        const r = f.svg.getBoundingClientRect(); f.tip.style.left = Math.min(host.clientWidth - f.tip.offsetWidth - 4, (xc(i) / f.W) * r.width + 10) + 'px'; f.tip.style.top = '8px'; };
+      hit.addEventListener('pointerenter', show); hit.addEventListener('pointerdown', show); hit.addEventListener('pointerleave', () => f.tip.hidden = true);
+    }
+    el('text', { x: xc(i), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = labels[i];
+    const t = el('text', { x: xc(i), y: f.y0 + 36, 'text-anchor': 'middle' }, f.svg);
+    t.textContent = fmt(m); t.setAttribute('style', `fill:${m > 0 ? css('--good') : m < 0 ? css('--bad') : css('--muted')};font-weight:500`);
+  }
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 56, 'text-anchor': 'middle' }, f.svg).textContent = '스트림 시간 구간 · 아래 숫자 = ERVS − 균등';
+}
+
+function renderForest(sc) {
+  const host = document.getElementById('cForest');
+  const rows = sc.map(s => ({ s, m: sceneMetric(s, state.metric) })).sort((a, b) => b.m.d - a.m.d);
+  const rowH = 24, H = rows.length * rowH + 56;
+  const f = frame(host, H, { l: 150, r: 64, t: 10, b: 46 });
+  if (!rows.length) return;
+  const ext = Math.max(.5, Math.ceil(Math.max(...rows.flatMap(r => [Math.abs(r.m.dmin), Math.abs(r.m.dmax)])) * 4) / 4);
+  const x = v => f.x0 + (v + ext) / (2 * ext) * (f.x1 - f.x0);
+  for (const t of niceTicks(-ext, ext, 6)) {
+    el('line', { x1: x(t), x2: x(t), y1: f.y1, y2: f.y0, stroke: t === 0 ? css('--faint') : css('--grid'), 'stroke-width': t === 0 ? 1.4 : 1 }, f.svg);
+    el('text', { x: x(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (t > 0 ? '+' : '') + t.toFixed(2).replace(/0$/, '');
+  }
+  const names = { psnr: '평균 PSNR', minbin: '최저 구간 PSNR', wq1: 'worst-Q1' };
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = `Δ ${names[state.metric]} (dB), ERVS − 균등`;
+  rows.forEach((r, i) => {
+    const cy = f.y1 + i * rowH + rowH / 2;
+    const lab = el('text', { x: f.x0 - 10, y: cy + 4, 'text-anchor': 'end' }, f.svg);
+    lab.textContent = r.s.scene + (r.s.group === 'pinned' ? ' *' : ''); lab.setAttribute('style', `fill:${css('--ink')};font-family:var(--sans);font-size:12.5px`);
+    el('line', { x1: x(r.m.dmin), x2: x(r.m.dmax), y1: cy, y2: cy, stroke: css('--faint'), 'stroke-width': 2, 'stroke-linecap': 'round' }, f.svg);
+    const c = r.m.d >= 0 ? css('--ervs') : css('--iid');
+    el(r.s.dataset === 'rpng' ? 'rect' : 'circle', r.s.dataset === 'rpng' ? { x: x(r.m.d) - 5.5, y: cy - 5.5, width: 11, height: 11, rx: 2, fill: c, stroke: css('--surface'), 'stroke-width': 2 }
+      : { cx: x(r.m.d), cy, r: 6, fill: r.s.dataset === 'utmm' ? css('--surface') : c, stroke: c, 'stroke-width': 2.4 }, f.svg);
+    const v = el('text', { x: f.x1 + 8, y: cy + 4 }, f.svg); v.textContent = fmt(r.m.d);
+    const hit = el('rect', { x: 0, y: cy - rowH / 2, width: f.W, height: rowH, fill: 'transparent' }, f.svg);
+    const show = () => { f.tip.innerHTML = `<b>${r.s.scene}</b> · ${DSN[r.s.dataset]} · seed ${r.s.seeds.length}개<br>ERVS ${r.m.e.toFixed(2)} · 균등 ${r.m.u.toFixed(2)} dB<br>차이 ${fmt(r.m.d)} (seed ${fmt(r.m.dmin)} ~ ${fmt(r.m.dmax)})`; f.tip.hidden = false;
+      f.tip.style.left = Math.min(host.clientWidth - f.tip.offsetWidth - 4, (x(r.m.d) / f.W) * host.clientWidth + 12) + 'px'; f.tip.style.top = Math.max(0, (cy / f.H) * host.clientHeight - 60) + 'px'; };
+    hit.addEventListener('pointerenter', show); hit.addEventListener('pointerdown', show); hit.addEventListener('pointerleave', () => f.tip.hidden = true);
+  });
+  const note = el('text', { x: 4, y: f.y0 + 38 }, f.svg); note.textContent = '● Aria  ■ RPNG  ○ UTMM  * 기존 장면';
+}
+
+function renderScene() {
+  const s = DATA.scenes.find(q => q.scene === state.scene); const host = document.getElementById('cScene');
+  if (!s) { host.innerHTML = ''; return; }
+  const f = frame(host, 280, { l: 52, r: 16, t: 12, b: 46 });
+  const all = s.curve.ervs_k16.concat(s.curve.uniform_iid);
+  const y = yAxis(f, Math.floor(Math.min(...all)) - .25, Math.ceil(Math.max(...all)) + .25, 'held-out PSNR (dB)'), x = xAxisTime(f);
+  const p1 = el('path', { d: path(G, s.curve.uniform_iid, x, y), fill: 'none', stroke: css('--iid'), 'stroke-width': 2.2, 'stroke-dasharray': '6 4' }, f.svg);
+  el('path', { d: path(G, s.curve.ervs_k16, x, y), fill: 'none', stroke: css('--ervs'), 'stroke-width': 2.2 }, f.svg);
+  const m = sceneMetric(s, 'psnr');
+  crosshair(f, x, i => `<b>${s.scene}</b> · t = ${G[i].toFixed(2)}<br><span style="color:var(--ervs)">●</span> ERVS ${s.curve.ervs_k16[i].toFixed(2)}<br><span style="color:var(--iid)">●</span> 균등 ${s.curve.uniform_iid[i].toFixed(2)}<br>장면 평균 ${m.e.toFixed(2)} / ${m.u.toFixed(2)} dB`);
+}
+
+function renderTable(sc) {
+  const rows = sc.map(s => { const p = sceneMetric(s, 'psnr'), mb = sceneMetric(s, 'minbin'), w = sceneMetric(s, 'wq1'), ss = sceneMetric(s, 'ssim'), lp = sceneMetric(s, 'lpips');
+    return { scene: s.scene, ds: DSN[s.dataset], group: s.group, seeds: s.seeds.length, e: p.e, u: p.u, dpsnr: p.d, dsd: sd(s.per_seed.map(q => q.ervs.psnr - q.iid.psnr)), dmin: mb.d, dwq1: w.d, dssim: ss.d, dlpips: lp.d }; });
+  const k = state.sort.key, dir = state.sort.dir;
+  rows.sort((a, b) => (typeof a[k] === 'string' ? a[k].localeCompare(b[k]) : a[k] - b[k]) * dir);
+  const cols = [['scene', '장면'], ['ds', '데이터셋'], ['seeds', 'seed'], ['e', 'ERVS'], ['u', '균등'], ['dpsnr', 'ΔPSNR'], ['dsd', 'seed sd'], ['dmin', 'Δ최저 구간'], ['dwq1', 'Δworst-Q1'], ['dssim', 'ΔSSIM'], ['dlpips', 'ΔLPIPS']];
+  const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  const t = document.getElementById('tbl');
+  t.innerHTML = '<thead><tr>' + cols.map(([key, n]) => `<th data-k="${key}" aria-sort="${key === k ? (dir > 0 ? 'ascending' : 'descending') : 'none'}">${n}${key === k ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '</tr></thead><tbody>' +
+    rows.map(r => `<tr><td>${r.scene}${r.group === 'pinned' ? ' <span class="tag">기존</span>' : ''}</td><td>${r.ds}</td><td class="num">${r.seeds}</td><td class="num">${r.e.toFixed(2)}</td><td class="num">${r.u.toFixed(2)}</td>` +
+      `<td class="num ${c(r.dpsnr)}">${fmt(r.dpsnr)}</td><td class="num">${r.dsd.toFixed(2)}</td><td class="num ${c(r.dmin)}">${fmt(r.dmin)}</td><td class="num ${c(r.dwq1)}">${fmt(r.dwq1)}</td>` +
+      `<td class="num ${c(r.dssim)}">${fmt(r.dssim, 4)}</td><td class="num ${c(-r.dlpips)}">${fmt(r.dlpips, 4)}</td></tr>`).join('') + '</tbody>';
+  t.querySelectorAll('th').forEach(th => th.addEventListener('click', () => { const key = th.dataset.k; state.sort = { key, dir: state.sort.key === key ? -state.sort.dir : -1 }; renderTable(selected()); }));
+}
+
+function renderAll() {
+  const sc = selected();
+  const runs = DATA.scenes.reduce((s, q) => s + q.seeds.length, 0), exp = (DATA.expected.new + DATA.expected.pinned) * DATA.expected.seeds;
+  document.getElementById('progress').textContent = runs < exp ? `진행 중 결과: 장면·seed ${runs} / ${exp} 조합 반영` : `장면 ${DATA.scenes.length}개 × seed ${DATA.expected.seeds}개, 모든 조합 반영`;
+  renderStats(sc);
+  if (sc.length) { const A = agg(sc); renderMean(A, sc.length); renderDiff(A); renderBins(A); }
+  else for (const id of ['cMean', 'cDiff', 'cBins']) document.getElementById(id).innerHTML = '';
+  renderForest(sc); renderTable(sc);
+  const sel = document.getElementById('sceneSel');
+  sel.innerHTML = sc.map(s => `<option value="${s.scene}">${s.scene} (${DSN[s.dataset]})</option>`).join('');
+  if (!sc.find(s => s.scene === state.scene)) state.scene = sc[0] ? sc[0].scene : null;
+  sel.value = state.scene || ''; renderScene();
+}
+function bindSeg(id, key) {
+  document.getElementById(id).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    state[key] = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderAll(); });
+}
+bindSeg('setSeg', 'set'); bindSeg('dsSeg', 'ds'); bindSeg('metricSeg', 'metric');
+document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); });
+let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderAll, 120); }).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
+new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+renderAll();
+</script>

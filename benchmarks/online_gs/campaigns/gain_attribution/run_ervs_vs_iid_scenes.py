@@ -94,9 +94,11 @@ def main():
                     name = f'{arm}_s{seed}'
                     print('START', scene, budget, name, flush=True)
                     try:
-                        env_extra = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'))
+                        env_extra = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
+                                         B_PATCH_WORKER=str(HERE / patch))
+                        # Legacy-IMU launcher only fills a missing manifest key (fast-straight); see its docstring.
                         row = base.run_one('scenes', scene, budget, name, [*extra, '--seed', str(seed)], ctx,
-                                           worker=HERE / patch, env_extra=env_extra)
+                                           worker=HERE / 'legacy_imu_launcher.py', env_extra=env_extra)
                         out = Path(row['output'])
                         argv = base.read(out.parent / f'{name}.command.json')['cmd']
                         assert argv[len(argv) - argv[::-1].index('--seed')] == str(seed), 'seed not applied'

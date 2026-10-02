@@ -25,3 +25,11 @@ Per scene seed-mean ΔPSNR (ERVS − iid), Δmin-bin PSNR, Δworst-Q1, SSIM, LPI
 mean over scenes with a scene-level bootstrap 95% CI. Temporal: paired per-view difference and both arms' mean curves,
 averaged over seeds and scenes, five-bin means. Reported for the 15 new scenes alone and pooled with the four pinned
 scenes at budget 25 (19 scenes). All scenes reported whatever their sign.
+
+## Amendment 1 (2026-10-03, after 24 runs; no result-based change)
+
+UTMM fast-straight's archive (schema v2) has no `input_imu`; its first run failed with `KeyError: 'input_imu'` (moved to
+`failed_attempts/`). Following `run_cvpr_measurements.install_legacy_imu_metadata`, runs now launch through
+`legacy_imu_launcher.py`, which fills the missing key in memory with `<image_dir>/../imu_ours.txt` (same file name as the
+recorded IMU of the other UTMM archives; archives with the key are untouched). Approved by the user before resuming.
+Scenes, arms, budget, seeds and metrics are unchanged.
