@@ -88,6 +88,8 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 ## 최근 흐름 (최신순)
 
+- 2026-10-02 ERVS group size K on B (persistent per-pool group queue, rot·square-1, budget 15/25, seed0): selected K=16 (4-cell mean 22.731 vs current per-batch 22.620; K32 22.600, K64 22.625); K16 higher in 3/4 cells (square-1 +0.17/+0.18). Min-bin PSNR / worst-Q1 slightly lower than current (−0.08/−0.07). → [card](experiments/campaigns/06_gain_attribution/ervs_group_k/README.md)
+
 - 2026-10-02 ERVS/ERCB vs RR temporal+tail analysis (post-hoc, no training): on B, ERVS raises worst-Q1 in 4/4 scenes at budgets 5/10/15 (+0.71/+0.22/+0.24dB) and lowers per-view std 4/4 at 5/10, mean comparable; no general late-sequence decline. 3dgs-custom ERCB budget-15 gain is early-sequence (+1.97, 18/19) and worse late (−1.01). RR-hard-Q1 is selection-biased. → [card](experiments/campaigns/06_gain_attribution/ervs_temporal_analysis/README.md)
 
 - 2026-10-02 live B operating point on RTX 5070 Ti (actual tracking+mapping, TensorRT, 1/1.2/1.5x, ERVS): every admitted KF gets the full 40 renders; the constraint is KF admission (admitted/tracking KFs 1x: aria 70%, rot 54%, rpng 42%, utmm 74%) from tracking lag (rpng +62s, rot +33s at 1x). Renders per tracking KF 1x ≈17–30. PSNR 1x/1.5x: aria 23.29/23.00, rot 22.19/24.48, rpng 23.82/24.03, utmm 20.87/20.84. TRT vs PyTorch tracking at 1x: +0.2…+2.9dB. → [card](experiments/campaigns/06_gain_attribution/live_operating_point_5070ti/README.md)
