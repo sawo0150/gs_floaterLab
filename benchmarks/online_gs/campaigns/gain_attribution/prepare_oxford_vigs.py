@@ -65,6 +65,33 @@ def _rectify(job):
     return dst.name
 
 
+def write_imu_calib(s, o, newK):
+    # IMU: secs,nsecs,acc xyz,gyro xyz  ->  ns, gyro xyz, accel xyz (plain float repr; numpy 2 scalars are cast)
+    raw = np.loadtxt(s / 'raw/imu.csv', delimiter=',', skiprows=1)
+    ns = raw[:, 0].astype(np.int64) * 1_000_000_000 + raw[:, 1].astype(np.int64)
+    order = np.argsort(ns, kind='stable')
+    with (o / 'imu.txt').open('w') as f:
+        for i in order:
+            a, g = [float(v) for v in raw[i, 2:5]], [float(v) for v in raw[i, 5:8]]
+            f.write(f'{int(ns[i])},{g[0]!r},{g[1]!r},{g[2]!r},{a[0]!r},{a[1]!r},{a[2]!r}\n')
+    fx, fy, cx, cy = (float(newK[0, 0]), float(newK[1, 1]), float(newK[0, 2]), float(newK[1, 2]))
+    (o / 'calib.txt').write_text(f'{fx!r} {fy!r} {cx!r} {cy!r} 0.0 0.0 0.0 0.0\n')
+    return raw
+
+
+def repair_text(seq):
+    """Rewrite imu.txt/calib.txt of an existing prepared sequence (images and held-out are unchanged)."""
+    o = OUT / seq
+    prep = json.loads((o / 'prep.json').read_text())
+    for name in ('imu.txt', 'calib.txt'):
+        bad = o / name
+        if bad.exists():
+            (o / 'failed_attempts').mkdir(exist_ok=True)
+            bad.rename(o / 'failed_attempts' / f'numpy_repr_{name}')
+    write_imu_calib(ROOT / 'sequences' / seq, o, np.array(prep['K_out']))
+    print('REPAIRED', seq, (o / 'calib.txt').read_text().strip(), flush=True)
+
+
 def prepare(seq, workers):
     import cv2
     import yaml
@@ -94,16 +121,7 @@ def prepare(seq, workers):
         written = pool.map(_rectify, jobs, chunksize=32)
     uids = [j[1].name for j in jobs]
     assert written == uids and len(set(uids)) == len(uids)
-    # IMU: secs,nsecs,acc xyz,gyro xyz  ->  ns, gyro xyz, accel xyz
-    raw = np.loadtxt(s / 'raw/imu.csv', delimiter=',', skiprows=1)
-    ns = raw[:, 0].astype(np.int64) * 1_000_000_000 + raw[:, 1].astype(np.int64)
-    order = np.argsort(ns, kind='stable')
-    with (o / 'imu.txt').open('w') as f:
-        for i in order:
-            a, g = raw[i, 2:5], raw[i, 5:8]
-            f.write(f'{ns[i]},{g[0]!r},{g[1]!r},{g[2]!r},{a[0]!r},{a[1]!r},{a[2]!r}\n')
-    fx, fy, cx, cy = newK[0, 0], newK[1, 1], newK[0, 2], newK[1, 2]
-    (o / 'calib.txt').write_text(f'{fx!r} {fy!r} {cx!r} {cy!r} 0.0 0.0 0.0 0.0\n')
+    raw = write_imu_calib(s, o, newK)
     ext = yaml.safe_load(ext_file.read_text())['cam0']
     T = np.eye(4); T[:3, :3] = quat_xyzw_to_R(ext['C_q_CI']); T[:3, 3] = ext['C_r_CI']
     imu = yaml.safe_load(imu_file.read_text())
@@ -139,9 +157,10 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--sequences', nargs='+', required=True)
     p.add_argument('--workers', type=int, default=8)
+    p.add_argument('--repair-text', action='store_true')
     a = p.parse_args()
     for seq in a.sequences:
-        prepare(seq, a.workers)
+        repair_text(seq) if a.repair_text else prepare(seq, a.workers)
 
 
 if __name__ == '__main__':
