@@ -2,7 +2,8 @@
 
 `B_EXTRA_SCENES` (JSON: scene → {dataset, archive, manifest, custom_config, vanilla_config, image_dir, calibration})
 extends `trial.BASE.sequence_paths` inside the worker process for those scenes only, then applies the legacy-IMU fill
-(`legacy_imu_launcher.install`) and runs `B_PATCH_WORKER` like legacy_imu_launcher does.
+(`legacy_imu_launcher.install`), the optional FIFO pool cap (`B_POOL_CAP`, pool_cap.py), and runs
+`B_PATCH_WORKER` like legacy_imu_launcher does.
 """
 import json
 import os
@@ -26,6 +27,9 @@ if __name__ == '__main__':
             return {k: Path(v) for k, v in s.items() if k != 'dataset'}
         trial.BASE.sequence_paths = paths
     legacy_imu_launcher.install()
+    if os.environ.get('B_POOL_CAP'):
+        import pool_cap
+        pool_cap.install()
     patch = Path(os.environ['B_PATCH_WORKER'])
     sys.argv = [str(patch), *sys.argv[1:]]
     sys.path[0] = str(patch.parent)

@@ -67,6 +67,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--sequences', nargs='+', default=list(oxford_paths.SEQUENCES))
     p.add_argument('--execute', action='store_true')
+    p.add_argument('--buffer', type=int, default=700, help='tracker keyframe buffer (capacity only)')
     a = p.parse_args()
     sys.path.insert(0, str(base.SEL))
     from selected_mapping_check import gpu_idle
@@ -82,7 +83,7 @@ def main():
                '--config', str(x['vanilla_config']),
                '--weights', str(trial.BASE.OFFICIAL_ROOT / 'pretrained_models/droid.pth'),
                '--output', str(x['archive']), '--heldout-manifest', str(x['fixed_manifest']), '--seed', '0',
-               '--length', str(len(names)), '--buffer', '700', '--IMU_poseinit_after', '20']
+               '--length', str(len(names)), '--buffer', str(a.buffer), '--IMU_poseinit_after', '20']
         v7 = write_mapping_config(d)
         write(d / 'capture_command.json', {'cmd': cmd, 'source_sha256': {str(q): sha(q) for q in
               [x['vanilla_config'], x['calibration'], capture, x['fixed_manifest'], d / 'imu.txt', v7, V7_ARIA]},

@@ -33,3 +33,12 @@ official Aria adapter (unchanged tracking parameters) with the Oxford IMU block.
 official tracker capture (22ffe24, TRT dynamic RTX 5090 profile, seed 0), archive validation, native setup capture;
 mapping config = vigs_final_v7_aria.yaml with the sequence IMU block. GT trajectories are not used. Then the same
 3 arms × 3 seeds (45 runs). A sequence whose tracker capture or validation fails is reported and excluded, not tuned.
+
+## Amendment 2 — Oxford long sequences and 700-view FIFO pools (2026-10-03, user decision; before any capped run)
+
+christ-church-05 and bodleian-library-02 overflowed the tracker keyframe buffer (700) and are re-captured with
+`--buffer 2048` (capacity only; the three passing captures are kept). On user instruction, all five Oxford sequences
+are mapped with the KF pool and the dense pool each capped at the newest 700 views (FIFO, `pool_cap.py`, B_POOL_CAP=700;
+dropped views stop being sampled, the map and membership are unchanged), phase `scenes_cap700`, 3 arms × 3 seeds,
+45 runs. Uncapped Oxford runs already finished (phase `scenes`) are kept as a supplementary record (dense pools reached
+768/712 on new-college-02/04, so they are not the same condition). Gate: pool_cap.json present with cap 700.

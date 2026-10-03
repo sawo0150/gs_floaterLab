@@ -88,6 +88,7 @@ def main():
     p.add_argument('--scenes', nargs='+', default=list(SCENES))
     p.add_argument('--seeds', nargs='+', type=int, default=[0, 1, 2])
     p.add_argument('--arms', nargs='+', default=['ervs_k16', 'uniform_iid', 'uniform_k16'], choices=list(ARMS))
+    p.add_argument('--pool-cap', type=int, default=0, help='FIFO cap on KF and dense pools (0 = off)')
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
@@ -123,7 +124,10 @@ def main():
                     extra_scenes = {scene: dict(dataset=SCENES[scene]['dataset'], **{k: str(v) for k, v in sp.items()})}
                     env_extra = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
                                      B_PATCH_WORKER=str(HERE / patch), B_EXTRA_SCENES=json.dumps(extra_scenes))
-                    row = base.run_one('scenes', scene, BUDGET, name, [*extra, '--seed', str(seed)], ctx,
+                    if a.pool_cap:
+                        env_extra['B_POOL_CAP'] = str(a.pool_cap)
+                    phase = f'scenes_cap{a.pool_cap}' if a.pool_cap else 'scenes'
+                    row = base.run_one(phase, scene, BUDGET, name, [*extra, '--seed', str(seed)], ctx,
                                        worker=HERE / 'extra_scene_launcher.py', env_extra=env_extra)
                     out = Path(row['output'])
                     argv = base.read(out.parent / f'{name}.command.json')['cmd']
@@ -139,6 +143,10 @@ def main():
                         st = base.read(out / 'sampling_mode.json')['stats']
                         assert st.get('repeat_in_batch/keyframe', 0) + st.get('repeat_in_batch/dense', 0), st
                         row['sampling_mode'] = st
+                    if a.pool_cap:
+                        pc = base.read(out / 'pool_cap.json')
+                        assert pc['cap'] == a.pool_cap and pc['reserve_calls'] > 0, pc
+                        row['pool_cap'] = pc
                     row['seed'] = seed; row['base_arm'] = arm
                     base.write(out.parent / f'{name}.row.json', row)
                 except Exception:
