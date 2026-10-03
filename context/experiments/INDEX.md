@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-03 ERVS balancing strength on 4 B scenes (budget 25, seed0): τ=4/1/0.25 dense CV 0.76/0.58/0.35 (uniform 0.92) but ΔPSNR vs uniform +0.21/−0.02/−0.74 and Δmin-bin +0.01/−0.44/−1.47 — stronger balancing starves early views and is monotonically worse. → [card](campaigns/06_gain_attribution/ervs_tau_strength/README.md)
+
 - 2026-10-03 ERVS K16 vs uniform with replacement, 3 seeds × 4 B scenes × budget 15/25: mean ΔPSNR +0.085±0.058 (6/8 cells), min-bin −0.06 and worst-Q1 +0.01 (3/8 each); temporal paired Δ by fifth −0.22/+0.07/+0.34/+0.23/0.00 — ERVS loses on the earliest stream and gains mid-stream. → [card](campaigns/06_gain_attribution/ervs_vs_iid_seeds/README.md)
 
 - 2026-10-02 ERVS K16 vs uniform K16 vs uniform with replacement on held-out aria1253/table_06 (budget 15/25, seed0): ERVS count weighting lowers min-bin PSNR (−0.04…−0.44) and worst-Q1 (−0.10…−0.45) vs uniform K16 in 4/4 cells, mean PSNR 3/4 lower; K-group without replacement helps vs with replacement (min-bin 4/4 ≥0, PSNR +0.64/+0.23 in 2 cells). Balancing claim not supported at τ=4 per_view. → [card](campaigns/06_gain_attribution/ervs_vs_uniform_k16/README.md)
