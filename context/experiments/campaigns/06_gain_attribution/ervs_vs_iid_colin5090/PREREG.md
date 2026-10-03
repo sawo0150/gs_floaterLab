@@ -52,3 +52,12 @@ unprocessed self-recorded Aria VRS sequences, then M2DGR room_01/gate_03 (ROS ba
 5th frame + final, frozen official tracker capture (seed 0), validation, setup capture, then 3 arms × 3 seeds with the
 same 700-view FIFO pool cap as Oxford (recorded; it only binds when a pool exceeds 700). Failed captures are reported and
 excluded, not tuned.
+
+## Amendment 4 (2026-10-03, during runs)
+
+- FAST-LIVO2 capture used --IMU_poseinit_after 20 (Aria value) and failed before IMU initialisation (Rwg unset);
+  re-captured with the official eval_fastlivo_mono.py value 25 (= config imu_late_init_from). Failed archives kept
+  under failed_attempts/.
+- Oxford bodleian-library-02 ERVS seed 0 failed near the end (frame ~4800/4966: B execution-contract failure with a CUDA
+  invalid-configuration error, consistent with an empty map after a late tracker reset). The runner now records a failed
+  run (failures/*.json) and continues; failed cells are reported, not retried with changed settings.

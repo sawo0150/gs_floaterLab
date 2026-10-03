@@ -110,6 +110,8 @@ def main():
     p.add_argument('--seeds', nargs='+', type=int, default=[0, 1, 2])
     p.add_argument('--arms', nargs='+', default=['ervs_k16', 'uniform_iid', 'uniform_k16'], choices=list(ARMS))
     p.add_argument('--pool-cap', type=int, default=0, help='FIFO cap on KF and dense pools (0 = off)')
+    p.add_argument('--stop-on-failure', action='store_true',
+                   help='default: record a failed run (failures/<scene>_<arm>.json) and continue with the next one')
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
@@ -171,9 +173,14 @@ def main():
                     row['seed'] = seed; row['base_arm'] = arm
                     base.write(out.parent / f'{name}.row.json', row)
                 except Exception:
-                    base.write(base.OUT / 'failure.json', dict(scene=scene, arm=name, traceback=traceback.format_exc(),
-                                                               time=time.time()))
-                    raise
+                    fail = dict(scene=scene, arm=name, phase=phase, traceback=traceback.format_exc(), time=time.time())
+                    base.write(base.OUT / 'failure.json', fail)
+                    if a.stop_on_failure:
+                        raise
+                    (base.OUT / 'failures').mkdir(exist_ok=True)
+                    base.write(base.OUT / 'failures' / f'{phase}_{scene}_{name}.json', fail)
+                    print('FAILED', scene, BUDGET, name, flush=True)
+                    continue
                 rows.append(row)
                 base.summarize(rows)
                 print('DONE', scene, BUDGET, name, f"psnr={row['psnr']:.4f}", flush=True)

@@ -96,7 +96,7 @@ def main():
                '--calib', str(x['calibration']), '--config', str(x['vanilla_config']),
                '--weights', str(trial.BASE.OFFICIAL_ROOT / 'pretrained_models/droid.pth'),
                '--output', str(x['archive']), '--heldout-manifest', str(x['fixed_manifest']), '--seed', '0',
-               '--length', str(len(names)), '--buffer', str(a.buffer), '--IMU_poseinit_after', '20', '--undistort']
+               '--length', str(len(names)), '--buffer', str(a.buffer), '--IMU_poseinit_after', '25', '--undistort']  # official eval_fastlivo_mono.py value (= config imu_late_init_from)
         write(d / 'capture_command.json', {'cmd': cmd, 'source_sha256': {str(q): sha(q) for q in
               [x['vanilla_config'], x['calibration'], capture, x['fixed_manifest'], FP.RAW / seq / 'imu.txt',
                FP.RAW / seq / 'extrinsics.txt', x['custom_config'], V7_ARIA]},
