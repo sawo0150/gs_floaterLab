@@ -130,17 +130,22 @@ def scene_record(scene, dataset, group, dirfn):
     return rec
 
 
-scenes = []
-for key, scene, ds in PINNED:
-    r = scene_record(scene, ds, 'pinned', lambda a, s, k=key: pinned_dir(k, a, s))
-    if r: scenes.append(r)
-for scene, ds in NEW:
-    r = scene_record(scene, ds, 'new',
-                     lambda a, s, sc=scene: OUT / f'scenes/{sc}/render{BUDGET}/{a}_s{s}')
-    if r: scenes.append(r)
-data = dict(grid=np.round(GRID, 3).tolist(), count_bins=NB, budget=BUDGET, scenes=scenes,
-            expected=dict(new=len(NEW), pinned=len(PINNED), seeds=len(SEEDS)))
-(OUT / 'page_data.json').write_text(json.dumps(data))
-tmpl = (HERE / 'ervs_scenes_page.html').read_text()
-(OUT / 'ervs_scenes.html').write_text(tmpl.replace('/*__DATA__*/null', json.dumps(data)))
-print('scenes', len(scenes), 'seed-runs', sum(len(s['seeds']) for s in scenes))
+def main():
+    scenes = []
+    for key, scene, ds in PINNED:
+        r = scene_record(scene, ds, 'pinned', lambda a, s, k=key: pinned_dir(k, a, s))
+        if r: scenes.append(r)
+    for scene, ds in NEW:
+        r = scene_record(scene, ds, 'new',
+                         lambda a, s, sc=scene: OUT / f'scenes/{sc}/render{BUDGET}/{a}_s{s}')
+        if r: scenes.append(r)
+    data = dict(grid=np.round(GRID, 3).tolist(), count_bins=NB, budget=BUDGET, scenes=scenes,
+                expected=dict(new=len(NEW), pinned=len(PINNED), seeds=len(SEEDS)))
+    (OUT / 'page_data.json').write_text(json.dumps(data))
+    tmpl = (HERE / 'ervs_scenes_page.html').read_text()
+    (OUT / 'ervs_scenes.html').write_text(tmpl.replace('/*__DATA__*/null', json.dumps(data)))
+    print('scenes', len(scenes), 'seed-runs', sum(len(s['seeds']) for s in scenes))
+
+
+if __name__ == '__main__':
+    main()
