@@ -87,3 +87,17 @@ protect the low-count tail (p10 dense count 1.0–1.2 vs 2.0 under ERVS), becaus
 have few draws left; only the count term lifts that tail. All signal samplers also prioritise unseen views (first-visit
 share 0.136 vs 0.130), which K16/ERVS do not. Next candidate (not run): keep the ERVS count weight and multiply it by a
 mild quality factor, so the tail stays protected while the quality term redistributes among equally-served views.
+
+## Stage 6 — ERVS count weight × quality factor (2026-10-03, PREREG Amendment 4, seed 0) and decision
+
+| arm (Δ vs uniform_k16, seed 0) | Δ mean | Δ temporal sd | bins 0–20 … 80–100% | dense count p10 / median / CV |
+|---|---:|---:|---|---|
+| ERVS τ=4 (ref) | +0.10 | +0.12 | −0.24 / +0.26 / +0.30 / +0.03 / +0.16 | 2.0 / 7.0 / 0.76 |
+| ERVS × (1 + 0.5·loss) | −0.11 | +0.17 | −0.85 / +0.04 / +0.43 / −0.20 / +0.03 | 2.0 / 7.1 / 0.75 |
+| ERVS × (1 + 1.0·loss) | +0.00 | +0.08 | −0.65 / +0.13 / +0.19 / +0.22 / +0.10 | 2.0 / 7.2 / 0.76 |
+
+The count tail is protected exactly as under ERVS, but neither arm passes (mean below ERVS by 0.10–0.21 dB, temporal
+sd not lower; the quality factor pulls training away from the first 20%, where views have the lowest loss).
+**Decision (user, pre-stated): ERVS τ=4 stays the method.** The study ends here: across stages 2–6, no training-signal
+weighting (forgetting, progress, loss, PER, catch-up, age-norm, interference, staleness, uniform floor, ERVS × loss)
+keeps the mean while flattening the temporal curve.

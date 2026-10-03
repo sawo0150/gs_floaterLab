@@ -44,6 +44,10 @@ ARMS = [
          dir='stage5/{k}/render25/sig_floor_loss_l0.25', desc='5단계 · 0.75×균등 + 0.25×마지막 training loss 비율'),
     dict(id='sig_floor_loss_l0.5', label='균등 하한+loss λ0.5', color='--c2', dash='2 3',
          dir='stage5/{k}/render25/sig_floor_loss_l0.5', desc='5단계 · 0.5×균등 + 0.5×마지막 training loss 비율'),
+    dict(id='sig_ervs_quality_c0.5', label='ERVS × loss 0.5', color='--t4', dash='6 3',
+         dir='stage6/{k}/render25/sig_ervs_quality_c0.5', desc='6단계 · ERVS 횟수 가중치 × (1 + 0.5×loss/평균 loss)'),
+    dict(id='sig_ervs_quality_c1.0', label='ERVS × loss 1.0', color='--t4', dash='2 3',
+         dir='stage6/{k}/render25/sig_ervs_quality_c1.0', desc='6단계 · ERVS 횟수 가중치 × (1 + 1.0×loss/평균 loss)'),
 ]
 OLD = {'uniform_iid': lambda k: S.pinned_dir(k, 'uniform_iid', 0), 'ervs_tau4': lambda k: S.pinned_dir(k, 'ervs_k16', 0)}
 

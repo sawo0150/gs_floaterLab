@@ -4,6 +4,7 @@
 
 - 2026-10-03 ERVS K16 vs uniform with replacement, 19 scenes × 3 seeds (budget 25): ΔPSNR +0.045 [−0.01,+0.10] (11/19), min-bin −0.08, worst-Q1 −0.11 [−0.21,−0.00]; dense CV 0.74 vs 0.91; five-bin Δ −0.25/+0.04/+0.22/+0.22/−0.01. → [card](campaigns/06_gain_attribution/ervs_vs_iid_scenes/README.md)
 
+- 2026-10-03 training-signal stage 6 (ERVS count weight × (1 + c·loss), c 0.5/1.0, 8 runs, seed0): count tail protected as in ERVS but mean −0.11/+0.00 vs uniform_k16 (ERVS +0.10) and no flatter; study closed, ERVS τ=4 kept (user decision). → [card](campaigns/06_gain_attribution/ervs_train_signal/README.md)
 - 2026-10-03 training-signal stage 5 (uniform floor + quality target, 16 runs, seed0): no arm keeps mean ≥ uniform_k16 while flattening; regional forgetting λ0.5 is flattest (sd −0.18) but −0.39 dB; loss floor −0.08/−0.10. A per-draw floor does not protect the low-count tail (dense p10 count 1.0 vs 2.0 under ERVS). → [card](campaigns/06_gain_attribution/ervs_train_signal/README.md)
 - 2026-10-03 training-signal replay study complete (stages 1–4, 64 runs): no signal sampler (forgetting/progress/loss/PER/catch-up/age-norm/interference/staleness) beats uniform over 3 seeds; interference's seed-0 4/4 gain was noise (3-seed −0.02); ERVS τ4 +0.07 (3/4). Seed noise up to 0.2 dB mean PSNR, 0.3 dB min-bin. ERVS aria seed-2 early-region collapse recurs. → [card](campaigns/06_gain_attribution/ervs_train_signal/README.md)
 
