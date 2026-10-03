@@ -66,44 +66,73 @@ def counts(d):
     return out
 
 
+def lorenz(d):
+    """Cumulative share of final-generation services over views in arrival order (offline = diagonal)."""
+    r = json.loads((d / 'render_result.json').read_text())
+    gen = max(x['generation'] for x in r['training']['loss_routes'])
+    n = {}
+    for x in r['training']['loss_routes']:
+        if x['generation'] == gen:
+            n[x['uid']] = n.get(x['uid'], 0) + 1
+    v = np.array([n[u] for u in sorted(n)], float)
+    xs = np.concatenate([[0], np.arange(1, len(v) + 1) / len(v)])
+    ys = np.concatenate([[0], np.cumsum(v) / v.sum()])
+    y = np.interp(S.GRID, xs, ys)
+    return y, float(2 * np.trapezoid(y - S.GRID, S.GRID))
+
+
 def main():
-    scenes, flat = [], {a: [] for a in ARMS}
-    for key, name, ds in SCENES:
-        off = {s: S.views(OUT / f'offline/{key}/render25/offline_s{s}') for s in SEEDS}
-        on = {(a, s): S.views(S.pinned_dir(key, a, s)) for a in ARMS for s in SEEDS}
+    pinned = [(k, n, ds, k) for k, n, ds in SCENES]
+    extra = [(sc, sc, {'aria': 'Aria', 'rpng': 'RPNG', 'utmm': 'UTMM'}[ds], None) for sc, ds in S.NEW]
+    scenes = []
+    for key, name, ds, pin in pinned + extra:
+        if pin:
+            off_dirs = {s: OUT / f'offline/{key}/render25/offline_s{s}' for s in SEEDS}
+            on_dir = lambda a, s: S.pinned_dir(key, a, s)
+        else:
+            off_dirs = {0: OUT / f'offline/{key}/render25/offline_s0'}
+            on_dir = lambda a, s: S.OUT / f'scenes/{key}/render25/{a}_s{s}'
+        if not all((d / f'../{d.name}.row.json').resolve().exists() for d in off_dirs.values()):
+            continue
+        off = {s: S.views(d) for s, d in off_dirs.items()}
+        on = {(a, s): S.views(on_dir(a, s)) for a in ARMS for s in SEEDS}
         f = off[0][0]
-        rec = dict(key=key, scene=name, dataset=ds, n_views=int(len(f)), abs={}, gap={}, gap_lo={}, gap_hi={},
-                   bins={}, mean={}, counts={}, seed_gap={})
-        rec['abs']['offline'] = np.mean([curve(f, off[s][1]) for s in SEEDS], 0).round(3).tolist()
-        rec['mean']['offline'] = float(np.mean([off[s][1].mean() for s in SEEDS]))
+        pair = (lambda s: s) if pin else (lambda s: 0)
+        rec = dict(key=key, scene=name, dataset=ds, pinned=bool(pin), offline_seeds=len(off), n_views=int(len(f)),
+                   abs={}, gap={}, gap_lo={}, gap_hi={}, bins={}, mean={}, counts={}, lorenz={}, gini={}, mad={})
+        rec['abs']['offline'] = np.mean([curve(f, off[s][1]) for s in off], 0).round(3).tolist()
+        rec['mean']['offline'] = float(np.mean([off[s][1].mean() for s in off]))
         for a in ARMS:
             assert all(np.array_equal(on[(a, s)][0], f) for s in SEEDS)
-            ds_ = [on[(a, s)][1] - off[s][1] for s in SEEDS]
+            ds_ = [on[(a, s)][1] - off[pair(s)][1] for s in SEEDS]
             cs = np.array([curve(f, d) for d in ds_])
+            m = cs.mean(0)
             rec['abs'][a] = np.mean([curve(f, on[(a, s)][1]) for s in SEEDS], 0).round(3).tolist()
-            rec['gap'][a] = cs.mean(0).round(3).tolist()
+            rec['gap'][a] = m.round(3).tolist()
             rec['gap_lo'][a] = cs.min(0).round(3).tolist(); rec['gap_hi'][a] = cs.max(0).round(3).tolist()
             rec['bins'][a] = np.mean([b5(d) for d in ds_], 0).round(3).tolist()
             rec['mean'][a] = float(np.mean([on[(a, s)][1].mean() for s in SEEDS]))
-            rec['seed_gap'][a] = [float(d.mean()) for d in ds_]
-            for s, d in zip(SEEDS, ds_):
-                flat[a].append(dict(scene=name, seed=s, sd=float(dec(d)[:9].std())))
-        for a, dirs in [(a, [S.pinned_dir(key, a, s) for s in SEEDS]) for a in ARMS] + \
-                       [('offline', [OUT / f'offline/{key}/render25/offline_s{s}' for s in SEEDS])]:
+            head = m[:91]
+            rec['mad'][a] = float(np.abs(head - head.mean()).mean())
+        for a, dirs in [(a, [on_dir(a, s) for s in SEEDS]) for a in ARMS] + [('offline', list(off_dirs.values()))]:
             cc = [counts(d) for d in dirs]
-            rec['counts'][a] = {k: [None if not np.isfinite(v) else round(float(v), 3) for v in np.nanmean([c[k]['mean'] / c[k]['overall'] for c in cc], 0)]
+            rec['counts'][a] = {k: [None if not np.isfinite(v) else round(float(v), 3)
+                                    for v in np.nanmean([c[k]['mean'] / c[k]['overall'] for c in cc], 0)]
                                 for k in ('kf', 'dense')}
             rec['counts'][a]['cv'] = {k: float(np.mean([c[k]['cv'] for c in cc])) for k in ('kf', 'dense')}
+            lz = [lorenz(d) for d in dirs]
+            rec['lorenz'][a] = np.mean([x[0] for x in lz], 0).round(4).tolist()
+            rec['gini'][a] = float(np.mean([x[1] for x in lz]))
         scenes.append(rec)
     pairs = {}
-    for a, b in (('ervs_k16', 'uniform_iid'), ('ervs_k16', 'uniform_k16'), ('uniform_k16', 'uniform_iid')):
-        diff = [x['sd'] - y['sd'] for x, y in zip(flat[a], flat[b])]
-        pairs[f'{a}-{b}'] = dict(ci=boot(diff), wins=int(sum(d < 0 for d in diff)), n=len(diff))
-    data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, flat=flat, pairs=pairs,
-                flat_mean={a: float(np.mean([x['sd'] for x in flat[a]])) for a in ARMS})
+    for metric in ('mad', 'gini'):
+        for a, b in (('ervs_k16', 'uniform_iid'), ('ervs_k16', 'uniform_k16'), ('uniform_k16', 'uniform_iid')):
+            diff = [s[metric][a] - s[metric][b] for s in scenes]
+            pairs[f'{metric}:{a}-{b}'] = dict(ci=boot(diff), wins=int(sum(d < 0 for d in diff)), n=len(diff))
+    data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, pairs=pairs)
     html = (HERE / 'offline_page.html').read_text().replace('__DATA__', json.dumps(data, separators=(',', ':')))
     (OUT / 'offline_compare.html').write_text(html)
-    print('scenes', len(scenes), 'flat', data['flat_mean'], {k: v['ci'] for k, v in pairs.items()})
+    print('scenes', len(scenes), {k: [round(x, 3) for x in v['ci']] + [v['wins'], v['n']] for k, v in pairs.items()})
 
 
 if __name__ == '__main__':

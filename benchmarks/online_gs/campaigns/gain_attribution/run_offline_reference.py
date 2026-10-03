@@ -20,7 +20,7 @@ sys.path.insert(0, str(HERE))
 import run_b_ablation_chain as base  # noqa: E402
 import build_ervs_scenes_page as S  # noqa: E402
 
-base.OUT = base.ROOT / 'results/campaigns/gain_attribution/offline_reference/v1'
+base.OUT = OFFLINE_OUT = base.ROOT / 'results/campaigns/gain_attribution/offline_reference/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/offline_reference/PREREG.md'
 BUDGET = 25
 PLAN = [('utmm', 0)] + [(k, s) for s in (0, 1, 2) for k in ('aria', 'rpng', 'rot', 'utmm') if (k, s) != ('utmm', 0)]
@@ -70,6 +70,7 @@ def main():
     worker, launcher_env, ref_of = HERE / 'offline_patch.py', {}, lambda key, seed: S.pinned_dir(key, 'ervs_k16', seed)
     if a.extra:   # Amendment 2: same patch through the legacy-IMU launcher and preflight used for the online runs
         import run_ervs_vs_iid_scenes as X
+        base.OUT = OFFLINE_OUT   # importing X re-points base.OUT at the online scenes folder
         from selected_mapping_check import verify_files
         for scene, dataset in X.SCENES.items():
             lock['datasets'][scene] = dict(dataset=dataset, scene=scene, setup=str(X.SETUPS / dataset / scene / 'setup'))
