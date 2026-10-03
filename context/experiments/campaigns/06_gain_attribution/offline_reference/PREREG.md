@@ -31,3 +31,12 @@ ran correctly (final generation 1,775 renders = online) but failed the worker's 
 the online causal rule "one dense admission per κ = 16 steps"; the offline arm breaks it by design. The patch now
 re-evaluates that check with only the final-generation preadmission exempt (all other admissions must satisfy it) and
 adds `offline_preadmission_is_reference_set`. Both attempts are archived under `failed_attempts/`.
+
+## Amendment 2 (2026-10-04, after stage 1; user asked to extend to the other scenes)
+Stage 2: the 15 extra scenes of `ervs_vs_iid_scenes` (cvpr fixed_work_v1 setups, same preflight and legacy-IMU
+launcher as their online runs), offline seed 0 only (15 runs). Reference set = each scene's online `ervs_k16_s0` final
+dense/KF sets (verified identical across the 3 online arms × 3 seeds for all 15 scenes). Same gates as stage 1.
+Analysis adds two descriptive views fixed before the runs: (a) cumulative training share by arrival order (Lorenz-style,
+offline = diagonal) and its area to the diagonal; (b) the gap centred per scene, d(t) − mean d, with the mean absolute
+deviation over the first 90% of the stream as the flatness measure (offline seed 0 vs the online seed mean for the 15
+new scenes). Tested on 4 scenes beforehand and dropped: local count ratio vs gap (sign varies by scene, ρ −0.30…+0.46).

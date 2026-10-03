@@ -4,6 +4,7 @@
 
   python run_offline_reference.py --smoke     # square-1 seed 0 with gates
   python run_offline_reference.py             # smoke gates, then 4 scenes × seeds 0–2
+  python run_offline_reference.py --extra     # Amendment 2: 15 extra scenes, seed 0
 """
 import argparse
 import os
@@ -47,7 +48,8 @@ def gates(out, ref_dir):
 
 
 def main():
-    p = argparse.ArgumentParser(); p.add_argument('--smoke', action='store_true'); a = p.parse_args()
+    p = argparse.ArgumentParser(); p.add_argument('--smoke', action='store_true'); p.add_argument('--extra', action='store_true')
+    a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
     from selected_mapping_check import load_lock, preflight, gpu_idle
@@ -64,19 +66,30 @@ def main():
             patch_sha256=base.sha(HERE / 'offline_patch.py'), machine_profile=os.environ['ROGO_MACHINE_PROFILE'],
             gpu=subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version',
                                          '--format=csv,noheader'], text=True).strip()))
+    plan = PLAN[:1] if a.smoke else PLAN
+    worker, launcher_env, ref_of = HERE / 'offline_patch.py', {}, lambda key, seed: S.pinned_dir(key, 'ervs_k16', seed)
+    if a.extra:   # Amendment 2: same patch through the legacy-IMU launcher and preflight used for the online runs
+        import run_ervs_vs_iid_scenes as X
+        from selected_mapping_check import verify_files
+        for scene, dataset in X.SCENES.items():
+            lock['datasets'][scene] = dict(dataset=dataset, scene=scene, setup=str(X.SETUPS / dataset / scene / 'setup'))
+        preflight = X.make_preflight(trial, verify_files, load_lock)
+        plan = [(sc, 0) for sc in X.SCENES]
+        worker, launcher_env = HERE / 'legacy_imu_launcher.py', dict(B_PATCH_WORKER=str(HERE / 'offline_patch.py'))
+        ref_of = lambda key, seed: S.OUT / f'scenes/{key}/render25/ervs_k16_s{seed}'
     ctx = (lock, trial, preflight, gpu_idle, recipe_environment)
     rows = []
-    for key, seed in (PLAN[:1] if a.smoke else PLAN):
+    for key, seed in plan:
         name = f'offline_s{seed}'
-        ref_dir = S.pinned_dir(key, 'ervs_k16', seed)
+        ref_dir = ref_of(key, seed)
         ref = base.read(ref_dir / 'render_result.json')
         last_uid = [x['uid'] for x in ref['arrivals'] if not x.get('terminal')][-1]
         print('START', key, BUDGET, name, flush=True)
         try:
             env_extra = dict(B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
-                             B_OFFLINE_REF=str(ref_dir / 'render_result.json'), B_OFFLINE_LAST_UID=str(last_uid))
+                             B_OFFLINE_REF=str(ref_dir / 'render_result.json'), B_OFFLINE_LAST_UID=str(last_uid), **launcher_env)
             row = base.run_one('offline', key, BUDGET, name, ['--seed', str(seed)], ctx,
-                               worker=HERE / 'offline_patch.py', env_extra=env_extra)
+                               worker=worker, env_extra=env_extra)
             out = Path(row['output'])
             ok, res = gates(out, ref_dir)
             row['offline_gates'] = res; row['seed'] = seed; row['reference'] = str(ref_dir)
