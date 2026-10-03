@@ -24,6 +24,7 @@ from run_ervs_vs_iid_scenes import ARMS  # noqa: E402
 import oxford_paths  # noqa: E402
 import fastlivo_paths  # noqa: E402
 import selfaria_paths  # noqa: E402
+import m2dgr_paths  # noqa: E402
 
 base.OUT = base.ROOT / 'results/campaigns/gain_attribution/ervs_vs_iid_colin5090/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/ervs_vs_iid_colin5090/PREREG.md'
@@ -45,6 +46,10 @@ for _seq in selfaria_paths.SEQUENCES:   # Amendment 3: self-recorded Aria VRS (p
     _x = selfaria_paths.paths(_seq)
     SCENES[_seq] = dict(dataset='selfaria', archive=_x['archive'], manifest=_x['fixed_manifest'],
                         setup=selfaria_paths.PREP / _seq / 'setup')
+for _seq in m2dgr_paths.SEQUENCES:   # Amendment 3: M2DGR (prepare_m2dgr.py)
+    _x = m2dgr_paths.paths(_seq)
+    SCENES[_seq] = dict(dataset='m2dgr', archive=_x['archive'], manifest=_x['fixed_manifest'],
+                        setup=m2dgr_paths.PREP / _seq / 'setup')
 BUDGET = 25
 
 
@@ -60,6 +65,8 @@ def install_paths(trial):
             return fastlivo_paths.paths(scene)
         if dataset == 'selfaria':
             return selfaria_paths.paths(scene)
+        if dataset == 'm2dgr':
+            return m2dgr_paths.paths(scene)
         s = SCENES[scene]
         m = json.loads((s['archive'] / 'archive_manifest.json').read_text())
         return {'archive': s['archive'], 'fixed_manifest': s['manifest'],

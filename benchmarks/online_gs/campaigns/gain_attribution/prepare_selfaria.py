@@ -66,18 +66,19 @@ def extract(seq):
     print('EXTRACTED', seq, len(names), 'frames', len(views), 'held-out', flush=True)
 
 
-def capture(seq, buffer):
+def capture(seq, buffer, P=SP, dataset='selfaria', undistort=False):
+    """Frozen tracker capture + validation + setup for a prepared extra-dataset sequence (shared with M2DGR)."""
     sys.path.insert(0, str(base.SEL))
     from selected_mapping_check import gpu_idle, load_lock
     from selected_recipe import recipe_environment
-    d = SP.PREP / seq; x = SP.paths(seq)
+    d = P.PREP / seq; x = P.paths(seq)
     names = sorted(q.name for q in x['image_dir'].iterdir() if q.suffix == '.jpg')
     cap = ROOT / 'benchmarks/online_gs/exp78b_capture_frozen_tracker.py'
-    cmd = [str(trial.BASE.PYTHON_ENV / 'bin/python'), str(cap), '--dataset', 'selfaria', '--sequence', seq,
+    cmd = [str(trial.BASE.PYTHON_ENV / 'bin/python'), str(cap), '--dataset', dataset, '--sequence', seq,
            '--imagedir', str(x['image_dir']), '--imufile', str(d / 'imu.txt'), '--calib', str(x['calibration']),
            '--config', str(x['vanilla_config']), '--weights', str(trial.BASE.OFFICIAL_ROOT / 'pretrained_models/droid.pth'),
            '--output', str(x['archive']), '--heldout-manifest', str(x['fixed_manifest']), '--seed', '0',
-           '--length', str(len(names)), '--buffer', str(buffer), '--IMU_poseinit_after', '20']
+           '--length', str(len(names)), '--buffer', str(buffer), '--IMU_poseinit_after', '20'] + (['--undistort'] if undistort else [])
     write(d / 'capture_command.json', {'cmd': cmd, 'source_sha256': {str(q): sha(q) for q in
           [x['vanilla_config'], x['calibration'], cap, x['fixed_manifest'], d / 'imu.txt', x['custom_config']]},
           'raw_frames': len(names), 'mapping_optimization': False})
@@ -87,7 +88,8 @@ def capture(seq, buffer):
     if not x['archive'].exists():
         gpu_idle()
         with (d / 'capture.log').open('x') as log:
-            subprocess.run([cmd[0], '-c', CAPTURE_WRAPPER.format(argv=cmd[1:])], env=env, cwd=TRT_CWD,
+            wrapper = _CW.replace('("fastlivo",)', f'("{dataset}",)')
+            subprocess.run([cmd[0], '-c', wrapper.format(argv=cmd[1:])], env=env, cwd=TRT_CWD,
                            stdout=log, stderr=subprocess.STDOUT, check=True)
         with (d / 'validation.log').open('x') as log:
             subprocess.run([str(trial.BASE.PYTHON_ENV / 'bin/python'), str(trial.BASE.ARCHIVE_VALIDATOR),
@@ -95,8 +97,9 @@ def capture(seq, buffer):
                            env=env, stdout=log, stderr=subprocess.STDOUT, check=True)
         print('CAPTURE_VALIDATED', seq, flush=True)
     if not (d / 'setup').exists():
-        src = SETUP_WRAPPER_SA.format(here=str(HERE), capture=str(HERE / 'capture_online_worker_setup.py'),
-                                      seq=seq, out=str(d / 'setup'))
+        wrapper = SETUP_WRAPPER.replace('oxford_paths', P.__name__).replace('"oxford"', f'"{dataset}"')
+        src = wrapper.format(here=str(HERE), capture=str(HERE / 'capture_online_worker_setup.py'),
+                             seq=seq, out=str(d / 'setup'))
         senv = recipe_environment(trial.BASE.mapping_environment(True), load_lock())
         with (d / 'setup_capture.log').open('x') as log:
             subprocess.run([str(trial.BASE.PYTHON_ENV / 'bin/python'), '-c', src], env=senv,
