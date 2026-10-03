@@ -29,6 +29,9 @@ def pinned_dir(key, arm, seed):
     if arm == 'ervs_k16':
         return (R / f'ervs_vs_uniform_k16/v1/cmp/{key}/render{b}/ervs_k16' if key in ('aria', 'rpng')
                 else R / f'ervs_group_k/v1/groupk/{key}/render{b}/K16')
+    if arm == 'uniform_k16':
+        return (R / f'ervs_vs_uniform_k16/v1/cmp/{key}/render{b}/uniform_k16' if key in ('aria', 'rpng')
+                else R / f'ervs_vs_iid_seeds/v1/seeds/{key}/render{b}/uniform_k16_s0')
     if key in ('aria', 'rpng'):
         return R / f'ervs_vs_uniform_k16/v1/cmp/{key}/render{b}/uniform_iid'
     if key == 'rot':
@@ -86,9 +89,12 @@ def bins5(y):
     return [float(y[i * len(y) // 5:(i + 1) * len(y) // 5].mean()) for i in range(5)]
 
 
+OPT = 'uniform_k16'   # third arm (ervs_vs_iid_scenes Amendment 2), shown once every seed of the scene has it
+
+
 def scene_record(scene, dataset, group, dirfn):
     runs = {}
-    for arm in ARMS:
+    for arm in ARMS + (OPT,):
         for s in SEEDS:
             v = views(dirfn(arm, s))
             if v is not None:
@@ -96,19 +102,20 @@ def scene_record(scene, dataset, group, dirfn):
     seeds = [s for s in SEEDS if ('ervs_k16', s) in runs and ('uniform_iid', s) in runs]
     if not seeds:
         return None
-    rec = dict(scene=scene, dataset=dataset, group=group, seeds=seeds, n_views=int(len(runs[('ervs_k16', seeds[0])][1])),
+    arms = ARMS + ((OPT,) if all((OPT, s) in runs for s in seeds) else ())
+    rec = dict(scene=scene, dataset=dataset, group=group, seeds=seeds, arms=list(arms), n_views=int(len(runs[('ervs_k16', seeds[0])][1])),
                curve={}, bins={}, per_seed=[], count={}, count_scale={}, count_cv={})
-    cnt = {(a, s): counts(dirfn(a, s)) for a in ARMS for s in seeds}
+    cnt = {(a, s): counts(dirfn(a, s)) for a in arms for s in seeds}
     for k in ('kf', 'dense'):
         scale = float(np.mean([cnt[(a, s)][k]['overall'] for a in ARMS for s in seeds]))
         rec['count_scale'][k] = round(scale, 3)
         rec['count'][k], rec['count_cv'][k] = {}, {}
-        for a in ARMS:
+        for a in arms:
             with np.errstate(all='ignore'):
                 m = np.nanmean([cnt[(a, s)][k]['mean'] for s in seeds], 0)
             rec['count'][k][a] = [None if np.isnan(v) else round(float(v), 3) for v in m]
             rec['count_cv'][k][a] = round(float(np.mean([cnt[(a, s)][k]['cv'] for s in seeds])), 4)
-    for arm in ARMS:
+    for arm in arms:
         cs, bs = [], []
         for s in seeds:
             f, p, *_ = runs[(arm, s)]
@@ -116,7 +123,7 @@ def scene_record(scene, dataset, group, dirfn):
             cs.append(np.interp(GRID, t, smooth(p, 0.10))); bs.append(bins5(p))
         rec['curve'][arm] = np.round(np.mean(cs, 0), 3).tolist()
         rec['bins'][arm] = np.round(np.mean(bs, 0), 3).tolist()
-    ds = []
+    ds, dk, de = [], [], []
     for s in seeds:
         (fe, pe, se_, le), (fu, pu, su, lu) = runs[('ervs_k16', s)], runs[('uniform_iid', s)]
         assert (fe == fu).all(), scene
@@ -125,8 +132,17 @@ def scene_record(scene, dataset, group, dirfn):
         q = max(1, -(-len(pe) // 4))
         m = lambda p, ss, ll: dict(psnr=float(p.mean()), minbin=min(bins5(p)), wq1=float(np.sort(p)[:q].mean()),
                                    ssim=ss, lpips=ll)
-        rec['per_seed'].append(dict(seed=s, ervs=m(pe, se_, le), iid=m(pu, su, lu)))
+        ps = dict(seed=s, ervs=m(pe, se_, le), iid=m(pu, su, lu))
+        if OPT in arms:
+            fk, pk, sk, lk = runs[(OPT, s)]
+            assert (fk == fu).all(), scene
+            ps['k16'] = m(pk, sk, lk)
+            dk.append(np.interp(GRID, t, smooth(pk - pu, 0.20))); de.append(np.interp(GRID, t, smooth(pe - pk, 0.20)))
+        rec['per_seed'].append(ps)
     rec['diff_curve'] = np.round(np.mean(ds, 0), 3).tolist()
+    if OPT in arms:
+        rec['diff_k16'] = np.round(np.mean(dk, 0), 3).tolist()
+        rec['diff_ervs_k16'] = np.round(np.mean(de, 0), 3).tolist()
     return rec
 
 

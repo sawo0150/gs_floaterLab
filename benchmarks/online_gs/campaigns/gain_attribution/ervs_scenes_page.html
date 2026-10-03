@@ -6,18 +6,18 @@
 /* Layout: one reading column of figure panels; summary strip first, then stream-time curves, bins, per-scene detail. */
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4;
-  --ervs: #2a6fdb; --iid: #2e9e6b; --band-ervs: rgba(42,111,219,.14); --band-iid: rgba(46,158,107,.14);
+  --ervs: #2a6fdb; --iid: #2e9e6b; --k16: #4a3aa7; --band-k16: rgba(74,58,167,.14); --band-ervs: rgba(42,111,219,.14); --band-iid: rgba(46,158,107,.14);
   --good: #1f7a4d; --bad: #b4452c; --chip: #eef1f6;
   --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
-  --ervs: #5b93f0; --iid: #34a877; --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --band-k16: rgba(144,133,233,.18); --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
   --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
-  --ervs: #5b93f0; --iid: #34a877; --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --band-k16: rgba(144,133,233,.18); --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18);
   --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 0 }
@@ -111,6 +111,17 @@ td.num { font-family: var(--mono) }
       <div class="chart" id="cBins"></div>
     </section>
   </div>
+
+  <section class="panel" id="k16Panel">
+    <h2>효과 분해: 균등 group (K16) 포함</h2>
+    <p class="cap">균등 group은 ERVS와 같은 16장 비복원 group 대기열을 쓰되 확률만 균등한 설정입니다. 그래서 <b>ERVS − 균등 복원</b>(전체 효과)을 <b>균등 group − 균등 복원</b>(비복원 group 구조의 효과)과 <b>ERVS − 균등 group</b>(학습 횟수 균형 항의 효과)으로 나눌 수 있습니다. 균등 group이 모든 seed에 있는 장면만 씁니다.</p>
+    <div class="progress" id="k16Progress"></div>
+    <div class="tablewrap"><table id="k16Tbl"></table></div>
+    <div class="two">
+      <div class="chart" id="cK16Mean"></div>
+      <div class="chart" id="cK16Diff"></div>
+    </div>
+  </section>
 
   <section class="panel">
     <h2>장면별 차이</h2>
@@ -327,6 +338,38 @@ function renderSceneCount() {
   binHover(f, x, host, i => `<b>${s.scene}</b> · 도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}<br><span style="color:var(--ervs)">●</span> ERVS ${isNaN(e[i]) ? '–' : e[i].toFixed(1)}<br><span style="color:var(--iid)">●</span> 균등 ${isNaN(u[i]) ? '–' : u[i].toFixed(1)}`);
 }
 
+
+function renderK16(scAll) {
+  const sc = scAll.filter(s => s.arms && s.arms.includes('uniform_k16'));
+  const tot = DATA.scenes.filter(s => s.arms && s.arms.includes('uniform_k16')).length;
+  document.getElementById('k16Progress').textContent = `균등 group이 모든 seed에 있는 장면: ${tot} / ${DATA.scenes.length} (현재 선택 중 ${sc.length}개)`;
+  const T = document.getElementById('k16Tbl');
+  if (!sc.length) { T.innerHTML = ''; document.getElementById('cK16Mean').innerHTML = ''; document.getElementById('cK16Diff').innerHTML = ''; return; }
+  const comps = [['전체 효과: ERVS − 균등 복원', 'ervs', 'iid', '--ervs'], ['group 구조: 균등 group − 균등 복원', 'k16', 'iid', '--k16'], ['균형 항: ERVS − 균등 group', 'ervs', 'k16', '--faint']];
+  const cell = (a, b, k) => { const d = sc.map(s => mean(s.per_seed.map(p => p[a][k] - p[b][k]))); const ci = bootCI(d);
+    const c = mean(d) > 0 ? 'pos' : mean(d) < 0 ? 'neg' : '';
+    return `<td class="num ${c}">${fmt(mean(d))}${isNaN(ci[0]) ? '' : ` [${fmt(ci[0])}, ${fmt(ci[1])}]`} · ${d.filter(v => v > 0).length}/${d.length}</td>`; };
+  T.innerHTML = '<thead><tr><th>비교</th><th>평균 PSNR</th><th>최저 구간 PSNR</th><th>worst-Q1</th></tr></thead><tbody>' +
+    comps.map(([n, a, b, c]) => `<tr><td><span class="swatch" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:var(${c})"></span>${n}</td>${cell(a, b, 'psnr')}${cell(a, b, 'minbin')}${cell(a, b, 'wq1')}</tr>`).join('') + '</tbody>';
+  // mean curves for 3 arms
+  let f = frame(document.getElementById('cK16Mean'), 300, { l: 52, r: 14, t: 12, b: 46 });
+  const M = {}; for (const a of ['uniform_iid', 'uniform_k16', 'ervs_k16']) M[a] = G.map((_, i) => mean(sc.map(s => s.curve[a][i])));
+  const all = Object.values(M).flat();
+  let y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2 - .25, Math.ceil(Math.max(...all) * 2) / 2 + .25, 'held-out PSNR (dB)'), x = xAxisTime(f);
+  for (const [a, c, dash] of [['uniform_iid', '--iid', '6 4'], ['uniform_k16', '--k16', '2 3'], ['ervs_k16', '--ervs', null]]) {
+    const pth = el('path', { d: path(G, M[a], x, y), fill: 'none', stroke: css(c), 'stroke-width': 2.2 }, f.svg); if (dash) pth.setAttribute('stroke-dasharray', dash); }
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면 ${sc.length}개<br><span style="color:var(--ervs)">●</span> ERVS ${M.ervs_k16[i].toFixed(2)}<br><span style="color:var(--k16)">●</span> 균등 group ${M.uniform_k16[i].toFixed(2)}<br><span style="color:var(--iid)">●</span> 균등 복원 ${M.uniform_iid[i].toFixed(2)}`);
+  // paired diffs
+  f = frame(document.getElementById('cK16Diff'), 300, { l: 52, r: 14, t: 12, b: 46 });
+  const D = { tot: G.map((_, i) => mean(sc.map(s => s.diff_curve[i]))), grp: G.map((_, i) => mean(sc.map(s => s.diff_k16[i]))), bal: G.map((_, i) => mean(sc.map(s => s.diff_ervs_k16[i]))) };
+  const ext = Math.max(.3, Math.ceil(Math.max(...Object.values(D).flat().map(Math.abs)) * 4) / 4);
+  y = yAxis(f, -ext, ext, 'Δ PSNR (dB), 같은 view', v => (v > 0 ? '+' : '') + v.toFixed(2)); x = xAxisTime(f);
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--faint'), 'stroke-width': 1.2 }, f.svg);
+  for (const [k, c, dash] of [['grp', '--k16', '2 3'], ['bal', '--muted', '6 3'], ['tot', '--ervs', null]]) {
+    const pth = el('path', { d: path(G, D[k], x, y), fill: 'none', stroke: css(c), 'stroke-width': 2.2 }, f.svg); if (dash) pth.setAttribute('stroke-dasharray', dash); }
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b><br><span style="color:var(--ervs)">●</span> 전체 ${fmt(D.tot[i])}<br><span style="color:var(--k16)">●</span> group 구조 ${fmt(D.grp[i])}<br><span style="color:var(--muted)">●</span> 균형 항 ${fmt(D.bal[i])}`);
+}
+
 /* ---------- aggregates ---------- */
 function agg(scenes) {
   const arms = {};
@@ -475,7 +518,7 @@ function renderAll() {
   renderStats(sc);
   if (sc.length) { const A = agg(sc); renderMean(A, sc.length); renderDiff(A); renderBins(A); }
   else for (const id of ['cMean', 'cDiff', 'cBins']) document.getElementById(id).innerHTML = '';
-  renderForest(sc); renderTable(sc); renderCounts(sc);
+  renderForest(sc); renderTable(sc); renderCounts(sc); renderK16(sc);
   const sel = document.getElementById('sceneSel');
   sel.innerHTML = sc.map(s => `<option value="${s.scene}">${s.scene} (${DSN[s.dataset]})</option>`).join('');
   if (!sc.find(s => s.scene === state.scene)) state.scene = sc[0] ? sc[0].scene : null;
