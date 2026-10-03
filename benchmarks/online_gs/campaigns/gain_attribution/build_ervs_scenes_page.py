@@ -49,12 +49,19 @@ def views(d):
 
 
 def counts(d):
-    """Mean completed RGB services per view, by arrival-time bin (KF views: window + KF pool; dense views)."""
+    """Mean completed RGB services per view, by arrival-time bin (KF views: window + KF pool; dense views).
+
+    Only the final mapper generation counts: earlier generations are discarded at tracker-driven mapper resets, so
+    their services never reach the evaluated map (and ERVS's own counts restart with the generation).
+    """
     r = json.loads((d / 'render_result.json').read_text())
     arr = {a['uid']: a['seconds'] for a in r['arrivals']}
     t0, t1 = min(arr.values()), max(arr.values())
+    final_gen = max(x['generation'] for x in r['training']['loss_routes'])
     n, kind = {}, {}
     for x in r['training']['loss_routes']:
+        if x['generation'] != final_gen:
+            continue
         n[x['uid']] = n.get(x['uid'], 0) + 1
         kind[x['uid']] = 'dense' if x['role'] == 'dense' else 'kf'
     out = {}

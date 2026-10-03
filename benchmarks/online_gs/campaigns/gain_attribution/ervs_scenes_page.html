@@ -156,7 +156,7 @@ td.num { font-family: var(--mono) }
 
   <section class="notes">
     <p><b>지표.</b> 최저 구간 PSNR은 스트림을 다섯 구간으로 나눴을 때 평균이 가장 낮은 구간의 값입니다. worst-Q1은 PSNR이 가장 낮은 하위 25% view의 평균입니다. 95% 신뢰구간은 장면 단위 bootstrap(4,000회)으로 계산했습니다.</p>
-    <p><b>학습 횟수.</b> view 하나가 optimizer step에서 render된 횟수입니다. KF view는 window와 KF pool에서 뽑힌 횟수를 합쳤고, mapper reset 이후의 generation도 모두 셉니다. CV는 같은 종류 view들의 학습 횟수 표준편차를 평균으로 나눈 값입니다.</p>
+    <p><b>학습 횟수.</b> view 하나가 optimizer step에서 render된 횟수입니다. KF view는 window와 KF pool에서 뽑힌 횟수를 합쳤습니다. tracker reset으로 mapper가 다시 시작된 경우, 버려진 이전 지도의 학습은 빼고 평가에 쓰인 최종 지도(마지막 generation)의 학습만 셉니다. CV는 같은 종류 view들의 학습 횟수 표준편차를 평균으로 나눈 값입니다.</p>
     <p><b>조건.</b> 매퍼는 채택된 B 레시피(κ 16, quota 3:3:6, KF metric depth L1 0.25, dense RGB)입니다. tracking archive는 장면마다 하나로 고정했고, seed는 매핑 난수만 바꿉니다. aria1253rot과 square-1은 K=16을 고를 때 쓴 장면입니다.</p>
   </section>
 </div>
