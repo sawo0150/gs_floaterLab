@@ -1,0 +1,354 @@
+<title>학습 신호 Replay 실험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column; stage-1 signal diagnostics, then stage-2 sampler comparison (summary, counts, PSNR),
+   then per-scene detail. Categorical slots follow the validated reference order; uniform is dashed. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4; --chip: #eef1f6;
+  --iid: #1baf7a; --t4: #2a78d6; --c1: #eb6834; --c2: #eda100; --c3: #e87ba4; --c4: #4a3aa7; --c5: #008300; --t1: #2f63c9; --t025: #142f7a;
+  --good: #1f7a4d; --bad: #b4452c;
+  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833; --chip: #252b36;
+  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833; --chip: #252b36;
+  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 0 }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 22px }
+header { display: grid; gap: 8px }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); text-transform: uppercase }
+h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; margin: 0; font-weight: 700; text-wrap: balance }
+h2 { font-size: 18px; margin: 0; font-weight: 600; text-wrap: balance }
+p { margin: 0; max-width: 72ch }
+.lede { color: var(--muted) }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13.5px }
+.key { display: inline-flex; align-items: center; gap: 8px }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--surface) }
+.seg button { font: 500 13px var(--sans); color: var(--muted); background: none; border: 0; padding: 7px 12px; cursor: pointer }
+.seg button + button { border-left: 1px solid var(--rule) }
+.seg button[aria-pressed="true"] { background: var(--chip); color: var(--ink) }
+.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--t1); outline-offset: 1px }
+.ctl-label { font-size: 12.5px; color: var(--muted); margin-right: 6px }
+select { font: 13px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0 }
+.cap { font-size: 13px; color: var(--muted) }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 22px }
+@media (max-width: 520px) { .two { grid-template-columns: 1fr } .wrap { padding-inline: 16px } }
+.chart { position: relative; width: 100%; min-width: 0 }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible }
+.chart text { fill: var(--muted); font: 11.5px var(--mono); font-variant-numeric: tabular-nums }
+.chart .axis-title { font: 12px var(--sans); fill: var(--muted) }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 10px; font: 12px/1.55 var(--mono); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.12); white-space: nowrap; z-index: 2 }
+.tip b { font-family: var(--sans); font-weight: 600 }
+.tablewrap { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap }
+th { font-weight: 600; color: var(--muted); font-size: 12px }
+th:first-child, td:first-child, #tbl td:nth-child(2), #tbl th:nth-child(2), .tauTable td:first-child, #varTbl td:first-child { text-align: left }
+td.num { font-family: var(--mono) }
+.pos { color: var(--good) } .neg { color: var(--bad) }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px }
+.tauTable td:first-child { font-weight: 500 }
+.notes { display: grid; gap: 8px; font-size: 13.5px; color: var(--muted) }
+.notes b { color: var(--ink); font-weight: 600 }
+.progress { font: 12.5px var(--mono); color: var(--muted) }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ROGO-SLAM · 조건 B · 25 renders/KF · seed 0 · 기존 4장면</div>
+    <h1>학습 신호 기반 replay 실험</h1>
+    <p class="lede">학습 step마다 이미 계산하는 training PSNR·loss·학습 횟수로 "어떤 view를 다시 학습할지"를 정하는 실험입니다. 1단계는 sampler를 바꾸지 않고 신호만 기록해, 망각이 실제로 생기는지와 어떤 신호가 held-out PSNR을 설명하는지 봅니다. 2단계는 그 신호로 만든 sampler 다섯 가지를 균등 복원 추출과 ERVS τ=4에 비교합니다.</p>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <div class="controls">
+    <div><span class="ctl-label">view 종류</span>
+      <div class="seg" id="roleSeg" role="group" aria-label="view 종류">
+        <button data-v="dense" aria-pressed="true">dense view</button><button data-v="kf" aria-pressed="false">KF view (window + KF pool)</button>
+      </div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <section class="panel" id="s1Panel">
+    <h2>1단계: 학습 신호 진단 (sampler는 그대로)</h2>
+    <p class="cap">균등 복원과 ERVS τ=4를 다시 돌리면서 매 학습 step의 training PSNR을 기록했습니다. training PSNR은 그 view를 학습하기 직전(forward)에 잰 값이라, 같은 view를 다시 학습할 때의 변화 Δ = (이번 방문 PSNR − 지난 방문 PSNR)는 "지난 방문의 학습 효과 − 그 사이 다른 view 학습에 의한 간섭(망각)"입니다.</p>
+    <div class="two">
+      <div class="chart" id="cGap"></div>
+      <div class="chart" id="cDrop"></div>
+    </div>
+    <p class="cap"><b>왼쪽</b>: 재방문 간격(step)별 평균 Δ. 간격이 길수록 Δ가 작아지거나 음수가 되면 망각이 있다는 뜻입니다. <b>오른쪽</b>: 같은 간격에서 PSNR이 떨어진 재방문의 비율. view 종류 선택(dense/KF)을 따릅니다.</p>
+    <h2 style="font-size:16px">어떤 신호가 held-out PSNR을 설명하나</h2>
+    <p class="cap">held-out view마다 주변(스트림의 ±1.5%) training view들의 신호 평균을 내고, held-out PSNR과의 Spearman 순위상관을 장면별로 계산해 평균했습니다. 오른쪽 열은 주변 training view의 최고 training PSNR(장면 난이도 대용)을 선형으로 뺀 뒤의 상관입니다. 난이도를 빼고도 남는 상관이 sampler가 이용할 수 있는 정보입니다.</p>
+    <div class="tablewrap"><table id="s1Tbl"></table></div>
+    <div class="tablewrap"><table id="reproTbl"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>2단계: sampler별 요약</h2>
+    <p class="cap">"가중치"는 각 sampler가 KF·dense pool에서 16장 group을 뽑을 때 쓰는 기준입니다. 한 번도 학습되지 않은 view는 모든 방식에서 먼저 뽑힙니다. 수치는 4개 장면 평균이고, Δ는 균등 복원 대비입니다.</p>
+    <div class="tablewrap"><table class="tauTable" id="sumTbl"></table></div>
+  </section>
+
+
+  <section class="panel">
+    <h2>도착 시점별 학습 횟수</h2>
+    <p class="cap">x축은 view가 스트림에 도착한 시점(20구간), y축은 그 구간 view가 최종 지도에서 받은 평균 학습 횟수입니다. 장면 평균으로 나눈 상대값(1 = 장면 평균)을 장면끼리 평균했습니다. 왼쪽은 로그 눈금이고, 오른쪽은 균등 복원 대비 비율입니다. 균형이 세질수록 초반 view의 횟수가 줄고 후반 view의 횟수가 늘어야 합니다.</p>
+    <div class="two">
+      <div class="chart" id="cCount"></div>
+      <div class="chart" id="cRatio"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>스트림 시간에 따른 held-out PSNR</h2>
+    <p class="cap">held-out view의 스트림 위치(0 = 시작, 1 = 끝)별 PSNR입니다. 10% 창 이동평균을 낸 뒤 4개 장면을 평균했습니다.</p>
+    <div class="chart" id="cMean"></div>
+  </section>
+
+  <div class="two">
+    <section class="panel">
+      <h2>같은 view끼리의 차이 (ERVS − 균등)</h2>
+      <p class="cap">view마다 PSNR 차이를 내 장면 난이도를 상쇄했습니다. 20% 창 이동평균, 4개 장면 평균입니다.</p>
+      <div class="chart" id="cDiff"></div>
+    </section>
+    <section class="panel">
+      <h2>5구간 차이 (ERVS − 균등)</h2>
+      <p class="cap">스트림을 다섯 구간으로 나눈 평균 PSNR 차이입니다. 점은 4개 장면 평균입니다.</p>
+      <div class="chart" id="cBins"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>장면 하나씩 보기</h2>
+    <div><label class="ctl-label" for="sceneSel">장면</label><select id="sceneSel"></select></div>
+    <div class="two">
+      <div class="chart" id="cScenePsnr"></div>
+      <div class="chart" id="cSceneCount"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>장면별 수치</h2>
+    <p class="cap">seed 0 단일 실행입니다. Δ는 같은 장면의 균등 복원 대비 차이(dB)입니다.</p>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
+
+  <section class="notes">
+    <p><b>조건.</b> 채택된 B 레시피(κ 16, quota 3:3:6, KF metric depth L1 0.25, dense RGB, 예산 25 renders/KF)에서 KF·dense pool 샘플링만 바꿨습니다. 신호 기반 sampler와 ERVS는 모두 pool마다 16장 group을 비복원으로 뽑는 대기열을 쓰고, 균등 복원은 매번 독립 추출합니다. 균등 복원과 ERVS τ=4는 1단계의 기록 run을 씁니다.</p>
+    <p><b>신호.</b> training PSNR과 loss는 학습 step의 render에서 gradient 없이 계산했고, 추가 render는 없습니다. PLR식 sampler는 신호 순위 1/rank를 온도 0.3으로 날카롭게 한 분포와 staleness 분포를 0.7 : 0.3으로 섞습니다(Prioritized Level Replay). catch-up은 Curious Replay의 c·β<sup>n</sup>(β=0.7, c=30)에 균등 바닥 1을 더한 가중치입니다.</p>
+    <p><b>학습 횟수.</b> 평가에 쓰인 최종 지도(마지막 generation)에서 view가 render된 횟수입니다. CV는 같은 종류 view들의 학습 횟수 표준편차를 평균으로 나눈 값이고, 작을수록 고릅니다.</p>
+    <p><b>한계.</b> seed 하나, 장면 4개의 탐색 실험입니다. aria1253rot과 square-1은 K=16을 고를 때 쓴 장면입니다.</p>
+  </section>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const G = DATA.grid, NB = DATA.count_bins, BC = Array.from({ length: NB }, (_, i) => (i + .5) / NB);
+const ARMS = DATA.arms.map(a => a.id);
+const STYLE = Object.fromEntries(DATA.arms.map(a => [a.id, [a.color, a.dash || null, a.label]]));
+const DESC = Object.fromEntries(DATA.arms.map(a => [a.id, a.desc]));
+const state = { role: 'dense', scene: null };
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+const nmean = a => { const f = a.filter(x => x != null && !isNaN(x)); return f.length ? mean(f) : NaN; };
+const fmt = (x, d = 2) => isNaN(x) ? '–' : (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d);
+const arr = v => v.map(x => x == null ? NaN : x);
+const ROLE = { dense: 'dense view', kf: 'KF view' };
+const present = a => DATA.scenes.filter(s => s.arms.includes(a));
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs = {}, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function niceTicks(lo, hi, n = 5) { const span = hi - lo, m = 10 ** Math.floor(Math.log10(span / n)); const step = [1, 2, 2.5, 5, 10].map(k => k * m).find(s => span / s <= n) || m * 10; const out = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6)); return out; }
+function frame(host, H, pad) {
+  host.innerHTML = ''; const W = Math.max(300, host.clientWidth || 600);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img' }, host);
+  const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; host.appendChild(tip);
+  return { svg, tip, W, H, x0: pad.l, x1: W - pad.r, y0: H - pad.b, y1: pad.t, host };
+}
+function yTitle(f, label) { el('text', { class: 'axis-title', transform: `translate(${Math.max(14, f.x0 - 50)} ${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg).textContent = label; }
+function yAxis(f, lo, hi, label, ft = v => v.toFixed(1)) {
+  const y = v => f.y0 - (v - lo) / (hi - lo) * (f.y0 - f.y1);
+  for (const t of niceTicks(lo, hi, 5)) { el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: css('--grid') }, f.svg); el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = ft(t); }
+  yTitle(f, label); return y;
+}
+function logAxis(f, lo, hi, label) {
+  const L = Math.log10, y = v => f.y0 - (L(v) - L(lo)) / (L(hi) - L(lo)) * (f.y0 - f.y1);
+  for (const t of [0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200].filter(t => t >= lo && t <= hi)) {
+    el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: t === 1 ? css('--faint') : css('--grid') }, f.svg);
+    el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = t;
+  }
+  yTitle(f, label); return y;
+}
+function xAxis(f, label) {
+  const x = v => f.x0 + v * (f.x1 - f.x0);
+  for (const t of [0, .2, .4, .6, .8, 1]) { el('line', { x1: x(t), x2: x(t), y1: f.y1, y2: f.y0, stroke: css('--grid') }, f.svg); el('text', { x: x(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = t.toFixed(1); }
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = label; return x;
+}
+function line(f, xs, ys, x, y, arm, w = 2.3) {
+  let d = '', pen = false; xs.forEach((v, i) => { if (isNaN(ys[i])) { pen = false; return; } d += (pen ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1); pen = true; });
+  const [c, dash] = STYLE[arm]; const p = el('path', { d, fill: 'none', stroke: css(c), 'stroke-width': w, 'stroke-linejoin': 'round' }, f.svg); if (dash) p.setAttribute('stroke-dasharray', dash);
+}
+function hover(f, x, xs, html) {
+  const ln = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
+  const hit = el('rect', { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, fill: 'transparent' }, f.svg);
+  const mv = ev => { const r = f.svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * f.W / r.width, t = (sx - f.x0) / (f.x1 - f.x0);
+    let i = 0, best = 9; xs.forEach((v, j) => { if (Math.abs(v - t) < best) { best = Math.abs(v - t); i = j; } });
+    ln.setAttribute('x1', x(xs[i])); ln.setAttribute('x2', x(xs[i])); ln.setAttribute('visibility', 'visible');
+    f.tip.innerHTML = html(i); f.tip.hidden = false;
+    f.tip.style.left = Math.min(f.host.clientWidth - f.tip.offsetWidth - 4, (x(xs[i]) / f.W) * r.width + 12) + 'px'; f.tip.style.top = '8px'; };
+  hit.addEventListener('pointermove', mv); hit.addEventListener('pointerdown', mv);
+  hit.addEventListener('pointerleave', () => { ln.setAttribute('visibility', 'hidden'); f.tip.hidden = true; });
+}
+const dot = a => `<span style="color:var(${STYLE[a][0]})">●</span>`;
+const armsIn = () => ARMS.filter(a => present(a).length);
+
+function renderLegend() {
+  document.getElementById('legend').innerHTML = armsIn().map(a => { const [c, dash, n] = STYLE[a];
+    return `<span class="key"><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="var(${c})" stroke-width="2.6" ${dash ? `stroke-dasharray="${dash}"` : ''}/></svg>${n}</span>`; }).join('');
+}
+function summary() {
+  const rows = armsIn().map(a => {
+    const sc = present(a), base = sc.map(s => s.metrics.uniform_iid);
+    const d = k => mean(sc.map(s => s.metrics[a][k] - s.metrics.uniform_iid[k]));
+    return { a, n: sc.length, cvd: mean(sc.map(s => s.cv[a].dense)), cvk: mean(sc.map(s => s.cv[a].kf)),
+      psnr: mean(sc.map(s => s.metrics[a].psnr)), dp: d('psnr'), dm: d('minbin'), dw: d('wq1') };
+  });
+  const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  document.getElementById('sumTbl').innerHTML = '<thead><tr><th>설정</th><th style="text-align:left">가중치</th><th>장면</th><th>dense CV</th><th>KF CV</th><th>PSNR</th><th>ΔPSNR</th><th>Δ최저 구간</th><th>Δworst-Q1</th></tr></thead><tbody>' +
+    rows.map(r => `<tr><td><span class="swatch" style="background:var(${STYLE[r.a][0]})"></span>${STYLE[r.a][2]}</td><td style="text-align:left;white-space:normal;min-width:16em">${DESC[r.a]}</td><td class="num">${r.n}</td>` +
+      `<td class="num">${r.cvd.toFixed(2)}</td><td class="num">${r.cvk.toFixed(2)}</td><td class="num">${r.psnr.toFixed(2)}</td>` +
+      (r.a === 'uniform_iid' ? '<td class="num">기준</td><td class="num">기준</td><td class="num">기준</td>' :
+        `<td class="num ${c(r.dp)}">${fmt(r.dp)}</td><td class="num ${c(r.dm)}">${fmt(r.dm)}</td><td class="num ${c(r.dw)}">${fmt(r.dw)}</td>`) + '</tr>').join('') + '</tbody>';
+}
+function renderCounts() {
+  const k = state.role, arms = armsIn();
+  const norm = {}, ratio = {};
+  for (const a of arms) {
+    const sc = present(a);
+    norm[a] = BC.map((_, i) => nmean(sc.map(s => arr(s.count[a][k])[i] / s.scale[k])));
+    ratio[a] = BC.map((_, i) => nmean(sc.map(s => arr(s.count[a][k])[i] / arr(s.count.uniform_iid[k])[i])));
+  }
+  let f = frame(document.getElementById('cCount'), 300, { l: 60, r: 14, t: 12, b: 46 });
+  const vals = arms.flatMap(a => norm[a]).filter(v => !isNaN(v) && v > 0);
+  let y = logAxis(f, Math.max(.03, Math.min(...vals) * .8), Math.max(...vals) * 1.25, '상대 학습 횟수 (장면 평균 = 1)'), x = xAxis(f, 'view 도착 시점 (0 = 시작, 1 = 끝)');
+  for (const a of arms) line(f, BC, norm[a], x, y, a);
+  hover(f, x, BC, i => `<b>도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}</b> · ${ROLE[k]}<br>` + arms.map(a => `${dot(a)} ${STYLE[a][2]} ${isNaN(norm[a][i]) ? '–' : norm[a][i].toFixed(2)}`).join('<br>'));
+  f = frame(document.getElementById('cRatio'), 300, { l: 60, r: 14, t: 12, b: 46 });
+  const rv = arms.filter(a => a !== 'uniform_iid').flatMap(a => ratio[a]).filter(v => !isNaN(v) && v > 0);
+  const lo = Math.min(.8, ...rv) * .95, hi = Math.max(1.2, ...rv) * 1.05;
+  y = logAxis(f, lo, hi, '학습 횟수 비율 (÷ 균등 복원)'); x = xAxis(f, 'view 도착 시점 (0 = 시작, 1 = 끝)');
+  for (const t of [0.8, 0.9, 1.1, 1.25, 1.5, 3].filter(t => t > lo && t < hi)) { el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t), stroke: css('--grid') }, f.svg); el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end' }, f.svg).textContent = t; }
+  for (const a of arms) line(f, BC, a === 'uniform_iid' ? BC.map(() => 1) : ratio[a], x, y, a, a === 'uniform_iid' ? 1.4 : 2.3);
+  hover(f, x, BC, i => `<b>도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}</b> · ${ROLE[k]}, 균등 복원 대비<br>` + arms.filter(a => a !== 'uniform_iid').map(a => `${dot(a)} ${STYLE[a][2]} ×${isNaN(ratio[a][i]) ? '–' : ratio[a][i].toFixed(2)}`).join('<br>'));
+}
+function renderPsnr() {
+  const arms = armsIn(), m = {}, d = {};
+  for (const a of arms) { const sc = present(a); m[a] = G.map((_, i) => mean(sc.map(s => s.curve[a][i]))); d[a] = G.map((_, i) => mean(sc.map(s => s.diff[a][i]))); }
+  let f = frame(document.getElementById('cMean'), 320, { l: 60, r: 16, t: 12, b: 46 });
+  const all = arms.flatMap(a => m[a]);
+  let y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2 - .25, Math.ceil(Math.max(...all) * 2) / 2 + .25, 'held-out PSNR (dB)'), x = xAxis(f, '스트림 시간 (0 = 시작, 1 = 끝)');
+  for (const a of arms) line(f, G, m[a], x, y, a);
+  hover(f, x, G, i => `<b>t = ${G[i].toFixed(2)}</b><br>` + arms.map(a => `${dot(a)} ${STYLE[a][2]} ${m[a][i].toFixed(2)} dB`).join('<br>'));
+  f = frame(document.getElementById('cDiff'), 290, { l: 60, r: 14, t: 12, b: 46 });
+  const ea = arms.filter(a => a !== 'uniform_iid'), dv = ea.flatMap(a => d[a]);
+  const ext = Math.max(.5, Math.ceil(Math.max(...dv.map(Math.abs)) * 4) / 4);
+  y = yAxis(f, -ext, ext, 'Δ PSNR (dB)', v => (v > 0 ? '+' : '') + v.toFixed(1)); x = xAxis(f, '스트림 시간 (0 = 시작, 1 = 끝)');
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--iid'), 'stroke-width': 1.4, 'stroke-dasharray': '6 4' }, f.svg);
+  for (const a of ea) line(f, G, d[a], x, y, a);
+  hover(f, x, G, i => `<b>t = ${G[i].toFixed(2)}</b> · 균등 복원 대비<br>` + ea.map(a => `${dot(a)} ${STYLE[a][2]} ${fmt(d[a][i])} dB`).join('<br>'));
+  // bins
+  f = frame(document.getElementById('cBins'), 290, { l: 60, r: 14, t: 12, b: 46 });
+  const B = {}; for (const a of ea) { const sc = present(a); B[a] = [0, 1, 2, 3, 4].map(b => mean(sc.map(s => s.bins[a][b] - s.bins.uniform_iid[b]))); }
+  const bv = ea.flatMap(a => B[a]), bext = Math.max(.4, Math.ceil(Math.max(...bv.map(Math.abs)) * 4) / 4);
+  y = yAxis(f, -bext, bext, 'Δ 구간 평균 PSNR (dB)', v => (v > 0 ? '+' : '') + v.toFixed(2));
+  const labels = ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'], xc = i => f.x0 + (i + .5) * (f.x1 - f.x0) / 5;
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--iid'), 'stroke-width': 1.4, 'stroke-dasharray': '6 4' }, f.svg);
+  labels.forEach((l, i) => { el('text', { x: xc(i), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = l; });
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '스트림 시간 구간';
+  ea.forEach((a, j) => { const off = (j - (ea.length - 1) / 2) * 12;
+    B[a].forEach((v, i) => { el('circle', { cx: xc(i) + off, cy: y(v), r: 5.5, fill: css(STYLE[a][0]), stroke: css('--surface'), 'stroke-width': 2 }, f.svg);
+      const hit = el('circle', { cx: xc(i) + off, cy: y(v), r: 12, fill: 'transparent' }, f.svg);
+      const show = () => { f.tip.innerHTML = `<b>${labels[i]}</b><br>${dot(a)} ${STYLE[a][2]} ${fmt(v)} dB`; f.tip.hidden = false; const r = f.svg.getBoundingClientRect(); f.tip.style.left = Math.min(f.host.clientWidth - f.tip.offsetWidth - 4, (xc(i) / f.W) * r.width + 10) + 'px'; f.tip.style.top = '8px'; };
+      hit.addEventListener('pointerenter', show); hit.addEventListener('pointerdown', show); hit.addEventListener('pointerleave', () => f.tip.hidden = true); }); });
+}
+function renderScene() {
+  const s = DATA.scenes.find(q => q.scene === state.scene); if (!s) return;
+  const arms = ARMS.filter(a => s.arms.includes(a)), k = state.role;
+  let f = frame(document.getElementById('cScenePsnr'), 270, { l: 60, r: 14, t: 12, b: 46 });
+  const all = arms.flatMap(a => s.curve[a]);
+  let y = yAxis(f, Math.floor(Math.min(...all)) - .25, Math.ceil(Math.max(...all)) + .25, 'held-out PSNR (dB)'), x = xAxis(f, '스트림 시간 (0 = 시작, 1 = 끝)');
+  for (const a of arms) line(f, G, s.curve[a], x, y, a, 2);
+  hover(f, x, G, i => `<b>${s.scene}</b> · t = ${G[i].toFixed(2)}<br>` + arms.map(a => `${dot(a)} ${STYLE[a][2]} ${s.curve[a][i].toFixed(2)}`).join('<br>'));
+  f = frame(document.getElementById('cSceneCount'), 270, { l: 60, r: 14, t: 12, b: 46 });
+  const cv = arms.flatMap(a => arr(s.count[a][k])).filter(v => !isNaN(v) && v > 0);
+  y = logAxis(f, Math.max(.5, Math.min(...cv) * .8), Math.max(...cv) * 1.25, `학습 횟수 / ${ROLE[k]}`); x = xAxis(f, 'view 도착 시점 (0 = 시작, 1 = 끝)');
+  for (const a of arms) line(f, BC, arr(s.count[a][k]), x, y, a, 2);
+  hover(f, x, BC, i => `<b>${s.scene}</b> · 도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}<br>` + arms.map(a => { const v = arr(s.count[a][k])[i]; return `${dot(a)} ${STYLE[a][2]} ${isNaN(v) ? '–' : v.toFixed(1)}`; }).join('<br>'));
+}
+function renderTable() {
+  const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  const rows = [];
+  for (const s of DATA.scenes) for (const a of ARMS.filter(a => s.arms.includes(a))) {
+    const m = s.metrics[a], u = s.metrics.uniform_iid, base = a === 'uniform_iid';
+    rows.push(`<tr><td>${s.scene}</td><td><span class="swatch" style="background:var(${STYLE[a][0]})"></span>${STYLE[a][2]}</td><td class="num">${m.psnr.toFixed(2)}</td>` +
+      (base ? '<td class="num">기준</td><td class="num">기준</td><td class="num">기준</td>' : `<td class="num ${c(m.psnr - u.psnr)}">${fmt(m.psnr - u.psnr)}</td><td class="num ${c(m.minbin - u.minbin)}">${fmt(m.minbin - u.minbin)}</td><td class="num ${c(m.wq1 - u.wq1)}">${fmt(m.wq1 - u.wq1)}</td>`) +
+      `<td class="num">${s.cv[a].dense.toFixed(2)}</td><td class="num">${s.cv[a].kf.toFixed(2)}</td></tr>`);
+  }
+  document.getElementById('tbl').innerHTML = '<thead><tr><th>장면</th><th style="text-align:left">설정</th><th>PSNR</th><th>ΔPSNR</th><th>Δ최저 구간</th><th>Δworst-Q1</th><th>dense CV</th><th>KF CV</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
+}
+
+function renderStage1() {
+  const R = DATA.stage1; if (!R || !R.revisit) { document.getElementById('s1Panel').hidden = true; return; }
+  document.getElementById('s1Panel').hidden = false;
+  const k = state.role, arms = Object.keys(R.revisit), bins = R.gap_bins;
+  const xs = bins.slice(0, -1).map((b, i) => i);
+  const labels = bins.slice(0, -1).map((b, i) => bins[i + 1] > 1e8 ? `${b}+` : `${b}–${bins[i + 1]}`);
+  for (const [id, key, ylab, ft] of [['cGap', 'mean_delta', '재방문 시 training PSNR 변화 Δ (dB)', v => (v > 0 ? '+' : '') + v.toFixed(1)], ['cDrop', 'frac_drop', 'PSNR이 떨어진 재방문 비율', v => (v * 100).toFixed(0) + '%']]) {
+    const f = frame(document.getElementById(id), 290, { l: 64, r: 14, t: 12, b: 46 });
+    const val = (a, i) => { const b = R.revisit[a][k].by_gap[i]; return key === 'frac_drop' ? (b.frac_drop ?? NaN) : (b.mean_delta ?? NaN); };
+    const all = arms.flatMap(a => xs.map(i => val(a, i))).filter(v => !isNaN(v));
+    let lo = Math.min(0, ...all), hi = Math.max(0, ...all); const pad = (hi - lo) * .12 || .1; lo -= pad; hi += pad;
+    const y = yAxis(f, lo, hi, ylab, ft);
+    const x = i => f.x0 + (i + .5) * (f.x1 - f.x0) / xs.length;
+    xs.forEach(i => { el('text', { x: x(i), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = labels[i]; });
+    el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '재방문 간격 (학습 step)';
+    if (key === 'mean_delta') el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--faint'), 'stroke-width': 1.2 }, f.svg);
+    for (const a of arms) {
+      const ys = xs.map(i => val(a, i)); let d = '', pen = false;
+      xs.forEach(i => { if (isNaN(ys[i])) { pen = false; return; } d += (pen ? 'L' : 'M') + x(i) + ' ' + y(ys[i]); pen = true; });
+      const [c, dash] = STYLE[a]; const pth = el('path', { d, fill: 'none', stroke: css(c), 'stroke-width': 2.2 }, f.svg); if (dash) pth.setAttribute('stroke-dasharray', dash);
+      xs.forEach(i => { if (!isNaN(ys[i])) el('circle', { cx: x(i), cy: y(ys[i]), r: 3.4, fill: css(c) }, f.svg); });
+    }
+    hover(f, v => x(Math.round(v * (xs.length - 1))), xs.map(i => i / Math.max(1, xs.length - 1)), j => `<b>간격 ${labels[j]} step</b> · ${ROLE[k]}<br>` + arms.map(a => { const b = R.revisit[a][k].by_gap[j]; return `${dot(a)} ${STYLE[a][2]} Δ ${b.mean_delta == null ? '–' : fmt(b.mean_delta)} · 하락 ${b.frac_drop == null ? '–' : (b.frac_drop * 100).toFixed(0) + '%'} (n=${b.n})`; }).join('<br>'));
+  }
+  const NAMES = { n: '학습 횟수', last: '마지막 training PSNR', best: '최고 training PSNR', forget: '망각량 (최고 − 마지막)', stale: 'staleness (마지막 학습 후 step)', maturity: '나이 정규화 성숙도', progress: '학습 진척도 (마지막 − 직전)' };
+  const sc = Object.values(R.scenes);
+  const avg = (a, f, s) => nmean(sc.map(x => x[a] ? x[a][f][s] : NaN));
+  const cc = v => isNaN(v) ? '' : v > .2 ? 'pos' : v < -.2 ? 'neg' : '';
+  document.getElementById('s1Tbl').innerHTML = '<thead><tr><th>신호 (주변 training view 평균)</th>' + arms.map(a => `<th>${STYLE[a][2]}: ρ</th><th>${STYLE[a][2]}: 난이도 제거 후 ρ</th>`).join('') + '</tr></thead><tbody>' +
+    Object.keys(NAMES).map(s => `<tr><td>${NAMES[s]}</td>` + arms.map(a => { const r1 = avg(a, 'spearman_heldout', s), r2 = s === 'best' ? NaN : avg(a, 'spearman_heldout_given_best', s);
+      return `<td class="num ${cc(r1)}">${isNaN(r1) ? '–' : r1.toFixed(2)}</td><td class="num ${cc(r2)}">${isNaN(r2) ? '–' : r2.toFixed(2)}</td>`; }).join('') + '</tr>').join('') + '</tbody>';
+  const rp = R.repro || [];
+  document.getElementById('reproTbl').innerHTML = rp.length ? '<thead><tr><th>재현성 확인 (기록 패치가 학습을 바꾸지 않는지)</th><th>설정</th><th>이전 seed 0 PSNR</th><th>기록 run PSNR</th><th>차이</th></tr></thead><tbody>' +
+    rp.map(r => `<tr><td>${r.scene}</td><td style="text-align:left">${STYLE[r.arm] ? STYLE[r.arm][2] : r.arm}</td><td class="num">${r.before.toFixed(3)}</td><td class="num">${r.after.toFixed(3)}</td><td class="num">${fmt(r.after - r.before, 3)}</td></tr>`).join('') + '</tbody>' : '';
+}
+function renderAll() {
+  document.getElementById('progress').textContent = DATA.progress;
+  renderLegend(); summary(); renderCounts(); renderPsnr(); renderTable(); renderStage1();
+  const sel = document.getElementById('sceneSel'); sel.innerHTML = DATA.scenes.map(s => `<option value="${s.scene}">${s.scene}</option>`).join('');
+  if (!state.scene) state.scene = DATA.scenes[0].scene; sel.value = state.scene; renderScene();
+}
+document.getElementById('roleSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.role = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderCounts(); renderScene(); renderStage1(); });
+document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); });
+let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderAll, 120); }).observe(document.querySelector('.wrap'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
+new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+renderAll();
+</script>
