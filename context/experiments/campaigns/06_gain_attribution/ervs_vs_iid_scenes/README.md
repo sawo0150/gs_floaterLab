@@ -15,3 +15,17 @@ Paused twice for the τ and training-signal studies; interrupted runs archived a
 Reading: ERVS K16 evens dense service counts in every scene and shifts quality from the earliest fifth to the middle of
 the stream, but the mean gain is small and not resolved (CI includes 0), and the worst-region metrics are slightly
 worse. Three small UTMM scenes (slow-straight-1, fast-straight, slow-straight-2: ≤14 final KFs) are included.
+
+## Amendment 2 result — uniform K16 group (19 scenes × 3 seeds, complete 2026-10-03)
+
+Effect decomposition (seed means per scene; mean [95% scene-bootstrap CI], scenes positive):
+
+| Comparison | ΔPSNR | Δmin-bin | Δworst-Q1 |
+|---|---|---|---|
+| ERVS − uniform_iid (total) | +0.045 [−0.01, +0.10], 11/19 | −0.080 [−0.21, +0.04], 9/19 | −0.107 [−0.22, −0.00], 7/19 |
+| uniform_k16 − uniform_iid (K=16 group structure) | **+0.106 [+0.04, +0.18], 14/19** | −0.094 [−0.23, +0.03], 6/19 | −0.064 [−0.16, +0.03], 8/19 |
+| ERVS − uniform_k16 (count-balancing term) | **−0.061 [−0.14, +0.00], 6/19** | +0.014 [−0.11, +0.12], 10/19 | −0.042 [−0.12, +0.03], 9/19 |
+
+On the 15 new scenes the balancing term is −0.078 [−0.18, −0.01] (4/15). Reading: the mean-PSNR gain over sampling
+with replacement comes entirely from the without-replacement K=16 group; the ERVS count term itself lowers mean PSNR
+slightly and does not lift the worst regions.
