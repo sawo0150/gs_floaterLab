@@ -38,3 +38,9 @@ the last visit, near ±1.5%, mid 1.5–9% of the stream, mixed with staleness ρ
 p ∝ (last loss + 1e-3)^0.7, no staleness), both seed 0; plus `uniform_iid_log_s1` and `ervs_tau4_log_s1` (seed 1) to
 measure seed noise. 16 runs. Motivation: stage-1 interference analysis; user request for plain loss-based sampling;
 single-seed differences unresolved.
+
+## Amendment 2 — stage 4 (2026-10-03, after analysing stage 3)
+
+`sig_interference` seeds 1–2, `uniform_iid_log` seed 2, `ervs_tau4_log` seed 2, and `sig_stale_only` (the interference
+sampler with ρ = 1, i.e. staleness distribution only) seed 0. Four scenes, budget 25, 20 runs. Purpose: 3-seed
+comparison of uniform / ERVS τ=4 / interference on mean, min-bin and worst-Q1, and attribution of the interference gain.

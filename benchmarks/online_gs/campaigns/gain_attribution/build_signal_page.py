@@ -29,6 +29,10 @@ ARMS = [
          desc='30·0.7ⁿ + 1: 몇 번 학습될 때까지만 강하게 우선, 이후 균등'),
     dict(id='sig_age_norm', label='나이 정규화 성숙도', color='--c5', dir='stage2/{k}/render25/sig_age_norm',
          desc='m = n ÷ (첫 학습 후 step × pool 평균 비율), exp(−(m−1))'),
+    dict(id='sig_interference', label='간섭 노출+staleness', color='--c6', dir='stage3/{k}/render25/sig_interference',
+         desc='3단계 · 지난 방문 뒤 중간 거리(1.5–9%) 학습 수 − 가까운(±1.5%) 학습 수, 순위 0.7 + staleness 0.3 (MIR 착안)'),
+    dict(id='sig_loss_per', label='loss 비례 (PER)', color='--c3', dash='2 3', dir='stage3/{k}/render25/sig_loss_per',
+         desc='3단계 · (마지막 training loss + 0.001)^0.7에 비례, staleness 없음 (Prioritized Experience Replay)'),
 ]
 OLD = {'uniform_iid': lambda k: S.pinned_dir(k, 'uniform_iid', 0), 'ervs_tau4': lambda k: S.pinned_dir(k, 'ervs_k16', 0)}
 
@@ -78,12 +82,21 @@ def main():
             rec['cv'][a] = {k: round(cnt[a][k]['cv'], 4) for k in ('kf', 'dense')}
         scenes.append(rec)
     n1 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[:2])
-    n2 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[2:])
+    n2 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[2:7])
+    n3 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[7:]) + sum(
+        done(OUT / f'stage3/{k}/render25/{x}_s1') for k, *_ in S.PINNED for x in ('uniform_iid_log', 'ervs_tau4_log'))
+    noise = []
+    for key, scene, ds in S.PINNED:
+        for base_id, x in (('uniform_iid', 'uniform_iid_log'), ('ervs_tau4', 'ervs_tau4_log')):
+            d0, d1 = OUT / f'stage1/{key}/render25/{x}', OUT / f'stage3/{key}/render25/{x}_s1'
+            if done(d0) and done(d1):
+                noise.append(dict(scene=scene, arm=base_id, s0=float(S.views(d0)[1].mean()), s1=float(S.views(d1)[1].mean())))
     if stage1 is not None:
         stage1['repro'] = repro
+        stage1['noise'] = noise
     data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, budget=S.BUDGET,
                 arms=[{k: v for k, v in a.items() if k != 'dir'} for a in ARMS], scenes=scenes, stage1=stage1,
-                progress=f'1단계 {n1} / 8 run · 2단계 {n2} / 20 run 반영' + (' (완료)' if n1 == 8 and n2 == 20 else ' (진행 중)'))
+                progress=f'1단계 {n1} / 8 · 2단계 {n2} / 20 · 3단계 {n3} / 16 run 반영' + (' (완료)' if n1 + n2 + n3 == 44 else ' (진행 중)'))
     (OUT / 'signal_page_data.json').write_text(json.dumps(data))
     tmpl = (S.HERE / 'ervs_signal_page.html').read_text()
     (OUT / 'signal.html').write_text(tmpl.replace('/*__DATA__*/null', json.dumps(data)))

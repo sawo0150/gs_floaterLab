@@ -36,3 +36,16 @@ code paths were unchanged (new branches only).
 - catch-up (c·β^n + 1, c=30) behaves like strong count balancing (τ=0.25): early views ×0.55 on aria1253, −2 dB early.
 - Single seed: ERVS τ=4 is +0.22 here vs +0.09 over 3 seeds on the same scenes; inter-sampler gaps ≤0.2 dB are not
   resolved. Stage 3 adds seed 1 for uniform and ERVS.
+
+## Stage 3 (2026-10-03; interference, PER, seed-1 baselines)
+
+| Arm (seed 0 unless noted) | ΔPSNR aria/table_06/rot/sq-1 vs uniform s0 | mean | Δmin-bin | Δworst-Q1 |
+|---|---|---:|---:|---:|
+| sig_interference | +0.11/+0.18/+0.09/+0.03 | +0.10 | +0.13 | +0.12 |
+| sig_loss_per | −0.24/−0.24/+0.03/+0.05 | −0.10 | +0.15 | +0.01 |
+
+Seed noise (seed 1 − seed 0, mean |Δ| over 4 scenes): uniform 0.04 (mean PSNR) / 0.30 (min-bin) / 0.22 (worst-Q1);
+ERVS τ=4 0.12 / 0.16 / 0.22. Min-bin and worst-Q1 single-seed differences below ~0.2 dB are not resolved.
+Against the uniform seed 0/1 mean: ERVS τ=4 (2 seeds) +0.16 / +0.07 / 0.00 (4/2/3 scenes positive);
+sig_interference (seed 0) +0.10 / +0.23 / +0.16 (4/4/3). Interference exposure is the only signal sampler that beats
+uniform in all four scenes, and it lifts the worst time bin; needs more seeds and a staleness-only control.

@@ -7,17 +7,17 @@
    then per-scene detail. Categorical slots follow the validated reference order; uniform is dashed. */
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4; --chip: #eef1f6;
-  --iid: #1baf7a; --t4: #2a78d6; --c1: #eb6834; --c2: #eda100; --c3: #e87ba4; --c4: #4a3aa7; --c5: #008300; --t1: #2f63c9; --t025: #142f7a;
+  --iid: #1baf7a; --t4: #2a78d6; --c1: #eb6834; --c2: #eda100; --c3: #e87ba4; --c4: #4a3aa7; --c5: #008300; --c6: #e34948; --t1: #2f63c9; --t025: #142f7a;
   --good: #1f7a4d; --bad: #b4452c;
   --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833; --chip: #252b36;
-  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark } }
+  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --c6: #e66767; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833; --chip: #252b36;
-  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark }
+  --iid: #199e70; --t4: #3987e5; --c1: #d95926; --c2: #c98500; --c3: #d55181; --c4: #9085e9; --c5: #2f9e2f; --c6: #e66767; --t1: #82acf7; --t025: #cfe0ff; --good: #4cc38a; --bad: #f08a6c; color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 0 }
 .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 22px }
@@ -89,6 +89,7 @@ td.num { font-family: var(--mono) }
     <p class="cap">held-out view마다 주변(스트림의 ±1.5%) training view들의 신호 평균을 내고, held-out PSNR과의 Spearman 순위상관을 장면별로 계산해 평균했습니다. 오른쪽 열은 주변 training view의 최고 training PSNR(장면 난이도 대용)을 선형으로 뺀 뒤의 상관입니다. 난이도를 빼고도 남는 상관이 sampler가 이용할 수 있는 정보입니다.</p>
     <div class="tablewrap"><table id="s1Tbl"></table></div>
     <div class="tablewrap"><table id="reproTbl"></table></div>
+    <div class="tablewrap"><table id="noiseTbl"></table></div>
   </section>
 
   <section class="panel">
@@ -335,6 +336,10 @@ function renderStage1() {
   document.getElementById('s1Tbl').innerHTML = '<thead><tr><th>신호 (주변 training view 평균)</th>' + arms.map(a => `<th>${STYLE[a][2]}: ρ</th><th>${STYLE[a][2]}: 난이도 제거 후 ρ</th>`).join('') + '</tr></thead><tbody>' +
     Object.keys(NAMES).map(s => `<tr><td>${NAMES[s]}</td>` + arms.map(a => { const r1 = avg(a, 'spearman_heldout', s), r2 = s === 'best' ? NaN : avg(a, 'spearman_heldout_given_best', s);
       return `<td class="num ${cc(r1)}">${isNaN(r1) ? '–' : r1.toFixed(2)}</td><td class="num ${cc(r2)}">${isNaN(r2) ? '–' : r2.toFixed(2)}</td>`; }).join('') + '</tr>').join('') + '</tbody>';
+  const nz = R.noise || [];
+  document.getElementById('noiseTbl').innerHTML = nz.length ? '<thead><tr><th>seed 잡음 (같은 설정, seed만 다름)</th><th>설정</th><th>seed 0</th><th>seed 1</th><th>차이</th></tr></thead><tbody>' +
+    nz.map(r => `<tr><td>${r.scene}</td><td style="text-align:left">${STYLE[r.arm][2]}</td><td class="num">${r.s0.toFixed(3)}</td><td class="num">${r.s1.toFixed(3)}</td><td class="num">${fmt(r.s1 - r.s0, 3)}</td></tr>`).join('') +
+    `<tr><td><b>|차이| 평균</b></td><td></td><td></td><td></td><td class="num">${mean(nz.map(r => Math.abs(r.s1 - r.s0))).toFixed(3)}</td></tr></tbody>` : '';
   const rp = R.repro || [];
   document.getElementById('reproTbl').innerHTML = rp.length ? '<thead><tr><th>재현성 확인 (기록 패치가 학습을 바꾸지 않는지)</th><th>설정</th><th>이전 seed 0 PSNR</th><th>기록 run PSNR</th><th>차이</th></tr></thead><tbody>' +
     rp.map(r => `<tr><td>${r.scene}</td><td style="text-align:left">${STYLE[r.arm] ? STYLE[r.arm][2] : r.arm}</td><td class="num">${r.before.toFixed(3)}</td><td class="num">${r.after.toFixed(3)}</td><td class="num">${fmt(r.after - r.before, 3)}</td></tr>`).join('') + '</tbody>' : '';
