@@ -104,6 +104,17 @@ def make_preflight(trial, verify_files, load_lock):
     return preflight
 
 
+def wait_gpu_idle(poll=60):
+    """Block until no compute process is on the GPU (another user's job is never stopped)."""
+    waited = 0
+    while subprocess.run(['nvidia-smi', '--query-compute-apps=pid', '--format=csv,noheader'],
+                         capture_output=True, text=True).stdout.strip():
+        if waited % 600 == 0:
+            print('WAIT_GPU_BUSY', time.strftime('%H:%M:%S'), flush=True)
+        time.sleep(poll); waited += poll
+    return waited
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--scenes', nargs='+', default=list(SCENES))
@@ -142,6 +153,7 @@ def main():
                 extra, patch, env = ARMS[arm]
                 name = f'{arm}_s{seed}'
                 print('START', scene, BUDGET, name, flush=True)
+                wait_gpu_idle()
                 try:
                     sp = trial.BASE.sequence_paths(SCENES[scene]['dataset'], scene)
                     extra_scenes = {scene: dict(dataset=SCENES[scene]['dataset'], **{k: str(v) for k, v in sp.items()})}
