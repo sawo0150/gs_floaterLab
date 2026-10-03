@@ -1,0 +1,264 @@
+<title>온라인 vs Offline 3DGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one reading column of figure panels — verdict strip, gap-over-time curves, counts, flatness detail. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4;
+  --ervs: #2a6fdb; --iid: #2e9e6b; --k16: #4a3aa7; --off: #b0631c;
+  --band-ervs: rgba(42,111,219,.13); --band-iid: rgba(46,158,107,.13); --band-k16: rgba(74,58,167,.13);
+  --good: #1f7a4d; --bad: #b4452c; --chip: #eef1f6;
+  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52;
+  --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18); --band-k16: rgba(144,133,233,.18);
+  --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52;
+  --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18); --band-k16: rgba(144,133,233,.18);
+  --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 0 }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 22px }
+header { display: grid; gap: 6px }
+.eyebrow { font: 500 12px/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); text-transform: uppercase }
+h1 { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.25; margin: 0; font-weight: 700; text-wrap: balance }
+h2 { font-size: 18px; margin: 0; font-weight: 600; text-wrap: balance }
+p { margin: 0; max-width: 72ch }
+.lede { color: var(--muted) }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 13.5px }
+.key { display: inline-flex; align-items: center; gap: 8px }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--surface) }
+.seg button { font: 500 13px var(--sans); color: var(--muted); background: none; border: 0; padding: 7px 12px; cursor: pointer }
+.seg button + button { border-left: 1px solid var(--rule) }
+.seg button[aria-pressed="true"] { background: var(--chip); color: var(--ink) }
+.seg button:focus-visible { outline: 2px solid var(--ervs); outline-offset: 1px }
+.ctl-label { font-size: 12.5px; color: var(--muted); margin-right: 6px }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px }
+.stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0 }
+.stat .k { font-size: 12.5px; color: var(--muted) }
+.stat .v { font: 500 22px/1.2 var(--mono); font-variant-numeric: tabular-nums }
+.stat .s { font-size: 12.5px; color: var(--muted) }
+.pos { color: var(--good) } .neg { color: var(--bad) }
+.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0 }
+.cap { font-size: 13px; color: var(--muted) }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 22px }
+.four { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px }
+@media (max-width: 520px) { .two, .four { grid-template-columns: 1fr } .wrap { padding-inline: 16px } }
+.chart { position: relative; width: 100%; min-width: 0 }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible }
+.chart text { fill: var(--muted); font: 11.5px var(--mono); font-variant-numeric: tabular-nums }
+.chart .axis-title { font: 12px var(--sans); fill: var(--muted) }
+.chart .ttl { font: 600 13px var(--sans); fill: var(--ink) }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 10px; font: 12px/1.5 var(--mono); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.12); white-space: nowrap; z-index: 2 }
+.tip b { font-family: var(--sans); font-weight: 600 }
+.tablewrap { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap }
+th:first-child, td:first-child { text-align: left }
+th { font-weight: 600; color: var(--muted); font-size: 12.5px }
+td.num { font-family: var(--mono) }
+.note { border-left: 3px solid var(--off); padding: 4px 0 4px 12px; color: var(--ink); font-size: 14px }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">B mapper · budget 25 · 4 장면 × seed 3 · held-out view</div>
+    <h1>온라인 학습은 offline 3DGS에 비해 어디서 손해를 보나</h1>
+    <p class="lede">offline 기준선은 같은 tracker 스트림과 같은 Gaussian 생성, 같은 render 수를 쓰되 스트림이 끝난 뒤 모든 view를 같은 횟수로 학습합니다. 각 held-out view에서 <b>온라인 PSNR − offline PSNR</b>을 구해 스트림 시간 축에 그렸습니다. 0에 가까울수록 offline과 같고, 선이 평평할수록 시간에 따른 손해가 고릅니다.</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section class="panel">
+    <h2>시간에 따른 차이 곡선</h2>
+    <div class="controls">
+      <div><span class="ctl-label">장면</span><div class="seg" id="sceneSeg" role="group" aria-label="장면"></div></div>
+      <div><span class="ctl-label">보기</span><div class="seg" id="viewSeg" role="group" aria-label="보기">
+        <button data-v="gap" aria-pressed="true">온라인 − offline</button><button data-v="abs" aria-pressed="false">절대 PSNR</button></div></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="cMain"></div>
+    <p class="cap" id="mainCap"></p>
+    <div class="tablewrap"><table id="binTbl"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>장면별 차이 곡선</h2>
+    <p class="cap">seed 3개 평균(선)과 seed별 최솟값~최댓값(띠). 장면마다 세로축 범위가 다릅니다.</p>
+    <div class="four" id="small"></div>
+  </section>
+
+  <section class="panel">
+    <h2>view별 학습 횟수</h2>
+    <p class="cap">스트림에 도착한 시점(20구간)별로, 그 구간 view가 끝까지 받은 평균 학습 횟수를 장면 평균 횟수로 나눈 값입니다. offline은 설계상 모든 view가 같은 횟수(1.0)입니다. 세로축은 로그 눈금입니다.</p>
+    <div class="controls"><div><span class="ctl-label">view 종류</span><div class="seg" id="roleSeg" role="group" aria-label="view 종류">
+      <button data-v="dense" aria-pressed="true">dense view</button><button data-v="kf" aria-pressed="false">KF view</button></div></div></div>
+    <div class="chart" id="cCount"></div>
+    <div class="tablewrap"><table id="cvTbl"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>차이가 시간에 따라 얼마나 일정한가</h2>
+    <p class="cap">사후 지표(PREREG에 없던 것): 장면·seed마다 차이 d를 스트림 앞 90%에서 10구간 평균으로 나누고 그 표준편차를 구했습니다. 작을수록 손해가 시간에 고르게 퍼져 있습니다. 쌍 비교는 같은 장면·seed끼리 뺀 값의 평균과 bootstrap 95% 구간입니다.</p>
+    <div class="tablewrap"><table id="flatTbl"></table></div>
+    <div class="tablewrap"><table id="pairTbl"></table></div>
+    <p class="note" id="verdict"></p>
+  </section>
+</div>
+
+<script>
+const D = __DATA__;
+const G = D.grid;
+const ARM = {
+  uniform_iid: { name: '균등 복원', color: '--iid', band: '--band-iid', dash: '6 4' },
+  uniform_k16: { name: '균등 group K16', color: '--k16', band: '--band-k16', dash: '2 3' },
+  ervs_k16: { name: 'ERVS K16', color: '--ervs', band: '--band-ervs', dash: null },
+  offline: { name: 'offline (같은 횟수)', color: '--off', dash: null }
+};
+const ONLINE = ['uniform_iid', 'uniform_k16', 'ervs_k16'];
+const state = { scene: 'mean', view: 'gap', role: 'dense' };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const NS = 'http://www.w3.org/2000/svg';
+const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+const fmt = (v, d = 2) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const cls = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+
+function frame(host, h, m) {
+  host.innerHTML = '';
+  const w = Math.max(280, host.clientWidth || 600);
+  const svg = el('svg', { viewBox: `0 0 ${w} ${h}`, role: 'img' }, host);
+  return { svg, host, w, h, x0: m.l, x1: w - m.r, y0: h - m.b, y1: m.t };
+}
+function yAxis(f, lo, hi, title, tick = v => v.toFixed(1), log = false) {
+  const tr = log ? v => Math.log(v) : v => v;
+  const y = v => f.y0 - (tr(v) - tr(lo)) / (tr(hi) - tr(lo)) * (f.y0 - f.y1);
+  let ticks;
+  if (log) ticks = [0.25, 0.5, 1, 2, 4].filter(v => v >= lo && v <= hi);
+  else { const span = hi - lo, st = [0.1, 0.2, 0.25, 0.5, 1, 2].find(s => span / s <= 7) || 5; ticks = []; for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) ticks.push(+v.toFixed(3)); }
+  for (const v of ticks) { el('line', { x1: f.x0, x2: f.x1, y1: y(v), y2: y(v), stroke: css('--grid') }, f.svg);
+    el('text', { x: f.x0 - 8, y: y(v) + 4, 'text-anchor': 'end' }, f.svg).textContent = tick(v); }
+  const t = el('text', { class: 'axis-title', transform: `translate(${13},${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg); t.textContent = title;
+  return y;
+}
+function xAxis(f, n = 1) {
+  const x = v => f.x0 + v / n * (f.x1 - f.x0);
+  for (let i = 0; i <= 5; i++) { const v = i / 5 * n; el('text', { x: x(v), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (i / 5).toFixed(1); }
+  el('line', { x1: f.x0, x2: f.x1, y1: f.y0, y2: f.y0, stroke: css('--rule') }, f.svg);
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '스트림 시간 (0 = 시작, 1 = 끝)';
+  return x;
+}
+const pathD = (xs, ys, x, y) => xs.map((v, i) => (i ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1)).join(' ');
+function line(f, xs, ys, x, y, arm, w = 2.3) { const p = el('path', { d: pathD(xs, ys, x, y), fill: 'none', stroke: css(ARM[arm].color), 'stroke-width': w, 'stroke-linejoin': 'round' }, f.svg); if (ARM[arm].dash) p.setAttribute('stroke-dasharray', ARM[arm].dash); return p; }
+function band(f, xs, lo, hi, x, y, arm) { el('path', { d: pathD(xs, hi, x, y) + ' ' + xs.slice().reverse().map((v, i) => 'L' + x(v).toFixed(1) + ' ' + y(lo[lo.length - 1 - i]).toFixed(1)).join(' ') + ' Z', fill: css(ARM[arm].band), stroke: 'none' }, f.svg); }
+function crosshair(f, xs, x, html) {
+  const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; f.host.appendChild(tip);
+  const vl = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
+  const hit = el('rect', { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, fill: 'transparent' }, f.svg);
+  const move = ev => { const r = f.svg.getBoundingClientRect(), px = (ev.clientX - r.left) * f.w / r.width;
+    let i = 0, best = 1e9; xs.forEach((v, k) => { const dd = Math.abs(x(v) - px); if (dd < best) { best = dd; i = k; } });
+    vl.setAttribute('x1', x(xs[i])); vl.setAttribute('x2', x(xs[i])); vl.setAttribute('visibility', 'visible');
+    tip.innerHTML = html(i); tip.hidden = false;
+    const left = x(xs[i]) * r.width / f.w; tip.style.left = Math.min(left + 12, r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px'; };
+  hit.addEventListener('pointermove', move); hit.addEventListener('pointerleave', () => { tip.hidden = true; vl.setAttribute('visibility', 'hidden'); });
+}
+function keySvg(arm) { const s = el('svg', { width: 26, height: 10 }); const l = el('line', { x1: 1, x2: 25, y1: 5, y2: 5, stroke: css(ARM[arm].color), 'stroke-width': 2.5 }, s); if (ARM[arm].dash) l.setAttribute('stroke-dasharray', ARM[arm].dash); return s; }
+
+function sel() { return state.scene === 'mean' ? D.scenes : D.scenes.filter(s => s.key === state.scene); }
+const avg = (sc, f) => G.map((_, i) => mean(sc.map(s => f(s)[i])));
+
+function renderStats() {
+  const sc = D.scenes, H = document.getElementById('stats');
+  const g = a => mean(sc.map(s => s.mean[a] - s.mean.offline));
+  const b = a => mean(sc.map(s => mean(s.bins[a].slice(2, 4))));
+  H.innerHTML = `
+  <div class="stat"><span class="k">offline 대비 평균 PSNR 차이</span><span class="v">${ONLINE.map(a => `<span style="color:var(${ARM[a].color})">${fmt(g(a))}</span>`).join(' ')}</span><span class="s">균등 복원 · 균등 group · ERVS (dB, 4장면 평균)</span></div>
+  <div class="stat"><span class="k">스트림 중반(40–80%) 차이</span><span class="v">${ONLINE.map(a => `<span style="color:var(${ARM[a].color})">${fmt(b(a))}</span>`).join(' ')}</span><span class="s">균등 방식이 가장 크게 손해 보는 구간</span></div>
+  <div class="stat"><span class="k">시간별 편차 (장면·seed별, 사후)</span><span class="v">${ONLINE.map(a => `<span style="color:var(${ARM[a].color})">${D.flat_mean[a].toFixed(2)}</span>`).join(' ')}</span><span class="s">작을수록 차이가 시간에 고름 (dB)</span></div>`;
+}
+
+function renderMain() {
+  const sc = sel(), gap = state.view === 'gap';
+  const arms = gap ? ONLINE : ['offline', ...ONLINE];
+  const lg = document.getElementById('legend'); lg.innerHTML = '';
+  for (const a of arms) { const k = document.createElement('span'); k.className = 'key'; k.appendChild(keySvg(a)); k.append(ARM[a].name); lg.appendChild(k); }
+  const f = frame(document.getElementById('cMain'), 330, { l: 56, r: 14, t: 12, b: 46 });
+  const C = {}; for (const a of arms) C[a] = avg(sc, s => gap ? s.gap[a] : s.abs[a]);
+  const all = Object.values(C).flat().concat(gap ? [0] : []);
+  const lo = Math.floor(Math.min(...all) * 4) / 4 - .1, hi = Math.ceil(Math.max(...all) * 4) / 4 + .1;
+  const y = yAxis(f, lo, hi, gap ? '온라인 − offline PSNR (dB)' : 'held-out PSNR (dB)', v => gap ? fmt(v, 1) : v.toFixed(1)), x = xAxis(f);
+  if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.4, 'stroke-dasharray': '5 4' }, f.svg);
+  if (gap && sc.length === 1) for (const a of ONLINE) band(f, G, sc[0].gap_lo[a], sc[0].gap_hi[a], x, y, a);
+  for (const a of arms) line(f, G, C[a], x, y, a);
+  if (gap) { const t = el('text', { x: f.x1 - 4, y: y(0) - 6, 'text-anchor': 'end' }, f.svg); t.textContent = 'offline = 0'; t.setAttribute('style', 'fill:' + css('--off')); }
+  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b><br>` + arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${gap ? fmt(C[a][i]) : C[a][i].toFixed(2)}`).join('<br>'));
+  document.getElementById('mainCap').textContent = (state.scene === 'mean' ? '4개 장면 평균, ' : '') + 'seed 3개 평균, 10% 이동평균.' + (gap ? ' 0보다 아래면 offline보다 낮습니다.' + (sc.length === 1 ? ' 띠는 seed별 최솟값~최댓값.' : '') : '');
+  const T = document.getElementById('binTbl');
+  const B = a => [0, 1, 2, 3, 4].map(i => mean(sc.map(s => s.bins[a][i])));
+  T.innerHTML = '<thead><tr><th>온라인 − offline</th><th>0–20%</th><th>20–40%</th><th>40–60%</th><th>60–80%</th><th>80–100%</th><th>최대−최소</th></tr></thead><tbody>' +
+    ONLINE.map(a => { const v = B(a); return `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${v.map(x => `<td class="num">${fmt(x)}</td>`).join('')}<td class="num">${(Math.max(...v) - Math.min(...v)).toFixed(2)}</td></tr>`; }).join('') + '</tbody>';
+}
+
+function renderSmall() {
+  const H = document.getElementById('small'); H.innerHTML = '';
+  const hosts = D.scenes.map(() => { const h = document.createElement('div'); h.className = 'chart'; H.appendChild(h); return h; });
+  for (const [j, s] of D.scenes.entries()) {
+    const host = hosts[j];
+    const f = frame(host, 230, { l: 50, r: 10, t: 26, b: 44 });
+    el('text', { class: 'ttl', x: f.x0, y: 14 }, f.svg).textContent = `${s.scene} · ${s.dataset}`;
+    const all = ONLINE.flatMap(a => s.gap_lo[a].concat(s.gap_hi[a])).concat([0]);
+    const y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2, Math.ceil(Math.max(...all) * 2) / 2, 'Δ dB', v => fmt(v, 1)), x = xAxis(f);
+    el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, f.svg);
+    for (const a of ONLINE) band(f, G, s.gap_lo[a], s.gap_hi[a], x, y, a);
+    for (const a of ONLINE) line(f, G, s.gap[a], x, y, a, 2);
+    crosshair(f, G, x, i => `<b>${s.scene} t = ${G[i].toFixed(2)}</b><br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(s.gap[a][i])}`).join('<br>'));
+  }
+}
+
+function renderCounts() {
+  const r = state.role, nb = D.count_bins, xs = [...Array(nb).keys()].map(i => (i + .5) / nb), arms = ['offline', ...ONLINE];
+  const C = {}; for (const a of arms) C[a] = xs.map((_, i) => { const v = D.scenes.map(s => s.counts[a][r][i]).filter(v => v != null && isFinite(v) && v > 0); return v.length ? Math.exp(mean(v.map(Math.log))) : null; });
+  const f = frame(document.getElementById('cCount'), 300, { l: 56, r: 14, t: 12, b: 46 });
+  const vals = Object.values(C).flat().filter(v => v);
+  const y = yAxis(f, Math.min(0.25, Math.min(...vals) * 0.9), Math.max(4, Math.max(...vals) * 1.1), '상대 학습 횟수 (1 = 장면 평균)', v => v + '×', true), x = xAxis(f);
+  for (const a of arms) { const pts = xs.map((v, i) => [v, C[a][i]]).filter(p => p[1]);
+    const p = el('path', { d: pts.map((q, i) => (i ? 'L' : 'M') + x(q[0]).toFixed(1) + ' ' + y(q[1]).toFixed(1)).join(' '), fill: 'none', stroke: css(ARM[a].color), 'stroke-width': a === 'offline' ? 2.6 : 2.2 }, f.svg);
+    if (ARM[a].dash) p.setAttribute('stroke-dasharray', ARM[a].dash);
+    for (const q of pts) el('circle', { cx: x(q[0]), cy: y(q[1]), r: 2.6, fill: css(ARM[a].color) }, f.svg); }
+  crosshair(f, xs, x, i => `<b>t ≈ ${xs[i].toFixed(2)}</b><br>` + arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${C[a][i] ? C[a][i].toFixed(2) + '×' : '—'}`).join('<br>'));
+  const T = document.getElementById('cvTbl');
+  T.innerHTML = '<thead><tr><th>학습 횟수 CV (낮을수록 고름)</th>' + D.scenes.map(s => `<th>${s.scene}</th>`).join('') + '<th>평균</th></tr></thead><tbody>' +
+    arms.map(a => { const v = D.scenes.map(s => s.counts[a].cv[r]); return `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${v.map(x => `<td class="num">${x.toFixed(2)}</td>`).join('')}<td class="num">${mean(v).toFixed(2)}</td></tr>`; }).join('') + '</tbody>';
+}
+
+function renderFlat() {
+  const F = D.flat, n = F.uniform_iid.length;
+  document.getElementById('flatTbl').innerHTML = '<thead><tr><th>장면 · seed</th>' + ONLINE.map(a => `<th><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</th>`).join('') + '<th>가장 고른 방법</th></tr></thead><tbody>' +
+    [...Array(n).keys()].map(i => { const v = ONLINE.map(a => F[a][i].sd), m = Math.min(...v), w = ONLINE[v.indexOf(m)];
+      return `<tr><td>${F.uniform_iid[i].scene} · s${F.uniform_iid[i].seed}</td>${v.map(x => `<td class="num"${x === m ? ' style="font-weight:600"' : ''}>${x.toFixed(2)}</td>`).join('')}<td>${ARM[w].name}</td></tr>`; }).join('') +
+    `<tr><td><b>평균</b></td>${ONLINE.map(a => `<td class="num"><b>${D.flat_mean[a].toFixed(2)}</b></td>`).join('')}<td></td></tr></tbody>`;
+  const nm = { 'ervs_k16-uniform_iid': 'ERVS − 균등 복원', 'ervs_k16-uniform_k16': 'ERVS − 균등 group (횟수 항의 효과)', 'uniform_k16-uniform_iid': '균등 group − 균등 복원' };
+  document.getElementById('pairTbl').innerHTML = '<thead><tr><th>시간별 편차 쌍 비교</th><th>평균 차이</th><th>95% 구간</th><th>더 고른 경우</th></tr></thead><tbody>' +
+    Object.entries(D.pairs).map(([k, v]) => `<tr><td>${nm[k]}</td><td class="num ${cls(-v.ci[0])}">${fmt(v.ci[0])}</td><td class="num">[${fmt(v.ci[1])}, ${fmt(v.ci[2])}]</td><td class="num">${v.wins}/${v.n}</td></tr>`).join('') + '</tbody>';
+  const p1 = D.pairs['ervs_k16-uniform_iid'], p2 = D.pairs['ervs_k16-uniform_k16'];
+  document.getElementById('verdict').textContent = `4장면 평균 곡선에서는 ERVS의 차이 곡선이 가장 평평하지만, 장면·seed별로 보면 균등 복원보다 고르다고 할 수 없습니다(${fmt(p1.ci[0])} dB, ${p1.wins}/${p1.n}). 같은 group 구조의 균등 group과 비교하면 ERVS가 더 고른 쪽으로 기웁니다(${fmt(p2.ci[0])} dB, ${p2.wins}/${p2.n}, 구간이 0을 포함). 평균 곡선의 평평함 중 일부는 장면마다 손해 구간이 달라 서로 상쇄된 결과입니다. 온라인과 offline은 pose 시점도 달라서, 이 차이를 전부 학습 횟수 배분 탓으로 볼 수는 아직 없습니다.`;
+}
+
+function bindSeg(id, key, cb) { const s = document.getElementById(id); s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[key] = b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
+const ss = document.getElementById('sceneSeg');
+ss.innerHTML = '<button data-v="mean" aria-pressed="true">4장면 평균</button>' + D.scenes.map(s => `<button data-v="${s.key}" aria-pressed="false">${s.scene}</button>`).join('');
+bindSeg('sceneSeg', 'scene', renderMain); bindSeg('viewSeg', 'view', renderMain); bindSeg('roleSeg', 'role', renderCounts);
+function all() { renderStats(); renderMain(); renderSmall(); renderCounts(); renderFlat(); }
+all();
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { renderMain(); renderSmall(); renderCounts(); }, 150); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all);
+new MutationObserver(all).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
