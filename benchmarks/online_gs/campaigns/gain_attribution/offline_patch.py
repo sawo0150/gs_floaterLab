@@ -40,6 +40,27 @@ def install():
 
     sel = Path(os.environ['B_SELECTED_WORKER']).parent
     sys.path.insert(0, str(sel))
+    import run_arrived_online_worker as W
+    checks = W.training_checks
+
+    def offline_checks(trainer, main_steps):
+        # The online growth-capacity rule (one dense admission per κ steps) is suspended only for the final-generation
+        # preadmission of the reference set; every other admission must still satisfy it.
+        res = checks(trainer, main_steps)
+        gens = trainer['generations']
+        ok = True
+        for g in gens:
+            p = g['policy']
+            if p['membership'] != 'growth' or p['growth_budget_scope'] != 'dense_only':
+                ok = False; continue
+            causal = [a for a in g['admissions'] if not a.get('offline_preadmit')]
+            ok &= all(i + 1 <= a['rgb_steps'] // p['kappa'] for i, a in enumerate(causal))
+        pre = [a['uid'] for a in gens[-1]['admissions'] if a.get('offline_preadmit')]
+        res['growth_capacity'] = ok
+        res['offline_preadmission_is_reference_set'] = (set(gens[-1]['policy']['admitted_dense']) == ref_dense
+                                                        and set(pre) <= ref_dense)
+        return res
+    W.training_checks = offline_checks
     import protected_opacity_prune as PP
     init = PP.ProtectedOpacityPrune.__init__
 

@@ -24,3 +24,10 @@ moving average), Spearman slope of d over the first 90% of the stream, five time
 **Prediction (pre-declared).** uniform_iid: d > 0 early and < 0 late (negative slope). ERVS: slope closer to 0 than
 uniform_iid (and uniform_k16). Primary test: mean over scenes of |slope_ERVS| < |slope_uniform_iid| and the
 late-bin (60–100%) d of ERVS above uniform_iid. With 4 scenes this is directional evidence only.
+
+## Amendment 1 (2026-10-03, after the smoke's first attempts; before any result)
+Attempt 1 failed (drain before a control ran under the control's `torch.no_grad`; fixed with `enable_grad`). Attempt 2
+ran correctly (final generation 1,775 renders = online) but failed the worker's `growth_capacity` check, which encodes
+the online causal rule "one dense admission per κ = 16 steps"; the offline arm breaks it by design. The patch now
+re-evaluates that check with only the final-generation preadmission exempt (all other admissions must satisfy it) and
+adds `offline_preadmission_is_reference_set`. Both attempts are archived under `failed_attempts/`.
