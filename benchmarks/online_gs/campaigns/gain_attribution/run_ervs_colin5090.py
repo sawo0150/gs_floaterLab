@@ -112,10 +112,12 @@ def main():
                 name = f'{arm}_s{seed}'
                 print('START', scene, BUDGET, name, flush=True)
                 try:
+                    sp = trial.BASE.sequence_paths(SCENES[scene]['dataset'], scene)
+                    extra_scenes = {scene: dict(dataset=SCENES[scene]['dataset'], **{k: str(v) for k, v in sp.items()})}
                     env_extra = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
-                                     B_PATCH_WORKER=str(HERE / patch))
+                                     B_PATCH_WORKER=str(HERE / patch), B_EXTRA_SCENES=json.dumps(extra_scenes))
                     row = base.run_one('scenes', scene, BUDGET, name, [*extra, '--seed', str(seed)], ctx,
-                                       worker=HERE / 'legacy_imu_launcher.py', env_extra=env_extra)
+                                       worker=HERE / 'extra_scene_launcher.py', env_extra=env_extra)
                     out = Path(row['output'])
                     argv = base.read(out.parent / f'{name}.command.json')['cmd']
                     assert argv[len(argv) - argv[::-1].index('--seed')] == str(seed), 'seed not applied'
