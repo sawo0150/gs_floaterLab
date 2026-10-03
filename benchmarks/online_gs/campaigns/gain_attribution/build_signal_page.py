@@ -35,6 +35,15 @@ ARMS = [
          desc='4단계 대조군 · 간섭 sampler에서 staleness 분포만 사용 (ρ = 1)'),
     dict(id='sig_loss_per', label='loss 비례 (PER)', color='--c3', dash='2 3', dir='stage3/{k}/render25/sig_loss_per',
          desc='3단계 · (마지막 training loss + 0.001)^0.7에 비례, staleness 없음 (Prioritized Experience Replay)'),
+    dict(id='sig_floor_region_l0.25', label='균등 하한+지역 망각 λ0.25', color='--c1', dash='6 3',
+         dir='stage5/{k}/render25/sig_floor_region_l0.25',
+         desc='5단계 · 0.75×균등 + 0.25×지역 망각 비율(주변 ±1.5% view의 최고−마지막 training PSNR 평균)'),
+    dict(id='sig_floor_region_l0.5', label='균등 하한+지역 망각 λ0.5', color='--c1', dash='2 3',
+         dir='stage5/{k}/render25/sig_floor_region_l0.5', desc='5단계 · 0.5×균등 + 0.5×지역 망각 비율'),
+    dict(id='sig_floor_loss_l0.25', label='균등 하한+loss λ0.25', color='--c2', dash='6 3',
+         dir='stage5/{k}/render25/sig_floor_loss_l0.25', desc='5단계 · 0.75×균등 + 0.25×마지막 training loss 비율'),
+    dict(id='sig_floor_loss_l0.5', label='균등 하한+loss λ0.5', color='--c2', dash='2 3',
+         dir='stage5/{k}/render25/sig_floor_loss_l0.5', desc='5단계 · 0.5×균등 + 0.5×마지막 training loss 비율'),
 ]
 OLD = {'uniform_iid': lambda k: S.pinned_dir(k, 'uniform_iid', 0), 'ervs_tau4': lambda k: S.pinned_dir(k, 'ervs_k16', 0)}
 

@@ -67,3 +67,23 @@ held-out quality, but no replay signal tested (forgetting, progress, loss, PER, 
 interference exposure, staleness) beats uniform sampling with replacement over seeds; ERVS τ=4 keeps a small mean gain
 (+0.07 over 3 seeds here, +0.09 in ervs_vs_iid_seeds) without lifting the worst regions. Single-seed differences
 below ~0.2 dB (mean) and ~0.3 dB (min-bin, worst-Q1) are not resolvable on these scenes.
+
+## Stage 5 — uniform floor + quality target (2026-10-03, PREREG Amendment 3, seed 0)
+
+Δ vs uniform_k16 (seed 0), 4-scene mean; temporal sd = sd of decile means 1–9 (lower = flatter).
+
+| arm | Δ mean | Δ temporal sd | dense count p10 / median / CV |
+|---|---:|---:|---|
+| floor_region λ0.25 | −0.19 | +0.17 | — |
+| floor_region λ0.5 | −0.39 | −0.18 | 1.0 / 4.0 / 1.19 |
+| floor_loss λ0.25 | −0.08 | −0.04 | 1.2 / 6.0 / 0.90 |
+| floor_loss λ0.5 | −0.10 | −0.04 | — |
+| (ref) ERVS τ=4 | +0.10 | +0.12 | 2.0 / 7.0 / 0.76 |
+| (ref) interference | −0.01 | −0.02 | 1.0 / 6.0 / 0.89 |
+
+Pre-declared criterion (mean ≥ uniform_k16 and lower temporal sd): **no arm passes.** Regional forgetting λ0.5 is the
+flattest arm but flattens by lowering every bin. Diagnosis from the service counts: a probability floor does not
+protect the low-count tail (p10 dense count 1.0–1.2 vs 2.0 under ERVS), because the floor is per draw while late views
+have few draws left; only the count term lifts that tail. All signal samplers also prioritise unseen views (first-visit
+share 0.136 vs 0.130), which K16/ERVS do not. Next candidate (not run): keep the ERVS count weight and multiply it by a
+mild quality factor, so the tail stays protected while the quality term redistributes among equally-served views.
