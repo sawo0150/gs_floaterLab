@@ -1,5 +1,7 @@
 # Experiment Index
 
+- 2026-10-03 training-signal replay study stages 1–2 (4 B scenes, budget 25, seed0): forgetting is real (revisit after >200 steps −0.2…−0.5 dB) and comes from mid-distance training; last training PSNR tracks held-out (ρ 0.45 after difficulty) but replaying forgotten views does not lift held-out. Samplers vs uniform: ERVS τ4 +0.22 (4/4), age_norm +0.05, forget/loss+staleness −0.03/−0.04 (worst-Q1 +0.16/+0.17), progress −0.24, catch-up −0.26. → [card](campaigns/06_gain_attribution/ervs_train_signal/README.md)
+
 - 2026-10-03 ERVS balancing strength on 4 B scenes (budget 25, seed0): τ=4/1/0.25 dense CV 0.76/0.58/0.35 (uniform 0.92) but ΔPSNR vs uniform +0.21/−0.02/−0.74 and Δmin-bin +0.01/−0.44/−1.47 — stronger balancing starves early views and is monotonically worse. → [card](campaigns/06_gain_attribution/ervs_tau_strength/README.md)
 
 - 2026-10-03 ERVS K16 vs uniform with replacement, 3 seeds × 4 B scenes × budget 15/25: mean ΔPSNR +0.085±0.058 (6/8 cells), min-bin −0.06 and worst-Q1 +0.01 (3/8 each); temporal paired Δ by fifth −0.22/+0.07/+0.34/+0.23/0.00 — ERVS loses on the earliest stream and gains mid-stream. → [card](campaigns/06_gain_attribution/ervs_vs_iid_seeds/README.md)

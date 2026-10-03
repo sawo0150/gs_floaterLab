@@ -12,6 +12,9 @@ the KF and dense pools with a weight built from the per-view signal state of the
   loss_stale     PLR-style mix with the last training loss (higher first)
   catchup        Curious-Replay-style: c·β^n + 1 (strong boost until a view has a few services, then uniform)
   age_norm       Gibbs on age-normalized maturity m = n / (services since first service × pool rate)
+  loss_per       Prioritized Experience Replay: p ∝ (last training loss + ε)^α, no staleness mix (α = B_SIGNAL_ALPHA, 0.7)
+  interference   MIR-inspired: rank of interference exposure since the last visit (log(1+mid) − log(1+near) training
+                 steps; near = ±1.5% of the stream, mid = 1.5–9%) mixed with staleness like PLR
 Unseen views (never trained in this generation) get the highest priority in every mode (PLR/CR convention).
 Usage: B_PATCH_WORKER=<group_k_patch.py|sampling_mode_patch.py> [B_SIGNAL_MODE=...] python train_signal.py <worker args>
 """
@@ -108,6 +111,8 @@ TEMP = float(os.environ.get('B_SIGNAL_TEMP', '0.3'))      # rank temperature (PL
 CATCH_BETA = float(os.environ.get('B_SIGNAL_BETA', '0.7'))
 CATCH_C = float(os.environ.get('B_SIGNAL_C', '30'))
 AGE_TAU = float(os.environ.get('B_SIGNAL_TAU', '1'))
+PER_ALPHA = float(os.environ.get('B_SIGNAL_ALPHA', '0.7'))
+NEAR, MID = 0.015, 0.09
 
 
 def signal_weights(mode, uids, generation):
@@ -124,7 +129,22 @@ def signal_weights(mode, uids, generation):
         rate = sum(s['n'] for s in seen) / max(1, sum(now - s['first'] for s in seen))
         m = [None if s is None else s['n'] / max(1.0, (now - s['first']) * rate) for s in st]
         return [1e6 if x is None else math.exp(-(x - 1) / AGE_TAU) for x in m]
-    if mode == 'forget_stale':
+    if mode == 'loss_per':
+        return [1e6 if s is None else (s['loss'] + 1e-3) ** PER_ALPHA for s in st]
+    if mode == 'interference':
+        import numpy as np
+        rows = [r for r in STATE['rows'] if r[1] == generation]
+        seq_u = np.array([r[2] for r in rows]); seq_s = np.array([r[0] for r in rows])
+        nfr = max(1, int(seq_u.max()) + 1) if len(seq_u) else 1
+        near_w, mid_w = max(1, int(NEAR * nfr)), max(2, int(MID * nfr))
+        score = []
+        for u, s_ in zip(uids, st):
+            if s_ is None:
+                score.append(None); continue
+            after = seq_u[seq_s > s_['last_step']]
+            dist = np.abs(after - u)
+            score.append(float(np.log1p(((dist > near_w) & (dist <= mid_w)).sum()) - np.log1p((dist <= near_w).sum())))
+    elif mode == 'forget_stale':
         score = [None if s is None else s['best'] - s['last'] for s in st]
     elif mode == 'progress_stale':
         score = [None if s is None else max(0.0, (s['last'] - s['prev']) if s['prev'] is not None else 1e3) for s in st]
@@ -195,6 +215,7 @@ def install_sampler(mode, K=16):
         if output and output.exists():
             (output / 'signal_sampler.json').write_text(json.dumps(dict(
                 mode=mode, K=K, rho=RHO, temp=TEMP, catch_beta=CATCH_BETA, catch_c=CATCH_C, age_tau=AGE_TAU,
+                per_alpha=PER_ALPHA, near=NEAR, mid=MID,
                 stats={f'{a}/{b}': n for (a, b), n in sorted(stats.items())}), indent=1))
     atexit.register(dump)
 

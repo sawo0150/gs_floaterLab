@@ -25,7 +25,7 @@ MODES = ('forget_stale', 'progress_stale', 'loss_stale', 'catchup', 'age_norm')
 
 
 def main():
-    p = argparse.ArgumentParser(); p.add_argument('--stage', type=int, choices=(1, 2), required=True)
+    p = argparse.ArgumentParser(); p.add_argument('--stage', type=int, choices=(1, 2, 3), required=True)
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
@@ -49,8 +49,13 @@ def main():
     sel_worker = str(base.SEL / 'run_selected_worker.py')
     if a.stage == 1:
         plan = [(k, arm, *STAGE1[arm]) for arm in STAGE1 for k in SCENES]
-    else:
+    elif a.stage == 2:
         plan = [(k, f'sig_{m}', [], 'group_k_patch.py', dict(B_SIGNAL_MODE=m)) for m in MODES for k in SCENES]
+    else:
+        plan = ([(k, f'sig_{m}', [], 'group_k_patch.py', dict(B_SIGNAL_MODE=m)) for m in ('interference', 'loss_per')
+                 for k in SCENES]
+                + [(k, f'{arm}_s1', [*STAGE1[arm][0], '--seed', '1'], STAGE1[arm][1], STAGE1[arm][2])
+                   for arm in STAGE1 for k in SCENES])
     rows = []
     for key, arm, extra, patch, env in plan:
         print('START', key, BUDGET, arm, flush=True)
@@ -61,7 +66,7 @@ def main():
             out = Path(row['output'])
             sig = base.read(out / 'train_signal.json')
             assert len(sig['rows']) == row['training_renders'], (len(sig['rows']), row['training_renders'])
-            if a.stage == 2:
+            if a.stage in (2, 3) and arm.startswith('sig_'):
                 s = base.read(out / 'signal_sampler.json')['stats']
                 assert s.get('groups/keyframe') and s.get('groups/dense'), s
                 row['signal_sampler'] = s

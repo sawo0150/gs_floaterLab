@@ -30,3 +30,11 @@ K=16 per-pool group queue, weights from the per-view state of the current genera
 References: uniform_iid and ervs_tau4 seed 0 (existing). Metrics: held-out PSNR, min-bin PSNR, worst-Q1, five-bin
 paired Δ vs uniform_iid, service counts and replay rate by arrival time, forgetting under each sampler. Single seed,
 exploratory; all cells reported. The scene-extension run is paused during both stages and resumed afterwards.
+
+## Amendment 1 — stage 3 (2026-10-03, after analysing stages 1–2; user granted autonomy for this study)
+
+Arms (four scenes, budget 25): `sig_interference` (MIR-inspired: rank of log(1+mid) − log(1+near) training steps since
+the last visit, near ±1.5%, mid 1.5–9% of the stream, mixed with staleness ρ=0.3, T=0.3), `sig_loss_per` (PER,
+p ∝ (last loss + 1e-3)^0.7, no staleness), both seed 0; plus `uniform_iid_log_s1` and `ervs_tau4_log_s1` (seed 1) to
+measure seed noise. 16 runs. Motivation: stage-1 interference analysis; user request for plain loss-based sampling;
+single-seed differences unresolved.

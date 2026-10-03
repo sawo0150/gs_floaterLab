@@ -40,7 +40,7 @@ def done(d):
 def main():
     sys.path.insert(0, str(S.HERE))
     import analyze_train_signal as A
-    if any((OUT / f'stage1/{k}/render25/{a}').exists() for k, *_ in S.PINNED for a in ('uniform_iid_log', 'ervs_tau4_log')):
+    if (OUT / 'stage1').exists():
         A.main()
     stage1 = json.loads((OUT / 'stage1_analysis.json').read_text()) if (OUT / 'stage1_analysis.json').exists() else None
     if stage1 is not None:

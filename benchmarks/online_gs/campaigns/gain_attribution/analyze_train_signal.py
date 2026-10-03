@@ -20,6 +20,11 @@ ROOT = HERE.parents[3]
 V = ROOT / 'results/campaigns/gain_attribution/ervs_train_signal/v1'
 SCENES = [('aria', 'aria1253'), ('rpng', 'table_06'), ('rot', 'aria1253rot'), ('utmm', 'square-1')]
 ARMS = ('uniform_iid_log', 'ervs_tau4_log')
+STAGE2 = ('sig_forget_stale', 'sig_progress_stale', 'sig_loss_stale', 'sig_catchup', 'sig_age_norm')
+
+
+def run_path(key, arm):
+    return V / (f'stage1/{key}/render25/{arm}' if arm in ARMS else f'stage2/{key}/render25/{arm}')
 W = 0.015
 GAP_BINS = [0, 50, 100, 200, 400, 800, 1600, 1e9]
 SIGNALS = ('n', 'last', 'best', 'forget', 'stale', 'maturity', 'progress')
@@ -90,12 +95,12 @@ def analyse(d):
 
 def main():
     out = dict(window=W, gap_bins=GAP_BINS, scenes={})
-    pooled = {a: [] for a in ARMS}
+    pooled = {a: [] for a in ARMS + STAGE2}
     for key, scene in SCENES:
         sc = {}
-        for arm in ARMS:
-            d = V / f'stage1/{key}/render25/{arm}'
-            if not (d / 'train_signal.json').exists():
+        for arm in ARMS + STAGE2:
+            d = run_path(key, arm)
+            if not ((d / 'train_signal.json').exists() and (d.parent / f'{d.name}.row.json').exists()):
                 continue
             A = analyse(d); pooled[arm].extend(A['deltas'])
             corr = {k: spearman(A['local'][k], A['hp']) for k in SIGNALS}
