@@ -22,3 +22,14 @@ cells without saying so.
 
 As ervs_vs_iid_scenes: seed-mean ΔPSNR, Δmin-bin, Δworst-Q1 for ERVS − uniform_iid, uniform_k16 − uniform_iid and
 ERVS − uniform_k16; temporal curves. All scenes reported.
+
+## Amendment 1 — Oxford Spires (2026-10-03, before any Oxford mapping run)
+
+Five short sequences: 2024-07-09-new-college-01/02/04, 2024-03-20-christ-church-05, 2024-05-20-bodleian-library-02
+(3,099–4,966 frames at 20 Hz). `prepare_oxford_vigs.py`: cam0 equidistant fisheye rectified to a 720×540 pinhole
+(R = I, balance 0), IMU to ns/gyro/accel, calibration root from each sequence's INPUTS.json (nearest session),
+Tcb = T_cam0_imu (C_q_CI, C_r_CI), held-out every 5th frame + final (same rule as aria301_12F). Tracker contract =
+official Aria adapter (unchanged tracking parameters) with the Oxford IMU block. `prepare_oxford_capture.py`: frozen
+official tracker capture (22ffe24, TRT dynamic RTX 5090 profile, seed 0), archive validation, native setup capture;
+mapping config = vigs_final_v7_aria.yaml with the sequence IMU block. GT trajectories are not used. Then the same
+3 arms × 3 seeds (45 runs). A sequence whose tracker capture or validation fails is reported and excluded, not tuned.
