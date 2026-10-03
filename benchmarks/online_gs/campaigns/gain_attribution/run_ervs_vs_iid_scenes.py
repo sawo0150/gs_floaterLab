@@ -28,7 +28,9 @@ SCENES = {'aria301_305': 'aria', **{f'table_0{i}': 'rpng' for i in (1, 2, 3, 4, 
           **{s: 'utmm' for s in ('ego-centric-1', 'ego-centric-2', 'ego-drive', 'fast-straight', 'slow-straight-1',
                                  'slow-straight-2', 'square-2')}}
 ARMS = {'ervs_k16': ([], 'group_k_patch.py', dict(B_GROUP_K='16')),
-        'uniform_iid': (['--tau', '1e12'], 'sampling_mode_patch.py', dict(B_WITH_REPLACEMENT='1'))}
+        'uniform_iid': (['--tau', '1e12'], 'sampling_mode_patch.py', dict(B_WITH_REPLACEMENT='1')),
+        # Amendment 2: uniform probabilities with the same K=16 per-pool group queue (isolates the ERVS count term).
+        'uniform_k16': (['--tau', '1e12'], 'group_k_patch.py', dict(B_GROUP_K='16'))}
 
 
 def make_preflight(trial, verify_files, load_lock):
@@ -64,6 +66,7 @@ def main():
     p.add_argument('--budgets', nargs='+', type=int, required=True)
     p.add_argument('--seeds', nargs='+', type=int, required=True)
     p.add_argument('--scenes', nargs='+', default=list(SCENES))
+    p.add_argument('--arms', nargs='+', default=['ervs_k16', 'uniform_iid'], choices=list(ARMS))
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
@@ -90,7 +93,8 @@ def main():
     for seed in a.seeds:
         for budget in a.budgets:
             for scene in a.scenes:
-                for arm, (extra, patch, env) in ARMS.items():
+                for arm in a.arms:
+                    extra, patch, env = ARMS[arm]
                     name = f'{arm}_s{seed}'
                     print('START', scene, budget, name, flush=True)
                     try:
@@ -102,10 +106,13 @@ def main():
                         out = Path(row['output'])
                         argv = base.read(out.parent / f'{name}.command.json')['cmd']
                         assert argv[len(argv) - argv[::-1].index('--seed')] == str(seed), 'seed not applied'
-                        if arm == 'ervs_k16':
+                        if arm in ('ervs_k16', 'uniform_k16'):
                             g = base.read(out / 'group_k.json')
                             assert g['stats'].get('groups/keyframe') and g['stats'].get('groups/dense'), g
                             row['group_k'] = g
+                            if arm == 'uniform_k16':
+                                tau = base.read(out / 'render_result.json')['training']['generations'][-1]['policy']['tau']
+                                assert float(tau) >= 1e11, tau
                         else:
                             tau = base.read(out / 'render_result.json')['training']['generations'][-1]['policy']['tau']
                             assert float(tau) >= 1e11, tau

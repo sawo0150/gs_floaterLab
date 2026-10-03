@@ -16,9 +16,14 @@ import run_b_ablation_chain as base  # noqa: E402
 base.OUT = base.ROOT / 'results/campaigns/gain_attribution/ervs_vs_iid_seeds/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/ervs_vs_iid_seeds/PREREG.md'
 ARMS = {'ervs_k16': ([], 'group_k_patch.py', dict(B_GROUP_K='16')),
-        'uniform_iid': (['--tau', '1e12'], 'sampling_mode_patch.py', dict(B_WITH_REPLACEMENT='1'))}
+        'uniform_iid': (['--tau', '1e12'], 'sampling_mode_patch.py', dict(B_WITH_REPLACEMENT='1')),
+        'uniform_k16': (['--tau', '1e12'], 'group_k_patch.py', dict(B_GROUP_K='16'))}
 PLAN = ([('utmm', b, 'uniform_iid', 0) for b in (15, 25)]
-        + [(k, b, a, s) for s in (1, 2) for k in ('aria', 'rpng', 'rot', 'utmm') for b in (15, 25) for a in ARMS])
+        + [(k, b, a, s) for s in (1, 2) for k in ('aria', 'rpng', 'rot', 'utmm') for b in (15, 25)
+           for a in ('ervs_k16', 'uniform_iid')])
+# Amendment 1 (ervs_vs_iid_scenes Amendment 2): uniform_k16 at budget 25; seed 0 for aria/rpng exists in ervs_vs_uniform_k16.
+PLAN_K16 = ([(k, 25, 'uniform_k16', 0) for k in ('rot', 'utmm')]
+            + [(k, 25, 'uniform_k16', s) for s in (1, 2) for k in ('aria', 'rpng', 'rot', 'utmm')])
 
 
 def main():
@@ -41,7 +46,7 @@ def main():
                                          '--format=csv,noheader'], text=True).strip()))
     ctx = (lock, trial, preflight, gpu_idle, recipe_environment)
     rows = []
-    for key, budget, arm, seed in PLAN:
+    for key, budget, arm, seed in (PLAN_K16 if '--k16' in sys.argv else PLAN):
         name = f'{arm}_s{seed}'
         extra, patch, env = ARMS[arm]
         print('START', key, budget, name, flush=True)
@@ -53,10 +58,13 @@ def main():
             last = len(argv) - 1 - argv[::-1].index('--seed')
             assert argv[last + 1] == str(seed), 'seed not applied'
             out = Path(row['output'])
-            if arm == 'ervs_k16':
+            if arm in ('ervs_k16', 'uniform_k16'):
                 g = base.read(out / 'group_k.json')
                 assert g['stats'].get('groups/keyframe') and g['stats'].get('groups/dense'), g
                 row['group_k'] = g
+                if arm == 'uniform_k16':
+                    tau = base.read(out / 'render_result.json')['training']['generations'][-1]['policy']['tau']
+                    assert float(tau) >= 1e11, tau
             else:
                 tau = base.read(out / 'render_result.json')['training']['generations'][-1]['policy']['tau']
                 assert float(tau) >= 1e11, tau

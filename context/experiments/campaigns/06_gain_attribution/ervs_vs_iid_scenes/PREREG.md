@@ -33,3 +33,12 @@ UTMM fast-straight's archive (schema v2) has no `input_imu`; its first run faile
 `legacy_imu_launcher.py`, which fills the missing key in memory with `<image_dir>/../imu_ours.txt` (same file name as the
 recorded IMU of the other UTMM archives; archives with the key are untouched). Approved by the user before resuming.
 Scenes, arms, budget, seeds and metrics are unchanged.
+
+## Amendment 2 (2026-10-03, user request after the 19-scene result; before any uniform_k16 run)
+
+Add `uniform_k16` (uniform probabilities, `--tau 1e12`, same persistent K=16 per-pool group queue via
+`group_k_patch.py`) on all 19 scenes, budget 25, seeds 0–2, to separate the ERVS count term (ervs_k16 − uniform_k16)
+from the group structure (uniform_k16 − uniform_iid). Seed 0 of aria1253/table_06 is reused from ervs_vs_uniform_k16;
+55 new runs (pinned scenes via `run_ervs_vs_iid_seeds.py --k16`, 10 runs; new scenes via
+`run_ervs_vs_iid_scenes.py --arms uniform_k16`, 45 runs). Gates: group queue used in both pools, recorded τ ≥ 1e11.
+Same metrics; all scenes reported.
