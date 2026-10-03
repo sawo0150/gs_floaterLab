@@ -40,6 +40,19 @@ def write_mapping_config(d):
         out.write_text(text)
     return out
 
+# The capture script only uses --dataset as a metadata label but restricts its choices; allow 'oxford' in memory.
+CAPTURE_WRAPPER = '''
+import argparse, runpy, sys
+_add = argparse._ActionsContainer.add_argument
+def add_argument(self, *names, **kw):
+    if "--dataset" in names and "choices" in kw:
+        kw["choices"] = tuple(kw["choices"]) + ("oxford",)
+    return _add(self, *names, **kw)
+argparse._ActionsContainer.add_argument = add_argument
+sys.argv = {argv!r}
+runpy.run_path(sys.argv[0], run_name="__main__")
+'''
+
 SETUP_WRAPPER = '''
 import sys, runpy
 sys.path.insert(0, {here!r})
@@ -82,7 +95,7 @@ def main():
         if not x['archive'].exists():
             gpu_idle()
             with (d / 'capture.log').open('x') as log:
-                subprocess.run(cmd, env=env, cwd=TRT_CWD,
+                subprocess.run([cmd[0], '-c', CAPTURE_WRAPPER.format(argv=cmd[1:])], env=env, cwd=TRT_CWD,
                                stdout=log, stderr=subprocess.STDOUT, check=True)
             with (d / 'validation.log').open('x') as log:
                 subprocess.run([str(trial.BASE.PYTHON_ENV / 'bin/python'), str(trial.BASE.ARCHIVE_VALIDATOR),
