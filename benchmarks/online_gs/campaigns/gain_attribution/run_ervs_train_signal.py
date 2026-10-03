@@ -25,7 +25,7 @@ MODES = ('forget_stale', 'progress_stale', 'loss_stale', 'catchup', 'age_norm')
 
 
 def main():
-    p = argparse.ArgumentParser(); p.add_argument('--stage', type=int, choices=(1, 2, 3, 4), required=True)
+    p = argparse.ArgumentParser(); p.add_argument('--stage', type=int, choices=(1, 2, 3, 4, 5), required=True)
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
     sys.path.insert(0, str(base.SEL))
@@ -58,6 +58,9 @@ def main():
                    for arm in STAGE1 for k in SCENES]
                 + [(k, 'sig_stale_only', [], 'group_k_patch.py', dict(B_SIGNAL_MODE='interference', B_SIGNAL_RHO='1'))
                    for k in SCENES])
+    elif a.stage == 5:   # Amendment 3: uniform floor + quality target
+        plan = [(k, f'sig_{m}_l{lam}', [], 'group_k_patch.py', dict(B_SIGNAL_MODE=m, B_SIGNAL_LAMBDA=lam))
+                for m in ('floor_region', 'floor_loss') for lam in ('0.25', '0.5') for k in SCENES]
     else:
         plan = ([(k, f'sig_{m}', [], 'group_k_patch.py', dict(B_SIGNAL_MODE=m)) for m in ('interference', 'loss_per')
                  for k in SCENES]
@@ -73,7 +76,7 @@ def main():
             out = Path(row['output'])
             sig = base.read(out / 'train_signal.json')
             assert len(sig['rows']) == row['training_renders'], (len(sig['rows']), row['training_renders'])
-            if a.stage in (2, 3, 4) and arm.startswith('sig_'):
+            if a.stage in (2, 3, 4, 5) and arm.startswith('sig_'):
                 s = base.read(out / 'signal_sampler.json')['stats']
                 assert s.get('groups/keyframe') and s.get('groups/dense'), s
                 row['signal_sampler'] = s

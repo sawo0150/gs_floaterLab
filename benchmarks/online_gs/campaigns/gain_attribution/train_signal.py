@@ -15,6 +15,9 @@ the KF and dense pools with a weight built from the per-view signal state of the
   loss_per       Prioritized Experience Replay: p ∝ (last training loss + ε)^α, no staleness mix (α = B_SIGNAL_ALPHA, 0.7)
   interference   MIR-inspired: rank of interference exposure since the last visit (log(1+mid) − log(1+near) training
                  steps; near = ±1.5% of the stream, mid = 1.5–9%) mixed with staleness like PLR
+  floor_loss     uniform floor mix: (1-λ)·uniform + λ·(last training loss share), λ = B_SIGNAL_LAMBDA
+  floor_region   uniform floor mix with regional forgetting: forgetting (best − last training PSNR, ≥0) averaged over
+                 views within ±1.5% of the stream (uid distance), share-normalized; λ = B_SIGNAL_LAMBDA
 Unseen views (never trained in this generation) get the highest priority in every mode (PLR/CR convention).
 Usage: B_PATCH_WORKER=<group_k_patch.py|sampling_mode_patch.py> [B_SIGNAL_MODE=...] python train_signal.py <worker args>
 """
@@ -113,6 +116,7 @@ CATCH_C = float(os.environ.get('B_SIGNAL_C', '30'))
 AGE_TAU = float(os.environ.get('B_SIGNAL_TAU', '1'))
 PER_ALPHA = float(os.environ.get('B_SIGNAL_ALPHA', '0.7'))
 NEAR, MID = 0.015, 0.09
+LAMBDA = float(os.environ.get('B_SIGNAL_LAMBDA', '0.5'))
 
 
 def signal_weights(mode, uids, generation):
@@ -131,6 +135,26 @@ def signal_weights(mode, uids, generation):
         return [1e6 if x is None else math.exp(-(x - 1) / AGE_TAU) for x in m]
     if mode == 'loss_per':
         return [1e6 if s is None else (s['loss'] + 1e-3) ** PER_ALPHA for s in st]
+    if mode in ('floor_loss', 'floor_region'):
+        import numpy as np
+        seen = [i for i, x in enumerate(st) if x is not None]
+        w = [1.0] * len(uids)
+        if not seen:
+            return w
+        if mode == 'floor_loss':
+            tgt = np.array([st[i]['loss'] for i in seen], float)
+        else:
+            u = np.array([uids[i] for i in seen], float)
+            f = np.array([max(0.0, st[i]['best'] - st[i]['last']) for i in seen])
+            nfr = max(1.0, float(max(uids)) + 1)
+            win = max(1.0, NEAR * nfr)
+            tgt = np.array([f[np.abs(u - x) <= win].mean() for x in u])
+        tgt = tgt + 1e-6
+        tgt = tgt / tgt.sum()
+        n = len(seen)
+        for k, i in enumerate(seen):
+            w[i] = ((1 - LAMBDA) / n + LAMBDA * tgt[k]) * 1e-3   # seen views stay below the unseen priority (1.0)
+        return w
     if mode == 'interference':
         import numpy as np
         rows = [r for r in STATE['rows'] if r[1] == generation]
@@ -215,7 +239,7 @@ def install_sampler(mode, K=16):
         if output and output.exists():
             (output / 'signal_sampler.json').write_text(json.dumps(dict(
                 mode=mode, K=K, rho=RHO, temp=TEMP, catch_beta=CATCH_BETA, catch_c=CATCH_C, age_tau=AGE_TAU,
-                per_alpha=PER_ALPHA, near=NEAR, mid=MID,
+                per_alpha=PER_ALPHA, near=NEAR, mid=MID, lam=LAMBDA,
                 stats={f'{a}/{b}': n for (a, b), n in sorted(stats.items())}), indent=1))
     atexit.register(dump)
 

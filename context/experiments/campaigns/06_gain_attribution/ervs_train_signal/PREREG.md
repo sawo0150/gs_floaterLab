@@ -44,3 +44,14 @@ single-seed differences unresolved.
 `sig_interference` seeds 1–2, `uniform_iid_log` seed 2, `ervs_tau4_log` seed 2, and `sig_stale_only` (the interference
 sampler with ρ = 1, i.e. staleness distribution only) seed 0. Four scenes, budget 25, 20 runs. Purpose: 3-seed
 comparison of uniform / ERVS τ=4 / interference on mean, min-bin and worst-Q1, and attribution of the interference gain.
+
+## Amendment 3 — stage 5 (2026-10-03, after the mean-vs-flatness analysis of all stage 1–4 samplers; user approved)
+
+Question: can a sampler keep the mean held-out PSNR while making the temporal PSNR curve flatter? Analysis of
+stages 1–4 showed every sampler so far redistributes training zero-sum (some views starve below the uniform rate),
+and only loss-based samplers lowered temporal unevenness. Stage 5 adds a **uniform floor**: within each pool,
+p = (1−λ)·uniform + λ·target share, inside the same persistent K=16 Gumbel group queue; unseen views keep priority.
+Targets: `floor_region` (regional forgetting: best − last training PSNR, ≥0, averaged over views within ±1.5% of the
+stream) and `floor_loss` (last training loss). λ ∈ {0.25, 0.5}. Four scenes, budget 25, seed 0, 16 runs.
+Pre-declared success: mean PSNR ≥ uniform_k16 (seed 0) **and** temporal sd over deciles 1–9 below uniform_k16, both
+as the 4-scene mean. Single seed: a pass is only a candidate for seeds 1–2, not a result.
