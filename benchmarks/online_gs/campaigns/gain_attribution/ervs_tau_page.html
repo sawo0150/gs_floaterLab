@@ -51,7 +51,7 @@ select { font: 13px var(--sans); color: var(--ink); background: var(--surface); 
 table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums }
 th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap }
 th { font-weight: 600; color: var(--muted); font-size: 12px }
-th:first-child, td:first-child, #tbl td:nth-child(2), #tbl th:nth-child(2), .tauTable td:first-child { text-align: left }
+th:first-child, td:first-child, #tbl td:nth-child(2), #tbl th:nth-child(2), .tauTable td:first-child, #varTbl td:first-child { text-align: left }
 td.num { font-family: var(--mono) }
 .pos { color: var(--good) } .neg { color: var(--bad) }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px }
@@ -110,6 +110,17 @@ td.num { font-family: var(--mono) }
       <div class="chart" id="cBins"></div>
     </section>
   </div>
+
+  <section class="panel" id="replayPanel">
+    <h2>분석: replay 비율과 주변 학습량</h2>
+    <p class="cap"><b>replay 비율</b>은 view의 학습 횟수를 최종 지도에서 처음 학습된 뒤 지난 step 수로 나눈 값입니다(균등 복원의 장면 평균 = 1). 위의 "도착 시점별 학습 횟수"가 총량이라면, 이것은 pool에 있는 동안 얼마나 자주 다시 학습됐는지입니다. view 종류 선택을 따릅니다.</p>
+    <div class="two">
+      <div class="chart" id="cRate"></div>
+      <div class="chart" id="cPaired"></div>
+    </div>
+    <p class="cap"><b>오른쪽</b>: held-out view마다 주변(스트림의 ±1.5%) training view의 학습 횟수 합을 균등 복원과 비교했습니다. x는 log 비율(0 = 같음, 0.69 = 두 배), y는 같은 view의 PSNR 차이입니다. view를 x 기준 5분위로 나눠 평균했습니다.</p>
+    <div class="tablewrap"><table id="varTbl"></table></div>
+  </section>
 
   <section class="panel">
     <h2>장면 하나씩 보기</h2>
@@ -287,14 +298,43 @@ function renderTable() {
   }
   document.getElementById('tbl').innerHTML = '<thead><tr><th>장면</th><th style="text-align:left">설정</th><th>PSNR</th><th>ΔPSNR</th><th>Δ최저 구간</th><th>Δworst-Q1</th><th>dense CV</th><th>KF CV</th></tr></thead><tbody>' + rows.join('') + '</tbody>';
 }
+
+function renderReplay() {
+  const R = DATA.replay; if (!R) { document.getElementById('replayPanel').hidden = true; return; }
+  const k = state.role, arms = ARMS;
+  let f = frame(document.getElementById('cRate'), 300, { l: 60, r: 14, t: 12, b: 46 });
+  const vals = arms.flatMap(a => arr(R.rate_ratio_by_arrival[a][k])).filter(v => !isNaN(v) && v > 0);
+  let y = logAxis(f, Math.max(.1, Math.min(...vals) * .8), Math.max(...vals) * 1.25, 'replay 비율 (균등 평균 = 1)'), x = xAxis(f, 'view 도착 시점 (0 = 시작, 1 = 끝)');
+  for (const a of arms) line(f, BC, arr(R.rate_ratio_by_arrival[a][k]), x, y, a);
+  hover(f, x, BC, i => `<b>도착 ${(i / NB).toFixed(2)}–${((i + 1) / NB).toFixed(2)}</b> · ${ROLE[k]} replay 비율<br>` + arms.map(a => { const v = arr(R.rate_ratio_by_arrival[a][k])[i]; return `${dot(a)} ${STYLE[a][2]} ${isNaN(v) ? '–' : v.toFixed(2)}`; }).join('<br>'));
+  f = frame(document.getElementById('cPaired'), 300, { l: 60, r: 14, t: 12, b: 46 });
+  const ea = arms.filter(a => a !== 'uniform_iid' && R.pooled_paired[a]);
+  const xs = ea.flatMap(a => R.pooled_paired[a].strata.map(s => s.dlog_mid)), ys = ea.flatMap(a => R.pooled_paired[a].strata.map(s => s.dpsnr));
+  const xlo = Math.min(-.4, ...xs) - .05, xhi = Math.max(.75, ...xs) + .05, ext = Math.max(.5, Math.ceil(Math.max(...ys.map(Math.abs)) * 4) / 4);
+  y = yAxis(f, -ext, ext, 'Δ held-out PSNR (dB)', v => (v > 0 ? '+' : '') + v.toFixed(1));
+  const xx = v => f.x0 + (v - xlo) / (xhi - xlo) * (f.x1 - f.x0);
+  for (const t of niceTicks(xlo, xhi, 6)) { el('line', { x1: xx(t), x2: xx(t), y1: f.y1, y2: f.y0, stroke: t === 0 ? css('--faint') : css('--grid') }, f.svg); el('text', { x: xx(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = t.toFixed(1); }
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '주변 학습량 log 비율 (÷ 균등 복원)';
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--iid'), 'stroke-width': 1.4, 'stroke-dasharray': '6 4' }, f.svg);
+  for (const a of ea) { const st = R.pooled_paired[a].strata;
+    line(f, st.map(s => (s.dlog_mid - xlo) / (xhi - xlo)), st.map(s => s.dpsnr), v => f.x0 + v * (f.x1 - f.x0), y, a, 1.6);
+    st.forEach(s => { el('circle', { cx: xx(s.dlog_mid), cy: y(s.dpsnr), r: 5, fill: css(STYLE[a][0]), stroke: css('--surface'), 'stroke-width': 2 }, f.svg);
+      const hit = el('circle', { cx: xx(s.dlog_mid), cy: y(s.dpsnr), r: 12, fill: 'transparent' }, f.svg);
+      const show = () => { f.tip.innerHTML = `${dot(a)} <b>${STYLE[a][2]}</b><br>주변 학습량 ×${Math.exp(s.dlog_mid).toFixed(2)}<br>ΔPSNR ${fmt(s.dpsnr)} dB`; f.tip.hidden = false; f.tip.style.left = Math.min(f.host.clientWidth - f.tip.offsetWidth - 4, (xx(s.dlog_mid) / f.W) * f.host.clientWidth + 10) + 'px'; f.tip.style.top = '8px'; };
+      hit.addEventListener('pointerenter', show); hit.addEventListener('pointerdown', show); hit.addEventListener('pointerleave', () => f.tip.hidden = true); }); }
+  const sc = Object.entries(R.scenes);
+  document.getElementById('varTbl').innerHTML = '<thead><tr><th>장면</th><th>view 차이가 설명하는 PSNR 분산</th><th>view 간 PSNR sd</th><th>설정 간 PSNR sd</th>' + ea.map(a => `<th>${STYLE[a][2]}: 학습량 2배당 ΔPSNR</th>`).join('') + '</tr></thead><tbody>' +
+    sc.map(([n, v]) => `<tr><td>${n}</td><td class="num">${(v.variance_share_view * 100).toFixed(0)}%</td><td class="num">${v.psnr_sd_across_views.toFixed(2)}</td><td class="num">${v.psnr_sd_across_arms.toFixed(2)}</td>` + ea.map(a => `<td class="num">${fmt(v['paired_' + a].slope_db_per_doubling)} (r ${v['paired_' + a].r.toFixed(2)})</td>`).join('') + '</tr>').join('') +
+    `<tr><td><b>전체</b></td><td class="num">${(mean(sc.map(([, v]) => v.variance_share_view)) * 100).toFixed(0)}%</td><td></td><td></td>` + ea.map(a => `<td class="num">${fmt(R.pooled_paired[a].slope_db_per_doubling)} (r ${R.pooled_paired[a].r.toFixed(2)})</td>`).join('') + '</tr></tbody>';
+}
 function renderAll() {
   const done = DATA.scenes.reduce((n, s) => n + s.arms.filter(a => a === 'ervs_tau1' || a === 'ervs_tau0.25').length, 0);
   document.getElementById('progress').textContent = done < 8 ? `진행 중: 새 τ 실행 ${done} / 8 반영` : '새 τ 실행 8 / 8 반영 완료';
-  renderLegend(); summary(); renderCounts(); renderPsnr(); renderTable();
+  renderLegend(); summary(); renderCounts(); renderPsnr(); renderTable(); renderReplay();
   const sel = document.getElementById('sceneSel'); sel.innerHTML = DATA.scenes.map(s => `<option value="${s.scene}">${s.scene}</option>`).join('');
   if (!state.scene) state.scene = DATA.scenes[0].scene; sel.value = state.scene; renderScene();
 }
-document.getElementById('roleSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.role = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderCounts(); renderScene(); });
+document.getElementById('roleSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state.role = b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderCounts(); renderScene(); renderReplay(); });
 document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); });
 let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderAll, 120); }).observe(document.querySelector('.wrap'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);

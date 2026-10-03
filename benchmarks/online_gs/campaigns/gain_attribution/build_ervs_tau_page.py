@@ -51,7 +51,8 @@ def main():
             rec['cv'][a] = {k: round(cnt[a][k]['cv'], 4) for k in ('kf', 'dense')}
         scenes.append(rec)
     data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, budget=S.BUDGET,
-                arms=[dict(id=a, tau=t) for a, t in ARMS], scenes=scenes)
+                arms=[dict(id=a, tau=t) for a, t in ARMS], scenes=scenes,
+                replay=json.loads((OUT / 'replay_analysis.json').read_text()) if (OUT / 'replay_analysis.json').exists() else None)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / 'tau_page_data.json').write_text(json.dumps(data))
     tmpl = (S.HERE / 'ervs_tau_page.html').read_text()

@@ -25,3 +25,17 @@ Per-scene ΔPSNR: τ=4 +0.19/+0.19/+0.22/+0.24; τ=1 −0.04/−0.02/−0.09/+0.
   the late stream gains (τ=0.25 −2.1 dB on the first fifth). τ=4 is the best of the three, matching the 3dgs-custom
   per-view τ sweep (stronger balancing monotonically worse).
 - Single seed; τ=4 seed-0 cells sit above its 3-seed mean (+0.09 on these scenes).
+
+## Follow-up analysis (CPU only, same 16 runs) — `analyze_ervs_replay_rate.py`, `replay_analysis.json`
+
+- **Replay rate** (final-generation services ÷ steps since first service; uniform scene mean = 1): dense views that
+  arrived in the first 20% get 1.33 under uniform, 1.17 at τ=4, 0.98 at τ=1, 0.71 at τ=0.25. Stronger balancing lowers
+  how often old views are revisited.
+- **View identity explains most per-view PSNR variance**: 80% on average (aria1253 55%, table_06 94%, rot 80%,
+  square-1 93%); sampler choice explains the rest.
+- **Local training still matters**: on the same held-out view, doubling the services of training views within ±1.5% of
+  the stream changes PSNR by +0.93 / +1.49 / +1.67 dB (τ=4 / 1 / 0.25; r = 0.23 / 0.45 / 0.53).
+- At τ=0.25 views whose local training was unchanged or up to ×1.27 still lose 1.1–1.4 dB: part of the cost is non-local
+  (map-wide degradation from starving old views), not only less local training.
+- Reading: count balancing is the wrong target; equal per-view totals cut the revisit rate of old views (forgetting),
+  while the PSNR profile itself is set mostly by the scene.
