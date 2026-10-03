@@ -52,7 +52,8 @@ def install():
         import torch
         trainer = runtime.mapper.online_view_trainer
         budget = runtime.unified_budget
-        with torch.cuda.stream(runtime.stream), runtime.mapper._gaussian_lock:
+        # Controls are applied under torch.no_grad(); the drain before a control needs gradients.
+        with torch.cuda.stream(runtime.stream), runtime.mapper._gaussian_lock, torch.enable_grad():
             budget.sync()
             trainer.sync()
             policy = trainer.policy
