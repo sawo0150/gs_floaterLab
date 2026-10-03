@@ -65,6 +65,7 @@ th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--ru
 th:first-child, td:first-child { text-align: left }
 th { font-weight: 600; color: var(--muted); font-size: 12.5px }
 td.num { font-family: var(--mono) }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; max-width: 80ch }
 .note { border-left: 3px solid var(--off); padding: 4px 0 4px 12px; color: var(--ink); font-size: 14px }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 </style>
@@ -92,6 +93,24 @@ td.num { font-family: var(--mono) }
       <button data-v="uniform_iid" aria-pressed="true">균등 복원</button><button data-v="uniform_k16" aria-pressed="false">균등 group K16</button></div></div></div>
     <div class="chart" id="cSlope"></div>
     <div class="tablewrap"><table id="pairTbl"></table></div>
+  </section>
+
+  <section class="panel" id="valPanel">
+    <h2>검증: 기준선만 보고 고른 장면을 다른 seed로 확인</h2>
+    <p class="cap">ERVS가 하는 일이 "품질을 늦게 들어온 view 쪽으로 옮기는 것"이라면, 균등 방식에서 늦은 view가 offline보다 더 손해를 보는 장면에서는 ERVS가 차이 곡선을 평평하게 만들어야 합니다. 이를 체리피킹 없이 확인하려고 두 단계로 나눴습니다.</p>
+    <ol class="steps">
+      <li><b>선정</b> — ERVS 결과는 보지 않고, 균등 복원 <b>seed 0</b>의 차이 곡선만 봅니다. 스트림 앞 90%에서 시간과의 Spearman 상관이 <span id="thr"></span>보다 작으면(늦은 view일수록 더 손해) 선정합니다.</li>
+      <li><b>평가</b> — 선정에 쓰지 않은 <b>seed 1·2</b>로 세 방법의 곡선을 다시 구해 비교합니다. 선정과 평가의 데이터가 달라서 우연히 극단적인 장면을 고른 효과(평균으로의 회귀)가 섞이지 않습니다.</li>
+    </ol>
+    <div class="stats" id="valStats"></div>
+    <div class="controls"><div><span class="ctl-label">곡선</span><div class="seg" id="valSeg" role="group" aria-label="장면 묶음">
+      <button data-v="sel" aria-pressed="true">선정된 장면 평균</button><button data-v="rest" aria-pressed="false">나머지 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div></div>
+    <div class="legend" id="legend3"></div>
+    <div class="chart" id="cVal"></div>
+    <p class="cap" id="valCap"></p>
+    <div class="chart" id="cSel"></div>
+    <div class="tablewrap"><table id="valTbl"></table></div>
+    <p class="note" id="valNote"></p>
   </section>
 
   <section class="panel">
@@ -324,14 +343,52 @@ function renderTable() {
   document.getElementById('verdict').textContent = `${D.scenes.length}개 장면에서 ERVS의 차이 곡선 편차는 균등 복원 대비 ${fmt(p.ci[0], 3)} dB [${fmt(p.ci[1], 3)}, ${fmt(p.ci[2], 3)}], ${p.wins}/${p.n} 장면에서 낮았고${sig(p.ci) ? '' : ' 구간이 0을 포함합니다'}. 균등 group 대비로는 ${fmt(q.ci[0], 3)} dB, ${q.wins}/${q.n} 장면입니다. 학습량 앞쪽 쏠림은 ERVS가 균등 복원보다 ${fmt(g.ci[0], 3)} (${g.wins}/${g.n} 장면에서 낮음) 줄였지만, 온라인 방식 모두 offline(0)과는 크게 떨어져 있습니다. offline은 최종 pose로 학습하므로 절대 차이에는 pose 효과도 섞여 있습니다.`;
 }
 
+
+function renderVal() {
+  const V = D.validation, thr = D.sel_thr;
+  document.getElementById('thr').textContent = thr.toFixed(1);
+  const sel = V.filter(v => v.sel < thr), rest = V.filter(v => v.sel >= thr);
+  const rep = sel.slice().sort((p, q) => p.sel - q.sel)[0];
+  const dS = g => g.map(v => v.slope.ervs_k16 - v.slope.uniform_iid), dL = g => g.map(v => v.late.ervs_k16 - v.late.uniform_iid);
+  const up = a => a.filter(x => x > 0).length;
+  const kS = sel.map(v => v.slope.uniform_k16 - v.slope.uniform_iid);
+  document.getElementById('valStats').innerHTML = `
+  <div class="stat"><span class="k">선정된 장면 (seed 0 기준선만 사용)</span><span class="v">${sel.length} / ${V.length}</span><span class="s">${sel.map(v => v.scene).join(', ')}</span></div>
+  <div class="stat"><span class="k">seed 1·2에서 기울기 변화 (ERVS − 균등 복원)</span><span class="v pos">${fmt(mean(dS(sel)))}</span><span class="s">${up(dS(sel))}/${sel.length} 장면에서 0 쪽으로 올라감 · 균등 group은 ${fmt(mean(kS))}</span></div>
+  <div class="stat"><span class="k">seed 1·2에서 (후반 − 초반) 차이 변화</span><span class="v pos">${fmt(mean(dL(sel)))} dB</span><span class="s">${up(dL(sel))}/${sel.length} 장면 · 나머지 ${rest.length}개 장면도 ${fmt(mean(dL(rest)))} dB (${up(dL(rest))}/${rest.length})</span></div>`;
+  legendInto('legend3', ONLINE);
+  const g = state.val === 'sel' ? sel : state.val === 'rest' ? rest : [rep];
+  const f = frame(document.getElementById('cVal'), 300, { l: 56, r: 14, t: 12, b: 46 });
+  const C = {}; for (const a of ONLINE) C[a] = G.map((_, i) => mean(g.map(v => v.curve[a][i])));
+  const all = Object.values(C).flat().concat([0]);
+  const y = yAxis(f, Math.floor(Math.min(...all) * 4) / 4 - .1, Math.ceil(Math.max(...all) * 4) / 4 + .1, '온라인 − offline PSNR (dB)', v => fmt(v, 1)), x = xAxis(f);
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
+  el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
+  for (const a of ONLINE) line(f, G, C[a], x, y, a);
+  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · seed 1·2<br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(C[a][i])}`).join('<br>'));
+  document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면이라 규칙으로 골랐습니다. ` : `${g.length}개 장면 평균. `) + '선정에 쓰지 않은 seed 1·2만 사용했고, 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.';
+  // selection strip
+  const f2 = frame(document.getElementById('cSel'), 170, { l: 56, r: 90, t: 10, b: 40 });
+  const xr = v => f2.x0 + (v + 1) / 2 * (f2.x1 - f2.x0);
+  for (const t of [-1, -0.5, 0, 0.5, 1]) { el('line', { x1: xr(t), x2: xr(t), y1: f2.y1, y2: f2.y0, stroke: css('--grid') }, f2.svg); el('text', { x: xr(t), y: f2.y0 + 16, 'text-anchor': 'middle' }, f2.svg).textContent = t.toFixed(1); }
+  el('line', { x1: xr(thr), x2: xr(thr), y1: f2.y1, y2: f2.y0, stroke: css('--bad'), 'stroke-dasharray': '4 3', 'stroke-width': 1.4 }, f2.svg);
+  el('text', { class: 'axis-title', x: (f2.x0 + f2.x1) / 2, y: f2.y0 + 34, 'text-anchor': 'middle' }, f2.svg).textContent = '선정 지표: 균등 복원 seed 0 차이 곡선의 시간 상관 (빨간 점선 왼쪽이 선정)';
+  V.forEach((v, i) => { const yy = f2.y1 + 8 + (i % 7) * 16; el('circle', { cx: xr(v.sel), cy: yy, r: 4.5, fill: v.sel < thr ? css('--ervs') : css('--faint') }, f2.svg);
+    const t = el('text', { x: xr(v.sel) + 7, y: yy + 4 }, f2.svg); t.textContent = v.scene; t.setAttribute('style', 'font-size:10px'); });
+  document.getElementById('valTbl').innerHTML = '<thead><tr><th>장면</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>선정</th></tr></thead><tbody>' +
+    V.slice().sort((p, q) => p.sel - q.sel).map(v => `<tr><td>${v.scene} <span style="color:var(--muted)">${v.dataset}</span></td><td class="num">${fmt(v.sel)}</td><td class="num">${fmt(v.slope.uniform_iid)}</td><td class="num">${fmt(v.slope.uniform_k16)}</td><td class="num ${v.sel < thr ? cls(v.slope.ervs_k16 - v.slope.uniform_iid) : ''}">${fmt(v.slope.ervs_k16)}</td><td class="num">${fmt(v.late.uniform_iid)}</td><td class="num ${v.sel < thr ? cls(v.late.ervs_k16 - v.late.uniform_iid) : ''}">${fmt(v.late.ervs_k16)}</td><td>${v.sel < thr ? '선정' : ''}</td></tr>`).join('') + '</tbody>';
+  document.getElementById('valNote').textContent = `기울기와 (후반−초반)은 seed 1·2 평균, 앞 90% 구간입니다. 선정된 장면에서 ERVS는 늦은 view의 손해를 줄여 곡선을 평평하게 만들었고(${up(dS(sel))}/${sel.length}), 같은 group 구조의 균등 group은 그러지 못했습니다(${fmt(mean(kS))}). 나머지 장면에서도 ERVS는 같은 방향(늦은 view 쪽)으로 움직이지만, 원래 초반이 낮은 장면(tracker 초기화 등)에서는 그 움직임이 곡선을 오히려 더 기울게 만듭니다. 그래서 "더 평평해진다"는 효과는 늦은 view가 손해 보는 장면에 한정되고, "늦은 view 쪽으로 옮긴다"는 효과는 대부분 장면에서 나타납니다. 선정 기준 −0.3은 이전 감소형 장면 분석에서 쓰던 값을 그대로 썼습니다.`;
+}
+
 function bindSeg(id, key, cb) { const s = document.getElementById(id); s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[key] = b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
-state.base = 'uniform_iid';
+state.base = 'uniform_iid'; state.val = 'sel';
+bindSeg('valSeg', 'val', renderVal);
 document.getElementById('nsc').textContent = D.scenes.length;
 const ss = document.getElementById('sceneSel');
 ss.innerHTML = `<option value="mean">${D.scenes.length}장면 평균</option>` + D.scenes.map(s => `<option value="${s.key}">${s.scene} (${s.dataset})</option>`).join('');
 ss.addEventListener('change', () => { state.scene = ss.value; renderMain(); });
 bindSeg('viewSeg', 'view', renderMain); bindSeg('roleSeg', 'role', renderCounts); bindSeg('baseSeg', 'base', renderSlope);
-function all() { renderStats(); renderCentered(); renderSlope(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
+function all() { renderStats(); renderCentered(); renderSlope(); renderVal(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
 all();
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(all, 150); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all);

@@ -52,3 +52,13 @@ more constant under ERVS than under uniform (7/19), and the 19-scene mean curve 
 `run_ervs_vs_iid_scenes` re-pointed `base.OUT`; that run also overwrote `ervs_vs_iid_scenes/v1/summary.{csv,json}`
 (untracked, derived). Fixed in the runner; outputs moved to `offline_reference/v1/offline/` with paths rewritten in
 30 JSON files; both summaries regenerated from all row.json files (scenes: 135 rows; offline: 27 rows).
+
+## Post-hoc validation: baseline-selected scenes, held-out seeds (2026-10-04)
+
+Selection uses only uniform_iid seed 0 (gap slope over the first 90% < −0.3, the threshold of the earlier decay
+analysis); evaluation uses seeds 1–2 only. Selected 6/19: square-1, table_03, table_07, ego-drive, slow-straight-1,
+square-2. On held-out seeds ERVS raises the gap slope by +0.28 (5/6) and late − early by +0.25 dB (5/6); uniform_k16
+changes the slope by −0.03. The other 13 scenes move the same way (late − early +0.38 dB, 10/13), which makes the
+curve steeper where early views are the weak ones (aria301_305, ego-centric-1). Reading: ERVS consistently shifts
+quality toward later views; this flattens the gap only where uniform under-serves late views. Centred MAD in the
+selected group does not improve (2/6), so the claim is about tilt, not overall flatness. Post-hoc, not pre-registered.

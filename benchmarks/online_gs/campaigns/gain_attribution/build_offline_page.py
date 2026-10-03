@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from scipy.stats import spearmanr
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -81,6 +82,27 @@ def lorenz(d):
     return y, float(2 * np.trapezoid(y - S.GRID, S.GRID))
 
 
+SEL_THR = -0.3   # baseline-only selection: uniform_iid seed-0 gap slope over the first 90%
+
+
+def validation(pinned, extra):
+    """Select scenes on uniform_iid seed 0 only; evaluate every arm on seeds 1–2 (not used for selection)."""
+    slope = lambda c: float(spearmanr(np.arange(91), c[:91]).statistic)
+    late = lambda c: float(c[60:91].mean() - c[:40].mean())
+    out = []
+    for key, name, ds, pin in pinned + extra:
+        def gap(a, s):
+            off = S.views(OUT / f'offline/{key}/render25/offline_s{s if pin else 0}')
+            on = S.views(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}')
+            return curve(off[0], on[1] - off[1])
+        ev = {a: [gap(a, s) for s in (1, 2)] for a in ARMS}
+        out.append(dict(scene=name, dataset=ds, sel=slope(gap('uniform_iid', 0)),
+                        curve={a: np.mean(ev[a], 0).round(3).tolist() for a in ARMS},
+                        slope={a: float(np.mean([slope(c) for c in ev[a]])) for a in ARMS},
+                        late={a: float(np.mean([late(c) for c in ev[a]])) for a in ARMS}))
+    return out
+
+
 def main():
     pinned = [(k, n, ds, k) for k, n, ds in SCENES]
     extra = [(sc, sc, {'aria': 'Aria', 'rpng': 'RPNG', 'utmm': 'UTMM'}[ds], None) for sc, ds in S.NEW]
@@ -129,7 +151,8 @@ def main():
         for a, b in (('ervs_k16', 'uniform_iid'), ('ervs_k16', 'uniform_k16'), ('uniform_k16', 'uniform_iid')):
             diff = [s[metric][a] - s[metric][b] for s in scenes]
             pairs[f'{metric}:{a}-{b}'] = dict(ci=boot(diff), wins=int(sum(d < 0 for d in diff)), n=len(diff))
-    data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, pairs=pairs)
+    val = validation(pinned, extra)
+    data = dict(sel_thr=SEL_THR, validation=val, grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, pairs=pairs)
     html = (HERE / 'offline_page.html').read_text().replace('__DATA__', json.dumps(data, separators=(',', ':')))
     (OUT / 'offline_compare.html').write_text(html)
     print('scenes', len(scenes), {k: [round(x, 3) for x in v['ci']] + [v['wins'], v['n']] for k, v in pairs.items()})
