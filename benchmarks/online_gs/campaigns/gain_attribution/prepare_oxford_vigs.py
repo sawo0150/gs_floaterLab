@@ -7,7 +7,8 @@ Per sequence, into /ssd/intern/paperExperiments/data/oxford_spires/vigs/<sequenc
   imu.txt        ns, gyro xyz, accel xyz (EuRoC/Aria order, comma separated)
   calib.txt      fx fy cx cy 0 0 0 0
   config.yaml    official Aria adapter tracking contract with Oxford IMU noise (imu.yaml), 400 Hz and
-                 Tcb = T_cam0_imu from cam-lidar-imu.yaml (C_q_CI xyzw, C_r_CI)
+                 Tcb = T_cam0_imu from cam-lidar-imu.yaml (C_q_CI xyzw, C_r_CI); calibration files come from the
+                 sequence's INPUTS.json calibration root (nearest calibration session, per the dataset README)
   heldout.json   zero_based_frame_index % 5 == 0 OR final frame (same rule as aria301_12F)
   prep.json      sources, hashes, counts
 GT trajectories are not read. Nothing is written into the raw dataset folders.
@@ -71,7 +72,10 @@ def prepare(seq, workers):
     o = OUT / seq
     if o.exists():
         raise FileExistsError(f'{o} exists; prepared inputs are preserved')
-    cam = yaml.safe_load((s / 'calibration/cam0.yaml').read_text())
+    # Calibration root chosen by the dataset's per-sequence INPUTS.json (README: nearest calibration session).
+    croot = ROOT / json.loads((s / 'INPUTS.json').read_text())['calibration_root_relative_to_dataset']
+    cam_file, ext_file, imu_file = croot / 'cam0.yaml', croot / 'cam-lidar-imu.yaml', croot / 'imu.yaml'
+    cam = yaml.safe_load(cam_file.read_text())
     K = np.array(cam['camera_matrix']['data'], float).reshape(3, 3)
     D = np.array(cam['distortion_coefficients']['data'], float).reshape(4, 1)
     assert cam['distortion_model'] == 'equidistant', cam['distortion_model']
@@ -100,9 +104,9 @@ def prepare(seq, workers):
             f.write(f'{ns[i]},{g[0]!r},{g[1]!r},{g[2]!r},{a[0]!r},{a[1]!r},{a[2]!r}\n')
     fx, fy, cx, cy = newK[0, 0], newK[1, 1], newK[0, 2], newK[1, 2]
     (o / 'calib.txt').write_text(f'{fx!r} {fy!r} {cx!r} {cy!r} 0.0 0.0 0.0 0.0\n')
-    ext = yaml.safe_load((ROOT / 'calibration/cam-lidar-imu.yaml').read_text())['cam0']
+    ext = yaml.safe_load(ext_file.read_text())['cam0']
     T = np.eye(4); T[:3, :3] = quat_xyzw_to_R(ext['C_q_CI']); T[:3, 3] = ext['C_r_CI']
-    imu = yaml.safe_load((ROOT / 'calibration/imu.yaml').read_text())
+    imu = yaml.safe_load(imu_file.read_text())
     cfg = yaml.safe_load(ADAPTER.read_text())
     cfg['IMU'].update(frequency=float(imu['update_rate']),
                       accelerometer_noise_density=float(imu['accelerometer_noise_density']),
@@ -125,8 +129,7 @@ def prepare(seq, workers):
     (o / 'prep.json').write_text(json.dumps(dict(
         sequence=seq, source=str(s), frames=len(uids), imu_samples=int(len(raw)), out_size=list(SIZE),
         K_in=K.tolist(), D_in=D.ravel().tolist(), K_out=newK.tolist(), T_cam_imu=T.tolist(),
-        sources={str(p): sha_file(p) for p in (s / 'calibration/cam0.yaml', s / 'raw/imu.csv',
-                                               ROOT / 'calibration/cam-lidar-imu.yaml', ROOT / 'calibration/imu.yaml',
+        sources={str(p): sha_file(p) for p in (cam_file, s / 'raw/imu.csv', ext_file, imu_file, s / 'INPUTS.json',
                                                ADAPTER)},
         script_sha256=sha_file(Path(__file__)), gt_read=False), indent=1))
     print('PREPARED', seq, len(uids), 'frames', len(views), 'held-out', 'K_out', np.round(newK, 2).tolist(), flush=True)
