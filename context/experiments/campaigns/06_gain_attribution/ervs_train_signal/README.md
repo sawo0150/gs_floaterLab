@@ -49,3 +49,21 @@ ERVS τ=4 0.12 / 0.16 / 0.22. Min-bin and worst-Q1 single-seed differences below
 Against the uniform seed 0/1 mean: ERVS τ=4 (2 seeds) +0.16 / +0.07 / 0.00 (4/2/3 scenes positive);
 sig_interference (seed 0) +0.10 / +0.23 / +0.16 (4/4/3). Interference exposure is the only signal sampler that beats
 uniform in all four scenes, and it lifts the worst time bin; needs more seeds and a staleness-only control.
+
+## Stage 4 (3 seeds; staleness control) and conclusion (2026-10-03)
+
+Δ vs uniform_iid, means of 3 seeds per scene (aria1253 / table_06 / rot / square-1 → mean):
+- ERVS τ=4: PSNR −0.10/+0.15/+0.15/+0.09 → **+0.07** (3/4); min-bin +0.03; worst-Q1 −0.06.
+- sig_interference: PSNR −0.23/+0.08/−0.01/+0.08 → **−0.02**; min-bin +0.02; worst-Q1 −0.08. The seed-0 4/4 gain
+  (+0.10, min-bin +0.23) was seed noise.
+- sig_stale_only (seed 0): −0.39/+0.01/+0.03/+0.20 → −0.04.
+Uniform seed spread per scene up to 0.2 dB on mean PSNR (aria1253 24.60/24.57/24.76).
+ERVS τ=4 aria1253 seed 2 collapses again (24.03; same tracker trajectory, resets, Gaussian count): only the first 40%
+of the stream drops (bins 25.20/23.31 vs 25.98–26.56/25.42–26.09 at seeds 0–1), the failure mode of reduced early
+replay.
+
+**Conclusion.** Training forgetting is real and driven by mid-distance training, and last training PSNR tracks
+held-out quality, but no replay signal tested (forgetting, progress, loss, PER, catch-up, age-normalized maturity,
+interference exposure, staleness) beats uniform sampling with replacement over seeds; ERVS τ=4 keeps a small mean gain
+(+0.07 over 3 seeds here, +0.09 in ervs_vs_iid_seeds) without lifting the worst regions. Single-seed differences
+below ~0.2 dB (mean) and ~0.3 dB (min-bin, worst-Q1) are not resolvable on these scenes.
