@@ -96,6 +96,9 @@ td.num { font-family: var(--mono) }
     <h2>2단계: sampler별 요약</h2>
     <p class="cap">"가중치"는 각 sampler가 KF·dense pool에서 16장 group을 뽑을 때 쓰는 기준입니다. 한 번도 학습되지 않은 view는 모든 방식에서 먼저 뽑힙니다. 수치는 4개 장면 평균이고, Δ는 균등 복원 대비입니다.</p>
     <div class="tablewrap"><table class="tauTable" id="sumTbl"></table></div>
+    <h2 style="font-size:16px">seed 평균 비교 (3·4단계)</h2>
+    <p class="cap">같은 설정을 여러 seed로 돌린 결과입니다. Δ는 각 장면에서 "그 설정의 seed 평균 − 균등 복원의 seed 평균"을 낸 뒤 4개 장면을 평균한 값이고, 괄호는 균등보다 높은 장면 수입니다. seed 하나만 바꿔도 균등 복원의 최저 구간 PSNR은 평균 0.30 dB, worst-Q1은 0.22 dB 흔들립니다.</p>
+    <div class="tablewrap"><table class="tauTable" id="seedTbl"></table></div>
   </section>
 
 
@@ -344,9 +347,20 @@ function renderStage1() {
   document.getElementById('reproTbl').innerHTML = rp.length ? '<thead><tr><th>재현성 확인 (기록 패치가 학습을 바꾸지 않는지)</th><th>설정</th><th>이전 seed 0 PSNR</th><th>기록 run PSNR</th><th>차이</th></tr></thead><tbody>' +
     rp.map(r => `<tr><td>${r.scene}</td><td style="text-align:left">${STYLE[r.arm] ? STYLE[r.arm][2] : r.arm}</td><td class="num">${r.before.toFixed(3)}</td><td class="num">${r.after.toFixed(3)}</td><td class="num">${fmt(r.after - r.before, 3)}</td></tr>`).join('') + '</tbody>' : '';
 }
+function renderSeeded() {
+  const R = DATA.seeded || []; const t = document.getElementById('seedTbl'); if (!R.length) { t.innerHTML = ''; return; }
+  const arms = [...new Set(R.map(r => r.arm))], scenes = [...new Set(R.map(r => r.scene))];
+  const avg = (arm, sc, k) => { const v = R.filter(r => r.arm === arm && r.scene === sc).map(r => r[k]); return v.length ? mean(v) : NaN; };
+  const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  t.innerHTML = '<thead><tr><th>설정</th><th>seed 수 (장면별)</th><th>ΔPSNR</th><th>Δ최저 구간</th><th>Δworst-Q1</th></tr></thead><tbody>' + arms.map(a => {
+    const ns = scenes.map(sc => R.filter(r => r.arm === a && r.scene === sc).length);
+    const cells = ['psnr', 'minbin', 'wq1'].map(k => { const d = scenes.map(sc => avg(a, sc, k) - avg('uniform_iid', sc, k)).filter(v => !isNaN(v));
+      return a === 'uniform_iid' ? '<td class="num">기준</td>' : `<td class="num ${c(mean(d))}">${fmt(mean(d))} (${d.filter(v => v > 0).length}/${d.length})</td>`; }).join('');
+    return `<tr><td><span class="swatch" style="background:var(${STYLE[a][0]})"></span>${STYLE[a][2]}</td><td class="num">${ns.join(' · ')}</td>${cells}</tr>`; }).join('') + '</tbody>';
+}
 function renderAll() {
   document.getElementById('progress').textContent = DATA.progress;
-  renderLegend(); summary(); renderCounts(); renderPsnr(); renderTable(); renderStage1();
+  renderLegend(); summary(); renderCounts(); renderPsnr(); renderTable(); renderStage1(); renderSeeded();
   const sel = document.getElementById('sceneSel'); sel.innerHTML = DATA.scenes.map(s => `<option value="${s.scene}">${s.scene}</option>`).join('');
   if (!state.scene) state.scene = DATA.scenes[0].scene; sel.value = state.scene; renderScene();
 }

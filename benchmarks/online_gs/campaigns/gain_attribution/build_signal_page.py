@@ -31,6 +31,8 @@ ARMS = [
          desc='m = n ÷ (첫 학습 후 step × pool 평균 비율), exp(−(m−1))'),
     dict(id='sig_interference', label='간섭 노출+staleness', color='--c6', dir='stage3/{k}/render25/sig_interference',
          desc='3단계 · 지난 방문 뒤 중간 거리(1.5–9%) 학습 수 − 가까운(±1.5%) 학습 수, 순위 0.7 + staleness 0.3 (MIR 착안)'),
+    dict(id='sig_stale_only', label='staleness만', color='--faint', dash='4 3', dir='stage4/{k}/render25/sig_stale_only',
+         desc='4단계 대조군 · 간섭 sampler에서 staleness 분포만 사용 (ρ = 1)'),
     dict(id='sig_loss_per', label='loss 비례 (PER)', color='--c3', dash='2 3', dir='stage3/{k}/render25/sig_loss_per',
          desc='3단계 · (마지막 training loss + 0.001)^0.7에 비례, staleness 없음 (Prioritized Experience Replay)'),
 ]
@@ -83,7 +85,7 @@ def main():
         scenes.append(rec)
     n1 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[:2])
     n2 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[2:7])
-    n3 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS[7:]) + sum(
+    n3 = sum(done(OUT / a['dir'].format(k=k)) for k, *_ in S.PINNED for a in ARMS if a['id'] in ('sig_interference', 'sig_loss_per')) + sum(
         done(OUT / f'stage3/{k}/render25/{x}_s1') for k, *_ in S.PINNED for x in ('uniform_iid_log', 'ervs_tau4_log'))
     noise = []
     for key, scene, ds in S.PINNED:
@@ -91,12 +93,30 @@ def main():
             d0, d1 = OUT / f'stage1/{key}/render25/{x}', OUT / f'stage3/{key}/render25/{x}_s1'
             if done(d0) and done(d1):
                 noise.append(dict(scene=scene, arm=base_id, s0=float(S.views(d0)[1].mean()), s1=float(S.views(d1)[1].mean())))
+    SEEDED = {'uniform_iid': ['stage1/{k}/render25/uniform_iid_log', 'stage3/{k}/render25/uniform_iid_log_s1',
+                              'stage4/{k}/render25/uniform_iid_log_s2'],
+              'ervs_tau4': ['stage1/{k}/render25/ervs_tau4_log', 'stage3/{k}/render25/ervs_tau4_log_s1',
+                            'stage4/{k}/render25/ervs_tau4_log_s2'],
+              'sig_interference': ['stage3/{k}/render25/sig_interference', 'stage4/{k}/render25/sig_interference_s1',
+                                   'stage4/{k}/render25/sig_interference_s2'],
+              'sig_stale_only': ['stage4/{k}/render25/sig_stale_only']}
+    seeded = []
+    for key, scene, ds in S.PINNED:
+        for arm, pats in SEEDED.items():
+            for sd, pat in enumerate(pats):
+                dd = OUT / pat.format(k=key)
+                if done(dd):
+                    f, p, *_ = S.views(dd); q = max(1, -(-len(p) // 4))
+                    seeded.append(dict(scene=scene, arm=arm, seed=sd, psnr=float(p.mean()), minbin=min(S.bins5(p)),
+                                       wq1=float(np.sort(p)[:q].mean())))
+    n4 = sum(1 for r in seeded if (r['arm'] in ('uniform_iid', 'ervs_tau4') and r['seed'] == 2) or
+             (r['arm'] == 'sig_interference' and r['seed'] > 0) or r['arm'] == 'sig_stale_only')
     if stage1 is not None:
         stage1['repro'] = repro
         stage1['noise'] = noise
     data = dict(grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, budget=S.BUDGET,
-                arms=[{k: v for k, v in a.items() if k != 'dir'} for a in ARMS], scenes=scenes, stage1=stage1,
-                progress=f'1단계 {n1} / 8 · 2단계 {n2} / 20 · 3단계 {n3} / 16 run 반영' + (' (완료)' if n1 + n2 + n3 == 44 else ' (진행 중)'))
+                arms=[{k: v for k, v in a.items() if k != 'dir'} for a in ARMS], scenes=scenes, stage1=stage1, seeded=seeded,
+                progress=f'1단계 {n1} / 8 · 2단계 {n2} / 20 · 3단계 {n3} / 16 · 4단계 {n4} / 20 run 반영' + (' (완료)' if n1 + n2 + n3 + n4 == 64 else ' (진행 중)'))
     (OUT / 'signal_page_data.json').write_text(json.dumps(data))
     tmpl = (S.HERE / 'ervs_signal_page.html').read_text()
     (OUT / 'signal.html').write_text(tmpl.replace('/*__DATA__*/null', json.dumps(data)))
