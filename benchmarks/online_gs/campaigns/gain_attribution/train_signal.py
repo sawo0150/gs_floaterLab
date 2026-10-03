@@ -18,6 +18,8 @@ the KF and dense pools with a weight built from the per-view signal state of the
   floor_loss     uniform floor mix: (1-λ)·uniform + λ·(last training loss share), λ = B_SIGNAL_LAMBDA
   floor_region   uniform floor mix with regional forgetting: forgetting (best − last training PSNR, ≥0) averaged over
                  views within ±1.5% of the stream (uid distance), share-normalized; λ = B_SIGNAL_LAMBDA
+  ervs_quality   ERVS count weight × quality factor: log w = −(n − n_min)/scale + log(1 + c·loss/mean loss of seen pool
+                 views), c = B_SIGNAL_QC; unseen views get the neutral factor 1 + c (no unseen priority, as in ERVS)
 Unseen views (never trained in this generation) get the highest priority in every mode (PLR/CR convention).
 Usage: B_PATCH_WORKER=<group_k_patch.py|sampling_mode_patch.py> [B_SIGNAL_MODE=...] python train_signal.py <worker args>
 """
@@ -116,6 +118,7 @@ CATCH_C = float(os.environ.get('B_SIGNAL_C', '30'))
 AGE_TAU = float(os.environ.get('B_SIGNAL_TAU', '1'))
 PER_ALPHA = float(os.environ.get('B_SIGNAL_ALPHA', '0.7'))
 NEAR, MID = 0.015, 0.09
+QC = float(os.environ.get('B_SIGNAL_QC', '0.5'))
 LAMBDA = float(os.environ.get('B_SIGNAL_LAMBDA', '0.5'))
 
 
@@ -212,6 +215,22 @@ def install_sampler(mode, K=16):
                 stats['skipped', role] += 1
             if attempt == 0:
                 ordered = sorted(members)
+                if mode == 'ervs_quality':
+                    materialize()
+                    gen = int(STATE['trainer'].generation) if STATE['trainer'] else 0
+                    ls = [STATE['views'].get((gen, u)) for u in ordered]
+                    seen_l = [x['loss'] for x in ls if x is not None]
+                    ml = (sum(seen_l) / len(seen_l)) if seen_l else 1.0
+                    low = min(self.counts[u] for u in ordered)
+                    keys = []
+                    for u, x in zip(ordered, ls):
+                        qf = 1 + QC * (x['loss'] / ml if x is not None and ml > 0 else 1.0)
+                        g = -math.log(-math.log(max(self.rng.random(), 1e-15)))
+                        keys.append((-(self.counts[u] - low) / scale + math.log(qf) + g, u))
+                    keys.sort(reverse=True)
+                    q.extend(u for _, u in keys[:min(K, len(keys))])
+                    stats['groups', role] += 1
+                    continue
                 ws = signal_weights(mode, ordered, int(self.generation) if hasattr(self, 'generation') else
                                     int(STATE['trainer'].generation) if STATE['trainer'] else 0)
                 keys = []
@@ -239,7 +258,7 @@ def install_sampler(mode, K=16):
         if output and output.exists():
             (output / 'signal_sampler.json').write_text(json.dumps(dict(
                 mode=mode, K=K, rho=RHO, temp=TEMP, catch_beta=CATCH_BETA, catch_c=CATCH_C, age_tau=AGE_TAU,
-                per_alpha=PER_ALPHA, near=NEAR, mid=MID, lam=LAMBDA,
+                per_alpha=PER_ALPHA, near=NEAR, mid=MID, lam=LAMBDA, qc=QC,
                 stats={f'{a}/{b}': n for (a, b), n in sorted(stats.items())}), indent=1))
     atexit.register(dump)
 

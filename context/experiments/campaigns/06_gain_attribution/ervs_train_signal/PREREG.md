@@ -55,3 +55,12 @@ Targets: `floor_region` (regional forgetting: best − last training PSNR, ≥0,
 stream) and `floor_loss` (last training loss). λ ∈ {0.25, 0.5}. Four scenes, budget 25, seed 0, 16 runs.
 Pre-declared success: mean PSNR ≥ uniform_k16 (seed 0) **and** temporal sd over deciles 1–9 below uniform_k16, both
 as the 4-scene mean. Single seed: a pass is only a candidate for seeds 1–2, not a result.
+
+## Amendment 4 — stage 6 (2026-10-03, after stage 5; user approved, "if this fails too, keep ERVS")
+
+Stage 5 showed a per-draw uniform floor does not protect the low-count tail; only the ERVS count term does. Stage 6
+keeps the ERVS τ=4 count weight inside the K=16 Gumbel group queue and multiplies it by a mild quality factor:
+log w = −(n − n_min)/scale + log(1 + c·loss/mean seen loss), c ∈ {0.5, 1.0}; unseen views get the neutral factor
+(no unseen priority, as in ERVS). Four scenes, budget 25, seed 0, 8 runs. Success as in Amendment 3, now against
+ERVS τ=4 seed 0 as well: mean PSNR ≥ uniform_k16 and ≥ ERVS − 0.05, and temporal sd below ERVS. If no arm passes,
+ERVS τ=4 stays the method (user decision).
