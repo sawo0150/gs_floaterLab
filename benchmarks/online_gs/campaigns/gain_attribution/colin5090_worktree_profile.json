@@ -1,0 +1,7 @@
+{
+  "comment": "colin RTX 5090: run the B ablation from clean worktrees (VIGS-SLAM-custom 6d200f0f, gs_floaterLab) without touching the shared checkouts; data, archives and extensions stay at their colin paths.",
+  "path_prefixes": {
+    "/home/intern/VIGS-SLAM-custom": "/ssd/intern/paperExperiments/worktrees/vigs_b_6d200f0f",
+    "/home/intern/gs_floaterLab/benchmarks": "/ssd/intern/paperExperiments/worktrees/gsfl_b_ablation/benchmarks"
+  }
+}
