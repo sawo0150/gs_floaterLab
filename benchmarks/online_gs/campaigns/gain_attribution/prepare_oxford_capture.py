@@ -106,8 +106,12 @@ def main():
         if not setup.exists():
             src = SETUP_WRAPPER.format(here=str(HERE), capture=str(HERE / 'capture_online_worker_setup.py'),
                                        seq=seq, out=str(setup))
+            # Setup capture replays through the adopted B mapper: same environment as the mapping runs (run_one).
+            from selected_mapping_check import load_lock
+            from selected_recipe import recipe_environment
+            senv = recipe_environment(trial.BASE.mapping_environment(True), load_lock())
             with (d / 'setup_capture.log').open('x') as log:
-                subprocess.run([str(trial.BASE.PYTHON_ENV / 'bin/python'), '-c', src], env=env,
+                subprocess.run([str(trial.BASE.PYTHON_ENV / 'bin/python'), '-c', src], env=senv,
                                stdout=log, stderr=subprocess.STDOUT, check=True)
             print('SETUP_CAPTURED', seq, flush=True)
 
