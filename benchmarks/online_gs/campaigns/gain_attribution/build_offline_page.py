@@ -96,10 +96,16 @@ def validation(pinned, extra):
             on = S.views(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}')
             return curve(off[0], on[1] - off[1])
         ev = {a: [gap(a, s) for s in (1, 2)] for a in ARMS}
+
+        def on_psnr(a, s):
+            v = S.views(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}')
+            t = (v[0] - v[0][0]) / (v[0][-1] - v[0][0])
+            return v[1][t < 0.9].mean()
         out.append(dict(scene=name, dataset=ds, sel=slope(gap('uniform_iid', 0)),
                         curve={a: np.mean(ev[a], 0).round(3).tolist() for a in ARMS},
                         slope={a: float(np.mean([slope(c) for c in ev[a]])) for a in ARMS},
-                        late={a: float(np.mean([late(c) for c in ev[a]])) for a in ARMS}))
+                        late={a: float(np.mean([late(c) for c in ev[a]])) for a in ARMS},
+                        psnr={a: float(np.mean([on_psnr(a, s) for s in (1, 2)])) for a in ARMS}))
     return out
 
 

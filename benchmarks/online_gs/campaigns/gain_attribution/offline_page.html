@@ -65,6 +65,15 @@ th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--ru
 th:first-child, td:first-child { text-align: left }
 th { font-weight: 600; color: var(--muted); font-size: 12.5px }
 td.num { font-family: var(--mono) }
+.picker { display: grid; gap: 8px; border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; background: var(--bg) }
+.picker-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
+.pick-state { font-size: 12.5px; color: var(--muted) }
+.pick-state.manual { color: var(--bad) }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px }
+.picks label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; min-width: 0 }
+.picks input { accent-color: var(--ervs); width: 15px; height: 15px }
+.picks .meta { color: var(--muted); font: 11.5px var(--mono); margin-left: auto }
+.picks .rule { color: var(--ervs) }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; max-width: 80ch }
 .note { border-left: 3px solid var(--off); padding: 4px 0 4px 12px; color: var(--ink); font-size: 14px }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
@@ -102,9 +111,15 @@ td.num { font-family: var(--mono) }
       <li><b>선정</b> — ERVS 결과는 보지 않고, 균등 복원 <b>seed 0</b>의 차이 곡선만 봅니다. 스트림 앞 90%에서 시간과의 Spearman 상관이 <span id="thr"></span>보다 작으면(늦은 view일수록 더 손해) 선정합니다.</li>
       <li><b>평가</b> — 선정에 쓰지 않은 <b>seed 1·2</b>로 세 방법의 곡선을 다시 구해 비교합니다. 선정과 평가의 데이터가 달라서 우연히 극단적인 장면을 고른 효과(평균으로의 회귀)가 섞이지 않습니다.</li>
     </ol>
+    <div class="picker">
+      <div class="picker-head"><span class="ctl-label">곡선에 넣을 장면 (체크하면 바로 다시 계산)</span>
+        <div class="seg" role="group" aria-label="선택 도구"><button type="button" id="pickRule">규칙대로</button><button type="button" id="pickAll">전체</button><button type="button" id="pickNone">비우기</button></div>
+        <span class="pick-state" id="pickState"></span></div>
+      <div class="picks" id="picks"></div>
+    </div>
     <div class="stats" id="valStats"></div>
     <div class="controls"><div><span class="ctl-label">곡선</span><div class="seg" id="valSeg" role="group" aria-label="장면 묶음">
-      <button data-v="sel" aria-pressed="true">선정된 장면 평균</button><button data-v="rest" aria-pressed="false">나머지 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div></div>
+      <button data-v="sel" aria-pressed="true">체크한 장면 평균</button><button data-v="rest" aria-pressed="false">체크 안 한 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div></div>
     <div class="legend" id="legend3"></div>
     <div class="chart" id="cVal"></div>
     <p class="cap" id="valCap"></p>
@@ -344,20 +359,37 @@ function renderTable() {
 }
 
 
+function buildPicks() {
+  const V = D.validation, thr = D.sel_thr, H = document.getElementById('picks');
+  H.innerHTML = V.slice().sort((p, q) => p.sel - q.sel).map(v => `<label for="pk-${v.scene}"><input type="checkbox" id="pk-${v.scene}" data-scene="${v.scene}"${state.picked.has(v.scene) ? ' checked' : ''}>${v.scene}<span class="meta${v.sel < thr ? ' rule' : ''}">${fmt(v.sel)}</span></label>`).join('');
+  H.addEventListener('change', e => { const c = e.target; if (!c.dataset.scene) return; c.checked ? state.picked.add(c.dataset.scene) : state.picked.delete(c.dataset.scene); renderVal(); });
+  const setTo = names => { state.picked = new Set(names); for (const c of H.querySelectorAll('input')) c.checked = state.picked.has(c.dataset.scene); renderVal(); };
+  document.getElementById('pickRule').onclick = () => setTo(V.filter(v => v.sel < thr).map(v => v.scene));
+  document.getElementById('pickAll').onclick = () => setTo(V.map(v => v.scene));
+  document.getElementById('pickNone').onclick = () => setTo([]);
+}
+
 function renderVal() {
   const V = D.validation, thr = D.sel_thr;
   document.getElementById('thr').textContent = thr.toFixed(1);
-  const sel = V.filter(v => v.sel < thr), rest = V.filter(v => v.sel >= thr);
-  const rep = sel.slice().sort((p, q) => p.sel - q.sel)[0];
+  const ruleSet = V.filter(v => v.sel < thr).map(v => v.scene);
+  const sel = V.filter(v => state.picked.has(v.scene)), rest = V.filter(v => !state.picked.has(v.scene));
+  const manual = !(ruleSet.length === sel.length && ruleSet.every(n => state.picked.has(n)));
+  const ps = document.getElementById('pickState');
+  ps.textContent = manual ? `직접 고른 ${sel.length}개 장면 — 규칙(seed 0 기준선)으로 고른 묶음이 아니므로 검증 결과가 아닙니다` : `규칙으로 선정된 ${sel.length}개 장면 (검증된 묶음)`;
+  ps.className = 'pick-state' + (manual ? ' manual' : '');
+  const rep = V.filter(v => v.sel < thr).sort((p, q) => p.sel - q.sel)[0];
+  if (!sel.length && state.val === 'sel') { document.getElementById('valStats').innerHTML = '<div class="stat"><span class="k">체크한 장면이 없습니다</span><span class="s">위에서 장면을 하나 이상 체크하세요.</span></div>'; document.getElementById('cVal').innerHTML = ''; document.getElementById('valCap').textContent = ''; return; }
   const dS = g => g.map(v => v.slope.ervs_k16 - v.slope.uniform_iid), dL = g => g.map(v => v.late.ervs_k16 - v.late.uniform_iid);
   const up = a => a.filter(x => x > 0).length;
   const kS = sel.map(v => v.slope.uniform_k16 - v.slope.uniform_iid);
   document.getElementById('valStats').innerHTML = `
-  <div class="stat"><span class="k">선정된 장면 (seed 0 기준선만 사용)</span><span class="v">${sel.length} / ${V.length}</span><span class="s">${sel.map(v => v.scene).join(', ')}</span></div>
+  <div class="stat"><span class="k">${manual ? '직접 고른 장면' : '선정된 장면 (seed 0 기준선만 사용)'}</span><span class="v">${sel.length} / ${V.length}</span><span class="s">${sel.map(v => v.scene).join(', ')}</span></div>
   <div class="stat"><span class="k">seed 1·2에서 기울기 변화 (ERVS − 균등 복원)</span><span class="v pos">${fmt(mean(dS(sel)))}</span><span class="s">${up(dS(sel))}/${sel.length} 장면에서 0 쪽으로 올라감 · 균등 group은 ${fmt(mean(kS))}</span></div>
-  <div class="stat"><span class="k">seed 1·2에서 (후반 − 초반) 차이 변화</span><span class="v pos">${fmt(mean(dL(sel)))} dB</span><span class="s">${up(dL(sel))}/${sel.length} 장면 · 나머지 ${rest.length}개 장면도 ${fmt(mean(dL(rest)))} dB (${up(dL(rest))}/${rest.length})</span></div>`;
+  <div class="stat"><span class="k">seed 1·2에서 (후반 − 초반) 차이 변화</span><span class="v pos">${fmt(mean(dL(sel)))} dB</span><span class="s">${up(dL(sel))}/${sel.length} 장면 · 체크 안 한 ${rest.length}개 장면 ${rest.length ? fmt(mean(dL(rest))) + ' dB (' + up(dL(rest)) + '/' + rest.length + ')' : '—'}</span></div>
+  <div class="stat"><span class="k">seed 1·2 평균 PSNR 차이 (ERVS − 균등 복원)</span><span class="v ${cls(mean(sel.map(v => v.psnr.ervs_k16 - v.psnr.uniform_iid)))}">${fmt(mean(sel.map(v => v.psnr.ervs_k16 - v.psnr.uniform_iid)))} dB</span><span class="s">앞 90% view · 균등 group ${fmt(mean(sel.map(v => v.psnr.uniform_k16 - v.psnr.uniform_iid)))} dB</span></div>`;
   legendInto('legend3', ONLINE);
-  const g = state.val === 'sel' ? sel : state.val === 'rest' ? rest : [rep];
+  const g = state.val === 'sel' ? sel : state.val === 'rest' ? (rest.length ? rest : sel) : [rep];
   const f = frame(document.getElementById('cVal'), 300, { l: 56, r: 14, t: 12, b: 46 });
   const C = {}; for (const a of ONLINE) C[a] = G.map((_, i) => mean(g.map(v => v.curve[a][i])));
   const all = Object.values(C).flat().concat([0]);
@@ -366,7 +398,7 @@ function renderVal() {
   el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
   for (const a of ONLINE) line(f, G, C[a], x, y, a);
   crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · seed 1·2<br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(C[a][i])}`).join('<br>'));
-  document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면이라 규칙으로 골랐습니다. ` : `${g.length}개 장면 평균. `) + '선정에 쓰지 않은 seed 1·2만 사용했고, 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.';
+  document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${state.val === 'sel' && manual ? ' (직접 고른 묶음)' : ''}. `) + '선정에 쓰지 않은 seed 1·2만 사용했고, 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.';
   // selection strip
   const f2 = frame(document.getElementById('cSel'), 170, { l: 56, r: 90, t: 10, b: 40 });
   const xr = v => f2.x0 + (v + 1) / 2 * (f2.x1 - f2.x0);
@@ -376,12 +408,14 @@ function renderVal() {
   V.forEach((v, i) => { const yy = f2.y1 + 8 + (i % 7) * 16; el('circle', { cx: xr(v.sel), cy: yy, r: 4.5, fill: v.sel < thr ? css('--ervs') : css('--faint') }, f2.svg);
     const t = el('text', { x: xr(v.sel) + 7, y: yy + 4 }, f2.svg); t.textContent = v.scene; t.setAttribute('style', 'font-size:10px'); });
   document.getElementById('valTbl').innerHTML = '<thead><tr><th>장면</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>선정</th></tr></thead><tbody>' +
-    V.slice().sort((p, q) => p.sel - q.sel).map(v => `<tr><td>${v.scene} <span style="color:var(--muted)">${v.dataset}</span></td><td class="num">${fmt(v.sel)}</td><td class="num">${fmt(v.slope.uniform_iid)}</td><td class="num">${fmt(v.slope.uniform_k16)}</td><td class="num ${v.sel < thr ? cls(v.slope.ervs_k16 - v.slope.uniform_iid) : ''}">${fmt(v.slope.ervs_k16)}</td><td class="num">${fmt(v.late.uniform_iid)}</td><td class="num ${v.sel < thr ? cls(v.late.ervs_k16 - v.late.uniform_iid) : ''}">${fmt(v.late.ervs_k16)}</td><td>${v.sel < thr ? '선정' : ''}</td></tr>`).join('') + '</tbody>';
+    V.slice().sort((p, q) => p.sel - q.sel).map(v => `<tr><td>${v.scene} <span style="color:var(--muted)">${v.dataset}</span></td><td class="num">${fmt(v.sel)}</td><td class="num">${fmt(v.slope.uniform_iid)}</td><td class="num">${fmt(v.slope.uniform_k16)}</td><td class="num ${v.sel < thr ? cls(v.slope.ervs_k16 - v.slope.uniform_iid) : ''}">${fmt(v.slope.ervs_k16)}</td><td class="num">${fmt(v.late.uniform_iid)}</td><td class="num ${v.sel < thr ? cls(v.late.ervs_k16 - v.late.uniform_iid) : ''}">${fmt(v.late.ervs_k16)}</td><td>${v.sel < thr ? '규칙 선정' : ''}${state.picked.has(v.scene) ? ' ✓' : ''}</td></tr>`).join('') + '</tbody>';
   document.getElementById('valNote').textContent = `기울기와 (후반−초반)은 seed 1·2 평균, 앞 90% 구간입니다. 선정된 장면에서 ERVS는 늦은 view의 손해를 줄여 곡선을 평평하게 만들었고(${up(dS(sel))}/${sel.length}), 같은 group 구조의 균등 group은 그러지 못했습니다(${fmt(mean(kS))}). 나머지 장면에서도 ERVS는 같은 방향(늦은 view 쪽)으로 움직이지만, 원래 초반이 낮은 장면(tracker 초기화 등)에서는 그 움직임이 곡선을 오히려 더 기울게 만듭니다. 그래서 "더 평평해진다"는 효과는 늦은 view가 손해 보는 장면에 한정되고, "늦은 view 쪽으로 옮긴다"는 효과는 대부분 장면에서 나타납니다. 선정 기준 −0.3은 이전 감소형 장면 분석에서 쓰던 값을 그대로 썼습니다.`;
 }
 
 function bindSeg(id, key, cb) { const s = document.getElementById(id); s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[key] = b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
 state.base = 'uniform_iid'; state.val = 'sel';
+state.picked = new Set(D.validation.filter(v => v.sel < D.sel_thr).map(v => v.scene));
+buildPicks();
 bindSeg('valSeg', 'val', renderVal);
 document.getElementById('nsc').textContent = D.scenes.length;
 const ss = document.getElementById('sceneSel');
