@@ -123,6 +123,28 @@ td.num { font-family: var(--mono) }
     </div>
   </section>
 
+  <section class="panel" id="shapePanel">
+    <h2>곡선 모양별 분석: 처음엔 높고 점점 떨어지는 장면</h2>
+    <p class="cap">장면은 <b>균등 복원 추출(기준) 곡선의 모양만 보고</b> 나눕니다(방법의 결과는 보지 않음). 스트림 앞 90% 구간에서 시간에 따른 PSNR의 Spearman 상관이 −0.3보다 작으면 "감소형"입니다. 마지막 10%는 막 들어온 view라 모든 방법에서 똑같이 떨어지므로 판정에서 뺐습니다.</p>
+    <div class="controls" style="padding:0">
+      <div><span class="ctl-label">곡선</span>
+        <div class="seg" id="shapeGroupSeg" role="group" aria-label="장면 묶음">
+          <button data-v="decay" aria-pressed="true">감소형 장면</button><button data-v="other" aria-pressed="false">나머지 장면</button>
+        </div></div>
+      <div><span class="ctl-label">매끄럽게 하기</span>
+        <div class="seg" id="smoothSeg" role="group" aria-label="평활 방식">
+          <button data-v="mean" aria-pressed="true">이동평균</button><button data-v="median" aria-pressed="false">이동중앙값 (튀는 view 영향 줄임)</button>
+        </div></div>
+    </div>
+    <div class="chart" id="cShapeRho"></div>
+    <div class="two">
+      <div class="chart" id="cShapeMean"></div>
+      <div class="chart" id="cShapeDiff"></div>
+    </div>
+    <div class="tablewrap"><table id="shapeTbl"></table></div>
+    <p class="cap" id="shapeNote"></p>
+  </section>
+
   <section class="panel">
     <h2>장면별 차이</h2>
     <div class="controls" style="padding:0">
@@ -175,7 +197,7 @@ td.num { font-family: var(--mono) }
 <script>
 const DATA = /*__DATA__*/null;
 const G = DATA.grid;
-const state = { set: 'all', ds: 'any', metric: 'psnr', role: 'dense', scene: null, sort: { key: 'dpsnr', dir: -1 } };
+const state = { set: 'all', ds: 'any', metric: 'psnr', role: 'dense', shapeGroup: 'decay', smooth: 'mean', scene: null, sort: { key: 'dpsnr', dir: -1 } };
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
 const sd = a => { if (a.length < 2) return 0; const m = mean(a); return Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)); };
@@ -370,6 +392,64 @@ function renderK16(scAll) {
   crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b><br><span style="color:var(--ervs)">●</span> 전체 ${fmt(D.tot[i])}<br><span style="color:var(--k16)">●</span> group 구조 ${fmt(D.grp[i])}<br><span style="color:var(--muted)">●</span> 균형 항 ${fmt(D.bal[i])}`);
 }
 
+
+function spearman(y) {
+  const rank = a => { const o = a.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]); const r = new Array(a.length); o.forEach((x, k) => r[x[1]] = k); return r; };
+  const rx = y.map((_, i) => i), ry = rank(y), mx = mean(rx), my = mean(ry);
+  let n = 0, dx = 0, dy = 0; for (let i = 0; i < y.length; i++) { n += (rx[i] - mx) * (ry[i] - my); dx += (rx[i] - mx) ** 2; dy += (ry[i] - my) ** 2; }
+  return n / Math.sqrt(dx * dy);
+}
+const sdv = a => { const m = mean(a); return Math.sqrt(mean(a.map(x => (x - m) ** 2))); };
+function renderShape(scAll) {
+  const sc = scAll.filter(s => s.arms && s.arms.includes('uniform_k16') && s.curve_med);
+  const cut = Math.round(G.length * 0.9);
+  const rho = s => spearman(s.curve.uniform_iid.slice(0, cut));
+  const groups = { decay: sc.filter(s => rho(s) < -0.3), other: sc.filter(s => rho(s) >= -0.3) };
+  const g = groups[state.shapeGroup], key = state.smooth === 'median' ? 'curve_med' : 'curve';
+  // strip of baseline slopes
+  let f = frame(document.getElementById('cShapeRho'), 190, { l: 52, r: 16, t: 12, b: 46 });
+  const xr = v => f.x0 + (v + 1) / 2 * (f.x1 - f.x0);
+  for (const t of [-1, -0.5, 0, 0.5, 1]) { el('line', { x1: xr(t), x2: xr(t), y1: f.y1, y2: f.y0, stroke: css('--grid') }, f.svg); el('text', { x: xr(t), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = t.toFixed(1); }
+  el('line', { x1: xr(-0.3), x2: xr(-0.3), y1: f.y1, y2: f.y0, stroke: css('--bad'), 'stroke-dasharray': '4 3', 'stroke-width': 1.4 }, f.svg);
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '기준(균등 복원) 곡선의 시간 상관 — 빨간 점선 왼쪽이 감소형';
+  sc.forEach((s, i) => { const r = rho(s), y = f.y1 + 8 + (i % 7) * 18;
+    el('circle', { cx: xr(r), cy: y, r: 5, fill: r < -0.3 ? css('--ervs') : css('--faint') }, f.svg);
+    const t = el('text', { x: xr(r) + 7, y: y + 4 }, f.svg); t.textContent = s.scene; t.setAttribute('style', 'font-size:10px'); });
+  const T = document.getElementById('shapeTbl');
+  if (!g.length) { ['cShapeMean', 'cShapeDiff'].forEach(id => document.getElementById(id).innerHTML = ''); T.innerHTML = ''; return; }
+  // mean curves
+  f = frame(document.getElementById('cShapeMean'), 300, { l: 52, r: 14, t: 12, b: 46 });
+  const M = {}; for (const a of ['uniform_iid', 'uniform_k16', 'ervs_k16']) M[a] = G.map((_, i) => mean(g.map(s => s[key][a][i])));
+  const all = Object.values(M).flat();
+  let y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2 - .25, Math.ceil(Math.max(...all) * 2) / 2 + .25, 'held-out PSNR (dB)'), x = xAxisTime(f);
+  for (const [a, c, dash] of [['uniform_iid', '--iid', '6 4'], ['uniform_k16', '--k16', '2 3'], ['ervs_k16', '--ervs', null]]) {
+    const pth = el('path', { d: path(G, M[a], x, y), fill: 'none', stroke: css(c), 'stroke-width': 2.3 }, f.svg); if (dash) pth.setAttribute('stroke-dasharray', dash); }
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면 ${g.length}개<br><span style="color:var(--ervs)">●</span> ERVS ${M.ervs_k16[i].toFixed(2)}<br><span style="color:var(--k16)">●</span> 균등 group ${M.uniform_k16[i].toFixed(2)}<br><span style="color:var(--iid)">●</span> 균등 복원 ${M.uniform_iid[i].toFixed(2)}`);
+  // differences vs uniform_iid
+  f = frame(document.getElementById('cShapeDiff'), 300, { l: 52, r: 14, t: 12, b: 46 });
+  const Dv = { ervs_k16: G.map((_, i) => M.ervs_k16[i] - M.uniform_iid[i]), uniform_k16: G.map((_, i) => M.uniform_k16[i] - M.uniform_iid[i]) };
+  const ext = Math.max(.3, Math.ceil(Math.max(...Object.values(Dv).flat().map(Math.abs)) * 4) / 4);
+  y = yAxis(f, -ext, ext, 'Δ PSNR vs 균등 복원 (dB)', v => (v > 0 ? '+' : '') + v.toFixed(2)); x = xAxisTime(f);
+  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--iid'), 'stroke-width': 1.3, 'stroke-dasharray': '6 4' }, f.svg);
+  for (const [a, c, dash] of [['uniform_k16', '--k16', '2 3'], ['ervs_k16', '--ervs', null]]) {
+    const pth = el('path', { d: path(G, Dv[a], x, y), fill: 'none', stroke: css(c), 'stroke-width': 2.3 }, f.svg); if (dash) pth.setAttribute('stroke-dasharray', dash); }
+  crosshair(f, x, i => `<b>t = ${G[i].toFixed(2)}</b><br><span style="color:var(--ervs)">●</span> ERVS ${fmt(Dv.ervs_k16[i])}<br><span style="color:var(--k16)">●</span> 균등 group ${fmt(Dv.uniform_k16[i])}`);
+  // table
+  const row = a => { const slope = mean(g.map(s => spearman(s[key][a].slice(0, cut))));
+    const tsd = mean(g.map(s => sdv(s.dec[a].slice(0, 9))));
+    const bins = [0, 1, 2, 3, 4].map(b => mean(g.map(s => s.bins[a][b])));
+    const psnr = mean(g.map(s => mean(s.per_seed.map(p => p[{ ervs_k16: 'ervs', uniform_iid: 'iid', uniform_k16: 'k16' }[a]].psnr))));
+    return { slope, tsd, bins, psnr }; };
+  const R = { uniform_iid: row('uniform_iid'), uniform_k16: row('uniform_k16'), ervs_k16: row('ervs_k16') };
+  const nm = { uniform_iid: '균등 복원 (기준)', uniform_k16: '균등 group K16', ervs_k16: 'ERVS K16' };
+  const c = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+  T.innerHTML = '<thead><tr><th>설정</th><th>평균 PSNR</th><th>0–20%</th><th>20–40%</th><th>40–60%</th><th>60–80%</th><th>80–100%</th><th>곡선 기울기(상관)</th><th>시간별 편차(sd)</th></tr></thead><tbody>' +
+    Object.entries(R).map(([a, r]) => { const b = R.uniform_iid;
+      const cells = a === 'uniform_iid' ? r.bins.map(v => `<td class="num">${v.toFixed(2)}</td>`).join('') : r.bins.map((v, i) => `<td class="num ${c(v - b.bins[i])}">${v.toFixed(2)} (${fmt(v - b.bins[i])})</td>`).join('');
+      return `<tr><td>${nm[a]}</td><td class="num">${r.psnr.toFixed(2)}${a === 'uniform_iid' ? '' : ` (${fmt(r.psnr - b.psnr)})`}</td>${cells}<td class="num">${r.slope.toFixed(2)}</td><td class="num">${r.tsd.toFixed(2)}</td></tr>`; }).join('') + '</tbody>';
+  document.getElementById('shapeNote').textContent = `${state.shapeGroup === 'decay' ? '감소형' : '나머지'} 장면 ${g.length}개: ${g.map(s => s.scene).join(', ')}. 괄호는 균등 복원 대비 차이. 곡선 기울기는 앞 90% 구간의 시간 상관(0에 가까울수록 평평), 시간별 편차는 앞 90%를 10구간으로 나눈 평균들의 표준편차입니다.`;
+}
+
 /* ---------- aggregates ---------- */
 function agg(scenes) {
   const arms = {};
@@ -518,7 +598,7 @@ function renderAll() {
   renderStats(sc);
   if (sc.length) { const A = agg(sc); renderMean(A, sc.length); renderDiff(A); renderBins(A); }
   else for (const id of ['cMean', 'cDiff', 'cBins']) document.getElementById(id).innerHTML = '';
-  renderForest(sc); renderTable(sc); renderCounts(sc); renderK16(sc);
+  renderForest(sc); renderTable(sc); renderCounts(sc); renderK16(sc); renderShape(sc);
   const sel = document.getElementById('sceneSel');
   sel.innerHTML = sc.map(s => `<option value="${s.scene}">${s.scene} (${DSN[s.dataset]})</option>`).join('');
   if (!sc.find(s => s.scene === state.scene)) state.scene = sc[0] ? sc[0].scene : null;
@@ -530,7 +610,7 @@ function bindSeg(id, key) {
 }
 bindSeg('setSeg', 'set'); bindSeg('dsSeg', 'ds'); bindSeg('metricSeg', 'metric');
 document.getElementById('sceneSel').addEventListener('change', e => { state.scene = e.target.value; renderScene(); renderSceneCount(); });
-bindSeg('roleSeg', 'role');
+bindSeg('roleSeg', 'role'); bindSeg('shapeGroupSeg', 'shapeGroup'); bindSeg('smoothSeg', 'smooth');
 let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(renderAll, 120); }).observe(document.querySelector('.wrap'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderAll);
 new MutationObserver(renderAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });

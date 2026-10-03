@@ -85,6 +85,15 @@ def smooth(y, frac):
     return np.convolve(y, k, 'same') / np.convolve(np.ones_like(y), k, 'same')
 
 
+def smooth_median(y, frac):
+    w = max(3, int(round(frac * len(y)))); h = w // 2
+    return np.array([np.median(y[max(0, i - h):i + h + 1]) for i in range(len(y))])
+
+
+def deciles(y):
+    return np.array([y[i * len(y) // 10:(i + 1) * len(y) // 10].mean() for i in range(10)])
+
+
 def bins5(y):
     return [float(y[i * len(y) // 5:(i + 1) * len(y) // 5].mean()) for i in range(5)]
 
@@ -104,7 +113,7 @@ def scene_record(scene, dataset, group, dirfn):
         return None
     arms = ARMS + ((OPT,) if all((OPT, s) in runs for s in seeds) else ())
     rec = dict(scene=scene, dataset=dataset, group=group, seeds=seeds, arms=list(arms), n_views=int(len(runs[('ervs_k16', seeds[0])][1])),
-               curve={}, bins={}, per_seed=[], count={}, count_scale={}, count_cv={})
+               curve={}, curve_med={}, bins={}, dec={}, per_seed=[], count={}, count_scale={}, count_cv={})
     cnt = {(a, s): counts(dirfn(a, s)) for a in arms for s in seeds}
     for k in ('kf', 'dense'):
         scale = float(np.mean([cnt[(a, s)][k]['overall'] for a in ARMS for s in seeds]))
@@ -116,12 +125,15 @@ def scene_record(scene, dataset, group, dirfn):
             rec['count'][k][a] = [None if np.isnan(v) else round(float(v), 3) for v in m]
             rec['count_cv'][k][a] = round(float(np.mean([cnt[(a, s)][k]['cv'] for s in seeds])), 4)
     for arm in arms:
-        cs, bs = [], []
+        cs, cm, bs, ds_ = [], [], [], []
         for s in seeds:
             f, p, *_ = runs[(arm, s)]
             t = (f - f[0]) / (f[-1] - f[0])
             cs.append(np.interp(GRID, t, smooth(p, 0.10))); bs.append(bins5(p))
+            cm.append(np.interp(GRID, t, smooth_median(p, 0.10))); ds_.append(deciles(p))
         rec['curve'][arm] = np.round(np.mean(cs, 0), 3).tolist()
+        rec['curve_med'][arm] = np.round(np.mean(cm, 0), 3).tolist()
+        rec['dec'][arm] = np.round(np.mean(ds_, 0), 3).tolist()
         rec['bins'][arm] = np.round(np.mean(bs, 0), 3).tolist()
     ds, dk, de = [], [], []
     for s in seeds:
