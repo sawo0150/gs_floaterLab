@@ -42,3 +42,13 @@ are mapped with the KF pool and the dense pool each capped at the newest 700 vie
 dropped views stop being sampled, the map and membership are unchanged), phase `scenes_cap700`, 3 arms × 3 seeds,
 45 runs. Uncapped Oxford runs already finished (phase `scenes`) are kept as a supplementary record (dense pools reached
 768/712 on new-college-02/04, so they are not the same condition). Gate: pool_cap.json present with cap 700.
+
+## Amendment 3 — other datasets (2026-10-03, user request "all possible datasets"; before any run)
+
+Feasibility: ETH3D SLAM (RGB-D + GT, no IMU) and TUM RGB-D (accelerometer only, no gyroscope) cannot run the
+visual-inertial tracker and are excluded. Planned in order: FAST-LIVO2 (5 sequences, already in the official VIGS
+layout: `prepare_fastlivo_capture.py`, official config/fastlivo.yaml, --undistort, extrinsics.txt), then the six
+unprocessed self-recorded Aria VRS sequences, then M2DGR room_01/gate_03 (ROS bags). Each new dataset: held-out every
+5th frame + final, frozen official tracker capture (seed 0), validation, setup capture, then 3 arms × 3 seeds with the
+same 700-view FIFO pool cap as Oxford (recorded; it only binds when a pool exceeds 700). Failed captures are reported and
+excluded, not tuned.

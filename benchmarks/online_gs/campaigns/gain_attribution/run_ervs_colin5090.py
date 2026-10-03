@@ -22,6 +22,7 @@ sys.path.insert(0, str(HERE))
 import run_b_ablation_chain as base  # noqa: E402
 from run_ervs_vs_iid_scenes import ARMS  # noqa: E402
 import oxford_paths  # noqa: E402
+import fastlivo_paths  # noqa: E402
 
 base.OUT = base.ROOT / 'results/campaigns/gain_attribution/ervs_vs_iid_colin5090/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/ervs_vs_iid_colin5090/PREREG.md'
@@ -35,6 +36,10 @@ for _seq in oxford_paths.SEQUENCES:   # Amendment 1: Oxford Spires (prepare_oxfo
     _x = oxford_paths.paths(_seq)
     SCENES[_seq] = dict(dataset='oxford', archive=_x['archive'], manifest=_x['fixed_manifest'],
                         setup=oxford_paths.PREP / _seq / 'setup')
+for _seq in fastlivo_paths.SEQUENCES:   # Amendment 3: FAST-LIVO2 (prepare_fastlivo_capture.py)
+    _x = fastlivo_paths.paths(_seq)
+    SCENES[_seq] = dict(dataset='fastlivo', archive=_x['archive'], manifest=_x['fixed_manifest'],
+                        setup=fastlivo_paths.PREP / _seq / 'setup')
 BUDGET = 25
 
 
@@ -46,6 +51,8 @@ def install_paths(trial):
             return old(dataset, scene)
         if dataset == 'oxford':
             return oxford_paths.paths(scene)
+        if dataset == 'fastlivo':
+            return fastlivo_paths.paths(scene)
         s = SCENES[scene]
         m = json.loads((s['archive'] / 'archive_manifest.json').read_text())
         return {'archive': s['archive'], 'fixed_manifest': s['manifest'],
