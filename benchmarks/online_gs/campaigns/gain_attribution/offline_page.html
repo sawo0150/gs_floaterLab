@@ -74,6 +74,7 @@ td.num { font-family: var(--mono) }
 .picks input { accent-color: var(--ervs); width: 15px; height: 15px }
 .picks .meta { color: var(--muted); font: 11.5px var(--mono); margin-left: auto }
 .picks .rule { color: var(--ervs) }
+.edgebar { display: grid; gap: 6px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 16px }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; max-width: 80ch }
 .note { border-left: 3px solid var(--off); padding: 4px 0 4px 12px; color: var(--ink); font-size: 14px }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
@@ -86,6 +87,13 @@ td.num { font-family: var(--mono) }
     <p class="lede">offline 기준선은 같은 tracker 스트림과 같은 Gaussian 생성, 같은 render 수를 쓰되 스트림이 끝난 뒤 모든 view를 같은 횟수로 학습합니다. 각 held-out view에서 <b>온라인 PSNR − offline PSNR</b>을 구해 스트림 시간 축에 그렸습니다. 선이 평평할수록 offline 대비 손해가 시간에 고르게 퍼져 있다는 뜻입니다.</p>
     <p class="lede">tracker가 초반에 맵을 리셋하기 때문에 최종 맵의 첫 학습 view는 스트림 시작보다 늦게 나옵니다. 그보다 앞의 held-out view는 근처에 학습된 view가 없어 모든 방법(offline 포함)에서 똑같이 이상치가 되므로 평가에서 뺐습니다. 장면마다 1~46개 view이고, 그 지점은 모든 arm·seed·offline run에서 같습니다. 시간 축 0은 최종 맵의 첫 학습 view입니다.</p>
   </header>
+
+  <div class="edgebar">
+    <span class="ctl-label">이동평균 가장자리 처리 (모든 차이 곡선에 적용)</span>
+    <div class="seg" id="edgeSeg" role="group" aria-label="가장자리 처리">
+      <button data-v="one" aria-pressed="true">한쪽 창 (기본)</button><button data-v="sym" aria-pressed="false">대칭으로 줄어드는 창</button><button data-v="cut" aria-pressed="false">창이 꽉 찬 구간만</button></div>
+    <p class="cap" id="edgeCap"></p>
+  </div>
 
   <div class="stats" id="stats"></div>
 
@@ -206,9 +214,10 @@ function xAxis(f, n = 1) {
   el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '최종 맵 구간의 시간 (0 = 최종 맵 첫 학습 view, 1 = 끝)';
   return x;
 }
-const pathD = (xs, ys, x, y) => xs.map((v, i) => (i ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1)).join(' ');
+const pathD = (xs, ys, x, y) => { let out = '', pen = false; xs.forEach((v, i) => { if (xs === G && !shown(i)) { pen = false; return; } out += (pen ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1) + ' '; pen = true; }); return out; };
 function line(f, xs, ys, x, y, arm, w = 2.3) { const p = el('path', { d: pathD(xs, ys, x, y), fill: 'none', stroke: css(ARM[arm].color), 'stroke-width': w, 'stroke-linejoin': 'round' }, f.svg); if (ARM[arm].dash) p.setAttribute('stroke-dasharray', ARM[arm].dash); return p; }
-function band(f, xs, lo, hi, x, y, arm) { el('path', { d: pathD(xs, hi, x, y) + ' ' + xs.slice().reverse().map((v, i) => 'L' + x(v).toFixed(1) + ' ' + y(lo[lo.length - 1 - i]).toFixed(1)).join(' ') + ' Z', fill: css(ARM[arm].band), stroke: 'none' }, f.svg); }
+function band(f, xs, lo, hi, x, y, arm) { const idx = xs.map((_, i) => i).filter(i => xs !== G || shown(i)); if (!idx.length) return;
+  el('path', { d: idx.map((i, k) => (k ? 'L' : 'M') + x(xs[i]).toFixed(1) + ' ' + y(hi[i]).toFixed(1)).join(' ') + ' ' + idx.slice().reverse().map(i => 'L' + x(xs[i]).toFixed(1) + ' ' + y(lo[i]).toFixed(1)).join(' ') + ' Z', fill: css(ARM[arm].band), stroke: 'none' }, f.svg); }
 function crosshair(f, xs, x, html) {
   const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; f.host.appendChild(tip);
   const vl = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
@@ -225,7 +234,13 @@ function keySvg(arm) { const s = el('svg', { width: 26, height: 10 }); const l =
 function sel() { return state.scene === 'mean' ? D.scenes : D.scenes.filter(s => s.key === state.scene); }
 const avg = (sc, f) => G.map((_, i) => mean(sc.map(s => f(s)[i])));
 const H90 = 91;
-const centered = (s, a) => { const g = s.gap[a], m = mean(g.slice(0, H90)); return g.map(v => v - m); };
+const EDGE_CAP = { one: '기본: 창 크기는 view 수의 10%. 시작·끝에서는 한쪽 view만으로 평균을 냅니다. 그래서 가장자리 값은 한쪽으로 치우치고 view 수가 적어 흔들립니다.',
+  sym: '창이 가장자리에서 양쪽으로 똑같이 줄어듭니다. 맨 처음 점은 그 view 하나의 값이고, 안쪽으로 갈수록 창이 커집니다. 가장자리 값이 한쪽으로 치우치지는 않지만 view 수가 적어 더 흔들릴 수 있습니다.',
+  cut: '창 절반(5%)이 양쪽에 모두 들어가는 구간(시간 0.05~0.95)만 그립니다. 가장자리 계산 방식의 영향이 전혀 없습니다. 요약 수치와 표는 기본 방식 그대로입니다.' };
+const gapOf = (s, a) => state.edge === 'sym' ? s.gap_sym[a] : s.gap[a];
+const valOf = (v, a) => state.edge === 'sym' ? v.curve_sym[a] : v.curve[a];
+const shown = i => state.edge !== 'cut' || (G[i] >= 0.05 && G[i] <= 0.95);
+const centered = (s, a) => { const g = gapOf(s, a), m = mean(g.slice(0, H90)); return g.map(v => v - m); };
 function legendInto(id, arms) { const lg = document.getElementById(id); lg.innerHTML = ''; for (const a of arms) { const k = document.createElement('span'); k.className = 'key'; k.appendChild(keySvg(a)); k.append(ARM[a].name); lg.appendChild(k); } }
 
 function renderStats() {
@@ -292,8 +307,8 @@ function renderMain() {
   const arms = gap ? ONLINE : ['offline', ...ONLINE];
   legendInto('legend', arms);
   const f = frame(document.getElementById('cMain'), 330, { l: 56, r: 14, t: 12, b: 46 });
-  const C = {}; for (const a of arms) C[a] = avg(sc, s => gap ? s.gap[a] : s.abs[a]);
-  const all = Object.values(C).flat().concat(gap ? [0] : []);
+  const C = {}; for (const a of arms) C[a] = avg(sc, s => gap ? gapOf(s, a) : s.abs[a]);
+  const all = Object.values(C).flatMap(c => c.filter((_, i) => shown(i))).concat(gap ? [0] : []);
   const lo = Math.floor(Math.min(...all) * 4) / 4 - .1, hi = Math.ceil(Math.max(...all) * 4) / 4 + .1;
   const y = yAxis(f, lo, hi, gap ? '온라인 − offline PSNR (dB)' : 'held-out PSNR (dB)', v => gap ? fmt(v, 1) : v.toFixed(1)), x = xAxis(f);
   if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.4, 'stroke-dasharray': '5 4' }, f.svg);
@@ -312,12 +327,12 @@ function renderSmall() {
   for (const [j, s] of D.scenes.entries()) {
     const f = frame(hosts[j], 220, { l: 48, r: 8, t: 26, b: 44 });
     el('text', { class: 'ttl', x: f.x0, y: 14 }, f.svg).textContent = `${s.scene} · ${s.dataset}`;
-    const all = ONLINE.flatMap(a => s.gap_lo[a].concat(s.gap_hi[a])).concat([0]);
+    const all = ONLINE.flatMap(a => s.gap_lo[a].concat(s.gap_hi[a], gapOf(s, a))).concat([0]);
     const y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2, Math.ceil(Math.max(...all) * 2) / 2, 'Δ dB', v => fmt(v, 1)), x = xAxis(f);
     el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, f.svg);
     for (const a of ONLINE) band(f, G, s.gap_lo[a], s.gap_hi[a], x, y, a);
-    for (const a of ONLINE) line(f, G, s.gap[a], x, y, a, 2);
-    crosshair(f, G, x, i => `<b>${s.scene} t = ${G[i].toFixed(2)}</b><br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(s.gap[a][i])}`).join('<br>'));
+    for (const a of ONLINE) line(f, G, gapOf(s, a), x, y, a, 2);
+    crosshair(f, G, x, i => `<b>${s.scene} t = ${G[i].toFixed(2)}</b><br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(gapOf(s, a)[i])}`).join('<br>'));
   }
 }
 
@@ -392,8 +407,8 @@ function renderVal() {
   legendInto('legend3', ONLINE);
   const g = state.val === 'sel' ? sel : state.val === 'rest' ? (rest.length ? rest : sel) : [rep];
   const f = frame(document.getElementById('cVal'), 300, { l: 56, r: 14, t: 12, b: 46 });
-  const C = {}; for (const a of ONLINE) C[a] = G.map((_, i) => mean(g.map(v => v.curve[a][i])));
-  const all = Object.values(C).flat().concat([0]);
+  const C = {}; for (const a of ONLINE) C[a] = G.map((_, i) => mean(g.map(v => valOf(v, a)[i])));
+  const all = Object.values(C).flatMap(c => c.filter((_, i) => shown(i))).concat([0]);
   const y = yAxis(f, Math.floor(Math.min(...all) * 4) / 4 - .1, Math.ceil(Math.max(...all) * 4) / 4 + .1, '온라인 − offline PSNR (dB)', v => fmt(v, 1)), x = xAxis(f);
   el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
   el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
@@ -414,7 +429,9 @@ function renderVal() {
 }
 
 function bindSeg(id, key, cb) { const s = document.getElementById(id); s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[key] = b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
-state.base = 'uniform_iid'; state.val = 'sel';
+state.base = 'uniform_iid'; state.val = 'sel'; state.edge = 'one';
+bindSeg('edgeSeg', 'edge', () => { document.getElementById('edgeCap').textContent = EDGE_CAP[state.edge]; all(); });
+document.getElementById('edgeCap').textContent = EDGE_CAP.one;
 state.picked = new Set(D.validation.filter(v => v.sel < D.sel_thr).map(v => v.scene));
 buildPicks();
 bindSeg('valSeg', 'val', renderVal);

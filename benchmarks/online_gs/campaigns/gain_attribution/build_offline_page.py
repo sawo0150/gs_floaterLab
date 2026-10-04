@@ -21,9 +21,16 @@ ARMS = ('uniform_iid', 'uniform_k16', 'ervs_k16')
 SEEDS = (0, 1, 2)
 
 
-def curve(f, p):
+def smooth_sym(y, frac):
+    """Centred moving average whose window shrinks symmetrically at the edges (the first point is itself)."""
+    h = max(1, int(round(frac * len(y))) // 2)
+    n = len(y)
+    return np.array([y[i - min(h, i, n - 1 - i):i + min(h, i, n - 1 - i) + 1].mean() for i in range(n)])
+
+
+def curve(f, p, sym=False):
     t = (f - f[0]) / (f[-1] - f[0])
-    return np.interp(S.GRID, t, S.smooth(p, 0.10))
+    return np.interp(S.GRID, t, smooth_sym(p, 0.10) if sym else S.smooth(p, 0.10))
 
 
 def b5(d):
@@ -108,11 +115,12 @@ def validation(pinned, extra):
     late = lambda c: float(c[60:91].mean() - c[:40].mean())
     out = []
     for key, name, ds, pin in pinned + extra:
-        def gap(a, s):
+        def gap(a, s, sym=False):
             off = V(OUT / f'offline/{key}/render25/offline_s{s if pin else 0}', key)
             on = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
-            return curve(off[0], on[1] - off[1])
+            return curve(off[0], on[1] - off[1], sym)
         ev = {a: [gap(a, s) for s in (1, 2)] for a in ARMS}
+        ev_sym = {a: [gap(a, s, True) for s in (1, 2)] for a in ARMS}
 
         def on_psnr(a, s):
             v = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
@@ -120,6 +128,7 @@ def validation(pinned, extra):
             return v[1][t < 0.9].mean()
         out.append(dict(scene=name, dataset=ds, sel=slope(gap('uniform_iid', 0)),
                         curve={a: np.mean(ev[a], 0).round(3).tolist() for a in ARMS},
+                        curve_sym={a: np.mean(ev_sym[a], 0).round(3).tolist() for a in ARMS},
                         slope={a: float(np.mean([slope(c) for c in ev[a]])) for a in ARMS},
                         late={a: float(np.mean([late(c) for c in ev[a]])) for a in ARMS},
                         psnr={a: float(np.mean([on_psnr(a, s) for s in (1, 2)])) for a in ARMS}))
@@ -157,6 +166,7 @@ def main():
             m = cs.mean(0)
             rec['abs'][a] = np.mean([curve(f, on[(a, s)][1]) for s in SEEDS], 0).round(3).tolist()
             rec['gap'][a] = m.round(3).tolist()
+            rec.setdefault('gap_sym', {})[a] = np.mean([curve(f, d, True) for d in ds_], 0).round(3).tolist()
             rec['gap_lo'][a] = cs.min(0).round(3).tolist(); rec['gap_hi'][a] = cs.max(0).round(3).tolist()
             rec['bins'][a] = np.mean([b5(d) for d in ds_], 0).round(3).tolist()
             rec['mean'][a] = float(np.mean([on[(a, s)][1].mean() for s in SEEDS]))
