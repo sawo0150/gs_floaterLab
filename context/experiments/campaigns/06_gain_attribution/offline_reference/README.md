@@ -62,3 +62,18 @@ changes the slope by −0.03. The other 13 scenes move the same way (late − ea
 curve steeper where early views are the weak ones (aria301_305, ego-centric-1). Reading: ERVS consistently shifts
 quality toward later views; this flattens the gap only where uniform under-serves late views. Centred MAD in the
 selected group does not improve (2/6), so the claim is about tilt, not overall flatness. Post-hoc, not pre-registered.
+
+## Evaluation rule: drop held-out views before the final map's first trained view (2026-10-04, user request)
+
+The tracker resets the map early, so the final map generation's first trained view comes after the stream start
+(uid 4…227); held-out views before it have no trained view of the final map nearby and are outliers in every arm and in
+offline alike. That first uid is identical across all 3 arms × 3 seeds and the offline runs of each scene. The page
+and all stage-2/validation numbers now exclude those views (1–46 per scene) and re-normalise stream time to the
+final-map span. Effects: centred MAD ERVS − iid +0.033 (8/19); rule selection now picks square-1, table_03, table_07,
+ego-drive, fast-straight, square-2 (fast-straight replaces slow-straight-1); held-out seeds 1–2: slope +0.30 (5/6),
+late − early +0.36 dB, PSNR ERVS − iid +0.12 dB (5/6). Hand-picked UTMM without ego-centric (6 scenes): PSNR +0.18 dB
+(6/6) but slope −0.03 (3/6).
+ERVS still loses the first 15% of the final map (gap −0.91 vs −0.44 in the rule group). Cause (UTMM 6 scenes, seeds
+1–2): the earliest 20% of trained views get the same total count as under uniform (1.54 vs 1.52 × mean) but receive
+less of it in the second half of the stream (42% vs 48%) and sit idle longer at the end (10.2% vs 8.4% of steps) —
+ERVS front-loads their training in time, and they are forgotten.

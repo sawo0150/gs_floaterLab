@@ -82,6 +82,23 @@ def lorenz(d):
     return y, float(2 * np.trapezoid(y - S.GRID, S.GRID))
 
 
+def first_trained(d):
+    lr = json.loads((d / 'render_result.json').read_text())['training']['loss_routes']
+    g = max(x['generation'] for x in lr)
+    return min(x['uid'] for x in lr if x['generation'] == g)
+
+
+FIRST = {}
+
+
+def V(d, key):
+    """Held-out views from the final map's first trained view on: earlier views have no trained view of the final
+    map generation near them (the tracker reset the map), identically in every arm and in offline."""
+    f, p = S.views(d)[:2]
+    m = f >= FIRST[key]
+    return f[m], p[m]
+
+
 SEL_THR = -0.3   # baseline-only selection: uniform_iid seed-0 gap slope over the first 90%
 
 
@@ -92,13 +109,13 @@ def validation(pinned, extra):
     out = []
     for key, name, ds, pin in pinned + extra:
         def gap(a, s):
-            off = S.views(OUT / f'offline/{key}/render25/offline_s{s if pin else 0}')
-            on = S.views(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}')
+            off = V(OUT / f'offline/{key}/render25/offline_s{s if pin else 0}', key)
+            on = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
             return curve(off[0], on[1] - off[1])
         ev = {a: [gap(a, s) for s in (1, 2)] for a in ARMS}
 
         def on_psnr(a, s):
-            v = S.views(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}')
+            v = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
             t = (v[0] - v[0][0]) / (v[0][-1] - v[0][0])
             return v[1][t < 0.9].mean()
         out.append(dict(scene=name, dataset=ds, sel=slope(gap('uniform_iid', 0)),
@@ -122,11 +139,14 @@ def main():
             on_dir = lambda a, s: S.OUT / f'scenes/{key}/render25/{a}_s{s}'
         if not all((d / f'../{d.name}.row.json').resolve().exists() for d in off_dirs.values()):
             continue
-        off = {s: S.views(d) for s, d in off_dirs.items()}
-        on = {(a, s): S.views(on_dir(a, s)) for a in ARMS for s in SEEDS}
+        FIRST[key] = first_trained(off_dirs[0])
+        n_all = len(S.views(off_dirs[0])[0])
+        off = {s: V(d, key) for s, d in off_dirs.items()}
+        on = {(a, s): V(on_dir(a, s), key) for a in ARMS for s in SEEDS}
         f = off[0][0]
         pair = (lambda s: s) if pin else (lambda s: 0)
         rec = dict(key=key, scene=name, dataset=ds, pinned=bool(pin), offline_seeds=len(off), n_views=int(len(f)),
+                   excluded=int(n_all - len(f)),
                    abs={}, gap={}, gap_lo={}, gap_hi={}, bins={}, mean={}, counts={}, lorenz={}, gini={}, mad={})
         rec['abs']['offline'] = np.mean([curve(f, off[s][1]) for s in off], 0).round(3).tolist()
         rec['mean']['offline'] = float(np.mean([off[s][1].mean() for s in off]))

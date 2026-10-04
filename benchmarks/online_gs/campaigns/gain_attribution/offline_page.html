@@ -84,6 +84,7 @@ td.num { font-family: var(--mono) }
     <div class="eyebrow">B mapper · budget 25 · <span id="nsc"></span>개 장면 · held-out view</div>
     <h1>온라인 학습은 offline 3DGS에 비해 어디서 손해를 보나</h1>
     <p class="lede">offline 기준선은 같은 tracker 스트림과 같은 Gaussian 생성, 같은 render 수를 쓰되 스트림이 끝난 뒤 모든 view를 같은 횟수로 학습합니다. 각 held-out view에서 <b>온라인 PSNR − offline PSNR</b>을 구해 스트림 시간 축에 그렸습니다. 선이 평평할수록 offline 대비 손해가 시간에 고르게 퍼져 있다는 뜻입니다.</p>
+    <p class="lede">tracker가 초반에 맵을 리셋하기 때문에 최종 맵의 첫 학습 view는 스트림 시작보다 늦게 나옵니다. 그보다 앞의 held-out view는 근처에 학습된 view가 없어 모든 방법(offline 포함)에서 똑같이 이상치가 되므로 평가에서 뺐습니다. 장면마다 1~46개 view이고, 그 지점은 모든 arm·seed·offline run에서 같습니다. 시간 축 0은 최종 맵의 첫 학습 view입니다.</p>
   </header>
 
   <div class="stats" id="stats"></div>
@@ -202,7 +203,7 @@ function xAxis(f, n = 1) {
   const x = v => f.x0 + v / n * (f.x1 - f.x0);
   for (let i = 0; i <= 5; i++) { const v = i / 5 * n; el('text', { x: x(v), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (i / 5).toFixed(1); }
   el('line', { x1: f.x0, x2: f.x1, y1: f.y0, y2: f.y0, stroke: css('--rule') }, f.svg);
-  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '스트림 시간 (0 = 시작, 1 = 끝)';
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '최종 맵 구간의 시간 (0 = 최종 맵 첫 학습 view, 1 = 끝)';
   return x;
 }
 const pathD = (xs, ys, x, y) => xs.map((v, i) => (i ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1)).join(' ');
