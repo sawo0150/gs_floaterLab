@@ -107,91 +107,98 @@ def V(d, key):
 
 
 SEL_THR = -0.3   # baseline-only selection: uniform_iid seed-0 gap slope over the first 90%
+EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'   # FAST-LIVO2 etc. run on the RTX 5070 Ti (online + offline, seed 0)
+TAU_OUT = S.R / 'ervs_tau_scale/v1'            # ERVS K16 with tau 8 / 16
+TAUS = (8, 16)
+FASTLIVO = ('Retail_Street', 'HKU_Campus', 'CBD_Building_01', 'SYSU_01', 'CBD_Building_02')
 
 
-def validation(pinned, extra):
-    """Select scenes on uniform_iid seed 0 only; evaluate every arm on seeds 1–2 (not used for selection)."""
-    slope = lambda c: float(spearmanr(np.arange(91), c[:91]).statistic)
-    late = lambda c: float(c[60:91].mean() - c[:40].mean())
-    out = []
-    for key, name, ds, pin in pinned + extra:
-        def gap(a, s, sym=False):
-            off = V(OUT / f'offline/{key}/render25/offline_s{s if pin else 0}', key)
-            on = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
-            return curve(off[0], on[1] - off[1], sym)
-        ev = {a: [gap(a, s) for s in (1, 2)] for a in ARMS}
-        ev_sym = {a: [gap(a, s, True) for s in (1, 2)] for a in ARMS}
-
-        def on_psnr(a, s):
-            v = V(S.pinned_dir(key, a, s) if pin else S.OUT / f'scenes/{key}/render25/{a}_s{s}', key)
-            t = (v[0] - v[0][0]) / (v[0][-1] - v[0][0])
-            return v[1][t < 0.9].mean()
-        out.append(dict(scene=name, dataset=ds, sel=slope(gap('uniform_iid', 0)),
-                        curve={a: np.mean(ev[a], 0).round(3).tolist() for a in ARMS},
-                        curve_sym={a: np.mean(ev_sym[a], 0).round(3).tolist() for a in ARMS},
-                        slope={a: float(np.mean([slope(c) for c in ev[a]])) for a in ARMS},
-                        late={a: float(np.mean([late(c) for c in ev[a]])) for a in ARMS},
-                        psnr={a: float(np.mean([on_psnr(a, s) for s in (1, 2)])) for a in ARMS}))
+def scene_list():
+    out = [dict(key=k, name=n, ds=ds, kind='pinned') for k, n, ds in SCENES]
+    out += [dict(key=sc, name=sc, ds={'aria': 'Aria', 'rpng': 'RPNG', 'utmm': 'UTMM'}[ds], kind='extra') for sc, ds in S.NEW]
+    out += [dict(key=sc, name=sc, ds='FAST-LIVO2', kind='local') for sc in FASTLIVO]
     return out
 
 
+def online_dir(sc, arm, seed):
+    if arm.startswith('ervs_t'):
+        return TAU_OUT / f'scenes/{sc["key"]}/render25/{arm}_s{seed}'
+    if sc['kind'] == 'pinned':
+        return S.pinned_dir(sc['key'], arm, seed)
+    if sc['kind'] == 'extra':
+        return S.OUT / f'scenes/{sc["key"]}/render25/{arm}_s{seed}'
+    return EXTRA_LOCAL / f'scenes/{sc["key"]}/render25/{arm}_s{seed}'
+
+
+def offline_dir(sc, seed):
+    if sc['kind'] == 'local':
+        return EXTRA_LOCAL / f'scenes/{sc["key"]}/render25/offline_s0'
+    return OUT / f'offline/{sc["key"]}/render25/offline_s{seed if sc["kind"] == "pinned" else 0}'
+
+
+def done(d):
+    return d is not None and (d.parent / f'{d.name}.row.json').exists()
+
+
 def main():
-    pinned = [(k, n, ds, k) for k, n, ds in SCENES]
-    extra = [(sc, sc, {'aria': 'Aria', 'rpng': 'RPNG', 'utmm': 'UTMM'}[ds], None) for sc, ds in S.NEW]
+    arms = list(ARMS) + [f'ervs_t{t}' for t in TAUS]
     scenes = []
-    for key, name, ds, pin in pinned + extra:
-        if pin:
-            off_dirs = {s: OUT / f'offline/{key}/render25/offline_s{s}' for s in SEEDS}
-            on_dir = lambda a, s: S.pinned_dir(key, a, s)
-        else:
-            off_dirs = {0: OUT / f'offline/{key}/render25/offline_s0'}
-            on_dir = lambda a, s: S.OUT / f'scenes/{key}/render25/{a}_s{s}'
-        if not all((d / f'../{d.name}.row.json').resolve().exists() for d in off_dirs.values()):
+    for sc in scene_list():
+        if not done(offline_dir(sc, 0)):
             continue
-        FIRST[key] = first_trained(off_dirs[0])
-        n_all = len(S.views(off_dirs[0])[0])
-        off = {s: V(d, key) for s, d in off_dirs.items()}
-        on = {(a, s): V(on_dir(a, s), key) for a in ARMS for s in SEEDS}
-        f = off[0][0]
-        pair = (lambda s: s) if pin else (lambda s: 0)
-        rec = dict(key=key, scene=name, dataset=ds, pinned=bool(pin), offline_seeds=len(off), n_views=int(len(f)),
-                   excluded=int(n_all - len(f)),
-                   abs={}, gap={}, gap_lo={}, gap_hi={}, bins={}, mean={}, counts={}, lorenz={}, gini={}, mad={})
-        rec['abs']['offline'] = np.mean([curve(f, off[s][1]) for s in off], 0).round(3).tolist()
-        rec['mean']['offline'] = float(np.mean([off[s][1].mean() for s in off]))
-        for a in ARMS:
-            assert all(np.array_equal(on[(a, s)][0], f) for s in SEEDS)
-            ds_ = [on[(a, s)][1] - off[pair(s)][1] for s in SEEDS]
-            cs = np.array([curve(f, d) for d in ds_])
-            m = cs.mean(0)
-            rec['abs'][a] = np.mean([curve(f, on[(a, s)][1]) for s in SEEDS], 0).round(3).tolist()
-            rec['gap'][a] = m.round(3).tolist()
-            rec.setdefault('gap_sym', {})[a] = np.mean([curve(f, d, True) for d in ds_], 0).round(3).tolist()
-            rec['gap_lo'][a] = cs.min(0).round(3).tolist(); rec['gap_hi'][a] = cs.max(0).round(3).tolist()
-            rec['bins'][a] = np.mean([b5(d) for d in ds_], 0).round(3).tolist()
-            rec['mean'][a] = float(np.mean([on[(a, s)][1].mean() for s in SEEDS]))
-            head = m[:91]
-            rec['mad'][a] = float(np.abs(head - head.mean()).mean())
-        for a, dirs in [(a, [on_dir(a, s) for s in SEEDS]) for a in ARMS] + [('offline', list(off_dirs.values()))]:
+        key = sc['key']
+        FIRST[key] = first_trained(offline_dir(sc, 0))
+        n_all = len(S.views(offline_dir(sc, 0))[0])
+        rec = dict(key=key, scene=sc['name'], dataset=sc['ds'], excluded=0, runs={}, offline={}, counts={}, lorenz={},
+                   gini={})
+        f0 = None
+        for seed in SEEDS:
+            od = offline_dir(sc, seed)
+            if not done(od) or (sc['kind'] != 'pinned' and seed and False):
+                continue
+            fo, po = V(od, key)
+            f0 = fo if f0 is None else f0
+            rec['offline'][seed] = dict(abs=curve(fo, po).round(3).tolist(), psnr=float(po.mean()), psnr90=float(po[(fo - fo[0]) / (fo[-1] - fo[0]) < .9].mean()))
+        rec['excluded'] = int(n_all - len(f0)); rec['n_views'] = int(len(f0))
+        for a in arms:
+            for seed in SEEDS:
+                d = online_dir(sc, a, seed)
+                if not done(d):
+                    continue
+                f, p = V(d, key)
+                assert np.array_equal(f, f0), (key, a, seed)
+                oseed = seed if seed in rec['offline'] and sc['kind'] == 'pinned' else 0
+                fo, po = V(offline_dir(sc, oseed), key)
+                g = p - po
+                t = (f - f[0]) / (f[-1] - f[0])
+                rec['runs'].setdefault(a, {})[seed] = dict(
+                    gap=curve(f, g).round(3).tolist(), gap_sym=curve(f, g, True).round(3).tolist(),
+                    abs=curve(f, p).round(3).tolist(), bins=[round(x, 3) for x in b5(g)],
+                    psnr=float(p.mean()), psnr90=float(p[t < .9].mean()))
+            if a not in rec['runs']:
+                continue
+            dirs = [online_dir(sc, a, s) for s in rec['runs'][a]]
             cc = [counts(d) for d in dirs]
             rec['counts'][a] = {k: [None if not np.isfinite(v) else round(float(v), 3)
-                                    for v in np.nanmean([c[k]['mean'] / c[k]['overall'] for c in cc], 0)]
-                                for k in ('kf', 'dense')}
+                                    for v in np.nanmean([c[k]['mean'] / c[k]['overall'] for c in cc], 0)] for k in ('kf', 'dense')}
             rec['counts'][a]['cv'] = {k: float(np.mean([c[k]['cv'] for c in cc])) for k in ('kf', 'dense')}
             lz = [lorenz(d) for d in dirs]
-            rec['lorenz'][a] = np.mean([x[0] for x in lz], 0).round(4).tolist()
-            rec['gini'][a] = float(np.mean([x[1] for x in lz]))
+            rec['lorenz'][a] = np.mean([x[0] for x in lz], 0).round(4).tolist(); rec['gini'][a] = float(np.mean([x[1] for x in lz]))
+        od = [offline_dir(sc, s) for s in rec['offline']]
+        cc = [counts(d) for d in od]
+        rec['counts']['offline'] = {k: [None if not np.isfinite(v) else round(float(v), 3)
+                                        for v in np.nanmean([c[k]['mean'] / c[k]['overall'] for c in cc], 0)] for k in ('kf', 'dense')}
+        rec['counts']['offline']['cv'] = {k: float(np.mean([c[k]['cv'] for c in cc])) for k in ('kf', 'dense')}
+        lz = [lorenz(d) for d in od]
+        rec['lorenz']['offline'] = np.mean([x[0] for x in lz], 0).round(4).tolist(); rec['gini']['offline'] = float(np.mean([x[1] for x in lz]))
+        if not all(a in rec['runs'] for a in ARMS):
+            continue
         scenes.append(rec)
-    pairs = {}
-    for metric in ('mad', 'gini'):
-        for a, b in (('ervs_k16', 'uniform_iid'), ('ervs_k16', 'uniform_k16'), ('uniform_k16', 'uniform_iid')):
-            diff = [s[metric][a] - s[metric][b] for s in scenes]
-            pairs[f'{metric}:{a}-{b}'] = dict(ci=boot(diff), wins=int(sum(d < 0 for d in diff)), n=len(diff))
-    val = validation(pinned, extra)
-    data = dict(sel_thr=SEL_THR, validation=val, grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, pairs=pairs)
+    data = dict(sel_thr=SEL_THR, grid=np.round(S.GRID, 3).tolist(), count_bins=S.NB, scenes=scenes, taus=[4, *TAUS])
     html = (HERE / 'offline_page.html').read_text().replace('__DATA__', json.dumps(data, separators=(',', ':')))
     (OUT / 'offline_compare.html').write_text(html)
-    print('scenes', len(scenes), {k: [round(x, 3) for x in v['ci']] + [v['wins'], v['n']] for k, v in pairs.items()})
+    print('scenes', len(scenes), {d: sum(s['dataset'] == d for s in scenes) for d in sorted({s['dataset'] for s in scenes})},
+          'tau arms', {a: sum(a in s['runs'] for s in scenes) for a in arms})
 
 
 if __name__ == '__main__':

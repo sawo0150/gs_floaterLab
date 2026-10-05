@@ -43,7 +43,7 @@ p { margin: 0; max-width: 72ch }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px }
 .stat { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0 }
 .stat .k { font-size: 12.5px; color: var(--muted) }
-.stat .v { font: 500 22px/1.2 var(--mono); font-variant-numeric: tabular-nums }
+.stat .v { font: 500 19px/1.25 var(--mono); font-variant-numeric: tabular-nums }
 .stat .s { font-size: 12.5px; color: var(--muted) }
 .pos { color: var(--good) } .neg { color: var(--bad) }
 .panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0 }
@@ -84,41 +84,30 @@ td.num { font-family: var(--mono) }
   <header>
     <div class="eyebrow">B mapper · budget 25 · <span id="nsc"></span>개 장면 · held-out view</div>
     <h1>온라인 학습은 offline 3DGS에 비해 어디서 손해를 보나</h1>
-    <p class="lede">offline 기준선은 같은 tracker 스트림과 같은 Gaussian 생성, 같은 render 수를 쓰되 스트림이 끝난 뒤 모든 view를 같은 횟수로 학습합니다. 각 held-out view에서 <b>온라인 PSNR − offline PSNR</b>을 구해 스트림 시간 축에 그렸습니다. 선이 평평할수록 offline 대비 손해가 시간에 고르게 퍼져 있다는 뜻입니다.</p>
-    <p class="lede">tracker가 초반에 맵을 리셋하기 때문에 최종 맵의 첫 학습 view는 스트림 시작보다 늦게 나옵니다. 그보다 앞의 held-out view는 근처에 학습된 view가 없어 모든 방법(offline 포함)에서 똑같이 이상치가 되므로 평가에서 뺐습니다. 장면마다 1~46개 view이고, 그 지점은 모든 arm·seed·offline run에서 같습니다. 시간 축 0은 최종 맵의 첫 학습 view입니다.</p>
+    <p class="lede">offline 기준선은 같은 tracker 스트림과 같은 Gaussian 생성, 같은 render 수를 쓰되 스트림이 끝난 뒤 모든 view를 같은 횟수로 학습합니다. 각 held-out view에서 <b>온라인 PSNR − offline PSNR</b>(또는 절대 PSNR)을 스트림 시간 축에 그렸습니다.</p>
+    <p class="lede">tracker가 초반에 맵을 리셋하기 때문에 최종 맵의 첫 학습 view는 스트림 시작보다 늦게 나옵니다. 그보다 앞의 held-out view는 근처에 학습된 view가 없어 모든 방법(offline 포함)에서 똑같이 이상치가 되므로 평가에서 뺐습니다. 시간 축 0은 최종 맵의 첫 학습 view입니다.</p>
   </header>
 
   <div class="edgebar">
-    <span class="ctl-label">이동평균 가장자리 처리 (모든 차이 곡선에 적용)</span>
-    <div class="seg" id="edgeSeg" role="group" aria-label="가장자리 처리">
-      <button data-v="one" aria-pressed="true">한쪽 창 (기본)</button><button data-v="sym" aria-pressed="false">대칭으로 줄어드는 창</button><button data-v="cut" aria-pressed="false">창이 꽉 찬 구간만</button></div>
-    <p class="cap" id="edgeCap"></p>
+    <div class="controls">
+      <div><span class="ctl-label">데이터셋</span><select id="dsSel" aria-label="데이터셋"></select></div>
+      <div><span class="ctl-label">ERVS τ</span><div class="seg" id="tauSeg" role="group" aria-label="ERVS tau"></div></div>
+      <div><span class="ctl-label">곡선 값</span><div class="seg" id="valueSeg" role="group" aria-label="곡선 값">
+        <button data-v="gap" aria-pressed="true">온라인 − offline</button><button data-v="abs" aria-pressed="false">절대 PSNR</button></div></div>
+      <div><span class="ctl-label">이동평균 가장자리</span><div class="seg" id="edgeSeg" role="group" aria-label="가장자리 처리">
+        <button data-v="one" aria-pressed="true">한쪽 창</button><button data-v="sym" aria-pressed="false">대칭 창</button><button data-v="cut" aria-pressed="false">꽉 찬 구간만</button></div></div>
+    </div>
+    <p class="cap" id="ctlCap"></p>
   </div>
 
   <div class="stats" id="stats"></div>
 
-  <section class="panel">
-    <h2>평균을 뺀 차이 곡선</h2>
-    <p class="cap">장면마다 차이 곡선에서 그 장면의 평균 차이를 뺐습니다. 이렇게 하면 offline과의 절대 차이는 지워지고 "시간에 따라 일정한가"만 남습니다. 왼쪽은 장면 평균, 오른쪽은 장면마다 0에서 벗어난 크기(절댓값)의 평균이라 장면끼리 상쇄되지 않습니다.</p>
-    <div class="legend" id="legend2"></div>
-    <div class="two"><div class="chart" id="cCentered"></div><div class="chart" id="cDev"></div></div>
-  </section>
-
-  <section class="panel">
-    <h2>장면별 고른 정도</h2>
-    <p class="cap">장면마다 차이 곡선(앞 90%)이 자기 평균에서 평균적으로 얼마나 벗어나는지(dB)입니다. 선 하나가 장면 하나이고, 오른쪽 점이 왼쪽 점보다 낮으면 ERVS가 더 고르게 만든 장면입니다.</p>
-    <div class="controls"><div><span class="ctl-label">비교 기준</span><div class="seg" id="baseSeg" role="group" aria-label="비교 기준">
-      <button data-v="uniform_iid" aria-pressed="true">균등 복원</button><button data-v="uniform_k16" aria-pressed="false">균등 group K16</button></div></div></div>
-    <div class="chart" id="cSlope"></div>
-    <div class="tablewrap"><table id="pairTbl"></table></div>
-  </section>
-
   <section class="panel" id="valPanel">
-    <h2>검증: 기준선만 보고 고른 장면을 다른 seed로 확인</h2>
-    <p class="cap">ERVS가 하는 일이 "품질을 늦게 들어온 view 쪽으로 옮기는 것"이라면, 균등 방식에서 늦은 view가 offline보다 더 손해를 보는 장면에서는 ERVS가 차이 곡선을 평평하게 만들어야 합니다. 이를 체리피킹 없이 확인하려고 두 단계로 나눴습니다.</p>
+    <h2>검증: 기준선만 보고 고른 장면</h2>
+    <p class="cap">ERVS가 하는 일이 "품질을 늦게 들어온 view 쪽으로 옮기는 것"이라면, 균등 방식에서 늦은 view가 offline보다 더 손해를 보는 장면에서는 ERVS가 곡선을 평평하게 만들어야 합니다.</p>
     <ol class="steps">
-      <li><b>선정</b> — ERVS 결과는 보지 않고, 균등 복원 <b>seed 0</b>의 차이 곡선만 봅니다. 스트림 앞 90%에서 시간과의 Spearman 상관이 <span id="thr"></span>보다 작으면(늦은 view일수록 더 손해) 선정합니다.</li>
-      <li><b>평가</b> — 선정에 쓰지 않은 <b>seed 1·2</b>로 세 방법의 곡선을 다시 구해 비교합니다. 선정과 평가의 데이터가 달라서 우연히 극단적인 장면을 고른 효과(평균으로의 회귀)가 섞이지 않습니다.</li>
+      <li><b>선정</b> — ERVS 결과는 보지 않고, 균등 복원 <b>seed 0</b>의 차이 곡선만 봅니다. 앞 90%에서 시간과의 Spearman 상관이 <span id="thr"></span>보다 작으면(늦은 view일수록 더 손해) 선정합니다.</li>
+      <li><b>평가</b> — 기본은 seed 0·1·2 평균입니다. seed 0은 선정에도 쓰였으므로, 엄밀한 검증은 "seed 1·2만"을 고르세요(선정에 쓰지 않은 데이터라 평균으로의 회귀가 섞이지 않습니다). seed 0만 있는 데이터셋은 "seed 1·2만"에서 빠집니다.</li>
     </ol>
     <div class="picker">
       <div class="picker-head"><span class="ctl-label">곡선에 넣을 장면 (체크하면 바로 다시 계산)</span>
@@ -126,24 +115,38 @@ td.num { font-family: var(--mono) }
         <span class="pick-state" id="pickState"></span></div>
       <div class="picks" id="picks"></div>
     </div>
+    <div class="controls">
+      <div><span class="ctl-label">평가 seed</span><div class="seg" id="seedSeg" role="group" aria-label="평가 seed">
+        <button data-v="all" aria-pressed="true">seed 0·1·2 평균</button><button data-v="held" aria-pressed="false">seed 1·2만 (엄밀)</button></div></div>
+      <div><span class="ctl-label">곡선</span><div class="seg" id="valSeg" role="group" aria-label="장면 묶음">
+        <button data-v="sel" aria-pressed="true">체크한 장면 평균</button><button data-v="rest" aria-pressed="false">체크 안 한 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div>
+    </div>
     <div class="stats" id="valStats"></div>
-    <div class="controls"><div><span class="ctl-label">곡선</span><div class="seg" id="valSeg" role="group" aria-label="장면 묶음">
-      <button data-v="sel" aria-pressed="true">체크한 장면 평균</button><button data-v="rest" aria-pressed="false">체크 안 한 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div></div>
     <div class="legend" id="legend3"></div>
     <div class="chart" id="cVal"></div>
     <p class="cap" id="valCap"></p>
-    <div class="chart" id="cSel"></div>
     <div class="tablewrap"><table id="valTbl"></table></div>
-    <p class="note" id="valNote"></p>
   </section>
 
   <section class="panel">
-    <h2>시간에 따른 차이 곡선</h2>
-    <div class="controls">
-      <div><span class="ctl-label">장면</span><select id="sceneSel" aria-label="장면"></select></div>
-      <div><span class="ctl-label">보기</span><div class="seg" id="viewSeg" role="group" aria-label="보기">
-        <button data-v="gap" aria-pressed="true">온라인 − offline</button><button data-v="abs" aria-pressed="false">절대 PSNR</button></div></div>
-    </div>
+    <h2>평균을 뺀 차이 곡선</h2>
+    <p class="cap">장면마다 차이 곡선에서 그 장면의 평균 차이를 뺐습니다. offline과의 절대 차이는 지워지고 "시간에 따라 일정한가"만 남습니다. 오른쪽은 장면마다 0에서 벗어난 크기(절댓값)의 평균이라 장면끼리 상쇄되지 않습니다. 이 패널은 항상 온라인 − offline 값을 씁니다.</p>
+    <div class="legend" id="legend2"></div>
+    <div class="two"><div class="chart" id="cCentered"></div><div class="chart" id="cDev"></div></div>
+  </section>
+
+  <section class="panel">
+    <h2>장면별 고른 정도</h2>
+    <p class="cap">장면마다 차이 곡선(앞 90%)이 자기 평균에서 평균적으로 얼마나 벗어나는지(dB). 선 하나가 장면 하나이고, 오른쪽 점이 왼쪽보다 낮으면 ERVS가 더 고르게 만든 장면입니다.</p>
+    <div class="controls"><div><span class="ctl-label">비교 기준</span><div class="seg" id="baseSeg" role="group" aria-label="비교 기준">
+      <button data-v="uniform_iid" aria-pressed="true">균등 복원</button><button data-v="uniform_k16" aria-pressed="false">균등 group K16</button></div></div></div>
+    <div class="chart" id="cSlope"></div>
+    <div class="tablewrap"><table id="pairTbl"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>시간에 따른 곡선</h2>
+    <div class="controls"><div><span class="ctl-label">장면</span><select id="sceneSel" aria-label="장면"></select></div></div>
     <div class="legend" id="legend"></div>
     <div class="chart" id="cMain"></div>
     <p class="cap" id="mainCap"></p>
@@ -152,7 +155,7 @@ td.num { font-family: var(--mono) }
 
   <section class="panel">
     <h2>학습량이 어디에 쓰였나</h2>
-    <p class="cap">왼쪽: view를 도착 순서로 늘어놓고, 앞에서부터 받은 학습량을 누적했습니다. offline은 대각선(모두 같은 양)이고, 위로 볼록할수록 앞쪽 view가 학습을 더 가져간 것입니다. 오른쪽: 도착 시점(20구간)별 평균 학습 횟수를 장면 평균으로 나눈 값(로그 눈금, 장면 기하평균).</p>
+    <p class="cap">왼쪽: view를 도착 순서로 늘어놓고, 앞에서부터 받은 학습량을 누적했습니다. offline은 대각선이고, 위로 볼록할수록 앞쪽 view가 학습을 더 가져간 것입니다. 오른쪽: 도착 시점(20구간)별 평균 학습 횟수 ÷ 장면 평균(로그 눈금, 장면 기하평균).</p>
     <div class="controls"><div><span class="ctl-label">오른쪽 view 종류</span><div class="seg" id="roleSeg" role="group" aria-label="view 종류">
       <button data-v="dense" aria-pressed="true">dense view</button><button data-v="kf" aria-pressed="false">KF view</button></div></div></div>
     <div class="two"><div class="chart" id="cLorenz"></div><div class="chart" id="cCount"></div></div>
@@ -160,8 +163,8 @@ td.num { font-family: var(--mono) }
   </section>
 
   <section class="panel">
-    <h2>장면별 차이 곡선</h2>
-    <p class="cap">온라인 seed 3개 평균(선)과 seed별 최솟값~최댓값(띠). 장면마다 세로축 범위가 다릅니다. 처음 4개 장면은 offline도 seed 3개(같은 seed끼리 짝), 나머지는 offline seed 0 하나입니다.</p>
+    <h2>장면별 곡선</h2>
+    <p class="cap">온라인 seed 평균(선)과 seed별 최솟값~최댓값(띠). 장면마다 세로축 범위가 다릅니다. Aria·RPNG·UTMM 처음 4개 장면은 offline도 seed 3개(같은 seed끼리 짝), 나머지는 offline seed 0 하나입니다. FAST-LIVO2는 RTX 5070 Ti에서 seed 0만 돌렸습니다.</p>
     <div class="grid3" id="small"></div>
   </section>
 
@@ -175,272 +178,256 @@ td.num { font-family: var(--mono) }
 <script>
 const D = __DATA__;
 const G = D.grid;
+const NS = 'http://www.w3.org/2000/svg';
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const mean = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN;
+const fmt = (v, d = 2) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const cls = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+const state = { ds: 'all', tau: 4, value: 'gap', edge: 'one', seeds: 'all', val: 'sel', base: 'uniform_iid', scene: 'mean', role: 'dense', picked: null };
 const ARM = {
   uniform_iid: { name: '균등 복원', color: '--iid', band: '--band-iid', dash: '6 4' },
   uniform_k16: { name: '균등 group K16', color: '--k16', band: '--band-k16', dash: '2 3' },
-  ervs_k16: { name: 'ERVS K16', color: '--ervs', band: '--band-ervs', dash: null },
   offline: { name: 'offline (같은 횟수)', color: '--off', dash: null }
 };
-const ONLINE = ['uniform_iid', 'uniform_k16', 'ervs_k16'];
-const state = { scene: 'mean', view: 'gap', role: 'dense' };
-const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const NS = 'http://www.w3.org/2000/svg';
-const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
-const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
-const fmt = (v, d = 2) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
-const cls = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+const E = () => state.tau === 4 ? 'ervs_k16' : 'ervs_t' + state.tau;
+for (const t of D.taus) ARM[t === 4 ? 'ervs_k16' : 'ervs_t' + t] = { name: `ERVS K16 τ=${t}`, color: '--ervs', band: '--band-ervs', dash: null };
+const ONLINE = () => ['uniform_iid', 'uniform_k16', E()];
+const H90 = 91;
+const shown = i => state.edge !== 'cut' || (G[i] >= 0.05 && G[i] <= 0.95);
 
-function frame(host, h, m) {
-  host.innerHTML = '';
-  const w = Math.max(280, host.clientWidth || 600);
-  const svg = el('svg', { viewBox: `0 0 ${w} ${h}`, role: 'img' }, host);
-  return { svg, host, w, h, x0: m.l, x1: w - m.r, y0: h - m.b, y1: m.t };
+// ---------- data access ----------
+const SC = () => D.scenes.filter(s => (state.ds === 'all' || s.dataset === state.ds) && s.runs[E()]);
+const seedSet = () => state.seeds === 'held' ? ['1', '2'] : null;
+const seedsOf = (s, a, set) => Object.keys(s.runs[a] || {}).filter(k => !set || set.includes(k));
+const avgArr = arrs => arrs.length ? arrs[0].map((_, i) => mean(arrs.map(r => r[i]))) : null;
+function cur(s, a, value, set) {
+  if (a === 'offline') { const ks = Object.keys(s.offline).filter(k => !set || set.includes(k) || Object.keys(s.offline).length === 1); return avgArr(ks.map(k => s.offline[k].abs)); }
+  const key = value === 'abs' ? 'abs' : state.edge === 'sym' ? 'gap_sym' : 'gap';
+  const ks = seedsOf(s, a, set); return ks.length ? avgArr(ks.map(k => s.runs[a][k][key])) : null;
 }
+const psnr = (s, a) => a === 'offline' ? mean(Object.values(s.offline).map(o => o.psnr)) : mean(Object.values(s.runs[a]).map(r => r.psnr));
+const bins = (s, a) => avgArr(Object.values(s.runs[a]).map(r => r.bins));
+function spearman(y) { const n = y.length, o = y.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]), r = new Array(n); o.forEach((x, k) => r[x[1]] = k);
+  const m = (n - 1) / 2; let num = 0, dx = 0; for (let i = 0; i < n; i++) { num += (i - m) * (r[i] - m); dx += (i - m) ** 2; } return num / dx; }
+const slopeOf = c => spearman(c.slice(0, H90));
+const lateOf = c => mean(c.slice(60, H90)) - mean(c.slice(0, 40));
+const madOf = c => { const h = c.slice(0, H90), m = mean(h); return mean(h.map(v => Math.abs(v - m))); };
+const MAD = (s, a) => madOf(cur(s, a, 'gap', null));
+function boot(x) { let st = 12345; const rnd = () => { st = (st * 1103515245 + 12345) % 2147483648; return st / 2147483648; };
+  const m = []; for (let b = 0; b < 3000; b++) { let t = 0; for (let i = 0; i < x.length; i++) t += x[Math.floor(rnd() * x.length)]; m.push(t / x.length); }
+  m.sort((p, q) => p - q); return [mean(x), m[Math.floor(.025 * m.length)], m[Math.floor(.975 * m.length)]]; }
+
+// ---------- drawing ----------
+function frame(host, h, m) { host.innerHTML = ''; const w = Math.max(280, host.clientWidth || 600); const svg = el('svg', { viewBox: `0 0 ${w} ${h}`, role: 'img' }, host); return { svg, host, w, h, x0: m.l, x1: w - m.r, y0: h - m.b, y1: m.t }; }
 function yAxis(f, lo, hi, title, tick = v => v.toFixed(1), log = false) {
-  const tr = log ? v => Math.log(v) : v => v;
-  const y = v => f.y0 - (tr(v) - tr(lo)) / (tr(hi) - tr(lo)) * (f.y0 - f.y1);
-  let ticks;
-  if (log) ticks = [0.25, 0.5, 1, 2, 4].filter(v => v >= lo && v <= hi);
-  else { const span = hi - lo, st = [0.1, 0.2, 0.25, 0.5, 1, 2].find(s => span / s <= 7) || 5; ticks = []; for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) ticks.push(+v.toFixed(3)); }
-  for (const v of ticks) { el('line', { x1: f.x0, x2: f.x1, y1: y(v), y2: y(v), stroke: css('--grid') }, f.svg);
-    el('text', { x: f.x0 - 8, y: y(v) + 4, 'text-anchor': 'end' }, f.svg).textContent = tick(v); }
-  const t = el('text', { class: 'axis-title', transform: `translate(${13},${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg); t.textContent = title;
-  return y;
-}
-function xAxis(f, n = 1) {
-  const x = v => f.x0 + v / n * (f.x1 - f.x0);
-  for (let i = 0; i <= 5; i++) { const v = i / 5 * n; el('text', { x: x(v), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (i / 5).toFixed(1); }
+  const tr = log ? Math.log : v => v; const y = v => f.y0 - (tr(v) - tr(lo)) / (tr(hi) - tr(lo)) * (f.y0 - f.y1);
+  let ticks; if (log) ticks = [0.25, 0.5, 1, 2, 4].filter(v => v >= lo && v <= hi);
+  else { const span = hi - lo, st = [0.1, 0.2, 0.25, 0.5, 1, 2, 5].find(s => span / s <= 7) || 10; ticks = []; for (let v = Math.ceil(lo / st) * st; v <= hi + 1e-9; v += st) ticks.push(+v.toFixed(3)); }
+  for (const v of ticks) { el('line', { x1: f.x0, x2: f.x1, y1: y(v), y2: y(v), stroke: css('--grid') }, f.svg); el('text', { x: f.x0 - 8, y: y(v) + 4, 'text-anchor': 'end' }, f.svg).textContent = tick(v); }
+  el('text', { class: 'axis-title', transform: `translate(${13},${(f.y0 + f.y1) / 2}) rotate(-90)`, 'text-anchor': 'middle' }, f.svg).textContent = title; return y; }
+function xAxis(f, label = '최종 맵 구간의 시간 (0 = 최종 맵 첫 학습 view, 1 = 끝)') { const x = v => f.x0 + v * (f.x1 - f.x0);
+  for (let i = 0; i <= 5; i++) el('text', { x: x(i / 5), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (i / 5).toFixed(1);
   el('line', { x1: f.x0, x2: f.x1, y1: f.y0, y2: f.y0, stroke: css('--rule') }, f.svg);
-  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '최종 맵 구간의 시간 (0 = 최종 맵 첫 학습 view, 1 = 끝)';
-  return x;
-}
-const pathD = (xs, ys, x, y) => { let out = '', pen = false; xs.forEach((v, i) => { if (xs === G && !shown(i)) { pen = false; return; } out += (pen ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1) + ' '; pen = true; }); return out; };
-function line(f, xs, ys, x, y, arm, w = 2.3) { const p = el('path', { d: pathD(xs, ys, x, y), fill: 'none', stroke: css(ARM[arm].color), 'stroke-width': w, 'stroke-linejoin': 'round' }, f.svg); if (ARM[arm].dash) p.setAttribute('stroke-dasharray', ARM[arm].dash); return p; }
-function band(f, xs, lo, hi, x, y, arm) { const idx = xs.map((_, i) => i).filter(i => xs !== G || shown(i)); if (!idx.length) return;
-  el('path', { d: idx.map((i, k) => (k ? 'L' : 'M') + x(xs[i]).toFixed(1) + ' ' + y(hi[i]).toFixed(1)).join(' ') + ' ' + idx.slice().reverse().map(i => 'L' + x(xs[i]).toFixed(1) + ' ' + y(lo[i]).toFixed(1)).join(' ') + ' Z', fill: css(ARM[arm].band), stroke: 'none' }, f.svg); }
-function crosshair(f, xs, x, html) {
-  const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; f.host.appendChild(tip);
+  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = label; return x; }
+const pathD = (ys, x, y, clip = true) => { let o = '', pen = false; G.forEach((v, i) => { if ((clip && !shown(i)) || ys[i] == null || !isFinite(ys[i])) { pen = false; return; } o += (pen ? 'L' : 'M') + x(v).toFixed(1) + ' ' + y(ys[i]).toFixed(1) + ' '; pen = true; }); return o; };
+function line(f, ys, x, y, a, w = 2.3, clip = true) { const p = el('path', { d: pathD(ys, x, y, clip), fill: 'none', stroke: css(ARM[a].color), 'stroke-width': w, 'stroke-linejoin': 'round' }, f.svg); if (ARM[a].dash) p.setAttribute('stroke-dasharray', ARM[a].dash); }
+function band(f, lo, hi, x, y, a) { const idx = G.map((_, i) => i).filter(shown); if (!idx.length) return;
+  el('path', { d: idx.map((i, k) => (k ? 'L' : 'M') + x(G[i]).toFixed(1) + ' ' + y(hi[i]).toFixed(1)).join(' ') + ' ' + idx.slice().reverse().map(i => 'L' + x(G[i]).toFixed(1) + ' ' + y(lo[i]).toFixed(1)).join(' ') + ' Z', fill: css(ARM[a].band), stroke: 'none' }, f.svg); }
+function crosshair(f, xs, x, html) { const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; f.host.appendChild(tip);
   const vl = el('line', { y1: f.y1, y2: f.y0, stroke: css('--faint'), 'stroke-dasharray': '3 3', visibility: 'hidden' }, f.svg);
   const hit = el('rect', { x: f.x0, y: f.y1, width: f.x1 - f.x0, height: f.y0 - f.y1, fill: 'transparent' }, f.svg);
-  const move = ev => { const r = f.svg.getBoundingClientRect(), px = (ev.clientX - r.left) * f.w / r.width;
-    let i = 0, best = 1e9; xs.forEach((v, k) => { const dd = Math.abs(x(v) - px); if (dd < best) { best = dd; i = k; } });
-    vl.setAttribute('x1', x(xs[i])); vl.setAttribute('x2', x(xs[i])); vl.setAttribute('visibility', 'visible');
-    tip.innerHTML = html(i); tip.hidden = false;
-    const left = x(xs[i]) * r.width / f.w; tip.style.left = Math.min(left + 12, r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px'; };
-  hit.addEventListener('pointermove', move); hit.addEventListener('pointerleave', () => { tip.hidden = true; vl.setAttribute('visibility', 'hidden'); });
-}
-function keySvg(arm) { const s = el('svg', { width: 26, height: 10 }); const l = el('line', { x1: 1, x2: 25, y1: 5, y2: 5, stroke: css(ARM[arm].color), 'stroke-width': 2.5 }, s); if (ARM[arm].dash) l.setAttribute('stroke-dasharray', ARM[arm].dash); return s; }
-
-function sel() { return state.scene === 'mean' ? D.scenes : D.scenes.filter(s => s.key === state.scene); }
-const avg = (sc, f) => G.map((_, i) => mean(sc.map(s => f(s)[i])));
-const H90 = 91;
-const EDGE_CAP = { one: '기본: 창 크기는 view 수의 10%. 시작·끝에서는 한쪽 view만으로 평균을 냅니다. 그래서 가장자리 값은 한쪽으로 치우치고 view 수가 적어 흔들립니다.',
-  sym: '창이 가장자리에서 양쪽으로 똑같이 줄어듭니다. 맨 처음 점은 그 view 하나의 값이고, 안쪽으로 갈수록 창이 커집니다. 가장자리 값이 한쪽으로 치우치지는 않지만 view 수가 적어 더 흔들릴 수 있습니다.',
-  cut: '창 절반(5%)이 양쪽에 모두 들어가는 구간(시간 0.05~0.95)만 그립니다. 가장자리 계산 방식의 영향이 전혀 없습니다. 요약 수치와 표는 기본 방식 그대로입니다.' };
-const gapOf = (s, a) => state.edge === 'sym' ? s.gap_sym[a] : s.gap[a];
-const valOf = (v, a) => state.edge === 'sym' ? v.curve_sym[a] : v.curve[a];
-const shown = i => state.edge !== 'cut' || (G[i] >= 0.05 && G[i] <= 0.95);
-const centered = (s, a) => { const g = gapOf(s, a), m = mean(g.slice(0, H90)); return g.map(v => v - m); };
+  hit.addEventListener('pointermove', ev => { const r = f.svg.getBoundingClientRect(), px = (ev.clientX - r.left) * f.w / r.width; let i = 0, b = 1e9; xs.forEach((v, k) => { const d = Math.abs(x(v) - px); if (d < b) { b = d; i = k; } });
+    vl.setAttribute('x1', x(xs[i])); vl.setAttribute('x2', x(xs[i])); vl.setAttribute('visibility', 'visible'); tip.innerHTML = html(i); tip.hidden = false;
+    tip.style.left = Math.min(x(xs[i]) * r.width / f.w + 12, r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px'; });
+  hit.addEventListener('pointerleave', () => { tip.hidden = true; vl.setAttribute('visibility', 'hidden'); }); }
+function keySvg(a) { const s = el('svg', { width: 26, height: 10 }); const l = el('line', { x1: 1, x2: 25, y1: 5, y2: 5, stroke: css(ARM[a].color), 'stroke-width': 2.5 }, s); if (ARM[a].dash) l.setAttribute('stroke-dasharray', ARM[a].dash); return s; }
 function legendInto(id, arms) { const lg = document.getElementById(id); lg.innerHTML = ''; for (const a of arms) { const k = document.createElement('span'); k.className = 'key'; k.appendChild(keySvg(a)); k.append(ARM[a].name); lg.appendChild(k); } }
-
-function renderStats() {
-  const sc = D.scenes, H = document.getElementById('stats');
-  const g = a => mean(sc.map(s => s.mean[a] - s.mean.offline));
-  const m = a => mean(sc.map(s => s.mad[a]));
-  const gi = a => mean(sc.map(s => s.gini[a]));
-  const p = D.pairs['mad:ervs_k16-uniform_iid'], q = D.pairs['mad:ervs_k16-uniform_k16'];
-  const tri = f => ONLINE.map(a => `<span style="color:var(${ARM[a].color})">${f(a)}</span>`).join(' ');
-  H.innerHTML = `
-  <div class="stat"><span class="k">offline 대비 평균 PSNR 차이</span><span class="v">${tri(a => fmt(g(a)))}</span><span class="s">균등 복원 · 균등 group · ERVS (dB, ${sc.length}장면 평균)</span></div>
-  <div class="stat"><span class="k">차이 곡선이 평균에서 벗어난 크기</span><span class="v">${tri(a => m(a).toFixed(3))}</span><span class="s">작을수록 고름 · ERVS가 더 고른 장면: 균등 복원 대비 ${p.wins}/${p.n}, 균등 group 대비 ${q.wins}/${q.n}</span></div>
-  <div class="stat"><span class="k">학습량 앞쪽 쏠림 (0 = offline)</span><span class="v">${tri(a => gi(a).toFixed(3))}</span><span class="s">누적 곡선과 대각선 사이 넓이 ×2 · offline ${mean(sc.map(s => s.gini.offline)).toFixed(3)}</span></div>`;
+const tipRows = (arms, C, i, gap) => arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${C[a] && C[a][i] != null ? (gap ? fmt(C[a][i]) : C[a][i].toFixed(2)) : '—'}`).join('<br>');
+function curveChart(host, h, sc, value, set, opts = {}) {
+  const gap = value === 'gap', arms = gap ? ONLINE() : ['offline', ...ONLINE()];
+  const f = frame(host, h, { l: 56, r: 14, t: 12, b: 46 });
+  const C = {}; for (const a of arms) { const cs = sc.map(s => cur(s, a, value, set)).filter(Boolean); C[a] = cs.length ? avgArr(cs) : null; }
+  const vis = Object.values(C).filter(Boolean).flatMap(c => c.filter((_, i) => shown(i))).concat(gap ? [0] : []);
+  if (!vis.length) return C;
+  const y = yAxis(f, Math.floor(Math.min(...vis) * 4) / 4 - .1, Math.ceil(Math.max(...vis) * 4) / 4 + .1, gap ? '온라인 − offline PSNR (dB)' : 'held-out PSNR (dB)', v => gap ? fmt(v, 1) : v.toFixed(1)), x = xAxis(f);
+  if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
+  if (opts.shade90) el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
+  if (opts.bandScene) for (const a of ONLINE()) { const rs = seedsOf(opts.bandScene, a, set).map(k => opts.bandScene.runs[a][k][value === 'abs' ? 'abs' : state.edge === 'sym' ? 'gap_sym' : 'gap']); if (rs.length > 1) band(f, G.map((_, i) => Math.min(...rs.map(r => r[i]))), G.map((_, i) => Math.max(...rs.map(r => r[i]))), x, y, a); }
+  for (const a of arms) if (C[a]) line(f, C[a], x, y, a);
+  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b><br>` + tipRows(arms, C, i, gap));
+  return C;
 }
 
+// ---------- panels ----------
+function renderStats() {
+  const sc = SC(), e = E(), H = document.getElementById('stats');
+  const tri = f => ONLINE().map(a => `<span style="color:var(${ARM[a].color})">${f(a)}</span>`).join(' ');
+  const d = sc.map(s => psnr(s, e) - psnr(s, 'uniform_iid')), dk = sc.map(s => psnr(s, 'uniform_k16') - psnr(s, 'uniform_iid'));
+  const ci = boot(d);
+  H.innerHTML = `
+  <div class="stat"><span class="k">offline 대비 평균 PSNR 차이</span><span class="v">${tri(a => fmt(mean(sc.map(s => psnr(s, a) - psnr(s, 'offline')))))}</span><span class="s">균등 복원 · 균등 group · ERVS τ=${state.tau} (dB, ${sc.length}장면)</span></div>
+  <div class="stat"><span class="k">ERVS τ=${state.tau} − 균등 복원 평균 PSNR</span><span class="v ${cls(ci[0])}">${fmt(ci[0], 3)} dB</span><span class="s">95% [${fmt(ci[1], 3)}, ${fmt(ci[2], 3)}] · ${d.filter(x => x > 0).length}/${d.length} 장면 · 균등 group ${fmt(mean(dk), 3)}</span></div>
+  <div class="stat"><span class="k">차이 곡선 편차 (작을수록 고름)</span><span class="v">${tri(a => mean(sc.map(s => MAD(s, a))).toFixed(3))}</span><span class="s">ERVS가 균등 복원보다 고른 장면 ${sc.filter(s => MAD(s, e) < MAD(s, 'uniform_iid')).length}/${sc.length}</span></div>
+  <div class="stat"><span class="k">학습량 앞쪽 쏠림 (0 = offline)</span><span class="v">${tri(a => mean(sc.map(s => s.gini[a])).toFixed(3))}</span><span class="s">offline ${mean(sc.map(s => s.gini.offline)).toFixed(3)}</span></div>`;
+}
+
+function buildPicks() {
+  const sc = SC(), thr = D.sel_thr, H = document.getElementById('picks');
+  const sel0 = s => slopeOf(s.runs.uniform_iid['0'].gap);
+  if (!state.picked) state.picked = new Set(sc.filter(s => sel0(s) < thr).map(s => s.scene));
+  H.innerHTML = sc.slice().sort((p, q) => sel0(p) - sel0(q)).map(s => `<label for="pk-${s.scene}"><input type="checkbox" id="pk-${s.scene}" data-scene="${s.scene}"${state.picked.has(s.scene) ? ' checked' : ''}>${s.scene}<span class="meta${sel0(s) < thr ? ' rule' : ''}">${fmt(sel0(s))}</span></label>`).join('');
+}
+function renderVal() {
+  const all = SC(), thr = D.sel_thr, e = E(), set = seedSet();
+  document.getElementById('thr').textContent = thr.toFixed(1);
+  const sel0 = s => slopeOf(s.runs.uniform_iid['0'].gap);
+  const ok = s => seedsOf(s, e, set).length && seedsOf(s, 'uniform_iid', set).length;
+  const ruleSet = all.filter(s => sel0(s) < thr).map(s => s.scene);
+  const sel = all.filter(s => state.picked.has(s.scene) && ok(s)), rest = all.filter(s => !state.picked.has(s.scene) && ok(s));
+  const manual = !(ruleSet.length === [...state.picked].filter(n => all.some(s => s.scene === n)).length && ruleSet.every(n => state.picked.has(n)));
+  const ps = document.getElementById('pickState');
+  ps.textContent = manual ? `직접 고른 ${sel.length}개 장면: 규칙(seed 0 기준선)으로 고른 묶음이 아니므로 검증 결과가 아닙니다` : `규칙으로 선정된 ${sel.length}개 장면` + (state.seeds === 'all' ? ' (seed 0을 포함해 평가하므로 낙관적일 수 있음)' : ' (선정에 쓰지 않은 seed로 평가)');
+  ps.className = 'pick-state' + (manual ? ' manual' : '');
+  const rep = all.filter(s => sel0(s) < thr && ok(s)).sort((p, q) => sel0(p) - sel0(q))[0];
+  const g = state.val === 'sel' ? sel : state.val === 'rest' ? rest : rep ? [rep] : [];
+  legendInto('legend3', state.value === 'gap' ? ONLINE() : ['offline', ...ONLINE()]);
+  if (!g.length) { document.getElementById('valStats').innerHTML = '<div class="stat"><span class="k">표시할 장면이 없습니다</span><span class="s">장면을 체크하거나 평가 seed를 바꾸세요.</span></div>'; document.getElementById('cVal').innerHTML = ''; document.getElementById('valCap').textContent = ''; document.getElementById('valTbl').innerHTML = ''; return; }
+  const per = s => { const o = {}; for (const a of ONLINE()) { const ks = seedsOf(s, a, set); o[a] = { slope: mean(ks.map(k => slopeOf(s.runs[a][k].gap))), late: mean(ks.map(k => lateOf(s.runs[a][k].gap))), psnr: mean(ks.map(k => s.runs[a][k].psnr90)) }; } return o; };
+  const P = new Map(all.filter(ok).map(s => [s.scene, per(s)]));
+  const dif = (grp, key) => grp.map(s => P.get(s.scene)[e][key] - P.get(s.scene).uniform_iid[key]);
+  const up = a => a.filter(x => x > 0).length;
+  const dS = dif(sel, 'slope'), dL = dif(sel, 'late'), dP = dif(sel, 'psnr'), kS = sel.map(s => P.get(s.scene).uniform_k16.slope - P.get(s.scene).uniform_iid.slope), kP = sel.map(s => P.get(s.scene).uniform_k16.psnr - P.get(s.scene).uniform_iid.psnr);
+  const seedTxt = state.seeds === 'held' ? 'seed 1·2' : 'seed 0·1·2';
+  document.getElementById('valStats').innerHTML = `
+  <div class="stat"><span class="k">${manual ? '직접 고른 장면' : '선정된 장면'}</span><span class="v">${sel.length} / ${all.filter(ok).length}</span><span class="s">${sel.map(s => s.scene).join(', ') || '—'}</span></div>
+  <div class="stat"><span class="k">${seedTxt}: 기울기 변화 (ERVS − 균등 복원)</span><span class="v ${cls(mean(dS))}">${sel.length ? fmt(mean(dS)) : '—'}</span><span class="s">${up(dS)}/${sel.length} 장면에서 0 쪽으로 · 균등 group ${sel.length ? fmt(mean(kS)) : '—'}</span></div>
+  <div class="stat"><span class="k">${seedTxt}: (후반 − 초반) 차이 변화</span><span class="v ${cls(mean(dL))}">${sel.length ? fmt(mean(dL)) + ' dB' : '—'}</span><span class="s">${up(dL)}/${sel.length} 장면 · 체크 안 한 ${rest.length}개 ${rest.length ? fmt(mean(dif(rest, 'late'))) + ' dB' : '—'}</span></div>
+  <div class="stat"><span class="k">${seedTxt}: 평균 PSNR (ERVS − 균등 복원)</span><span class="v ${cls(mean(dP))}">${sel.length ? fmt(mean(dP), 3) + ' dB' : '—'}</span><span class="s">앞 90% view · ${up(dP)}/${sel.length} 장면 · 균등 group ${sel.length ? fmt(mean(kP), 3) : '—'}</span></div>`;
+  curveChart(document.getElementById('cVal'), 310, g, state.value, set, { shade90: true });
+  document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${manual && state.val === 'sel' ? ' (직접 고른 묶음)' : ''}. `) + `${seedTxt} 평균. 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.`;
+  document.getElementById('valTbl').innerHTML = `<thead><tr><th>장면</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS τ=${state.tau}</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>평균 PSNR 차이</th><th></th></tr></thead><tbody>` +
+    all.filter(ok).sort((p, q) => sel0(p) - sel0(q)).map(s => { const q = P.get(s.scene), r = sel0(s) < thr;
+      return `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${fmt(sel0(s))}</td><td class="num">${fmt(q.uniform_iid.slope)}</td><td class="num">${fmt(q.uniform_k16.slope)}</td><td class="num ${r ? cls(q[e].slope - q.uniform_iid.slope) : ''}">${fmt(q[e].slope)}</td><td class="num">${fmt(q.uniform_iid.late)}</td><td class="num ${r ? cls(q[e].late - q.uniform_iid.late) : ''}">${fmt(q[e].late)}</td><td class="num">${fmt(q[e].psnr - q.uniform_iid.psnr, 3)}</td><td>${r ? '규칙 선정' : ''}${state.picked.has(s.scene) ? ' ✓' : ''}</td></tr>`; }).join('') + '</tbody>';
+}
+
+const centered = (s, a) => { const g = cur(s, a, 'gap', null), m = mean(g.slice(0, H90)); return g.map(v => v - m); };
 function renderCentered() {
-  legendInto('legend2', ONLINE);
-  const sc = D.scenes;
+  legendInto('legend2', ONLINE()); const sc = SC();
   let f = frame(document.getElementById('cCentered'), 290, { l: 56, r: 12, t: 12, b: 46 });
-  const C = {}; for (const a of ONLINE) C[a] = avg(sc, s => centered(s, a));
-  let all = Object.values(C).flat().concat([0]);
-  let ext = Math.max(.25, Math.ceil(Math.max(...all.map(Math.abs)) * 4) / 4);
+  const C = {}; for (const a of ONLINE()) C[a] = avgArr(sc.map(s => centered(s, a)));
+  let ext = Math.max(.25, Math.ceil(Math.max(...Object.values(C).flatMap(c => c.filter((_, i) => shown(i))).map(Math.abs)) * 4) / 4);
   let y = yAxis(f, -ext, ext, '차이 − 장면 평균 (dB)', v => fmt(v, 2)), x = xAxis(f);
   el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
-  for (const a of ONLINE) line(f, G, C[a], x, y, a);
-  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면 평균<br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(C[a][i])}`).join('<br>'));
+  for (const a of ONLINE()) line(f, C[a], x, y, a);
+  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면 평균<br>` + tipRows(ONLINE(), C, i, true));
   f = frame(document.getElementById('cDev'), 290, { l: 56, r: 12, t: 12, b: 46 });
-  const M = {}; for (const a of ONLINE) M[a] = avg(sc, s => centered(s, a).map(Math.abs));
-  all = Object.values(M).flat();
-  y = yAxis(f, 0, Math.ceil(Math.max(...all) * 4) / 4, '|차이 − 장면 평균| (dB)', v => v.toFixed(2)); x = xAxis(f);
-  for (const a of ONLINE) line(f, G, M[a], x, y, a);
-  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면별 절댓값 평균<br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${M[a][i].toFixed(2)}`).join('<br>'));
+  const M = {}; for (const a of ONLINE()) M[a] = avgArr(sc.map(s => centered(s, a).map(Math.abs)));
+  y = yAxis(f, 0, Math.ceil(Math.max(...Object.values(M).flat()) * 4) / 4, '|차이 − 장면 평균| (dB)', v => v.toFixed(2)); x = xAxis(f);
+  for (const a of ONLINE()) line(f, M[a], x, y, a);
+  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · 장면별 절댓값 평균<br>` + ONLINE().map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${M[a][i].toFixed(2)}`).join('<br>'));
 }
 
 function renderSlope() {
-  const base = state.base, sc = D.scenes.slice().sort((p, q) => q.mad[base] - p.mad[base]);
-  const f = frame(document.getElementById('cSlope'), 520, { l: 56, r: 150, t: 22, b: 30 });
-  const vals = sc.flatMap(s => [s.mad[base], s.mad.ervs_k16]);
+  const base = state.base, e = E(), sc = SC().slice().sort((p, q) => MAD(q, base) - MAD(p, base));
+  const f = frame(document.getElementById('cSlope'), Math.max(360, 26 * sc.length), { l: 56, r: 150, t: 22, b: 30 });
+  const vals = sc.flatMap(s => [MAD(s, base), MAD(s, e)]);
   const y = yAxis(f, 0, Math.ceil(Math.max(...vals) * 4) / 4, '평균에서 벗어난 크기 (dB)', v => v.toFixed(2));
-  const xa = f.x0 + (f.x1 - f.x0) * 0.15, xb = f.x0 + (f.x1 - f.x0) * 0.85;
+  const xa = f.x0 + (f.x1 - f.x0) * .15, xb = f.x0 + (f.x1 - f.x0) * .85;
   el('text', { x: xa, y: f.y0 + 20, 'text-anchor': 'middle' }, f.svg).textContent = ARM[base].name;
-  el('text', { x: xb, y: f.y0 + 20, 'text-anchor': 'middle' }, f.svg).textContent = 'ERVS K16';
+  el('text', { x: xb, y: f.y0 + 20, 'text-anchor': 'middle' }, f.svg).textContent = ARM[e].name;
   const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; f.host.appendChild(tip);
-  for (const s of sc) {
-    const better = s.mad.ervs_k16 < s.mad[base], col = better ? css('--ervs') : css('--faint');
-    const g = el('g', {}, f.svg);
-    el('line', { x1: xa, x2: xb, y1: y(s.mad[base]), y2: y(s.mad.ervs_k16), stroke: col, 'stroke-width': better ? 1.8 : 1.2, opacity: better ? 1 : .8 }, g);
-    el('circle', { cx: xa, cy: y(s.mad[base]), r: 4, fill: css(ARM[base].color) }, g);
-    el('circle', { cx: xb, cy: y(s.mad.ervs_k16), r: 4, fill: css('--ervs') }, g);
-    const hit = el('line', { x1: xa, x2: xb, y1: y(s.mad[base]), y2: y(s.mad.ervs_k16), stroke: 'transparent', 'stroke-width': 10 }, g);
-    hit.addEventListener('pointerenter', ev => { tip.innerHTML = `<b>${s.scene}</b> (${s.dataset})<br>${ARM[base].name} ${s.mad[base].toFixed(3)}<br>ERVS ${s.mad.ervs_k16.toFixed(3)} (${fmt(s.mad.ervs_k16 - s.mad[base], 3)})`; tip.hidden = false;
-      const r = f.svg.getBoundingClientRect(); tip.style.left = (ev.clientX - r.left + 12) + 'px'; tip.style.top = (ev.clientY - r.top - 10) + 'px'; });
-    hit.addEventListener('pointerleave', () => tip.hidden = true);
-  }
-  const lab = sc.map(s => ({ s, y: y(s.mad.ervs_k16) })).sort((p, q) => p.y - q.y);
-  let last = -1e9; for (const o of lab) { const yy = Math.max(o.y + 4, last + 11.5); last = yy; const t = el('text', { x: xb + 10, y: yy }, f.svg); t.textContent = o.s.scene; }
-  const nm = { 'ervs_k16-uniform_iid': 'ERVS − 균등 복원', 'ervs_k16-uniform_k16': 'ERVS − 균등 group (횟수 항의 효과)', 'uniform_k16-uniform_iid': '균등 group − 균등 복원' };
-  document.getElementById('pairTbl').innerHTML = '<thead><tr><th>장면 단위 쌍 비교</th><th>지표</th><th>평균 차이</th><th>95% 구간</th><th>낮아진 장면</th></tr></thead><tbody>' +
-    Object.entries(D.pairs).map(([k, v]) => { const [m, pr] = k.split(':'); return `<tr><td>${nm[pr]}</td><td>${m === 'mad' ? '차이 곡선 편차' : '학습량 앞쪽 쏠림'}</td><td class="num ${cls(-v.ci[0])}">${fmt(v.ci[0], 3)}</td><td class="num">[${fmt(v.ci[1], 3)}, ${fmt(v.ci[2], 3)}]</td><td class="num">${v.wins}/${v.n}</td></tr>`; }).join('') + '</tbody>';
+  for (const s of sc) { const b = MAD(s, base), v = MAD(s, e), better = v < b, g = el('g', {}, f.svg);
+    el('line', { x1: xa, x2: xb, y1: y(b), y2: y(v), stroke: better ? css('--ervs') : css('--faint'), 'stroke-width': better ? 1.8 : 1.2 }, g);
+    el('circle', { cx: xa, cy: y(b), r: 4, fill: css(ARM[base].color) }, g); el('circle', { cx: xb, cy: y(v), r: 4, fill: css('--ervs') }, g);
+    const hit = el('line', { x1: xa, x2: xb, y1: y(b), y2: y(v), stroke: 'transparent', 'stroke-width': 10 }, g);
+    hit.addEventListener('pointerenter', ev => { tip.innerHTML = `<b>${s.scene}</b> (${s.dataset})<br>${ARM[base].name} ${b.toFixed(3)}<br>${ARM[e].name} ${v.toFixed(3)} (${fmt(v - b, 3)})`; tip.hidden = false; const r = f.svg.getBoundingClientRect(); tip.style.left = (ev.clientX - r.left + 12) + 'px'; tip.style.top = (ev.clientY - r.top - 10) + 'px'; });
+    hit.addEventListener('pointerleave', () => tip.hidden = true); }
+  let last = -1e9; for (const o of sc.map(s => ({ s, y: y(MAD(s, e)) })).sort((p, q) => p.y - q.y)) { const yy = Math.max(o.y + 4, last + 11.5); last = yy; el('text', { x: xb + 10, y: yy }, f.svg).textContent = o.s.scene; }
+  const pr = [['ERVS − 균등 복원', s => MAD(s, e) - MAD(s, 'uniform_iid'), s => s.gini[e] - s.gini.uniform_iid], ['ERVS − 균등 group (횟수 항의 효과)', s => MAD(s, e) - MAD(s, 'uniform_k16'), s => s.gini[e] - s.gini.uniform_k16], ['균등 group − 균등 복원', s => MAD(s, 'uniform_k16') - MAD(s, 'uniform_iid'), s => s.gini.uniform_k16 - s.gini.uniform_iid]];
+  const all = SC(); const row = (n, m, f2) => { const d = all.map(f2), c = boot(d); return `<tr><td>${n}</td><td>${m}</td><td class="num ${cls(-c[0])}">${fmt(c[0], 3)}</td><td class="num">[${fmt(c[1], 3)}, ${fmt(c[2], 3)}]</td><td class="num">${d.filter(x => x < 0).length}/${d.length}</td></tr>`; };
+  document.getElementById('pairTbl').innerHTML = '<thead><tr><th>장면 단위 쌍 비교</th><th>지표</th><th>평균 차이</th><th>95% 구간</th><th>낮아진 장면</th></tr></thead><tbody>' + pr.map(p => row(p[0], '차이 곡선 편차', p[1])).join('') + pr.map(p => row(p[0], '학습량 앞쪽 쏠림', p[2])).join('') + '</tbody>';
 }
 
 function renderMain() {
-  const sc = sel(), gap = state.view === 'gap';
-  const arms = gap ? ONLINE : ['offline', ...ONLINE];
-  legendInto('legend', arms);
-  const f = frame(document.getElementById('cMain'), 330, { l: 56, r: 14, t: 12, b: 46 });
-  const C = {}; for (const a of arms) C[a] = avg(sc, s => gap ? gapOf(s, a) : s.abs[a]);
-  const all = Object.values(C).flatMap(c => c.filter((_, i) => shown(i))).concat(gap ? [0] : []);
-  const lo = Math.floor(Math.min(...all) * 4) / 4 - .1, hi = Math.ceil(Math.max(...all) * 4) / 4 + .1;
-  const y = yAxis(f, lo, hi, gap ? '온라인 − offline PSNR (dB)' : 'held-out PSNR (dB)', v => gap ? fmt(v, 1) : v.toFixed(1)), x = xAxis(f);
-  if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.4, 'stroke-dasharray': '5 4' }, f.svg);
-  if (gap && sc.length === 1) for (const a of ONLINE) band(f, G, sc[0].gap_lo[a], sc[0].gap_hi[a], x, y, a);
-  for (const a of arms) line(f, G, C[a], x, y, a);
-  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b><br>` + arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${gap ? fmt(C[a][i]) : C[a][i].toFixed(2)}`).join('<br>'));
-  document.getElementById('mainCap').textContent = (state.scene === 'mean' ? `${sc.length}개 장면 평균, ` : '') + '온라인 seed 3개 평균, 10% 이동평균.' + (gap ? ' 0보다 아래면 offline보다 낮습니다.' + (sc.length === 1 ? ' 띠는 seed별 최솟값~최댓값.' : '') : '');
-  const B = a => [0, 1, 2, 3, 4].map(i => mean(sc.map(s => s.bins[a][i])));
-  document.getElementById('binTbl').innerHTML = '<thead><tr><th>온라인 − offline</th><th>0–20%</th><th>20–40%</th><th>40–60%</th><th>60–80%</th><th>80–100%</th><th>최대−최소</th></tr></thead><tbody>' +
-    ONLINE.map(a => { const v = B(a); return `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${v.map(x => `<td class="num">${fmt(x)}</td>`).join('')}<td class="num">${(Math.max(...v) - Math.min(...v)).toFixed(2)}</td></tr>`; }).join('') + '</tbody>';
+  const all = SC(), sc = state.scene === 'mean' ? all : all.filter(s => s.key === state.scene);
+  if (!sc.length) { state.scene = 'mean'; return renderMain(); }
+  legendInto('legend', state.value === 'gap' ? ONLINE() : ['offline', ...ONLINE()]);
+  curveChart(document.getElementById('cMain'), 330, sc, state.value, null, { bandScene: sc.length === 1 ? sc[0] : null });
+  document.getElementById('mainCap').textContent = (state.scene === 'mean' ? `${sc.length}개 장면 평균, ` : '') + '온라인 seed 평균, 10% 이동평균.' + (state.value === 'gap' ? ' 0보다 아래면 offline보다 낮습니다.' : '') + (sc.length === 1 ? ' 띠는 seed별 최솟값~최댓값.' : '');
+  document.getElementById('binTbl').innerHTML = '<thead><tr><th>온라인 − offline (view별 값)</th><th>0–20%</th><th>20–40%</th><th>40–60%</th><th>60–80%</th><th>80–100%</th><th>최대−최소</th></tr></thead><tbody>' +
+    ONLINE().map(a => { const v = avgArr(sc.map(s => bins(s, a))); return `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${v.map(x => `<td class="num">${fmt(x)}</td>`).join('')}<td class="num">${(Math.max(...v) - Math.min(...v)).toFixed(2)}</td></tr>`; }).join('') + '</tbody>';
 }
 
 function renderSmall() {
-  const H = document.getElementById('small'); H.innerHTML = '';
-  const hosts = D.scenes.map(() => { const h = document.createElement('div'); h.className = 'chart'; H.appendChild(h); return h; });
-  for (const [j, s] of D.scenes.entries()) {
-    const f = frame(hosts[j], 220, { l: 48, r: 8, t: 26, b: 44 });
+  const H = document.getElementById('small'); H.innerHTML = ''; const sc = SC(), gap = state.value === 'gap';
+  const hosts = sc.map(() => { const h = document.createElement('div'); h.className = 'chart'; H.appendChild(h); return h; });
+  sc.forEach((s, j) => { const f = frame(hosts[j], 220, { l: 48, r: 8, t: 26, b: 44 });
     el('text', { class: 'ttl', x: f.x0, y: 14 }, f.svg).textContent = `${s.scene} · ${s.dataset}`;
-    const all = ONLINE.flatMap(a => s.gap_lo[a].concat(s.gap_hi[a], gapOf(s, a))).concat([0]);
-    const y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2, Math.ceil(Math.max(...all) * 2) / 2, 'Δ dB', v => fmt(v, 1)), x = xAxis(f);
-    el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, f.svg);
-    for (const a of ONLINE) band(f, G, s.gap_lo[a], s.gap_hi[a], x, y, a);
-    for (const a of ONLINE) line(f, G, gapOf(s, a), x, y, a, 2);
-    crosshair(f, G, x, i => `<b>${s.scene} t = ${G[i].toFixed(2)}</b><br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(gapOf(s, a)[i])}`).join('<br>'));
-  }
+    const arms = gap ? ONLINE() : ['offline', ...ONLINE()], key = gap ? (state.edge === 'sym' ? 'gap_sym' : 'gap') : 'abs';
+    const C = {}; for (const a of arms) C[a] = cur(s, a, state.value, null);
+    const rs = a => seedsOf(s, a, null).map(k => s.runs[a][k][key]);
+    const all = arms.flatMap(a => a === 'offline' ? C[a] : rs(a).flat()).filter((_, i) => true).concat(gap ? [0] : []);
+    const y = yAxis(f, Math.floor(Math.min(...all) * 2) / 2, Math.ceil(Math.max(...all) * 2) / 2, gap ? 'Δ dB' : 'dB', v => gap ? fmt(v, 1) : v.toFixed(0)), x = xAxis(f);
+    if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, f.svg);
+    for (const a of ONLINE()) { const r = rs(a); if (r.length > 1) band(f, G.map((_, i) => Math.min(...r.map(z => z[i]))), G.map((_, i) => Math.max(...r.map(z => z[i]))), x, y, a); }
+    for (const a of arms) line(f, C[a], x, y, a, 2);
+    crosshair(f, G, x, i => `<b>${s.scene} t = ${G[i].toFixed(2)}</b><br>` + tipRows(arms, C, i, gap)); });
 }
 
 function renderLorenz() {
-  const sc = D.scenes, arms = ['offline', ...ONLINE];
-  let f = frame(document.getElementById('cLorenz'), 300, { l: 56, r: 12, t: 12, b: 46 });
-  const L = {}; for (const a of arms) L[a] = avg(sc, s => s.lorenz[a]);
-  const y = yAxis(f, 0, 1, '누적 학습량 비율', v => v.toFixed(1));
-  const x = v => f.x0 + v * (f.x1 - f.x0);
-  for (let i = 0; i <= 5; i++) el('text', { x: x(i / 5), y: f.y0 + 18, 'text-anchor': 'middle' }, f.svg).textContent = (i / 5).toFixed(1);
-  el('text', { class: 'axis-title', x: (f.x0 + f.x1) / 2, y: f.y0 + 38, 'text-anchor': 'middle' }, f.svg).textContent = '도착 순서로 센 view 비율 (0 = 처음, 1 = 마지막)';
-  for (const a of arms) line(f, G, L[a], x, y, a);
+  const sc = SC(), arms = ['offline', ...ONLINE()];
+  const f = frame(document.getElementById('cLorenz'), 300, { l: 56, r: 12, t: 12, b: 46 });
+  const L = {}; for (const a of arms) L[a] = avgArr(sc.map(s => s.lorenz[a]));
+  const y = yAxis(f, 0, 1, '누적 학습량 비율', v => v.toFixed(1)); const x = xAxis(f, '도착 순서로 센 view 비율 (0 = 처음, 1 = 마지막)');
+  for (const a of arms) line(f, L[a], x, y, a, 2.3, false);
   crosshair(f, G, x, i => `<b>앞쪽 ${(G[i] * 100).toFixed(0)}% view</b>가 받은 학습량<br>` + arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${(L[a][i] * 100).toFixed(1)}%`).join('<br>'));
   renderCounts();
 }
-
 function renderCounts() {
-  const r = state.role, nb = D.count_bins, xs = [...Array(nb).keys()].map(i => (i + .5) / nb), arms = ['offline', ...ONLINE];
-  const C = {}; for (const a of arms) C[a] = xs.map((_, i) => { const v = D.scenes.map(s => s.counts[a][r][i]).filter(v => v != null && isFinite(v) && v > 0); return v.length ? Math.exp(mean(v.map(Math.log))) : null; });
+  const r = state.role, nb = D.count_bins, xs = [...Array(nb).keys()].map(i => (i + .5) / nb), arms = ['offline', ...ONLINE()], sc = SC();
+  const C = {}; for (const a of arms) C[a] = xs.map((_, i) => { const v = sc.map(s => s.counts[a][r][i]).filter(v => v != null && isFinite(v) && v > 0); return v.length ? Math.exp(mean(v.map(Math.log))) : null; });
   const f = frame(document.getElementById('cCount'), 300, { l: 56, r: 14, t: 12, b: 46 });
   const vals = Object.values(C).flat().filter(v => v);
-  const y = yAxis(f, Math.min(0.25, Math.min(...vals) * 0.9), Math.max(4, Math.max(...vals) * 1.1), '상대 학습 횟수 (1 = 장면 평균)', v => v + '×', true), x = xAxis(f);
+  const y = yAxis(f, Math.min(0.25, Math.min(...vals) * 0.9), Math.max(4, Math.max(...vals) * 1.1), '상대 학습 횟수 (1 = 장면 평균)', v => v + '×', true);
+  const x = xAxis(f, '도착 시점 (프레임 순서, 0 = 처음, 1 = 끝)');
   for (const a of arms) { const pts = xs.map((v, i) => [v, C[a][i]]).filter(p => p[1]);
     const p = el('path', { d: pts.map((q, i) => (i ? 'L' : 'M') + x(q[0]).toFixed(1) + ' ' + y(q[1]).toFixed(1)).join(' '), fill: 'none', stroke: css(ARM[a].color), 'stroke-width': 2.2 }, f.svg);
-    if (ARM[a].dash) p.setAttribute('stroke-dasharray', ARM[a].dash);
-    for (const q of pts) el('circle', { cx: x(q[0]), cy: y(q[1]), r: 2.5, fill: css(ARM[a].color) }, f.svg); }
+    if (ARM[a].dash) p.setAttribute('stroke-dasharray', ARM[a].dash); for (const q of pts) el('circle', { cx: x(q[0]), cy: y(q[1]), r: 2.5, fill: css(ARM[a].color) }, f.svg); }
   crosshair(f, xs, x, i => `<b>t ≈ ${xs[i].toFixed(2)}</b><br>` + arms.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${C[a][i] ? C[a][i].toFixed(2) + '×' : '—'}`).join('<br>'));
-  const T = document.getElementById('cvTbl'), dsets = [...new Set(D.scenes.map(s => s.dataset))];
-  T.innerHTML = `<thead><tr><th>${r === 'dense' ? 'dense' : 'KF'} 학습 횟수 CV (낮을수록 고름)</th>` + dsets.map(d => `<th>${d}</th>`).join('') + '<th>전체</th><th>앞쪽 쏠림</th></tr></thead><tbody>' +
-    arms.map(a => { const v = d => mean(D.scenes.filter(s => s.dataset === d).map(s => s.counts[a].cv[r]));
-      return `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${dsets.map(d => `<td class="num">${v(d).toFixed(2)}</td>`).join('')}<td class="num">${mean(D.scenes.map(s => s.counts[a].cv[r])).toFixed(2)}</td><td class="num">${mean(D.scenes.map(s => s.gini[a])).toFixed(3)}</td></tr>`; }).join('') + '</tbody>';
+  const ds = [...new Set(sc.map(s => s.dataset))];
+  document.getElementById('cvTbl').innerHTML = `<thead><tr><th>${r === 'dense' ? 'dense' : 'KF'} 학습 횟수 CV (낮을수록 고름)</th>` + ds.map(d => `<th>${d}</th>`).join('') + '<th>전체</th><th>앞쪽 쏠림</th></tr></thead><tbody>' +
+    arms.map(a => `<tr><td><span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name}</td>${ds.map(d => `<td class="num">${mean(sc.filter(s => s.dataset === d).map(s => s.counts[a].cv[r])).toFixed(2)}</td>`).join('')}<td class="num">${mean(sc.map(s => s.counts[a].cv[r])).toFixed(2)}</td><td class="num">${mean(sc.map(s => s.gini[a])).toFixed(3)}</td></tr>`).join('') + '</tbody>';
 }
 
 function renderTable() {
-  document.getElementById('sceneTbl').innerHTML = '<thead><tr><th>장면</th><th>offline PSNR</th>' + ONLINE.map(a => `<th>${ARM[a].name}<br>차이</th>`).join('') + ONLINE.map(a => `<th>${ARM[a].name}<br>편차</th>`).join('') + '<th>ERVS가 균등 복원보다 고름</th></tr></thead><tbody>' +
-    D.scenes.map(s => `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${s.mean.offline.toFixed(2)}</td>${ONLINE.map(a => `<td class="num">${fmt(s.mean[a] - s.mean.offline)}</td>`).join('')}${ONLINE.map(a => `<td class="num">${s.mad[a].toFixed(3)}</td>`).join('')}<td>${s.mad.ervs_k16 < s.mad.uniform_iid ? '예' : '아니오'}</td></tr>`).join('') + '</tbody>';
-  const p = D.pairs['mad:ervs_k16-uniform_iid'], q = D.pairs['mad:ervs_k16-uniform_k16'], g = D.pairs['gini:ervs_k16-uniform_iid'];
-  const sig = c => c[1] > 0 || c[2] < 0;
-  document.getElementById('verdict').textContent = `${D.scenes.length}개 장면에서 ERVS의 차이 곡선 편차는 균등 복원 대비 ${fmt(p.ci[0], 3)} dB [${fmt(p.ci[1], 3)}, ${fmt(p.ci[2], 3)}], ${p.wins}/${p.n} 장면에서 낮았고${sig(p.ci) ? '' : ' 구간이 0을 포함합니다'}. 균등 group 대비로는 ${fmt(q.ci[0], 3)} dB, ${q.wins}/${q.n} 장면입니다. 학습량 앞쪽 쏠림은 ERVS가 균등 복원보다 ${fmt(g.ci[0], 3)} (${g.wins}/${g.n} 장면에서 낮음) 줄였지만, 온라인 방식 모두 offline(0)과는 크게 떨어져 있습니다. offline은 최종 pose로 학습하므로 절대 차이에는 pose 효과도 섞여 있습니다.`;
+  const sc = SC(), e = E();
+  document.getElementById('sceneTbl').innerHTML = '<thead><tr><th>장면</th><th>seed</th><th>offline PSNR</th>' + ONLINE().map(a => `<th>${ARM[a].name}<br>− offline</th>`).join('') + ONLINE().map(a => `<th>${ARM[a].name}<br>편차</th>`).join('') + '</tr></thead><tbody>' +
+    sc.map(s => `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${seedsOf(s, e, null).length}</td><td class="num">${psnr(s, 'offline').toFixed(2)}</td>${ONLINE().map(a => `<td class="num">${fmt(psnr(s, a) - psnr(s, 'offline'))}</td>`).join('')}${ONLINE().map(a => `<td class="num">${MAD(s, a).toFixed(3)}</td>`).join('')}</tr>`).join('') + '</tbody>';
+  const d = sc.map(s => MAD(s, e) - MAD(s, 'uniform_iid')), c = boot(d), g = sc.map(s => s.gini[e] - s.gini.uniform_k16), gc = boot(g);
+  document.getElementById('verdict').textContent = `${sc.length}개 장면에서 ERVS τ=${state.tau}의 차이 곡선 편차는 균등 복원 대비 ${fmt(c[0], 3)} dB [${fmt(c[1], 3)}, ${fmt(c[2], 3)}]이고 ${d.filter(x => x < 0).length}/${d.length} 장면에서 낮았습니다. 학습량 앞쪽 쏠림은 같은 group 구조의 균등 group 대비 ${fmt(gc[0], 3)} (${g.filter(x => x < 0).length}/${g.length} 장면에서 낮음)입니다. offline은 최종 pose로 학습하므로 절대 차이에는 pose 효과도 섞여 있습니다.`;
 }
 
-
-function buildPicks() {
-  const V = D.validation, thr = D.sel_thr, H = document.getElementById('picks');
-  H.innerHTML = V.slice().sort((p, q) => p.sel - q.sel).map(v => `<label for="pk-${v.scene}"><input type="checkbox" id="pk-${v.scene}" data-scene="${v.scene}"${state.picked.has(v.scene) ? ' checked' : ''}>${v.scene}<span class="meta${v.sel < thr ? ' rule' : ''}">${fmt(v.sel)}</span></label>`).join('');
-  H.addEventListener('change', e => { const c = e.target; if (!c.dataset.scene) return; c.checked ? state.picked.add(c.dataset.scene) : state.picked.delete(c.dataset.scene); renderVal(); });
-  const setTo = names => { state.picked = new Set(names); for (const c of H.querySelectorAll('input')) c.checked = state.picked.has(c.dataset.scene); renderVal(); };
-  document.getElementById('pickRule').onclick = () => setTo(V.filter(v => v.sel < thr).map(v => v.scene));
-  document.getElementById('pickAll').onclick = () => setTo(V.map(v => v.scene));
-  document.getElementById('pickNone').onclick = () => setTo([]);
-}
-
-function renderVal() {
-  const V = D.validation, thr = D.sel_thr;
-  document.getElementById('thr').textContent = thr.toFixed(1);
-  const ruleSet = V.filter(v => v.sel < thr).map(v => v.scene);
-  const sel = V.filter(v => state.picked.has(v.scene)), rest = V.filter(v => !state.picked.has(v.scene));
-  const manual = !(ruleSet.length === sel.length && ruleSet.every(n => state.picked.has(n)));
-  const ps = document.getElementById('pickState');
-  ps.textContent = manual ? `직접 고른 ${sel.length}개 장면 — 규칙(seed 0 기준선)으로 고른 묶음이 아니므로 검증 결과가 아닙니다` : `규칙으로 선정된 ${sel.length}개 장면 (검증된 묶음)`;
-  ps.className = 'pick-state' + (manual ? ' manual' : '');
-  const rep = V.filter(v => v.sel < thr).sort((p, q) => p.sel - q.sel)[0];
-  if (!sel.length && state.val === 'sel') { document.getElementById('valStats').innerHTML = '<div class="stat"><span class="k">체크한 장면이 없습니다</span><span class="s">위에서 장면을 하나 이상 체크하세요.</span></div>'; document.getElementById('cVal').innerHTML = ''; document.getElementById('valCap').textContent = ''; return; }
-  const dS = g => g.map(v => v.slope.ervs_k16 - v.slope.uniform_iid), dL = g => g.map(v => v.late.ervs_k16 - v.late.uniform_iid);
-  const up = a => a.filter(x => x > 0).length;
-  const kS = sel.map(v => v.slope.uniform_k16 - v.slope.uniform_iid);
-  document.getElementById('valStats').innerHTML = `
-  <div class="stat"><span class="k">${manual ? '직접 고른 장면' : '선정된 장면 (seed 0 기준선만 사용)'}</span><span class="v">${sel.length} / ${V.length}</span><span class="s">${sel.map(v => v.scene).join(', ')}</span></div>
-  <div class="stat"><span class="k">seed 1·2에서 기울기 변화 (ERVS − 균등 복원)</span><span class="v pos">${fmt(mean(dS(sel)))}</span><span class="s">${up(dS(sel))}/${sel.length} 장면에서 0 쪽으로 올라감 · 균등 group은 ${fmt(mean(kS))}</span></div>
-  <div class="stat"><span class="k">seed 1·2에서 (후반 − 초반) 차이 변화</span><span class="v pos">${fmt(mean(dL(sel)))} dB</span><span class="s">${up(dL(sel))}/${sel.length} 장면 · 체크 안 한 ${rest.length}개 장면 ${rest.length ? fmt(mean(dL(rest))) + ' dB (' + up(dL(rest)) + '/' + rest.length + ')' : '—'}</span></div>
-  <div class="stat"><span class="k">seed 1·2 평균 PSNR 차이 (ERVS − 균등 복원)</span><span class="v ${cls(mean(sel.map(v => v.psnr.ervs_k16 - v.psnr.uniform_iid)))}">${fmt(mean(sel.map(v => v.psnr.ervs_k16 - v.psnr.uniform_iid)))} dB</span><span class="s">앞 90% view · 균등 group ${fmt(mean(sel.map(v => v.psnr.uniform_k16 - v.psnr.uniform_iid)))} dB</span></div>`;
-  legendInto('legend3', ONLINE);
-  const g = state.val === 'sel' ? sel : state.val === 'rest' ? (rest.length ? rest : sel) : [rep];
-  const f = frame(document.getElementById('cVal'), 300, { l: 56, r: 14, t: 12, b: 46 });
-  const C = {}; for (const a of ONLINE) C[a] = G.map((_, i) => mean(g.map(v => valOf(v, a)[i])));
-  const all = Object.values(C).flatMap(c => c.filter((_, i) => shown(i))).concat([0]);
-  const y = yAxis(f, Math.floor(Math.min(...all) * 4) / 4 - .1, Math.ceil(Math.max(...all) * 4) / 4 + .1, '온라인 − offline PSNR (dB)', v => fmt(v, 1)), x = xAxis(f);
-  el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
-  el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
-  for (const a of ONLINE) line(f, G, C[a], x, y, a);
-  crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b> · seed 1·2<br>` + ONLINE.map(a => `<span style="color:var(${ARM[a].color})">●</span> ${ARM[a].name} ${fmt(C[a][i])}`).join('<br>'));
-  document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${state.val === 'sel' && manual ? ' (직접 고른 묶음)' : ''}. `) + '선정에 쓰지 않은 seed 1·2만 사용했고, 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.';
-  // selection strip
-  const f2 = frame(document.getElementById('cSel'), 170, { l: 56, r: 90, t: 10, b: 40 });
-  const xr = v => f2.x0 + (v + 1) / 2 * (f2.x1 - f2.x0);
-  for (const t of [-1, -0.5, 0, 0.5, 1]) { el('line', { x1: xr(t), x2: xr(t), y1: f2.y1, y2: f2.y0, stroke: css('--grid') }, f2.svg); el('text', { x: xr(t), y: f2.y0 + 16, 'text-anchor': 'middle' }, f2.svg).textContent = t.toFixed(1); }
-  el('line', { x1: xr(thr), x2: xr(thr), y1: f2.y1, y2: f2.y0, stroke: css('--bad'), 'stroke-dasharray': '4 3', 'stroke-width': 1.4 }, f2.svg);
-  el('text', { class: 'axis-title', x: (f2.x0 + f2.x1) / 2, y: f2.y0 + 34, 'text-anchor': 'middle' }, f2.svg).textContent = '선정 지표: 균등 복원 seed 0 차이 곡선의 시간 상관 (빨간 점선 왼쪽이 선정)';
-  V.forEach((v, i) => { const yy = f2.y1 + 8 + (i % 7) * 16; el('circle', { cx: xr(v.sel), cy: yy, r: 4.5, fill: v.sel < thr ? css('--ervs') : css('--faint') }, f2.svg);
-    const t = el('text', { x: xr(v.sel) + 7, y: yy + 4 }, f2.svg); t.textContent = v.scene; t.setAttribute('style', 'font-size:10px'); });
-  document.getElementById('valTbl').innerHTML = '<thead><tr><th>장면</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>선정</th></tr></thead><tbody>' +
-    V.slice().sort((p, q) => p.sel - q.sel).map(v => `<tr><td>${v.scene} <span style="color:var(--muted)">${v.dataset}</span></td><td class="num">${fmt(v.sel)}</td><td class="num">${fmt(v.slope.uniform_iid)}</td><td class="num">${fmt(v.slope.uniform_k16)}</td><td class="num ${v.sel < thr ? cls(v.slope.ervs_k16 - v.slope.uniform_iid) : ''}">${fmt(v.slope.ervs_k16)}</td><td class="num">${fmt(v.late.uniform_iid)}</td><td class="num ${v.sel < thr ? cls(v.late.ervs_k16 - v.late.uniform_iid) : ''}">${fmt(v.late.ervs_k16)}</td><td>${v.sel < thr ? '규칙 선정' : ''}${state.picked.has(v.scene) ? ' ✓' : ''}</td></tr>`).join('') + '</tbody>';
-  document.getElementById('valNote').textContent = `기울기와 (후반−초반)은 seed 1·2 평균, 앞 90% 구간입니다. 선정된 장면에서 ERVS는 늦은 view의 손해를 줄여 곡선을 평평하게 만들었고(${up(dS(sel))}/${sel.length}), 같은 group 구조의 균등 group은 그러지 못했습니다(${fmt(mean(kS))}). 나머지 장면에서도 ERVS는 같은 방향(늦은 view 쪽)으로 움직이지만, 원래 초반이 낮은 장면(tracker 초기화 등)에서는 그 움직임이 곡선을 오히려 더 기울게 만듭니다. 그래서 "더 평평해진다"는 효과는 늦은 view가 손해 보는 장면에 한정되고, "늦은 view 쪽으로 옮긴다"는 효과는 대부분 장면에서 나타납니다. 선정 기준 −0.3은 이전 감소형 장면 분석에서 쓰던 값을 그대로 썼습니다.`;
-}
-
-function bindSeg(id, key, cb) { const s = document.getElementById(id); s.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; state[key] = b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
-state.base = 'uniform_iid'; state.val = 'sel'; state.edge = 'one';
-bindSeg('edgeSeg', 'edge', () => { document.getElementById('edgeCap').textContent = EDGE_CAP[state.edge]; all(); });
-document.getElementById('edgeCap').textContent = EDGE_CAP.one;
-state.picked = new Set(D.validation.filter(v => v.sel < D.sel_thr).map(v => v.scene));
-buildPicks();
-bindSeg('valSeg', 'val', renderVal);
-document.getElementById('nsc').textContent = D.scenes.length;
-const ss = document.getElementById('sceneSel');
-ss.innerHTML = `<option value="mean">${D.scenes.length}장면 평균</option>` + D.scenes.map(s => `<option value="${s.key}">${s.scene} (${s.dataset})</option>`).join('');
-ss.addEventListener('change', () => { state.scene = ss.value; renderMain(); });
-bindSeg('viewSeg', 'view', renderMain); bindSeg('roleSeg', 'role', renderCounts); bindSeg('baseSeg', 'base', renderSlope);
-function all() { renderStats(); renderCentered(); renderSlope(); renderVal(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
+// ---------- controls ----------
+function bindSeg(id, key, cb, num = false) { const s = document.getElementById(id); s.addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b || b.disabled) return; state[key] = num ? +b.dataset.v : b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
+const CAP = { one: '이동평균 창은 view 수의 10%. 시작·끝에서는 한쪽 view만으로 평균을 냅니다.', sym: '창이 가장자리에서 양쪽으로 똑같이 줄어듭니다(맨 처음 점은 그 view 하나의 값).', cut: '창 절반(5%)이 양쪽에 다 들어가는 구간(0.05~0.95)만 그립니다.' };
+function renderCtlCap() { const n = SC().length, tot = D.scenes.filter(s => state.ds === 'all' || s.dataset === state.ds).length;
+  document.getElementById('ctlCap').textContent = `${CAP[state.edge]} 현재 ${n}개 장면` + (n < tot ? ` (ERVS τ=${state.tau} 결과가 없는 ${tot - n}개 장면 제외)` : '') + '.'; }
+const dsSel = document.getElementById('dsSel');
+dsSel.innerHTML = '<option value="all">전체</option>' + [...new Set(D.scenes.map(s => s.dataset))].map(d => `<option value="${d}">${d}</option>`).join('');
+document.getElementById('tauSeg').innerHTML = D.taus.map(t => { const a = t === 4 ? 'ervs_k16' : 'ervs_t' + t, n = D.scenes.filter(s => s.runs[a]).length; return `<button data-v="${t}" aria-pressed="${t === 4}"${n ? '' : ' disabled title="아직 결과 없음"'}>τ=${t}${n ? '' : ' (대기)'}</button>`; }).join('');
+function sceneOptions() { const ss = document.getElementById('sceneSel'); const sc = SC(); ss.innerHTML = `<option value="mean">${sc.length}장면 평균</option>` + sc.map(s => `<option value="${s.key}"${s.key === state.scene ? ' selected' : ''}>${s.scene} (${s.dataset})</option>`).join(''); }
+document.getElementById('sceneSel').addEventListener('change', ev => { state.scene = ev.target.value; renderMain(); });
+document.getElementById('picks').addEventListener('change', ev => { const c = ev.target; if (!c.dataset.scene) return; c.checked ? state.picked.add(c.dataset.scene) : state.picked.delete(c.dataset.scene); renderVal(); });
+const setPick = names => { state.picked = new Set(names); buildPicks(); renderVal(); };
+document.getElementById('pickRule').onclick = () => setPick(SC().filter(s => slopeOf(s.runs.uniform_iid['0'].gap) < D.sel_thr).map(s => s.scene));
+document.getElementById('pickAll').onclick = () => setPick(SC().map(s => s.scene));
+document.getElementById('pickNone').onclick = () => setPick([]);
+function all() { document.getElementById('nsc').textContent = SC().length; renderCtlCap(); renderStats(); buildPicks(); renderVal(); renderCentered(); renderSlope(); sceneOptions(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
+dsSel.addEventListener('change', () => { state.ds = dsSel.value; state.picked = null; state.scene = 'mean'; all(); });
+bindSeg('tauSeg', 'tau', () => { state.picked = null; all(); }, true);
+bindSeg('valueSeg', 'value', all); bindSeg('edgeSeg', 'edge', all);
+bindSeg('seedSeg', 'seeds', renderVal); bindSeg('valSeg', 'val', renderVal); bindSeg('baseSeg', 'base', renderSlope); bindSeg('roleSeg', 'role', renderCounts);
 all();
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(all, 150); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all);
