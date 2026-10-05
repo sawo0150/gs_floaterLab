@@ -77,3 +77,19 @@ ERVS still loses the first 15% of the final map (gap −0.91 vs −0.44 in the r
 1–2): the earliest 20% of trained views get the same total count as under uniform (1.54 vs 1.52 × mean) but receive
 less of it in the second half of the stream (42% vs 48%) and sit idle longer at the end (10.2% vs 8.4% of steps) —
 ERVS front-loads their training in time, and they are forgotten.
+
+## FAST-LIVO2 on the RTX 5070 Ti (2026-10-06, Amendment 3), seed 0
+
+5 scenes × (uniform_iid, uniform_k16, ERVS K16, offline), 20 runs, all offline gates PASS, pool cap never triggered.
+Results `results/campaigns/gain_attribution/extra_local_5070ti/v1/`. Held-out views from the final map's first trained view.
+
+| scene | offline | uniform_iid − off | uniform_k16 − off | ERVS − off | ERVS − iid | gap MAD iid / ERVS |
+|---|---:|---:|---:|---:|---:|---|
+| Retail_Street | 28.40 | −1.69 | −1.82 | −1.66 | +0.03 | 0.62 / 0.66 |
+| HKU_Campus | 28.06 | −1.58 | −1.57 | −1.60 | −0.02 | 0.59 / 0.67 |
+| CBD_Building_01 | 23.47 | −1.65 | −1.78 | −1.81 | −0.16 | 1.00 / 0.85 |
+| SYSU_01 | 25.99 | −2.70 | −2.80 | −2.92 | −0.22 | 0.91 / 1.35 |
+| CBD_Building_02 | 27.47 | −1.60 | −1.32 | −1.40 | +0.20 | 0.46 / 0.54 |
+
+Mean ERVS − uniform_iid −0.03 dB (2/5); gap no more constant under ERVS (1/5). ERVS lowers front-loading in all 5
+(Gini-like index 0.328 → 0.312 mean). Single seed: ±0.2 dB seed noise applies. Offline is 1.6–2.9 dB above online.

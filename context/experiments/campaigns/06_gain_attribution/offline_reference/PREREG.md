@@ -40,3 +40,8 @@ Analysis adds two descriptive views fixed before the runs: (a) cumulative traini
 offline = diagonal) and its area to the diagonal; (b) the gap centred per scene, d(t) − mean d, with the mean absolute
 deviation over the first 90% of the stream as the flatness measure (offline seed 0 vs the online seed mean for the 15
 new scenes). Tested on 4 scenes beforehand and dropped: local count ratio vs gap (sign varies by scene, ρ −0.30…+0.46).
+
+## Amendment 3 (2026-10-05, user request): extra datasets on the RTX 5070 Ti
+FAST-LIVO2 (5), then M2DGR (2) and Oxford (4, bodleian excluded) copied from colin to the external volume; per scene
+seed 0 of uniform_iid, uniform_k16, ERVS K16 and the offline arm, all on the 5070 Ti (`run_extra_local.py`, profile
+`rtx5070ti_extra_datasets.json`), FIFO pool cap 700 as on colin (inert: capped_calls 0 is checked). Same offline gates.
