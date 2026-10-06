@@ -459,7 +459,7 @@ function renderTable() {
 function bindSeg(id, key, cb, num = false) { const s = document.getElementById(id); s.addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b || b.disabled) return; state[key] = num ? +b.dataset.v : b.dataset.v; for (const x of s.children) x.setAttribute('aria-pressed', x === b); cb(); }); }
 const CAP = { one: '이동평균 창은 view 수의 10%. 시작·끝에서는 한쪽 view만으로 평균을 냅니다.', sym: '창이 가장자리에서 양쪽으로 똑같이 줄어듭니다(맨 처음 점은 그 view 하나의 값).', cut: '창 절반(5%)이 양쪽에 다 들어가는 구간(0.05~0.95)만 그립니다.' };
 function renderCtlCap() { const n = SC().length, tot = D.scenes.filter(s => state.ds === 'all' || s.dataset === state.ds).length;
-  document.getElementById('ctlCap').textContent = `${CAP[state.edge]} 현재 ${n}개 장면` + (n < tot ? ` (ERVS τ=${state.tau} 결과가 없는 ${tot - n}개 장면 제외)` : '') + '.'; }
+  document.getElementById('ctlCap').textContent = `${CAP[state.edge]} 현재 ${n}개 장면` + (n < tot ? ` (ERVS τ=${state.tau}${state.cart ? " 또는 CaRtGS-AO" : ""} 결과가 없는 ${tot - n}개 장면 제외)` : '') + '.'; }
 const dsSel = document.getElementById('dsSel');
 dsSel.innerHTML = '<option value="all">전체</option>' + [...new Set(D.scenes.map(s => s.dataset))].map(d => `<option value="${d}">${d}</option>`).join('');
 document.getElementById('tauSeg').innerHTML = D.taus.map(t => { const a = t === 4 ? 'ervs_k16' : 'ervs_t' + t, n = D.scenes.filter(s => s.runs[a]).length; return `<button data-v="${t}" aria-pressed="${t === 4}"${n ? '' : ' disabled title="아직 결과 없음"'}>τ=${t}${n ? '' : ' (대기)'}</button>`; }).join('');
