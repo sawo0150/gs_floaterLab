@@ -151,6 +151,7 @@ td.num { font-family: var(--mono) }
     <div class="chart" id="cVal"></div>
     <p class="cap" id="valCap"></p>
     <div class="tablewrap"><table id="valTbl"></table></div>
+    <div class="tablewrap"><table id="valCartTbl"></table></div>
   </section>
 
   <section class="panel">
@@ -351,11 +352,20 @@ function renderVal() {
   <div class="stat"><span class="k">${seedTxt}: 기울기 변화 (ERVS − 균등 복원)</span><span class="v ${cls(mean(dS))}">${sel.length ? fmt(mean(dS)) : '—'}</span><span class="s">${up(dS)}/${sel.length} 장면에서 0 쪽으로 · 균등 group ${sel.length ? fmt(mean(kS)) : '—'}</span></div>
   <div class="stat"><span class="k">${seedTxt}: (후반 − 초반) 차이 변화</span><span class="v ${cls(mean(dL))}">${sel.length ? fmt(mean(dL)) + ' dB' : '—'}</span><span class="s">${up(dL)}/${sel.length} 장면 · 체크 안 한 ${rest.length}개 ${rest.length ? fmt(mean(dif(rest, 'late'))) + ' dB' : '—'}</span></div>
   <div class="stat"><span class="k">${seedTxt}: 평균 PSNR (ERVS − 균등 복원)</span><span class="v ${cls(mean(dP))}">${sel.length ? fmt(mean(dP), 3) + ' dB' : '—'}</span><span class="s">앞 90% view · ${up(dP)}/${sel.length} 장면 · 균등 group ${sel.length ? fmt(mean(kP), 3) : '—'}</span></div>`;
+  if (state.cart) {
+    const cS = sel.map(s => P.get(s.scene).cartgs_ao.slope - P.get(s.scene).uniform_iid.slope), cL = sel.map(s => P.get(s.scene).cartgs_ao.late - P.get(s.scene).uniform_iid.late), cP = sel.map(s => P.get(s.scene).cartgs_ao.psnr - P.get(s.scene).uniform_iid.psnr), ce = sel.map(s => P.get(s.scene).cartgs_ao.psnr - P.get(s.scene)[e].psnr);
+    document.getElementById('valStats').insertAdjacentHTML('beforeend', `<div class="stat"><span class="k">CaRtGS-AO − 균등 복원 (${seedTxt})</span><span class="v ${cls(mean(cP))}">${sel.length ? fmt(mean(cP), 3) + ' dB' : '—'}</span><span class="s">평균 PSNR · ${up(cP)}/${sel.length} 장면 · 기울기 ${sel.length ? fmt(mean(cS)) : '—'} · (후반−초반) ${sel.length ? fmt(mean(cL)) : '—'} dB · ERVS 대비 PSNR ${sel.length ? fmt(mean(ce), 3) : '—'} dB</span></div>`);
+  }
   curveChart(document.getElementById('cVal'), 310, g, state.value, setOf, { shade90: true });
   document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${manual && state.val === 'sel' ? ' (직접 고른 묶음)' : ''}. `) + `${seedTxt} 평균. 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.`;
   document.getElementById('valTbl').innerHTML = `<thead><tr><th>장면</th><th>사용 seed</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS τ=${state.tau}</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>평균 PSNR 차이</th><th></th></tr></thead><tbody>` +
     all.filter(ok).sort((p, q) => sel0(p) - sel0(q)).map(s => { const q = P.get(s.scene), r = sel0(s) < thr;
       return `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${['u', 'e'].map(g => (g === 'u' ? '균등 ' : 'ERVS ') + (seedsAvail(s).filter(k => selSeeds(s, g).has(k)).join('·') || '—')).join(' / ')}</td><td class="num">${fmt(sel0(s))}</td><td class="num">${fmt(q.uniform_iid.slope)}</td><td class="num">${fmt(q.uniform_k16.slope)}</td><td class="num ${r ? cls(q[e].slope - q.uniform_iid.slope) : ''}">${fmt(q[e].slope)}</td><td class="num">${fmt(q.uniform_iid.late)}</td><td class="num ${r ? cls(q[e].late - q.uniform_iid.late) : ''}">${fmt(q[e].late)}</td><td class="num">${fmt(q[e].psnr - q.uniform_iid.psnr, 3)}</td><td>${r ? '규칙 선정' : ''}${state.picked.has(s.scene) ? ' ✓' : ''}</td></tr>`; }).join('') + '</tbody>';
+  { const T = document.getElementById('valCartTbl');
+    if (!state.cart) T.innerHTML = '';
+    else T.innerHTML = `<thead><tr><th>CaRtGS-AO 비교</th><th>기울기 균등 복원</th><th>CaRtGS-AO</th><th>ERVS τ=${state.tau}</th><th>(후반−초반) 균등 복원</th><th>CaRtGS-AO</th><th>ERVS</th><th>PSNR CaRtGS − 균등</th><th>PSNR ERVS − 균등</th><th></th></tr></thead><tbody>` +
+      all.filter(ok).sort((p, q) => sel0(p) - sel0(q)).map(s => { const q = P.get(s.scene);
+        return `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${fmt(q.uniform_iid.slope)}</td><td class="num">${fmt(q.cartgs_ao.slope)}</td><td class="num">${fmt(q[e].slope)}</td><td class="num">${fmt(q.uniform_iid.late)}</td><td class="num">${fmt(q.cartgs_ao.late)}</td><td class="num">${fmt(q[e].late)}</td><td class="num ${cls(q.cartgs_ao.psnr - q.uniform_iid.psnr)}">${fmt(q.cartgs_ao.psnr - q.uniform_iid.psnr, 3)}</td><td class="num ${cls(q[e].psnr - q.uniform_iid.psnr)}">${fmt(q[e].psnr - q.uniform_iid.psnr, 3)}</td><td>${state.picked.has(s.scene) ? '✓' : ''}</td></tr>`; }).join('') + '</tbody>'; }
 }
 
 const centered = (s, a) => { const g = cur(s, a, 'gap', null), m = mean(g.slice(0, H90)); return g.map(v => v - m); };
