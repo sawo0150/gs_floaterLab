@@ -35,3 +35,8 @@ when pools are small after a generation start). CaRtGS trains one view per step 
 this. Gate changed to borrow + fallback ≤ 20% of draws, plus refills with loss-top extras in both pools. The
 square-1 run (PSNR 21.81) is kept under this gate. The loss-top doubling itself was checked offline (unit simulation:
 top 25% get ~2×, 94 vs 48 uses).
+
+## Amendment 3 (2026-10-06, user approved)
+fast-straight (KF pool 27, dense 40) borrowed 26.2% and stopped the chain before slow-straight-1, slow-straight-2 and
+square-2 started. Short sequences have pools only a few times the batch size, so borrowing grows. Gate raised to 30%;
+the fast-straight run (complete and evaluated) is kept. Per-scene borrow shares are reported with the results.
