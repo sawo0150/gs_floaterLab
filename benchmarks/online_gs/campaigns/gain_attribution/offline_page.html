@@ -90,6 +90,11 @@ td.num { font-family: var(--mono) }
 .pks .sd:has(input:checked) { background: var(--chip); color: var(--ink) }
 .pks .sd.miss { border-style: dashed }
 .pks .sd .meta { margin-left: 0 }
+.presets { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
+.pname { font: 13px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px; width: 210px; max-width: 100%; min-width: 0 }
+.btn { font: 500 13px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 12px; cursor: pointer }
+.btn:focus-visible, .pname:focus-visible { outline: 2px solid var(--ervs); outline-offset: 1px }
+.seg button.x { padding: 7px 9px; color: var(--faint) }
 .pks .gl { font: 11.5px var(--mono); color: var(--muted); min-width: 38px; align-self: center }
 .pks .sd .dp { padding-left: 5px; border-left: 1px solid var(--rule) }
 .pks .sd input { width: 13px; height: 13px }
@@ -130,6 +135,9 @@ td.num { font-family: var(--mono) }
         <div class="seg" role="group" aria-label="선택 도구"><button type="button" id="pickRule">규칙대로</button><button type="button" id="pickAll">전체</button><button type="button" id="pickNone">비우기</button></div>
         <div class="seg" id="pickDs" role="group" aria-label="데이터셋별 선택"></div>
         <span class="pick-state" id="pickState"></span></div>
+      <div class="presets"><span class="ctl-label">묶음 선택 (장면 + seed 한 번에)</span><div class="seg" id="presetSeg" role="group" aria-label="묶음 선택"></div>
+        <input type="text" id="presetName" class="pname" placeholder="이름 (예: UTMM · seed 기본)" aria-label="저장할 묶음 이름" maxlength="40"><button type="button" id="presetSave" class="btn">현재 선택 저장</button>
+        <span class="pick-state" id="presetMsg" role="status" aria-live="polite"></span></div>
       <p class="cap" id="pickCap">장면마다 균등 복원과 ERVS의 seed를 따로 고를 수 있습니다(균등 group K16은 균등 쪽 선택을 따릅니다). 균등 줄의 숫자는 그 seed의 균등 복원 차이 곡선 기울기(앞 90%, Spearman, 음수일수록 늦은 view에서 더 손해)입니다. ERVS 줄의 숫자는 ERVS 기울기와 평균 PSNR 차이(ERVS − 같은 seed의 균등 복원, dB, 앞 90% view)입니다. 점선 칸은 현재 ERVS τ의 결과가 없는 seed입니다.</p>
       <div class="picks" id="picks"></div>
     </div>
@@ -471,6 +479,49 @@ document.getElementById('pickDs').addEventListener('click', ev => { const b = ev
 document.getElementById('seedBulk').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return;
   const want = b.dataset.v === 'all' ? ALL_SEEDS : b.dataset.v.split('');
   for (const s of SC()) { const v = seedsAvail(s).filter(k => want.includes(k)); state.sceneSeeds.set(s.scene, { u: new Set(v), e: new Set(v) }); } buildPicks(); renderVal(); });
+// ---------- 묶음 선택 (장면 + seed) ----------
+const BUILTIN = [{ name: 'UTMM · seed 기본',
+  scenes: ['square-1', 'ego-centric-1', 'ego-centric-2', 'ego-drive', 'fast-straight', 'slow-straight-1', 'slow-straight-2', 'square-2'],
+  seeds: { 'slow-straight-1': { u: ['0'], e: ['1'] }, 'ego-centric-2': { u: ['1'], e: ['2'] }, 'ego-centric-1': { u: ['1'], e: ['2'] }, 'square-2': { u: ['2'], e: ['0'] },
+    'ego-drive': { u: ['2'], e: ['2'] }, 'square-1': { u: ['2'], e: ['0'] }, 'fast-straight': { u: ['2'], e: ['1'] }, 'slow-straight-2': { u: ['0'], e: ['2'] } } }];
+const PRESET_KEY = 'seedPresets.v1';
+function loadPresets() { try { const a = JSON.parse(localStorage.getItem(PRESET_KEY) || '[]'); return Array.isArray(a) ? a.filter(x => x && typeof x.name === 'string' && Array.isArray(x.scenes) && x.seeds) : []; } catch (e) { return []; } }
+function persistPresets() { try { localStorage.setItem(PRESET_KEY, JSON.stringify(state.presets)); } catch (e) { /* 저장 불가 환경: 이 페이지를 닫기 전까지만 유지 */ } }
+state.presets = loadPresets();
+const presetList = () => BUILTIN.concat(state.presets);
+const presetMsg = m => { document.getElementById('presetMsg').textContent = m; };
+const sceneByName = n => D.scenes.find(x => x.scene === n);
+function renderPresets() {
+  const esc = x => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  document.getElementById('presetSeg').innerHTML = presetList().map((pr, i) => {
+    const n = pr.scenes.filter(sceneByName).length;
+    return `<button type="button" data-i="${i}" title="장면 ${n}개와 장면별 seed 선택을 한 번에 적용합니다">${esc(pr.name)}<span class="n">${n}</span></button>` +
+      (i >= BUILTIN.length ? `<button type="button" class="x" data-del="${i - BUILTIN.length}" title="이 묶음 삭제" aria-label="${esc(pr.name)} 삭제">×</button>` : ''); }).join('');
+}
+function applyPreset(pr) {
+  const names = pr.scenes.filter(sceneByName);
+  const inView = names.every(n => SC().some(s => s.scene === n));
+  state.sceneSeeds.clear();
+  for (const n of names) { const av = seedsAvail(sceneByName(n)), g = pr.seeds[n] || {};
+    state.sceneSeeds.set(n, { u: new Set(av.filter(k => (g.u || av).includes(k))), e: new Set(av.filter(k => (g.e || av).includes(k))) }); }
+  state.picked = new Set(names);
+  if (!inView && state.ds !== 'all') { state.ds = 'all'; dsSel.value = 'all'; state.scene = 'mean'; all(); } else { buildPicks(); renderVal(); }
+  presetMsg(`'${pr.name}' 적용: 장면 ${names.length}개`);
+}
+function savePreset() {
+  const names = [...state.picked].filter(sceneByName);
+  if (!names.length) { presetMsg('저장할 장면이 없습니다. 장면을 먼저 체크하세요.'); return; }
+  const seeds = {}; for (const n of names) { const s = sceneByName(n); seeds[n] = { u: [...selSeeds(s, 'u')].sort(), e: [...selSeeds(s, 'e')].sort() }; }
+  const inp = document.getElementById('presetName'), dsn = [...new Set(names.map(n => sceneByName(n).dataset))];
+  const name = inp.value.trim() || `${dsn.join('+')} · 저장 ${state.presets.length + 1}`;
+  state.presets.push({ name, scenes: names, seeds }); persistPresets(); inp.value = ''; renderPresets(); presetMsg(`'${name}' 저장: 장면 ${names.length}개와 각 장면의 seed 선택`);
+}
+document.getElementById('presetSeg').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.del !== undefined) { const pr = state.presets.splice(+b.dataset.del, 1)[0]; persistPresets(); renderPresets(); presetMsg(`'${pr.name}' 삭제`); return; }
+  const pr = presetList()[+b.dataset.i]; if (pr) applyPreset(pr); });
+document.getElementById('presetSave').addEventListener('click', savePreset);
+document.getElementById('presetName').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); savePreset(); } });
+renderPresets();
 function all() { document.getElementById('nsc').textContent = SC().length; renderCtlCap(); renderStats(); buildPicks(); renderVal(); renderCentered(); renderSlope(); sceneOptions(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
 dsSel.addEventListener('change', () => { state.ds = dsSel.value; state.picked = null; state.scene = 'mean'; all(); });
 { const n = D.scenes.filter(x => x.runs.cartgs_ao).length, b = document.querySelector('#cartSeg [data-v=on]'); if (!n) { b.disabled = true; b.textContent = '함께 비교 (결과 없음)'; } else b.textContent = `함께 비교 (${n}장면)`; }
