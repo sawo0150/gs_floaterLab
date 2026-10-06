@@ -93,3 +93,17 @@ Results `results/campaigns/gain_attribution/extra_local_5070ti/v1/`. Held-out vi
 
 Mean ERVS − uniform_iid −0.03 dB (2/5); gap no more constant under ERVS (1/5). ERVS lowers front-loading in all 5
 (Gini-like index 0.328 → 0.312 mean). Single seed: ±0.2 dB seed noise applies. Offline is 1.6–2.9 dB above online.
+
+## M2DGR + Oxford on the RTX 5070 Ti (2026-10-06, Amendment 3), seed 0
+
+| scene | offline | uniform_iid − off | uniform_k16 − off | ERVS − off | ERVS − iid | gap MAD iid / ERVS |
+|---|---:|---:|---:|---:|---:|---|
+| room_01 (M2DGR) | 21.52 | −0.58 | −0.55 | −0.51 | +0.07 | 0.52 / 0.44 |
+| gate_03 (M2DGR) | 23.44 | −0.90 | −0.93 | −0.86 | +0.04 | 0.43 / 0.33 |
+| new-college-01 (Oxford) | 26.25 | −3.59 | −3.12 | −3.50 | +0.09 | 2.08 / 2.12 |
+
+All three offline gates PASS. **new-college-02: offline gate FAIL** (dense per-view count 0…9): its dense pool exceeds 700,
+the FIFO pool cap (active online, capped_calls 130) also applied inside the offline drain, so the oldest dense views were
+never trained. Online and offline thus differ there in more than timing. The run is archived under
+`extra_local_5070ti/v1/failed_attempts/nc02_poolcap_gate_*`; the chain stopped, so new-college-04 and christ-church-05
+were not run. Note: `run_one` writes the row file before the offline gates, so a gate-failed run must be archived by hand.

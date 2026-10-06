@@ -4,6 +4,7 @@
 
 - 2026-10-03 ERVS K16 vs uniform with replacement, 19 scenes × 3 seeds (budget 25): ΔPSNR +0.045 [−0.01,+0.10] (11/19), min-bin −0.08, worst-Q1 −0.11 [−0.21,−0.00]; dense CV 0.74 vs 0.91; five-bin Δ −0.25/+0.04/+0.22/+0.22/−0.01. → [card](campaigns/06_gain_attribution/ervs_vs_iid_scenes/README.md)
 
+- 2026-10-06 offline reference on M2DGR (2) + Oxford new-college-01 (seed 0, 5070 Ti): ERVS − uniform_iid +0.04…+0.09; gap more constant on both M2DGR scenes. Oxford new-college-02 offline gate FAIL (pool cap 700 also cuts the offline pool; oldest dense views untrained); nc04/cc05 not run. → [card](campaigns/06_gain_attribution/offline_reference/README.md)
 - 2026-10-06 ERVS τ 8/16 (124 runs): larger τ moves ERVS toward uniform_k16; 19 scenes × 3 seeds PSNR vs uniform_iid τ4 +0.063 / τ8 +0.076 / τ16 +0.077 (k16 +0.091); none beats k16; slope correction in the rule group clear only at τ4 (5/6). τ=4 kept. → [card](campaigns/06_gain_attribution/ervs_tau_scale/README.md)
 - 2026-10-06 offline reference + online arms on FAST-LIVO2 (5 scenes, seed 0, RTX 5070 Ti, 20 runs, all gates PASS): offline 1.6–2.9 dB above online; ERVS − uniform_iid −0.03 dB (2/5), gap not more constant (1/5), front-loading lower in 5/5. → [card](campaigns/06_gain_attribution/offline_reference/README.md)
 - 2026-10-04 rule A (ERVS K16 + one stale-first dense slot, 8 scenes, seed 0): rejected — mean PSNR −0.10 vs ERVS (2/8), early-15% gap only +0.01, mid gain over uniform drops from +0.16 to +0.04. → [card](campaigns/06_gain_attribution/stale_slot/README.md)

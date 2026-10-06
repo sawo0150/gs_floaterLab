@@ -111,12 +111,15 @@ EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'   # FAST-LIVO2 etc. run on the RTX 5
 TAU_OUT = S.R / 'ervs_tau_scale/v1'            # ERVS K16 with tau 8 / 16
 TAUS = (8, 16)
 FASTLIVO = ('Retail_Street', 'HKU_Campus', 'CBD_Building_01', 'SYSU_01', 'CBD_Building_02')
+LOCAL = [(sc, 'FAST-LIVO2') for sc in FASTLIVO] + [('room_01', 'M2DGR'), ('gate_03', 'M2DGR')] + [
+    (sc, 'Oxford') for sc in ('2024-07-09-new-college-01', '2024-07-09-new-college-02', '2024-07-09-new-college-04',
+                              '2024-03-20-christ-church-05')]
 
 
 def scene_list():
     out = [dict(key=k, name=n, ds=ds, kind='pinned') for k, n, ds in SCENES]
     out += [dict(key=sc, name=sc, ds={'aria': 'Aria', 'rpng': 'RPNG', 'utmm': 'UTMM'}[ds], kind='extra') for sc, ds in S.NEW]
-    out += [dict(key=sc, name=sc, ds='FAST-LIVO2', kind='local') for sc in FASTLIVO]
+    out += [dict(key=sc, name=sc.replace('2024-07-09-', '').replace('2024-03-20-', ''), ds=ds, kind='local') for sc, ds in LOCAL]
     return out
 
 
