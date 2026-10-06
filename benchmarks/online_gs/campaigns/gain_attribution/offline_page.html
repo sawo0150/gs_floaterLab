@@ -6,7 +6,7 @@
 /* Layout: one reading column of figure panels — verdict strip, gap-over-time curves, counts, flatness detail. */
 :root {
   --bg: #f6f7f9; --surface: #ffffff; --ink: #1b2230; --muted: #5d6675; --faint: #8a93a2; --rule: #dfe3ea; --grid: #edf0f4;
-  --ervs: #2a6fdb; --iid: #2e9e6b; --k16: #4a3aa7; --off: #b0631c;
+  --ervs: #2a6fdb; --iid: #2e9e6b; --k16: #4a3aa7; --off: #b0631c; --cart: #c2185b;
   --band-ervs: rgba(42,111,219,.13); --band-iid: rgba(46,158,107,.13); --band-k16: rgba(74,58,167,.13);
   --good: #1f7a4d; --bad: #b4452c; --chip: #eef1f6;
   --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
@@ -14,12 +14,12 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
-  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52;
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52; --cart: #f06292;
   --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18); --band-k16: rgba(144,133,233,.18);
   --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #12151b; --surface: #1a1e26; --ink: #e6e9ef; --muted: #a2abba; --faint: #7c8595; --rule: #2c323d; --grid: #232833;
-  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52;
+  --ervs: #5b93f0; --iid: #34a877; --k16: #9085e9; --off: #e09a52; --cart: #f06292;
   --band-ervs: rgba(91,147,240,.18); --band-iid: rgba(52,168,119,.18); --band-k16: rgba(144,133,233,.18);
   --good: #4cc38a; --bad: #f08a6c; --chip: #252b36; color-scheme: dark }
 * { box-sizing: border-box }
@@ -111,6 +111,8 @@ td.num { font-family: var(--mono) }
     <div class="controls">
       <div><span class="ctl-label">데이터셋</span><select id="dsSel" aria-label="데이터셋"></select></div>
       <div><span class="ctl-label">ERVS τ</span><div class="seg" id="tauSeg" role="group" aria-label="ERVS tau"></div></div>
+      <div><span class="ctl-label">CaRtGS-AO</span><div class="seg" id="cartSeg" role="group" aria-label="CaRtGS-AO 표시">
+        <button data-v="off" aria-pressed="true">숨김</button><button data-v="on" aria-pressed="false">함께 비교</button></div></div>
       <div><span class="ctl-label">곡선 값</span><div class="seg" id="valueSeg" role="group" aria-label="곡선 값">
         <button data-v="gap" aria-pressed="true">온라인 − offline</button><button data-v="abs" aria-pressed="false">절대 PSNR</button></div></div>
       <div><span class="ctl-label">이동평균 가장자리</span><div class="seg" id="edgeSeg" role="group" aria-label="가장자리 처리">
@@ -203,16 +205,17 @@ const state = { ds: 'all', tau: 4, value: 'gap', edge: 'one', sceneSeeds: new Ma
 const ARM = {
   uniform_iid: { name: '균등 복원', color: '--iid', band: '--band-iid', dash: '6 4' },
   uniform_k16: { name: '균등 group K16', color: '--k16', band: '--band-k16', dash: '2 3' },
+  cartgs_ao: { name: 'CaRtGS-AO', color: '--cart', band: '--band-k16', dash: '8 3 2 3' },
   offline: { name: 'offline (같은 횟수)', color: '--off', dash: null }
 };
 const E = () => state.tau === 4 ? 'ervs_k16' : 'ervs_t' + state.tau;
 for (const t of D.taus) ARM[t === 4 ? 'ervs_k16' : 'ervs_t' + t] = { name: `ERVS K16 τ=${t}`, color: '--ervs', band: '--band-ervs', dash: null };
-const ONLINE = () => ['uniform_iid', 'uniform_k16', E()];
+const ONLINE = () => ['uniform_iid', 'uniform_k16', ...(state.cart ? ['cartgs_ao'] : []), E()];
 const H90 = 91;
 const shown = i => state.edge !== 'cut' || (G[i] >= 0.05 && G[i] <= 0.95);
 
 // ---------- data access ----------
-const SC = () => D.scenes.filter(s => (state.ds === 'all' || s.dataset === state.ds) && s.runs[E()]);
+const SC = () => D.scenes.filter(s => (state.ds === 'all' || s.dataset === state.ds) && s.runs[E()] && (!state.cart || s.runs.cartgs_ao));
 const ALL_SEEDS = ['0', '1', '2'];
 const seedsAvail = s => Object.keys(s.runs.uniform_iid).sort();
 const selSeeds = (s, g) => { if (!state.sceneSeeds.has(s.scene)) state.sceneSeeds.set(s.scene, { u: new Set(seedsAvail(s)), e: new Set(seedsAvail(s)) }); return state.sceneSeeds.get(s.scene)[g]; };
@@ -470,6 +473,9 @@ document.getElementById('seedBulk').addEventListener('click', ev => { const b = 
   for (const s of SC()) { const v = seedsAvail(s).filter(k => want.includes(k)); state.sceneSeeds.set(s.scene, { u: new Set(v), e: new Set(v) }); } buildPicks(); renderVal(); });
 function all() { document.getElementById('nsc').textContent = SC().length; renderCtlCap(); renderStats(); buildPicks(); renderVal(); renderCentered(); renderSlope(); sceneOptions(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
 dsSel.addEventListener('change', () => { state.ds = dsSel.value; state.picked = null; state.scene = 'mean'; all(); });
+{ const n = D.scenes.filter(x => x.runs.cartgs_ao).length, b = document.querySelector('#cartSeg [data-v=on]'); if (!n) { b.disabled = true; b.textContent = '함께 비교 (결과 없음)'; } else b.textContent = `함께 비교 (${n}장면)`; }
+bindSeg('cartSeg', 'cart', () => { state.cart = state.cart === 'on'; state.picked = null; state.scene = 'mean'; all(); });
+state.cart = false;
 bindSeg('tauSeg', 'tau', () => { state.picked = null; all(); }, true);
 bindSeg('valueSeg', 'value', all); bindSeg('edgeSeg', 'edge', all);
 bindSeg('valSeg', 'val', renderVal); bindSeg('baseSeg', 'base', renderSlope); bindSeg('roleSeg', 'role', renderCounts);

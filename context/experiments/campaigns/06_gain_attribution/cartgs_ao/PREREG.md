@@ -26,3 +26,12 @@ configs). Batch adaptation: if every view with uses left is already in the batch
 is borrowed without consuming a use (`borrow`, counted with fallback in the 5% gate). Not modelled: loop-closure bonus
 uses (+2, no loop flag in our stream); local-BA bonus is 0 in the TUM configs. Failed run archived under
 `cartgs_ao/v1/failed_attempts/fallback_gate_*` (PSNR 21.48, not used).
+
+## Amendment 2 (2026-10-06, user approved after the square-1 run)
+square-1 (Amendment 1 sampler) borrowed 13% of draws (216 of 1660; 108 KF, 108 dense) and stopped the chain. Cause:
+B's window role takes the 3 most recent KFs each batch, and under CaRtGS those are exactly the new KFs holding their 2
+fresh uses; with distinct views per batch the KF draws then often find every view with uses left already chosen (also
+when pools are small after a generation start). CaRtGS trains one view per step and has no window, so it never meets
+this. Gate changed to borrow + fallback ≤ 20% of draws, plus refills with loss-top extras in both pools. The
+square-1 run (PSNR 21.81) is kept under this gate. The loss-top doubling itself was checked offline (unit simulation:
+top 25% get ~2×, 94 vs 48 uses).

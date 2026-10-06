@@ -110,6 +110,7 @@ SEL_THR = -0.3   # baseline-only selection: uniform_iid seed-0 gap slope over th
 EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'   # FAST-LIVO2 etc. run on the RTX 5070 Ti (online + offline, seed 0)
 TAU_OUT = S.R / 'ervs_tau_scale/v1'            # ERVS K16 with tau 8 / 16
 TAUS = (8, 16)
+CARTGS_OUT = S.R / 'cartgs_ao/v1'               # CaRtGS adaptive optimization as a drop-in sampler
 FASTLIVO = ('Retail_Street', 'HKU_Campus', 'CBD_Building_01', 'SYSU_01', 'CBD_Building_02')
 LOCAL = [(sc, 'FAST-LIVO2') for sc in FASTLIVO] + [('room_01', 'M2DGR'), ('gate_03', 'M2DGR')] + [
     (sc, 'Oxford') for sc in ('2024-07-09-new-college-01', '2024-07-09-new-college-02', '2024-07-09-new-college-04',
@@ -124,6 +125,8 @@ def scene_list():
 
 
 def online_dir(sc, arm, seed):
+    if arm == 'cartgs_ao':
+        return CARTGS_OUT / f'scenes/{sc["key"]}/render25/{arm}_s{seed}'
     if arm.startswith('ervs_t'):
         return TAU_OUT / f'scenes/{sc["key"]}/render25/{arm}_s{seed}'
     if sc['kind'] == 'pinned':
@@ -144,7 +147,7 @@ def done(d):
 
 
 def main():
-    arms = list(ARMS) + [f'ervs_t{t}' for t in TAUS]
+    arms = list(ARMS) + [f'ervs_t{t}' for t in TAUS] + ['cartgs_ao']
     scenes = []
     for sc in scene_list():
         if not done(offline_dir(sc, 0)):
