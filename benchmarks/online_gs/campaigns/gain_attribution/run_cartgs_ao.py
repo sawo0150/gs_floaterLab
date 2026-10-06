@@ -60,8 +60,8 @@ def main():
                                    worker=worker, env_extra=env)
                 out = Path(row['output'])
                 st = base.read(out / 'cartgs_ao.json')['stats']
-                draws = sum(v for k, v in st.items() if k.startswith(('draw/', 'fallback/')))
-                fb = sum(v for k, v in st.items() if k.startswith('fallback/'))
+                draws = sum(v for k, v in st.items() if k.startswith(('draw/', 'fallback/', 'borrow/')))
+                fb = sum(v for k, v in st.items() if k.startswith(('fallback/', 'borrow/')))
                 assert st.get('refill/keyframe') and st.get('refill/dense'), st
                 assert fb <= 0.05 * draws, st
                 row.update(seed=seed, cartgs_ao=st)

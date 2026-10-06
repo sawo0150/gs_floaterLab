@@ -15,3 +15,14 @@ none). Splat-wise backprop and opacity regularization (CaRtGS's other modules) a
 uniform_k16, ERVS τ=4 and offline. Gates: valid run; refills > 0 in both pools; fallback share < 5% of draws.
 Read-outs: mean PSNR vs uniform_iid / ERVS, offline gap curve, front-loading, count CV. Extension to all scenes and
 seeds only after looking at stage 1 with the user.
+
+## Amendment 1 (2026-10-06, before any accepted result)
+First square-1 run failed the fallback gate (13.5% of draws: with batches of 3 KF / 6 dense picks the last views with
+uses left were often already in the batch). The user approved checking the released code (github.com/DapengFeng/cartgs,
+commit 547c905, `GaussianMapper::useOneRandomSlidingWindowKeyframe`). The sampler now mirrors it: walk a shuffled
+order of the pool (reshuffled when the pool changes), take the next view with uses left; refill (+1 all, +1 top
+max(1, k/4) by last loss) only when no view has uses left; new views get 2 uses (`new_keyframe_times_of_use` in the TUM
+configs). Batch adaptation: if every view with uses left is already in the batch, the next unused view in walk order
+is borrowed without consuming a use (`borrow`, counted with fallback in the 5% gate). Not modelled: loop-closure bonus
+uses (+2, no loop flag in our stream); local-BA bonus is 0 in the TUM configs. Failed run archived under
+`cartgs_ao/v1/failed_attempts/fallback_gate_*` (PSNR 21.48, not used).

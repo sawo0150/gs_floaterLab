@@ -2,12 +2,15 @@
 
 Re-implementation in our unified trainer, applied separately to the KF pool and the dense pool (CaRtGS has only a
 keyframe pool; our dense pool gets the same rule):
-  * a view entering a pool gets a remaining-iteration count r0 (B_AO_R0, default 2 = CaRtGS's TUM-RGBD/VECtor setting);
-  * each draw picks uniformly at random among pool views with r > 0 (not already in this batch) and decrements r;
-  * when no view of the pool has r > 0, the pool is refilled: the top d_k = max(1, floor(k / d)) views by last training
-    loss get 2, all others 1 (d = B_AO_D, default 4 = CaRtGS default). Views never trained count as highest loss.
-  * if every view with r > 0 is already in this batch, the draw falls back to a uniform pick among the remaining
-    candidates (decrementing its r if positive); counted in stats.
+  * follows the released code (github.com/DapengFeng/cartgs, src/gaussian_mapper.cpp useOneRandomSlidingWindowKeyframe):
+    a view entering a pool gets r0 uses (B_AO_R0, default 2 = new_keyframe_times_of_use in the TUM configs); draws walk
+    a shuffled order of the pool (reshuffled when the pool changes) and take the next view with r > 0, decrementing it;
+  * after a full cycle without a usable view, every view gets +1 and the top max(1, k / d) by last training loss get
+    one more (d = B_AO_D, default 4 = auto_distribute); views never trained have no loss and only get the +1;
+  * batch adaptation: views already chosen in this batch are skipped; refills happen only under the official
+    condition (no view of the pool has uses left); if every view with uses left is already in this batch, the next
+    unused view in walk order is borrowed without consuming a use (counted as `borrow`). Loop-closure / local-BA bonus uses are not modelled
+    (our frozen tracker stream has no loop-closure flag; local_BA_increased_times_of_use is 0 in the TUM configs).
 Last training loss per view comes from train_signal's per-render hook (same loss the optimizer uses). Window picks,
 quotas 3:3:6, credit, kappa and births are unchanged; the ERVS weights are not used. Writes <output>/cartgs_ao.json.
 Usage: B_SELECTED_WORKER=... python cartgs_ao_patch.py <worker args>
@@ -39,29 +42,51 @@ def install():
     src = src.replace(GK.OLD, "uid = _AO_DRAW(self, role, pools[role], used, candidates)")
 
     def ao_draw(self, role, pool, used, candidates):
-        st = self.__dict__.setdefault('_ao', {}).setdefault(role, {})
+        # Mirrors GaussianMapper::useOneRandomSlidingWindowKeyframe (CaRtGS src/gaussian_mapper.cpp L1075-1130):
+        # walk a shuffled order of the pool (reshuffled when the pool changes), skip views with no remaining uses;
+        # after a full cycle with no usable view, add 1 use to every view and 1 more to the top max(1, k / 4) by last
+        # loss (auto_distribute = 4), then keep walking. New views get new_keyframe_times_of_use = 2 (TUM config).
+        # Batch adaptation: views already chosen in this batch are skipped like exhausted ones.
+        st = self.__dict__.setdefault('_ao', {}).setdefault(role, dict(r={}, perm=[], members=None, idx=0))
+        r = st['r']
         for u in pool:
-            if u not in st:
-                st[u] = R0; STATS['admit', role] += 1
-        live = [u for u in pool if st[u] > 0]
-        if not live:
+            if u not in r:
+                r[u] = R0; STATS['admit', role] += 1
+        members = tuple(pool)
+        if st['members'] != members:
+            st['perm'] = list(members); self.rng.shuffle(st['perm']); st['members'] = members
+            st['idx'] = min(st['idx'], len(members) - 1); STATS['reshuffle', role] += 1
+        perm, n = st['perm'], len(st['perm'])
+        if not any(r[u] > 0 for u in pool):
+            # Official condition: a full cycle finds no view with remaining uses -> +1 to all, +1 to top max(1, k/d).
             TS.materialize()
             gen = int(self.generation)
             loss = {u: (TS.STATE['views'].get((gen, u)) or {}).get('loss') for u in pool}
-            k = len(pool); dk = max(1, k // D)
-            order = sorted(pool, key=lambda u: (-(loss[u] if loss[u] is not None else float('inf')), u))
-            top = set(order[:dk])
             for u in pool:
-                st[u] = 2 if u in top else 1
-            STATS['refill', role] += 1; STATS['refill_top', role] += len(top)
-            live = list(pool)
-        eligible = [u for u in live if u not in used]
-        if eligible:
-            uid = self.rng.choice(eligible); STATS['draw', role] += 1
-        else:
+                r[u] += 1
+            known = [u for u in pool if loss[u] is not None]
+            k = max(1, len(known) // D) if known else 0
+            for u in sorted(known, key=lambda v: -loss[v])[:k]:
+                r[u] += 1
+            STATS['refill', role] += 1; STATS['refill_top', role] += k
+        uid = None
+        for step in range(1, n + 1):
+            u = perm[(st['idx'] + step) % n]
+            if r[u] > 0 and u not in used:
+                st['idx'] = (st['idx'] + step) % n; uid = u; STATS['draw', role] += 1
+                break
+        if uid is None:
+            # Batch adaptation: every view with remaining uses is already in this batch (CaRtGS trains one view per
+            # step, so this never arises there). Borrow the next unused view in walk order without consuming a use.
+            for step in range(1, n + 1):
+                u = perm[(st['idx'] + step) % n]
+                if u not in used:
+                    st['idx'] = (st['idx'] + step) % n; uid = u; STATS['borrow', role] += 1
+                    break
+        if uid is None:
             uid = self.rng.choice(candidates); STATS['fallback', role] += 1
-        if st.get(uid, 0) > 0:
-            st[uid] -= 1
+        if r.get(uid, 0) > 0:
+            r[uid] -= 1
         return uid
 
     ns = dict(vars(U), _AO_DRAW=ao_draw)
