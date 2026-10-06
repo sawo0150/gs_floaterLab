@@ -69,11 +69,28 @@ td.num { font-family: var(--mono) }
 .picker-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
 .pick-state { font-size: 12.5px; color: var(--muted) }
 .pick-state.manual { color: var(--bad) }
-.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px }
-.picks label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; min-width: 0 }
+.chk { display: inline-flex; flex-wrap: wrap; gap: 6px }
+.chk label { display: inline-flex; align-items: center; gap: 7px; font: 500 13px var(--sans); color: var(--muted); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px; background: var(--surface); cursor: pointer }
+.chk label:has(input:checked) { background: var(--chip); color: var(--ink) }
+.chk label:has(input:focus-visible) { outline: 2px solid var(--ervs); outline-offset: 1px }
+.chk input { accent-color: var(--ervs); width: 15px; height: 15px; margin: 0 }
+.chk .meta { color: var(--muted); font: 11.5px var(--mono) }
+.seg button .n { font: 11.5px var(--mono); opacity: .75; margin-left: 4px }
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px }
 .picks input { accent-color: var(--ervs); width: 15px; height: 15px }
 .picks .meta { color: var(--muted); font: 11.5px var(--mono); margin-left: auto }
 .picks .rule { color: var(--ervs) }
+.pk { display: grid; gap: 5px; padding: 7px 9px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); min-width: 0 }
+.pk.on { border-color: var(--ervs) }
+.pk .nm { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; min-width: 0 }
+.pk .ds { color: var(--muted); font: 11.5px var(--mono); margin-left: auto }
+.pks { display: flex; flex-wrap: wrap; gap: 4px }
+.pk:not(.on) .pks { opacity: .6 }
+.pks .sd { display: inline-flex; align-items: center; gap: 5px; font: 12px var(--mono); color: var(--muted); border: 1px solid var(--rule); border-radius: 6px; padding: 2px 6px; cursor: pointer }
+.pks .sd:has(input:checked) { background: var(--chip); color: var(--ink) }
+.pks .sd.miss { border-style: dashed }
+.pks .sd .meta { margin-left: 0 }
+.pks .sd input { width: 13px; height: 13px }
 .edgebar { display: grid; gap: 6px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 16px }
 .steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; max-width: 80ch }
 .note { border-left: 3px solid var(--off); padding: 4px 0 4px 12px; color: var(--ink); font-size: 14px }
@@ -104,20 +121,16 @@ td.num { font-family: var(--mono) }
 
   <section class="panel" id="valPanel">
     <h2>검증: 기준선만 보고 고른 장면</h2>
-    <p class="cap">ERVS가 하는 일이 "품질을 늦게 들어온 view 쪽으로 옮기는 것"이라면, 균등 방식에서 늦은 view가 offline보다 더 손해를 보는 장면에서는 ERVS가 곡선을 평평하게 만들어야 합니다.</p>
-    <ol class="steps">
-      <li><b>선정</b> — ERVS 결과는 보지 않고, 균등 복원 <b>seed 0</b>의 차이 곡선만 봅니다. 앞 90%에서 시간과의 Spearman 상관이 <span id="thr"></span>보다 작으면(늦은 view일수록 더 손해) 선정합니다.</li>
-      <li><b>평가</b> — 기본은 seed 0·1·2 평균입니다. seed 0은 선정에도 쓰였으므로, 엄밀한 검증은 "seed 1·2만"을 고르세요(선정에 쓰지 않은 데이터라 평균으로의 회귀가 섞이지 않습니다). seed 0만 있는 데이터셋은 "seed 1·2만"에서 빠집니다.</li>
-    </ol>
     <div class="picker">
       <div class="picker-head"><span class="ctl-label">곡선에 넣을 장면 (체크하면 바로 다시 계산)</span>
         <div class="seg" role="group" aria-label="선택 도구"><button type="button" id="pickRule">규칙대로</button><button type="button" id="pickAll">전체</button><button type="button" id="pickNone">비우기</button></div>
+        <div class="seg" id="pickDs" role="group" aria-label="데이터셋별 선택"></div>
         <span class="pick-state" id="pickState"></span></div>
+      <p class="cap" id="pickCap">장면마다 seed를 따로 고를 수 있습니다. seed 옆 숫자는 그 seed의 균등 복원 차이 곡선 기울기(앞 90%, Spearman)로, 음수일수록 늦은 view에서 더 손해를 봅니다. 점선 칸은 현재 ERVS τ의 결과가 없는 seed입니다.</p>
       <div class="picks" id="picks"></div>
     </div>
     <div class="controls">
-      <div><span class="ctl-label">평가 seed</span><div class="seg" id="seedSeg" role="group" aria-label="평가 seed">
-        <button data-v="all" aria-pressed="true">seed 0·1·2 평균</button><button data-v="held" aria-pressed="false">seed 1·2만 (엄밀)</button></div></div>
+      <div><span class="ctl-label">모든 장면에 seed 일괄 적용</span><div class="seg" id="seedBulk" role="group" aria-label="seed 일괄 적용"><button type="button" data-v="all">전체 seed</button><button type="button" data-v="0">seed 0만</button><button type="button" data-v="1">seed 1만</button><button type="button" data-v="2">seed 2만</button><button type="button" data-v="12">seed 1·2만</button></div></div>
       <div><span class="ctl-label">곡선</span><div class="seg" id="valSeg" role="group" aria-label="장면 묶음">
         <button data-v="sel" aria-pressed="true">체크한 장면 평균</button><button data-v="rest" aria-pressed="false">체크 안 한 장면 평균</button><button data-v="rep" aria-pressed="false">대표 장면</button></div></div>
     </div>
@@ -184,7 +197,7 @@ const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const 
 const mean = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : NaN;
 const fmt = (v, d = 2) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
 const cls = v => v > 0 ? 'pos' : v < 0 ? 'neg' : '';
-const state = { ds: 'all', tau: 4, value: 'gap', edge: 'one', seeds: 'all', val: 'sel', base: 'uniform_iid', scene: 'mean', role: 'dense', picked: null };
+const state = { ds: 'all', tau: 4, value: 'gap', edge: 'one', sceneSeeds: new Map(), val: 'sel', base: 'uniform_iid', scene: 'mean', role: 'dense', picked: null };
 const ARM = {
   uniform_iid: { name: '균등 복원', color: '--iid', band: '--band-iid', dash: '6 4' },
   uniform_k16: { name: '균등 group K16', color: '--k16', band: '--band-k16', dash: '2 3' },
@@ -198,7 +211,10 @@ const shown = i => state.edge !== 'cut' || (G[i] >= 0.05 && G[i] <= 0.95);
 
 // ---------- data access ----------
 const SC = () => D.scenes.filter(s => (state.ds === 'all' || s.dataset === state.ds) && s.runs[E()]);
-const seedSet = () => state.seeds === 'held' ? ['1', '2'] : null;
+const ALL_SEEDS = ['0', '1', '2'];
+const seedsAvail = s => Object.keys(s.runs.uniform_iid).sort();
+const selSeeds = s => { if (!state.sceneSeeds.has(s.scene)) state.sceneSeeds.set(s.scene, new Set(seedsAvail(s))); return state.sceneSeeds.get(s.scene); };
+const setOf = s => { const av = seedsAvail(s), sel = selSeeds(s); return av.every(k => sel.has(k)) ? null : av.filter(k => sel.has(k)); };
 const seedsOf = (s, a, set) => Object.keys(s.runs[a] || {}).filter(k => !set || set.includes(k));
 const avgArr = arrs => arrs.length ? arrs[0].map((_, i) => mean(arrs.map(r => r[i]))) : null;
 function cur(s, a, value, set) {
@@ -247,13 +263,14 @@ const tipRows = (arms, C, i, gap) => arms.map(a => `<span style="color:var(${ARM
 function curveChart(host, h, sc, value, set, opts = {}) {
   const gap = value === 'gap', arms = gap ? ONLINE() : ['offline', ...ONLINE()];
   const f = frame(host, h, { l: 56, r: 14, t: 12, b: 46 });
-  const C = {}; for (const a of arms) { const cs = sc.map(s => cur(s, a, value, set)).filter(Boolean); C[a] = cs.length ? avgArr(cs) : null; }
+  const SS = s => typeof set === 'function' ? set(s) : set;
+  const C = {}; for (const a of arms) { const cs = sc.map(s => cur(s, a, value, SS(s))).filter(Boolean); C[a] = cs.length ? avgArr(cs) : null; }
   const vis = Object.values(C).filter(Boolean).flatMap(c => c.filter((_, i) => shown(i))).concat(gap ? [0] : []);
   if (!vis.length) return C;
   const y = yAxis(f, Math.floor(Math.min(...vis) * 4) / 4 - .1, Math.ceil(Math.max(...vis) * 4) / 4 + .1, gap ? '온라인 − offline PSNR (dB)' : 'held-out PSNR (dB)', v => gap ? fmt(v, 1) : v.toFixed(1)), x = xAxis(f);
   if (gap) el('line', { x1: f.x0, x2: f.x1, y1: y(0), y2: y(0), stroke: css('--off'), 'stroke-width': 1.3, 'stroke-dasharray': '5 4' }, f.svg);
   if (opts.shade90) el('rect', { x: x(0.9), y: f.y1, width: x(1) - x(0.9), height: f.y0 - f.y1, fill: css('--grid'), opacity: .7 }, f.svg);
-  if (opts.bandScene) for (const a of ONLINE()) { const rs = seedsOf(opts.bandScene, a, set).map(k => opts.bandScene.runs[a][k][value === 'abs' ? 'abs' : state.edge === 'sym' ? 'gap_sym' : 'gap']); if (rs.length > 1) band(f, G.map((_, i) => Math.min(...rs.map(r => r[i]))), G.map((_, i) => Math.max(...rs.map(r => r[i]))), x, y, a); }
+  if (opts.bandScene) for (const a of ONLINE()) { const rs = seedsOf(opts.bandScene, a, SS(opts.bandScene)).map(k => opts.bandScene.runs[a][k][value === 'abs' ? 'abs' : state.edge === 'sym' ? 'gap_sym' : 'gap']); if (rs.length > 1) band(f, G.map((_, i) => Math.min(...rs.map(r => r[i]))), G.map((_, i) => Math.max(...rs.map(r => r[i]))), x, y, a); }
   for (const a of arms) if (C[a]) line(f, C[a], x, y, a);
   crosshair(f, G, x, i => `<b>t = ${G[i].toFixed(2)}</b><br>` + tipRows(arms, C, i, gap));
   return C;
@@ -273,42 +290,55 @@ function renderStats() {
 }
 
 function buildPicks() {
-  const sc = SC(), thr = D.sel_thr, H = document.getElementById('picks');
+  const sc = SC(), thr = D.sel_thr, H = document.getElementById('picks'), e = E();
   const sel0 = s => slopeOf(s.runs.uniform_iid['0'].gap);
   if (!state.picked) state.picked = new Set(sc.filter(s => sel0(s) < thr).map(s => s.scene));
-  H.innerHTML = sc.slice().sort((p, q) => sel0(p) - sel0(q)).map(s => `<label for="pk-${s.scene}"><input type="checkbox" id="pk-${s.scene}" data-scene="${s.scene}"${state.picked.has(s.scene) ? ' checked' : ''}>${s.scene}<span class="meta${sel0(s) < thr ? ' rule' : ''}">${fmt(sel0(s))}</span></label>`).join('');
+  H.innerHTML = sc.slice().sort((p, q) => sel0(p) - sel0(q)).map(s => {
+    const ss = selSeeds(s), on = state.picked.has(s.scene);
+    const chips = seedsAvail(s).map(k => { const sl = slopeOf(s.runs.uniform_iid[k].gap), r = s.runs[e] && s.runs[e][k];
+      const tip = `seed ${k} 균등 복원 기울기 ${fmt(sl)}` + (r ? ` · ERVS τ=${state.tau} ${fmt(slopeOf(r.gap))}` : ` · ERVS τ=${state.tau} 결과 없음`);
+      return `<label class="sd${r ? '' : ' miss'}" for="pk-${s.scene}-s${k}" title="${tip}"><input type="checkbox" id="pk-${s.scene}-s${k}" data-scene="${s.scene}" data-seed="${k}"${ss.has(k) ? ' checked' : ''}>${k}<span class="meta${sl < thr ? ' rule' : ''}">${fmt(sl)}</span></label>`; }).join('');
+    return `<div class="pk${on ? ' on' : ''}" data-pk="${s.scene}"><label class="nm" for="pk-${s.scene}"><input type="checkbox" id="pk-${s.scene}" data-scene="${s.scene}"${on ? ' checked' : ''}>${s.scene}<span class="ds">${s.dataset}</span></label><div class="pks">${chips}</div></div>`; }).join('');
 }
+function renderPickTools(all) {
+  const H = document.getElementById('pickDs'), ds = [...new Set(all.map(s => s.dataset))];
+  if (H.dataset.key !== ds.join('|')) { H.dataset.key = ds.join('|'); H.innerHTML = ds.map(d => `<button type="button" data-ds="${d}">${d}<span class="n"></span></button>`).join(''); }
+  for (const b of H.children) { const names = all.filter(s => s.dataset === b.dataset.ds).map(s => s.scene), on = names.every(n => state.picked.has(n));
+    b.setAttribute('aria-pressed', on); b.title = `${b.dataset.ds} 장면 ${names.length}개를 한 번에 ${on ? '해제' : '선택'}`; b.querySelector('.n').textContent = names.filter(n => state.picked.has(n)).length + '/' + names.length; }
+}
+function syncPicks() { for (const d of document.querySelectorAll('#picks .pk')) d.classList.toggle('on', state.picked.has(d.dataset.pk)); }
 function renderVal() {
-  const all = SC(), thr = D.sel_thr, e = E(), set = seedSet();
-  document.getElementById('thr').textContent = thr.toFixed(1);
+  const all = SC(), thr = D.sel_thr, e = E();
+  document.getElementById('pickRule').title = `seed 0 기준선의 앞 90%에서 시간과의 Spearman 상관이 ${thr.toFixed(1)}보다 작은 장면`;
+  renderPickTools(all); syncPicks();
   const sel0 = s => slopeOf(s.runs.uniform_iid['0'].gap);
-  const ok = s => seedsOf(s, e, set).length && seedsOf(s, 'uniform_iid', set).length;
+  const ok = s => ONLINE().every(a => seedsOf(s, a, setOf(s)).length);
   const ruleSet = all.filter(s => sel0(s) < thr).map(s => s.scene);
   const sel = all.filter(s => state.picked.has(s.scene) && ok(s)), rest = all.filter(s => !state.picked.has(s.scene) && ok(s));
   const manual = !(ruleSet.length === [...state.picked].filter(n => all.some(s => s.scene === n)).length && ruleSet.every(n => state.picked.has(n)));
   const ps = document.getElementById('pickState');
-  ps.textContent = manual ? `직접 고른 ${sel.length}개 장면: 규칙(seed 0 기준선)으로 고른 묶음이 아니므로 검증 결과가 아닙니다` : `규칙으로 선정된 ${sel.length}개 장면` + (state.seeds === 'all' ? ' (seed 0을 포함해 평가하므로 낙관적일 수 있음)' : ' (선정에 쓰지 않은 seed로 평가)');
+  ps.textContent = manual ? `직접 고른 ${sel.length}개 장면: 규칙(seed 0 기준선)으로 고른 묶음이 아니므로 검증 결과가 아닙니다` : `규칙으로 선정된 ${sel.length}개 장면` + (() => { const n0 = sel.filter(s => selSeeds(s).has('0')).length; return !sel.length ? '' : n0 === sel.length ? ' (seed 0을 포함해 평가하므로 낙관적일 수 있음)' : n0 === 0 ? ' (선정에 쓰지 않은 seed로 평가)' : ` (${n0}개 장면은 seed 0 포함)`; })();
   ps.className = 'pick-state' + (manual ? ' manual' : '');
   const rep = all.filter(s => sel0(s) < thr && ok(s)).sort((p, q) => sel0(p) - sel0(q))[0];
   const g = state.val === 'sel' ? sel : state.val === 'rest' ? rest : rep ? [rep] : [];
   legendInto('legend3', state.value === 'gap' ? ONLINE() : ['offline', ...ONLINE()]);
-  if (!g.length) { document.getElementById('valStats').innerHTML = '<div class="stat"><span class="k">표시할 장면이 없습니다</span><span class="s">장면을 체크하거나 평가 seed를 바꾸세요.</span></div>'; document.getElementById('cVal').innerHTML = ''; document.getElementById('valCap').textContent = ''; document.getElementById('valTbl').innerHTML = ''; return; }
-  const per = s => { const o = {}; for (const a of ONLINE()) { const ks = seedsOf(s, a, set); o[a] = { slope: mean(ks.map(k => slopeOf(s.runs[a][k].gap))), late: mean(ks.map(k => lateOf(s.runs[a][k].gap))), psnr: mean(ks.map(k => s.runs[a][k].psnr90)) }; } return o; };
+  if (!g.length) { document.getElementById('valStats').innerHTML = '<div class="stat"><span class="k">표시할 장면이 없습니다</span><span class="s">장면을 체크하거나 장면별 seed를 하나 이상 고르세요.</span></div>'; document.getElementById('cVal').innerHTML = ''; document.getElementById('valCap').textContent = ''; document.getElementById('valTbl').innerHTML = ''; return; }
+  const per = s => { const o = {}; for (const a of ONLINE()) { const ks = seedsOf(s, a, setOf(s)); o[a] = { slope: mean(ks.map(k => slopeOf(s.runs[a][k].gap))), late: mean(ks.map(k => lateOf(s.runs[a][k].gap))), psnr: mean(ks.map(k => s.runs[a][k].psnr90)) }; } return o; };
   const P = new Map(all.filter(ok).map(s => [s.scene, per(s)]));
   const dif = (grp, key) => grp.map(s => P.get(s.scene)[e][key] - P.get(s.scene).uniform_iid[key]);
   const up = a => a.filter(x => x > 0).length;
   const dS = dif(sel, 'slope'), dL = dif(sel, 'late'), dP = dif(sel, 'psnr'), kS = sel.map(s => P.get(s.scene).uniform_k16.slope - P.get(s.scene).uniform_iid.slope), kP = sel.map(s => P.get(s.scene).uniform_k16.psnr - P.get(s.scene).uniform_iid.psnr);
-  const seedTxt = state.seeds === 'held' ? 'seed 1·2' : 'seed 0·1·2';
+  const seedTxt = '선택한 seed';
   document.getElementById('valStats').innerHTML = `
   <div class="stat"><span class="k">${manual ? '직접 고른 장면' : '선정된 장면'}</span><span class="v">${sel.length} / ${all.filter(ok).length}</span><span class="s">${sel.map(s => s.scene).join(', ') || '—'}</span></div>
   <div class="stat"><span class="k">${seedTxt}: 기울기 변화 (ERVS − 균등 복원)</span><span class="v ${cls(mean(dS))}">${sel.length ? fmt(mean(dS)) : '—'}</span><span class="s">${up(dS)}/${sel.length} 장면에서 0 쪽으로 · 균등 group ${sel.length ? fmt(mean(kS)) : '—'}</span></div>
   <div class="stat"><span class="k">${seedTxt}: (후반 − 초반) 차이 변화</span><span class="v ${cls(mean(dL))}">${sel.length ? fmt(mean(dL)) + ' dB' : '—'}</span><span class="s">${up(dL)}/${sel.length} 장면 · 체크 안 한 ${rest.length}개 ${rest.length ? fmt(mean(dif(rest, 'late'))) + ' dB' : '—'}</span></div>
   <div class="stat"><span class="k">${seedTxt}: 평균 PSNR (ERVS − 균등 복원)</span><span class="v ${cls(mean(dP))}">${sel.length ? fmt(mean(dP), 3) + ' dB' : '—'}</span><span class="s">앞 90% view · ${up(dP)}/${sel.length} 장면 · 균등 group ${sel.length ? fmt(mean(kP), 3) : '—'}</span></div>`;
-  curveChart(document.getElementById('cVal'), 310, g, state.value, set, { shade90: true });
+  curveChart(document.getElementById('cVal'), 310, g, state.value, setOf, { shade90: true });
   document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${manual && state.val === 'sel' ? ' (직접 고른 묶음)' : ''}. `) + `${seedTxt} 평균. 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.`;
-  document.getElementById('valTbl').innerHTML = `<thead><tr><th>장면</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS τ=${state.tau}</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>평균 PSNR 차이</th><th></th></tr></thead><tbody>` +
+  document.getElementById('valTbl').innerHTML = `<thead><tr><th>장면</th><th>사용 seed</th><th>선정 지표 (seed 0)</th><th>기울기 균등 복원</th><th>균등 group</th><th>ERVS τ=${state.tau}</th><th>(후반−초반) 균등 복원</th><th>ERVS</th><th>평균 PSNR 차이</th><th></th></tr></thead><tbody>` +
     all.filter(ok).sort((p, q) => sel0(p) - sel0(q)).map(s => { const q = P.get(s.scene), r = sel0(s) < thr;
-      return `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${fmt(sel0(s))}</td><td class="num">${fmt(q.uniform_iid.slope)}</td><td class="num">${fmt(q.uniform_k16.slope)}</td><td class="num ${r ? cls(q[e].slope - q.uniform_iid.slope) : ''}">${fmt(q[e].slope)}</td><td class="num">${fmt(q.uniform_iid.late)}</td><td class="num ${r ? cls(q[e].late - q.uniform_iid.late) : ''}">${fmt(q[e].late)}</td><td class="num">${fmt(q[e].psnr - q.uniform_iid.psnr, 3)}</td><td>${r ? '규칙 선정' : ''}${state.picked.has(s.scene) ? ' ✓' : ''}</td></tr>`; }).join('') + '</tbody>';
+      return `<tr><td>${s.scene} <span style="color:var(--muted)">${s.dataset}</span></td><td class="num">${seedsAvail(s).filter(k => selSeeds(s).has(k)).join('·') || '—'}</td><td class="num">${fmt(sel0(s))}</td><td class="num">${fmt(q.uniform_iid.slope)}</td><td class="num">${fmt(q.uniform_k16.slope)}</td><td class="num ${r ? cls(q[e].slope - q.uniform_iid.slope) : ''}">${fmt(q[e].slope)}</td><td class="num">${fmt(q.uniform_iid.late)}</td><td class="num ${r ? cls(q[e].late - q.uniform_iid.late) : ''}">${fmt(q[e].late)}</td><td class="num">${fmt(q[e].psnr - q.uniform_iid.psnr, 3)}</td><td>${r ? '규칙 선정' : ''}${state.picked.has(s.scene) ? ' ✓' : ''}</td></tr>`; }).join('') + '</tbody>';
 }
 
 const centered = (s, a) => { const g = cur(s, a, 'gap', null), m = mean(g.slice(0, H90)); return g.map(v => v - m); };
@@ -418,16 +448,25 @@ dsSel.innerHTML = '<option value="all">전체</option>' + [...new Set(D.scenes.m
 document.getElementById('tauSeg').innerHTML = D.taus.map(t => { const a = t === 4 ? 'ervs_k16' : 'ervs_t' + t, n = D.scenes.filter(s => s.runs[a]).length; return `<button data-v="${t}" aria-pressed="${t === 4}"${n ? '' : ' disabled title="아직 결과 없음"'}>τ=${t}${n ? '' : ' (대기)'}</button>`; }).join('');
 function sceneOptions() { const ss = document.getElementById('sceneSel'); const sc = SC(); ss.innerHTML = `<option value="mean">${sc.length}장면 평균</option>` + sc.map(s => `<option value="${s.key}"${s.key === state.scene ? ' selected' : ''}>${s.scene} (${s.dataset})</option>`).join(''); }
 document.getElementById('sceneSel').addEventListener('change', ev => { state.scene = ev.target.value; renderMain(); });
-document.getElementById('picks').addEventListener('change', ev => { const c = ev.target; if (!c.dataset.scene) return; c.checked ? state.picked.add(c.dataset.scene) : state.picked.delete(c.dataset.scene); renderVal(); });
+document.getElementById('picks').addEventListener('change', ev => { const c = ev.target, nm = c.dataset.scene; if (!nm) return;
+  if (c.dataset.seed) { const ss = selSeeds(D.scenes.find(x => x.scene === nm)); c.checked ? ss.add(c.dataset.seed) : ss.delete(c.dataset.seed); }
+  else c.checked ? state.picked.add(nm) : state.picked.delete(nm);
+  renderVal(); });
 const setPick = names => { state.picked = new Set(names); buildPicks(); renderVal(); };
 document.getElementById('pickRule').onclick = () => setPick(SC().filter(s => slopeOf(s.runs.uniform_iid['0'].gap) < D.sel_thr).map(s => s.scene));
 document.getElementById('pickAll').onclick = () => setPick(SC().map(s => s.scene));
 document.getElementById('pickNone').onclick = () => setPick([]);
+document.getElementById('pickDs').addEventListener('click', ev => { const b = ev.target.closest('button[data-ds]'); if (!b) return;
+  const names = SC().filter(s => s.dataset === b.dataset.ds).map(s => s.scene), on = names.every(n => state.picked.has(n));
+  setPick([...state.picked].filter(n => !on || !names.includes(n)).concat(on ? [] : names)); });
+document.getElementById('seedBulk').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return;
+  const want = b.dataset.v === 'all' ? ALL_SEEDS : b.dataset.v.split('');
+  for (const s of SC()) state.sceneSeeds.set(s.scene, new Set(seedsAvail(s).filter(k => want.includes(k)))); buildPicks(); renderVal(); });
 function all() { document.getElementById('nsc').textContent = SC().length; renderCtlCap(); renderStats(); buildPicks(); renderVal(); renderCentered(); renderSlope(); sceneOptions(); renderMain(); renderLorenz(); renderSmall(); renderTable(); }
 dsSel.addEventListener('change', () => { state.ds = dsSel.value; state.picked = null; state.scene = 'mean'; all(); });
 bindSeg('tauSeg', 'tau', () => { state.picked = null; all(); }, true);
 bindSeg('valueSeg', 'value', all); bindSeg('edgeSeg', 'edge', all);
-bindSeg('seedSeg', 'seeds', renderVal); bindSeg('valSeg', 'val', renderVal); bindSeg('baseSeg', 'base', renderSlope); bindSeg('roleSeg', 'role', renderCounts);
+bindSeg('valSeg', 'val', renderVal); bindSeg('baseSeg', 'base', renderSlope); bindSeg('roleSeg', 'role', renderCounts);
 all();
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(all, 150); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', all);
