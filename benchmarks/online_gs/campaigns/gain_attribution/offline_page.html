@@ -228,7 +228,8 @@ const SC = () => D.scenes.filter(s => (state.ds === 'all' || s.dataset === state
 const ALL_SEEDS = ['0', '1', '2'];
 const seedsAvail = s => Object.keys(s.runs.uniform_iid).sort();
 const selSeeds = (s, g) => { if (!state.sceneSeeds.has(s.scene)) state.sceneSeeds.set(s.scene, { u: new Set(seedsAvail(s)), e: new Set(seedsAvail(s)) }); return state.sceneSeeds.get(s.scene)[g]; };
-const setOf = (s, a) => { const av = seedsAvail(s), sel = selSeeds(s, a === E() ? 'e' : 'u'); return av.every(k => sel.has(k)) ? null : av.filter(k => sel.has(k)); };
+const setOf = (s, a) => { if (a === 'cartgs_ao') return null; // CaRtGS-AO: always all of its own seeds (seed 0 so far), independent of the per-scene seed picks
+  const av = seedsAvail(s), sel = selSeeds(s, a === E() ? 'e' : 'u'); return av.every(k => sel.has(k)) ? null : av.filter(k => sel.has(k)); };
 const seedsOf = (s, a, set) => Object.keys(s.runs[a] || {}).filter(k => !set || set.includes(k));
 const avgArr = arrs => arrs.length ? arrs[0].map((_, i) => mean(arrs.map(r => r[i]))) : null;
 function cur(s, a, value, set) {
@@ -354,7 +355,7 @@ function renderVal() {
   <div class="stat"><span class="k">${seedTxt}: 평균 PSNR (ERVS − 균등 복원)</span><span class="v ${cls(mean(dP))}">${sel.length ? fmt(mean(dP), 3) + ' dB' : '—'}</span><span class="s">앞 90% view · ${up(dP)}/${sel.length} 장면 · 균등 group ${sel.length ? fmt(mean(kP), 3) : '—'}</span></div>`;
   if (state.cart) {
     const cS = sel.map(s => P.get(s.scene).cartgs_ao.slope - P.get(s.scene).uniform_iid.slope), cL = sel.map(s => P.get(s.scene).cartgs_ao.late - P.get(s.scene).uniform_iid.late), cP = sel.map(s => P.get(s.scene).cartgs_ao.psnr - P.get(s.scene).uniform_iid.psnr), ce = sel.map(s => P.get(s.scene).cartgs_ao.psnr - P.get(s.scene)[e].psnr);
-    document.getElementById('valStats').insertAdjacentHTML('beforeend', `<div class="stat"><span class="k">CaRtGS-AO − 균등 복원 (${seedTxt})</span><span class="v ${cls(mean(cP))}">${sel.length ? fmt(mean(cP), 3) + ' dB' : '—'}</span><span class="s">평균 PSNR · ${up(cP)}/${sel.length} 장면 · 기울기 ${sel.length ? fmt(mean(cS)) : '—'} · (후반−초반) ${sel.length ? fmt(mean(cL)) : '—'} dB · ERVS 대비 PSNR ${sel.length ? fmt(mean(ce), 3) : '—'} dB</span></div>`);
+    document.getElementById('valStats').insertAdjacentHTML('beforeend', `<div class="stat"><span class="k">CaRtGS-AO − 균등 복원 (${seedTxt})</span><span class="v ${cls(mean(cP))}">${sel.length ? fmt(mean(cP), 3) + ' dB' : '—'}</span><span class="s">평균 PSNR · ${up(cP)}/${sel.length} 장면 · CaRtGS-AO는 장면별 seed 선택과 무관하게 보유한 seed(현재 0) 사용 · 기울기 ${sel.length ? fmt(mean(cS)) : '—'} · (후반−초반) ${sel.length ? fmt(mean(cL)) : '—'} dB · ERVS 대비 PSNR ${sel.length ? fmt(mean(ce), 3) : '—'} dB</span></div>`);
   }
   curveChart(document.getElementById('cVal'), 310, g, state.value, setOf, { shade90: true });
   document.getElementById('valCap').textContent = (state.val === 'rep' ? `대표 장면 ${rep.scene} (${rep.dataset}): 규칙으로 선정된 장면 중 seed 0 기준선의 감소가 가장 강한 장면입니다. ` : `${g.length}개 장면 평균${manual && state.val === 'sel' ? ' (직접 고른 묶음)' : ''}. `) + `${seedTxt} 평균. 회색 영역(마지막 10%)은 판정에서 뺀 구간입니다.`;
