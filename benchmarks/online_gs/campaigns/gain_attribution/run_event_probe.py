@@ -27,7 +27,9 @@ ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'),
         'event_lowop_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_BIRTH_OPACITY='0.12'), ['--tau', '1e12']),
         'event_selop002_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '1e12']),
         'event_selop002_noscale_ervs': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
-        'event_selop002_noscale_iid_lag6': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_WINDOW_LAG='6'), ['--tau', '1e12'])}
+        'event_selop002_noscale_iid_lag6': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_WINDOW_LAG='6'), ['--tau', '1e12']),
+        'event_selop002_noscale_ervs_t05': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.5']),
+        'event_selop002_noscale_ervs_t01': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.1'])}
 PATCH = 'event_probe_patch.py'
 
 

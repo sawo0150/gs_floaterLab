@@ -40,3 +40,9 @@ eventual post-arrival Gaussians within 3 KFs, ~43–53% within 6. Base: selectiv
 with replacement, event probe. Runs: `event_selop002_noscale_iid_lag6` on aria1253 and square-1, and the unlagged
 base `event_selop002_noscale_iid` on square-1. Compare with D2 (aria 26.52, square-1 21.85) and the unlagged base.
 Note: the last 6 KFs get no window training.
+
+## Amendment 7 (2026-10-09, user approved; aria1253, 2 runs)
+Lower ERVS temperature: selective births 0.5/0.02, clamp off, ERVS K16 with tau 0.5 and 0.1 (arms
+`event_selop002_noscale_ervs_t05/_t01`; tau 4 → 25.72). With per_view scale = tau × mean count, tau 4 is nearly flat;
+low tau approaches lowest-count-first, which could move budget to late views (offline: ~12.5 KF / 8 dense each;
+online last fifth 5.2 / 0.9). Read-out: PSNR, per-fifth held-out PSNR (last fifth 22.57; offline 23.98), counts by fifth.
