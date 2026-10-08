@@ -217,3 +217,15 @@ Refreshes served: aria 62 KF + 98 dense (48 KFs still touched at the end), squar
 the first two fifths (−1.44, −1.08), i.e. again in the refreshed early regions, as in the earlier consolidation
 (−0.63/−0.88); square-1 +0.09. Single seed; per-fifth seed spread online is up to ~±1 dB, but the aria pattern matches
 the replicated consolidation loss. Mid-stream refresh of settled regions does not reproduce the late-replay gain.
+
+## Why the refresh run lost on aria: trajectory check (2026-10-09, no GPU)
+Early KFs (first 40% of frames, n=37), base vs refresh: identical to ±0.1 until ~1,800 renders; the final −1.16 comes from
+the end. Largest single training interval (25 renders, no births in between) in the refresh run: 2,200→2,225, early
+KFs −2.84 on average, KFs 446–493 −7 to −11.5 dB at once (base, same interval: −0.02; worst KF −3.45).
+Catastrophic single-interval drops (> 3 dB on one KF) in the final generation: online 0.5 clamp off 14, selective 11,
+selective+refresh 26, selective+no-window 5. Final maps (clamp off) hold Gaussians with max scale up to 11.7 (KF baseline
+0.27) and ~390–430 Gaussians with scale > 0.3 and opacity > 0.3: without the 0.1 clamp, giant Gaussians appear and,
+during training of other views, can suddenly cover some KFs.
+**Reading.** With the clamp off, single-run results carry a "floater lottery": whether a giant Gaussian covers some
+views at the end. The refresh run's aria loss is mostly such an event at the very end, not a mid-stream effect of the
+refreshes. Caveat: the earlier consolidation losses were with the clamp on, so this does not explain them.
