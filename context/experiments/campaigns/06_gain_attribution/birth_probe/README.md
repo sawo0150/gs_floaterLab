@@ -23,3 +23,10 @@ Per probed view, change at births (after − before) vs change between its conse
 The earlier statement "recovery (median +0.07) cannot keep up with damage" was wrong: by sums, training recovers
 ~90% of the immediate birth damage. Old views *not* covered by the birth lose −0.05 to −0.07 dB per interval while
 other views are trained (may include covering by other births in between) — a sign of training-time interference.
+
+## Per-view net change (2026-10-09, baseline run)
+72 old KFs probed ≥2 times (median span 9 birth events): net PSNR change first→last mean −0.19 (at births −1.30,
+between births +1.11). The 31 KFs only ever probed as control (never seen by the probed births): net **+0.01**.
+So the −0.067/interval control figure above came from views covered by unprobed births in between; **no sign of
+forgetting on views untouched by births**. Old views stay roughly flat online; D2's advantage (also +2.2 dB on
+training views) is that they end higher, i.e. online steps are less effective, not that quality is lost later.
