@@ -49,6 +49,7 @@ def gates(out, ref_dir):
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--smoke', action='store_true'); p.add_argument('--extra', action='store_true')
+    p.add_argument('--track', action='store_true', help='measurement: track_patch (birth probe + KF PSNR tracking)')
     p.add_argument('--noscale-scenes', nargs='+', help='scale projection off (B_NO_SCALE_PROJ=1), seed 0, arm offline_noscale')
     a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE'), 'machine profile required'
@@ -82,10 +83,13 @@ def main():
     if a.noscale_scenes:
         plan = [(k, 0) for k in a.noscale_scenes]
         launcher_env = dict(launcher_env, B_NO_SCALE_PROJ='1')
+    if a.track:
+        assert a.noscale_scenes and not a.extra
+        worker, launcher_env = HERE / 'track_patch.py', dict(launcher_env, B_TRACK_BASE='offline', B_TRACK_EVERY='50')
     ctx = (lock, trial, preflight, gpu_idle, recipe_environment)
     rows = []
     for key, seed in plan:
-        name = f'offline_noscale_s{seed}' if a.noscale_scenes else f'offline_s{seed}'
+        name = (f'offline_track_noscale_s{seed}' if a.track else f'offline_noscale_s{seed}') if a.noscale_scenes else f'offline_s{seed}'
         ref_dir = ref_of(key, seed)
         ref = base.read(ref_dir / 'render_result.json')
         last_uid = [x['uid'] for x in ref['arrivals'] if not x.get('terminal')][-1]

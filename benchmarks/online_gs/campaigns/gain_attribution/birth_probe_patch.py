@@ -21,7 +21,7 @@ N = int(os.environ.get('B_PROBE_N', '6'))
 STATE = dict(mapper=None, events=[], errors=0)
 
 
-def install():
+def install(sampler=True):
     import torch
     import online_mapper_runtime as R
     import gs_backend
@@ -91,8 +91,9 @@ def install():
         return out
     GaussianModel.extend_from_pcd = probe_birth
 
-    import sampling_mode_patch as SM
-    SM.install()
+    if sampler:                             # uniform with replacement (default); off when another patch owns draws
+        import sampling_mode_patch as SM
+        SM.install()
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():
