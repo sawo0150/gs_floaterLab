@@ -90,6 +90,8 @@ def install():
     if hashlib.sha256(src.encode()).hexdigest() != GK.RESERVE_SHA256:
         raise RuntimeError('UnifiedTrainingSet.reserve changed')
     src = src.replace(SM.OLD.strip(), SM.NEW.strip())
+    assert src.count(SM.CB) == 1
+    src = src.replace(SM.CB, SM.CB_NEW)      # audit record with repeats in a batch (as sampling_mode_patch)
     assert src.count(GK.OLD) == 1
     src = src.replace(GK.OLD, 'uid = _CONS_DRAW(self, role, pools[role], candidates, weights)')
 
