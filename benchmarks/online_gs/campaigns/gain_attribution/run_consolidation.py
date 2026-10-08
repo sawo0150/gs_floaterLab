@@ -37,7 +37,7 @@ def ref_dir(key, arm):
 
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--scenes', nargs='+', required=True)
-    p.add_argument('--arms', nargs='+', default=list(ARMS)); a = p.parse_args()
+    p.add_argument('--arms', nargs='+', default=list(ARMS)); p.add_argument('--seed', type=int, default=0); a = p.parse_args()
     assert os.environ.get('ROGO_MACHINE_PROFILE', '').endswith('rtx5070ti_extra_datasets.json')
     sys.path.insert(0, str(base.SEL))
     from selected_mapping_check import load_lock, preflight, verify_files
@@ -65,7 +65,7 @@ def main():
     for key in a.scenes:
         for arm in a.arms:
             env, extra = ARMS[arm]
-            name = f'{arm}_s0'
+            name = f'{arm}_s{a.seed}'
             env = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'))
             if key in PINNED:
                 pf, worker = preflight, HERE / PATCH
@@ -80,7 +80,7 @@ def main():
             C.wait_gpu_idle()
             try:
                 base.OUT = OUT
-                row = base.run_one('consolidation', key, 25, name, [*extra, '--seed', '0'], (lock, trial, pf, lambda: None, recipe_environment),
+                row = base.run_one('consolidation', key, 25, name, [*extra, '--seed', str(a.seed)], (lock, trial, pf, lambda: None, recipe_environment),
                                    worker=worker, env_extra=env)
                 out = Path(row['output'])
                 L = base.read(out / 'consolidation.json'); L = dict(stats=L['stats'], left=L['left_in_queue'], pending=L['pending_at_end'])

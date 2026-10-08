@@ -5,3 +5,7 @@ online uniform with replacement; after every KF birth, KFs older than the newest
 marked touched; a touched KF settles after 6 more KFs without a touch and is queued once (with its anchored admitted
 dense views). KF/dense draws serve the queue first while consolidation draws ≤ 15% of all draws; otherwise uniform.
 aria1253, seed 0. Compare with online uniform_iid 24.66, lowop 25.13, D2 26.65 (final-map held-out views).
+
+## Amendment 1 (2026-10-09, user approved)
+Replicate `settle_iid` on aria1253 with seed 1 (runner gains `--seed`), to tell a real localized loss from chance.
+Compare with online uniform_iid seed 1 (24.62) and the consolidated-region split.
