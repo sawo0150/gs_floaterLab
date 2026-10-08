@@ -22,7 +22,7 @@ ALPHA, MULT = 0.6, 40.0
 STATE = dict(mapper=None, stats=Counter())
 
 
-def install():
+def install(probe=True):
     import torch
     import online_mapper_runtime as R
     import gs_backend
@@ -76,8 +76,9 @@ def install():
             return ext(model, *a, **k)
     GaussianModel.extend_from_pcd = selective
 
-    import birth_probe_patch as BP          # outermost wrapper: before/after renders around the whole birth
-    BP.install()                            # also installs sampling_mode_patch (with replacement)
+    if probe:
+        import birth_probe_patch as BP          # outermost wrapper: before/after renders around the whole birth
+        BP.install()                            # also installs sampling_mode_patch (with replacement)
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():

@@ -37,6 +37,9 @@ def install():
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
 
+    if os.environ.get('B_COVERED_OPACITY'):         # optional: selective low-opacity births (selop_patch)
+        import selop_patch
+        selop_patch.install(probe=False)
     if os.environ.get('B_BIRTH_OPACITY'):           # optional: low-opacity births (lowop_patch), measured from outside
         import lowop_patch
         lowop_patch.install(sampler=False)

@@ -21,3 +21,8 @@ does low initial opacity remove the revisit-birth damage (baseline: 12 births âˆ
 ## Amendment 3 (2026-10-09, user request; aria1253, 1 run)
 Same event probe with births at opacity 0.02 (`event_op002_noscale_iid`). Note: below the protected-prune threshold
 0.1, so births not raised above 0.1 by training before leaving the 10-birth protection are pruned; prune counts reported.
+
+## Amendment 3 (2026-10-09, user request; aria1253, 1 run)
+Event probe on selective births: points on already-explained pixels start at 0.02, others at 0.5 (selop_patch with
+B_COVERED_OPACITY=0.02, clamp off; arm `event_selop002_noscale_iid`). 0.02 is below the protected-prune threshold 0.1:
+covered births not raised above 0.1 by training before leaving the 10-birth protection are pruned (counts reported).
