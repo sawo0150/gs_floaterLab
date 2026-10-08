@@ -23,7 +23,8 @@ OUT = base.ROOT / 'results/campaigns/gain_attribution/lowop/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/lowop/PREREG.md'
 PINNED = ('aria', 'rpng', 'rot', 'utmm')
 EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
-ARMS = {'lowop_iid': (dict(B_WITH_REPLACEMENT='1', B_BIRTH_OPACITY='0.12'), ['--tau', '1e12'])}
+ARMS = {'lowop_iid': (dict(B_WITH_REPLACEMENT='1', B_BIRTH_OPACITY='0.12'), ['--tau', '1e12']),
+        'lowop_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_BIRTH_OPACITY='0.12', B_NO_SCALE_PROJ='1'), ['--tau', '1e12'])}
 PATCH = 'lowop_patch.py'
 
 
