@@ -32,3 +32,19 @@ births at 1209–1233. Corrections are a minor term.
 **Reading.** On aria1253 the online→offline gap comes from births during revisits: re-observed, already-trained space
 gets a fresh layer of Gaussians at opacity 0.5 that degrades most old KFs at once; online spends the remaining
 budget recovering part of it. Offline births the same layer before training and trains all views jointly.
+
+## Amendment 2 result — event probe with low-opacity births (2026-10-09, 1 valid run, final-map PSNR 25.63)
+Old KFs (frame < 900, n=61), after 1,850 renders, additive split (births nested in packets; training = between events):
+| | start → end | births | corrections | training |
+|---|---|---:|---:|---:|
+| opacity 0.5 | 26.95 → 24.66 (**−2.30**) | −13.52 | −1.65 | +12.88 |
+| opacity 0.12 | 27.04 → 26.17 (**−0.87**) | −1.65 | −0.30 | +1.09 |
+Revisit-birth damage drops ~8× (per-packet −0.30…−1.18 → −0.03…−0.21) and the late old-KF decline shrinks from −2.30 to
+−0.87; a residual remains. Gap to offline at the end (training-view PSNR, offline track final snapshot):
+| | old KFs | recent KFs (≥ frame 900, n=29) |
+|---|---:|---:|
+| opacity 0.5 | +3.25 | +1.34 |
+| opacity 0.12 | +1.74 | +1.39 |
+**Reading.** Low initial opacity mostly fixes the revisit damage but not all of it (−0.87 residual), and old KFs also
+peak below offline (27.04 vs 27.91). Recent KFs are 1.4 dB below offline in both arms — unaffected by births; they
+arrive late and get fewer updates online (allocation / late-view under-training).
