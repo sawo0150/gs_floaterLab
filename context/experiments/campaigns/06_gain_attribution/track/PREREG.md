@@ -46,3 +46,10 @@ Lower ERVS temperature: selective births 0.5/0.02, clamp off, ERVS K16 with tau 
 `event_selop002_noscale_ervs_t05/_t01`; tau 4 → 25.72). With per_view scale = tau × mean count, tau 4 is nearly flat;
 low tau approaches lowest-count-first, which could move budget to late views (offline: ~12.5 KF / 8 dense each;
 online last fifth 5.2 / 0.9). Read-out: PSNR, per-fifth held-out PSNR (last fifth 22.57; offline 23.98), counts by fifth.
+
+## Amendment 8 (2026-10-09, user approved; aria1253, 2 runs)
+Optimizer: GaussianModel appends Gaussians with zero Adam moments but keeps the tensor's shared step, so late rows get
+no bias correction (effective step 3.2× at 1 update, 6.5× at 10, 3.2× at 100, 2× at 300). `rowadam_patch.py`: Adam
+with per-row step counts (pruning/replace hooks; unit tests: identical to torch Adam without appends, appended rows
+identical to a fresh Adam). Arms (clamp off, uniform with replacement, event probe): `event_noscale_iid_rowadam`
+(births 0.5; vs 25.19) and `event_selop002_noscale_iid_rowadam` (selective 0.5/0.02; vs 25.72). D2 26.52.

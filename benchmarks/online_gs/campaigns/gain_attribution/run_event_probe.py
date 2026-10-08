@@ -29,7 +29,9 @@ ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'),
         'event_selop002_noscale_ervs': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
         'event_selop002_noscale_iid_lag6': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_WINDOW_LAG='6'), ['--tau', '1e12']),
         'event_selop002_noscale_ervs_t05': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.5']),
-        'event_selop002_noscale_ervs_t01': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.1'])}
+        'event_selop002_noscale_ervs_t01': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.1']),
+        'event_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_ROW_ADAM='1'), ['--tau', '1e12']),
+        'event_selop002_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_ROW_ADAM='1'), ['--tau', '1e12'])}
 PATCH = 'event_probe_patch.py'
 
 
@@ -92,7 +94,8 @@ def main():
                 E = base.read(out / 'event_probe.json')['events']
                 from collections import Counter
                 L = dict(kinds=dict(Counter(e['kind'] for e in E)), errors=sum('error' in e for e in E))
-                row.update(event_probe=L, gate_ok=len(E) > 0 and L['errors'] == 0)
+                L['optimizer'] = base.read(out / 'event_probe.json').get('optimizer')
+                row.update(event_probe=L, gate_ok=len(E) > 0 and L['errors'] == 0 and (env.get('B_ROW_ADAM') != '1' or L['optimizer'] == 'RowAdam'))
                 base.write(out.parent / f'{name}.row.json', row)
             except Exception:
                 base.write(OUT / 'failure.json', dict(key=key, arm=name, traceback=traceback.format_exc(), time=time.time()))

@@ -37,6 +37,9 @@ def install():
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
 
+    if os.environ.get('B_ROW_ADAM') == '1':         # per-Gaussian Adam bias correction (rowadam_patch)
+        import rowadam_patch
+        rowadam_patch.install()
     if os.environ.get('B_COVERED_OPACITY'):         # optional: selective low-opacity births (selop_patch)
         import selop_patch
         selop_patch.install(probe=False)
@@ -139,7 +142,8 @@ def install():
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'))) + '\n')
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'),
+                optimizer=type(STATE['mapper'].gaussians.optimizer).__name__ if STATE['mapper'] is not None else None)) + '\n')
     atexit.register(dump)
 
 
