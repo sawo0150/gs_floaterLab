@@ -7,3 +7,9 @@ PSNR vs its own RGB. Runs: online `track_noscale_iid` (uniform with replacement,
 `offline_track_noscale` (offline_patch base, run_offline_reference.py --track --noscale-scenes aria; offline gates as
 usual). Read-out: at-birth vs between-birth sums; per-KF PSNR curves; forgetting = peak − final per KF (online vs
 offline, final generation); final-map PSNR should match noscale_iid 25.19 / offline_noscale 26.89.
+
+## Amendment 1 (2026-10-09, user approved; aria1253, 1 run)
+`event_probe_patch.py` (`run_event_probe.py`, arm `event_noscale_iid`, online uniform with replacement, clamp off):
+every pool KF rendered right before/after each map-changing event — tracker packet (process_track_data), Gaussian
+move by pose/scale correction, birth, pruning (when it removes), mapper control. Training unchanged. Goal: attribute
+the −1.55 / −0.80 dB drops seen in tracking to specific events; training contribution = change between events.
