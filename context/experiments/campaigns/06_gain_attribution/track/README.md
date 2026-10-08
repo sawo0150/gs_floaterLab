@@ -98,3 +98,19 @@ Earliest-born Gaussians online are ~13% larger, more opaque and 8% more numerous
 compensating for missing neighbours) but the signature is modest and not consistent in the 20–40% group. By
 elimination (order, counts, clamp, revisit births, ordinary births, corrections all small or matched), the residual
 is the map state each update acts on (updates applied to a partial map), but this is not directly shown.
+
+## Amendment 6 result — lagged window (lag 6) (2026-10-09, 3 valid runs)
+Final-map held-out PSNR (all / by stream fifth):
+| scene | arm | all | 0–20 | 20–40 | 40–60 | 60–80 | 80–100 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| aria1253 | selective | 25.72 | 27.71 | 27.55 | 26.65 | 24.19 | 22.57 |
+| aria1253 | selective + lag 6 | 25.55 | 28.13 | 27.63 | 26.27 | 23.90 | 21.91 |
+| aria1253 | D2 | 26.52 | 28.69 | 28.47 | 27.50 | 25.36 | 22.65 |
+| square-1 | online 0.5 | 21.75 | 22.86 | 21.89 | 22.73 | 21.21 | 20.08 |
+| square-1 | selective | 21.72 | 23.02 | 21.82 | 22.58 | 21.17 | 20.02 |
+| square-1 | selective + lag 6 | 21.33 | 23.20 | 21.88 | 22.52 | 21.10 | 18.00 |
+| square-1 | D2 | 21.85 | 23.23 | 21.78 | 22.98 | 21.41 | 19.86 |
+Lag 6 loses overall (−0.17 / −0.39), mostly in the last fifth (−0.66 / −2.02: the newest KFs lose window training).
+Over the first 80% it is neutral (aria 26.48 vs 26.53; square-1 22.18 vs 22.15), only the first fifth gains
+(+0.42 / +0.18). Delaying window training by 6 KFs does not recover the online−D2 residual. On square-1 selective
+births change nothing (21.72 vs 21.75), as expected without big revisits.
