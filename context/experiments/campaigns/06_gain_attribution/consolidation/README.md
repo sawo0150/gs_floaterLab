@@ -36,3 +36,16 @@ Held-out views (final-map span) vs the mean of online uniform_iid seeds 0–2:
 (held-out). Mechanism not identified; candidates: a burst of one region's views (KF then its dense views back to back)
 after a long pause fits those views and hurts nearby held-out views; optimizer state of long-idle Gaussians. To check:
 training-view vs held-out PSNR of the consolidated region (overfitting signature).
+
+## Overfitting check (2026-10-09, no GPU: per_view of the existing evaluation, `is_mapping_view` = training views)
+| arm − mean(online seeds 0–2) | train, consolidated region (n=56) | train, rest (35) | held-out, consolidated (164) | held-out, rest (97) |
+|---|---:|---:|---:|---:|
+| online s0 / s1 / s2 | −0.23 / +0.23 / +0.01 | +0.30 / −0.48 / +0.18 | −0.26 / +0.17 / +0.08 | +0.35 / −0.50 / +0.14 |
+| settle | **−1.01** | −0.33 | **−1.00** | −0.08 |
+| lowop | +0.21 | +0.50 | +0.36 | +0.55 |
+| D2 | +2.22 | +1.13 | +2.45 | +1.12 |
+Training views of the consolidated region drop as much as held-out views (−1.01 vs −1.00): **not overfitting**; the
+extra replay degrades the region's fit itself. Online train ≈ held-out PSNR (25.42 vs 25.44): the online map is
+under-fit, not over-fit. Open candidates: supervising old regions with KF poses that changed after the Gaussians were
+born (aria1253 current-vs-final pose change: mean 3.6 cm / 0.16°, vs median Gaussian scale ~2 cm; from pose_oracle),
+or optimizer state of long-idle Gaussians.
