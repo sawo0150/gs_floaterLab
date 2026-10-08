@@ -126,3 +126,18 @@ births change nothing (21.72 vs 21.75), as expected without big revisits.
 Lower tau moves budget to late views (last-fifth dense 0.9 → 5.0) and lifts the last fifth above offline (24.54), but
 the early fifths collapse (27.69 → 22.16) although early KFs still get 19 updates (offline 12.6). Counts alone do not
 decide quality: early views trained early and then rarely replayed lose quality later in the stream. Net loss.
+
+## Amendment 8 result — per-Gaussian Adam bias correction (RowAdam) (2026-10-09, aria1253, 2 valid runs)
+First attempt failed the execution contract (class swap skipped torch's step-hook wrapper, so the mapper step guard
+counted 0 steps; training itself ran); fixed with `_patch_step_function()` + unit test, rerun with approval; archived
+under `event_probe/v1/failed_attempts/hook_missing_*`.
+| births | Adam | PSNR | old-KF peak → end | late births | corrections | late training |
+|---|---|---:|---|---:|---:|---:|
+| 0.5 | torch (shared step) | 25.19 | 27.25 → 24.66 | −13.52 | −1.65 | +12.88 |
+| 0.5 | RowAdam | **23.65** | 27.23 → 22.96 | −11.31 | −1.27 | +8.74 |
+| sel. 0.5/0.02 | torch | 25.72 | 27.23 → 26.48 | −0.49 | −0.14 | +0.19 |
+| sel. 0.5/0.02 | RowAdam | 25.49 | 27.22 → 26.58 | −0.37 | −0.45 | +0.68 |
+Correct per-row bias correction does not help: with 0.5 births it is much worse (−1.54), because the uncorrected
+(2–6× larger) first steps of new Gaussians were what repaired revisit damage quickly (late training +12.9 vs +8.7);
+with selective births it is neutral (−0.23). The old-KF peak (27.2) is unchanged in all arms, so the optimizer's bias
+correction does not explain the online−D2 plateau. Wall time +8–9% (unfused per-row implementation).
