@@ -59,3 +59,9 @@ Best online setting + end-of-stream sweep: `hyb85_selop_noscale` (offline_ladder
 the earned credit, the rest as an epoch round-robin sweep over KF/dense pools after the last arrival; selective births
 0.5/0.02 via selop_patch; clamp off). Compare: online selective (aria ERVS 25.72; square-1 uniform 21.72), D2
 (26.52 / 21.85), offline (26.89 / 22.51), per-fifth held-out PSNR.
+
+## Amendment 10 (2026-10-09, user request; aria1253 + square-1, 2 runs)
+No window role after 70% of the stream (non-causal threshold: frame uid at 70% of the final-generation span of the
+uniform_iid reference); its quota is refilled by the KF/dense roles. Base: selective births 0.5/0.02, clamp off,
+ERVS K16 (`event_selop002_noscale_ervs_nowin70`). Compare with the same setting with window (aria 25.72; square-1
+uniform 21.72). Expectation stated before running: last 30% worse (cf. lag 6), first 70% ≈ unchanged.

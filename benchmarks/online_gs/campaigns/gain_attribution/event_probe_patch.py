@@ -119,6 +119,18 @@ def install():
     else:                                          # uniform with replacement (--tau 1e12)
         import sampling_mode_patch as SM
         SM.install()
+    OFF_UID = int(os.environ.get('B_WINDOW_OFF_FROM_UID', '-1'))
+    if OFF_UID >= 0:                               # diagnostic: no window role once the newest window KF reaches OFF_UID
+        import unified_view_training as U
+        reserve0 = U.UnifiedTrainingSet.reserve
+        off_stats = STATE.setdefault('window_off', dict(calls=0, off=0, from_uid=OFF_UID))
+
+        def no_window_reserve(self, *a, window=(), **k):
+            off_stats['calls'] += 1
+            if window and max(window) >= OFF_UID:
+                window = (); off_stats['off'] += 1   # its quota is refilled by the KF / dense roles
+            return reserve0(self, *a, window=window, **k)
+        U.UnifiedTrainingSet.reserve = no_window_reserve
     LAG = int(os.environ.get('B_WINDOW_LAG', '0'))
     if LAG > 0:                                    # window role trains the KFs LAG positions behind the current window
         import unified_view_training as U
@@ -142,7 +154,7 @@ def install():
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'),
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'),
                 optimizer=type(STATE['mapper'].gaussians.optimizer).__name__ if STATE['mapper'] is not None else None)) + '\n')
     atexit.register(dump)
 

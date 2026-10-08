@@ -31,7 +31,8 @@ ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'),
         'event_selop002_noscale_ervs_t05': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.5']),
         'event_selop002_noscale_ervs_t01': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), ['--tau', '0.1']),
         'event_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_ROW_ADAM='1'), ['--tau', '1e12']),
-        'event_selop002_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_ROW_ADAM='1'), ['--tau', '1e12'])}
+        'event_selop002_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_ROW_ADAM='1'), ['--tau', '1e12']),
+        'event_selop002_noscale_ervs_nowin70': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_WINDOW_OFF_FRAC='0.7'), [])}
 PATCH = 'event_probe_patch.py'
 
 
@@ -75,6 +76,13 @@ def main():
             env, extra = ARMS[arm]
             name = f'{arm}_s0'
             env = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'))
+            if 'B_WINDOW_OFF_FRAC' in env:         # stream fraction -> frame uid (final-generation span of the uniform_iid reference)
+                import build_ervs_scenes_page as S
+                rr = base.read(S.pinned_dir(key, 'uniform_iid', 0) / 'render_result.json')
+                lr = rr['training']['loss_routes']; g = max(x['generation'] for x in lr)
+                first = min(x['uid'] for x in lr if x['generation'] == g)
+                last = [x['uid'] for x in rr['arrivals'] if not x.get('terminal')][-1]
+                env['B_WINDOW_OFF_FROM_UID'] = str(int(first + float(env['B_WINDOW_OFF_FRAC']) * (last - first)))
             if key in PINNED:
                 pf, worker = preflight, HERE / PATCH
             elif key in X.SCENES:
