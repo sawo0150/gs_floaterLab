@@ -116,11 +116,30 @@ def install():
     else:                                          # uniform with replacement (--tau 1e12)
         import sampling_mode_patch as SM
         SM.install()
+    LAG = int(os.environ.get('B_WINDOW_LAG', '0'))
+    if LAG > 0:                                    # window role trains the KFs LAG positions behind the current window
+        import unified_view_training as U
+        reserve = U.UnifiedTrainingSet.reserve
+        lag_stats = STATE.setdefault('lag', dict(calls=0, shifted=0))
+
+        def lagged_reserve(self, *a, window=(), **k):
+            w = sorted(set(window) & self.keyframes)
+            if w:
+                kfs = sorted(self.keyframes)
+                hi = kfs.index(w[-1]) - LAG
+                lo = hi - len(w) + 1
+                if hi >= 0:
+                    window = tuple(kfs[max(0, lo):hi + 1]); lag_stats['shifted'] += 1
+                else:
+                    window = ()                    # nothing old enough yet: window quota falls to the other roles
+            lag_stats['calls'] += 1
+            return reserve(self, *a, window=window, **k)
+        U.UnifiedTrainingSet.reserve = lagged_reserve
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS)) + '\n')
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'))) + '\n')
     atexit.register(dump)
 
 

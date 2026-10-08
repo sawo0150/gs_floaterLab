@@ -32,3 +32,11 @@ covered births not raised above 0.1 by training before leaving the 10-birth prot
 Selective births 0.5/0.02 with the adopted ERVS K16 sampler (group_k_patch, B_GROUP_K=16, default tau) instead of
 uniform with replacement; clamp off; event probe. Arm `event_selop002_noscale_ervs`. Question: does ERVS reduce the
 recent-KF gap (+1.55 vs offline with uniform)? Compare with `event_selop002_noscale_iid` (25.72).
+
+## Amendment 6 (2026-10-09, user approved; 3 runs)
+Lagged window: the window role trains the KFs 6 positions behind the current window (`B_WINDOW_LAG=6`; nothing old
+enough → window quota goes to the other roles); KF/dense pools unchanged. Basis: a KF's view has only ~30% of its
+eventual post-arrival Gaussians within 3 KFs, ~43–53% within 6. Base: selective births 0.5/0.02, clamp off, uniform
+with replacement, event probe. Runs: `event_selop002_noscale_iid_lag6` on aria1253 and square-1, and the unlagged
+base `event_selop002_noscale_iid` on square-1. Compare with D2 (aria 26.52, square-1 21.85) and the unlagged base.
+Note: the last 6 KFs get no window training.
