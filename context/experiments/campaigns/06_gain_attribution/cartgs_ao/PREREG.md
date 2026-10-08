@@ -40,3 +40,7 @@ top 25% get ~2×, 94 vs 48 uses).
 fast-straight (KF pool 27, dense 40) borrowed 26.2% and stopped the chain before slow-straight-1, slow-straight-2 and
 square-2 started. Short sequences have pools only a few times the batch size, so borrowing grows. Gate raised to 30%;
 the fast-straight run (complete and evaluated) is kept. Per-scene borrow shares are reported with the results.
+
+## Amendment 4 (2026-10-08, user approved)
+Seeds 1 and 2 on the same 8 UTMM scenes (16 runs), same sampler and gates (borrow ≤ 30%), for seed-matched
+comparison with uniform_iid / uniform_k16 / ERVS (all have seeds 0–2).
