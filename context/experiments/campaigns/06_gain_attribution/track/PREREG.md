@@ -73,3 +73,12 @@ Target-based catch-up instead of the fixed recent-KF window (causal): per batch,
 KF/dense pool roles. Pools: ERVS K16 at 3:6. Base: selective births 0.5/0.02, clamp off. Arm
 `event_selop002_noscale_ervs_cu60`. Compare: with window (25.72 / 21.72), no window after 70% (25.95 / 21.77),
 D2 (26.52 / 21.85); first 70% / last 30%; slot usage and final counts.
+
+## Amendment 12 (2026-10-09, user approved; aria1253 + square-1, 2 runs)
+Settle-time single refresh on top of the unchanged random replay (`event_selop002_noscale_ervs_refresh6`): after every
+KF birth, pool KFs older than the newest 6 that see ≥5% of the new points are marked touched; a touched KF that is
+not touched again for 6 KFs is queued once (with its anchored admitted dense views). At most 1 slot per 12-image
+batch serves the queue (KF role first, then dense); otherwise ERVS K16 draws as usual; window 3 slots unchanged.
+Base: selective births 0.5/0.02, clamp off. Compare: window base (25.72 / 21.72), no window after 70% (25.95 /
+21.77), D2 (26.52 / 21.85); refreshed-region PSNR via the event probe (the old consolidation lost −0.6/−0.9).
+group_k_patch now exposes its exec namespace (NAMESPACE) so the draw can be wrapped; behaviour unchanged.

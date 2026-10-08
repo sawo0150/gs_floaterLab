@@ -119,6 +119,66 @@ def install():
     else:                                          # uniform with replacement (--tau 1e12)
         import sampling_mode_patch as SM
         SM.install()
+    RM = int(os.environ.get('B_REFRESH_M', '0'))
+    if RM > 0:                                     # one refresh replay per change episode once a view's region settles
+        import bisect
+        from collections import deque
+        import group_k_patch as GK
+        import unified_view_training as U
+        SL = int(os.environ.get('B_REFRESH_SLOTS', '1'))
+        rf = STATE.setdefault('refresh', dict(touch_events=0, settled_kf=0, queued_dense=0, served_kf=0, served_dense=0,
+                                              skipped=0, pending_end=0))
+        touched, queues, batch = {}, {'keyframe': deque(), 'dense': deque()}, {'n': 0}
+        ext0 = GaussianModel.extend_from_pcd
+
+        def refresh_birth(model, *a, **k):
+            n0 = len(model.get_xyz)
+            out = ext0(model, *a, **k)
+            mp = STATE['mapper']
+            if mp is None or getattr(mp, 'online_view_trainer', None) is None or len(model.get_xyz) <= n0:
+                return out
+            with torch.no_grad():
+                pol = mp.online_view_trainer.policy; kfs = sorted(pol.keyframes); now = len(kfs)
+                xyz = model.get_xyz[n0:].detach()
+                idx = torch.randperm(len(xyz), device=xyz.device)[:2000]
+                P = torch.cat([xyz[idx], torch.ones(len(idx), 1, device=xyz.device)], 1)
+                for u in (kfs[:-6] if len(kfs) > 6 else []):
+                    v = mp.viewpoints.get(u)
+                    if v is None:
+                        continue
+                    c = P @ v.world_view_transform.to(P.device); z = c[:, 2]
+                    x = v.fx * c[:, 0] / z.clamp_min(1e-6) + v.cx; y = v.fy * c[:, 1] / z.clamp_min(1e-6) + v.cy
+                    if float(((z > 0.05) & (x >= 0) & (x < v.image_width) & (y >= 0) & (y < v.image_height)).float().mean()) >= 0.05:
+                        touched[u] = now; rf['touch_events'] += 1
+                for u in [u for u, t in touched.items() if now - t >= RM]:
+                    del touched[u]
+                    queues['keyframe'].append(u); rf['settled_kf'] += 1
+                    dense = [d for d in sorted(pol.admitted) if (lambda i: i >= 0 and kfs[i] == u)(bisect.bisect_right(kfs, d) - 1)]
+                    queues['dense'].extend(dense); rf['queued_dense'] += len(dense)
+                rf['pending_end'] = len(touched)
+            return out
+        GaussianModel.extend_from_pcd = refresh_birth
+
+        draw0 = GK.NAMESPACE['_GROUP_DRAW']
+
+        def refresh_draw(self, role, pool, used, scale, candidates, weights):
+            q = queues.get(role)
+            if q and batch['n'] < SL:
+                members = set(pool)
+                while q:
+                    u = q.popleft()
+                    if u in members and u not in used:
+                        batch['n'] += 1; rf['served_' + ('kf' if role == 'keyframe' else 'dense')] += 1
+                        return u
+                    rf['skipped'] += 1
+            return draw0(self, role, pool, used, scale, candidates, weights)
+        GK.NAMESPACE['_GROUP_DRAW'] = refresh_draw
+        reserve2 = U.UnifiedTrainingSet.reserve
+
+        def refresh_reserve(self, *a, **k):
+            batch['n'] = 0
+            return reserve2(self, *a, **k)
+        U.UnifiedTrainingSet.reserve = refresh_reserve
     CU = float(os.environ.get('B_CATCHUP_FRAC', '0'))
     if CU > 0:                                     # target-based catch-up replaces the fixed recent-KF window
         import unified_view_training as U
@@ -185,7 +245,7 @@ def install():
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'), catchup=STATE.get('catchup'),
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'), catchup=STATE.get('catchup'), refresh=STATE.get('refresh'),
                 optimizer=type(STATE['mapper'].gaussians.optimizer).__name__ if STATE['mapper'] is not None else None)) + '\n')
     atexit.register(dump)
 

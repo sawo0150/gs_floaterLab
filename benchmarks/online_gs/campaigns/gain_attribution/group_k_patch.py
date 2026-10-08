@@ -72,6 +72,7 @@ def install():
         return self.rng.choices(candidates, weights=weights, k=1)[0]
 
     namespace = dict(vars(U), _GROUP_DRAW=group_draw)
+    globals()['NAMESPACE'] = namespace           # lets other patches wrap _GROUP_DRAW (behaviour unchanged)
     exec(compile(src, f'<group_k_patch:{U.__file__}>', 'exec'), namespace)
     patched = namespace['reserve']
 
