@@ -24,7 +24,8 @@ PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/gap_ladd
 PINNED = ('aria', 'rpng', 'rot', 'utmm')
 EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
 ARMS = {'seq': (dict(B_LADDER_MODE='sequence'), []), 'cnt': (dict(B_LADDER_MODE='counts'), []),
-        'hyb85': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16'), [])}
+        'hyb85': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16'), []),
+        'seq_noscale': (dict(B_LADDER_MODE='sequence', B_NO_SCALE_PROJ='1'), [])}
 
 
 def ref_dir(key, arm):

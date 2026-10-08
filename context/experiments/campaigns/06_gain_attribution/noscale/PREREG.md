@@ -8,3 +8,8 @@ Gaussians are never clamped (final-map p95 max-scale: online 0.084–0.10 at the
 **Arm `noscale_iid`** (`noscale_patch.py`): online uniform with replacement (as the online/D2 reference), scale
 projection disabled (calls must be 0). aria1253, seed 0, 1 run. Read-out vs online uniform_iid (24.66), D2 (26.65),
 offline (26.90) on final-map held-out views.
+
+## Amendment 1 (2026-10-09, user approved)
+(1) `noscale_iid` on square-1 and Retail_Street (1 run each). (2) `seq_noscale`: the D2 sequence replay with scale
+projection disabled (`B_NO_SCALE_PROJ=1` in offline_ladder_patch; default behaviour unchanged) on aria1253, so online
+and D2 are compared with no clamp on either side: remaining D2 − online = stream-time effect without the clamp.
