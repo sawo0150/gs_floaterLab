@@ -114,3 +114,15 @@ Lag 6 loses overall (−0.17 / −0.39), mostly in the last fifth (−0.66 / −
 Over the first 80% it is neutral (aria 26.48 vs 26.53; square-1 22.18 vs 22.15), only the first fifth gains
 (+0.42 / +0.18). Delaying window training by 6 KFs does not recover the online−D2 residual. On square-1 selective
 births change nothing (21.72 vs 21.75), as expected without big revisits.
+
+## Amendment 7 result — low ERVS tau (2026-10-09, aria1253, 2 valid runs; selective births, clamp off, K16)
+| tau | PSNR | held-out by fifth | counts KF/dense by arrival fifth |
+|---|---:|---|---|
+| 4 | 25.72 | 27.69 27.80 26.13 24.48 22.53 | 24.8/17.6 12.9/10.7 10.7/5.5 8.2/3.4 5.2/0.9 |
+| 0.5 | 24.89 | 24.57 26.13 25.54 25.03 23.20 | 20.5/13.1 14.2/10.2 11.7/7.6 9.6/5.7 6.0/2.5 |
+| 0.1 | 22.83 | 22.16 23.03 20.89 23.47 **24.54** | 19.1/10.3 12.9/8.7 11.9/8.3 10.9/7.6 7.2/5.0 |
+| D2 | 26.52 | 28.69 28.47 27.50 25.36 22.65 | 23.4/19.5 13.2/9.5 11.5/4.8 8.7/3.0 5.6/0.7 |
+| offline | 26.89 | 27.93 28.55 27.56 26.49 23.98 | 12.6/8.0 (all fifths) |
+Lower tau moves budget to late views (last-fifth dense 0.9 → 5.0) and lifts the last fifth above offline (24.54), but
+the early fifths collapse (27.69 → 22.16) although early KFs still get 19 updates (offline 12.6). Counts alone do not
+decide quality: early views trained early and then rarely replayed lose quality later in the stream. Net loss.
