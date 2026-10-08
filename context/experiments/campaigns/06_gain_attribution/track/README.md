@@ -48,3 +48,14 @@ Revisit-birth damage drops ~8× (per-packet −0.30…−1.18 → −0.03…−0
 **Reading.** Low initial opacity mostly fixes the revisit damage but not all of it (−0.87 residual), and old KFs also
 peak below offline (27.04 vs 27.91). Recent KFs are 1.4 dB below offline in both arms — unaffected by births; they
 arrive late and get fewer updates online (allocation / late-view under-training).
+
+## Amendment 4 result — selective births 0.5 / 0.02 (2026-10-09, 1 valid run)
+82.5% of new points on already-explained pixels (start 0.02), the rest 0.5. Old KFs after 1,850 renders, additive:
+| births | PSNR | old KFs late | births | corr. | training | gap to offline: old / recent | pruned (final gen.) | final GS |
+|---|---:|---|---:|---:|---:|---|---:|---:|
+| all 0.5 | 25.19 | 26.95→24.66 (−2.30) | −13.52 | −1.65 | +12.88 | +3.25 / +1.34 | 30,553 | 210,179 |
+| all 0.12 | 25.63 | 27.04→26.17 (−0.87) | −1.65 | −0.30 | +1.09 | +1.74 / +1.39 | 50,534 | 190,198 |
+| sel. 0.5/0.02 | **25.72** | 26.93→26.48 (**−0.45**) | −0.49 | −0.14 | +0.19 | +1.43 / +1.55 | 77,010 | 163,722 |
+Revisit-birth damage nearly gone (−0.49); the late old-KF decline shrinks to −0.45. Many covered births are pruned
+(below the 0.1 threshold once unprotected): −22% Gaussians vs all-0.5, yet PSNR is the best of the three. Remaining
+gap to offline: old KFs +1.43 (mostly their lower peak), recent KFs +1.55 (late-view under-training, slightly worse).
