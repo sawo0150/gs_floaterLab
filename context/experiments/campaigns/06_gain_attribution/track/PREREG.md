@@ -17,3 +17,7 @@ the −1.55 / −0.80 dB drops seen in tracking to specific events; training con
 ## Amendment 2 (2026-10-09, user approved; aria1253, 1 run)
 Event probe on low-opacity births (opacity 0.12, lowop_patch; clamp off): arm `event_lowop_noscale_iid`. Question:
 does low initial opacity remove the revisit-birth damage (baseline: 12 births −11.4 dB, frames 1082–1123, 1184–1272)?
+
+## Amendment 3 (2026-10-09, user request; aria1253, 1 run)
+Same event probe with births at opacity 0.02 (`event_op002_noscale_iid`). Note: below the protected-prune threshold
+0.1, so births not raised above 0.1 by training before leaving the 10-birth protection are pruned; prune counts reported.
