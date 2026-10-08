@@ -59,3 +59,11 @@ arrive late and get fewer updates online (allocation / late-view under-training)
 Revisit-birth damage nearly gone (−0.49); the late old-KF decline shrinks to −0.45. Many covered births are pruned
 (below the 0.1 threshold once unprotected): −22% Gaussians vs all-0.5, yet PSNR is the best of the three. Remaining
 gap to offline: old KFs +1.43 (mostly their lower peak), recent KFs +1.55 (late-view under-training, slightly worse).
+
+## Amendment 5 result — selective births 0.5/0.02 with ERVS K16 (2026-10-09, 1 valid run)
+| sampler | PSNR | held-out first 70% / last 30% | train-KF gap to offline old / recent | KF counts old / recent (offline 12–13 each) |
+|---|---:|---|---|---|
+| uniform w/ repl. | 25.72 | 26.88 / 23.06 | +1.43 / +1.55 | 15.0 / 6.6 |
+| ERVS K16 | 25.72 | 26.87 / 23.05 | +1.43 / +1.46 | 15.5 / 6.0 |
+ERVS changes nothing here: recent KFs (≥ frame 900) still get about half of offline's count (6 vs 12–13), because they
+arrive late and the budget left after their arrival is small; balancing within the pool cannot move credit backwards.
