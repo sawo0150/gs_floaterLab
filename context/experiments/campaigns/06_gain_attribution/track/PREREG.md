@@ -65,3 +65,11 @@ No window role after 70% of the stream (non-causal threshold: frame uid at 70% o
 uniform_iid reference); its quota is refilled by the KF/dense roles. Base: selective births 0.5/0.02, clamp off,
 ERVS K16 (`event_selop002_noscale_ervs_nowin70`). Compare with the same setting with window (aria 25.72; square-1
 uniform 21.72). Expectation stated before running: last 30% worse (cf. lag 6), first 70% ≈ unchanged.
+
+## Amendment 11 (2026-10-09, user approved; aria1253 + square-1, 2 runs)
+Target-based catch-up instead of the fixed recent-KF window (causal): per batch, target T* = completed RGB services /
+(KFs + admitted dense) so far (offline-equivalent per-view budget); up to 3 slots (the window quota) go to views
+(KF or admitted dense) with count < 0.6 T*, lowest count first (newest first on ties); if none, the slots fall to the
+KF/dense pool roles. Pools: ERVS K16 at 3:6. Base: selective births 0.5/0.02, clamp off. Arm
+`event_selop002_noscale_ervs_cu60`. Compare: with window (25.72 / 21.72), no window after 70% (25.95 / 21.77),
+D2 (26.52 / 21.85); first 70% / last 30%; slot usage and final counts.

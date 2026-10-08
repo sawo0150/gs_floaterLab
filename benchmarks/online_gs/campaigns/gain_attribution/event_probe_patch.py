@@ -119,6 +119,37 @@ def install():
     else:                                          # uniform with replacement (--tau 1e12)
         import sampling_mode_patch as SM
         SM.install()
+    CU = float(os.environ.get('B_CATCHUP_FRAC', '0'))
+    if CU > 0:                                     # target-based catch-up replaces the fixed recent-KF window
+        import unified_view_training as U
+        reserve1 = U.UnifiedTrainingSet.reserve
+        SLOTS = int(os.environ.get('B_CATCHUP_SLOTS', '3'))
+        cu = STATE.setdefault('catchup', dict(calls=0, slots_used=0, empty=0, kf=0, dense=0, trace=[]))
+
+        class _KF(set):                            # lets `set(window) & self.keyframes` keep dense catch-up views
+            extra = frozenset()
+
+            def __rand__(self, other):
+                return set(other) & (set(self) | self.extra)
+
+        def catchup_reserve(self, *a, window=(), **k):
+            cu['calls'] += 1
+            views = sorted(self.keyframes | self.admitted)
+            target = (self.rgb_view_services + 1) / max(1, len(views))      # causal per-view budget so far
+            need = sorted((u for u in views if self.counts.get(u, 0) < CU * target),
+                          key=lambda u: (self.counts.get(u, 0), -u))[:SLOTS]
+            cu['slots_used'] += len(need); cu['empty'] += not need
+            cu['kf'] += sum(u in self.keyframes for u in need); cu['dense'] += sum(u in self.admitted for u in need)
+            if cu['calls'] % 10 == 0:
+                cu['trace'].append((int(self.rgb_view_services), round(target, 2), len(need)))
+            kf = self.keyframes
+            self.keyframes = _KF(kf); self.keyframes.extra = frozenset(u for u in need if u in self.admitted)
+            try:
+                return reserve1(self, *a, window=tuple(need), **k)
+            finally:
+                self.keyframes = kf
+        U.UnifiedTrainingSet.reserve = catchup_reserve
+
     OFF_UID = int(os.environ.get('B_WINDOW_OFF_FROM_UID', '-1'))
     if OFF_UID >= 0:                               # diagnostic: no window role once the newest window KF reaches OFF_UID
         import unified_view_training as U
@@ -154,7 +185,7 @@ def install():
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'),
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'), catchup=STATE.get('catchup'),
                 optimizer=type(STATE['mapper'].gaussians.optimizer).__name__ if STATE['mapper'] is not None else None)) + '\n')
     atexit.register(dump)
 
