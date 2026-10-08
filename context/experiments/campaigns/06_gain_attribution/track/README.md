@@ -141,3 +141,20 @@ Correct per-row bias correction does not help: with 0.5 births it is much worse 
 (2–6× larger) first steps of new Gaussians were what repaired revisit damage quickly (late training +12.9 vs +8.7);
 with selective births it is neutral (−0.23). The old-KF peak (27.2) is unchanged in all arms, so the optimizer's bias
 correction does not explain the online−D2 plateau. Wall time +8–9% (unfused per-row implementation).
+
+## Amendment 9 result — best online setting + end-of-stream sweep (D4) (2026-10-09, 2 valid runs)
+Final-map held-out PSNR (all | fifths):
+| scene | arm | all | 0–20 | 20–40 | 40–60 | 60–80 | 80–100 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| aria1253 | adopted online ERVS (clamp on) | 24.85 | 26.18 | 26.06 | 25.13 | 24.15 | 22.77 |
+| aria1253 | online selective (clamp off) | 25.72 | 27.69 | 27.80 | 26.13 | 24.48 | 22.53 |
+| aria1253 | D4 old (clamp on, 0.5 births) | 26.17 | 27.34 | 27.71 | 27.06 | 25.75 | 23.07 |
+| aria1253 | **selective + clamp off + D4** | **26.51** | 28.32 | 28.43 | 26.92 | 25.89 | 23.03 |
+| aria1253 | D2 / offline | 26.52 / 26.89 | | | | | |
+| square-1 | adopted online ERVS (clamp on) | 21.98 | 22.51 | 22.57 | 23.38 | 21.43 | 20.03 |
+| square-1 | online selective (clamp off, uniform) | 21.72 | 23.02 | 21.82 | 22.58 | 21.17 | 20.02 |
+| square-1 | D4 old (clamp on, 0.5 births) | 22.21 | 22.82 | 22.27 | 23.68 | 21.98 | 20.31 |
+| square-1 | **selective + clamp off + D4** | 22.07 | 22.82 | 22.18 | 23.43 | 21.80 | 20.14 |
+| square-1 | D2 / offline | 21.85 / 22.51 | | | | | |
+aria1253: +1.66 over the adopted online, equal to D2, 0.38 below offline (last fifth still −0.95: late views).
+square-1: +0.09 over adopted online but below the old D4 (−0.14): clamp off / selective births do not help there.
