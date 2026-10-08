@@ -92,6 +92,7 @@ avg/call 139.4ms→66.8ms(−52.1%)** |
 
 - 2026-10-03 ERVS K16 vs uniform with replacement, 19 scenes × 3 seeds (budget 25): ΔPSNR +0.045 [−0.01,+0.10] (11/19), min-bin −0.08, worst-Q1 −0.11 [−0.21,−0.00]; dense CV 0.74 vs 0.91; five-bin Δ −0.25/+0.04/+0.22/+0.22/−0.01. → [card](experiments/campaigns/06_gain_attribution/ervs_vs_iid_scenes/README.md)
 
+- 2026-10-09 settle-triggered consolidation pre-analysis (no GPU, 4 scenes): table_06 never settles (179/179 KFs touched to the end); elsewhere 40–80% of touched KFs settle only after the stream. Settle trigger not run; debt-driven replay proposed. → [card](experiments/campaigns/06_gain_attribution/consolidation/README.md)
 - 2026-10-09 lowop follow-up: aria1253 opacity-0.12 births + no scale clamp 25.64 (+0.98 vs online; effects add up, D2 26.65); square-1 lowop 21.72 (−0.01, no effect). → [card](experiments/campaigns/06_gain_attribution/lowop/README.md)
 - 2026-10-09 birth probe (aria1253, 1 run, measurement only): right after a birth, old KFs seeing the new points drop −0.21 dB on average (83% negative, n=444); KFs not seeing them 0.000 (n=345). Direct evidence that births damage trained views. → [card](experiments/campaigns/06_gain_attribution/birth_probe/README.md)
 - 2026-10-09 low-opacity births (aria1253, 1 run): new Gaussians start at opacity 0.12 instead of 0.5 → 25.13 vs online 24.66 (+0.47); D2 26.65. → [card](experiments/campaigns/06_gain_attribution/lowop/README.md)
