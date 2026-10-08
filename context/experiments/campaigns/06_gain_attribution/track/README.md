@@ -80,3 +80,21 @@ D2 − selective: held-out +0.97/+0.92/+0.86/+1.17/+0.08, training views +1.02/+
 **Reading.** Online − D2 is not a late-view budget effect (D2 has the same counts; last fifth ≈ 0). After the revisit
 fix, a roughly uniform ~1 dB remains over the first 80% of the stream; cause not identified. Offline − D2 sits in the
 last 40% (+1.13, +1.33): that part is allocation (late-view under-training).
+
+## The ~1 dB online−D2 residual: two candidates (2026-10-09, no GPU)
+**(1) Cumulative non-revisit births.** Per old KF (frame < 900, n=61), whole-stream sums of its own PSNR changes:
+online 0.5: births −1.45, revisit births −13.44, corrections −1.65, pruning −0.07, training +19.61;
+selective 0.5/0.02: births −0.48, revisit −0.49, corrections −0.14, pruning −0.09, training +6.42.
+After the revisit fix, ordinary births cost ≤0.5 dB per old KF over the whole stream and are repaired → too small for
+the ~1 dB residual.
+**(2) Training on an incomplete map.** Surviving Gaussians grouped by birth time (fifths of the KF stream), clamp off,
+both arms born at 0.5:
+| birth fifth | online: n / median max-scale / p95 / opacity | D2: n / median / p95 / opacity | offline |
+|---|---|---|---|
+| 0–20% | 41,502 / 0.0232 / 0.110 / 0.72 | 38,326 / 0.0206 / 0.098 / 0.66 | 40,266 / 0.0200 / 0.093 / 0.66 |
+| 20–40% | 29,176 / 0.0236 / 0.077 / 0.65 | 22,249 / 0.0254 / 0.085 / 0.68 | 29,307 / 0.0225 / 0.070 / 0.65 |
+| 80–100% | 52,647 / 0.0163 / 0.068 / 0.34 | 46,470 / 0.0213 / 0.096 / 0.53 | 48,411 / 0.0218 / 0.089 / 0.57 |
+Earliest-born Gaussians online are ~13% larger, more opaque and 8% more numerous than in D2/offline (consistent with
+compensating for missing neighbours) but the signature is modest and not consistent in the 20–40% group. By
+elimination (order, counts, clamp, revisit births, ordinary births, corrections all small or matched), the residual
+is the map state each update acts on (updates applied to a partial map), but this is not directly shown.
