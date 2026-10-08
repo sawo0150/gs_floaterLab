@@ -60,3 +60,10 @@ Note: the D3 card stated these archives have no pose updates; aria1253 does have
 that move Gaussians (the 3.6 cm current-vs-final change comes from them). D3's reading needs this correction.
 Also: the consolidated region's total KF training barely changed (first-third KF counts 593 → 607), so the −1 dB is
 not a dose effect of "more training"; with one settle run it may still be partly chance beyond the 3-seed spread.
+
+## Seed-1 replicate (2026-10-09, Amendment 1)
+`settle_iid_s1`: 166 consolidation draws, 48 KFs never settle; PSNR **23.74** vs online seed 1 24.62 → **−0.88**
+(seed 0: −0.63). Paired split (labels from the seed-1 run): seed 0 held cons −0.74 / rest −0.44, train cons −0.77;
+seed 1 held cons −1.38 / rest +0.05, train cons −1.52. The loss replicates and is concentrated in the consolidated
+region, on training views as well: **real effect, not chance**. Mechanism still open (overfitting, recent-view
+starvation and stale poses refuted; optimizer state remains).
