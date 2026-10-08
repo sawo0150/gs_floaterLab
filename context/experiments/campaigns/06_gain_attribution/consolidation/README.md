@@ -49,3 +49,14 @@ extra replay degrades the region's fit itself. Online train ≈ held-out PSNR (2
 under-fit, not over-fit. Open candidates: supervising old regions with KF poses that changed after the Gaussians were
 born (aria1253 current-vs-final pose change: mean 3.6 cm / 0.16°, vs median Gaussian scale ~2 cm; from pose_oracle),
 or optimizer state of long-idle Gaussians.
+
+## Stale-pose check (2026-10-09, no GPU: frozen tracker events of aria1253 seed 0)
+Events after the last mapper reset: 107 keyframe_update (window BA; camera poses change, Gaussians are NOT moved) and
+4 pose_scale_correction at events 90/96/104/112 (frames ≥1076, i.e. after KF 76 of 91; these DO move Gaussians via
+`_apply_pose_scale_updates`). KF camera-centre change from first appearance to last window update (no Gaussian move):
+median 0.7 mm, p90 2.2 mm, max 4.7 mm; rotation median 0.017°, max 0.075° (KF baseline 0.27, Gaussian scale ~0.02).
+50 of 60 consolidations happened before the first correction. **Stale-pose supervision is refuted** as the cause.
+Note: the D3 card stated these archives have no pose updates; aria1253 does have 4 pose_scale_correction events
+that move Gaussians (the 3.6 cm current-vs-final change comes from them). D3's reading needs this correction.
+Also: the consolidated region's total KF training barely changed (first-third KF counts 593 → 607), so the −1 dB is
+not a dose effect of "more training"; with one settle run it may still be partly chance beyond the 3-seed spread.
