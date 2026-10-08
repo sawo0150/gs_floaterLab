@@ -201,10 +201,10 @@ def install():
     R.OnlineMapperRuntime._apply_control = control
 
     if os.environ.get('B_NO_SCALE_PROJ') == '1':      # diagnostic: no per-packet scale clamp (default: unchanged)
-        init = R.OnlineMapperRuntime.__init__
+        rt_init = R.OnlineMapperRuntime.__init__
 
         def no_scale_init(self, *a, **k):
-            init(self, *a, **k)
+            rt_init(self, *a, **k)
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
 
