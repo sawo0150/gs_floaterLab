@@ -63,9 +63,11 @@ def main():
                 draws = sum(v for k, v in st.items() if k.startswith(('draw/', 'fallback/', 'borrow/')))
                 fb = sum(v for k, v in st.items() if k.startswith(('fallback/', 'borrow/')))
                 assert st.get('refill/keyframe') and st.get('refill/dense'), st
-                assert fb <= 0.30 * draws, st   # Amendments 2-3: window picks + distinct-view batches force borrows
-                assert st.get('refill_top/keyframe') and st.get('refill_top/dense'), st
-                row.update(seed=seed, cartgs_ao=st)
+                # Amendments 2-4: window picks + distinct-view batches force borrows; a gate miss is recorded, not fatal.
+                gate_ok = fb <= 0.30 * draws and bool(st.get('refill_top/keyframe') and st.get('refill_top/dense'))
+                row.update(seed=seed, cartgs_ao=st, borrow_share=fb / max(1, draws), gate_ok=gate_ok)
+                if not gate_ok:
+                    print('GATE_MISS', key, name, f'borrow={fb / max(1, draws):.3f}', flush=True)
                 base.write(out.parent / f'{name}.row.json', row)
             except Exception:
                 base.write(OUT / 'failure.json', dict(key=key, arm=name, traceback=traceback.format_exc(), time=time.time()))

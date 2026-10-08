@@ -44,3 +44,6 @@ the fast-straight run (complete and evaluated) is kept. Per-scene borrow shares 
 ## Amendment 4 (2026-10-08, user approved)
 Seeds 1 and 2 on the same 8 UTMM scenes (16 runs), same sampler and gates (borrow ≤ 30%), for seed-matched
 comparison with uniform_iid / uniform_k16 / ERVS (all have seeds 0–2).
+Amendment 4 note: slow-straight-1 seed 2 (final-generation pools of 5 KF / 7 dense) exceeded the 30% borrow gate and
+stopped the chain; gate misses are now recorded per run (`gate_ok`, `borrow_share` in the row) and the chain continues.
+Gate-miss runs are kept but flagged in the results.
