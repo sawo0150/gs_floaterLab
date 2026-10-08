@@ -200,6 +200,9 @@ def install():
         return apply_control(self, kind, value)
     R.OnlineMapperRuntime._apply_control = control
 
+    if os.environ.get('B_SCALE_CAP'):                 # optional: scale cap other than 0.1 (default unchanged)
+        import scale_cap_patch
+        scale_cap_patch.install(os.environ['B_SCALE_CAP'])
     if os.environ.get('B_COVERED_OPACITY'):           # optional: selective low-opacity births (selop_patch; default off)
         import selop_patch
         selop_patch.install(probe=False)

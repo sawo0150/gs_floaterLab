@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Online → offline gap ladder (PREREG: context/experiments/campaigns/06_gain_attribution/gap_ladder/PREREG.md).
+"""Validation of the online fixes (PREREG: context/experiments/campaigns/06_gain_attribution/validation/PREREG.md).
 
-  python run_gap_ladder.py --scenes aria rot utmm rpng ego-drive Retail_Street --arms seq cnt hyb85
+  python run_validation.py --scenes aria utmm
 """
 import argparse
 import json
@@ -19,16 +19,15 @@ import run_ervs_vs_iid_scenes as X  # noqa: E402
 import run_ervs_colin5090 as C  # noqa: E402
 import build_ervs_scenes_page as S  # noqa: E402
 
-OUT = base.ROOT / 'results/campaigns/gain_attribution/gap_ladder/v1'
-PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/gap_ladder/PREREG.md'
+OUT = base.ROOT / 'results/campaigns/gain_attribution/validation/v1'
+PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/validation/PREREG.md'
 PINNED = ('aria', 'rpng', 'rot', 'utmm')
 EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
-ARMS = {'seq': (dict(B_LADDER_MODE='sequence'), []), 'cnt': (dict(B_LADDER_MODE='counts'), []),
-        'hyb85': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16'), []),
-        'seq_noscale': (dict(B_LADDER_MODE='sequence', B_NO_SCALE_PROJ='1'), []),
-        'cnt_noscale': (dict(B_LADDER_MODE='counts', B_NO_SCALE_PROJ='1'), []),
-        'hyb85_selop_noscale': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
-        'hyb85_selop_cap05': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.02'), [])}
+ARMS = {'B_ervs_noclamp': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1'), []),
+        'Bp_ervs_cap05': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5'), []),
+        'C_ervs_noclamp_sel': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
+        'C_ervs_cap05_sel': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.02'), [])}
+PATCH = 'validate_patch.py'
 
 
 def ref_dir(key, arm):
@@ -60,48 +59,43 @@ def main():
     if not (OUT / 'protocol.json').exists():
         base.write(OUT / 'protocol.json', dict(
             prereg=str(PREREG), prereg_sha256=base.sha(PREREG), main_head=base.head(base.MAIN), lab_head=base.head(base.ROOT),
-            recipe=base.read(base.RECIPE), patch_sha256=base.sha(HERE / 'offline_ladder_patch.py'),
+            recipe=base.read(base.RECIPE), patch_sha256=base.sha(HERE / PATCH),
             machine_profile=os.environ['ROGO_MACHINE_PROFILE'],
             gpu=subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version', '--format=csv,noheader'], text=True).strip()))
     pf_extra = X.make_preflight(trial, verify_files, load_lock)
     pf_local = C.make_preflight(trial, verify_files, load_lock)
     rows = []
     for key in a.scenes:
-        rd = ref_dir(key, 'uniform_iid')
-        ref = base.read(rd / 'render_result.json')
-        last_uid = [x['uid'] for x in ref['arrivals'] if not x.get('terminal')][-1]
         for arm in a.arms:
             env, extra = ARMS[arm]
             name = f'{arm}_s0'
-            env = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
-                       B_OFFLINE_REF=str(rd / 'render_result.json'), B_SEQ_REF=str(rd / 'render_result.json'),
-                       B_OFFLINE_LAST_UID=str(last_uid))
+            env = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'))
             if key in PINNED:
-                pf, worker = preflight, HERE / 'offline_ladder_patch.py'
+                pf, worker = preflight, HERE / PATCH
             elif key in X.SCENES:
-                pf, worker = pf_extra, HERE / 'legacy_imu_launcher.py'; env['B_PATCH_WORKER'] = str(HERE / 'offline_ladder_patch.py')
+                pf, worker = pf_extra, HERE / 'legacy_imu_launcher.py'; env['B_PATCH_WORKER'] = str(HERE / PATCH)
             else:
                 pf, worker = pf_local, HERE / 'extra_scene_launcher.py'
                 sp = trial.BASE.sequence_paths(C.SCENES[key]['dataset'], key)
-                env.update(B_PATCH_WORKER=str(HERE / 'offline_ladder_patch.py'), B_POOL_CAP='700', B_EXTRA_SCENES=json.dumps(
+                env.update(B_PATCH_WORKER=str(HERE / PATCH), B_POOL_CAP='700', B_EXTRA_SCENES=json.dumps(
                     {key: dict(dataset=C.SCENES[key]['dataset'], **{k: str(v) for k, v in sp.items()})}))
             print('START', key, 25, name, flush=True)
             C.wait_gpu_idle()
             try:
                 base.OUT = OUT
-                row = base.run_one('ladder', key, 25, name, [*extra, '--seed', '0'], (lock, trial, pf, lambda: None, recipe_environment),
+                row = base.run_one('validation', key, 25, name, [*extra, '--seed', '0'], (lock, trial, pf, lambda: None, recipe_environment),
                                    worker=worker, env_extra=env)
                 out = Path(row['output'])
-                L = base.read(out / 'ladder.json')
-                row.update(ladder=L, gate_ok=bool(L['final_drained']))
+                L = base.read(out / 'validate.json')
+                row.update(validate=L, gate_ok='gaussians' in L)
                 base.write(out.parent / f'{name}.row.json', row)
             except Exception:
                 base.write(OUT / 'failure.json', dict(key=key, arm=name, traceback=traceback.format_exc(), time=time.time()))
                 print('FAILED', key, name, flush=True)
                 continue
             rows.append(row); base.summarize(rows)
-            print('DONE', key, 25, name, f"psnr={row['psnr']:.4f}", L['stats'], flush=True)
-    print('LADDER_COMPLETE', len(rows), flush=True)
+            print('DONE', key, 25, name, f"psnr={row['psnr']:.4f}", L, flush=True)
+    print('VALIDATION_COMPLETE', len(rows), flush=True)
 
 
 if __name__ == '__main__':
