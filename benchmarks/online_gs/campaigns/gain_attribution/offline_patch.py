@@ -133,6 +133,14 @@ def install():
         return apply_control(self, kind, value)
     R.OnlineMapperRuntime._apply_control = control
 
+    if os.environ.get('B_NO_SCALE_PROJ') == '1':      # diagnostic: no per-packet scale clamp (default: unchanged)
+        rt_init = R.OnlineMapperRuntime.__init__
+
+        def no_scale_init(self, *a, **k):
+            rt_init(self, *a, **k)
+            self.mapper.online_unified_scale_projection = False
+        R.OnlineMapperRuntime.__init__ = no_scale_init
+
     dispatch = R.OnlineMapperRuntime.dispatch
 
     def offline_dispatch(self, packet):
