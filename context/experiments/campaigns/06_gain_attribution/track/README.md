@@ -17,3 +17,18 @@ corrections at 1076 (+0.01) and 1187 (−0.08) did little. Offline trains after 
 crash the trained map** (−1.55 and −0.80 dB), and the remaining budget recovers only part of it. The −1.55 coincides
 with a Gaussian-moving pose/scale correction; the −0.80 is not yet attributed (snapshot resolution 50 renders).
 Earlier readings ("training efficiency", "no forgetting") are superseded.
+
+## Amendment 1 result — event probe (2026-10-09, aria1253 seed 0, clamp off, 1 valid run, PSNR 25.16)
+Every pool KF rendered before/after each event, final generation, sums of the mean-KF ΔPSNR:
+births −13.46 (90), tracker packets −12.52 (95, includes their births), correction packets −1.43 (4; the Gaussian move
+alone −6.44 is measured before the camera poses are updated in the same packet, so only the packet total is
+meaningful), pruning −0.12 (7), training between events +43.13.
+**12 of 90 births carry −11.43 of the −13.46**, each lowering the mean over *all* pool KFs by 0.3–1.95 dB and
+>0.5 dB on 50–71% of KFs: frames 1082/1091/1108/1123 (−0.39/−0.94/−1.95/−1.09) and 1193–1272 (−0.30…−1.18).
+They are **revisits**: 1082–1123 return to the start (nearest older KF 49/62, 1.2–1.6 KF-steps, view angle 6–68°);
+1184–1272 retrace the path backwards (nearest older KF 934–1016, 0.1–0.9 KF-steps, view angle 149–176°).
+The −1.55 drop in tracking is the birth at frame 1108 (−1.95), not the correction at 1118 (−0.01); the −0.80 is the
+births at 1209–1233. Corrections are a minor term.
+**Reading.** On aria1253 the online→offline gap comes from births during revisits: re-observed, already-trained space
+gets a fresh layer of Gaussians at opacity 0.5 that degrades most old KFs at once; online spends the remaining
+budget recovering part of it. Offline births the same layer before training and trains all views jointly.
