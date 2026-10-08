@@ -173,3 +173,19 @@ The pre-run expectation was wrong for the first 70%: moving the window's quarter
 the stream lifts the first 70% by +0.62 / +0.61 (square-1 above D2 and offline there), while the last 30% drops
 (−0.62 / −1.27; last 15%: −1.09 / −3.58). Net +0.23 / +0.05. square-1's baseline used the uniform sampler (ERVS vs
 uniform was ±0.0 on aria).
+
+## Amendment 11 result — target-based catch-up (2026-10-09, 2 valid runs)
+| scene | arm | all | first 70% | last 30% | mean count by arrival fifth (all views) |
+|---|---|---:|---:|---:|---|
+| aria1253 | with window | 25.72 | 26.87 | 23.05 | 20.2 11.7 7.2 5.5 2.6 |
+| aria1253 | no window > 70% | 25.95 | 27.49 | 22.43 | 20.8 12.3 8.2 4.5 1.4 |
+| aria1253 | catch-up 60% | 25.36 | 26.22 | 23.38 | 20.1 11.2 7.6 5.2 3.2 |
+| aria1253 | D2 / offline | 26.52 / 26.89 | 27.92 / 27.99 | 23.30 / 24.34 | offline ≈ 9.7 each |
+| square-1 | with window (uniform) | 21.72 | 22.42 | 20.11 | 20.1 9.4 5.4 5.8 3.1 |
+| square-1 | no window > 70% | 21.77 | 23.03 | 18.84 | 19.6 11.8 6.7 5.0 1.2 |
+| square-1 | catch-up 60% | **22.06** | 22.72 | 20.55 | 19.1 10.0 6.8 5.4 3.0 |
+| square-1 | D2 / offline | 21.85 / 22.51 | 22.58 / 22.82 | 20.16 / 21.80 | offline ≈ 9.8 each |
+Catch-up slots were full in 328/330 and 249/253 batches (T* ≈ 9.7–9.9; 65% of slots to mid/late dense views below
+0.6 T*), so the slots never returned to pool replay and the count profile barely moved (last fifth 2.6 → 3.2).
+Result is scene-dependent: aria −0.36 (first fifth −1.67), square-1 +0.34 (+0.21 over D2). The skew is structural:
+the first views are over-trained (≈20 vs ≈10) simply because the pool is tiny when the budget starts flowing.
