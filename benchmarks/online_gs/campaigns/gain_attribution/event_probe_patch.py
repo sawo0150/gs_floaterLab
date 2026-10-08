@@ -110,8 +110,12 @@ def install():
     PP.ProtectedOpacityPrune.after_packet = measured('prune', lambda a: a[0].mapper, PP.ProtectedOpacityPrune.after_packet)
     R.OnlineMapperRuntime._apply_control = measured('control', lambda a: a[0].mapper, R.OnlineMapperRuntime._apply_control,
                                                     lambda a, k, r: dict(control=str(a[1])))
-    import sampling_mode_patch as SM
-    SM.install()
+    if os.environ.get('B_GROUP_K'):               # ERVS K-group sampler (adopted ERVS, tau from worker args)
+        import group_k_patch as GK
+        GK.install()
+    else:                                          # uniform with replacement (--tau 1e12)
+        import sampling_mode_patch as SM
+        SM.install()
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():

@@ -27,3 +27,8 @@ Same event probe with births at opacity 0.02 (`event_op002_noscale_iid`). Note: 
 Event probe on selective births: points on already-explained pixels start at 0.02, others at 0.5 (selop_patch with
 B_COVERED_OPACITY=0.02, clamp off; arm `event_selop002_noscale_iid`). 0.02 is below the protected-prune threshold 0.1:
 covered births not raised above 0.1 by training before leaving the 10-birth protection are pruned (counts reported).
+
+## Amendment 5 (2026-10-09, user approved; aria1253, 1 run)
+Selective births 0.5/0.02 with the adopted ERVS K16 sampler (group_k_patch, B_GROUP_K=16, default tau) instead of
+uniform with replacement; clamp off; event probe. Arm `event_selop002_noscale_ervs`. Question: does ERVS reduce the
+recent-KF gap (+1.55 vs offline with uniform)? Compare with `event_selop002_noscale_iid` (25.72).
