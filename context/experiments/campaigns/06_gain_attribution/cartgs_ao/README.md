@@ -20,3 +20,20 @@ CaRtGS-AO − uniform_iid +0.160 (7/8), − uniform_k16 −0.094 (3/8), − ERVS
 both lift the 30–90% stretch and both lose the earliest views; mean PSNR is indistinguishable (+0.02). Neither beats
 the same-batch uniform group sampler, which keeps the earliest views closest to offline. The borrow share means the
 CaRtGS rule is only partly in force on short sequences.
+
+## Seeds 0–2 (2026-10-08, Amendment 4)
+
+24 runs (8 UTMM scenes × 3 seeds); one gate miss kept and flagged (slow-straight-1 seed 2, borrow 30.6%, pools of 5 KF
+/ 7 dense). Seed means per scene:
+
+| arm | mean PSNR | gap first 15% | gap 30–90% | gap MAD | front-loading | dense count CV |
+|---|---:|---:|---:|---:|---:|---:|
+| uniform_iid | 20.617 | −0.88 | −0.79 | 0.610 | 0.191 | 0.89 |
+| uniform_k16 | **20.786** | **−0.43** | −0.70 | **0.517** | 0.218 | 0.75 |
+| CaRtGS-AO | 20.693 | −1.05 | −0.63 | 0.764 | **0.188** | **0.65** |
+| ERVS τ=4 | 20.724 | −0.95 | **−0.59** | 0.587 | 0.210 | 0.71 |
+
+CaRtGS-AO − uniform_iid +0.076 [−0.062, +0.199] (6/8); − ERVS −0.031 [−0.127, +0.048] (3/8); − uniform_k16 −0.093
+[−0.276, +0.024] (4/8). ERVS − uniform_iid +0.107 (6/8). With 3 seeds the seed-0 picture holds: CaRtGS-AO balances
+counts most and has the weakest earliest views; its mean PSNR is not distinguishable from ERVS (CI includes 0) and
+below the same-group uniform sampler. Exports: `cartgs_ao/v1/export/cartgs_ao_only_utmm_{summary,per_view}.csv`.
