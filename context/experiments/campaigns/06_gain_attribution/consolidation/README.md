@@ -18,3 +18,10 @@ share≥0.3 does not change the picture (table_06: 178/179 never settle at M=6).
 almost every KF is touched by almost every birth), and (2) in the other scenes most touched KFs are touched until the end
 of the stream, so their consolidation would only happen after the stream (= D4's final pass). The settle-triggered
 design is not run; a debt-driven scheduler (no settle requirement) is proposed instead.
+
+## Run result (2026-10-09, aria1253 seed 0, `settle_iid`)
+First attempt failed the execution contract (audit record `counts_before` not adapted to with-replacement draws;
+training itself correct), fixed and rerun with approval; archived under `consolidation/v1/failed_attempts/audit_record_*`.
+Valid run: 158 consolidation draws (60 KF + 98 dense, 7% of 2,233 draws), queues empty at the end, 49 KFs still
+touched (never settled). Final-map held-out PSNR **24.03** vs online uniform_iid 24.66 (seeds 0/1/2: 24.66/24.62/24.80)
+→ **−0.63 dB**, outside the seed spread. Settle-triggered consolidation hurts on this scene; not pursued further.
