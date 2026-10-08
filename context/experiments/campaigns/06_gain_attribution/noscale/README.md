@@ -14,3 +14,15 @@ Gaussians, so earlier online-vs-offline numbers include this setting difference.
   archived under `gap_ladder/v1/failed_attempts/name_clash_*`): **26.52**.
 With no clamp on either side, D2 − online on aria1253 = 26.52 − 25.19 = **+1.33 dB** (vs +1.99 with the clamp): the
 clamp explains ~0.66 dB of the original stream-time gap there; the stream-time effect itself remains (+1.33 dB).
+
+## Amendment 2 results — clamp-matched ladder (2026-10-09, seed 0; all 5 new runs valid, offline gates PASS)
+Final-map held-out PSNR:
+| scene | clamp | online | D2 | D1 | offline | stream (D2−on) | order (D1−D2) | allocation (off−D1) | total |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| aria1253 | on | 24.66 | 26.65 | 26.59 | 26.90 | +1.99 | −0.06 | +0.31 | +2.24 |
+| aria1253 | off | 25.19 | 26.52 | 26.56 | 26.89 | **+1.33** | +0.04 | +0.33 | +1.70 |
+| square-1 | on | 21.73 | 21.99 | 21.94 | 22.72 | +0.27 | −0.05 | +0.78 | +0.99 |
+| square-1 | off | 21.75 | 21.85 | 21.74 | 22.51 | **+0.10** | −0.11 | +0.77 | +0.76 |
+**Reading.** Without the clamp confound the gap is smaller (aria 1.70, square-1 0.76) and its split is scene-dependent:
+aria1253 is dominated by training during the stream (+1.33, 78%), square-1 by count allocation (+0.77, ~100%);
+order ≈ 0 in both. The clamp only matters online (offline/D2 barely change), as expected.
