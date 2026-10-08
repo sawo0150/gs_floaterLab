@@ -4,6 +4,8 @@
 
 - 2026-10-03 ERVS K16 vs uniform with replacement, 19 scenes × 3 seeds (budget 25): ΔPSNR +0.045 [−0.01,+0.10] (11/19), min-bin −0.08, worst-Q1 −0.11 [−0.21,−0.00]; dense CV 0.74 vs 0.91; five-bin Δ −0.25/+0.04/+0.22/+0.22/−0.01. → [card](campaigns/06_gain_attribution/ervs_vs_iid_scenes/README.md)
 
+- 2026-10-09 birth probe (aria1253, 1 run, measurement only): right after a birth, old KFs seeing the new points drop −0.21 dB on average (83% negative, n=444); KFs not seeing them 0.000 (n=345). Direct evidence that births damage trained views. → [card](campaigns/06_gain_attribution/birth_probe/README.md)
+- 2026-10-09 low-opacity births (aria1253, 1 run): new Gaussians start at opacity 0.12 instead of 0.5 → 25.13 vs online 24.66 (+0.47); D2 26.65. → [card](campaigns/06_gain_attribution/lowop/README.md)
 - 2026-10-09 no-scale follow-up: square-1 clamp off +0.03 (no effect); aria1253 D2 without clamp 26.52 vs online without clamp 25.19 → stream-time effect +1.33 dB remains once the clamp is removed on both sides (was +1.99). → [card](campaigns/06_gain_attribution/noscale/README.md)
 - 2026-10-09 no-scale-projection diagnostic (aria1253, 1 run): online without the per-packet 0.1 scale clamp +0.53 dB (25.19 vs 24.66); D2 +1.99. The clamp (never applied to trained Gaussians in D2/offline) explains ~1/4 of the stream-time gain on this scene. → [card](campaigns/06_gain_attribution/noscale/README.md)
 - 2026-10-09 D3 oracle-pose diagnostic (2 runs): online training with end-of-stream poses gives square-1 −0.01, aria1253 −1.06 dB vs online (D2 +0.27/+1.99); no pose_updates in the archives, Gaussians stay at birth poses. Poses do not explain the D2 gain. → [card](campaigns/06_gain_attribution/pose_oracle/README.md)
