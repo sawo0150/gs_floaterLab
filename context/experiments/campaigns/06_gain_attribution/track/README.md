@@ -205,3 +205,15 @@ the first views are over-trained (≈20 vs ≈10) simply because the pool is tin
 afterwards; late in the stream both hold for old regions, so a few extra replays persist to the end. Early surplus
 replays are eroded by later changes. Caveat: the earlier settle-triggered consolidation (clamp on, 0.5 births)
 replayed settled regions and lost −0.6/−0.9; it has not been retested on the current base.
+
+## Amendment 12 result — settle-time single refresh (2026-10-09, 2 valid runs)
+| scene | arm | all | 0–20 | 20–40 | 40–60 | 60–80 | 80–100 |
+|---|---|---:|---:|---:|---:|---:|---:|
+| aria1253 | window base | 25.72 | 27.69 | 27.80 | 26.13 | 24.48 | 22.53 |
+| aria1253 | refresh M6 | 25.34 | 26.25 | 26.72 | 26.16 | 24.93 | 22.71 |
+| square-1 | window base (uniform) | 21.72 | 23.02 | 21.82 | 22.58 | 21.17 | 20.02 |
+| square-1 | refresh M6 (ERVS) | 21.81 | 22.45 | 22.07 | 23.28 | 21.40 | 19.89 |
+Refreshes served: aria 62 KF + 98 dense (48 KFs still touched at the end), square-1 46 + 54. aria −0.38 with the loss in
+the first two fifths (−1.44, −1.08), i.e. again in the refreshed early regions, as in the earlier consolidation
+(−0.63/−0.88); square-1 +0.09. Single seed; per-fifth seed spread online is up to ~±1 dB, but the aria pattern matches
+the replicated consolidation loss. Mid-stream refresh of settled regions does not reproduce the late-replay gain.
