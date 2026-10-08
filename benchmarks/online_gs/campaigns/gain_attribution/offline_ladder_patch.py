@@ -200,6 +200,10 @@ def install():
         return apply_control(self, kind, value)
     R.OnlineMapperRuntime._apply_control = control
 
+    if os.environ.get('B_COVERED_OPACITY'):           # optional: selective low-opacity births (selop_patch; default off)
+        import selop_patch
+        selop_patch.install(probe=False)
+
     if os.environ.get('B_NO_SCALE_PROJ') == '1':      # diagnostic: no per-packet scale clamp (default: unchanged)
         rt_init = R.OnlineMapperRuntime.__init__
 

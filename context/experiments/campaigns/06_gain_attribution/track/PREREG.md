@@ -53,3 +53,9 @@ no bias correction (effective step 3.2× at 1 update, 6.5× at 10, 3.2× at 100,
 with per-row step counts (pruning/replace hooks; unit tests: identical to torch Adam without appends, appended rows
 identical to a fresh Adam). Arms (clamp off, uniform with replacement, event probe): `event_noscale_iid_rowadam`
 (births 0.5; vs 25.19) and `event_selop002_noscale_iid_rowadam` (selective 0.5/0.02; vs 25.72). D2 26.52.
+
+## Amendment 9 (2026-10-09, user approved; aria1253 + square-1, 2 runs)
+Best online setting + end-of-stream sweep: `hyb85_selop_noscale` (offline_ladder_patch hybrid: ERVS K16 online for 85% of
+the earned credit, the rest as an epoch round-robin sweep over KF/dense pools after the last arrival; selective births
+0.5/0.02 via selop_patch; clamp off). Compare: online selective (aria ERVS 25.72; square-1 uniform 21.72), D2
+(26.52 / 21.85), offline (26.89 / 22.51), per-fifth held-out PSNR.

@@ -26,7 +26,8 @@ EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
 ARMS = {'seq': (dict(B_LADDER_MODE='sequence'), []), 'cnt': (dict(B_LADDER_MODE='counts'), []),
         'hyb85': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16'), []),
         'seq_noscale': (dict(B_LADDER_MODE='sequence', B_NO_SCALE_PROJ='1'), []),
-        'cnt_noscale': (dict(B_LADDER_MODE='counts', B_NO_SCALE_PROJ='1'), [])}
+        'cnt_noscale': (dict(B_LADDER_MODE='counts', B_NO_SCALE_PROJ='1'), []),
+        'hyb85_selop_noscale': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), [])}
 
 
 def ref_dir(key, arm):
