@@ -158,3 +158,18 @@ Final-map held-out PSNR (all | fifths):
 | square-1 | D2 / offline | 21.85 / 22.51 | | | | | |
 aria1253: +1.66 over the adopted online, equal to D2, 0.38 below offline (last fifth still −0.95: late views).
 square-1: +0.09 over adopted online but below the old D4 (−0.14): clamp off / selective births do not help there.
+
+## Amendment 10 result — no window role after 70% of the stream (2026-10-09, 2 valid runs)
+Window removed for the last 87 / 69 batches (from frame 911 / 1160). Held-out PSNR (all | first 70% | last 30% | 85–100%):
+| scene | arm | all | first 70% | last 30% | 85–100% |
+|---|---|---:|---:|---:|---:|
+| aria1253 | with window (ERVS) | 25.72 | 26.87 | 23.05 | 22.13 |
+| aria1253 | no window after 70% | **25.95** | **27.49** | 22.43 | 21.04 |
+| aria1253 | D2 / offline | 26.52 / 26.89 | 27.92 / 27.99 | 23.30 / 24.34 | |
+| square-1 | with window (uniform) | 21.72 | 22.42 | 20.11 | 20.30 |
+| square-1 | no window after 70% (ERVS) | 21.77 | **23.03** | 18.84 | 16.72 |
+| square-1 | D2 / offline | 21.85 / 22.51 | 22.58 / 22.82 | 20.16 / 21.80 | |
+The pre-run expectation was wrong for the first 70%: moving the window's quarter of the budget to pool replay late in
+the stream lifts the first 70% by +0.62 / +0.61 (square-1 above D2 and offline there), while the last 30% drops
+(−0.62 / −1.27; last 15%: −1.09 / −3.58). Net +0.23 / +0.05. square-1's baseline used the uniform sampler (ERVS vs
+uniform was ±0.0 on aria).
