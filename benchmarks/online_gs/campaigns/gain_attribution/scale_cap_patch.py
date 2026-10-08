@@ -7,8 +7,10 @@ frozen-mask handling). Used to keep normal large Gaussians (walls) while still s
 
 def install(cap):
     import gs_backend
+    import torch
     cap = float(cap)
 
+    @torch.no_grad()                              # as the original (decorated) method
     def project(self, frozen_mask=None):
         s = self.gaussians.get_scaling
         if frozen_mask is not None:
