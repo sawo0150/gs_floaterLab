@@ -13,3 +13,13 @@ By covered share: 0.05–0.2 −0.38, 0.2–0.5 −0.19, ≥0.5 −0.19. Sum ove
 and leaves other views untouched. The drop is skewed (most small, a tail of large drops). This measures the immediate
 damage only; how much later training recovers is not measured here. Together with lowop (+0.47 dB), new Gaussians
 covering trained regions is a real part of the stream-time gap.
+
+## Correction (2026-10-09): damage vs recovery by sums, not medians
+Per probed view, change at births (after − before) vs change between its consecutive probes (training in between):
+| run | covered: at births (sum) | covered: between births (mean / sum) | control: between births (mean / sum) |
+|---|---:|---:|---:|
+| baseline (0.5) | −93.7 | +0.209 / +84.1 | −0.067 / −19.2 |
+| selop | −18.0 | +0.073 / +29.3 | −0.049 / −14.2 |
+The earlier statement "recovery (median +0.07) cannot keep up with damage" was wrong: by sums, training recovers
+~90% of the immediate birth damage. Old views *not* covered by the birth lose −0.05 to −0.07 dB per interval while
+other views are trained (may include covering by other births in between) — a sign of training-time interference.
