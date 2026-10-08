@@ -57,6 +57,7 @@ def install():
     def row_setup(self, *a, **k):
         out = setup(self, *a, **k)
         self.optimizer.__class__ = RowAdam
+        self.optimizer._patch_step_function()   # wrap RowAdam.step once so step pre/post hooks (mapper guard) fire
         return out
     GaussianModel.training_setup = row_setup
 

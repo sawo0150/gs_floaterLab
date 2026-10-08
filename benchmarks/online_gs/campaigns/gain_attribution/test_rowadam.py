@@ -28,5 +28,14 @@ class T(unittest.TestCase):
         self.assertTrue(torch.allclose(q[10:], ref, atol=1e-6))
 
 
+    def test_step_hooks_fire_after_class_swap(self):
+        p = torch.nn.Parameter(torch.randn(4, 2)); o = torch.optim.Adam([p], lr=1e-2, eps=1e-15)
+        o.__class__ = RowAdam; o._patch_step_function()
+        n = []
+        o.register_step_pre_hook(lambda *a: n.append('pre')); o.register_step_post_hook(lambda *a: n.append('post'))
+        p.grad = torch.randn(4, 2); o.step()
+        self.assertEqual(n, ['pre', 'post'])
+
+
 if __name__ == '__main__':
     unittest.main()
