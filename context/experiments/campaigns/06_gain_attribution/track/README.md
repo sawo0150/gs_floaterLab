@@ -189,3 +189,19 @@ Catch-up slots were full in 328/330 and 249/253 batches (T* ≈ 9.7–9.9; 65% o
 0.6 T*), so the slots never returned to pool replay and the count profile barely moved (last fifth 2.6 → 3.2).
 Result is scene-dependent: aria −0.36 (first fifth −1.67), square-1 +0.34 (+0.21 over D2). The skew is structural:
 the first views are over-trained (≈20 vs ≈10) simply because the pool is tiny when the budget starts flowing.
+
+## Why "no window after 70%" helped (2026-10-09, no GPU, event-probe ledgers of the window / no-window runs)
+- Old KFs (< 70% frame) after 70%: births and corrections are the same in both runs (aria −0.43/−0.41 vs −0.41/−0.54;
+  square-1 −0.77/0 vs −0.83/0); the whole difference is training (aria +0.56 → +1.32, square-1 +0.82 → +1.21).
+- Draws in the last 30%: old-region draws 461 → 546 (aria) and 355 → 434 (square-1), mostly dense; ≈ +1 extra service
+  per old view. Totals per old KF barely change (15.4 → 15.5). So ~85 extra late replays bought +0.65 dB on old KFs,
+  while the early surplus (≈ 20 updates per early view vs ≈ 10 offline) buys little.
+- Per-interval check: mature-KF losses during pure-training intervals occur in 30–45% of intervals in all thirds of the
+  stream, but are not correlated with the share of draws on newer views (corr 0.00 / +0.30) → no evidence that window
+  training itself damages old views.
+- Per KF (aria, window run): gap to offline at the end grows with staleness (renders since the KF's last service):
+  fresh +0.95, medium +1.41, stale (last service ≥ ~23% of the stream ago) +1.87 dB; corr +0.26. Counts: corr −0.12.
+**Reading.** A replay is worth most when the region has changed since its last replay and will not change much
+afterwards; late in the stream both hold for old regions, so a few extra replays persist to the end. Early surplus
+replays are eroded by later changes. Caveat: the earlier settle-triggered consolidation (clamp on, 0.5 births)
+replayed settled regions and lost −0.6/−0.9; it has not been retested on the current base.
