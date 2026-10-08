@@ -37,6 +37,10 @@ def install():
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
 
+    if os.environ.get('B_BIRTH_OPACITY'):           # optional: low-opacity births (lowop_patch), measured from outside
+        import lowop_patch
+        lowop_patch.install(sampler=False)
+
     def snapshot(mp):
         tr = getattr(mp, 'online_view_trainer', None) if mp is not None else None
         if tr is None or len(mp.gaussians.get_xyz) == 0:

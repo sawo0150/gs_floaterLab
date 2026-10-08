@@ -13,3 +13,7 @@ offline, final generation); final-map PSNR should match noscale_iid 25.19 / offl
 every pool KF rendered right before/after each map-changing event — tracker packet (process_track_data), Gaussian
 move by pose/scale correction, birth, pruning (when it removes), mapper control. Training unchanged. Goal: attribute
 the −1.55 / −0.80 dB drops seen in tracking to specific events; training contribution = change between events.
+
+## Amendment 2 (2026-10-09, user approved; aria1253, 1 run)
+Event probe on low-opacity births (opacity 0.12, lowop_patch; clamp off): arm `event_lowop_noscale_iid`. Question:
+does low initial opacity remove the revisit-birth damage (baseline: 12 births −11.4 dB, frames 1082–1123, 1184–1272)?

@@ -23,7 +23,8 @@ OUT = base.ROOT / 'results/campaigns/gain_attribution/event_probe/v1'
 PREREG = base.ROOT / 'context/experiments/campaigns/06_gain_attribution/track/PREREG.md'
 PINNED = ('aria', 'rpng', 'rot', 'utmm')
 EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
-ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'), ['--tau', '1e12'])}
+ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'), ['--tau', '1e12']),
+        'event_lowop_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_BIRTH_OPACITY='0.12'), ['--tau', '1e12'])}
 PATCH = 'event_probe_patch.py'
 
 

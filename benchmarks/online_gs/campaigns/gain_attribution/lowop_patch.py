@@ -19,7 +19,7 @@ OP = float(os.environ.get('B_BIRTH_OPACITY', '0.12'))
 STATS = Counter()
 
 
-def install():
+def install(sampler=True):
     import torch
     from gaussian.scene.gaussian_model import GaussianModel
     ext = GaussianModel.extend_from_pcd
@@ -48,8 +48,9 @@ def install():
             rt_init(self, *a, **k)
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
-    import sampling_mode_patch as SM
-    SM.install()
+    if sampler:
+        import sampling_mode_patch as SM
+        SM.install()
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():
