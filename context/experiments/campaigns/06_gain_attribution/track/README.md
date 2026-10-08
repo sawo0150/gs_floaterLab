@@ -67,3 +67,16 @@ gap to offline: old KFs +1.43 (mostly their lower peak), recent KFs +1.55 (late-
 | ERVS K16 | 25.72 | 26.87 / 23.05 | +1.43 / +1.46 | 15.5 / 6.0 |
 ERVS changes nothing here: recent KFs (≥ frame 900) still get about half of offline's count (6 vs 12–13), because they
 arrive late and the budget left after their arrival is small; balancing within the pool cannot move credit backwards.
+
+## Online − D2 residual by stream position (2026-10-09, no GPU, final-map per_view, clamp off)
+Held-out PSNR by stream fifth:
+| | 0–20% | 20–40% | 40–60% | 60–80% | 80–100% | all |
+|---|---:|---:|---:|---:|---:|---:|
+| online 0.5 | 27.33 | 26.49 | 25.41 | 23.98 | 22.79 | 25.19 |
+| online selective 0.5/0.02 | 27.71 | 27.55 | 26.65 | 24.19 | 22.57 | 25.72 |
+| D2 | 28.69 | 28.47 | 27.50 | 25.36 | 22.65 | 26.52 |
+| offline | 27.93 | 28.55 | 27.56 | 26.49 | 23.98 | 26.89 |
+D2 − selective: held-out +0.97/+0.92/+0.86/+1.17/+0.08, training views +1.02/+0.64/+1.19/+1.06/+0.09.
+**Reading.** Online − D2 is not a late-view budget effect (D2 has the same counts; last fifth ≈ 0). After the revisit
+fix, a roughly uniform ~1 dB remains over the first 80% of the stream; cause not identified. Offline − D2 sits in the
+last 40% (+1.13, +1.33): that part is allocation (late-view under-training).
