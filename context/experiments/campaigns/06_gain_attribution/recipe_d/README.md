@@ -69,3 +69,17 @@ failed_attempts/*_evaluation_missing_depth). `independent_GT` is false for Aria 
 Local C reproduces colin C within ±0.03 dB on all three. D: scale projection active (82–110 calls), 87–92% of new points
 start at 0.02. PSNR improves on 3/3 (+0.07…+0.43), SSIM ≈ unchanged, LPIPS slightly worse (+0.001…+0.006), with
 38–60% fewer Gaussians. Skipped for VRAM: RPNG table_06 (D OOM), FAST-LIVO2 Retail_Street (C and D OOM).
+
+## Deployed on colin (2026-10-09, user request)
+No colin file was edited (VIGS-SLAM-custom and 03_benchmark_contract stay as they are). gs_floaterLab was pushed
+fast-forward to colin's sync repo (`/home/intern/git-sync/gs_floaterLab.git`, d6f29b01 → f7e9eb55) and cloned to a
+separate folder `/home/intern/gs_floaterLab_recipe_d` (the shared `/home/intern/gs_floaterLab` checkout was not pulled).
+`--check-only` of recipe D on ETH3D sofa_1 on colin: preflight PASS, budget 3,666 (6N). lpips present there.
+**Run recipe D on colin** (same contract/output conventions as run_c.py; output must be a new folder):
+```
+cd /home/intern/gs_floaterLab_recipe_d/benchmarks/online_gs/campaigns/gain_attribution
+/home/colin/miniconda3/envs/vigs-slam-5090/bin/python run_recipe_d.py --recipe D \
+  --scene-contract <.../inputs/<dataset>/<scene>/v1/scene_contract.json> --output <new dir> --seed 0 --evaluate
+```
+`--recipe C` runs colin's C launcher unchanged through the same entry point. D = C + scale cap 0.5 + selective births
+(already-explained pixels start at opacity 0.02); `<output>/recipe_d.json` records projection calls and birth counts.
