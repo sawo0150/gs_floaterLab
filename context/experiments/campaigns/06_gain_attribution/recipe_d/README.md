@@ -52,3 +52,8 @@ TUM fr1_desk (10 runs; per scene C then D). Read-out per scene: local C vs colin
 - table_06 D: CUDA OOM at 7,296/12,996 renders (16 GB card; colin C peaks 15.5 GB on a 32 GB card). Runs whose training did
   not finish are moved to recipe_d/failed_attempts/*_oom_or_incomplete and rerun with
   PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True (allocator setting only).
+
+## Scope change (2026-10-09, user): skip VRAM-limited scenes
+Scenes where C or D does not finish within 16 GB are skipped (no OOM reruns): RPNG table_06 (D OOM at 7,296 renders) and
+FAST-LIVO2 Retail_Street (C OOM at 4,608, D OOM). Comparison on the scenes where both finish: Aria 0416_301-1253,
+ETH3D sofa_1, TUM fr1_desk (evaluation-only pass; ETH3D/TUM GT depth copied read-only for the evaluator).
