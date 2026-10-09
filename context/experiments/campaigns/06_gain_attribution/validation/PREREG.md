@@ -18,3 +18,7 @@ giant-Gaussian counts (scale > 0.3 & opacity > 0.3).
 Phase 1 B′ runs all failed (scale_cap_patch wrote the scale parameter in place without no_grad; archived under
 `validation/v1/failed_attempts/nograd_*`); fixed and rerun on the 6 scenes. Phase 2 is on hold; the free-space birth gate
 is paused by the user.
+
+## Amendment 2 (2026-10-09, user approved)
+Phase 2 (online only): `C_ervs_cap05_sel` = ERVS K16 + scale cap 0.5 + selective births 0.5/0.02 (current-view rule)
+on the 6 scenes (6 runs). Compare with A (adopted) and B′ (cap 0.5). The end-of-stream sweep (D) is not run now.
