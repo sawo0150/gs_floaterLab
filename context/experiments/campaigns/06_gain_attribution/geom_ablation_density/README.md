@@ -50,3 +50,8 @@ scene where the I PSNR gain grows as Gaussians become scarce. UTMM is also the m
 TUM −77% (LPIPS +0.013…+0.019), RPNG table_01 −51% at 1N/2N (LPIPS +0.024…+0.029), Aria −19…−58%, UTMM −16%.
 I alone (density 1) never loses PSNR beyond 0.03 dB and improves LPIPS on every scene: −3…−19% Gaussians.
 RPNG table_02 added (user request) in `results/campaigns/gain_attribution/geom_ablation_density_t02/` — pending.
+
+## RPNG table_02 (2026-10-09) — not completed: CUDA OOM on the 16 GB card
+The R4 capture (pilot) OOMed at 1920/2282 renders at 1N (14.45 GiB in use, 2.97 GiB reserved-unallocated), so each budget's
+suite stopped at its pilot (all three budgets same). Not retried (VRAM-limited scenes are skipped per user rule); a retry
+with PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True may fit since ~3 GiB was fragmentation.
