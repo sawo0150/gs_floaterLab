@@ -30,3 +30,12 @@ by this frontend ("IMU sensor convention not verified for utmm") → skipped.
 PSNR ≈ neutral (+0.03/+0.04 mean; 8/10 positive; table_06 R1 −0.25, Aria 305 R2 −0.07). The TUM result is not a dataset
 artefact; it matches exp55 (equal quality, fewer Gaussians). The reduction is largest on Aria 305 and ETH3D (−16…−20%),
 smallest on RPNG (−1…−10%). Single seed.
+
+## PREREG — insertion at scarce budgets 1N / 2N (2026-10-09, user approved)
+Same arms (R4 capture, R1, R1-I, R2, R2-I), scenes ETH3D sofa_1 (pilot), Aria 0416_301-305, TUM fr1_desk; budgets 1N and 2N
+(30 runs; R4 re-captures the tape per budget because the tape is bound to the contract hash and records service events).
+Local harness: `run_arm.py` reads ABLATION_RPI (default 6; quota renders_per_input and contract check), `audit_arm.py` takes
+the budget from the contract (originals kept as *.before_budget / *.colin_original). Budget contracts are local copies with
+renders_per_training_input, render_budget = N_train × RPI and snapshot_renders recomputed (every 384 renders + final);
+archive and reference unchanged. Output `results/campaigns/gain_attribution/geom_ablation_budget/{1N,2N}/`.
+Read-out: R1-I − R1 and R2-I − R2 (PSNR/SSIM/LPIPS/Gaussians) vs budget (1N, 2N, 6N from the runs above).
