@@ -39,3 +39,19 @@ the budget from the contract (originals kept as *.before_budget / *.colin_origin
 renders_per_training_input, render_budget = N_train × RPI and snapshot_renders recomputed (every 384 renders + final);
 archive and reference unchanged. Output `results/campaigns/gain_attribution/geom_ablation_budget/{1N,2N}/`.
 Read-out: R1-I − R1 and R2-I − R2 (PSNR/SSIM/LPIPS/Gaussians) vs budget (1N, 2N, 6N from the runs above).
+
+## Result — budgets 1N / 2N vs 6N (2026-10-09; pilots passed at both budgets; Aria "failed" rows are the depth-assert only)
+| scene | budget | R1-I − R1: PSNR / SSIM / LPIPS / Gaussians | R2-I − R2: PSNR / SSIM / LPIPS / Gaussians |
+|---|---|---|---|
+| ETH3D sofa_1 | 1N | +0.11 / +0.009 / −0.015 / −10.0% | +0.09 / +0.006 / −0.008 / −10.6% |
+| | 2N | +0.12 / +0.006 / −0.006 / −12.1% | +0.06 / +0.005 / −0.005 / −13.8% |
+| | 6N | +0.24 / +0.005 / −0.007 / −15.9% | +0.09 / +0.003 / −0.004 / −20.3% |
+| Aria 0416_301-305 | 1N | −0.04 / +0.004 / −0.003 / −18.6% | +0.04 / +0.006 / −0.010 / −18.8% |
+| | 2N | −0.05 / +0.004 / −0.001 / −18.6% | −0.04 / +0.005 / −0.008 / −19.4% |
+| | 6N | +0.02 / +0.006 / +0.004 / −17.3% | −0.07 / +0.004 / +0.000 / −18.3% |
+| TUM fr1_desk | 1N | −0.05 / +0.008 / +0.002 / −2.3% | −0.02 / +0.008 / −0.003 / −3.6% |
+| | 2N | −0.05 / +0.005 / +0.003 / −5.2% | +0.07 / +0.009 / −0.006 / −8.7% |
+| | 6N | +0.05 / +0.006 / +0.001 / −8.2% | (R2 not run at 6N on TUM) |
+**Reading.** A scarcer budget does not create a PSNR gain for I: PSNR differences stay within ±0.12 dB at 1N and 2N (as at
+6N). SSIM improves in every comparison (17/17) and LPIPS mostly improves; the Gaussian reduction is present at every budget
+(−2…−19%) and grows with budget on ETH3D and TUM. I is a compactness/SSIM mechanism, not a PSNR one, at any budget tested.
