@@ -40,3 +40,7 @@ C and D on table_06 both stopped within seconds: the profile pointed the TRT roo
 SHA-256 as colin's README (DROID fnet 718acb9c…, update c5c4ef81… fetched read-only; Omnidata 538559de…, e2bb4f7d…).
 Output: recipe_d/trt_profile_5070ti/pretrained_models (fnet min/opt/max 328²/368×584/656², update edges 1/24/60,
 PGBA 1/85/120). ETH3D sofa_1 and TUM fr1_desk RGB copied read-only to data/c_raw (profile mappings added).
+
+## PREREG amendment — 5 datasets (2026-10-09, user approved)
+C and D (seed 0, --evaluate) on RPNG table_06, Aria 0416_301-1253, FAST-LIVO2 Retail_Street, ETH3D sofa_1,
+TUM fr1_desk (10 runs; per scene C then D). Read-out per scene: local C vs colin C, D − C (PSNR/SSIM/LPIPS), recipe_d.json.
