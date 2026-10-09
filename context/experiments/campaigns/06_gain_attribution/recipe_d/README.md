@@ -23,3 +23,10 @@ mapper_baselines outputs → results/campaigns/gain_attribution/recipe_d/mapper_
 193,131 Gaussians.
 **Next (GPU, needs approval).** (1) local C parity on table_06; (2) D = C + scale cap 0.5 + selective births via a
 runtime shim around run_custom_c_large_pool_6n.py (no file edits in the C code).
+
+## PREREG — C parity and recipe D on RPNG table_06 (2026-10-09, user approved: check the gain holds on the GPU)
+Recipe D = C + scale cap 0.5 + selective births (already-explained pixels 0.02, others 0.5); nothing else changes.
+`run_recipe_d.py --recipe C|D` loads the snapshot launcher run_c_large_pool_v2.py; for D only the training subprocess goes
+through `d_recipe_shim.py` (runtime patches; C files untouched; writes recipe_d.json with projection calls and birth stats).
+Runs (seed 0, --evaluate): C then D on table_06, queued after the RPNG decomposition (C requires an idle GPU).
+Read-out: PSNR/SSIM/LPIPS vs colin C (23.670) and local C; D − C.
