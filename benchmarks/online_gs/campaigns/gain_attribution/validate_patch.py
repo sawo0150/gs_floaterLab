@@ -36,13 +36,17 @@ def install():
         STATE['mapper'] = self.mapper
         return dispatch(self, packet)
     R.OnlineMapperRuntime.dispatch = keep
-    import group_k_patch as GK
-    GK.install()
+    if os.environ.get('B_WITH_REPLACEMENT') == '1':   # uniform with replacement (pass --tau 1e12)
+        import sampling_mode_patch as SM
+        SM.install()
+    else:
+        import group_k_patch as GK
+        GK.install()
     output = Path(sys.argv[sys.argv.index('--output') + 1]) if '--output' in sys.argv else None
 
     def dump():
         if output and output.exists():
-            info = {k: os.environ.get(k) for k in ('B_GROUP_K', 'B_NO_SCALE_PROJ', 'B_SCALE_CAP', 'B_COVERED_OPACITY')}
+            info = {k: os.environ.get(k) for k in ('B_GROUP_K', 'B_WITH_REPLACEMENT', 'B_NO_SCALE_PROJ', 'B_SCALE_CAP', 'B_COVERED_OPACITY')}
             mp = STATE['mapper']
             if mp is not None:
                 import torch

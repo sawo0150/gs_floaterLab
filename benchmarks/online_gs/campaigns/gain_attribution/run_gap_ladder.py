@@ -28,6 +28,8 @@ ARMS = {'seq': (dict(B_LADDER_MODE='sequence'), []), 'cnt': (dict(B_LADDER_MODE=
         'seq_noscale': (dict(B_LADDER_MODE='sequence', B_NO_SCALE_PROJ='1'), []),
         'cnt_noscale': (dict(B_LADDER_MODE='counts', B_NO_SCALE_PROJ='1'), []),
         'hyb85_selop_noscale': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
+        'seq_cap05': (dict(B_LADDER_MODE='sequence', B_SCALE_CAP='0.5', SEQ_FROM_VALIDATION='Bp_iid_cap05'), []),
+        'cnt_cap05': (dict(B_LADDER_MODE='counts', B_SCALE_CAP='0.5', SEQ_FROM_VALIDATION='Bp_iid_cap05'), []),
         'hyb85_selop_cap05': (dict(B_LADDER_MODE='hybrid', B_HYBRID_FRAC='0.85', B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.02'), [])}
 
 
@@ -76,6 +78,9 @@ def main():
             env = dict(env, B_SELECTED_WORKER=str(base.SEL / 'run_selected_worker.py'),
                        B_OFFLINE_REF=str(rd / 'render_result.json'), B_SEQ_REF=str(rd / 'render_result.json'),
                        B_OFFLINE_LAST_UID=str(last_uid))
+            if env.get('SEQ_FROM_VALIDATION'):     # replay the sequence of the matching online run (same cap)
+                env['B_SEQ_REF'] = str(base.ROOT / 'results/campaigns/gain_attribution/validation/v1/validation' / key /
+                                       'render25' / f"{env.pop('SEQ_FROM_VALIDATION')}_s0" / 'render_result.json')
             if key in PINNED:
                 pf, worker = preflight, HERE / 'offline_ladder_patch.py'
             elif key in X.SCENES:
