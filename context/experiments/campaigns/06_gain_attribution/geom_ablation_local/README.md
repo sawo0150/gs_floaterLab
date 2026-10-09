@@ -39,3 +39,21 @@ same budget and mapping UIDs, Gaussian count / PSNR / depth MAE within tolerance
 R4 failed immediately because the TUM 6N scene contracts were still being copied (my ordering error); 36 dependent
 conditions were blocked. These attempts are archived under `failed_attempts/inputs_not_yet_copied/` and re-queued after
 the copy finishes (no code change).
+
+## Result — 51/51 completed (2026-10-09, TUM10, seed 0, 6N; local revision R1 → R1-I → R2-I → R3 → R4)
+Means over the 10 scenes (`results/campaigns/gain_attribution/geom_ablation_local/v1/summary.json`):
+| arm | PSNR | SSIM | LPIPS | Gaussians | depth MAE (m) | δ1 |
+|---|---:|---:|---:|---:|---:|---:|
+| R1 KF window, uniform init | 18.769 | 0.627 | 0.420 | 145,183 | 0.1488 | 0.925 |
+| R1-I + content-aware insertion | 18.781 | 0.635 | 0.426 | 130,310 | 0.1503 | 0.924 |
+| R2-I + global KF pool (ERVS) | 22.036 | 0.725 | 0.342 | 116,969 | 0.1190 | 0.954 |
+| R3 + dense pool, KF normal, dense depth | 22.032 | 0.756 | 0.321 | 105,650 | 0.1139 | 0.958 |
+| R4 + SEW3 carving (= C) | 22.018 | 0.756 | 0.322 | 105,720 | 0.1137 | 0.958 |
+| R4-F (terminal opacity + FM export) | 21.984 | 0.755 | 0.324 | 89,808 | 0.1138 | 0.958 |
+Per step (mean Δ, scenes improved /10): R1→R1-I PSNR +0.01 (5), SSIM +0.008, LPIPS +0.006, depth MAE +0.15 cm (5 better);
+R1-I→R2-I PSNR **+3.26 (10/10)**, SSIM +0.090, LPIPS −0.084, depth MAE **−3.1 cm (9/10)**; R2-I→R3 PSNR −0.00 (5),
+SSIM **+0.031**, LPIPS **−0.021**, depth MAE **−0.5 cm (9/10)**; R3→R4 ≈ 0 on all (depth −0.01 cm, 6/10);
+R4→R4-F PSNR −0.03 (0/10), 15% fewer Gaussians. R4 PSNR on fr1_desk 19.94 (colin C 19.92).
+**Reading.** On TUM10 the KF-pool replay is the dominant gain (+3.3 dB, −3 cm); dense pool + normal/depth losses help
+SSIM/LPIPS/depth but not PSNR; content-aware insertion on the KF-window base and SEW3 carving are neutral on these
+metrics; the terminal FM export trades −0.03 dB for 15% fewer Gaussians.
