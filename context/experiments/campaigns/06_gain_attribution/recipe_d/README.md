@@ -44,3 +44,11 @@ PGBA 1/85/120). ETH3D sofa_1 and TUM fr1_desk RGB copied read-only to data/c_raw
 ## PREREG amendment — 5 datasets (2026-10-09, user approved)
 C and D (seed 0, --evaluate) on RPNG table_06, Aria 0416_301-1253, FAST-LIVO2 Retail_Street, ETH3D sofa_1,
 TUM fr1_desk (10 runs; per scene C then D). Read-out per scene: local C vs colin C, D − C (PSNR/SSIM/LPIPS), recipe_d.json.
+
+## 5-dataset run issues and fixes (2026-10-09, rerun approved)
+- Evaluation failed for every finished run: `lpips` missing in the local vigs-slam-5090 env (training outputs intact).
+  Installed lpips 0.1.4 (--no-deps; torchvision 0.23.0 present, alexnet weights cached). Evaluation-only pass via
+  `eval_recipe_d.py` (launcher's evaluate_run.py + audit with its C environment; no training).
+- table_06 D: CUDA OOM at 7,296/12,996 renders (16 GB card; colin C peaks 15.5 GB on a 32 GB card). Runs whose training did
+  not finish are moved to recipe_d/failed_attempts/*_oom_or_incomplete and rerun with
+  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True (allocator setting only).
