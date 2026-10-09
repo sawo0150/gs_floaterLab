@@ -16,3 +16,9 @@ Readouts per arm (terminal stages) PSNR/SSIM/LPIPS, Gaussians, depth geometry. 5
 **Local check.** `check_adapters.py` 10/10 PASS (immediate admission, bounded eviction, tape digest, RNG restore, ...).
 **Run.** `run_suite.py --output <plan dir>` (same supervisor; waits for an idle GPU). VRAM-limited scenes are reported, not
 retried (user rule for the 16 GB card).
+
+## Local plan revision (2026-10-09, user, before any run)
+Insertion is compared on the KF-window base: **R1 → R1-I → R2-I → R3 → R4** (R1-I = R1 with online-rank gradient-weighted
+initialization; colin's R2 = KF pool with uniform init is dropped). Local copy only: `plan.json` (original kept as
+`plan_colin_original.json`), `run_suite.py` order/condition list/summary arms, `run_arm.py` `--arm` choices. Arm behaviour
+stays property-driven by plan.json; audits check quotas/membership/losses/carving from the same properties. 51 runs.
