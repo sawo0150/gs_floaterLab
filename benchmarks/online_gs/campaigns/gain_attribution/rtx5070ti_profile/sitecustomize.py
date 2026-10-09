@@ -67,3 +67,22 @@ if _profile:
         return _popen_init(self, args, *positional, **kwargs)
 
     subprocess.Popen.__init__ = popen_init
+
+
+# Opt-in chaining (ROGO_CHAIN_SITECUSTOMIZE=1): Python imports only the first sitecustomize on sys.path, so a
+# runner's own bootstrap sitecustomize (e.g. colin's queue_python_bootstrap: UTMM sensor adapter, GPU exception) would
+# be shadowed by this hook. Execute the next sitecustomize found after this directory. Default: unchanged.
+if os.environ.get("ROGO_CHAIN_SITECUSTOMIZE") == "1":
+    import importlib.util as _ilu
+    import sys as _sys
+
+    _own = os.path.realpath(os.path.dirname(__file__))
+    for _entry in list(_sys.path):
+        _cand = os.path.join(_entry or ".", "sitecustomize.py")
+        if os.path.realpath(os.path.dirname(_cand)) == _own or not os.path.isfile(_cand):
+            continue
+        _spec = _ilu.spec_from_file_location("sitecustomize_chained", _cand)
+        _mod = _ilu.module_from_spec(_spec)
+        _sys.modules["sitecustomize_chained"] = _mod
+        _spec.loader.exec_module(_mod)
+        break
