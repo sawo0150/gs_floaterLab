@@ -16,3 +16,8 @@ per-fifth curves. Order: per scene online → D2 → D1 → offline → fix. Eve
 
 ## Amendment 1 (2026-10-09, user)
 The "online + fix" arm (`C_iid_cap05_sel`) is dropped: only online, D2, D1, offline (32 runs).
+
+## Stopped (2026-10-09, user)
+Stopped after table_06 (online, D2, D1; offline failed on a shadowed-module bug, not rerun) and table_01 (online, D2,
+D1; offline interrupted, partial output archived under offline_reference/v1/failed_attempts/stopped_by_user_table_01_*).
+The paper decomposition will use the existing 6-scene ladder instead.
