@@ -30,3 +30,13 @@ Recipe D = C + scale cap 0.5 + selective births (already-explained pixels 0.02, 
 through `d_recipe_shim.py` (runtime patches; C files untouched; writes recipe_d.json with projection calls and birth stats).
 Runs (seed 0, --evaluate): C then D on table_06, queued after the RPNG decomposition (C requires an idle GPU).
 Read-out: PSNR/SSIM/LPIPS vs colin C (23.670) and local C; D − C.
+
+## First attempt failed: static TensorRT engines (2026-10-09)
+C and D on table_06 both stopped within seconds: the profile pointed the TRT root at the locally built Aria engines
+(static 464×464) while C expects colin's dynamic-shape profile (RPNG input 344×616). Archived under
+`results/campaigns/gain_attribution/recipe_d/failed_attempts/static_trt_engine_table_06/`.
+**Fix:** rebuilt the official-README dynamic profile on this GPU with the same builder
+(`benchmarks/online_gs/build_exp78a_official_readme_trt.py`), TensorRT 10.13.0.35 (= colin), from ONNX with the same
+SHA-256 as colin's README (DROID fnet 718acb9c…, update c5c4ef81… fetched read-only; Omnidata 538559de…, e2bb4f7d…).
+Output: recipe_d/trt_profile_5070ti/pretrained_models (fnet min/opt/max 328²/368×584/656², update edges 1/24/60,
+PGBA 1/85/120). ETH3D sofa_1 and TUM fr1_desk RGB copied read-only to data/c_raw (profile mappings added).
