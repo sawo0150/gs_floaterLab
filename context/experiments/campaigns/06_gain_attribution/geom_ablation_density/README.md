@@ -55,3 +55,16 @@ RPNG table_02 added (user request) in `results/campaigns/gain_attribution/geom_a
 The R4 capture (pilot) OOMed at 1920/2282 renders at 1N (14.45 GiB in use, 2.97 GiB reserved-unallocated), so each budget's
 suite stopped at its pilot (all three budgets same). Not retried (VRAM-limited scenes are skipped per user rule); a retry
 with PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True may fit since ~3 GiB was fragmentation.
+
+## RPNG table_02 — completed on retry (2026-10-10; 24 runs, pilots passed at 1N/2N/3N)
+Retry fixes (local copies; originals `*.before_nodepth`): PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True (the OOM was
+fragmentation; R4 fits); ABLATION_ALLOW_NO_DEPTH=1 lets `evaluate_stages.py` pass a scene without depth GT; the suite
+summary and pilot check accept missing depth metrics (both None). Earlier attempts in `*/failed_attempts/`.
+| budget | density 1 | density 0.5 | density 0.25 |
+|---|---|---|---|
+| 1N | −0.00 / +.001 / +.005 / −0% (19.17, 592k) | −0.00 / −.001 / +.003 / +1% | +0.01 / −.002 / +.003 / +0% (148k) |
+| 2N | +0.02 / +.000 / +.007 / −2% (19.61, 471k) | −0.00 / −.002 / +.007 / −1% | +0.00 / −.002 / +.007 / −2% |
+| 3N | −0.00 / −.001 / +.010 / −3% (20.01, 428k) | −0.01 / −.002 / +.010 / −4% | −0.01 / −.004 / +.011 / −3% |
+**Reading.** table_02 is the one scene where I does nothing useful: PSNR ±0.02, Gaussian count about unchanged, and LPIPS
+slightly worse (+0.003…+0.011) with SSIM flat or slightly lower. Matched-PSNR reduction (within 0.1 dB): −50…−75% via
+density alone, but LPIPS +0.03…+0.07. So the earlier "LPIPS better on every scene" holds for 5 of 6 scenes, not all.
