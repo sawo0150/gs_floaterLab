@@ -18,3 +18,5 @@ renders for the checks. Selective births (current-view rule) flag ~81%.
 the same gain as the current-view selective rule on aria1253 (+0.35 vs B; selective +0.40) without its loss on
 square-1 (+0.04 vs B; selective −0.20 with a different sampler). Most of the selective rule's 81% transparent births
 were unnecessary. Single seed per scene.
+
+**Status (2026-10-09):** paused by the user; not part of the validation campaign for now.

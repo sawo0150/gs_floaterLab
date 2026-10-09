@@ -13,3 +13,8 @@ Two phases. Phase 1: B and B′ on 6 scenes (12 runs). **Size-setting rule (fixe
 mean final-map PSNR over the 6 scenes; if within 0.05 dB, use cap 0.5. Phase 2: C and D with that setting on 6 scenes
 (existing aria/square-1 runs reused when they match). Read-out: per scene and mean PSNR vs A, D2, offline; per-fifth;
 giant-Gaussian counts (scale > 0.3 & opacity > 0.3).
+
+## Amendment 1 (2026-10-09, user approved)
+Phase 1 B′ runs all failed (scale_cap_patch wrote the scale parameter in place without no_grad; archived under
+`validation/v1/failed_attempts/nograd_*`); fixed and rerun on the 6 scenes. Phase 2 is on hold; the free-space birth gate
+is paused by the user.
