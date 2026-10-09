@@ -57,3 +57,15 @@ TUM fr1_desk (10 runs; per scene C then D). Read-out per scene: local C vs colin
 Scenes where C or D does not finish within 16 GB are skipped (no OOM reruns): RPNG table_06 (D OOM at 7,296 renders) and
 FAST-LIVO2 Retail_Street (C OOM at 4,608, D OOM). Comparison on the scenes where both finish: Aria 0416_301-1253,
 ETH3D sofa_1, TUM fr1_desk (evaluation-only pass; ETH3D/TUM GT depth copied read-only for the evaluator).
+
+## Result — C vs recipe D on the scenes that fit in 16 GB (2026-10-09, seed 0, 6N, audits passed)
+ETH3D sofa_1 C/D and TUM fr1_desk C were re-evaluated after GT depth was copied (first evaluation dirs archived as
+failed_attempts/*_evaluation_missing_depth). `independent_GT` is false for Aria (MPS oracle reference), as on colin.
+| dataset / scene | colin C | local C | D | D − C PSNR | D − C SSIM | D − C LPIPS | Gaussians C → D |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Aria 0416_301-1253 | 27.004 | 27.029 | **27.459** | **+0.430** | −0.0002 | +0.0045 | 178,947 → 111,577 |
+| ETH3D sofa_1 | 28.230 | 28.205 | **28.491** | **+0.285** | +0.0014 | +0.0012 | 105,202 → 41,566 |
+| TUM fr1_desk | 19.924 | 19.897 | 19.962 | +0.066 | +0.0006 | +0.0057 | 103,573 → 46,663 |
+Local C reproduces colin C within ±0.03 dB on all three. D: scale projection active (82–110 calls), 87–92% of new points
+start at 0.02. PSNR improves on 3/3 (+0.07…+0.43), SSIM ≈ unchanged, LPIPS slightly worse (+0.001…+0.006), with
+38–60% fewer Gaussians. Skipped for VRAM: RPNG table_06 (D OOM), FAST-LIVO2 Retail_Street (C and D OOM).
