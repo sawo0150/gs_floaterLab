@@ -68,6 +68,27 @@ def install(probe=True):
                 op = args['opacities'].detach().clone()
                 op[covered] = logit
             args['opacities'] = op
+            SC = os.environ.get('B_COVERED_SCALE_CAP')
+            if SC:                                   # transparent births also get a small scale cap (RTG-SLAM style)
+                import scale_cap_patch as CP
+                n0 = len(model.get_xyz)
+                out = ext(model, **args)
+                try:
+                  with torch.no_grad():
+                      new_ids = model.point_ids[n0:]
+                      cov_ids = new_ids[covered.cpu()[:len(new_ids)]] if len(new_ids) == len(covered) else new_ids[:0]
+                      CP.SMALL['cap'] = float(SC)
+                      CP.SMALL['ids'] = cov_ids if CP.SMALL['ids'] is None else torch.cat([CP.SMALL['ids'], cov_ids])
+                      if len(cov_ids):
+                          rows = torch.arange(n0, len(model.get_xyz))[covered.cpu()[:len(new_ids)]].to(model._scaling.device)
+                          sc = model.get_scaling[rows].clamp(max=float(SC))
+                          model._scaling[rows] = model.scaling_inverse_activation(sc)
+                      st['small_scale_births'] += int(len(cov_ids)); st['len_mismatch'] += int(len(new_ids) != len(covered))
+                except Exception as e:      # never re-run the birth after it happened
+                    st['small_error'] += 1; STATE.setdefault('small_err', repr(e)[:300])
+                st['births'] += 1; st['points'] += int(len(P)); st['covered_points'] += int(covered.sum())
+                st['outside_points'] += int((~inside).sum())
+                return out
             st['births'] += 1; st['points'] += int(len(P)); st['covered_points'] += int(covered.sum())
             st['outside_points'] += int((~inside).sum())
             return ext(model, **args)

@@ -22,3 +22,8 @@ is paused by the user.
 ## Amendment 2 (2026-10-09, user approved)
 Phase 2 (online only): `C_ervs_cap05_sel` = ERVS K16 + scale cap 0.5 + selective births 0.5/0.02 (current-view rule)
 on the 6 scenes (6 runs). Compare with A (adopted) and B′ (cap 0.5). The end-of-stream sweep (D) is not run now.
+
+## Amendment 3 (2026-10-09, user request; aria1253, aria1253rot, square-1; 3 runs)
+RTG-SLAM-like transparent births: `C2_ervs_cap05_sel01_small01` = ERVS K16, global cap 0.5; points on already-explained
+pixels start at opacity 0.1 and their Gaussians are clamped to scale 0.1 (at birth and at every projection, tracked by
+point_id); other births 0.5 / cap 0.5. Compare with C (0.02, cap 0.5) and B′.

@@ -26,7 +26,8 @@ EXTRA_LOCAL = S.R / 'extra_local_5070ti/v1'
 ARMS = {'B_ervs_noclamp': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1'), []),
         'Bp_ervs_cap05': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5'), []),
         'C_ervs_noclamp_sel': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02'), []),
-        'C_ervs_cap05_sel': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.02'), [])}
+        'C_ervs_cap05_sel': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.02'), []),
+        'C2_ervs_cap05_sel01_small01': (dict(B_GROUP_K='16', B_SCALE_CAP='0.5', B_COVERED_OPACITY='0.1', B_COVERED_SCALE_CAP='0.1'), [])}
 PATCH = 'validate_patch.py'
 
 
