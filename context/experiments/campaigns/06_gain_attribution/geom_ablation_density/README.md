@@ -32,3 +32,21 @@ R2-I − R2 (PSNR / SSIM / LPIPS / Gaussians); R2 PSNR and Gaussian count in bra
 27/27; LPIPS improves 27/27 and its gain grows as density drops (e.g. Aria 1N −0.011 → −0.015, TUM 1N −0.003 → −0.012).
 Side finding: quartering the birth density costs the baseline almost nothing (ETH3D +0.04…+0.21, TUM −0.04…+0.09,
 Aria −0.33…−0.51, RPNG −0.23 dB) at 4× fewer Gaussians.
+
+## Completion (2026-10-09) — UTMM and 3N filled after freeing the frontend tapes (~160 GB) and copying the UTMM loader
+(`author_source/` from colin, read-only). All 108 runs trained; "failed" rows = depth-GT assert only (Aria/UTMM/RPNG).
+Additional R2-I − R2 rows (PSNR / SSIM / LPIPS / Gaussians):
+| scene | budget | density 1 | density 0.5 | density 0.25 |
+|---|---|---|---|---|
+| Aria 0416_301-305 | 3N | +0.02 / +.005 / −.005 / −19% (28.01, 282k) | −0.08 / +.004 / −.005 / −19% | −0.05 / +.003 / −.009 / −19% |
+| TUM fr1_desk | 3N | +0.02 / +.007 / −.005 / −10% (19.50, 178k) | +0.03 / +.004 / −.007 / −11% | +0.06 / +.003 / −.012 / −11% |
+| UTMM square-1 | 1N | +0.09 / +.007 / −.022 / −16% (18.20, 146k) | +0.09 / +.007 / −.024 / −16% | +0.18 / +.007 / −.018 / −16% (17.25) |
+| | 2N | +0.12 / +.007 / −.026 / −16% (18.59) | +0.12 / +.007 / −.026 / −16% | +0.24 / +.008 / −.023 / −16% (17.61) |
+| | 3N | +0.13 / +.007 / −.022 / −16% (18.76) | +0.10 / +.007 / −.026 / −16% | +0.23 / +.009 / −.023 / −15% (17.74) |
+| RPNG table_01 | 3N | +0.01 / +.001 / +.000 / −6% (21.87, 280k) | +0.04 / +.002 / −.001 / −6% | +0.05 / +.002 / −.005 / −5% |
+**Reading.** UTMM is the scene where I helps most (+0.1…+0.24 dB, LPIPS −0.02…−0.03), largest at ¼ density — the only
+scene where the I PSNR gain grows as Gaussians become scarce. UTMM is also the most capacity-limited (¼ density −1.0 dB).
+**Matched-PSNR reduction vs default (R2, density 1), smallest Gaussian count within 0.1 dB:** ETH3D −78% (LPIPS better),
+TUM −77% (LPIPS +0.013…+0.019), RPNG table_01 −51% at 1N/2N (LPIPS +0.024…+0.029), Aria −19…−58%, UTMM −16%.
+I alone (density 1) never loses PSNR beyond 0.03 dB and improves LPIPS on every scene: −3…−19% Gaussians.
+RPNG table_02 added (user request) in `results/campaigns/gain_attribution/geom_ablation_density_t02/` — pending.
