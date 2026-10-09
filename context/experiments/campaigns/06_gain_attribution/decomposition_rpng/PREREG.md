@@ -13,3 +13,6 @@ D1→offline = exposure uniformity (allocation). Fix recovery = (online+fix − 
 Metric: final-map held-out PSNR over the final-map span (first trained view of the offline reference), per scene and mean;
 per-fifth curves. Order: per scene online → D2 → D1 → offline → fix. Event-probe evidence on 1–2 scenes may follow
 (separate approval).
+
+## Amendment 1 (2026-10-09, user)
+The "online + fix" arm (`C_iid_cap05_sel`) is dropped: only online, D2, D1, offline (32 runs).
