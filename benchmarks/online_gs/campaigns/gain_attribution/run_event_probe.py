@@ -34,7 +34,8 @@ ARMS = {'event_noscale_iid': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1'),
         'event_selop002_noscale_iid_rowadam': (dict(B_WITH_REPLACEMENT='1', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_ROW_ADAM='1'), ['--tau', '1e12']),
         'event_selop002_noscale_ervs_nowin70': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_WINDOW_OFF_FRAC='0.7'), []),
         'event_selop002_noscale_ervs_cu60': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_CATCHUP_FRAC='0.6', B_CATCHUP_SLOTS='3'), []),
-        'event_selop002_noscale_ervs_refresh6': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_REFRESH_M='6', B_REFRESH_SLOTS='1'), [])}
+        'event_selop002_noscale_ervs_refresh6': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_COVERED_OPACITY='0.02', B_REFRESH_M='6', B_REFRESH_SLOTS='1'), []),
+        'event_freespace002_noscale_ervs': (dict(B_GROUP_K='16', B_NO_SCALE_PROJ='1', B_FREESPACE_OPACITY='0.02'), [])}
 PATCH = 'event_probe_patch.py'
 
 

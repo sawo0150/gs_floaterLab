@@ -37,6 +37,44 @@ def install():
             self.mapper.online_unified_scale_projection = False
         R.OnlineMapperRuntime.__init__ = no_scale_init
 
+    if os.environ.get('B_FREESPACE_OPACITY'):       # multi-view free-space birth gate
+        import math
+        FOP = float(os.environ['B_FREESPACE_OPACITY']); FLOG = math.log(FOP / (1 - FOP))
+        FLAG = int(os.environ.get('B_FREESPACE_LAG', '6')); MARGIN = 0.9
+        fs = STATE.setdefault('freespace', dict(births=0, points=0, conflict_points=0, kf_checks=0))
+        ext_fs = GaussianModel.extend_from_pcd
+        names = ('fused_point_cloud', 'features', 'scales', 'rots', 'opacities', 'kf_id')
+
+        def freespace_birth(model, *a, **k):
+            mp = STATE['mapper']
+            args = dict(zip(names, a)); args.update(k)
+            if mp is None or getattr(mp, 'online_view_trainer', None) is None or len(model.get_xyz) == 0:
+                return ext_fs(model, *a, **k)
+            with torch.no_grad():
+                P = args['fused_point_cloud'].detach().float()
+                Ph = torch.cat([P, torch.ones(len(P), 1, device=P.device)], 1)
+                conflict = torch.zeros(len(P), dtype=torch.bool, device=P.device)
+                kfs = sorted(mp.online_view_trainer.policy.keyframes)
+                for u in (kfs[:-FLAG] if len(kfs) > FLAG else []):
+                    v = mp.viewpoints.get(u)
+                    if v is None:
+                        continue
+                    c = Ph @ v.world_view_transform.to(P.device); z = c[:, 2]
+                    x = (v.fx * c[:, 0] / z.clamp_min(1e-6) + v.cx).round().long()
+                    y = (v.fy * c[:, 1] / z.clamp_min(1e-6) + v.cy).round().long()
+                    ok = (z > 0.05) & (x >= 0) & (x < v.image_width) & (y >= 0) & (y < v.image_height)
+                    if float(ok.float().mean()) < 0.02:
+                        continue
+                    pkg = gs_backend.render(v, model, mp.background); fs['kf_checks'] += 1
+                    D = pkg['depth'].squeeze(); A = 1 - pkg['transmittance'].squeeze()
+                    xi, yi = x.clamp(0, D.shape[1] - 1), y.clamp(0, D.shape[0] - 1)
+                    d = D[yi, xi]; al = A[yi, xi]
+                    conflict |= ok & (al >= 0.6) & (d > 0) & (z < MARGIN * d)   # new point in an old KF's known free space
+                op = args['opacities'].detach().clone(); op[conflict] = FLOG
+                args['opacities'] = op
+                fs['births'] += 1; fs['points'] += int(len(P)); fs['conflict_points'] += int(conflict.sum())
+            return ext_fs(model, **args)
+        GaussianModel.extend_from_pcd = freespace_birth
     if os.environ.get('B_ROW_ADAM') == '1':         # per-Gaussian Adam bias correction (rowadam_patch)
         import rowadam_patch
         rowadam_patch.install()
@@ -245,7 +283,7 @@ def install():
 
     def dump():
         if output and output.exists():
-            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'), catchup=STATE.get('catchup'), refresh=STATE.get('refresh'),
+            (output / 'event_probe.json').write_text(json.dumps(dict(events=EVENTS, window_lag=STATE.get('lag'), window_off=STATE.get('window_off'), catchup=STATE.get('catchup'), refresh=STATE.get('refresh'), freespace=STATE.get('freespace'),
                 optimizer=type(STATE['mapper'].gaussians.optimizer).__name__ if STATE['mapper'] is not None else None)) + '\n')
     atexit.register(dump)
 
