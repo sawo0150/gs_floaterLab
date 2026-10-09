@@ -26,3 +26,12 @@ scene and bounds the maximum scale at ~0.6 instead of up to 14). Phase 2 is on h
 Selective births add +0.10 on average over cap 0.5, all of it on the revisit / long scenes (aria1253 +0.44,
 aria1253rot +0.14, Retail_Street +0.09); neutral elsewhere (−0.06…−0.03, within single-seed noise). The combination
 closes ~30% of the online−offline gap on average (1.36 → 0.96 dB). Seed 0 only.
+
+## Amendment 3 result — RTG-like transparent births (opacity 0.1 + scale cap 0.1 for covered births) (2026-10-09, 3 runs)
+| scene | B′ cap 0.5 | C (0.02, cap 0.5) | C2 (0.1, small cap 0.1) | C2 − B′ | C2 − C |
+|---|---:|---:|---:|---:|---:|
+| aria1253 | 25.38 | 25.83 | 25.33 | −0.06 | −0.50 |
+| aria1253rot | 25.55 | 25.69 | 25.12 | −0.43 | −0.57 |
+| square-1 | 22.02 | 21.99 | 21.96 | −0.06 | −0.04 |
+Covered births are 82–91% of all points here, so the small cap puts most Gaussians back under a 0.1 bound — the same
+loss the original 0.1 clamp had. Opacity 0.1 vs 0.02 is confounded with the small cap in this arm.
