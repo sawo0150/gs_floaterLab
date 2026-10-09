@@ -134,9 +134,10 @@ def install():
     R.OnlineMapperRuntime._apply_control = control
 
     if os.environ.get('B_SCALE_CAP'):                 # optional: scale cap other than 0.1 (default unchanged)
-        sys.path.insert(1, str(Path(__file__).resolve().parent))
-        import scale_cap_patch
-        scale_cap_patch.install(os.environ['B_SCALE_CAP'])
+        import importlib.util     # load by path: this folder also holds an older selected_mapping_check.py
+        spec = importlib.util.spec_from_file_location('scale_cap_patch', Path(__file__).resolve().parent / 'scale_cap_patch.py')
+        cap_mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(cap_mod)
+        cap_mod.install(os.environ['B_SCALE_CAP'])
     if os.environ.get('B_NO_SCALE_PROJ') == '1':      # diagnostic: no per-packet scale clamp (default: unchanged)
         rt_init = R.OnlineMapperRuntime.__init__
 
