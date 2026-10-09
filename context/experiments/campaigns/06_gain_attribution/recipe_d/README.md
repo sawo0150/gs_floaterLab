@@ -1,0 +1,25 @@
+# Recipe D — C recipe + our fixes, built and validated locally (setup log, 2026-10-09)
+
+**Name.** Recipe D = colin's Custom C recipe (SEW3 geometry + terminal opacity + FM, 6N) + scale cap 0.5 + selective
+births 0.5/0.02. (Not to be confused with the gap-ladder rungs D1/D2/D4.)
+
+**C snapshot (read-only from colin; colin files untouched).**
+- VIGS-SLAM-custom main `4ad39496` fetched into local ref `colin-c/main`; local worktree
+  `gsProjects/VIGS-SLAM-custom-c-snapshot-20261009` = 4ad39496 + colin's uncommitted diff (591 lines, 12 files) + 32
+  untracked files (C recipe, geometry_c incl. SEW3 .cu, bounded RGB pool).
+- 03_benchmark_contract code (other session's, untracked on colin) copied to
+  `gsProjects/c_benchmark_contract_snapshot_20261009/03_benchmark_contract`.
+- Archives (not in git) under `results/campaigns/gain_attribution/c_snapshot_20261009`, sha256:
+  - fff600c03c1e022cb5468ca245a79b44817219629c082cf623370c4059438942  c_uncommitted.diff
+  - c2d6e2dcacba35731af7a9ab3503ebac0f35236c450ef0eb1bf3952580cd28a5  c_untracked.tgz
+  - 8bc291ae2f8d9aa2a8ad0728cd5e48f5740a353cef9bec1b0db54b32dcbc3cab  benchmark_contract_code.tgz
+- RPNG table_06 6N input (scene contract, archive, reference scene; 2 MB) copied to `data/c_inputs/`; RGB frames already local.
+**Local profile.** `results/local_machine_profiles/rtx5070ti_c_snapshot.json` (extra_datasets profile + C snapshot,
+03_benchmark_contract, 6N inputs, RPNG raw, TRT profile → locally built engines in gsProjects/VIGS-SLAM/pretrained_models,
+mapper_baselines outputs → results/campaigns/gain_attribution/recipe_d/mapper_baselines). CUDA_HOME=miniconda3/envs/3dgs
+(nvcc 12.8 = torch cu128) for the SEW3 JIT kernels.
+**Check.** `run_c_large_pool_v2.py --check-only` on table_06: preflight PASS, training budget 12,996 (6N).
+**Reference.** colin C on table_06 (custom_c_remaining_dense1024_20261008_v1): PSNR 23.670, SSIM 0.792, LPIPS 0.185,
+193,131 Gaussians.
+**Next (GPU, needs approval).** (1) local C parity on table_06; (2) D = C + scale cap 0.5 + selective births via a
+runtime shim around run_custom_c_large_pool_6n.py (no file edits in the C code).
