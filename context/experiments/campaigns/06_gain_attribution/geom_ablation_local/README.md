@@ -22,3 +22,13 @@ Insertion is compared on the KF-window base: **R1 → R1-I → R2-I → R3 → R
 initialization; colin's R2 = KF pool with uniform init is dropped). Local copy only: `plan.json` (original kept as
 `plan_colin_original.json`), `run_suite.py` order/condition list/summary arms, `run_arm.py` `--arm` choices. Arm behaviour
 stays property-driven by plan.json; audits check quotas/membership/losses/carving from the same properties. 51 runs.
+
+## Bug in the snapshot harness (affects colin too) and local fix (2026-10-09)
+fr1_desk R4 and R4-replay-validation completed; R1 stopped at start: `install_initialization` (uniform init for R1)
+reads `inspect.getsource` of `GaussianModel.create_pcd_from_image_and_depth`, but `recipe_setup` has already replaced it
+by the online-density wrapper `with_frame_uid` (exp78b_replay_gsslam_mapping.install_online_density_policy), so the
+expected source line is not found ("Uniform initialization patch no longer matches locked upstream method"). colin's
+identical code will stop the same way at R1 (its R2 also uses uniform init). **Local fix** (copy only; original kept as
+`ablation_support.py.colin_original`): patch the wrapped original inside the wrapper's closure and keep the wrapper
+(tested: wrapper identity kept, inner method patched). R1 attempt archived under `failed_attempts/uniform_init_wrapper/`;
+R1 row reset to queued; suite source locks regenerated (R4 runs did not execute the changed branch).
