@@ -62,3 +62,22 @@ Mean over 8: I0.75 +0.21 dB, SSIM +0.007, LPIPS −0.006, −33 % Gaussians (8/8
 I0.5 +0.08 dB but LPIPS +0.028, −55 %. The 5 previously gated scenes reproduce within 0.05 dB. The straight scenes, with
 the fewest Gaussians (20–38k), show the largest gains: I at half the Gaussians beats uniform by 0.2–0.5 dB (LPIPS worse at
 0.5, better or flat at 0.75).
+
+## Result — new datasets (2026-10-10; pilot forest2 passed: capture 19.794 / replay 19.788 dB)
+Fixes on the way (local, env-gated or data-only): FM export skips keyframes flagged `mapping_eval_excluded` (8 of 80 on
+forest2; ABLATION_FM_SKIP_NODEPTH=1, original `ablation_support.py.before_fmskip`); prepared arrivals lacked
+`evaluation_depth` (added as null; `prepare_colmap_sequence.py` fixed). MipNeRF360 garden: frontend crashed at frame 162
+(singular matrix in tracking; wide baseline) → excluded.
+ΔPSNR / ΔGaussians vs uniform density 1:
+| scene | U1 PSNR, Gaussians | U0.75 | I0.75 | I1 | U1.5 | I1.5 |
+|---|---|---|---|---|---|---|
+| StaticHikes forest1 | 15.32, 193k | +0.01/−24% | −0.04/−31% | +0.05/−9% | +0.03/+47% | +0.02/+34% |
+| StaticHikes forest2 | 19.65, 162k | −0.18/−24% | −0.22/−35% | −0.05/−15% | +0.17/+47% | +0.20/+26% |
+| StaticHikes university2 | 18.39, 226k | −0.08/−24% | +0.06/−32% | +0.04/−11% | +0.02/+49% | +0.06/+33% |
+| MipNeRF360 bicycle | 15.04, 373k | +0.02/−25% | +0.10/−36% | −0.04/−15% | −0.23/+50% | −0.17/+27% |
+| T&T truck | 17.03, 368k | −0.35/−24% | −0.13/−30% | −0.01/−7% | −0.11/+49% | −0.08/+38% |
+| T&T train | 15.10, 403k | +0.03/−25% | −0.27/−29% | −0.25/−5% | +0.08/+50% | −0.19/+43% |
+| mean (ΔLPIPS) | | −0.09 (+.018) | −0.08 (+.013) | −0.04 (−.005) | −0.01 (−.024) | −0.03 (−.027) |
+**Reading.** No insertion gain on these sequences. Absolute PSNR is low (15–20 dB) and adding 50 % more Gaussians
+(U1.5) does not raise it either, so quality here is limited by something other than Gaussian count (tracking/depth on wide
+frame spacing, training budget), unlike UTMM where uniform density 1.5 helps and I helps more.

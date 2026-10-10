@@ -96,7 +96,7 @@ def prepare(dataset, scene, root, images, out, holdout, size_hw, fps=30.0, jump=
         path = ref / 'rgb' / f'{uid:06d}.png'
         cv2.imwrite(str(path), im)
         held = uid % holdout == 0
-        frames.append(dict(uid=uid, timestamp=uid / fps, rgb=str(path), heldout=held, source_name=name))
+        frames.append(dict(uid=uid, timestamp=uid / fps, rgb=str(path), heldout=held, evaluation_depth=None, source_name=name))
         oracle.append(dict(uid=uid, timestamp=uid / fps, c2w=None if c2w[uid] is None else c2w[uid].tolist()))
     (ref / 'arrivals.jsonl').write_text(''.join(json.dumps(f) + '\n' for f in frames))
     (ref / 'oracle_poses_evaluator_only.json').write_text(json.dumps(oracle))
