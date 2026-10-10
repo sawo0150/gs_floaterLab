@@ -31,3 +31,17 @@ IMU metric initialization completes" to the end (straight-line motion; 0 renders
 LPIPS with 28–37 % fewer Gaussians; at every density I lies above the uniform count–PSNR curve (I1 vs U1.5: +0.04 dB with
 −40 % Gaussians on average). The gain is consistent but moderate (≈0.1–0.2 dB at matched count), not "far fewer and much
 better". Seed 0 only.
+
+## PREREG amendment (2026-10-10, user approved) — reference start + new datasets
+**Why the straight scenes failed here but not on colin.** colin's UTMM C benchmark
+(`utmm_custom_c_reference_start_20261009_v1`, runner `mapper_reference_start/run_custom_c_reference_start.py`) sets
+`mapping_after_imu_init = False` ("causal fixed reference alignment without IMU mapping gate"): mapping starts before IMU
+initialisation, since training cameras come from the reference-pose adapter anyway. The geometry-ablation `run_arm.py` (here
+and on colin) keeps the gate (`measurements is not None`), so on straight-line scenes the IMU never initialises and nothing
+is mapped. colin's C runs on fast-straight / slow-straight-1 / slow-straight-2 completed (1572 / 1584 / 2850 renders).
+**Fix (local copy, original `run_arm.py.before_refstart`).** ABLATION_REFERENCE_START=1 → gate off, as colin's UTMM C.
+**Runs.** (a) UTMM all 8 scenes again with reference start, same 9 arms, 2N
+(`results/.../utmm_scene_screen/2N_refstart/`; the 5 gated scenes double as a check of the earlier result); (b) new
+datasets, same design (`results/.../onthefly_screen/2N/`): StaticHikes forest2 (pilot), forest1, university2; MipNeRF360
+garden, bicycle; T&T truck, train — inputs from `prepare_colmap_sequence.py` (COLMAP reference, Sim(3)-aligned
+evaluation, every 10th / 8th frame held out). 73 + 64 runs.
