@@ -45,3 +45,20 @@ is mapped. colin's C runs on fast-straight / slow-straight-1 / slow-straight-2 c
 datasets, same design (`results/.../onthefly_screen/2N/`): StaticHikes forest2 (pilot), forest1, university2; MipNeRF360
 garden, bicycle; T&T truck, train — inputs from `prepare_colmap_sequence.py` (COLMAP reference, Sim(3)-aligned
 evaluation, every 10th / 8th frame held out). 73 + 64 runs.
+
+## Result — reference start, all 8 UTMM scenes (2026-10-10)
+ΔPSNR / ΔGaussians vs uniform density 1 (U1):
+| scene | U1 PSNR, Gaussians | U0.75 | I0.5 | **I0.75** | I1 | I1.5 |
+|---|---|---|---|---|---|---|
+| square-1 | 18.63, 141k | −0.13/−24% | −0.19/−57% | **+0.05/−37%** | +0.14/−16% | +0.23/+24% |
+| square-2 | 18.88, 128k | −0.08/−25% | −0.06/−54% | **+0.11/−32%** | +0.18/−9% | +0.27/+36% |
+| ego-centric-1 | 19.28, 105k | −0.10/−25% | −0.05/−52% | **+0.08/−28%** | +0.16/−5% | +0.25/+42% |
+| ego-centric-2 | 19.63, 115k | −0.12/−25% | −0.04/−53% | **+0.10/−30%** | +0.20/−7% | +0.32/+39% |
+| ego-drive | 18.24, 138k | −0.04/−24% | −0.02/−55% | **+0.02/−34%** | +0.04/−14% | +0.08/+28% |
+| fast-straight | 19.44, 38k | −0.09/−25% | +0.54/−57% | **+0.64/−36%** | +0.67/−15% | +0.66/+28% |
+| slow-straight-1 | 17.37, 20k | −0.12/−25% | +0.21/−53% | **+0.30/−29%** | +0.31/−5% | +0.27/+42% |
+| slow-straight-2 | 20.15, 33k | −0.12/−25% | +0.26/−56% | **+0.37/−34%** | +0.41/−12% | +0.37/+31% |
+Mean over 8: I0.75 +0.21 dB, SSIM +0.007, LPIPS −0.006, −33 % Gaussians (8/8 PSNR ≥ U1); I1 +0.26 dB, LPIPS −0.026, −10 %;
+I0.5 +0.08 dB but LPIPS +0.028, −55 %. The 5 previously gated scenes reproduce within 0.05 dB. The straight scenes, with
+the fewest Gaussians (20–38k), show the largest gains: I at half the Gaussians beats uniform by 0.2–0.5 dB (LPIPS worse at
+0.5, better or flat at 0.75).
